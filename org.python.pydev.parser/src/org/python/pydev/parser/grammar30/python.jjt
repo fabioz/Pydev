@@ -48,7 +48,6 @@ public class PythonGrammar30 implements IGrammar
     private SimpleNode prev;
     private static boolean DEBUG = false;
     private final static boolean DEFAULT_SEARCH_ON_LAST = false;
-    private boolean acceptWithStmt = false;
 
     void jjtreeOpenNodeScope(Node n) {
         if(DEBUG){
@@ -73,9 +72,6 @@ public class PythonGrammar30 implements IGrammar
     }
     
     void handleFutureImports(String importName){
-        if(importName.equals("with_statement")){
-            acceptWithStmt = true;
-        }
     }
     
     void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) {
@@ -1073,8 +1069,6 @@ void with_stmt(): {}
     
     test() 
     
-    {if(!acceptWithStmt)throw new ParseException("'from __future__ import with_statement' must be specified to accept 'with' statement.",jjtree.peekNode());    }
-    
     [with_var()] <COLON> { this.addSpecialToken(":");} suite() }
 
 //with_var: 'as' expr
@@ -1305,14 +1299,13 @@ void testlist() #void: {}
 void dictorsetmaker() #void: {}
 {
     LOOKAHEAD(2)
-    (test() <COLON> {this.addSpecialToken(":");} test() (
-        comp_for()|
+    (test() <COLON> {this.addSpecialToken(":");} test() 
         (
-            {this.addSpecialToken(",");} <COMMA> test() 
-                <COLON> {this.addSpecialToken(":");
-            } test())* 
-            [{this.addSpecialToken(",");} <COMMA>])
-        )    |
+            comp_for()|
+            (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test()<COLON> {this.addSpecialToken(":");} test())*
+            [{this.addSpecialToken(",");} <COMMA>]
+        )
+    )    |
     (
       test() (LOOKAHEAD(2) comp_for() | ({this.addSpecialToken(",");} <COMMA> test())*#set [{this.addSpecialToken(",");} <COMMA>] )
     )

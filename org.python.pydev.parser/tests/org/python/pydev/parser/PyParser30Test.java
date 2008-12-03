@@ -1,6 +1,9 @@
 package org.python.pydev.parser;
 
+import java.io.File;
+
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -18,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testSetCreation();
+            test.testWithStmt();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -165,9 +168,52 @@ public class PyParser30Test extends PyParserTestBase{
     }
     
     
-//    public void testLib() throws Exception {
-//        parseFilesInDir(new File(TestDependent.PYTHON_30_LIB), false);
-//    }
+    public void testImportAndClass() {
+        String s = "" +
+        "from a import b\n" +
+        "class C(A):\n" +
+        "    pass\n" +
+        "\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testDictDecl() {
+        String s = "" +
+        "a = {a:1, b:2,}\n" +
+        "\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testWithStmt() {
+        String s = "" +
+        "with a:\n" +
+        "    print(a)\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testFunctionDecorated() {
+        String s = "" +
+        "from a import b\n" +
+        "@dec1\n" +
+        "def func(A):\n" +
+        "    pass\n" +
+        "\n" +
+        "";
+        SimpleNode ast = parseLegalDocStr(s);
+        assertEquals("Module[body=[" +
+        		"ImportFrom[module=NameTok[id=a, ctx=ImportModule], names=[alias[name=NameTok[id=b, ctx=ImportName], asname=null]], level=0], " +
+        		"FunctionDef[name=NameTok[id=func, ctx=FunctionName], args=arguments[args=[Name[id=A, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null]], body=[Pass[]], " +
+        		"decs=[decorators[func=Name[id=dec1, ctx=Load, reserved=false], args=[], keywords=[], starargs=null, kwargs=null]]]]]", 
+                ast.toString());
+    }
+    
+    
+    public void testLib() throws Exception {
+        parseFilesInDir(new File(TestDependent.PYTHON_30_LIB), false);
+    }
 
 
 }

@@ -403,14 +403,9 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             suite = (Suite) stack.popNode();
             body = suite.body;
             
-            argumentsType arguments = makeArguments(stack.nodeArity() - 2);
+            argumentsType arguments = makeArguments(stack.nodeArity() - 1);
             NameTok nameTok = makeName(NameTok.FunctionName);
-            Decorators decs = (Decorators) stack.popNode() ;
-            decoratorsType[] decsexp = decs.exp;
-            FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, decsexp);
-            if(decs.exp.length == 0){
-                addSpecialsBefore(decs, funcDef);
-            }
+            FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null);
             addSpecialsAndClearOriginal(suite, funcDef);
             setParentForFuncOrClass(body, funcDef);
             return funcDef;
@@ -422,15 +417,25 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
         case JJTEXTRAKEYWORDLIST:
             return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
         case JJTDECORATED:
-            return stack.popNode();
+            if(stack.nodeArity() != 2){
+                throw new RuntimeException("Expected 2 nodes at this context!");
+            }
+            SimpleNode def = stack.popNode();
+            Decorators decorators = (Decorators) stack.popNode();
+            if(def instanceof ClassDef){
+                ClassDef classDef = (ClassDef) def;
+                classDef.decs = decorators.exp;
+            }else{
+                FunctionDef fDef = (FunctionDef) def;
+                fDef.decs = decorators.exp;
+            }
+            return def;
         case JJTCLASSDEF:
             suite = (Suite) stack.popNode();
             body = suite.body;
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
             nameTok = makeName(NameTok.ClassName);
-            decs = (Decorators) stack.popNode() ;
-            decsexp = decs.exp;
-            ClassDef classDef = new ClassDef(nameTok, bases, body, decsexp);
+            ClassDef classDef = new ClassDef(nameTok, bases, body, null);
             addSpecialsAndClearOriginal(suite, classDef);
             setParentForFuncOrClass(body, classDef);
             return classDef;
