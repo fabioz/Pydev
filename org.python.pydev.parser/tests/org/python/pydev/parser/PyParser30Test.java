@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testAnnotations();
+            test.testAnnotations2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -80,9 +80,16 @@ public class PyParser30Test extends PyParserTestBase{
     
     public void testAnnotations() {
         String s = "" +
+        "def seek(self, pos, whence) -> int:\n" +
+        "    pass";
+        parseLegalDocStr(s);
+    }
+    
+    public void testAnnotations2() {
+        String s = "" +
         "def seek(self, pos: int, whence: int = 0) -> int:\n" +
         "    pass";
-        parseILegalDocStr(s);
+        parseLegalDocStr(s);
     }
     
     
@@ -248,10 +255,8 @@ public class PyParser30Test extends PyParserTestBase{
         "\n" +
         "";
         SimpleNode ast = parseLegalDocStr(s);
-        assertEquals("Module[body=[" +
-        		"ImportFrom[module=NameTok[id=a, ctx=ImportModule], names=[alias[name=NameTok[id=b, ctx=ImportName], asname=null]], level=0], " +
-        		"FunctionDef[name=NameTok[id=func, ctx=FunctionName], args=arguments[args=[Name[id=A, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null]], body=[Pass[]], " +
-        		"decs=[decorators[func=Name[id=dec1, ctx=Load, reserved=false], args=[], keywords=[], starargs=null, kwargs=null]]]]]", 
+        System.out.println(ast.toString());
+        assertEquals("Module[body=[ImportFrom[module=NameTok[id=a, ctx=ImportModule], names=[alias[name=NameTok[id=b, ctx=ImportName], asname=null]], level=0], FunctionDef[name=NameTok[id=func, ctx=FunctionName], args=arguments[args=[Name[id=A, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null]], body=[Pass[]], decs=[decorators[func=Name[id=dec1, ctx=Load, reserved=false], args=[], keywords=[], starargs=null, kwargs=null]], returns=null]]]", 
                 ast.toString());
     }
     

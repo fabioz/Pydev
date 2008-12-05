@@ -9,18 +9,20 @@ public class FunctionDef extends stmtType {
     public argumentsType args;
     public stmtType[] body;
     public decoratorsType[] decs;
+    public exprType returns;
 
     public FunctionDef(NameTokType name, argumentsType args, stmtType[]
-    body, decoratorsType[] decs) {
+    body, decoratorsType[] decs, exprType returns) {
         this.name = name;
         this.args = args;
         this.body = body;
         this.decs = decs;
+        this.returns = returns;
     }
 
     public FunctionDef(NameTokType name, argumentsType args, stmtType[]
-    body, decoratorsType[] decs, SimpleNode parent) {
-        this(name, args, body, decs);
+    body, decoratorsType[] decs, exprType returns, SimpleNode parent) {
+        this(name, args, body, decs, returns);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
@@ -38,6 +40,9 @@ public class FunctionDef extends stmtType {
         sb.append(", ");
         sb.append("decs=");
         sb.append(dumpThis(this.decs));
+        sb.append(", ");
+        sb.append("returns=");
+        sb.append(dumpThis(this.returns));
         sb.append("]");
         return sb.toString();
     }
@@ -48,6 +53,7 @@ public class FunctionDef extends stmtType {
         pickleThis(this.args, ostream);
         pickleThis(this.body, ostream);
         pickleThis(this.decs, ostream);
+        pickleThis(this.returns, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
@@ -71,6 +77,8 @@ public class FunctionDef extends stmtType {
                     decs[i].accept(visitor);
             }
         }
+        if (returns != null)
+            returns.accept(visitor);
     }
 
 }

@@ -22,7 +22,7 @@ module Python
 	-- in the constructs, but some information was lost in this way).
 	suite = (stmt* body)
 
-	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs)
+	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs, expr? returns)
 	      | ClassDef(NameTok name, expr* bases, stmt* body, decorators* decs, keyword* keywords, expr? starargs, expr? kwargs)
 	      | Return(expr? value) 
 

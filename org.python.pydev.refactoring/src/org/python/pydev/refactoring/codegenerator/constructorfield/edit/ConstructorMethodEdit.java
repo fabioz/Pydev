@@ -66,7 +66,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 
         initAttributes(body);
 
-        return new FunctionDef(new NameTok(NodeHelper.KEYWORD_INIT, NameTok.FunctionName), args, body.toArray(new stmtType[0]), null);
+        return new FunctionDef(new NameTok(NodeHelper.KEYWORD_INIT, NameTok.FunctionName), args, body.toArray(new stmtType[0]), null, null);
 
     }
 

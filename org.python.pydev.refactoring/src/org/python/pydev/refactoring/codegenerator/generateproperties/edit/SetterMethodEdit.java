@@ -46,7 +46,7 @@ public class SetterMethodEdit extends AbstractInsertEdit {
         List<stmtType> body = initBody(assign);
 
         return new FunctionDef(new NameTok(SET + getCapitalString(attributeName), NameTok.FunctionName), args, body
-                .toArray(new stmtType[0]), null);
+                .toArray(new stmtType[0]), null, null);
     }
 
     private List<stmtType> initBody(Assign assign) {

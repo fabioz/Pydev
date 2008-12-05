@@ -397,16 +397,29 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             Call c = new Call(func, args, keywords, starargs, kwargs);
             addSpecialsAndClearOriginal(n, c);
             return c;
+        case JJTFUNCDEF_RETURN_ANNOTTATION:
+            SimpleNode funcdefReturn = stack.popNode();
+            System.out.println("here");
+            return new FuncDefReturnAnn(funcdefReturn);
         case JJTFUNCDEF:
             //get the decorators
             //and clear them for the next call (they always must be before a function def)
             suite = (Suite) stack.popNode();
             body = suite.body;
+            arity--;
             
-            argumentsType arguments = makeArguments(stack.nodeArity() - 1);
+            SimpleNode funcDefReturnAnn = stack.peekNode();
+            exprType actualReturnAnnotation = null;
+            if(funcDefReturnAnn instanceof FuncDefReturnAnn){
+                stack.popNode();
+                actualReturnAnnotation = (exprType) ((FuncDefReturnAnn)funcDefReturnAnn).node;
+                arity--;
+            }
+            
+            argumentsType arguments = makeArguments(arity - 1);
             NameTok nameTok = makeName(NameTok.FunctionName);
             //decorator is always null at this point... it's decorated later on
-            FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null);
+            FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, actualReturnAnnotation);
             addSpecialsAndClearOriginal(suite, funcDef);
             setParentForFuncOrClass(body, funcDef);
             return funcDef;
@@ -1249,6 +1262,13 @@ class ExtraArgValue extends SimpleNode {
     }
 }
 
+
+class FuncDefReturnAnn extends SimpleNode{
+    SimpleNode node;
+    FuncDefReturnAnn(SimpleNode node){
+        this.node = node;
+    }
+}
 
 class IdentityNode extends SimpleNode {
     public int id;

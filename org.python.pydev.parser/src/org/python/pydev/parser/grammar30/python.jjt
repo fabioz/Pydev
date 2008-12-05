@@ -756,12 +756,14 @@ modType file_input(): {}
 }
 
 
-//funcdef: 'def' NAME parameters ':' suite
+//funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 { 
-    <DEF> AnyName() parameters() <COLON> 
-        {this.addSpecialToken(":");} suite() 
+    <DEF> AnyName() parameters() [<MINUS><GREATER> test()#funcdef_return_annottation] <COLON> 
+        {this.addSpecialToken(":");}  suite() 
 }
+
+
 
 //decorators: decorator+
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE

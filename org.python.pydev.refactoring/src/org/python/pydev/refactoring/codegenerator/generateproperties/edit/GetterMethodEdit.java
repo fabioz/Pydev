@@ -44,7 +44,7 @@ public class GetterMethodEdit extends AbstractInsertEdit {
         List<stmtType> body = initBody(returnAttribute);
 
         return new FunctionDef(new NameTok(GET + getCapitalString(attributeName), NameTok.FunctionName), args, body
-                .toArray(new stmtType[0]), null);
+                .toArray(new stmtType[0]), null, null);
     }
 
     private List<stmtType> initBody(Attribute returnAttribute) {

@@ -41,7 +41,7 @@ public class MethodEdit extends AbstractInsertEdit {
         FunctionDef origin = method.getASTNode();
         stmtType[] body = initBody(origin);
 
-        return new FunctionDef(origin.name, origin.args, body, null);
+        return new FunctionDef(origin.name, origin.args, body, null, null);
     }
 
     private stmtType[] initBody(FunctionDef origin) {

@@ -100,7 +100,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
                     functionArguments.kwarg = new NameTok("kwrgs", NameTok.KwArg);
                 }
 //                System.out.println(tok.getRepresentation()+tok.getArgs());
-                FunctionDef functionDef = new FunctionDef(new NameTok(tok.getRepresentation(), NameTok.FunctionName), functionArguments, null, null);
+                FunctionDef functionDef = new FunctionDef(new NameTok(tok.getRepresentation(), NameTok.FunctionName), functionArguments, null, null, null);
                 ret.add(new FunctionDefAdapter(this.getModule(), null, functionDef, endLineDelim));
             }
         }

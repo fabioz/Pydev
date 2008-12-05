@@ -399,7 +399,7 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
             NameTok nameTok = makeName(NameTok.FunctionName);
             Decorators decs = (Decorators) stack.popNode() ;
             decoratorsType[] decsexp = decs.exp;
-            FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, decsexp);
+            FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, decsexp, null);
             if(decs.exp.length == 0){
                 addSpecialsBefore(decs, funcDef);
             }
