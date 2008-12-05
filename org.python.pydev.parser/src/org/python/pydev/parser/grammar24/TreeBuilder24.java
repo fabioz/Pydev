@@ -426,7 +426,7 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
             body = s.body;
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
             nameTok = makeName(NameTok.ClassName);
-            ClassDef classDef = new ClassDef(nameTok, bases, body, null);
+            ClassDef classDef = new ClassDef(nameTok, bases, body, null, null, null, null);
             addSpecialsAndClearOriginal(s, classDef);
             setParentForFuncOrClass(body, classDef);
             return classDef;

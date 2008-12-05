@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testMetaClass();
+            test.testAnnotations();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -78,6 +78,14 @@ public class PyParser30Test extends PyParserTestBase{
     }
     
     
+    public void testAnnotations() {
+        String s = "" +
+        "def seek(self, pos: int, whence: int = 0) -> int:\n" +
+        "    pass";
+        parseILegalDocStr(s);
+    }
+    
+    
     public void testNoLessGreater() {
         String s = "a <> b" +
         "\n" +
@@ -104,6 +112,24 @@ public class PyParser30Test extends PyParserTestBase{
         "\n" +
         "";
         parseILegalDocStr(s);
+    }
+    
+    public void testFuncCall() {
+        String s = "Call()\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testFuncCall2() {
+        String s = "Call(a)\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testFuncCall3() {
+        String s = "Call(a, *b)\n" +
+        "";
+        parseLegalDocStr(s);
     }
     
     public void testClassDecorator() {

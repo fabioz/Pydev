@@ -415,7 +415,7 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
             body = suite.body;
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
             nameTok = makeName(NameTok.ClassName);
-            ClassDef classDef = new ClassDef(nameTok, bases, body, null);
+            ClassDef classDef = new ClassDef(nameTok, bases, body, null, null, null, null);
             addSpecialsAndClearOriginal(suite, classDef);
             setParentForFuncOrClass(body, classDef);
             return classDef;

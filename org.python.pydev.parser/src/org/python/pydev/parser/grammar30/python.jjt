@@ -10,6 +10,7 @@ options
     STATIC                = false;  // multiple parsers
     COMMON_TOKEN_ACTION   = true;   // CommonTokenAction(Token)
     DEBUG_PARSER          = false;  // must be used to enable tracing 
+    DEBUG_LOOKAHEAD       = false;
     DEBUG_TOKEN_MANAGER   = false;  // used to debug the tokens we have generating 
 
     USER_CHAR_STREAM      = true;
@@ -1186,32 +1187,24 @@ void factor() #void: {}
 
 //power: atom trailer* ('**' factor)*
 void power() #void: {}
-{ atomtrailer() (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
+{ atom() (trailer())* (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
-void atomtrailer() #void: {Object spStr;Object spStr2;}
+void trailer() #void: {Object spStr;Object spStr2;}
 {
-atom() 
-(
-    LOOKAHEAD(2) (  
-    {spStr  = createSpecialStr("(", false);} <LPAREN>  
-    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    )#Call_Op(1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
-
-|   LOOKAHEAD(2) (  
-    {spStr  = createSpecialStr("(", false);} <LPAREN>  
+ 
+    ({spStr  = createSpecialStr("(", false);} <LPAREN>  
     insidetuporcall() 
     {spStr2 = createSpecialStr(")", false);} <RPAREN> 
-    ) #Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+    )#Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 
-|   {spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   ({spStr = createSpecialStr("[", false);} <LBRACKET> 
     subscriptlist()
     {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
-    #Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
+    )#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   <DOT> AnyName() #Dot_Op(2) 
-)*
 }
 
 
@@ -1338,7 +1331,7 @@ void decorated():{}
 //classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
 void classdef(): {}
 {
-    <CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
+    <CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   (insidetuporcall()) <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
         {this.addSpecialToken(":");} suite()
 }
 

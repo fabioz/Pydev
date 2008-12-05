@@ -9,18 +9,26 @@ public class ClassDef extends stmtType {
     public exprType[] bases;
     public stmtType[] body;
     public decoratorsType[] decs;
+    public keywordType[] keywords;
+    public exprType starargs;
+    public exprType kwargs;
 
     public ClassDef(NameTokType name, exprType[] bases, stmtType[] body,
-    decoratorsType[] decs) {
+    decoratorsType[] decs, keywordType[] keywords, exprType starargs,
+    exprType kwargs) {
         this.name = name;
         this.bases = bases;
         this.body = body;
         this.decs = decs;
+        this.keywords = keywords;
+        this.starargs = starargs;
+        this.kwargs = kwargs;
     }
 
     public ClassDef(NameTokType name, exprType[] bases, stmtType[] body,
-    decoratorsType[] decs, SimpleNode parent) {
-        this(name, bases, body, decs);
+    decoratorsType[] decs, keywordType[] keywords, exprType starargs,
+    exprType kwargs, SimpleNode parent) {
+        this(name, bases, body, decs, keywords, starargs, kwargs);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
@@ -38,6 +46,15 @@ public class ClassDef extends stmtType {
         sb.append(", ");
         sb.append("decs=");
         sb.append(dumpThis(this.decs));
+        sb.append(", ");
+        sb.append("keywords=");
+        sb.append(dumpThis(this.keywords));
+        sb.append(", ");
+        sb.append("starargs=");
+        sb.append(dumpThis(this.starargs));
+        sb.append(", ");
+        sb.append("kwargs=");
+        sb.append(dumpThis(this.kwargs));
         sb.append("]");
         return sb.toString();
     }
@@ -48,6 +65,9 @@ public class ClassDef extends stmtType {
         pickleThis(this.bases, ostream);
         pickleThis(this.body, ostream);
         pickleThis(this.decs, ostream);
+        pickleThis(this.keywords, ostream);
+        pickleThis(this.starargs, ostream);
+        pickleThis(this.kwargs, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
@@ -75,6 +95,16 @@ public class ClassDef extends stmtType {
                     decs[i].accept(visitor);
             }
         }
+        if (keywords != null) {
+            for (int i = 0; i < keywords.length; i++) {
+                if (keywords[i] != null)
+                    keywords[i].accept(visitor);
+            }
+        }
+        if (starargs != null)
+            starargs.accept(visitor);
+        if (kwargs != null)
+            kwargs.accept(visitor);
     }
 
 }

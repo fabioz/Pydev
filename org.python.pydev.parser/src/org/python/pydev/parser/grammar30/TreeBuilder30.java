@@ -405,6 +405,7 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             
             argumentsType arguments = makeArguments(stack.nodeArity() - 1);
             NameTok nameTok = makeName(NameTok.FunctionName);
+            //decorator is always null at this point... it's decorated later on
             FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null);
             addSpecialsAndClearOriginal(suite, funcDef);
             setParentForFuncOrClass(body, funcDef);
@@ -433,9 +434,29 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
         case JJTCLASSDEF:
             suite = (Suite) stack.popNode();
             body = suite.body;
-            exprType[] bases = makeExprs(stack.nodeArity() - 1);
+            int nodeArity = stack.nodeArity()-1;
+            ArrayList<keywordType> classDefKeywords = new ArrayList<keywordType>();
+            starargs = null;
+            kwargs = null;
+            
+            for(int i=0;i<nodeArity;i++){
+                SimpleNode node = stack.peekNode();
+                if(node instanceof keywordType){
+                    stack.popNode();
+                    classDefKeywords.add((keywordType) node);
+                    nodeArity--;
+                }
+            }
+            
+            exprType[] bases = makeExprs(nodeArity);
             nameTok = makeName(NameTok.ClassName);
-            ClassDef classDef = new ClassDef(nameTok, bases, body, null);
+            //decorator is always null at this point... it's decorated later on
+//            keywordType[] keywords, exprType starargs,exprType kwargs;
+            
+            
+            ClassDef classDef = new ClassDef(nameTok, bases, body, null, 
+                    classDefKeywords.toArray(new keywordType[classDefKeywords.size()]), starargs, kwargs);
+            
             addSpecialsAndClearOriginal(suite, classDef);
             setParentForFuncOrClass(body, classDef);
             return classDef;

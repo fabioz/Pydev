@@ -23,7 +23,7 @@ module Python
 	suite = (stmt* body)
 
 	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs)
-	      | ClassDef(NameTok name, expr* bases, stmt* body, decorators* decs)
+	      | ClassDef(NameTok name, expr* bases, stmt* body, decorators* decs, keyword* keywords, expr? starargs, expr? kwargs)
 	      | Return(expr? value) 
 
 	      | Delete(expr* targets)

@@ -100,7 +100,7 @@ public class FastParser {
                 NameTok nameTok = createNameTok(classMatcher, lastReturnedLine, NameTok.ClassName, ps);
                 
                 if(nameTok != null){
-                    ClassDef classDef = new ClassDef(nameTok, EMTPY_EXPR_TYPE, EMTPY_STMT_TYPE, null);
+                    ClassDef classDef = new ClassDef(nameTok, EMTPY_EXPR_TYPE, EMTPY_STMT_TYPE, null, null, null, null);
                     classDef.beginLine = lastReturnedLine+1;
                     classDef.beginColumn = classMatcher.start(PREFIX_GROUP)+1;
                     

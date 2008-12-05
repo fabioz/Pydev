@@ -344,7 +344,7 @@ public final class FastDefinitionsParser {
      */
     private void startClass(String name, int startClassRow, int startClassCol) {
         NameTok nameTok = new NameTok(name, NameTok.ClassName);
-        ClassDef classDef = new ClassDef(nameTok, null, null, null);
+        ClassDef classDef = new ClassDef(nameTok, null, null, null, null, null, null);
         
         classDef.beginLine = startClassRow;
         classDef.beginColumn = startClassCol;
