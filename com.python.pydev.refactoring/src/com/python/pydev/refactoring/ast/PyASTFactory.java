@@ -22,7 +22,7 @@ public class PyASTFactory {
         name.addSpecial(":", true);
         Pass pass = new Pass();
         pass.addSpecial("pass", false);
-        ClassDef classDef = new ClassDef(name, new exprType[0], new stmtType[]{pass}, null);
+        ClassDef classDef = new ClassDef(name, new exprType[0], new stmtType[]{pass}, null, null, null, null);
         return classDef;
     }
 
