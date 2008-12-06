@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+
 /**
  * Note: not thread-safe!
  * 
@@ -253,6 +254,18 @@ public class FastStack<E> implements Iterable<E> {
 
     public boolean equals(Object o) {
         throw new RuntimeException("Not comparable");
+    }
+
+    /**
+     * Peeks an element from the list with an index used from top to bottom
+     * 
+     * @param i if 0, it's the same as peek(), otherwise, it'll go and peek items at other levels depending on this index
+     * E.g.: i == 1 will peek one level below i == 0.
+     * 
+     * @return the peeked element
+     */
+    public E peek(int i) {
+        return this.elementData[size - 1 -i];
     }
 
 }

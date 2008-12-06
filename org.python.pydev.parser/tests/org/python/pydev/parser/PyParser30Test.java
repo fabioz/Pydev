@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testAnnotations2();
+            test.testMisc();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -87,7 +87,7 @@ public class PyParser30Test extends PyParserTestBase{
     
     public void testAnnotations2() {
         String s = "" +
-        "def seek(self, pos: int, whence: int = 0) -> int:\n" +
+        "def seek(self, pos: int, whence: int) -> int:\n" +
         "    pass";
         parseLegalDocStr(s);
     }
@@ -105,6 +105,68 @@ public class PyParser30Test extends PyParserTestBase{
         "\n" +
         "";
         parseILegalDocStr(s);
+    }
+    
+    public void testMethodDef() {
+        String s = "def _dump_registry(cls, file=None):" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testMethodDef2() {
+        String s = "def _dump_registry(cls, file=None, *args, **kwargs):" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    
+    public void testMethodDef3() {
+        String s = "def _dump_registry(cls, file=None, *args:list, **kwargs:dict):" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    
+    public void testMethodDef4() {
+        String s = "def initlog(*allargs):" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testMethodDef5() {
+        String s = "def initlog(**allargs):" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testMethodDef6() {
+        String s = "def iterencode(iterator, encoding, errors='strict', **kwargs):" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testMethodDef7() {
+        String s = "def __init__(self,):" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testMisc() {
+        String s = "" +
+        		"def __init__(self, dirname, factory=None, create=True):\n" +
+        		"    '''Initialize a Maildir instance.'''\n" +
+        		"    os.mkdir(self._path, 0o700)\n" +
+        		"\n" +
+        		"\n" +
+        		"";
+        parseLegalDocStr(s);
     }
     
     public void testNoAssignToTrue() {

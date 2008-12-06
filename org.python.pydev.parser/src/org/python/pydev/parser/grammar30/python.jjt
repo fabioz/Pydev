@@ -777,12 +777,40 @@ void begin_decorator(): {}
 { <AT> dotted_name()
 }
 
-//parameters: '(' [varargslist] ')'
-void parameters() #void: {}
+//parameters: '(' [typedargslist] ')'
+void parameters() #void:  {}
 { <LPAREN>{this.findTokenAndAdd("(");}
-  [varargslist()] 
+  [typedargslist()] 
   <RPAREN>{this.findTokenAndAdd(")");} 
-  }
+}
+  
+//typedargslist: ((tfpdef ['=' test] ',')*//                ('*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)//                | tfpdef ['=' test] (',' tfpdef ['=' test])* [','])
+void typedargslist() #void: {}
+{
+       ((defaultarg2() (LOOKAHEAD(2)<COMMA> defaultarg2())*) [LOOKAHEAD(2)<COMMA> ((ExtraArgList2() [<COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [<COMMA>]
+    |  (ExtraArgList2() [LOOKAHEAD(2)<COMMA> ExtraKeywordList2()]) [<COMMA>]       |   ExtraKeywordList2() [<COMMA>]
+}
+
+void ExtraArgList2(): {}
+{
+	<MULTIPLY> tfpdef()
+}
+
+void ExtraKeywordList2(): {}
+{
+	<POWER> tfpdef()
+}
+
+void defaultarg2(): {}
+{ tfpdef() [<EQUAL> test()] }
+
+
+//tfpdef: NAME [':' test]
+void tfpdef(): {}
+{ 
+	AnyName() [LOOKAHEAD(2)<COLON> test()]
+}
+
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
 void varargslist() #void: {}
@@ -1197,13 +1225,13 @@ void trailer() #void: {Object spStr;Object spStr2;}
  
     ({spStr  = createSpecialStr("(", false);} <LPAREN>  
     insidetuporcall() 
-    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+    <RPAREN> {spStr2 = createSpecialStr(")", false);}  
     )#Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 
 |   ({spStr = createSpecialStr("[", false);} <LBRACKET> 
     subscriptlist()
-    {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
+    <RBRACKET> {spStr2 = createSpecialStr("]", false);}   
     )#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   <DOT> AnyName() #Dot_Op(2) 

@@ -73,6 +73,11 @@ class JJTPythonGrammar30State {
     SimpleNode peekNode() {
         return nodes.peek();
     }
+    
+    /* Returns the node currently on the top of the stack. */
+    SimpleNode peekNode(int i) {
+        return nodes.peek(i);
+    }
 
     /* Returns the number of children on the stack in the current node
        scope. */
@@ -123,6 +128,9 @@ class JJTPythonGrammar30State {
         SimpleNode newNode = null;
         try {
             newNode = builder.closeNode(sn, num);
+            if(builder.DEBUG_TREE_BUILDER){
+                System.out.println("Created node: "+newNode);
+            }
         } catch (ParseException exc) {
             throw exc;
         } catch (Exception exc) {
@@ -148,6 +156,9 @@ class JJTPythonGrammar30State {
             SimpleNode newNode = null;
             try {
                 newNode = builder.closeNode(sn, nodeArity());
+                if(builder.DEBUG_TREE_BUILDER){
+                    System.out.println("Created node: "+newNode);
+                }
             } catch (ParseException exc) {
                 throw exc;
             } catch (ClassCastException exc) {

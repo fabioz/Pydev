@@ -111,6 +111,10 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
 
     private NameTok makeName(int ctx) {
         Name name = (Name) stack.popNode();
+        return makeName(ctx, name);
+    }
+    
+    private NameTok makeName(int ctx, Name name) {
         NameTok n = new NameTok(name.id, ctx);
         n.beginColumn = name.beginColumn;
         n.beginLine = name.beginLine;
@@ -149,9 +153,23 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
     }
 
     
+    public static final boolean DEBUG_TREE_BUILDER = false;
+    
     public SimpleNode closeNode(SimpleNode n, int arity) throws Exception {
         exprType value;
         exprType[] exprs;
+        
+        if(DEBUG_TREE_BUILDER){
+            System.out.println("\n\n\n---------------------------");
+            System.out.println("Closing node scope: "+n);
+            System.out.println("Arity: "+arity);
+            if(arity > 0){
+                System.out.println("Nodes in scope: ");
+                for(int i=0;i<arity;i++){
+                    System.out.println(stack.peekNode(i));
+                }
+            }
+        }
 
         int l;
         switch (n.getId()) {
@@ -415,24 +433,56 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                 actualReturnAnnotation = (exprType) ((FuncDefReturnAnn)funcDefReturnAnn).node;
                 arity--;
             }
-            
-            argumentsType arguments = makeArguments(arity - 1);
+            argumentsType arguments = makeArguments(arity-1);
             NameTok nameTok = makeName(NameTok.FunctionName);
             //decorator is always null at this point... it's decorated later on
             FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, actualReturnAnnotation);
             addSpecialsAndClearOriginal(suite, funcDef);
             setParentForFuncOrClass(body, funcDef);
             return funcDef;
+        case JJTTFPDEF:
+            Name tfpdefName = null;
+            exprType typeDef = null;
+            if(arity == 1){
+                tfpdefName = (Name) stack.popNode();
+            }else if(arity == 2){
+                typeDef = (exprType) stack.popNode();
+                tfpdefName = (Name) stack.popNode();
+            }else{
+                throw new RuntimeException("Unexpected arity: "+arity);
+            }
+            
+            return new JfpDef(tfpdefName, typeDef);
+        case JJTDEFAULTARG2:
+            if(arity == 1){
+                JfpDef jfpDef = (JfpDef) stack.popNode();
+                return new DefaultArg(jfpDef.nameNode, null, jfpDef.typeDef);
+            }else if(arity == 2){
+                exprType defaultValue = (exprType) stack.popNode();
+                JfpDef jfpDef = (JfpDef) stack.popNode();
+                return new DefaultArg(jfpDef.nameNode, defaultValue, jfpDef.typeDef);
+            }else{
+                throw new RuntimeException("Unexpected arity: "+arity);
+            }
         case JJTDEFAULTARG:
-            value = (arity == 1) ? null : ((exprType) stack.popNode());
-            return new DefaultArg(((exprType) stack.popNode()), value);
+            //no type definition in this case
+            if(arity == 1){
+                return new DefaultArg(((exprType) stack.popNode()), null, null);
+            }
+            return new DefaultArg(((exprType) stack.popNode()), (exprType) stack.popNode(), null);
         case JJTEXTRAARGLIST:
             return new ExtraArg(makeName(NameTok.VarArg), JJTEXTRAARGLIST);
         case JJTEXTRAKEYWORDLIST:
             return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
+        case JJTEXTRAARGLIST2: //with type declaration
+            JfpDef jfpDef = (JfpDef) stack.popNode();
+            return new ExtraArg(makeName(NameTok.VarArg, jfpDef.nameNode), JJTEXTRAARGLIST, jfpDef.typeDef);
+        case JJTEXTRAKEYWORDLIST2: //with type declaration
+            jfpDef = (JfpDef) stack.popNode();
+            return new ExtraArg(makeName(NameTok.KwArg, jfpDef.nameNode), JJTEXTRAKEYWORDLIST, jfpDef.typeDef);
         case JJTDECORATED:
             if(stack.nodeArity() != 2){
-                throw new RuntimeException("Expected 2 nodes at this context!");
+                throw new RuntimeException("Expected 2 nodes at this context, found: "+arity);
             }
             SimpleNode def = stack.popNode();
             Decorators decorators = (Decorators) stack.popNode();
@@ -1192,7 +1242,14 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             SimpleNode popped = null;
             try{
                 popped = stack.popNode();
-                list.add((DefaultArg) popped);
+                if(popped instanceof TypedArgsList){
+                    SimpleNode[] args = ((TypedArgsList)popped).args;
+                    for (SimpleNode simpleNode : args) {
+                        list.add((DefaultArg) simpleNode);
+                    }
+                }else{
+                    list.add((DefaultArg) popped);
+                }
             }catch(ClassCastException e){
                 throw new ParseException("Internal error (ClassCastException):"+e.getMessage()+"\n"+popped, popped);
             }
@@ -1216,8 +1273,8 @@ class ComprehensionCollection extends SimpleNode{
 }
 
 class Decorators extends SimpleNode {
-    public decoratorsType[] exp;
-    private int id;
+    final public decoratorsType[] exp;
+    final private int id;
     Decorators(decoratorsType[] exp, int id) {
         this.exp = exp;
         this.id = id;
@@ -1229,20 +1286,29 @@ class Decorators extends SimpleNode {
 
 
 class DefaultArg extends SimpleNode {
-    public exprType parameter;
-    public exprType value;
-    DefaultArg(exprType parameter, exprType value) {
+    final public exprType parameter;
+    final public exprType value;
+    final public exprType typeDef;
+    DefaultArg(exprType parameter, exprType value, exprType typeDef) {
         this.parameter = parameter;
         this.value = value;
+        this.typeDef = typeDef;
     }
 }
 
 class ExtraArg extends SimpleNode {
-    public int id;
-    NameTok tok;
+    final public int id;
+    final NameTok tok;
+    final exprType typeDef;
+    
     ExtraArg(NameTok tok, int id) {
+        this(tok, id, null);
+    }
+    
+    ExtraArg(NameTok tok, int id, exprType typeDef) {
         this.tok = tok;
         this.id = id;
+        this.typeDef = typeDef;
     }
     public int getId() {
         return id;
@@ -1251,8 +1317,8 @@ class ExtraArg extends SimpleNode {
 
 
 class ExtraArgValue extends SimpleNode {
-    public exprType value;
-    public int id;
+    final public exprType value;
+    final public int id;
     ExtraArgValue(exprType value, int id) {
         this.value = value;
         this.id = id;
@@ -1264,14 +1330,37 @@ class ExtraArgValue extends SimpleNode {
 
 
 class FuncDefReturnAnn extends SimpleNode{
-    SimpleNode node;
+    final SimpleNode node;
     FuncDefReturnAnn(SimpleNode node){
         this.node = node;
     }
 }
 
+
+class JfpDef extends SimpleNode{
+    final Name nameNode;
+    final exprType typeDef;
+    
+    JfpDef(Name node, exprType typeDef){
+        this.nameNode = node;
+        this.typeDef = typeDef;
+    }
+}
+
+class TypedArgsList extends SimpleNode{
+    
+    SimpleNode args[];
+    
+    public TypedArgsList(JJTPythonGrammar30State stack, int arity) {
+        args = new SimpleNode[arity];
+        for(int i=arity-1;i>=0;i--){
+            args[i] = stack.popNode();
+        }
+    }
+}
+
 class IdentityNode extends SimpleNode {
-    public int id;
+    final public int id;
     public Object image;
 
     IdentityNode(int id) {
@@ -1332,8 +1421,10 @@ class CtxVisitor extends Visitor {
     }
 
     public Object visitName(Name node) throws Exception {
-        if(node.reserved){
-            throw new ParseException(StringUtils.format("Cannot assign value to %s (because it's a keyword)", node.id), node);
+        if(ctx == expr_contextType.Store){
+            if(node.reserved){
+                throw new ParseException(StringUtils.format("Cannot assign value to %s (because it's a keyword)", node.id), node);
+            }
         }
         node.ctx = ctx;
         return null;
