@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testMisc();
+            test.testLambdaArgs2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -154,6 +154,32 @@ public class PyParser30Test extends PyParserTestBase{
     public void testMethodDef7() {
         String s = "def __init__(self,):" +
         "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testMethodDef8() {
+        String s = "def __init__(self, a, *, xx:int=10, yy=20):" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testMethodDef9() {
+        String s = "def __init__(self, a, *args, xx:int=10, yy=20):" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testLambdaArgs2() {
+        String s = "a = lambda self, a, *, xx=10, yy=20:1" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testLambdaArgs3() {
+        String s = "a = lambda self, a, *args, xx=10, yy=20:1" +
         "";
         parseLegalDocStr(s);
     }
@@ -308,6 +334,27 @@ public class PyParser30Test extends PyParserTestBase{
         parseLegalDocStr(s);
     }
     
+    public void testLambdaArgs() {
+        String s = "" +
+        "a = lambda b=0: b+1" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testOctal() {
+        String s = "" +
+        "0o700" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testInvalidOctal() {
+        String s = "" +
+        "0700" +
+        "";
+        parseILegalDocStr(s);
+    }
+    
     public void testFunctionDecorated() {
         String s = "" +
         "from a import b\n" +
@@ -317,7 +364,6 @@ public class PyParser30Test extends PyParserTestBase{
         "\n" +
         "";
         SimpleNode ast = parseLegalDocStr(s);
-        System.out.println(ast.toString());
         assertEquals("Module[body=[ImportFrom[module=NameTok[id=a, ctx=ImportModule], names=[alias[name=NameTok[id=b, ctx=ImportName], asname=null]], level=0], FunctionDef[name=NameTok[id=func, ctx=FunctionName], args=arguments[args=[Name[id=A, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null]], body=[Pass[]], decs=[decorators[func=Name[id=dec1, ctx=Load, reserved=false], args=[], keywords=[], starargs=null, kwargs=null]], returns=null]]]", 
                 ast.toString());
     }

@@ -417,7 +417,6 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             return c;
         case JJTFUNCDEF_RETURN_ANNOTTATION:
             SimpleNode funcdefReturn = stack.popNode();
-            System.out.println("here");
             return new FuncDefReturnAnn(funcdefReturn);
         case JJTFUNCDEF:
             //get the decorators
@@ -469,12 +468,21 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             if(arity == 1){
                 return new DefaultArg(((exprType) stack.popNode()), null, null);
             }
-            return new DefaultArg(((exprType) stack.popNode()), (exprType) stack.popNode(), null);
+            exprType parameter = (exprType) stack.popNode();
+            return new DefaultArg((exprType) stack.popNode(), parameter, null);
         case JJTEXTRAARGLIST:
+            if(arity == 0){
+                //nothing here (just '*')
+                return new ExtraArg(null, JJTEXTRAARGLIST, null);
+            }
             return new ExtraArg(makeName(NameTok.VarArg), JJTEXTRAARGLIST);
         case JJTEXTRAKEYWORDLIST:
             return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
         case JJTEXTRAARGLIST2: //with type declaration
+            if(arity == 0){
+                //nothing here (just '*')
+                return new ExtraArg(null, JJTEXTRAARGLIST, null);
+            }
             JfpDef jfpDef = (JfpDef) stack.popNode();
             return new ExtraArg(makeName(NameTok.VarArg, jfpDef.nameNode), JJTEXTRAARGLIST, jfpDef.typeDef);
         case JJTEXTRAKEYWORDLIST2: //with type declaration
@@ -1171,24 +1179,6 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
         return false;
     }
     
-    NameTok[] getVargAndKwarg(java.util.List<SimpleNode> args) throws Exception {
-        NameTok varg = null;
-        NameTok kwarg = null;
-        for (Iterator<SimpleNode> iter = args.iterator(); iter.hasNext();) {
-            SimpleNode node = iter.next();
-            if(node.getId() == JJTEXTRAKEYWORDLIST){
-                ExtraArg a = (ExtraArg)node;
-                kwarg = a.tok;
-                addSpecialsAndClearOriginal(a, kwarg);
-                
-            }else if(node.getId() == JJTEXTRAARGLIST){
-                ExtraArg a = (ExtraArg)node;
-                varg = a.tok;
-                addSpecialsAndClearOriginal(a, varg);
-            }
-        }
-        return new NameTok[]{varg, kwarg};
-    }
     
     private argumentsType makeArguments(DefaultArg[] def, NameTok varg, NameTok kwarg) throws Exception {
         exprType fpargs[] = new exprType[def.length];
@@ -1225,27 +1215,21 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
     private argumentsType makeArguments(int l) throws Exception {
         NameTok kwarg = null;
         NameTok stararg = null;
-        if (l > 0 && stack.peekNode().getId() == JJTEXTRAKEYWORDLIST) {
-            ExtraArg node = (ExtraArg) stack.popNode();
-            kwarg = node.tok;
-            l--;
-            addSpecialsAndClearOriginal(node, kwarg);
-        }
-        if (l > 0 && stack.peekNode().getId() == JJTEXTRAARGLIST) {
-            ExtraArg node = (ExtraArg) stack.popNode();
-            stararg = node.tok;
-            l--;
-            addSpecialsAndClearOriginal(node, stararg);
-        }
         ArrayList<SimpleNode> list = new ArrayList<SimpleNode>();
         for (int i = l-1; i >= 0; i--) {
             SimpleNode popped = null;
             try{
                 popped = stack.popNode();
-                if(popped instanceof TypedArgsList){
-                    SimpleNode[] args = ((TypedArgsList)popped).args;
-                    for (SimpleNode simpleNode : args) {
-                        list.add((DefaultArg) simpleNode);
+                if(popped.getId() == JJTEXTRAKEYWORDLIST){
+                    ExtraArg node = (ExtraArg) popped;
+                    kwarg = node.tok;
+                    addSpecialsAndClearOriginal(node, kwarg);
+                }else if(popped.getId() == JJTEXTRAARGLIST){
+                    ExtraArg node = (ExtraArg) popped;
+                    stararg = node.tok;
+                    if(stararg != null){
+                        //can happen, as in 3.0 we can have a single '*'
+                        addSpecialsAndClearOriginal(node, stararg);
                     }
                 }else{
                     list.add((DefaultArg) popped);
@@ -1344,18 +1328,6 @@ class JfpDef extends SimpleNode{
     JfpDef(Name node, exprType typeDef){
         this.nameNode = node;
         this.typeDef = typeDef;
-    }
-}
-
-class TypedArgsList extends SimpleNode{
-    
-    SimpleNode args[];
-    
-    public TypedArgsList(JJTPythonGrammar30State stack, int arity) {
-        args = new SimpleNode[arity];
-        for(int i=arity-1;i>=0;i--){
-            args[i] = stack.popNode();
-        }
     }
 }
 
@@ -1470,6 +1442,6 @@ class CtxVisitor extends Visitor {
     }
 
     public Object unhandled_node(SimpleNode node) throws Exception {
-        throw new ParseException("can't assign to operator", node);
+        throw new ParseException("can't assign to operator:"+node, node);
     }
 }
