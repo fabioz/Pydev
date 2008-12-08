@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testNonLocalAndShortcuts2();
+            test.testFuncCall4();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -80,10 +80,18 @@ public class PyParser30Test extends PyParserTestBase{
     
     public void testMetaClass3() {
         String s = "" +
-        "class IOBase(object, *args, metaclas=abc.ABCMeta):\n" +
+        "class IOBase(object, *args, metaclass=abc.ABCMeta):\n" +
         "    pass\n" +
         "";
-//        parseLegalDocStr(s);
+        parseLegalDocStr(s);
+    }
+    
+    public void testMetaClass4() {
+        String s = "" +
+        "class B(*[x for x in [object]]):\n" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
     }
     
     public void testReprNotAccepted() {
@@ -243,6 +251,15 @@ public class PyParser30Test extends PyParserTestBase{
         parseLegalDocStr(s);
     }
     
+    public void testFuncCall4() {
+        String s = "" +
+        		"Call('a', file=file)\n" +
+        		"\n" +
+        		"\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
     public void testClassDecorator() {
         String s = "" +
         		"@classdec\n" +
@@ -393,6 +410,17 @@ public class PyParser30Test extends PyParserTestBase{
         "";
         parseLegalDocStr(s);
     }
+    
+    
+    public void testListComp() {
+        String s = "" +
+        "def m1():\n" +
+        "    return any(cls.__subclasscheck__(c) for c in {subclass, subtype})\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    
     
     public void testFunctionDecorated() {
         String s = "" +

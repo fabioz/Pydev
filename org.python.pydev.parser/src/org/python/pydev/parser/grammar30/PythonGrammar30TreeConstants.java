@@ -71,48 +71,48 @@ public interface PythonGrammar30TreeConstants
   public int JJTWITH_STMT = 64;
   public int JJTWITH_VAR = 65;
   public int JJTSUITE = 66;
-  public int JJTOLD_LAMBDEF = 67;
-  public int JJTTEST = 68;
-  public int JJTIF_EXP = 69;
-  public int JJTOR_BOOLEAN = 70;
-  public int JJTAND_BOOLEAN = 71;
-  public int JJTNOT_1OP = 72;
-  public int JJTCOMPARISION = 73;
-  public int JJTLESS_CMP = 74;
-  public int JJTGREATER_CMP = 75;
-  public int JJTEQUAL_CMP = 76;
-  public int JJTGREATER_EQUAL_CMP = 77;
-  public int JJTLESS_EQUAL_CMP = 78;
-  public int JJTNOTEQUAL_CMP = 79;
-  public int JJTIN_CMP = 80;
-  public int JJTNOT_IN_CMP = 81;
-  public int JJTIS_NOT_CMP = 82;
-  public int JJTIS_CMP = 83;
-  public int JJTOR_2OP = 84;
-  public int JJTXOR_2OP = 85;
-  public int JJTAND_2OP = 86;
-  public int JJTLSHIFT_2OP = 87;
-  public int JJTRSHIFT_2OP = 88;
-  public int JJTADD_2OP = 89;
-  public int JJTSUB_2OP = 90;
-  public int JJTMUL_2OP = 91;
-  public int JJTDIV_2OP = 92;
-  public int JJTFLOORDIV_2OP = 93;
-  public int JJTMOD_2OP = 94;
-  public int JJTPOS_1OP = 95;
-  public int JJTNEG_1OP = 96;
-  public int JJTINVERT_1OP = 97;
-  public int JJTPOW_2OP = 98;
-  public int JJTCALL_OP = 99;
-  public int JJTINDEX_OP = 100;
-  public int JJTDOT_OP = 101;
-  public int JJTLIST = 102;
-  public int JJTDICTIONARY = 103;
-  public int JJTFALSE = 104;
-  public int JJTTRUE = 105;
-  public int JJTNONE = 106;
-  public int JJTSTRJOIN = 107;
-  public int JJTLAMBDEF = 108;
+  public int JJTTEST = 67;
+  public int JJTIF_EXP = 68;
+  public int JJTOR_BOOLEAN = 69;
+  public int JJTAND_BOOLEAN = 70;
+  public int JJTNOT_1OP = 71;
+  public int JJTCOMPARISION = 72;
+  public int JJTLESS_CMP = 73;
+  public int JJTGREATER_CMP = 74;
+  public int JJTEQUAL_CMP = 75;
+  public int JJTGREATER_EQUAL_CMP = 76;
+  public int JJTLESS_EQUAL_CMP = 77;
+  public int JJTNOTEQUAL_CMP = 78;
+  public int JJTIN_CMP = 79;
+  public int JJTNOT_IN_CMP = 80;
+  public int JJTIS_NOT_CMP = 81;
+  public int JJTIS_CMP = 82;
+  public int JJTOR_2OP = 83;
+  public int JJTXOR_2OP = 84;
+  public int JJTAND_2OP = 85;
+  public int JJTLSHIFT_2OP = 86;
+  public int JJTRSHIFT_2OP = 87;
+  public int JJTADD_2OP = 88;
+  public int JJTSUB_2OP = 89;
+  public int JJTMUL_2OP = 90;
+  public int JJTDIV_2OP = 91;
+  public int JJTFLOORDIV_2OP = 92;
+  public int JJTMOD_2OP = 93;
+  public int JJTPOS_1OP = 94;
+  public int JJTNEG_1OP = 95;
+  public int JJTINVERT_1OP = 96;
+  public int JJTPOW_2OP = 97;
+  public int JJTCALL_OP = 98;
+  public int JJTINDEX_OP = 99;
+  public int JJTDOT_OP = 100;
+  public int JJTLIST = 101;
+  public int JJTDICTIONARY = 102;
+  public int JJTFALSE = 103;
+  public int JJTTRUE = 104;
+  public int JJTNONE = 105;
+  public int JJTSTRJOIN = 106;
+  public int JJTLAMBDEF = 107;
+  public int JJTLAMBDEF_NOCOND = 108;
   public int JJTSUBSCRIPTLIST = 109;
   public int JJTELLIPSES = 110;
   public int JJTSLICE = 111;
@@ -124,12 +124,13 @@ public interface PythonGrammar30TreeConstants
   public int JJTCLASSDEF = 117;
   public int JJTEXTRAARGVALUELIST = 118;
   public int JJTEXTRAKEYWORDVALUELIST = 119;
-  public int JJTKEYWORD = 120;
-  public int JJTNUM = 121;
-  public int JJTCOMPLEX = 122;
-  public int JJTNAME = 123;
-  public int JJTSTRING = 124;
-  public int JJTBINARY = 125;
+  public int JJTARGUMENT = 120;
+  public int JJTKEYWORD = 121;
+  public int JJTNUM = 122;
+  public int JJTCOMPLEX = 123;
+  public int JJTNAME = 124;
+  public int JJTSTRING = 125;
+  public int JJTBINARY = 126;
 
 
   public String[] jjtNodeName = {
@@ -200,7 +201,6 @@ public interface PythonGrammar30TreeConstants
     "with_stmt",
     "with_var",
     "suite",
-    "old_lambdef",
     "test",
     "if_exp",
     "or_boolean",
@@ -242,6 +242,7 @@ public interface PythonGrammar30TreeConstants
     "None",
     "strjoin",
     "lambdef",
+    "lambdef_nocond",
     "subscriptlist",
     "Ellipses",
     "Slice",
@@ -253,6 +254,7 @@ public interface PythonGrammar30TreeConstants
     "classdef",
     "ExtraArgValueList",
     "ExtraKeywordValueList",
+    "argument",
     "Keyword",
     "Num",
     "Complex",

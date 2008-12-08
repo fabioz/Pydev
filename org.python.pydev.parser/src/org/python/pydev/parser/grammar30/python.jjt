@@ -770,7 +770,7 @@ void funcdef(): {}
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ] <NEWLINE> )+ 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <NEWLINE> )+ 
 }
 
 
@@ -1121,28 +1121,15 @@ void suite(): {}
 { simple_stmt() |  <NEWLINE>
                    { token_source.expect_indent = true; } <INDENT> { token_source.expect_indent = false; } (stmt())+ <DEDENT> }
 
-//Backward compatibility cruft to support:
-//[ x for x in lambda: True, lambda: False if x() ]
-//even while also allowing:
-//lambda x: 5 if x else 2
-//(But not a mix of the two)
-//
-//testlist_safe: old_test [(',' old_test)+ [',']]
-void testlist_safe()#void:{}
-{old_test()  [  ({this.addSpecialToken(",");}<COMMA> old_test() )+ [{this.addSpecialToken(",");}<COMMA>]  ]}
-
-//old_test: or_test | old_lambdef
-void old_test()#void:{}
-{or_test() | old_lambdef()}
-
-//old_lambdef: 'lambda' [varargslist] ':' old_test
-void old_lambdef():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} old_test() }
-
 
 //test: or_test ['if' or_test 'else' test] | lambdef
 void test(): {}
 {  lambdef() | or_test() [if_exp()] }
+
+//test_nocond: or_test | lambdef_nocond
+void test_nocond() #void: {}
+{  or_test() | lambdef_nocond() }
+
 
 void if_exp():{}
 {<IF> {this.addSpecialToken(" if ",STRATEGY_BEFORE_NEXT);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
@@ -1234,7 +1221,7 @@ void trailer() #void: {Object spStr;Object spStr2;}
 {
  
     ({spStr  = createSpecialStr("(", false);} <LPAREN>  
-    insidetuporcall() 
+    [arglist()] 
     <RPAREN> {spStr2 = createSpecialStr(")", false);}  
     )#Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
@@ -1283,16 +1270,15 @@ void atom() #void: {Object spStr;Object spStr2;}
 |   String() (String() #strjoin(2))*
 }
 
-//we can be inside a tuple or a call, and we may have list comprehension in it. (fabioz)
-void insidetuporcall() #void: {}
-{
-    arglist() (comp_for())*
-}
-
 //lambdef: 'lambda' [varargslist] ':' test
 //we add the colon to the args if there is some argument... otherwise, we add it to the first token that appears on the test
 void lambdef():{boolean hasArgs=false;}
 { <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} test() }
+
+//lambdef_nocond: 'lambda' [varargslist] ':' test_nocond
+void lambdef_nocond():{boolean hasArgs=false;}
+{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} test_nocond() }
+
 
 //subscriptlist: subscript (',' subscript)* [',']
 void subscriptlist() #void: {}
@@ -1350,16 +1336,17 @@ void testlist_comp() #void: {}
 { test() ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
 
 
-//list_iter: [comp_for | list_if]
-void list_iter() #void: {}
-{ comp_for() | list_if() }
+//comp_iter: [comp_for | comp_if]
+void comp_iter() #void: {}
+{ comp_for() | comp_if() }
 
 //comp_for: 'for' exprlist 'in' or_test [comp_iter]
 void comp_for(): {}
-{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} testlist_safe() [list_iter()] }
+{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} or_test() [comp_iter()] }
 
-void list_if()#void:{}
-{ <IF>  {this.addSpecialToken(" if ");} old_test() [list_iter()]}
+//comp_if: 'if' test_nocond [comp_iter]
+void comp_if()#void:{}
+{ <IF>  {this.addSpecialToken(" if ");} test_nocond() [comp_iter()]}
 
 
 //decorated: decorators (classdef | funcdef)
@@ -1368,40 +1355,39 @@ void decorated():{}
     decorators() (classdef()|funcdef())
 }
 
-//classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
+//classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
 void classdef(): {}
 {
-    <CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   (insidetuporcall()) <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
+    <CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [arglist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
         {this.addSpecialToken(":");} suite()
 }
 
-//arglist: (argument ',')*
-//              (argument [',']| '*' test [',' '**' test] | '**' test)
+//arglist: (argument ',')* (argument [',']//                         |'*' test (',' argument)* [',' '**' test] //                         |'**' test)
 void arglist() #void: {}
 {
-    normalargs() [{this.addSpecialToken(",");} <COMMA>
-    [LOOKAHEAD(2) ExtraArgValueList()
-    [ {this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]]
-|   [LOOKAHEAD(2) ExtraArgValueList()
-    [ {this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]
+       ((argument() (LOOKAHEAD(2)<COMMA> argument())*) [LOOKAHEAD(2)<COMMA> ((ExtraArgValueList() (LOOKAHEAD(2)<COMMA> argument())* [<COMMA> ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [<COMMA>]
+    |  (ExtraArgValueList() (LOOKAHEAD(2)<COMMA> argument())* [LOOKAHEAD(2)<COMMA> ExtraKeywordValueList()]) [<COMMA>]   
+    |   ExtraKeywordValueList() [<COMMA>]
 }
 
-void normalargs() #void: {}
-{ argument() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> argument())* }
 
 void ExtraArgValueList(): {}
 { {this.addSpecialToken(createSpecialStr("*", false));} <MULTIPLY> test() }
 
 void ExtraKeywordValueList(): {}
-{ ({this.addSpecialToken(createSpecialStr("**", false));} <POWER>
-  |{this.addSpecialToken(createSpecialStr("**", false));} <MULTIPLY> <MULTIPLY>)
-  test() }
+{ {this.addSpecialToken(createSpecialStr("**", false));} <POWER> test() }
 
 
-//argument: [test '='] test     # Really [keyword '='] test
-void argument() #void: {}
-{ ([LOOKAHEAD(2) AnyName() <EQUAL>{this.addSpecialToken("=");}] test()) #Keyword(>1) }
+//argument: test [comp_for] | test '=' test  # Really [keyword '='] test
+void argument(): {}
+{ 
+	   test() (LOOKAHEAD(2)  (Keyword()) |  [comp_for()])
+}
 
+void Keyword() : {}
+{
+	<EQUAL>{this.addSpecialToken("=");} test()
+}
 
 void Number() #Num :
 {

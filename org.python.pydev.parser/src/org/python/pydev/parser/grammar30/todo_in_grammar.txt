@@ -1,2 +1,0 @@
-- Annotations
-- Add proper syntax for metaclasses (not finished)

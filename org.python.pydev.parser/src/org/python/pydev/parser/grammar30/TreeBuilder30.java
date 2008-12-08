@@ -416,8 +416,12 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                         "non-keyword argument following keyword", tmparr[i]);
                 keywords[i - nargs] = (keywordType) tmparr[i];
             }
-            exprType func = (exprType) stack.popNode();
-            Call c = new Call(func, args, keywords, starargs, kwargs);
+            SimpleNode func = stack.popNode();
+            if(!(func instanceof exprType)){
+                throw new ParseException("Internal parser error: expected expression, found: "+func, func);
+            }
+            
+            Call c = new Call((exprType) func, args, keywords, starargs, kwargs);
             addSpecialsAndClearOriginal(n, c);
             return c;
         case JJTFUNCDEF_RETURN_ANNOTTATION:
@@ -766,10 +770,16 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             return new ExtraArgValue(((exprType) stack.popNode()), JJTEXTRAKEYWORDVALUELIST);
         case JJTEXTRAARGVALUELIST:
             return new ExtraArgValue(((exprType) stack.popNode()), JJTEXTRAARGVALUELIST);
+        case JJTARGUMENT:
+            SimpleNode keyword = stack.popNode();
+            if(keyword instanceof keywordType){
+                nameTok = makeName(NameTok.KeywordName);
+                ((keywordType)keyword).arg = nameTok;
+            }
+            return keyword;
         case JJTKEYWORD:
             value = (exprType) stack.popNode();
-            nameTok = makeName(NameTok.KeywordName);
-            return new keywordType(nameTok, value);
+            return new keywordType(null, value);
         case JJTTUPLE:
             if (stack.nodeArity() > 0) {
                 SimpleNode peeked = stack.peekNode();
@@ -870,7 +880,7 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             exprType ifExprOrelse=(exprType) stack.popNode();
             exprType ifExprTest=(exprType) stack.popNode();
             return new IfExp(ifExprTest,null,ifExprOrelse);
-        case JJTOLD_LAMBDEF:
+        case JJTLAMBDEF_NOCOND:
         case JJTLAMBDEF:
             test = (exprType) stack.popNode();
             arguments = makeArguments(arity - 1);
