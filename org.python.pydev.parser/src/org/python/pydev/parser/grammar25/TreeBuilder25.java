@@ -135,15 +135,8 @@ public final class TreeBuilder25 implements PythonGrammar25TreeConstants {
         return aliases;
     }
 
-    private static SimpleNode[] nodes = new SimpleNode[PythonGrammar25TreeConstants.jjtNodeName.length];
-
     public SimpleNode openNode(int id) {
-        SimpleNode n = nodes[id];
-        if (n == null){
-            n = new IdentityNode(id);
-            nodes[id] = n;
-        }
-        return n;
+        return new IdentityNode(id);
     }
 
     

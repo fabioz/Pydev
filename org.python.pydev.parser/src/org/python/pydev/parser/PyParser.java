@@ -675,41 +675,33 @@ public class PyParser implements IPyParser {
         IGrammar grammar = null;
         try {
             
-            synchronized(IGrammar.parseLock){
-                //the synchronization is because of the openNode optimization in the tree builder
-                //note that removing this optimization doesn't make it too different, but in a test
-                //when making the PyParser not synchronized at this point, it actually 
-                //made things slower than faster -- probably because of context switching -- and parsing is also
-                //very computationally expensive, so, unless there are idle processors lurking around,
-                //it's probably not worth it -- or not?!?
-                switch(info.grammarVersion){
-                    case IPythonNature.GRAMMAR_PYTHON_VERSION_2_4:
-                        grammar = new PythonGrammar24(in, host);
-                        break;
-                    case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
-                        grammar = new PythonGrammar25(in, host);
-                        break;
-                    case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
-                        grammar = new PythonGrammar30(in, host);
-                        break;
-                    default:
-                        throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
-                }
-                
-                
-	            if(ENABLE_TRACING){
-	                //grammar has to be generated with debugging info for this to make a difference
-	                grammar.enable_tracing();
-	            }
-	            SimpleNode newRoot = grammar.file_input(); // parses the file
-	            if(newRoot != null){
-	                Module m = (Module) newRoot;
-	                for (commentType comment : comments) {
-	                    m.addSpecial(comment, true);
-	                }
-	            }
-	            returnVar.o1 = newRoot;
+            switch(info.grammarVersion){
+                case IPythonNature.GRAMMAR_PYTHON_VERSION_2_4:
+                    grammar = new PythonGrammar24(in, host);
+                    break;
+                case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
+                    grammar = new PythonGrammar25(in, host);
+                    break;
+                case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
+                    grammar = new PythonGrammar30(in, host);
+                    break;
+                default:
+                    throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
             }
+            
+            
+            if(ENABLE_TRACING){
+                //grammar has to be generated with debugging info for this to make a difference
+                grammar.enable_tracing();
+            }
+            SimpleNode newRoot = grammar.file_input(); // parses the file
+            if(newRoot != null){
+                Module m = (Module) newRoot;
+                for (commentType comment : comments) {
+                    m.addSpecial(comment, true);
+                }
+            }
+            returnVar.o1 = newRoot;
             
             //only notify successful parses
             if(successfulParseListeners.size() > 0){

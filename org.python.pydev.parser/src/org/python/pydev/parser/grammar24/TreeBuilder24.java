@@ -138,12 +138,8 @@ public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
         return aliases;
     }
 
-    private static SimpleNode[] nodes = new SimpleNode[PythonGrammar24TreeConstants.jjtNodeName.length];
-
     public SimpleNode openNode(int id) {
-        if (nodes[id] == null)
-            nodes[id] = new IdentityNode(id);
-        return nodes[id];
+        return new IdentityNode(id);
     }
 
     
