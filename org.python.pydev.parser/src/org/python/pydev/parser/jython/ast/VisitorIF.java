@@ -26,6 +26,7 @@ public interface VisitorIF {
     public Object visitImportFrom(ImportFrom node) throws Exception;
     public Object visitExec(Exec node) throws Exception;
     public Object visitGlobal(Global node) throws Exception;
+    public Object visitNonLocal(NonLocal node) throws Exception;
     public Object visitExpr(Expr node) throws Exception;
     public Object visitPass(Pass node) throws Exception;
     public Object visitBreak(Break node) throws Exception;

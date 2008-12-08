@@ -26,7 +26,7 @@ public class StrJoin extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(47, ostream);
+        pickleThis(48, ostream);
         pickleThis(this.strs, ostream);
     }
 

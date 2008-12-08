@@ -4,21 +4,27 @@ import org.python.pydev.parser.jython.SimpleNode;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class Repr extends exprType {
+public class NonLocal extends stmtType {
+    public NameTokType[] names;
     public exprType value;
 
-    public Repr(exprType value) {
+    public NonLocal(NameTokType[] names, exprType value) {
+        this.names = names;
         this.value = value;
     }
 
-    public Repr(exprType value, SimpleNode parent) {
-        this(value);
+    public NonLocal(NameTokType[] names, exprType value, SimpleNode parent)
+    {
+        this(names, value);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("Repr[");
+        StringBuffer sb = new StringBuffer("NonLocal[");
+        sb.append("names=");
+        sb.append(dumpThis(this.names));
+        sb.append(", ");
         sb.append("value=");
         sb.append(dumpThis(this.value));
         sb.append("]");
@@ -26,15 +32,22 @@ public class Repr extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(45, ostream);
+        pickleThis(26, ostream);
+        pickleThis(this.names, ostream);
         pickleThis(this.value, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitRepr(this);
+        return visitor.visitNonLocal(this);
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
+        if (names != null) {
+            for (int i = 0; i < names.length; i++) {
+                if (names[i] != null)
+                    names[i].accept(visitor);
+            }
+        }
         if (value != null)
             value.accept(visitor);
     }

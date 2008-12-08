@@ -42,6 +42,7 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
+import org.python.pydev.parser.jython.ast.NonLocal;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Raise;
@@ -126,8 +127,12 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
     
     private NameTok[] makeIdentifiers(int ctx) {
         int l = stack.nodeArity();
-        NameTok[] ids = new NameTok[l];
-        for (int i = l - 1; i >= 0; i--) {
+        return makeIdentifiers(ctx, l);
+    }
+    
+    private NameTok[] makeIdentifiers(int ctx, int arity) {
+        NameTok[] ids = new NameTok[arity];
+        for (int i = arity - 1; i >= 0; i--) {
             ids[i] = makeName(ctx);
         }
         return ids;
@@ -516,15 +521,24 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                     stack.popNode();
                     classDefKeywords.add((keywordType) node);
                     nodeArity--;
+                }else if(node instanceof ExtraArgValue){
+                    if(node.getId() == JJTEXTRAARGVALUELIST){
+                        ExtraArgValue nstarargs = (ExtraArgValue) stack.popNode();
+                        starargs = nstarargs.value;
+                        this.addSpecialsAndClearOriginal(nstarargs, starargs);
+                        nodeArity--;
+                    }else if(node.getId() == JJTEXTRAKEYWORDVALUELIST){
+                        ExtraArgValue nkwargs = (ExtraArgValue) stack.popNode();
+                        kwargs = nkwargs.value;
+                        this.addSpecialsAndClearOriginal(nkwargs, kwargs);
+                        nodeArity--;
+                    }
                 }
             }
             
             exprType[] bases = makeExprs(nodeArity);
             nameTok = makeName(NameTok.ClassName);
             //decorator is always null at this point... it's decorated later on
-//            keywordType[] keywords, exprType starargs,exprType kwargs;
-            
-            
             ClassDef classDef = new ClassDef(nameTok, bases, body, null, 
                     classDefKeywords.toArray(new keywordType[classDefKeywords.size()]), starargs, kwargs);
             
@@ -552,8 +566,19 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             exprType type = arity >= 1 ? ((exprType) stack.popNode()) : null;
             return new Raise(type, null, null, from);
         case JJTGLOBAL_STMT:
-            Global global = new Global(makeIdentifiers(NameTok.GlobalName));
-            return global;
+            if(arity == 0){
+                return new Global(makeIdentifiers(NameTok.GlobalName), null);
+            }else{
+                exprType globalValue = (exprType) stack.popNode();
+                return new Global(makeIdentifiers(NameTok.GlobalName), globalValue);
+            }
+        case JJTNONLOCAL_STMT:
+            if(arity == 0){
+                return new NonLocal(makeIdentifiers(NameTok.NonLocalName), null);
+            }else{
+                exprType nonLocalValue = (exprType) stack.popNode();
+                return new NonLocal(makeIdentifiers(NameTok.NonLocalName), nonLocalValue);
+            }
         case JJTEXEC_STMT:
             exprType globals = arity >= 3 ? ((exprType) stack.popNode()) : null;
             exprType locals = arity >= 2 ? ((exprType) stack.popNode()) : null;

@@ -36,7 +36,7 @@ public class BinOp extends exprType implements operatorType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(31, ostream);
+        pickleThis(32, ostream);
         pickleThis(this.left, ostream);
         pickleThis(this.op, ostream);
         pickleThis(this.right, ostream);

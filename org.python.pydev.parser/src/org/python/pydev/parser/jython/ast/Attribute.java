@@ -38,7 +38,7 @@ public class Attribute extends exprType implements expr_contextType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(48, ostream);
+        pickleThis(49, ostream);
         pickleThis(this.value, ostream);
         pickleThis(this.attr, ostream);
         pickleThis(this.ctx, ostream);

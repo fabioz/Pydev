@@ -594,6 +594,7 @@ TOKEN : /* KEYWORDS */
 |   < DEL: "del" >
 |   < RAISE: "raise" >
 |   < GLOBAL: "global" >
+|   < NONLOCAL: "nonlocal" >
 |   < EXEC: "exec" >
 |   < ASSERT: "assert" >
 |   < AS: "as" >
@@ -769,7 +770,7 @@ void funcdef(): {}
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() (<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )+ 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ] <NEWLINE> )+ 
 }
 
 
@@ -853,7 +854,7 @@ void simple_stmt() #void: {}
 { small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* [<SEMICOLON>] <NEWLINE>
 }
 
-//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | exec_stmt | assert_stmt
+//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | exec_stmt | assert_stmt 
 void small_stmt() #void: {SimpleNode simpleNode;}
 {
     expr_stmt()
@@ -862,6 +863,7 @@ void small_stmt() #void: {SimpleNode simpleNode;}
 |   flow_stmt()
 |   import_stmt()
 |   global_stmt()
+|   nonlocal_stmt()
 |   exec_stmt()
 |   assert_stmt() {addToPeek("assert ", false); }
 }
@@ -998,7 +1000,13 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() ({this.addSpecialToken(",");} <COMMA> Name())* }
+{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() ({this.addSpecialToken(",");} <COMMA> Name())* [<EQUAL> testlist()] }
+
+
+//nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
+void nonlocal_stmt(): {}{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() ({this.addSpecialToken(",");} <COMMA> Name())* [<EQUAL> testlist()]}
+
+
 
 //exec_stmt: 'exec' expr ['in' test [',' test]]
 void exec_stmt(): {}
@@ -1482,6 +1490,7 @@ Token AnyName() #void:
 |   ( t = <DEL> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <RAISE> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <GLOBAL> { jjtThis.setImage(t.image); return t; } {} )#Name
+|   ( t = <NONLOCAL> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <EXEC> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <ASSERT> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <AS> { jjtThis.setImage(t.image); return t; } {} )#Name

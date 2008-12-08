@@ -37,7 +37,7 @@ public class Compare extends exprType implements cmpopType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(42, ostream);
+        pickleThis(43, ostream);
         pickleThis(this.left, ostream);
         pickleThis(this.ops, ostream);
         pickleThis(this.comparators, ostream);

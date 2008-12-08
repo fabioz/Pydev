@@ -11,6 +11,7 @@ public interface name_contextType {
     public static final int ImportModule = 7;
     public static final int Attrib = 8;
     public static final int GlobalName = 9;
+    public static final int NonLocalName = 10;
 
     public static final String[] name_contextTypeNames = new String[] {
         "<undef>",
@@ -23,5 +24,6 @@ public interface name_contextType {
         "ImportModule",
         "Attrib",
         "GlobalName",
+        "NonLocalName",
     };
 }

@@ -6,13 +6,15 @@ import java.io.IOException;
 
 public class Global extends stmtType {
     public NameTokType[] names;
+    public exprType value;
 
-    public Global(NameTokType[] names) {
+    public Global(NameTokType[] names, exprType value) {
         this.names = names;
+        this.value = value;
     }
 
-    public Global(NameTokType[] names, SimpleNode parent) {
-        this(names);
+    public Global(NameTokType[] names, exprType value, SimpleNode parent) {
+        this(names, value);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
@@ -21,6 +23,9 @@ public class Global extends stmtType {
         StringBuffer sb = new StringBuffer("Global[");
         sb.append("names=");
         sb.append(dumpThis(this.names));
+        sb.append(", ");
+        sb.append("value=");
+        sb.append(dumpThis(this.value));
         sb.append("]");
         return sb.toString();
     }
@@ -28,6 +33,7 @@ public class Global extends stmtType {
     public void pickle(DataOutputStream ostream) throws IOException {
         pickleThis(25, ostream);
         pickleThis(this.names, ostream);
+        pickleThis(this.value, ostream);
     }
 
     public Object accept(VisitorIF visitor) throws Exception {
@@ -41,6 +47,8 @@ public class Global extends stmtType {
                     names[i].accept(visitor);
             }
         }
+        if (value != null)
+            value.accept(visitor);
     }
 
 }

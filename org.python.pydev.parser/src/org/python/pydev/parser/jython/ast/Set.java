@@ -26,7 +26,7 @@ public class Set extends exprType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(36, ostream);
+        pickleThis(37, ostream);
         pickleThis(this.elts, ostream);
     }
 

@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testLambdaArgs2();
+            test.testMetaClass3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -68,6 +68,22 @@ public class PyParser30Test extends PyParserTestBase{
         "    pass\n" +
         "";
         parseLegalDocStr(s);
+    }
+    
+    public void testMetaClass2() {
+        String s = "" +
+        "class IOBase(**kwargs):\n" +
+        "    pass\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testMetaClass3() {
+        String s = "" +
+        "class IOBase(object, *args, metaclas=abc.ABCMeta):\n" +
+        "    pass\n" +
+        "";
+//        parseLegalDocStr(s);
     }
     
     public void testReprNotAccepted() {
@@ -353,6 +369,17 @@ public class PyParser30Test extends PyParserTestBase{
         "0700" +
         "";
         parseILegalDocStr(s);
+    }
+    
+    public void testNonLocalAndShortcuts() {
+        String s = "" +
+        "def m1():\n" +
+        "    a = 20\n" +
+        "    def m2():\n" +
+        "        nonlocal a = 30\n" +
+        "        global x = 30\n" +
+        "";
+        parseLegalDocStr(s);
     }
     
     public void testFunctionDecorated() {

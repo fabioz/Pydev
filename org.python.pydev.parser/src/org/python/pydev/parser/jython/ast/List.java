@@ -32,7 +32,7 @@ public class List extends exprType implements expr_contextType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(51, ostream);
+        pickleThis(52, ostream);
         pickleThis(this.elts, ostream);
         pickleThis(this.ctx, ostream);
     }

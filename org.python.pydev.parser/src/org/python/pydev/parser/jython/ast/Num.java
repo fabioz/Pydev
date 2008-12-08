@@ -36,7 +36,7 @@ public class Num extends exprType implements num_typeType {
     }
 
     public void pickle(DataOutputStream ostream) throws IOException {
-        pickleThis(45, ostream);
+        pickleThis(46, ostream);
         pickleThis(this.n, ostream);
         pickleThis(this.type, ostream);
         pickleThis(this.num, ostream);
