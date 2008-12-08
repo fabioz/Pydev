@@ -1000,11 +1000,11 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() ({this.addSpecialToken(",");} <COMMA> Name())* [<EQUAL> testlist()] }
+{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [<COMMA>] [<EQUAL> testlist()] }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
-void nonlocal_stmt(): {}{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() ({this.addSpecialToken(",");} <COMMA> Name())* [<EQUAL> testlist()]}
+void nonlocal_stmt(): {}{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [<COMMA>] [<EQUAL> testlist()]}
 
 
 

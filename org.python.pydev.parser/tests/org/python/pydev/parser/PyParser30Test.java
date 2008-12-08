@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testMetaClass3();
+            test.testNonLocalAndShortcuts2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -378,6 +378,18 @@ public class PyParser30Test extends PyParserTestBase{
         "    def m2():\n" +
         "        nonlocal a = 30\n" +
         "        global x = 30\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    
+    public void testNonLocalAndShortcuts2() {
+        String s = "" +
+        "def m1():\n" +
+        "    a = 20\n" +
+        "    def m2():\n" +
+        "        nonlocal a, = (5,)\n" +
+        "        global x, = (5,)\n" +
         "";
         parseLegalDocStr(s);
     }
