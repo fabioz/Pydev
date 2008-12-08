@@ -54,6 +54,13 @@ public class PyParser26Test extends PyParserTestBase{
         parseLegalDocStr(str);
     }
     
+    public void testOctal(){
+        String str = "" +
+        "0o700\n" +
+        "";
+        parseLegalDocStr(str);
+    }
+    
     
     public void testFunctionCall(){
         String str = "" +
