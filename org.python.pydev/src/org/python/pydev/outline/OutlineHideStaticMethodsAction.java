@@ -41,11 +41,13 @@ public class OutlineHideStaticMethodsAction extends AbstractOutlineFilterAction 
                     //String name = null;
                     if (token instanceof FunctionDef) {
                         FunctionDef functionDefToken = (FunctionDef) token;
-                        for (decoratorsType decorator : functionDefToken.decs) {
-                            if (decorator.func instanceof Name) {
-                                Name decoratorFuncName = (Name) decorator.func;
-                                if (decoratorFuncName.id.equals("staticmethod")) {
-                                    return false;
+                        if(functionDefToken.decs != null){
+                            for (decoratorsType decorator : functionDefToken.decs) {
+                                if (decorator.func instanceof Name) {
+                                    Name decoratorFuncName = (Name) decorator.func;
+                                    if (decoratorFuncName.id.equals("staticmethod")) {
+                                        return false;
+                                    }
                                 }
                             }
                         }

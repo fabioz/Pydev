@@ -12,7 +12,7 @@ public class PyParser26Test extends PyParserTestBase{
         try {
             PyParser26Test test = new PyParser26Test();
             test.setUp();
-            test.testOctal();
+            test.testFunctionCallWithListComp();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser26Test.class);
@@ -66,7 +66,14 @@ public class PyParser26Test extends PyParserTestBase{
     
     public void testFunctionCall(){
         String str = "" +
-        "Call(1,2,3, *(4,5,6), keyword=13)\n" +
+        "Call(1,2,3, *(4,5,6), keyword=13, **kwargs)\n" +
+        "";
+        parseLegalDocStr(str);
+    }
+    
+    public void testFunctionCallWithListComp(){
+        String str = "" +
+        "any(cls.__subclasscheck__(c) for c in [subclass, subtype])\n" +
         "";
         parseLegalDocStr(str);
     }

@@ -146,14 +146,16 @@ public class ParsedItem implements Comparable<Object>{
             int decoratorType = DECORATOR_NONE;
 
             FunctionDef functionDefToken = (FunctionDef) token;
-            for (decoratorsType decorator : functionDefToken.decs) {
-                if (decorator.func instanceof Name) {
-                    Name decoratorFuncName = (Name) decorator.func;
-                    if (decoratorFuncName.id.equals("staticmethod")) {
-                        decoratorType = DECORATOR_STATIC;
-                    }
-                    else if (decoratorFuncName.id.equals("classmethod")) {
-                        decoratorType = DECORATOR_CLASS;
+            if(functionDefToken.decs != null){
+                for (decoratorsType decorator : functionDefToken.decs) {
+                    if (decorator.func instanceof Name) {
+                        Name decoratorFuncName = (Name) decorator.func;
+                        if (decoratorFuncName.id.equals("staticmethod")) {
+                            decoratorType = DECORATOR_STATIC;
+                        }
+                        else if (decoratorFuncName.id.equals("classmethod")) {
+                            decoratorType = DECORATOR_CLASS;
+                        }
                     }
                 }
             }

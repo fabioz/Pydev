@@ -764,7 +764,9 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 
         SimpleNode lastNode = null;
 
-        visit(node.decs);
+        if(node.decs != null){
+            visit(node.decs);
+        }
 
         handleCommentBefore(node.name);
         printer.printFunctionDef();

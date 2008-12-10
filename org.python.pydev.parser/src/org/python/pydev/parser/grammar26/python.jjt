@@ -1374,12 +1374,13 @@ void list_if()#void:{}
 void classdef(): {}
 {<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
 
-//arglist: (argument ',')*
-//              (argument [',']| '*' test [',' '**' test] | '**' test)
+//arglist: (argument ',')* (argument [',']
+//                         |'*' test (',' argument)* [',' '**' test] 
+//                         |'**' test)
 void arglist() #void: {}
 {
     normalargs() [{this.addSpecialToken(",");} <COMMA>
-    [LOOKAHEAD(2) ExtraArgValueList()
+    [LOOKAHEAD(2) ExtraArgValueList() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> argument())*
     [ {this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]]
 |   [LOOKAHEAD(2) ExtraArgValueList()
     [ {this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]

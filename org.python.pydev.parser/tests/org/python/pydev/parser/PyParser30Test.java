@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testFuncCall4();
+            test.testFuncCall5();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -256,6 +256,15 @@ public class PyParser30Test extends PyParserTestBase{
         		"Call('a', file=file)\n" +
         		"\n" +
         		"\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    public void testFuncCall5() {
+        String s = "" +
+        "Call(1,2,3, *(4,5,6), keyword=13)\n" +
+        "\n" +
+        "\n" +
         "";
         parseLegalDocStr(s);
     }

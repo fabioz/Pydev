@@ -348,50 +348,37 @@ public final class TreeBuilder26 implements PythonGrammar26TreeConstants {
             exprType starargs = null;
             exprType kwargs = null;
 
-            l = arity - 1;
-            if (l > 0 && stack.peekNode().getId() == JJTEXTRAKEYWORDVALUELIST) {
-                ExtraArgValue nkwargs = (ExtraArgValue) stack.popNode();
-                kwargs = nkwargs.value;
-                this.addSpecialsAndClearOriginal(nkwargs, kwargs);
-                l--;
-            }
-            if (l > 0 && stack.peekNode().getId() == JJTEXTRAARGVALUELIST) {
-                ExtraArgValue nstarargs = (ExtraArgValue) stack.popNode();
-                starargs = nstarargs.value;
-                this.addSpecialsAndClearOriginal(nstarargs, starargs);
-                l--;
-            }
             
-            int nargs = l;
-
-            SimpleNode[] tmparr = new SimpleNode[l]; 
-            for (int i = l - 1; i >= 0; i--) {
-                tmparr[i] = stack.popNode();
-                if (tmparr[i] instanceof keywordType) {
-                    nargs = i;
-                }
-            }
+            java.util.List<exprType> args = new ArrayList<exprType>();
+            java.util.List<keywordType> keywords = new ArrayList<keywordType>();
             
-            exprType[] args = new exprType[nargs];
-            for (int i = 0; i < nargs; i++) {
-                //what can happen is something like print sum(x for x in y), where we have already passed x in the args, and then get 'for x in y'
-                if(tmparr[i] instanceof ComprehensionCollection){
-                    args = new exprType[]{
-                        new ListComp(args[0], ((ComprehensionCollection)tmparr[i]).getGenerators())};
+            for (int i = arity - 2; i >= 0; i--) {
+                SimpleNode node = stack.popNode();
+                if (node instanceof keywordType) {
+                    keywords.add(0, (keywordType) node);
+                    
+                }else if(node.getId() == JJTEXTRAARGVALUELIST){
+                    ExtraArgValue nstarargs = (ExtraArgValue) node;
+                    starargs = nstarargs.value;
+                    this.addSpecialsAndClearOriginal(nstarargs, starargs);
+                    
+                }else if (node.getId() == JJTEXTRAKEYWORDVALUELIST) {
+                    ExtraArgValue nkwargs = (ExtraArgValue) node;
+                    kwargs = nkwargs.value;
+                    this.addSpecialsAndClearOriginal(nkwargs, kwargs);
+                    
+                }else if(node instanceof ComprehensionCollection){
+                    //what can happen is something like print sum(x for x in y), where we have already passed x in the args, and then get 'for x in y'
+                    args.add(0, new ListComp((exprType) stack.popNode(), ((ComprehensionCollection)node).getGenerators()));
+                    i--; //popped node
+                    
                 }else{
-                    args[i] = (exprType) tmparr[i];
+                    args.add(0, (exprType) node);
                 }
             }
-
-            keywordType[] keywords = new keywordType[l - nargs];
-            for (int i = nargs; i < l; i++) {
-                if (!(tmparr[i] instanceof keywordType))
-                    throw new ParseException(
-                        "non-keyword argument following keyword", tmparr[i]);
-                keywords[i - nargs] = (keywordType) tmparr[i];
-            }
+            
             exprType func = (exprType) stack.popNode();
-            Call c = new Call(func, args, keywords, starargs, kwargs);
+            Call c = new Call(func, args.toArray(new exprType[args.size()]), keywords.toArray(new keywordType[keywords.size()]), starargs, kwargs);
             addSpecialsAndClearOriginal(n, c);
             return c;
         case JJTFUNCDEF:

@@ -139,7 +139,9 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
     }
 
     public void traverse(FunctionDef node) throws Exception {
-        visit(node.decs);
+        if(node.decs != null){
+            visit(node.decs);
+        }
         visit(node.name);
         visit(node.args);
         visit(node.body);
