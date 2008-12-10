@@ -277,9 +277,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         
         //then the decorators (no, still not in method scope)
-        for (decoratorsType dec : node.decs){
-            if(dec != null){
-                dec.accept(visitor);
+        if(node.decs != null){
+            for (decoratorsType dec : node.decs){
+                if(dec != null){
+                    dec.accept(visitor);
+                }
             }
         }
 
