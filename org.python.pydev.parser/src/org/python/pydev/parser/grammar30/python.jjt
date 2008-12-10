@@ -793,9 +793,9 @@ void typedargslist() #void: {}
 //       (LOOKAHEAD(2) (defaultarg2() <COMMA>)*//        (ExtraArgList2() (<COMMA> defaultarg2())* [<COMMA> ExtraKeywordList2()] | ExtraKeywordList2())//        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
 
 
-       ((defaultarg2() (LOOKAHEAD(2)<COMMA> defaultarg2())*) [LOOKAHEAD(2)<COMMA> ((ExtraArgList2() (LOOKAHEAD(2)<COMMA> defaultarg2())* [<COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [<COMMA>]
-    |  (ExtraArgList2() (LOOKAHEAD(2)<COMMA> defaultarg2())* [LOOKAHEAD(2)<COMMA> ExtraKeywordList2()]) [<COMMA>]   
-    |   ExtraKeywordList2() [<COMMA>]
+       ((defaultarg2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg2())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg2())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [{this.addSpecialToken(",");} <COMMA>]
+    |  (ExtraArgList2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg2())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordList2()]) [{this.addSpecialToken(",");} <COMMA>]   
+    |   ExtraKeywordList2() [{this.addSpecialToken(",");} <COMMA>]
 }
 
 void ExtraArgList2(): {}
@@ -822,9 +822,9 @@ void tfpdef(): {}
 //varargslist: ((vfpdef ['=' test] ',')*//              ('*' [vfpdef] (',' vfpdef ['=' test])*  [',' '**' vfpdef] | '**' vfpdef)//              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
 void varargslist() #void: {}
 {
-       ((defaultarg() (LOOKAHEAD(2)<COMMA> defaultarg())*) [LOOKAHEAD(2)<COMMA> ((ExtraArgList() (LOOKAHEAD(2)<COMMA> defaultarg())* [<COMMA> ExtraKeywordList()]) | (ExtraKeywordList()) )]) [<COMMA>]
-    |  (ExtraArgList() (LOOKAHEAD(2)<COMMA> defaultarg())* [LOOKAHEAD(2)<COMMA> ExtraKeywordList()]) [<COMMA>]   
-    |   ExtraKeywordList() [<COMMA>]
+       ((defaultarg() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]) | (ExtraKeywordList()) )]) [{this.addSpecialToken(",");} <COMMA>]
+    |  (ExtraArgList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]) [{this.addSpecialToken(",");} <COMMA>]   
+    |   ExtraKeywordList() [{this.addSpecialToken(",");} <COMMA>]
 }
 
 void ExtraArgList(): {}
@@ -1000,11 +1000,11 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [<COMMA>] [<EQUAL> testlist()] }
+{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> testlist()] }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
-void nonlocal_stmt(): {}{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [<COMMA>] [<EQUAL> testlist()]}
+void nonlocal_stmt(): {}{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> testlist()]}
 
 
 
@@ -1356,18 +1356,18 @@ void decorated():{}
 }
 
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
-void classdef(): {}
+void classdef(): {Object spStr;Object spStr2;}
 {
-    <CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [arglist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
+    <CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_AFTER_PREV);}   [arglist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
         {this.addSpecialToken(":");} suite()
 }
 
 //arglist: (argument ',')* (argument [',']//                         |'*' test (',' argument)* [',' '**' test] //                         |'**' test)
 void arglist() #void: {}
 {
-       ((argument() (LOOKAHEAD(2)<COMMA> argument())*) [LOOKAHEAD(2)<COMMA> ((ExtraArgValueList() (LOOKAHEAD(2)<COMMA> argument())* [<COMMA> ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [<COMMA>]
-    |  (ExtraArgValueList() (LOOKAHEAD(2)<COMMA> argument())* [LOOKAHEAD(2)<COMMA> ExtraKeywordValueList()]) [<COMMA>]   
-    |   ExtraKeywordValueList() [<COMMA>]
+       ((argument() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> argument())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgValueList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> argument())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [{this.addSpecialToken(",");} <COMMA>]
+    |  (ExtraArgValueList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> argument())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList()]) [{this.addSpecialToken(",");} <COMMA>]   
+    |   ExtraKeywordValueList() [{this.addSpecialToken(",");} <COMMA>]
 }
 
 

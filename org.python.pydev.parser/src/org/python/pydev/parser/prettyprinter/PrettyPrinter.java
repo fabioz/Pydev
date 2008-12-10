@@ -655,6 +655,9 @@ public class PrettyPrinter extends PrettyPrinterUtils{
                     state.popInStmt();
                 }
             }
+            
+            printArguments(node, node.keywords, node.starargs, node.kwargs);
+            
             checkEndRecord();
             for(SimpleNode n: node.body){
                 n.accept(this);

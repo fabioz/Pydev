@@ -211,7 +211,8 @@ public class PrettyPrinterUtils extends VisitorBase{
      * @param starargs the star arguments
      * @param kwargs the keyword arguments
      */
-    protected void printCallArguments(Call node, exprType[] args, keywordType[] keywords, exprType starargs, exprType kwargs) throws Exception, IOException {
+    protected void printCallArguments(Call node, exprType[] args, keywordType[] keywords, exprType starargs, 
+            exprType kwargs) throws Exception, IOException {
         state.indent();
         if(args != null){
             for (int i = 0; i < args.length; i++) {
@@ -222,6 +223,17 @@ public class PrettyPrinterUtils extends VisitorBase{
                 }
             }
         }
+        printArguments(node, keywords, starargs, kwargs);
+        dedent();
+    }
+
+
+    /**
+     * Prints the keywords, stargs and kwargs, taking care for their order (because on 2.6 and 3.0, the
+     * keyword arguments can come after stargs).
+     */
+    protected void printArguments(SimpleNode node, keywordType[] keywords, exprType starargs, exprType kwargs)
+            throws IOException, Exception {
         state.pushInStmt(node);
         
         java.util.List<SimpleNode> lst = new ArrayList<SimpleNode>();
@@ -268,7 +280,6 @@ public class PrettyPrinterUtils extends VisitorBase{
            }
        }
         
-        dedent();
         state.popInStmt();
     }
 
