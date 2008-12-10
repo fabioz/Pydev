@@ -421,8 +421,6 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             SimpleNode funcdefReturn = stack.popNode();
             return new FuncDefReturnAnn(funcdefReturn);
         case JJTFUNCDEF:
-            //get the decorators
-            //and clear them for the next call (they always must be before a function def)
             suite = (Suite) stack.popNode();
             body = suite.body;
             arity--;

@@ -158,10 +158,11 @@ public final class TreeBuilder26 implements PythonGrammar26TreeConstants {
         case JJTNUM:
             Object[] numimage = (Object[]) n.getImage();
             return new Num(numimage[0], (Integer)numimage[1], (String)numimage[2]);
+        case JJTBINARY:
         case JJTUNICODE:
         case JJTSTRING:
             Object[] image = (Object[]) n.getImage();
-            return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2], false); //never binary
+            return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2], (Boolean)image[4]); 
 
         case JJTSUITE:
             stmtType[] stmts = new stmtType[arity];
@@ -329,6 +330,20 @@ public final class TreeBuilder26 implements PythonGrammar26TreeConstants {
                 listArgs.clear();
             }
             return new Decorators((decoratorsType[]) list2.toArray(new decoratorsType[0]), JJTDECORATORS);
+        case JJTDECORATED:
+            if(stack.nodeArity() != 2){
+                throw new RuntimeException("Expected 2 nodes at this context, found: "+arity);
+            }
+            SimpleNode def = stack.popNode();
+            Decorators decorators = (Decorators) stack.popNode();
+            if(def instanceof ClassDef){
+                ClassDef classDef = (ClassDef) def;
+                classDef.decs = decorators.exp;
+            }else{
+                FunctionDef fDef = (FunctionDef) def;
+                fDef.decs = decorators.exp;
+            }
+            return def;
         case JJTCALL_OP:
             exprType starargs = null;
             exprType kwargs = null;
@@ -380,19 +395,13 @@ public final class TreeBuilder26 implements PythonGrammar26TreeConstants {
             addSpecialsAndClearOriginal(n, c);
             return c;
         case JJTFUNCDEF:
-            //get the decorators
-            //and clear them for the next call (they always must be before a function def)
             suite = (Suite) stack.popNode();
             body = suite.body;
             
-            argumentsType arguments = makeArguments(stack.nodeArity() - 2);
+            argumentsType arguments = makeArguments(stack.nodeArity() - 1);
             NameTok nameTok = makeName(NameTok.FunctionName);
-            Decorators decs = (Decorators) stack.popNode() ;
-            decoratorsType[] decsexp = decs.exp;
-            FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, decsexp, null);
-            if(decs.exp.length == 0){
-                addSpecialsBefore(decs, funcDef);
-            }
+            //decorator is always null at this point... it's decorated later on
+            FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, null);
             addSpecialsAndClearOriginal(suite, funcDef);
             setParentForFuncOrClass(body, funcDef);
             return funcDef;

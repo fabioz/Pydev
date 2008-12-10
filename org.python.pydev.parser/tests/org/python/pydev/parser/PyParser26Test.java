@@ -12,7 +12,7 @@ public class PyParser26Test extends PyParserTestBase{
         try {
             PyParser26Test test = new PyParser26Test();
             test.setUp();
-            test.testExceptAs();
+            test.testOctal();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser26Test.class);
@@ -57,8 +57,10 @@ public class PyParser26Test extends PyParserTestBase{
     public void testOctal(){
         String str = "" +
         "0o700\n" +
+        "0700\n" +
         "";
-        parseLegalDocStr(str);
+        assertEquals("Module[body=[Expr[value=Num[n=448, type=Int, num=0o700]], Expr[value=Num[n=448, type=Int, num=0700]]]]",
+                parseLegalDocStr(str).toString());
     }
     
     

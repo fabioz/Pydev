@@ -98,14 +98,18 @@ public interface PythonGrammar26Constants {
   int COMPLEX = 98;
   int EXPONENT = 99;
   int DIGIT = 100;
-  int SINGLE_STRING = 109;
-  int SINGLE_STRING2 = 110;
-  int TRIPLE_STRING = 111;
-  int TRIPLE_STRING2 = 112;
-  int SINGLE_USTRING = 113;
-  int SINGLE_USTRING2 = 114;
-  int TRIPLE_USTRING = 115;
-  int TRIPLE_USTRING2 = 116;
+  int SINGLE_STRING = 113;
+  int SINGLE_STRING2 = 114;
+  int TRIPLE_STRING = 115;
+  int TRIPLE_STRING2 = 116;
+  int SINGLE_BSTRING = 117;
+  int SINGLE_BSTRING2 = 118;
+  int TRIPLE_BSTRING = 119;
+  int TRIPLE_BSTRING2 = 120;
+  int SINGLE_USTRING = 121;
+  int SINGLE_USTRING2 = 122;
+  int TRIPLE_USTRING = 123;
+  int TRIPLE_USTRING2 = 124;
 
   int DEFAULT = 0;
   int FORCE_NEWLINE1 = 1;
@@ -117,14 +121,20 @@ public interface PythonGrammar26Constants {
   int IN_STRING21 = 7;
   int IN_STRING13 = 8;
   int IN_STRING23 = 9;
-  int IN_USTRING11 = 10;
-  int IN_USTRING21 = 11;
-  int IN_USTRING13 = 12;
-  int IN_USTRING23 = 13;
-  int IN_STRING1NLC = 14;
-  int IN_STRING2NLC = 15;
-  int IN_USTRING1NLC = 16;
-  int IN_USTRING2NLC = 17;
+  int IN_BSTRING11 = 10;
+  int IN_BSTRING21 = 11;
+  int IN_BSTRING13 = 12;
+  int IN_BSTRING23 = 13;
+  int IN_USTRING11 = 14;
+  int IN_USTRING21 = 15;
+  int IN_USTRING13 = 16;
+  int IN_USTRING23 = 17;
+  int IN_STRING1NLC = 18;
+  int IN_STRING2NLC = 19;
+  int IN_USTRING1NLC = 20;
+  int IN_USTRING2NLC = 21;
+  int IN_BSTRING1NLC = 22;
+  int IN_BSTRING2NLC = 23;
 
   String[] tokenImage = {
     "<EOF>",
@@ -236,6 +246,10 @@ public interface PythonGrammar26Constants {
     "<token of kind 106>",
     "<token of kind 107>",
     "<token of kind 108>",
+    "<token of kind 109>",
+    "<token of kind 110>",
+    "<token of kind 111>",
+    "<token of kind 112>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
@@ -244,25 +258,35 @@ public interface PythonGrammar26Constants {
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
     "\"\\\"\\\"\\\"\"",
+    "\"\\\'\"",
+    "\"\\\"\"",
+    "\"\\\'\\\'\\\'\"",
+    "\"\\\"\\\"\\\"\"",
     "\"\\\\\\r\\n\"",
-    "<token of kind 118>",
+    "<token of kind 126>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 120>",
+    "<token of kind 128>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 122>",
-    "\"\\\\\\r\\n\"",
-    "<token of kind 124>",
-    "\"\"",
-    "\"\"",
-    "\"\"",
-    "\"\"",
-    "<token of kind 129>",
     "<token of kind 130>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 132>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 134>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 136>",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "\"\"",
+    "<token of kind 143>",
+    "<token of kind 144>",
     "\"\\r\\n\"",
     "\"\\n\"",
     "\"\\r\"",
-    "<token of kind 134>",
-    "<token of kind 135>",
+    "<token of kind 148>",
+    "<token of kind 149>",
     "\"`\"",
   };
 

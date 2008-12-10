@@ -270,13 +270,18 @@ public class PythonGrammar26 implements IGrammar
      * 1 = boolean indicating unicode
      * 2 = boolean indicating raw
      * 3 = style
+     * 4 = boolean indicating binary
      */
     Object[] makeString(String s, int quotes) {
         //System.out.println("enter: "+s);
         char quoteChar = s.charAt(0);
         int start=0;
         boolean ustring = false;
+        boolean bstring = false;
         if (quoteChar == 'u' || quoteChar == 'U') {
+            ustring = true;
+            start++;
+        }else if (quoteChar == 'b' || quoteChar == 'B') {
             ustring = true;
             start++;
         }
@@ -285,7 +290,7 @@ public class PythonGrammar26 implements IGrammar
             //raw string (does not decode slashes)
             String str = s.substring(quotes+start+1, s.length()-quotes);
             //System.out.println("out: "+str);
-            return new Object[]{str,ustring, true, getType(s.charAt(start+1), quotes)};
+            return new Object[]{str,ustring, true, getType(s.charAt(start+1), quotes), bstring};
 
         } else {
             int n = s.length()-quotes;
@@ -293,7 +298,7 @@ public class PythonGrammar26 implements IGrammar
 
             String str = hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
             //System.out.println("out: "+str);
-            return new Object[]{str, ustring, false, getType(s.charAt(start), quotes)};
+            return new Object[]{str, ustring, false, getType(s.charAt(start), quotes), bstring};
         }
     }
     
@@ -616,7 +621,7 @@ TOKEN : /* Numeric literals */
       | "0"
       >
 |   < HEXNUMBER: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ (["l","L"])? >
-|   < OCTNUMBER: "0" (["0"-"7"])* (["l","L"])? >
+|   < OCTNUMBER: "0" (["o","O"])? (["0"-"7"])* (["l","L"])? >
 |
     < FLOAT:
         (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)?
@@ -635,6 +640,12 @@ MORE : /* Strings */
 |   < (["u", "U"]) (["r", "R"])? "\"" > :  IN_USTRING21
 |   < (["u", "U"]) (["r", "R"])? "'''" > :  IN_USTRING13
 |   < (["u", "U"]) (["r", "R"])? "\"\"\"" > :  IN_USTRING23
+
+|   < (["b", "B"]) (["r", "R"])? "'" > :  IN_BSTRING11
+|   < (["b", "B"]) (["r", "R"])? "\"" > :  IN_BSTRING21
+|   < (["b", "B"]) (["r", "R"])? "'''" > :  IN_BSTRING13
+|   < (["b", "B"]) (["r", "R"])? "\"\"\"" > :  IN_BSTRING23
+
 |   < (["r", "R"])? "'" > :  IN_STRING11
 |   < (["r", "R"])? "\"" > :  IN_STRING21
 |   < (["r", "R"])? "'''" > :  IN_STRING13
@@ -648,6 +659,15 @@ MORE : /* Strings */
 <IN_STRING13> TOKEN : { <TRIPLE_STRING: "'''"> {
     matchedToken.image = image.toString(); } : DEFAULT}
 <IN_STRING23> TOKEN : { <TRIPLE_STRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
+<IN_BSTRING11> TOKEN : { <SINGLE_BSTRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_BSTRING21> TOKEN : { <SINGLE_BSTRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_BSTRING13> TOKEN : { <TRIPLE_BSTRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_BSTRING23> TOKEN : { <TRIPLE_BSTRING2: "\"\"\""> {
     matchedToken.image = image.toString(); } : DEFAULT}
 
 <IN_USTRING11> TOKEN : { <SINGLE_USTRING: "'"> {
@@ -683,6 +703,18 @@ MORE : /* Strings */
 |   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING2NLC
 }
 
+<IN_BSTRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_BSTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_BSTRING1NLC
+}
+
+<IN_BSTRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_BSTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_BSTRING2NLC
+}
+
 <IN_STRING1NLC> MORE:
 {
  <""> : IN_STRING11
@@ -703,8 +735,18 @@ MORE : /* Strings */
  <""> : IN_USTRING21
 }
 
-<IN_STRING11, IN_USTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
-<IN_STRING21, IN_USTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
+<IN_BSTRING1NLC> MORE:
+{
+ <""> : IN_BSTRING11
+}
+
+<IN_BSTRING2NLC> MORE:
+{
+ <""> : IN_BSTRING21
+}
+
+<IN_STRING11, IN_USTRING11, IN_BSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
+<IN_STRING21, IN_USTRING21, IN_BSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
 
 /* This is a test to see if we can make the loading of strings more efficient (and maybe replace the MORE that is declared below.
 I stopped this because I've seen that making the CharStream was apparently the number 1 thing to do, but it might be worth
@@ -731,7 +773,7 @@ comming back to this approach later).
 }
 */
 
-<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23> MORE:
+<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23, IN_BSTRING13, IN_BSTRING23> MORE:
 {
     <"\r\n"> {
         int l = image.length();
@@ -756,14 +798,21 @@ modType file_input(): {}
 //funcdef: 'def' NAME parameters ':' suite
 void funcdef(): {}
 { 
-    decorators()
     <DEF> AnyName() parameters() <COLON> {this.addSpecialToken(":");} suite() 
 }
 
-//@ call, name, attr ... <nl>
+//decorated: decorators (classdef | funcdef)
+void decorated():{}
+{
+    decorators() (classdef()|funcdef())
+}
+
+
+//decorators: decorator+
+//decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() (<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");}] <NEWLINE> )+ 
 }
 void begin_decorator(): {}
 { <AT> dotted_name()
@@ -984,9 +1033,9 @@ void exec_stmt(): {}
 void assert_stmt(): {}
 { <ASSERT> test() [{this.addSpecialToken(",");} <COMMA> test()] }
 
-//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
+//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated
 void compound_stmt() #void : { token_source.compound = true; }
-{if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef()}
+{if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()}
 
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
@@ -1365,7 +1414,16 @@ void Number() #Num :
         } {}
     )
 |   (
-        t=<OCTNUMBER> { jjtThis.setImage(makeInt(t.image, 8, t.image)); } {}
+        t=<OCTNUMBER> {
+        	s = t.image;
+        	if(s.length() >= 2){
+        		char c = s.charAt(1);
+        		if(c == 'o' || c == 'O'){ 
+        	       s = t.image.substring(2, t.image.length());
+        		}
+        	}
+        	jjtThis.setImage(makeInt(s, 8, t.image)); 
+        } {}
     )
 |   (
         t=<DECNUMBER> { jjtThis.setImage(makeInt(t.image, 10, t.image)); } {}
@@ -1403,6 +1461,10 @@ void String() #void :
 |   ( t=<SINGLE_USTRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Unicode
 |   ( t=<TRIPLE_USTRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Unicode
 |   ( t=<TRIPLE_USTRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Unicode
+|   ( t=<SINGLE_BSTRING> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Binary
+|   ( t=<SINGLE_BSTRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Binary
 }
 
 Token AnyName() #void:
