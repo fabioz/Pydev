@@ -760,7 +760,7 @@ modType file_input(): {}
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 { 
-    <DEF> AnyName() parameters() [<MINUS><GREATER> test()#funcdef_return_annottation] <COLON> 
+    <DEF> AnyName() parameters() [<MINUS><GREATER>{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);} test()#funcdef_return_annottation] <COLON> 
         {this.addSpecialToken(":");}  suite() 
 }
 

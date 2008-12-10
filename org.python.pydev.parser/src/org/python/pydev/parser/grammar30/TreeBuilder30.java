@@ -414,6 +414,7 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                 stack.popNode();
                 actualReturnAnnotation = (exprType) ((FuncDefReturnAnn)funcDefReturnAnn).node;
                 arity--;
+                addSpecialsAndClearOriginal(funcDefReturnAnn, actualReturnAnnotation);
             }
             argumentsType arguments = makeArguments(arity-1);
             NameTok nameTok = makeName(NameTok.FunctionName);

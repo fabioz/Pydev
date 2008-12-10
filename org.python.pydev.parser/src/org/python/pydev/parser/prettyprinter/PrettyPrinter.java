@@ -718,6 +718,12 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             //arguments
             makeArgs(node.args.args, node.args);
             //end arguments
+            
+            //print return annotation
+            if(node.returns != null){
+                node.returns.accept(this);
+            }
+            
             if(!fixNewStatementCondition()){
                 if(lastWrite == state.getLastWrite()){
                     state.writeIndentString();
@@ -732,6 +738,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         
             dedent();
         }
+        
         auxComment.writeCommentsAfter(node);
         state.writeLinesAfterMethod();
         return null;

@@ -11,7 +11,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         try {
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testMetaClass3();
+            test.testAnnotations2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -50,4 +50,19 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "";
         checkPrettyPrintEqual(s);
     }
+    
+    public void testAnnotations() throws Exception {
+        String s = "" +
+        "def seek(self,pos,whence)->int:\n" +
+        "    pass\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testAnnotations2() throws Exception {
+        String s = "" +
+        "def seek(self,pos:int,whence:int)->int:\n" +
+        "    pass";
+        checkPrettyPrintEqual(s);
+    }
+
 }
