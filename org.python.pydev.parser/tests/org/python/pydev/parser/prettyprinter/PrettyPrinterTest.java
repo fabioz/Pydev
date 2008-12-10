@@ -15,13 +15,13 @@ import org.python.pydev.parser.prettyprinter.WriterEraser;
 
 public class PrettyPrinterTest extends PyParserTestBase{
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     public static void main(String[] args) {
         try {
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testFuncComment();
+            test.testFuncCallWithListComp();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -34,6 +34,61 @@ public class PrettyPrinterTest extends PyParserTestBase{
         String s = 
             "data = [[1,2,3],[4,5,6]]\n" +
             "newdata = [[val * 2 for val in lst] for lst in data]\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testStrings() throws Exception {
+        String s = "" +
+        "\"test\"\n" +
+        "'test'\n" +
+        "'''test'''\n" +
+        "u'''test'''\n" +
+        "b'''test'''\n" +
+        "r'''test'''\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testNums() throws Exception {
+        String s = "" +
+        "0o700\n" +
+        "0O700\n" +
+        "0700\n" +
+        "0x700\n" +
+        "0X700\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testClassDecorator() throws Exception {
+        String s = "" +
+        "@classdec\n" +
+        "@classdec2\n" +
+        "class A:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testFuncCallWithListComp() throws Exception {
+        String str = "" +
+        "any(cls.__subclasscheck__(c) for c in [subclass,subtype])\n" +
+        "";
+        checkPrettyPrintEqual(str);
+    }
+    
+    public void testNewFuncCall() throws Exception {
+        String s = "Call(1,2,3,*(4,5,6),keyword=13,**kwargs)\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testExceptAs() throws Exception {
+        String s = "" +
+        "try:\n" +
+        "    a = 10\n" +
+        "except RuntimeError as x:\n" +
+        "    print x\n" +
+        "";
         checkPrettyPrintEqual(s);
     }
     

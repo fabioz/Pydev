@@ -5,6 +5,9 @@ package org.python.pydev.parser.prettyprinter;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -221,25 +224,62 @@ public class PrettyPrinterUtils extends VisitorBase{
         }
         state.pushInStmt(node);
         
+        java.util.List<SimpleNode> lst = new ArrayList<SimpleNode>();
         if (keywords != null) {
             for (int i = 0; i < keywords.length; i++) {
-                if (keywords[i] != null){
-                    auxComment.writeSpecialsBefore(keywords[i]);
-                    state.indent();
-                    keywords[i].accept(this);
-                    auxComment.writeSpecialsAfter(keywords[i]);
-                    dedent();
-                }
+                keywordType keyword = keywords[i];
+                lst.add(keyword);
             }
         }
         if (starargs != null){
-            starargs.accept(this);
+            lst.add(starargs);
         }
         if (kwargs != null){
-            kwargs.accept(this);
+            lst.add(kwargs);
         }
+        
+        //We must sort it according to the position because this changed in 2.6: 
+        //we can have keyword arguments after stargs and kwargs.
+        Collections.sort(lst, new Comparator<SimpleNode>(){
+
+            public int compare(SimpleNode o1, SimpleNode o2) {
+                if(o1.beginLine < o2.beginLine){
+                    return -1;
+                }
+                if(o1.beginLine > o2.beginLine){
+                    return 1;
+                }
+                if(o1.beginColumn < o2.beginColumn){
+                    return -1;
+                }
+                if(o1.beginColumn > o2.beginColumn){
+                    return 1;
+                }
+                return 0;
+            }}
+        );
+        
+       //now, go on and print it regularly
+       for(SimpleNode n:lst){
+           if(n instanceof keywordType){
+               printKeyword((keywordType) n);
+           }else{
+               n.accept(this);
+           }
+       }
+        
         dedent();
         state.popInStmt();
+    }
+
+    private void printKeyword(keywordType keyword) throws IOException, Exception {
+        if (keyword != null){
+            auxComment.writeSpecialsBefore(keyword);
+            state.indent();
+            keyword.accept(this);
+            auxComment.writeSpecialsAfter(keyword);
+            dedent();
+        }
     }
 
     

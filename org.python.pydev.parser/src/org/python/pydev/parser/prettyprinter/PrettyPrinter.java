@@ -632,6 +632,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
+        printDecorators(node.decs);
         fixNewStatementCondition();
 
         auxComment.writeSpecialsBefore(node.name);
@@ -700,18 +701,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
-        decoratorsType[] decs = node.decs;
-        if(decs != null){
-            for (decoratorsType dec : decs) {
-                auxComment.writeSpecialsBefore(dec);
-                fixNewStatementCondition();
-                state.write("@");
-                state.pushInStmt(node);
-                visitDecoratorsType(dec);
-                state.popInStmt();
-                auxComment.writeSpecialsAfter(dec);
-            }
-        }
+        printDecorators(node.decs);
         fixNewStatementCondition();
         auxComment.writeSpecialsBefore(node);
         state.write("def ");
@@ -742,6 +732,20 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         auxComment.writeCommentsAfter(node);
         state.writeLinesAfterMethod();
         return null;
+    }
+
+    private void printDecorators(decoratorsType[] decs) throws IOException, Exception {
+        if(decs != null){
+            for (decoratorsType dec : decs) {
+                auxComment.writeSpecialsBefore(dec);
+                fixNewStatementCondition();
+                state.write("@");
+                state.pushInStmt(dec);
+                visitDecoratorsType(dec);
+                state.popInStmt();
+                auxComment.writeSpecialsAfter(dec);
+            }
+        }
     }
 
     protected void makeArgs(exprType[] args, argumentsType completeArgs) throws Exception {
@@ -827,7 +831,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
     @Override
     public Object visitNum(Num node) throws Exception {
-        return visitGeneric(node, "visitNum", false, node.n.toString());
+        return visitGeneric(node, "visitNum", false, node.num.toString());
     }
 
     @Override

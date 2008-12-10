@@ -733,6 +733,9 @@ public class NodeUtils {
         if(node.unicode){
             buffer.append("u");
         }
+        if(node.binary){
+            buffer.append("b");
+        }
         if(node.raw){
             buffer.append("r");
         }

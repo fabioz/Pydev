@@ -260,7 +260,7 @@ public class PythonGrammar26 implements/*@bgen(jjtree)*/ PythonGrammar26TreeCons
             ustring = true;
             start++;
         }else if (quoteChar == 'b' || quoteChar == 'B') {
-            ustring = true;
+            bstring = true;
             start++;
         }
         quoteChar = s.charAt(start);

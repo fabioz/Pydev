@@ -282,7 +282,7 @@ public class PythonGrammar26 implements IGrammar
             ustring = true;
             start++;
         }else if (quoteChar == 'b' || quoteChar == 'B') {
-            ustring = true;
+            bstring = true;
             start++;
         }
         quoteChar = s.charAt(start);
