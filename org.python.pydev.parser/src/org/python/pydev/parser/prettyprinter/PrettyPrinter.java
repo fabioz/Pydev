@@ -5,8 +5,11 @@ package org.python.pydev.parser.prettyprinter;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
@@ -24,6 +27,7 @@ import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.For;
@@ -44,6 +48,8 @@ import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.Set;
+import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Slice;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.StrJoin;
@@ -285,6 +291,20 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     
     
     @Override
+    public Object visitSet(Set node) throws Exception {
+        state.indent();
+        auxComment.writeSpecialsBefore(node);
+        for (int i = 0; i < node.elts.length; i++) {
+            prefs.enableSpacesAfterColon();
+            node.elts[i].accept(this);
+            prefs.disableSpacesAfterColon();
+        }
+        auxComment.writeSpecialsAfter(node);
+        dedent();
+        return null;
+    }
+    
+    @Override
     public Object visitDict(Dict node) throws Exception {
         state.indent();
         auxComment.writeSpecialsBefore(node);
@@ -306,7 +326,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         genericBefore(node, false);
         state.pushInStmt(node);
         prefs.enableSpacesAfterColon();
-        makeArgs(node.args.args, node.args);
+        printArgs(node.args);
         prefs.disableSpacesAfterColon();
         node.body.accept(this);
         state.popInStmt();
@@ -328,6 +348,29 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public Object visitListComp(ListComp node) throws Exception {
         beforeNode(node);
         node.elt.accept(this);
+        for(comprehensionType c:node.generators){
+            c.accept(this);
+        }
+        afterNode(node);
+        return null;
+    }
+    
+    @Override
+    public Object visitSetComp(SetComp node) throws Exception {
+        beforeNode(node);
+        node.elt.accept(this);
+        for(comprehensionType c:node.generators){
+            c.accept(this);
+        }
+        afterNode(node);
+        return null;
+    }
+    
+    @Override
+    public Object visitDictComp(DictComp node) throws Exception {
+        beforeNode(node);
+        node.key.accept(this);
+        node.value.accept(this);
         for(comprehensionType c:node.generators){
             c.accept(this);
         }
@@ -716,7 +759,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         
         {
             //arguments
-            makeArgs(node.args.args, node.args);
+            printArgs(node.args);
             //end arguments
             
             //print return annotation
@@ -758,38 +801,114 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         }
     }
 
-    protected void makeArgs(exprType[] args, argumentsType completeArgs) throws Exception {
+    /**
+     * Prints the arguments.
+     */
+    @SuppressWarnings("unchecked")
+    protected void printArgs(argumentsType completeArgs) throws Exception {
+        exprType[] args = completeArgs.args;
         exprType[] d = completeArgs.defaults;
+        exprType[] anns = completeArgs.annotation;
         int argsLen = args.length;
         int defaultsLen = d.length;
         int diff = argsLen-defaultsLen;
         
-        int i = 0;
-        for (exprType type : args) {
-            state.pushInStmt(type);
+        for(int i=0;i<args.length;i++) {
+            exprType argName=args[i];
+            state.pushInStmt(argName);
+            
+            //handle defaults
             if(i >= diff){
-                state.pushTempBuffer();
-                exprType arg = d[i-diff];
-                if(arg != null){
-                    arg.accept(this);
-                    type.getSpecialsAfter().add(0, state.popTempBuffer());
-                    type.getSpecialsAfter().add(0, "=");
-                }else{
-                    state.popTempBuffer();
+                exprType defaulArgValue = d[i-diff];
+                if(defaulArgValue != null){
+                    //put the =xxx in the original args
+                    addToArgAsSpecialsAfter(argName, defaulArgValue); //right after the '='
                 }
             }
-            type.accept(this);
-            i++;
+            
+            
+            //handle annotation
+            if(anns != null){
+                exprType ann = anns[i];
+                if(ann != null){
+                    addToArgAsSpecialsAfter(argName, ann); //right after the '='
+                }
+            }
+            
+            
+            //handle argument
+            argName.accept(this);
             state.popInStmt();
         }
 
+        //varargs
         if(completeArgs.vararg != null){
+            state.pushInStmt(completeArgs.vararg);
+            addToArgAsSpecialsAfter(completeArgs.vararg, completeArgs.varargannotation);
             completeArgs.vararg.accept(this);
-        }
-        if(completeArgs.kwarg != null){
-            completeArgs.kwarg.accept(this);
+            state.popInStmt();
+        }else{
+            if(completeArgs.kwonlyargs != null && completeArgs.kwonlyargs.length > 0 && completeArgs.kwonlyargs[0] != null){
+                //we must add a '*,' to print it if we have a keyword arg after the varargs but don't really have an expression for it
+                List specialsBefore = completeArgs.kwonlyargs[0].specialsBefore;
+                if(specialsBefore == null){
+                    specialsBefore = new ArrayList();
+                    completeArgs.kwonlyargs[0].specialsBefore = specialsBefore;
+                }
+                specialsBefore.add("*");
+                specialsBefore.add(",");
+            }
         }
         
+        //keyword only arguments (after varargs)
+        if(completeArgs.kwonlyargs != null){
+            for(int i=0;i<completeArgs.kwonlyargs.length;i++){
+                exprType kwonlyarg = completeArgs.kwonlyargs[i];
+                if(kwonlyarg != null){
+                    
+                    state.pushInStmt(kwonlyarg);
+                    if(completeArgs.kw_defaults != null && completeArgs.kw_defaults[i] != null){
+                        addToArgAsSpecialsAfter(kwonlyarg, completeArgs.kw_defaults[i]); //right after the '='
+                    }
+                    if(completeArgs.kwonlyargannotation != null && completeArgs.kwonlyargannotation[i] != null){
+                        addToArgAsSpecialsAfter(kwonlyarg, completeArgs.kwonlyargannotation[i]); //right after the '='
+                    }
+                    kwonlyarg.accept(this);
+                    
+                    state.popInStmt();
+                }
+            }
+        }
+        
+        
+        //keyword arguments
+        if(completeArgs.kwarg != null){
+            state.pushInStmt(completeArgs.kwarg);
+            addToArgAsSpecialsAfter(completeArgs.kwarg, completeArgs.kwargannotation);
+            completeArgs.kwarg.accept(this);
+            state.popInStmt();
+        }
+        
+    }
+
+    /**
+     * Adds the printed value of valToPrint to the 1st position of the specials that should be printed
+     * after the nodeToAdd.
+     */
+    private void addToArgAsSpecialsAfter(SimpleNode nodeToAdd, SimpleNode valToPrint) throws Exception {
+        if(valToPrint == null){
+            return;
+        }
+        state.pushTempBuffer();
+        valToPrint.accept(this);
+        List<Object> specialsAfter = nodeToAdd.getSpecialsAfter();
+        int position;
+        if(specialsAfter.size() > 0 && specialsAfter.get(0).toString().equals("=")){
+            position = 1;
+        }else{
+            position = 0;
+        }
+        nodeToAdd.getSpecialsAfter().add(position, state.popTempBuffer());
     }
 
     

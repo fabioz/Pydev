@@ -79,7 +79,8 @@ public class FastParser {
                 NameTok nameTok = createNameTok(functionMatcher, lastReturnedLine, NameTok.FunctionName, ps);
                 
                 if(nameTok != null){
-                    argumentsType args = new argumentsType(EMTPY_EXPR_TYPE, null, null, EMTPY_EXPR_TYPE);
+                    argumentsType args = new argumentsType(EMTPY_EXPR_TYPE, null, null, EMTPY_EXPR_TYPE,
+                            null, null, null, null, null, null);
                     FunctionDef functionDef = new FunctionDef(nameTok, args, EMTPY_STMT_TYPE, EMTPY_DECORATORS_TYPE, null);
                     functionDef.beginLine = lastReturnedLine+1;
                     functionDef.beginColumn = functionMatcher.start(PREFIX_GROUP)+1;

@@ -106,7 +106,7 @@ module Python
 	-- the Artificial context is not actually used in the parser directly. It is used in the application
 	-- to create 'artificial' names, as if it was a regular name (e.g.: create a name for a match inside
 	-- a comment or string)
-	expr_context = Load | Store | Del | AugLoad | AugStore | Param | Artificial
+	expr_context = Load | Store | Del | AugLoad | AugStore | Param | Artificial | KwOnlyParam
 
 	slice = Ellipsis | Slice(expr? lower, expr? upper, expr? step) 
 	      | ExtSlice(slice* dims) 
@@ -127,14 +127,25 @@ module Python
 	
 	excepthandler = (expr? type, expr? name, stmt* body)
 
-	arguments = (expr* args, NameTok? vararg, 
-		     NameTok? kwarg, expr* defaults)
+	arguments = (expr* args,     --regular arguments 
+	         NameTok? vararg,    --varargs (has no defaults)
+		     NameTok? kwarg,     --kwargs (has no defaults)
+		     expr* defaults,     --default values for the args
+		     expr* kwonlyargs,   --keyword only (new in 3.0)
+		     expr* kw_defaults,  --defaults for the keyword only
+		     
+		     expr* annotation,         --from args 
+		     expr? varargannotation,   --from vararg
+		     expr? kwargannotation,    --from kwarg
+		     expr* kwonlyargannotation --from kwargonly
+		     )
 
-        -- keyword arguments supplied to call
-        keyword = (NameTok arg, expr value)
+        
+    -- keyword arguments supplied to call
+    keyword = (NameTok arg, expr value)
 
-        -- import name with optional 'as' alias.
-        alias = (NameTok name, NameTok? asname)
+    -- import name with optional 'as' alias.
+    alias = (NameTok name, NameTok? asname)
 
 	--decorators work as '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 	--changed so that we have the name separated from the arguments for each decorator (fabioz)

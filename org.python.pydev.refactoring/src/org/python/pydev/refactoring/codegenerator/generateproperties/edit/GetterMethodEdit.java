@@ -62,7 +62,7 @@ public class GetterMethodEdit extends AbstractInsertEdit {
     private argumentsType initArguments() {
         exprType[] params = new exprType[1];
         params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param, false));
-        argumentsType args = new argumentsType(params, null, null, null);
+        argumentsType args = new argumentsType(params, null, null, null, null, null, null, null, null, null);
         return args;
     }
 

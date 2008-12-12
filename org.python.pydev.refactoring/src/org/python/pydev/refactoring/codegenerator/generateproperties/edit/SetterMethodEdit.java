@@ -68,7 +68,7 @@ public class SetterMethodEdit extends AbstractInsertEdit {
         exprType[] params = new exprType[2];
         params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param, false));
         params[1] = (new Name(VALUE, Name.Param, false));
-        argumentsType args = new argumentsType(params, null, null, null);
+        argumentsType args = new argumentsType(params, null, null, null, null, null, null, null, null, null);
         return args;
     }
 

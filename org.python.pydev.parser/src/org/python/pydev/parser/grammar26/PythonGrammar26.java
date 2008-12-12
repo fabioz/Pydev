@@ -819,6 +819,7 @@ public class PythonGrammar26 implements/*@bgen(jjtree)*/ PythonGrammar26TreeCons
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
         jj_consume_token(EQUAL);
+                    this.prev.addSpecial("=", true);
         test();
         break;
       default:

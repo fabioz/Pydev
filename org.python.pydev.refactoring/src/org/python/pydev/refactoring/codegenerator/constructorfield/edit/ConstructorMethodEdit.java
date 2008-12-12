@@ -147,7 +147,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
         addOwnArguments(argsNames);
         exprType[] argsExpr = generateExprArray(argsNames);
 
-        return new argumentsType(argsExpr, varArg, kwArg, null);
+        return new argumentsType(argsExpr, varArg, kwArg, null, null, null, null, null, null, null);
     }
 
     private exprType[] generateExprArray(SortedSet<String> argsNames) {

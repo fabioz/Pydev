@@ -793,37 +793,41 @@ void typedargslist() #void: {}
 //       (LOOKAHEAD(2) (defaultarg2() <COMMA>)*//        (ExtraArgList2() (<COMMA> defaultarg2())* [<COMMA> ExtraKeywordList2()] | ExtraKeywordList2())//        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
 
 
-       ((defaultarg2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg2())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg2())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [{this.addSpecialToken(",");} <COMMA>]
-    |  (ExtraArgList2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg2())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordList2()]) [{this.addSpecialToken(",");} <COMMA>]   
+       ((defaultarg2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg2())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg2())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [{this.addSpecialToken(",");} <COMMA>]
+    |  (ExtraArgList2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg2())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordList2()]) [{this.addSpecialToken(",");} <COMMA>]   
     |   ExtraKeywordList2() [{this.addSpecialToken(",");} <COMMA>]
 }
 
 void ExtraArgList2(): {}
 {
-	<MULTIPLY> [tfpdef()]
+	<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
 }
 
 void ExtraKeywordList2(): {}
 {
-	<POWER> tfpdef()
+	<POWER> {this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
 }
 
 void defaultarg2(): {}
-{ tfpdef() [<EQUAL> test()] }
+{ tfpdef() [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} test()] }
+
+
+void onlykeywordarg2(): {}
+{ tfpdef() [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} test()] }
 
 
 //tfpdef: NAME [':' test]
 void tfpdef(): {}
 { 
-	AnyName() [LOOKAHEAD(2)<COLON> test()]
+	AnyName() [LOOKAHEAD(2)<COLON> {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
 }
 
 
 //varargslist: ((vfpdef ['=' test] ',')*//              ('*' [vfpdef] (',' vfpdef ['=' test])*  [',' '**' vfpdef] | '**' vfpdef)//              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
 void varargslist() #void: {}
 {
-       ((defaultarg() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]) | (ExtraKeywordList()) )]) [{this.addSpecialToken(",");} <COMMA>]
-    |  (ExtraArgList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]) [{this.addSpecialToken(",");} <COMMA>]   
+       ((defaultarg() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]) | (ExtraKeywordList()) )]) [{this.addSpecialToken(",");} <COMMA>]
+    |  (ExtraArgList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]) [{this.addSpecialToken(",");} <COMMA>]   
     |   ExtraKeywordList() [{this.addSpecialToken(",");} <COMMA>]
 }
 
@@ -833,8 +837,11 @@ void ExtraArgList(): {}
 void ExtraKeywordList(): {}
 { (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
+void onlykeywordarg(): {}
+{ fpdef() [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} test()] }
+
 void defaultarg(): {}
-{ fpdef() [<EQUAL> test()] }
+{ fpdef() [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} test()] }
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
@@ -932,7 +939,7 @@ void yield_expr(): {}
 
 //raise_stmt: 'raise' [test ['from' test]]
 void raise_stmt(): {}
-{ <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken("from");} <FROM> test()]] }
+{ <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken(" from ");} <FROM> test()]] }
 
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
 void import_stmt() #void: {Import imp;}
@@ -1000,11 +1007,11 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> testlist()] }
+{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()] }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
-void nonlocal_stmt(): {}{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> testlist()]}
+void nonlocal_stmt(): {}{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()]}
 
 
 

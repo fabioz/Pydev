@@ -436,24 +436,29 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             }
             
             return new JfpDef(tfpdefName, typeDef);
+        case JJTONLYKEYWORDARG2:
         case JJTDEFAULTARG2:
+            DefaultArg defaultArg;
+            JfpDef jfpDef;
             if(arity == 1){
-                JfpDef jfpDef = (JfpDef) stack.popNode();
-                return new DefaultArg(jfpDef.nameNode, null, jfpDef.typeDef);
+                jfpDef = (JfpDef) stack.popNode();
+                defaultArg = new DefaultArg(jfpDef.nameNode, null, jfpDef.typeDef, n.getId());
             }else if(arity == 2){
                 exprType defaultValue = (exprType) stack.popNode();
-                JfpDef jfpDef = (JfpDef) stack.popNode();
-                return new DefaultArg(jfpDef.nameNode, defaultValue, jfpDef.typeDef);
+                jfpDef = (JfpDef) stack.popNode();
+                defaultArg = new DefaultArg(jfpDef.nameNode, defaultValue, jfpDef.typeDef, n.getId());
             }else{
                 throw new RuntimeException("Unexpected arity: "+arity);
             }
+            return defaultArg;
+        case JJTONLYKEYWORDARG:
         case JJTDEFAULTARG:
             //no type definition in this case
             if(arity == 1){
-                return new DefaultArg(((exprType) stack.popNode()), null, null);
+                return new DefaultArg(((exprType) stack.popNode()), null, null, n.getId());
             }
             exprType parameter = (exprType) stack.popNode();
-            return new DefaultArg((exprType) stack.popNode(), parameter, null);
+            return new DefaultArg((exprType) stack.popNode(), parameter, null, n.getId());
         case JJTEXTRAARGLIST:
             if(arity == 0){
                 //nothing here (just '*')
@@ -467,8 +472,10 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                 //nothing here (just '*')
                 return new ExtraArg(null, JJTEXTRAARGLIST, null);
             }
-            JfpDef jfpDef = (JfpDef) stack.popNode();
-            return new ExtraArg(makeName(NameTok.VarArg, jfpDef.nameNode), JJTEXTRAARGLIST, jfpDef.typeDef);
+            jfpDef = (JfpDef) stack.popNode();
+            NameTok jfpDefName = makeName(NameTok.VarArg, jfpDef.nameNode);
+            ExtraArg extra = new ExtraArg(jfpDefName, JJTEXTRAARGLIST, jfpDef.typeDef);
+            return extra;
         case JJTEXTRAKEYWORDLIST2: //with type declaration
             jfpDef = (JfpDef) stack.popNode();
             return new ExtraArg(makeName(NameTok.KwArg, jfpDef.nameNode), JJTEXTRAKEYWORDLIST, jfpDef.typeDef);
@@ -1190,16 +1197,38 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
     }
     
     
-    private argumentsType makeArguments(DefaultArg[] def, NameTok varg, NameTok kwarg) throws Exception {
-        exprType fpargs[] = new exprType[def.length];
-        exprType defaults[] = new exprType[def.length];
-        int startofdefaults = 0;
-        boolean defaultsSet = false;
+    /**
+     * Should only be called from makeArguments
+     */
+    private argumentsType __makeArguments(DefaultArg[] def, NameTok varg, NameTok kwarg) throws Exception {
+        java.util.List<exprType> fpargs = new ArrayList<exprType>();
+        java.util.List<exprType> fpargsAnn = new ArrayList<exprType>();
+        java.util.List<exprType> fpargsDefaults = new ArrayList<exprType>();
+
+        
+        java.util.List<exprType> kwonlyargs = new ArrayList<exprType>();
+        java.util.List<exprType> kwonlyargsAnn = new ArrayList<exprType>();
+        java.util.List<exprType> kwonlyargsDefaults = new ArrayList<exprType>();
+        
         for(int i = 0 ; i< def.length; i++){
             DefaultArg node = def[i];
             exprType parameter = node.parameter;
-            fpargs[i] = parameter;
-
+            
+            if(node.id == JJTONLYKEYWORDARG || node.id == JJTONLYKEYWORDARG2){
+                ctx.setKwOnlyParam(parameter);
+                kwonlyargs.add(parameter);
+                kwonlyargsAnn.add(node.typeDef);
+                kwonlyargsDefaults.add(node.value);
+            }else{
+                //regular parameter
+                ctx.setParam(parameter);
+                fpargs.add(parameter);
+                fpargsAnn.add(node.typeDef);
+                fpargsDefaults.add(node.value);
+            }
+            
+            
+            
             if(node.specialsBefore != null && node.specialsBefore.size() > 0){
                 parameter.getSpecialsBefore().addAll(node.specialsBefore);
             }
@@ -1207,24 +1236,33 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                 parameter.getSpecialsAfter().addAll(node.specialsAfter);
             }
             
-            ctx.setParam(fpargs[i]);
-            defaults[i] = node.value;
-            if (node.value != null && defaultsSet == false){
-                defaultsSet = true;
-                startofdefaults = i;
-            }
         }
         
-        // System.out.println("start "+ startofdefaults + " " + l);
-        exprType[] newdefs = new exprType[def.length - startofdefaults];
-        System.arraycopy(defaults, startofdefaults, newdefs, 0, newdefs.length);
-        return new argumentsType(fpargs, varg, kwarg, newdefs);
+        return new argumentsType(
+            fpargs.toArray(new exprType[fpargs.size()]), 
+            varg, 
+            kwarg, 
+            fpargsDefaults.toArray(new exprType[fpargsDefaults.size()]),
+            
+            //new on Python 3.0
+            kwonlyargs.toArray(new exprType[kwonlyargs.size()]), 
+            kwonlyargsDefaults.toArray(new exprType[kwonlyargsDefaults.size()]),
+            
+            //annotations
+            fpargsAnn.toArray(new exprType[fpargsAnn.size()]), 
+            null,  //this one will be set later on makeArguments (varargannotation)
+            null,  //this one will be set later on makeArguments (kwargannotation)
+            kwonlyargsAnn.toArray(new exprType[kwonlyargsAnn.size()])
+            );
 
     }
     
     private argumentsType makeArguments(int l) throws Exception {
         NameTok kwarg = null;
         NameTok stararg = null;
+        exprType varargannotation = null;
+        exprType kwargannotation = null;
+        
         ArrayList<SimpleNode> list = new ArrayList<SimpleNode>();
         for (int i = l-1; i >= 0; i--) {
             SimpleNode popped = null;
@@ -1233,10 +1271,12 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                 if(popped.getId() == JJTEXTRAKEYWORDLIST){
                     ExtraArg node = (ExtraArg) popped;
                     kwarg = node.tok;
+                    kwargannotation = node.typeDef;
                     addSpecialsAndClearOriginal(node, kwarg);
                 }else if(popped.getId() == JJTEXTRAARGLIST){
                     ExtraArg node = (ExtraArg) popped;
                     stararg = node.tok;
+                    varargannotation = node.typeDef;
                     if(stararg != null){
                         //can happen, as in 3.0 we can have a single '*'
                         addSpecialsAndClearOriginal(node, stararg);
@@ -1249,7 +1289,10 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
             }
         }
         Collections.reverse(list);//we get them in reverse order in the stack
-        return makeArguments((DefaultArg[]) list.toArray(new DefaultArg[0]), stararg, kwarg);
+        argumentsType arguments = __makeArguments((DefaultArg[]) list.toArray(new DefaultArg[0]), stararg, kwarg);
+        arguments.varargannotation = varargannotation;
+        arguments.kwargannotation = kwargannotation;
+        return arguments;
     }
 }
 
@@ -1283,10 +1326,19 @@ class DefaultArg extends SimpleNode {
     final public exprType parameter;
     final public exprType value;
     final public exprType typeDef;
-    DefaultArg(exprType parameter, exprType value, exprType typeDef) {
+    final public int id;
+    
+    /**
+     * @param id The id of the node that created this argument. E.g.:
+     * JJTDEFAULTARG
+     * JJTONLYKEYWORDARG
+     * etc.
+     */
+    DefaultArg(exprType parameter, exprType value, exprType typeDef, int id) {
         this.parameter = parameter;
         this.value = value;
         this.typeDef = typeDef;
+        this.id = id;
     }
 }
 
@@ -1374,6 +1426,11 @@ class CtxVisitor extends Visitor {
 
     public void setParam(SimpleNode node) throws Exception {
         this.ctx = expr_contextType.Param;
+        visit(node);
+    }
+    
+    public void setKwOnlyParam(SimpleNode node) throws Exception {
+        this.ctx = expr_contextType.KwOnlyParam;
         visit(node);
     }
 

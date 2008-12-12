@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testFuncCall5();
+            test.testMisc2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -430,6 +430,21 @@ public class PyParser30Test extends PyParserTestBase{
     }
     
     
+    public void testMisc2() {
+        String s = "" +
+        "class ABCMeta(type):\n" +
+        "    _abc_invalidation_counter = 0\n" +
+        "    def __new__(mcls, name, bases, namespace):\n" +
+        "        cls = super().__new__(mcls, name, bases, namespace)\n" +
+        "        # Compute set of abstract method names\n" +
+        "        abstracts = {name\n" +
+        "                     for name, value in namespace.items()\n" +
+        "                     if getattr(value, '__isabstractmethod__', False)}\n" +
+        "";
+        parseLegalDocStr(s);
+    }
+    
+    
     
     public void testFunctionDecorated() {
         String s = "" +
@@ -439,10 +454,9 @@ public class PyParser30Test extends PyParserTestBase{
         "    pass\n" +
         "\n" +
         "";
-        SimpleNode ast = parseLegalDocStr(s);
-        assertEquals("Module[body=[ImportFrom[module=NameTok[id=a, ctx=ImportModule], names=[alias[name=NameTok[id=b, ctx=ImportName], asname=null]], level=0], FunctionDef[name=NameTok[id=func, ctx=FunctionName], args=arguments[args=[Name[id=A, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null]], body=[Pass[]], decs=[decorators[func=Name[id=dec1, ctx=Load, reserved=false], args=[], keywords=[], starargs=null, kwargs=null]], returns=null]]]", 
-                ast.toString());
+        parseLegalDocStr(s);
     }
+    
     
     
     public void testLib() throws Exception {

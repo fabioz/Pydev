@@ -3,23 +3,19 @@
  */
 package org.python.pydev.parser.prettyprinter;
 
-import java.io.IOException;
-
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.parser.prettyprinter.PrettyPrinter;
-import org.python.pydev.parser.prettyprinter.PrettyPrinterPrefs;
-import org.python.pydev.parser.prettyprinter.WriterEraser;
 
 public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
 
     public static void main(String[] args) {
         try {
+            DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testFuncCallWithListComp();
+            test.testMethodDef3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -28,6 +24,58 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         }
     }
     
+    
+    public void testMethodDef() throws Exception {
+        String s = "" +
+        "def _dump_registry(cls,file=None):\n" +
+        "    pass\n" +
+        "";
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;i++){
+            //try with all the grammars
+            setDefaultVersion(i);
+            checkPrettyPrintEqual(s);
+        }
+    }
+    
+
+    public void testMethodDef4() throws Exception {
+        String s = "" +
+        "def _set_stopinfo(stoplineno=-1):\n" +
+        "    pass\n" +
+        "";
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;i++){
+            //try with all the grammars
+            setDefaultVersion(i);
+            checkPrettyPrintEqual(s);
+        }
+    }
+    
+    
+    public void testMethodDef2() throws Exception {
+        String s = "" +
+        "def _set_stopinfo(self,stopframe,returnframe,stoplineno=-1):\n" +
+        "    if not sys.args[:1]:\n" +
+        "        pass\n" +
+        "";
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;i++){
+            //try with all the grammars
+            setDefaultVersion(i);
+            checkPrettyPrintEqual(s);
+        }
+    }
+    
+    public void testMethodDef3() throws Exception {
+        String s = "" +
+        "def Bastion(object,filter=lambda name:name[:1] != '_',name=None,bastionclass=BastionClass):\n" +
+        "    pass\n" +
+        "";
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;i++){
+            //try with all the grammars
+            setDefaultVersion(i);
+            checkPrettyPrintEqual(s);
+        }
+    }
+
     public void testListComp5() throws Exception {
         String s = 
             "data = [[1,2,3],[4,5,6]]\n" +

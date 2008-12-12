@@ -71,7 +71,8 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
     }
 
     private FunctionDef initExtractedMethod(List<stmtType> body, List<exprType> argsList) {
-        argumentsType args = new argumentsType(argsList.toArray(new exprType[0]), null, null, null);
+        argumentsType args = new argumentsType(argsList.toArray(new exprType[0]), null, null, null, 
+                null, null, null, null, null, null);
 
         FunctionDef extractedMethod = new FunctionDef(new NameTok(methodName, NameTok.FunctionName), args, body.toArray(new stmtType[0]),
                 null, null);

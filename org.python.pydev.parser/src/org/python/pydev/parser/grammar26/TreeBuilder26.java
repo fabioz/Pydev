@@ -1054,7 +1054,7 @@ public final class TreeBuilder26 implements PythonGrammar26TreeConstants {
         // System.out.println("start "+ startofdefaults + " " + l);
         exprType[] newdefs = new exprType[def.length - startofdefaults];
         System.arraycopy(defaults, startofdefaults, newdefs, 0, newdefs.length);
-        return new argumentsType(fpargs, varg, kwarg, newdefs);
+        return new argumentsType(fpargs, varg, kwarg, newdefs, null, null, null, null, null, null);
 
     }
     

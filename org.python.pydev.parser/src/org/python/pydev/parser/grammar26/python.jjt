@@ -844,7 +844,7 @@ void ExtraKeywordList(): {}
 { (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
 void defaultarg(): {}
-{ fpdef() [<EQUAL> test()] }
+{ fpdef() [<EQUAL> {this.prev.addSpecial("=", true);} test()] }
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
