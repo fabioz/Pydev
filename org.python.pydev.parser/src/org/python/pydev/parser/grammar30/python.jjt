@@ -595,7 +595,6 @@ TOKEN : /* KEYWORDS */
 |   < RAISE: "raise" >
 |   < GLOBAL: "global" >
 |   < NONLOCAL: "nonlocal" >
-|   < EXEC: "exec" >
 |   < ASSERT: "assert" >
 |   < AS: "as" >
 |   < WITH: "with" >
@@ -861,7 +860,7 @@ void simple_stmt() #void: {}
 { small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* [<SEMICOLON>] <NEWLINE>
 }
 
-//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | exec_stmt | assert_stmt 
+//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt 
 void small_stmt() #void: {SimpleNode simpleNode;}
 {
     expr_stmt()
@@ -871,7 +870,6 @@ void small_stmt() #void: {SimpleNode simpleNode;}
 |   import_stmt()
 |   global_stmt()
 |   nonlocal_stmt()
-|   exec_stmt()
 |   assert_stmt() {addToPeek("assert ", false); }
 }
 
@@ -1013,11 +1011,6 @@ void global_stmt(): {}
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
 void nonlocal_stmt(): {}{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()]}
 
-
-
-//exec_stmt: 'exec' expr ['in' test [',' test]]
-void exec_stmt(): {}
-{ <EXEC>{this.addSpecialToken("exec ", STRATEGY_BEFORE_NEXT);} expr() [<IN>{this.addSpecialToken(" in ");} test() [{this.addSpecialToken(",");} <COMMA> test()]] }
 
 //assert_stmt: 'assert' test [',' test]
 void assert_stmt(): {}
@@ -1484,7 +1477,6 @@ Token AnyName() #void:
 |   ( t = <RAISE> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <GLOBAL> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <NONLOCAL> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <EXEC> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <ASSERT> { jjtThis.setImage(t.image); return t; } {} )#Name
 |   ( t = <AS> { jjtThis.setImage(t.image); return t; } {} )#Name
 }

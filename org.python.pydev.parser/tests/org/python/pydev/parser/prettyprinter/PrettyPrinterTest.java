@@ -15,7 +15,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testMethodDef3();
+            test.testMethodDef5();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -30,12 +30,24 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "def _dump_registry(cls,file=None):\n" +
         "    pass\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;i++){
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
             //try with all the grammars
             setDefaultVersion(i);
             checkPrettyPrintEqual(s);
         }
     }
+    
+    public void testExec2() throws Exception {
+        String s = ""+
+        "exec('a=1')" +
+        "";
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
+            //try with all the grammars
+            setDefaultVersion(i);
+            checkPrettyPrintEqual(s);
+        }
+    }
+
     
 
     public void testMethodDef4() throws Exception {
@@ -43,7 +55,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "def _set_stopinfo(stoplineno=-1):\n" +
         "    pass\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;i++){
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
             //try with all the grammars
             setDefaultVersion(i);
             checkPrettyPrintEqual(s);
@@ -57,7 +69,21 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    if not sys.args[:1]:\n" +
         "        pass\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;i++){
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
+            //try with all the grammars
+            setDefaultVersion(i);
+            checkPrettyPrintEqual(s);
+        }
+    }
+    
+    
+    public void testMethodDef5() throws Exception {
+        String s = "" +
+        "def _set_stopinfo(stoplineno=not x[-1]):\n" +
+        "    if not sys.args[:1]:\n" +
+        "        pass\n" +
+        "";
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
             //try with all the grammars
             setDefaultVersion(i);
             checkPrettyPrintEqual(s);
@@ -69,7 +95,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "def Bastion(object,filter=lambda name:name[:1] != '_',name=None,bastionclass=BastionClass):\n" +
         "    pass\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;i++){
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
             //try with all the grammars
             setDefaultVersion(i);
             checkPrettyPrintEqual(s);
@@ -1466,8 +1492,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "# after the second body (but actually in the module node)!" +
         "";
         checkPrettyPrintEqual(s);
-        
     }
-
+    
 
 }

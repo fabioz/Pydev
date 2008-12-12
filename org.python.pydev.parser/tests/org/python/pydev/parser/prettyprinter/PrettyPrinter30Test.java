@@ -12,7 +12,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testAnnotations4();
+            test.testExec2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -168,6 +168,30 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         String s = "" +
         "def _set_stopinfo(stoplineno=-1):\n" +
         "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testExec() throws Exception {
+        String s = "" +
+        "try:\n" +
+        "    exec(cmd,globals,locals)\n" +
+        "except BdbQuit:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testExec2() throws Exception {
+        String s = "" +
+        "try:\n" +
+        "    exec(cmd,globals,locals)\n" +
+        "except BdbQuit:\n" +
+        "    pass\n" +
+        "finally:\n" +
+        "    self.quitting = 1\n" +
+        "    sys.settrace(None)\n" +
+        "\n" +
         "";
         checkPrettyPrintEqual(s);
     }

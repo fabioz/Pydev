@@ -458,6 +458,14 @@ public class PyParser30Test extends PyParserTestBase{
     }
     
     
+    public void testExecInvalid() {
+        String s = "" +
+        "exec 'foo'\n" +
+        "";
+        parseILegalDocStr(s);
+    }
+    
+    
     
     public void testLib() throws Exception {
         parseFilesInDir(new File(TestDependent.PYTHON_30_LIB), false);

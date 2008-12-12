@@ -58,7 +58,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
         m.accept(printer);
         if(DEBUG){
             System.out.println("\n\nResult:\n");
-            System.out.println("'"+stringWriter.getBuffer().toString()+"'");
+            System.out.println("'"+stringWriter.getBuffer().toString().replace(' ', '.').replace('\t', '^')+"'");
         }
         assertTrue(! printer.state.inStmt());
 //        assertTrue("Should not be in record:"+printer.auxComment, ! printer.auxComment.inRecord());

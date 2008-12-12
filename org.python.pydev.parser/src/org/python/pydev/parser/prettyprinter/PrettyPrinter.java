@@ -107,6 +107,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
      * add a new line for the next statement).
      */
     private boolean isSingleStmt;
+    private int addingToArgsAsSpecialsAfter;
 
     @Override
     protected boolean fixNewStatementCondition() throws IOException {
@@ -245,7 +246,14 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitUnaryOp(UnaryOp node) throws Exception {
         visitBeforeLeft(node);
-        state.write(unaryopOperatorMapping[node.op]);
+        //workaround for the '=' because it could end up in the operator, when it really should be in the node
+        //this happens on def m1(a=-1), as it'd end up switching the '-' and the '='
+        if(this.addingToArgsAsSpecialsAfter == 1 && node.operand.getSpecialsBefore().size() > 0 && 
+                node.operand.getSpecialsBefore().get(0).toString().equals("=")){
+            node.operand.getSpecialsBefore().add(unaryopOperatorMapping[node.op]);
+        }else{
+            state.write(unaryopOperatorMapping[node.op]);
+        }
         node.operand.accept(this);
         visitAfterRight(node);
         return null;
@@ -899,6 +907,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         if(valToPrint == null){
             return;
         }
+        this.addingToArgsAsSpecialsAfter += 1;
         state.pushTempBuffer();
         valToPrint.accept(this);
         List<Object> specialsAfter = nodeToAdd.getSpecialsAfter();
@@ -908,6 +917,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         }else{
             position = 0;
         }
+        this.addingToArgsAsSpecialsAfter -= 1;
         nodeToAdd.getSpecialsAfter().add(position, state.popTempBuffer());
     }
 

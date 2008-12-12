@@ -565,11 +565,6 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
                 exprType nonLocalValue = (exprType) stack.popNode();
                 return new NonLocal(makeIdentifiers(NameTok.NonLocalName), nonLocalValue);
             }
-        case JJTEXEC_STMT:
-            exprType globals = arity >= 3 ? ((exprType) stack.popNode()) : null;
-            exprType locals = arity >= 2 ? ((exprType) stack.popNode()) : null;
-            value = (exprType) stack.popNode();
-            return new Exec(value, locals, globals);
         case JJTASSERT_STMT:
             exprType msg = arity == 2 ? ((exprType) stack.popNode()) : null;
             test = (exprType) stack.popNode();
