@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
+import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
@@ -6225,6 +6226,21 @@ public class PythonGrammar24 extends AbstractPythonGrammar implements/*@bgen(jjt
     finally { jj_save(25, xla); }
   }
 
+  final private boolean jj_3R_45() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_67()) {
+    jj_scanpos = xsp;
+    if (jj_3R_68()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_67() {
+    if (jj_3R_120()) return true;
+    return false;
+  }
+
   final private boolean jj_3R_108() {
     if (jj_scan_token(AS)) return true;
     return false;
@@ -7329,21 +7345,6 @@ public class PythonGrammar24 extends AbstractPythonGrammar implements/*@bgen(jjt
 
   final private boolean jj_3R_121() {
     if (jj_3R_137()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_45() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_67()) {
-    jj_scanpos = xsp;
-    if (jj_3R_68()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_67() {
-    if (jj_3R_120()) return true;
     return false;
   }
 

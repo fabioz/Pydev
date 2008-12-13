@@ -20,22 +20,30 @@ public abstract class AbstractPythonGrammar {
     public static boolean DEBUG = false;
     public final static boolean DEFAULT_SEARCH_ON_LAST = false;
 
-    protected final void jjtreeOpenNodeScope(Node n) {
-        if (DEBUG) {
-            System.out.println("opening scope:" + n);
-        }
-        Token t = getToken(1);
-        getJJTree().pushNodePos(t.beginLine, t.beginColumn);
-    }
-
+    /**
+     * @return the actual jjtree used to build the nodes (tree)
+     */
     protected abstract IJJTPythonGrammarState getJJTree();
 
+    /**
+     * @return the token at the given location in the stack.
+     */
     public abstract Token getToken(int i);
 
+    /**
+     * @return the list of special added to the token manager (used so that we
+     * can add more info to it later on)
+     */
     protected abstract List<Object> getTokenSourceSpecialTokensList();
 
+    /**
+     * @return the last pos.
+     */
     protected abstract Token getJJLastPos();
 
+    /**
+     * @return the current token
+     */
     protected abstract Token getCurrentToken();
 
     protected final void addToPeek(Object t, boolean after) {
@@ -64,8 +72,27 @@ public abstract class AbstractPythonGrammar {
         }
         t = convertStringToSpecialStr(t);
         peeked.addSpecial(t, after);
+
     }
 
+    /**
+     * Opens a node scope
+     * 
+     * @param n the node marking the beginning of the scope.
+     */
+    protected final void jjtreeOpenNodeScope(Node n) {
+        if (DEBUG) {
+            System.out.println("opening scope:" + n);
+        }
+        Token t = getToken(1);
+        getJJTree().pushNodePos(t.beginLine, t.beginColumn);
+    }
+
+    /**
+     * Closes a node scope
+     * 
+     * @param n the node that should have its scope closed.
+     */
     protected final void jjtreeCloseNodeScope(Node n) {
         if (DEBUG) {
             System.out.println("closing scope:" + n);
@@ -280,24 +307,17 @@ public abstract class AbstractPythonGrammar {
             return new Object[] { str, ustring, false, getType(s.charAt(start), quotes), bstring };
         }
     }
-    
-    
 
-    private final int getType(char c, int quotes){
-        if(quotes == 1){
-            if (c == '\''){
-                return Str.SingleSingle;
-            }
-            if(c == '"'){
-                return Str.SingleDouble;
-            }
+    /**
+     * @return the tipe of a given string given the char that starts it and the number of quotes used.
+     */
+    private final int getType(char c, int quotes) {
+        switch (c) {
+            case '\'':
+                return quotes == 1 ? Str.SingleSingle : Str.TripleSingle;
+            case '"':
+                return quotes == 1 ? Str.SingleDouble : Str.TripleDouble;
         }
-        if (c == '\''){
-            return Str.TripleSingle;
-        }
-        if(c == '"'){
-            return Str.TripleDouble;
-        }
-        throw new RuntimeException("Unable to determine type. Char: "+c+" quotes:"+quotes );
+        throw new RuntimeException("Unable to determine type. Char: " + c + " quotes:" + quotes);
     }
 }
