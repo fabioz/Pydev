@@ -491,15 +491,28 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     public void visitTryPart(SimpleNode node, stmtType[] body) throws Exception{
         //try:
         auxComment.writeSpecialsBefore(node);
-        state.indent();
-        fixNewStatementCondition();
+        boolean indent = false;
+        if(node.specialsBefore != null && node.specialsBefore.size() > 0){
+            for(Object o:node.specialsBefore){
+                if(o.toString().equals("try")){
+                    indent = true;
+                    break;
+                }
+            }
+        }
+        if(indent){
+            state.indent();
+            fixNewStatementCondition();
+        }
         
         for(stmtType st:body){
             st.accept(this);
         }
         fixNewStatementCondition();
 
-        dedent();
+        if(indent){
+            dedent();
+        }
         auxComment.writeSpecialsAfter(node);
 
     }
@@ -516,6 +529,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             dedent();
         }
     }
+    
     @Override
     public Object visitExec(Exec node) throws Exception {
         return visitGeneric(node, "visitExec");

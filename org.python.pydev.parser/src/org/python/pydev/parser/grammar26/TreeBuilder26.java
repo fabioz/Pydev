@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.python.pydev.parser.fastparser.grammarcommon.ITreeBuilder;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;
@@ -70,7 +71,7 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
-public final class TreeBuilder26 implements PythonGrammar26TreeConstants {
+public final class TreeBuilder26 implements PythonGrammar26TreeConstants, ITreeBuilder {
     private JJTPythonGrammar26State stack;
     private CtxVisitor ctx;
     private SimpleNode lastPop;

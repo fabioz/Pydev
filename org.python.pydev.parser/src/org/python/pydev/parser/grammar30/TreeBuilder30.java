@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.parser.fastparser.grammarcommon.ITreeBuilder;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;
@@ -24,7 +25,6 @@ import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Ellipsis;
-import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
@@ -73,7 +73,7 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
-public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
+public final class TreeBuilder30 implements PythonGrammar30TreeConstants, ITreeBuilder {
     private JJTPythonGrammar30State stack;
     private CtxVisitor ctx;
     private SimpleNode lastPop;
@@ -150,8 +150,6 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants {
         return new IdentityNode(id);
     }
 
-    
-    public static final boolean DEBUG_TREE_BUILDER = false;
     
     public SimpleNode closeNode(SimpleNode n, int arity) throws Exception {
         exprType value;

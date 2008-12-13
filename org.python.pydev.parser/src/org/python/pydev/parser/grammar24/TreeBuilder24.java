@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.python.pydev.parser.fastparser.grammarcommon.ITreeBuilder;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;
@@ -24,7 +25,6 @@ import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
-import org.python.pydev.parser.jython.ast.Expression;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -33,7 +33,6 @@ import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Index;
-import org.python.pydev.parser.jython.ast.Interactive;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
@@ -69,7 +68,7 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
-public final class TreeBuilder24 implements PythonGrammar24TreeConstants {
+public final class TreeBuilder24 implements PythonGrammar24TreeConstants, ITreeBuilder {
     private JJTPythonGrammar24State stack;
     private CtxVisitor ctx;
     private SimpleNode lastPop;

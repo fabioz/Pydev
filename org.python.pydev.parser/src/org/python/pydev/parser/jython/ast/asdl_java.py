@@ -55,9 +55,9 @@ class EmitVisitor(asdl.VisitorBase):
         print >> self.file, 'package org.python.pydev.parser.jython.ast;'
         if refersToSimpleNode:
             print >> self.file, 'import org.python.pydev.parser.jython.SimpleNode;'
-        if useDataOutput:
-            print >> self.file, 'import java.io.DataOutputStream;'
-            print >> self.file, 'import java.io.IOException;'
+#        if useDataOutput:
+#            print >> self.file, 'import java.io.DataOutputStream;'
+#            print >> self.file, 'import java.io.IOException;'
         print >> self.file
     
     def close(self):
@@ -232,13 +232,13 @@ class JavaVisitor(EmitVisitor):
         self.emit("}", depth)
         self.emit("", 0)
 
-        # The pickle() method
-        self.emit("public void pickle(DataOutputStream ostream) throws IOException {", depth)
-        self.emit("pickleThis(%s, ostream);" % type.index, depth+1);
-        for f in fields:
-            self.emit("pickleThis(this.%s, ostream);" % f.name, depth+1)
-        self.emit("}", depth)
-        self.emit("", 0)
+#        # The pickle() method -- commented out, as it's not used within Pydev 
+#        self.emit("public void pickle(DataOutputStream ostream) throws IOException {", depth)
+#        self.emit("pickleThis(%s, ostream);" % type.index, depth+1);
+#        for f in fields:
+#            self.emit("pickleThis(this.%s, ostream);" % f.name, depth+1)
+#        self.emit("}", depth)
+#        self.emit("", 0)
 
         # The accept() method
         self.emit("public Object accept(VisitorIF visitor) throws Exception {", depth)

@@ -1,8 +1,6 @@
 // Copyright (c) Corporation for National Research Initiatives
 package org.python.pydev.parser.jython;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,9 +39,6 @@ public class SimpleNode implements Node, ISimpleNode{
 
     public SimpleNode() { }
 
-//    public static Node jjtCreate(PythonGrammar25 p, int id) {
-//        return p.jjtree.builder.openNode(id);
-//    }
 
     public int getId() {
         return -1;
@@ -93,11 +88,6 @@ public class SimpleNode implements Node, ISimpleNode{
             if(DEBUG){
                 System.out.println("Adding:"+special+" after:"+after+" to:"+this+" class:"+special.getClass());
             }
-//            if(this instanceof DefaultArg){
-//                DefaultArg a = (DefaultArg) this;
-//                System.out.println("Adding:"+special+" after:"+after+" to:"+a.parameter);
-//            }else{
-//            }
         }
     }
 
@@ -108,6 +98,7 @@ public class SimpleNode implements Node, ISimpleNode{
         return specialsBefore;
     }
     
+    
     public List<Object> getSpecialsAfter() {
         if(specialsAfter == null){
             specialsAfter = new ArrayList<Object>();
@@ -115,14 +106,16 @@ public class SimpleNode implements Node, ISimpleNode{
         return specialsAfter;
     }
 
+    
     private int countStrings() {
-        List l = specialsAfter;
-        return doCount(l);
+        return doCountStringsAndSpecialStrings(specialsAfter);
     }
+    
+    
     private int countStringsBefore() {
-        List l = specialsBefore;
-        return doCount(l);
+        return doCountStringsAndSpecialStrings(specialsBefore);
     }
+    
     
     private int countAfter(Object special, boolean beforeRegularStrings) {
         int[] lineCol = getLineCol(special);
@@ -132,6 +125,7 @@ public class SimpleNode implements Node, ISimpleNode{
         
         return getIndex(lineCol, specialsAfter, beforeRegularStrings);
     }
+
     
     private int countBefore(Object special, boolean beforeRegularStrings) {
         int[] lineCol = getLineCol(special);
@@ -143,11 +137,10 @@ public class SimpleNode implements Node, ISimpleNode{
     }
 
     /**
-     * @param lineCol
-     * @param l
-     * @return
+     * @return the probable index of a given object based on its line and column according to existing
+     * objects in the passed list.
      */
-    private int getIndex(int[] lineCol, List l, boolean beforeRegularStrings) {
+    private int getIndex(int[] lineCol, List<Object> l, boolean beforeRegularStrings) {
         if(l == null){
             return 0;
         }
@@ -174,6 +167,11 @@ public class SimpleNode implements Node, ISimpleNode{
         return i;
     }
 
+    
+    /**
+     * @param o the object we're interested in (only yields interesting results if it's a SpecialStr or a commentType)
+     * @return the line and column where that object starts (or null if it cannot get that information)
+     */
     private int[] getLineCol(Object o) {
         if (o instanceof SpecialStr){
             SpecialStr s = (SpecialStr) o;
@@ -187,10 +185,10 @@ public class SimpleNode implements Node, ISimpleNode{
     }
 
     /**
-     * @param l
-     * @return
+     * @param l the list we want to find strings on
+     * @return the number of strings / special strings found.
      */
-    private int doCount(List l) {
+    private int doCountStringsAndSpecialStrings(List<Object> l) {
         if(l == null){
             return 0;
         }
@@ -221,6 +219,7 @@ public class SimpleNode implements Node, ISimpleNode{
     public void traverse(VisitorIF visitor) throws Exception {
         throw new ParseException("Unexpected node: "+this);
     }
+    
 
     /* Override this method if you want to customize how the node dumps
        ut its children. */
@@ -279,89 +278,95 @@ public class SimpleNode implements Node, ISimpleNode{
     protected String dumpThis(boolean b) {
         return String.valueOf(b);
     }
+    
+    
 
+    //We don't actually make any pickles in Pydev, so, let's leave that code commented out 
 
-    public void pickle(DataOutputStream ostream) throws IOException {
-        throw new IOException("Pickling not implemented");
-    }
-
-    protected void pickleThis(String s, DataOutputStream ostream)
-        throws IOException
-    {
-        if (s == null) {
-            ostream.writeInt(-1);
-        } else {
-            ostream.writeInt(s.length());
-            ostream.writeBytes(s);
-        }
-    }
-
-    protected void pickleThis(String[] s, DataOutputStream ostream)
-        throws IOException
-    {
-        if (s == null) {
-            ostream.writeInt(-1);
-        } else {
-            ostream.writeInt(s.length);
-            for (int i = 0; i < s.length; i++) {
-                pickleThis(s[i], ostream);
-            }
-        }
-    }
-
-    protected void pickleThis(SimpleNode o, DataOutputStream ostream)
-        throws IOException
-    {
-        if (o == null) {
-            ostream.writeInt(-1);
-        } else {
-            o.pickle(ostream);
-        }
-    }
-
-    protected void pickleThis(SimpleNode[] s, DataOutputStream ostream)
-        throws IOException
-    {
-        if (s == null) {
-            ostream.writeInt(-1);
-        } else {
-            ostream.writeInt(s.length);
-            for (int i = 0; i < s.length; i++) {
-                pickleThis(s[i], ostream);
-            }
-        }
-    }
-
-    protected void pickleThis(int i, DataOutputStream ostream)
-        throws IOException
-    {
-        ostream.writeInt(i);
-    }
-
-    protected void pickleThis(int[] arr, DataOutputStream ostream)
-        throws IOException
-    {
-        if (arr == null) {
-            ostream.writeInt(-1);
-        } else {
-            ostream.writeInt(arr.length);
-            for (int i = 0; i < arr.length; i++) {
-                ostream.writeInt(arr[i]);
-            }
-        }
-    }
-
-    protected void pickleThis(boolean b, DataOutputStream ostream)
-        throws IOException
-    {
-        ostream.writeBoolean(b);
-    }
-
-    protected void pickleThis(Object n, DataOutputStream ostream)
-        throws IOException
-    {
-        String s = n.toString();
-        ostream.writeInt(s.length());
-        ostream.writeBytes(s);
-    }
+    
+//
+//
+//    public void pickle(DataOutputStream ostream) throws IOException {
+//        throw new IOException("Pickling not implemented");
+//    }
+//
+//    protected void pickleThis(String s, DataOutputStream ostream)
+//        throws IOException
+//    {
+//        if (s == null) {
+//            ostream.writeInt(-1);
+//        } else {
+//            ostream.writeInt(s.length());
+//            ostream.writeBytes(s);
+//        }
+//    }
+//
+//    protected void pickleThis(String[] s, DataOutputStream ostream)
+//        throws IOException
+//    {
+//        if (s == null) {
+//            ostream.writeInt(-1);
+//        } else {
+//            ostream.writeInt(s.length);
+//            for (int i = 0; i < s.length; i++) {
+//                pickleThis(s[i], ostream);
+//            }
+//        }
+//    }
+//
+//    protected void pickleThis(SimpleNode o, DataOutputStream ostream)
+//        throws IOException
+//    {
+//        if (o == null) {
+//            ostream.writeInt(-1);
+//        } else {
+//            o.pickle(ostream);
+//        }
+//    }
+//
+//    protected void pickleThis(SimpleNode[] s, DataOutputStream ostream)
+//        throws IOException
+//    {
+//        if (s == null) {
+//            ostream.writeInt(-1);
+//        } else {
+//            ostream.writeInt(s.length);
+//            for (int i = 0; i < s.length; i++) {
+//                pickleThis(s[i], ostream);
+//            }
+//        }
+//    }
+//
+//    protected void pickleThis(int i, DataOutputStream ostream)
+//        throws IOException
+//    {
+//        ostream.writeInt(i);
+//    }
+//
+//    protected void pickleThis(int[] arr, DataOutputStream ostream)
+//        throws IOException
+//    {
+//        if (arr == null) {
+//            ostream.writeInt(-1);
+//        } else {
+//            ostream.writeInt(arr.length);
+//            for (int i = 0; i < arr.length; i++) {
+//                ostream.writeInt(arr[i]);
+//            }
+//        }
+//    }
+//
+//    protected void pickleThis(boolean b, DataOutputStream ostream)
+//        throws IOException
+//    {
+//        ostream.writeBoolean(b);
+//    }
+//
+//    protected void pickleThis(Object n, DataOutputStream ostream)
+//        throws IOException
+//    {
+//        String s = n.toString();
+//        ostream.writeInt(s.length());
+//        ostream.writeBytes(s);
+//    }
 }
