@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.parser.fastparser.grammarcommon.ITreeBuilder;
+import org.python.pydev.parser.grammarcommon.ITreeBuilder;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;

@@ -5,8 +5,8 @@
 
 package org.python.pydev.parser.grammar24;
 
-import org.python.pydev.parser.fastparser.grammarcommon.AbstractJJTPythonGrammarState;
-import org.python.pydev.parser.fastparser.grammarcommon.ITreeBuilder;
+import org.python.pydev.parser.grammarcommon.AbstractJJTPythonGrammarState;
+import org.python.pydev.parser.grammarcommon.ITreeBuilder;
 
 class JJTPythonGrammar24State extends AbstractJJTPythonGrammarState{
 

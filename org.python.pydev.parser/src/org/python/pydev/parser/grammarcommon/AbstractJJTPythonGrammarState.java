@@ -1,4 +1,4 @@
-package org.python.pydev.parser.fastparser.grammarcommon;
+package org.python.pydev.parser.grammarcommon;
 
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.Node;
