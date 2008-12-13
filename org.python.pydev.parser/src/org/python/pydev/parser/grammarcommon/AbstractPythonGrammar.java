@@ -10,6 +10,8 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Str;
 
 public abstract class AbstractPythonGrammar {
 
@@ -18,7 +20,7 @@ public abstract class AbstractPythonGrammar {
     public static boolean DEBUG = false;
     public final static boolean DEFAULT_SEARCH_ON_LAST = false;
 
-    protected void jjtreeOpenNodeScope(Node n) {
+    protected final void jjtreeOpenNodeScope(Node n) {
         if (DEBUG) {
             System.out.println("opening scope:" + n);
         }
@@ -36,23 +38,23 @@ public abstract class AbstractPythonGrammar {
 
     protected abstract Token getCurrentToken();
 
-    protected void addToPeek(Object t, boolean after) {
+    protected final void addToPeek(Object t, boolean after) {
         addToPeek(t, after, null);
     }
 
-    protected void addToPeekCallFunc(Object t, boolean after) {
+    protected final void addToPeekCallFunc(Object t, boolean after) {
         Call n = (Call) getJJTree().peekNode();
         n.func.addSpecial(t, after);
     }
 
     @SuppressWarnings("unchecked")
-    protected void addToPeek(Object t, boolean after, Class class_) {
+    protected final void addToPeek(Object t, boolean after, Class class_) {
         SimpleNode peeked = (SimpleNode) getJJTree().peekNode();
         addToPeek(peeked, t, after, class_);
     }
 
     @SuppressWarnings("unchecked")
-    protected void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) {
+    protected final void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) {
         if (class_ != null) {
             // just check if it is the class we were expecting.
             if (peeked.getClass().equals(class_) == false) {
@@ -64,7 +66,7 @@ public abstract class AbstractPythonGrammar {
         peeked.addSpecial(t, after);
     }
 
-    protected void jjtreeCloseNodeScope(Node n) {
+    protected final void jjtreeCloseNodeScope(Node n) {
         if (DEBUG) {
             System.out.println("closing scope:" + n);
         }
@@ -119,7 +121,7 @@ public abstract class AbstractPythonGrammar {
      */
     public static final int STRATEGY_BEFORE_NEXT = 1;
 
-    public SimpleNode findTokenToAdd(Token next) {
+    public final SimpleNode findTokenToAdd(Token next) {
         SimpleNode curr = (SimpleNode) getJJTree().peekNode();
         if (curr != prev) {
             //let's see which one is better suited
@@ -139,12 +141,12 @@ public abstract class AbstractPythonGrammar {
 
     }
 
-    public void addSpecialToken(Object o, int strategy) {
+    public final void addSpecialToken(Object o, int strategy) {
         o = convertStringToSpecialStr(o);
         getTokenSourceSpecialTokensList().add(new Object[] { o, strategy });
     }
 
-    public Object convertStringToSpecialStr(Object o) {
+    public final Object convertStringToSpecialStr(Object o) {
         if (o instanceof String) {
             try {
                 o = createSpecialStr((String) o);
@@ -154,28 +156,28 @@ public abstract class AbstractPythonGrammar {
         return o;
     }
 
-    public void addSpecialToken(Object o) {
+    public final void addSpecialToken(Object o) {
         //the default is adding after the previous token
         getTokenSourceSpecialTokensList().add(new Object[] { o, STRATEGY_ADD_AFTER_PREV });
     }
 
-    public boolean findTokenAndAdd(String token) throws ParseException {
+    public final boolean findTokenAndAdd(String token) throws ParseException {
         return findTokenAndAdd(token, token, DEFAULT_SEARCH_ON_LAST);
     }
 
-    public Object createSpecialStr(String token) throws ParseException {
+    public final Object createSpecialStr(String token) throws ParseException {
         return createSpecialStr(token, token);
     }
 
-    public Object createSpecialStr(String token, boolean searchOnLast) throws ParseException {
+    public final Object createSpecialStr(String token, boolean searchOnLast) throws ParseException {
         return createSpecialStr(token, token, searchOnLast);
     }
 
-    public Object createSpecialStr(String token, String put) throws ParseException {
+    public final Object createSpecialStr(String token, String put) throws ParseException {
         return createSpecialStr(token, put, DEFAULT_SEARCH_ON_LAST);
     }
 
-    public Object createSpecialStr(String token, String put, boolean searchOnLast) throws ParseException {
+    public final Object createSpecialStr(String token, String put, boolean searchOnLast) throws ParseException {
         Token t;
         if (searchOnLast) {
             t = getJJLastPos();
@@ -202,10 +204,100 @@ public abstract class AbstractPythonGrammar {
      * This is so that we add the String with the beginLine and beginColumn
      * @throws ParseException 
      */
-    public boolean findTokenAndAdd(String token, String put, boolean searchOnLast) throws ParseException {
+    public final boolean findTokenAndAdd(String token, String put, boolean searchOnLast) throws ParseException {
         Object s = createSpecialStr(token, put, searchOnLast);
         getTokenSourceSpecialTokensList().add(new Object[] { s, STRATEGY_ADD_AFTER_PREV });
         return s instanceof SpecialStr;
     }
 
+    protected final Object[] makeInt(String s, int radix, String token) {
+        if (s.endsWith("L") || s.endsWith("l")) {
+            s = s.substring(0, s.length() - 1);
+            return new Object[] { hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token };
+        }
+        int ndigits = s.length();
+        int i = 0;
+        while (i < ndigits && s.charAt(i) == '0')
+            i++;
+        if ((ndigits - i) > 11) {
+            return new Object[] { hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token };
+        }
+
+        long l = Long.valueOf(s, radix).longValue();
+        if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
+            return new Object[] { hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token };
+        }
+        return new Object[] { hostLiteralMkr.newInteger((int) l), Num.Int, token };
+    }
+
+    protected final Object[] makeFloat(String s) {
+        return new Object[] { hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue()), Num.Float, s };
+    }
+
+    protected final Object[] makeLong(String s) {
+        return new Object[] { hostLiteralMkr.newLong(s), Num.Long, s };
+    }
+
+    protected final Object[] makeComplex(String s) {
+        String compNumber = s.substring(0, s.length() - 1);
+        return new Object[] { hostLiteralMkr.newImaginary(Double.valueOf(compNumber).doubleValue()), Num.Comp, s };
+    }
+
+    /**
+     * Return a Tuple where:
+     * 0 = the string
+     * 1 = boolean indicating unicode
+     * 2 = boolean indicating raw
+     * 3 = style
+     * 4 = boolean indicating binary
+     */
+    protected final Object[] makeString(String s, int quotes) {
+        //System.out.println("enter: "+s);
+        char quoteChar = s.charAt(0);
+        int start = 0;
+        boolean ustring = false;
+        boolean bstring = false;
+        if (quoteChar == 'u' || quoteChar == 'U') {
+            ustring = true;
+            start++;
+        } else if (quoteChar == 'b' || quoteChar == 'B') {
+            bstring = true;
+            start++;
+        }
+        quoteChar = s.charAt(start);
+        if (quoteChar == 'r' || quoteChar == 'R') {
+            //raw string (does not decode slashes)
+            String str = s.substring(quotes + start + 1, s.length() - quotes);
+            //System.out.println("out: "+str);
+            return new Object[] { str, ustring, true, getType(s.charAt(start + 1), quotes), bstring };
+
+        } else {
+            int n = s.length() - quotes;
+            int i = quotes + start;
+
+            String str = hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
+            //System.out.println("out: "+str);
+            return new Object[] { str, ustring, false, getType(s.charAt(start), quotes), bstring };
+        }
+    }
+    
+    
+
+    private final int getType(char c, int quotes){
+        if(quotes == 1){
+            if (c == '\''){
+                return Str.SingleSingle;
+            }
+            if(c == '"'){
+                return Str.SingleDouble;
+            }
+        }
+        if (c == '\''){
+            return Str.TripleSingle;
+        }
+        if(c == '"'){
+            return Str.TripleDouble;
+        }
+        throw new RuntimeException("Unable to determine type. Char: "+c+" quotes:"+quotes );
+    }
 }

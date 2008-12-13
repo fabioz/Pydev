@@ -21,27 +21,22 @@ options
 
 PARSER_BEGIN(PythonGrammar25)
 package org.python.pydev.parser.grammar25;
-import org.python.pydev.parser.jython.ast.modType;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
-import org.python.pydev.parser.jython.ast.Call;
-import org.python.pydev.parser.jython.ast.Str;
-import org.python.pydev.parser.jython.ast.Import;
-import org.python.pydev.parser.jython.ast.Num;
-import org.python.pydev.parser.jython.ast.Yield;
-import org.python.pydev.parser.jython.ast.ImportFrom;
-import org.python.pydev.parser.jython.IParserHost;
-import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.Node;
-import org.python.pydev.parser.jython.Token;
-import org.python.pydev.parser.jython.ParseException;
-import org.python.pydev.parser.jython.SpecialStr;
-import org.python.pydev.parser.jython.TokenMgrError;
-import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
+import org.python.pydev.parser.jython.CharStream;
+import org.python.pydev.parser.jython.IParserHost;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Yield;
+import org.python.pydev.parser.jython.ast.modType;
+import org.python.pydev.parser.jython.TokenMgrError;
+
 
 public class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
 {
@@ -49,34 +44,38 @@ public class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
     /**
      * @return the current token found.
      */
-    protected Token getCurrentToken() {
+    protected final Token getCurrentToken() {
         return this.token;
     }
+    
     
     /**
      * @return the jjtree from this grammar
      */
-    protected IJJTPythonGrammarState getJJTree(){
+    protected final IJJTPythonGrammarState getJJTree(){
         return jjtree;
     }
+
 
     /**
      * @return the special tokens in the token source
      */
     @SuppressWarnings("unchecked")
-    protected List<Object> getTokenSourceSpecialTokensList(){
+    protected final List<Object> getTokenSourceSpecialTokensList(){
         return token_source.specialTokens;
     }
+
 
     /**
      * @return the jj_lastpos
      */
-    protected Token getJJLastPos(){
+    protected final Token getJJLastPos(){
         return jj_lastpos;
     }
     
     
     private boolean acceptWithStmt = false;
+    
     
     void handleFutureImports(String importName){
     	if(importName.equals("with_statement")){
@@ -84,90 +83,6 @@ public class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
     	}
     }
     
-
-   Object[] makeInt(String s, int radix, String token) {
-        if (s.endsWith("L") || s.endsWith("l")) {
-            s = s.substring(0, s.length()-1);
-            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
-        }
-        int ndigits = s.length();
-        int i=0;
-        while (i < ndigits && s.charAt(i) == '0')
-            i++;
-        if ((ndigits - i) > 11) {
-            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
-        }
-
-        long l = Long.valueOf(s, radix).longValue();
-        if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
-            return new Object[]{hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token};
-        }
-        return new Object[]{hostLiteralMkr.newInteger((int) l), Num.Int, token};
-    }
-
-    Object[] makeFloat(String s) {
-        return new Object[]{hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue()), Num.Float, s};
-    }
-
-    Object[] makeLong(String s) {
-        return new Object[]{hostLiteralMkr.newLong(s), Num.Long, s};
-    }
-
-    Object[] makeComplex(String s) {
-        String compNumber = s.substring(0, s.length() - 1);
-        return new Object[]{hostLiteralMkr.newImaginary(Double.valueOf(compNumber).doubleValue()), Num.Comp, s};
-    }
-
-    /**
-     * Return a Tuple where:
-     * 0 = the string
-     * 1 = boolean indicating unicode
-     * 2 = boolean indicating raw
-     * 3 = style
-     */
-    Object[] makeString(String s, int quotes) {
-        //System.out.println("enter: "+s);
-        char quoteChar = s.charAt(0);
-        int start=0;
-        boolean ustring = false;
-        if (quoteChar == 'u' || quoteChar == 'U') {
-            ustring = true;
-            start++;
-        }
-        quoteChar = s.charAt(start);
-        if (quoteChar == 'r' || quoteChar == 'R') {
-            //raw string (does not decode slashes)
-            String str = s.substring(quotes+start+1, s.length()-quotes);
-            //System.out.println("out: "+str);
-            return new Object[]{str,ustring, true, getType(s.charAt(start+1), quotes)};
-
-        } else {
-            int n = s.length()-quotes;
-            int i=quotes+start;
-
-            String str = hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
-            //System.out.println("out: "+str);
-            return new Object[]{str, ustring, false, getType(s.charAt(start), quotes)};
-        }
-    }
-    
-    private int getType(char c, int quotes){
-        if(quotes == 1){
-            if (c == '\''){
-                return Str.SingleSingle;
-            }
-            if(c == '"'){
-                return Str.SingleDouble;
-            }
-        }
-        if (c == '\''){
-            return Str.TripleSingle;
-        }
-        if(c == '"'){
-            return Str.TripleDouble;
-        }
-        throw new RuntimeException("Unable to determine type. Char: "+c+" quotes:"+quotes );
-    }
 
    // constructors taking a IParserHost impl
 
