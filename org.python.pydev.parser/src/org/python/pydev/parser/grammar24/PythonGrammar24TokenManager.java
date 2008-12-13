@@ -21,6 +21,8 @@ import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.IGrammar;
+import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
+import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 
 public class PythonGrammar24TokenManager implements PythonGrammar24Constants
 {

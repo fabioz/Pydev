@@ -5,7 +5,7 @@ import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public abstract class AbstractJJTPythonGrammarState {
+public abstract class AbstractJJTPythonGrammarState implements IJJTPythonGrammarState{
 
     protected FastStack<SimpleNode> nodes;
     protected IntStack marks;
