@@ -18,7 +18,6 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.keywordType;
-import org.python.pydev.parser.jython.ast.listcompType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.refactoring.ast.printer.SourcePrinter;
 
@@ -115,8 +114,6 @@ public abstract class AbstractRewriterVisitor extends VisitorBase {
     public abstract Object visitExceptHandlerType(excepthandlerType node) throws Exception;
 
     public abstract Object visitKeywordType(keywordType node) throws Exception;
-
-    public abstract Object visitListCompType(listcompType node) throws Exception;
 
     protected SimpleNode visitNode(SimpleNode node) throws Exception {
         if (node == null)

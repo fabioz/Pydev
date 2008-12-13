@@ -74,7 +74,6 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
-import org.python.pydev.parser.jython.ast.listcompType;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
@@ -930,15 +929,6 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
         return null;
     }
 
-    public Object visitListCompType(listcompType node) throws Exception {
-        SimpleNode lastNode = visit(node.target);
-        if (node.iter != null)
-            lastNode = visit(node.iter);
-        if (isFilledList(node.ifs)) {
-            lastNode = visit(node, node.ifs, false, false);
-        }
-        return lastNode;
-    }
 
     public Object visitModule(Module node) throws Exception {
         handleRootNode(node, node.body);
