@@ -784,10 +784,12 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             printArgs(node.args);
             //end arguments
             
+            state.pushInStmt(node.returns);
             //print return annotation
             if(node.returns != null){
                 node.returns.accept(this);
             }
+            state.popInStmt();
             
             if(!fixNewStatementCondition()){
                 if(lastWrite == state.getLastWrite()){
@@ -1005,11 +1007,13 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitIfExp(IfExp node) throws Exception {
         //we have to change the order a bit...
+        beforeNode(node);
         node.body.accept(this);
         node.test.accept(this);
         if(node.orelse != null){
             node.orelse.accept(this);
         }
+        afterNode(node);
         return null;
     }
     

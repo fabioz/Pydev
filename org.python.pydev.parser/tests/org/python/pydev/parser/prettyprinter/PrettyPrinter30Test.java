@@ -12,7 +12,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testMethodDef3();
+            test.testNewIf();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -216,6 +216,27 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "    d = 10\n" +
         "";
         checkPrettyPrintEqual(s);
+    }
+    
+    public void testComment() throws Exception {
+        String s = "" +
+        		"def __enter__(self)->'IOBase':#That's a forward reference\n" +
+        		"    pass\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testListComp() throws Exception {
+        String s = "" +
+        "lines = [line if isinstance(line,str) else str(line,coding) for line in lines]\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testNewIf() throws Exception {
+        String s = "" +
+        "j = stop if (arg in gets) else start\n"+
+        "";
+        checkPrettyPrintEqual(s);
+        
     }
     
 }

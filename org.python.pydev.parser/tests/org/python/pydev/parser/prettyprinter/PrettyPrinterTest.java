@@ -15,12 +15,22 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testMethodDef5();
+            test.testExec();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    
+    public void testNewIf() throws Exception {
+        String s = "" +
+        "j = stop if (arg in gets) else start\n"+
+        "";
+        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
+            checkPrettyPrintEqual(s);
         }
     }
     
@@ -39,7 +49,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     
     public void testExec2() throws Exception {
         String s = ""+
-        "exec('a=1')" +
+        "exec ('a=1')\n" +
         "";
         for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
             //try with all the grammars

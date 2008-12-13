@@ -726,7 +726,7 @@ void global_stmt(): {}
 
 //exec_stmt: 'exec' expr ['in' test [',' test]]
 void exec_stmt(): {}
-{ <EXEC>{this.addSpecialToken("exec ", STRATEGY_BEFORE_NEXT);} expr() [<IN>{this.addSpecialToken(" in ");} test() [{this.addSpecialToken(",");} <COMMA> test()]] }
+{ <EXEC>{this.addSpecialTokenToLastOpened("exec ");} expr() [<IN>{this.addSpecialToken(" in ");} test() [{this.addSpecialToken(",");} <COMMA> test()]] }
 
 //assert_stmt: 'assert' test [',' test]
 void assert_stmt(): {}
@@ -861,7 +861,7 @@ void test(): {}
 {  lambdef() | or_test() [if_exp()] }
 
 void if_exp():{}
-{<IF> {this.addSpecialToken(" if ",STRATEGY_BEFORE_NEXT);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
+{<IF> {this.addSpecialToken(" if ",STRATEGY_ADD_AFTER_PREV);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
 
 
 //or_test: or_test: and_test ('or' and_test)*

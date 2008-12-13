@@ -82,6 +82,7 @@ Current setting is: ${javaccHome}
         <delete file="${parser.dir}/ParseException.java" />
         <delete file="${parser.dir}/Node.java" />
         <delete file="${parser.dir}/CharStream.java" />
+        <delete file="${parser.dir}/PythonGrammar24TreeConstants.java" />
     	
         <echo>Updating jjFillToken in file PythonGrammar24TokenManager.java</echo>
     	<replace file="${parser.dir}/PythonGrammar24TokenManager.java" token="Token t = Token.newToken(jjmatchedKind)" value="Token t = new Token()"/>
@@ -90,6 +91,7 @@ Current setting is: ${javaccHome}
     	
         <echo>Updating jjtree.builder.openNode</echo>
     	<replace file="${parser.dir}/PythonGrammar24.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
+    	<replace file="${parser.dir}/PythonGrammar24.java" token="PythonGrammar24TreeConstants," value=""/>
     </target>
 
     <!-- confirmation -->

@@ -13,7 +13,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 
-public abstract class AbstractPythonGrammar {
+public abstract class AbstractPythonGrammar implements ITreeConstants{
 
     public IParserHost hostLiteralMkr;
     public SimpleNode prev;
@@ -74,7 +74,7 @@ public abstract class AbstractPythonGrammar {
         peeked.addSpecial(t, after);
 
     }
-
+    
     /**
      * Opens a node scope
      * 
@@ -168,6 +168,11 @@ public abstract class AbstractPythonGrammar {
 
     }
 
+    public final void addSpecialTokenToLastOpened(Object o){
+        o = convertStringToSpecialStr(o);
+        getJJTree().getLastOpened().getSpecialsBefore().add(o);
+    }
+    
     public final void addSpecialToken(Object o, int strategy) {
         o = convertStringToSpecialStr(o);
         getTokenSourceSpecialTokensList().add(new Object[] { o, strategy });

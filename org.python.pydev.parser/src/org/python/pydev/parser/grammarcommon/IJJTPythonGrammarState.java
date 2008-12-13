@@ -10,4 +10,6 @@ public interface IJJTPythonGrammarState {
 
     SimpleNode setNodePos();
 
+    SimpleNode getLastOpened();
+
 }

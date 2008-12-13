@@ -18,7 +18,7 @@ import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
 
 
-public class PythonGrammar25 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ PythonGrammar25TreeConstants,IGrammar, PythonGrammar25Constants {/*@bgen(jjtree)*/
+public class PythonGrammar25 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ IGrammar, PythonGrammar25Constants {/*@bgen(jjtree)*/
   protected JJTPythonGrammar25State jjtree = new JJTPythonGrammar25State();
     /**
      * @return the current token found.
@@ -2615,16 +2615,16 @@ public class PythonGrammar25 extends AbstractPythonGrammar implements/*@bgen(jjt
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(EXEC);
-         this.addSpecialToken("exec ", STRATEGY_BEFORE_NEXT);
+         this.addSpecialTokenToLastOpened("exec ");
       expr();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IN:
         jj_consume_token(IN);
-                                                                            this.addSpecialToken(" in ");
+                                                                  this.addSpecialToken(" in ");
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                                                                                                                    this.addSpecialToken(",");
+                                                                                                          this.addSpecialToken(",");
           jj_consume_token(COMMA);
           test();
           break;
@@ -3707,10 +3707,10 @@ public class PythonGrammar25 extends AbstractPythonGrammar implements/*@bgen(jjt
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(IF);
-       this.addSpecialToken(" if ",STRATEGY_BEFORE_NEXT);
+       this.addSpecialToken(" if ",STRATEGY_ADD_AFTER_PREV);
       or_test();
       jj_consume_token(ELSE);
-                                                                             this.addSpecialToken(" else ");
+                                                                                this.addSpecialToken(" else ");
       test();
     } catch (Throwable jjte000) {
    if (jjtc000) {

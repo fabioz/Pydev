@@ -12,4 +12,7 @@ public interface ITreeBuilder {
 
     public abstract SimpleNode openNode(int jjtfileInput);
 
+
+    public abstract SimpleNode getLastOpened();
+
 }

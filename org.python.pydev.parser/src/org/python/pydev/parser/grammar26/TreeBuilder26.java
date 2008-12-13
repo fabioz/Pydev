@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.python.pydev.parser.grammarcommon.AbstractTreeBuilder;
 import org.python.pydev.parser.grammarcommon.ITreeBuilder;
+import org.python.pydev.parser.grammarcommon.ITreeConstants;
+import org.python.pydev.parser.grammarcommon.IdentityNode;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;
@@ -71,7 +74,7 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
-public final class TreeBuilder26 implements PythonGrammar26TreeConstants, ITreeBuilder {
+public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
     private JJTPythonGrammar26State stack;
     private CtxVisitor ctx;
     private SimpleNode lastPop;
@@ -134,10 +137,6 @@ public final class TreeBuilder26 implements PythonGrammar26TreeConstants, ITreeB
             aliases[i] = (aliasType) stack.popNode();
         }
         return aliases;
-    }
-
-    public SimpleNode openNode(int id) {
-        return new IdentityNode(id);
     }
 
     
@@ -434,10 +433,14 @@ public final class TreeBuilder26 implements PythonGrammar26TreeConstants, ITreeB
             Global global = new Global(makeIdentifiers(NameTok.GlobalName), null);
             return global;
         case JJTEXEC_STMT:
-            exprType globals = arity >= 3 ? ((exprType) stack.popNode()) : null;
-            exprType locals = arity >= 2 ? ((exprType) stack.popNode()) : null;
+            exprType locals = arity >= 3 ? ((exprType) stack.popNode()) : null;
+            exprType globals = arity >= 2 ? ((exprType) stack.popNode()) : null;
             value = (exprType) stack.popNode();
-            return new Exec(value, locals, globals);
+            Exec exec = (Exec) n;
+            exec.body = value;
+            exec.locals = locals;
+            exec.globals = globals;
+            return exec;
         case JJTASSERT_STMT:
             exprType msg = arity == 2 ? ((exprType) stack.popNode()) : null;
             test = (exprType) stack.popNode();
@@ -1149,32 +1152,6 @@ class ExtraArgValue extends SimpleNode {
     }
 }
 
-
-class IdentityNode extends SimpleNode {
-    public int id;
-    public Object image;
-
-    IdentityNode(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setImage(Object image) {
-        this.image = image;
-    }
-
-    public Object getImage() {
-        return image;
-    }
-
-    public String toString() {
-        return "IdNode[" + PythonGrammar26TreeConstants.jjtNodeName[id] + ", " +
-                image + "]";
-    }
-}
 
 class CtxVisitor extends Visitor {
     private int ctx;

@@ -27,6 +27,10 @@ public abstract class AbstractJJTPythonGrammarState implements IJJTPythonGrammar
         mk = 0;
         this.builder = createBuilder();
     }
+    
+    public final SimpleNode getLastOpened() {
+        return this.builder.getLastOpened();
+    }
 
     protected abstract ITreeBuilder createBuilder();
 

@@ -18,7 +18,7 @@ import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
 
 
-public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ PythonGrammar30TreeConstants,IGrammar, PythonGrammar30Constants {/*@bgen(jjtree)*/
+public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ IGrammar, PythonGrammar30Constants {/*@bgen(jjtree)*/
   protected JJTPythonGrammar30State jjtree = new JJTPythonGrammar30State();
     /**
      * @return the current token found.
@@ -57,6 +57,22 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
 
     }
 
+
+
+    protected final void addSpecialToArgDef(String str){
+        SimpleNode peeked = jjtree.peekNode();
+        if(peeked instanceof JfpDef){
+            JfpDef jfpdef = (JfpDef) peeked;
+            if(jfpdef.typeDef != null){
+                jfpdef.typeDef.getSpecialsAfter().add(str);
+            }else{
+                jfpdef.nameNode.getSpecialsAfter().add(str);
+            }
+        }else{
+            peeked.getSpecialsAfter().add(str);
+        }
+
+    }
 
    // constructors taking a IParserHost impl
 
@@ -713,7 +729,7 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
         jj_consume_token(EQUAL);
-                     this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);
+                     this.addSpecialToArgDef("=");
         test();
         break;
       default:
@@ -753,7 +769,7 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
         jj_consume_token(EQUAL);
-                     this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);
+                     this.addSpecialToArgDef("=");
         test();
         break;
       default:
@@ -1033,7 +1049,7 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
         jj_consume_token(EQUAL);
-                    this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);
+                    this.addSpecialToArgDef("=");
         test();
         break;
       default:
@@ -1073,7 +1089,7 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
         jj_consume_token(EQUAL);
-                    this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);
+                    this.addSpecialToArgDef("=");
         test();
         break;
       default:
@@ -4081,10 +4097,10 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(IF);
-       this.addSpecialToken(" if ",STRATEGY_BEFORE_NEXT);
+       this.addSpecialToken(" if ",STRATEGY_ADD_AFTER_PREV);
       or_test();
       jj_consume_token(ELSE);
-                                                                             this.addSpecialToken(" else ");
+                                                                                this.addSpecialToken(" else ");
       test();
     } catch (Throwable jjte000) {
    if (jjtc000) {
@@ -7804,26 +7820,6 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     finally { jj_save(33, xla); }
   }
 
-  final private boolean jj_3R_89() {
-    if (jj_scan_token(AS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_58() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_88()) {
-    jj_scanpos = xsp;
-    if (jj_3R_89()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_88() {
-    if (jj_scan_token(NAME)) return true;
-    return false;
-  }
-
   final private boolean jj_3R_191() {
     if (jj_scan_token(COMPLEX)) return true;
     return false;
@@ -9366,6 +9362,26 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     }
     }
     }
+    return false;
+  }
+
+  final private boolean jj_3R_89() {
+    if (jj_scan_token(AS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_58() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_88()) {
+    jj_scanpos = xsp;
+    if (jj_3R_89()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_88() {
+    if (jj_scan_token(NAME)) return true;
     return false;
   }
 

@@ -18,7 +18,7 @@ import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
 
 
-public class PythonGrammar24 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ PythonGrammar24TreeConstants,IGrammar, PythonGrammar24Constants {/*@bgen(jjtree)*/
+public class PythonGrammar24 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ IGrammar, PythonGrammar24Constants {/*@bgen(jjtree)*/
   protected JJTPythonGrammar24State jjtree = new JJTPythonGrammar24State();
     /**
      * @return the current token found.
@@ -2047,16 +2047,16 @@ public class PythonGrammar24 extends AbstractPythonGrammar implements/*@bgen(jjt
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(EXEC);
-         this.addSpecialToken("exec ", STRATEGY_BEFORE_NEXT);
+         this.addSpecialTokenToLastOpened("exec ");
       expr();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IN:
         jj_consume_token(IN);
-                                                                            this.addSpecialToken(" in ");
+                                                                  this.addSpecialToken(" in ");
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                                                                                                                    this.addSpecialToken(",");
+                                                                                                          this.addSpecialToken(",");
           jj_consume_token(COMMA);
           test();
           break;

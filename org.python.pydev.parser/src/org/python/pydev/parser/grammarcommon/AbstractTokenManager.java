@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.python.pydev.parser.jython.Token;
 
-public abstract class AbstractTokenManager {
+public abstract class AbstractTokenManager implements ITreeConstants{
     
     protected final int indentation[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     protected int level = 0;

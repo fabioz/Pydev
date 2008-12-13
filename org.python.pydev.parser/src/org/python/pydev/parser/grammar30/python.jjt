@@ -81,6 +81,22 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements IGrammar
     }
 
 
+
+    protected final void addSpecialToArgDef(String str){
+        SimpleNode peeked = jjtree.peekNode();
+        if(peeked instanceof JfpDef){
+            JfpDef jfpdef = (JfpDef) peeked;
+            if(jfpdef.typeDef != null){
+                jfpdef.typeDef.getSpecialsAfter().add(str);
+            }else{
+                jfpdef.nameNode.getSpecialsAfter().add(str);
+            }
+        }else{
+            peeked.getSpecialsAfter().add(str);
+        }
+        
+    }
+
    // constructors taking a IParserHost impl
 
    public PythonGrammar30(CharStream stream,IParserHost host) {
@@ -513,11 +529,11 @@ void ExtraKeywordList2(): {}
 }
 
 void defaultarg2(): {}
-{ tfpdef() [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} test()] }
+{ tfpdef() [<EQUAL> {this.addSpecialToArgDef("=");}  test()] }
 
 
 void onlykeywordarg2(): {}
-{ tfpdef() [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} test()] }
+{ tfpdef() [<EQUAL> {this.addSpecialToArgDef("=");}  test()] }
 
 
 //tfpdef: NAME [':' test]
@@ -542,10 +558,10 @@ void ExtraKeywordList(): {}
 { (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
 void onlykeywordarg(): {}
-{ fpdef() [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} test()] }
+{ fpdef() [<EQUAL> {this.addSpecialToArgDef("=");}  test()] }
 
 void defaultarg(): {}
-{ fpdef() [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} test()] }
+{ fpdef() [<EQUAL> {this.addSpecialToArgDef("=");}  test()] }
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
@@ -837,7 +853,7 @@ void test_nocond() #void: {}
 
 
 void if_exp():{}
-{<IF> {this.addSpecialToken(" if ",STRATEGY_BEFORE_NEXT);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
+{<IF> {this.addSpecialToken(" if ",STRATEGY_ADD_AFTER_PREV);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
 
 
 //or_test: and_test ('or' and_test)*

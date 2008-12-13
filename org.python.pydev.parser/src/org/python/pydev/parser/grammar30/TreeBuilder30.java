@@ -5,7 +5,10 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.parser.grammarcommon.AbstractTreeBuilder;
 import org.python.pydev.parser.grammarcommon.ITreeBuilder;
+import org.python.pydev.parser.grammarcommon.ITreeConstants;
+import org.python.pydev.parser.grammarcommon.IdentityNode;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;
@@ -73,7 +76,7 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
-public final class TreeBuilder30 implements PythonGrammar30TreeConstants, ITreeBuilder {
+public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
     private JJTPythonGrammar30State stack;
     private CtxVisitor ctx;
     private SimpleNode lastPop;
@@ -144,10 +147,6 @@ public final class TreeBuilder30 implements PythonGrammar30TreeConstants, ITreeB
             aliases[i] = (aliasType) stack.popNode();
         }
         return aliases;
-    }
-
-    public SimpleNode openNode(int id) {
-        return new IdentityNode(id);
     }
 
     
@@ -1386,31 +1385,6 @@ class JfpDef extends SimpleNode{
     }
 }
 
-class IdentityNode extends SimpleNode {
-    final public int id;
-    public Object image;
-
-    IdentityNode(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setImage(Object image) {
-        this.image = image;
-    }
-
-    public Object getImage() {
-        return image;
-    }
-
-    public String toString() {
-        return "IdNode[" + PythonGrammar30TreeConstants.jjtNodeName[id] + ", " +
-                image + "]";
-    }
-}
 
 class CtxVisitor extends Visitor {
     private int ctx;

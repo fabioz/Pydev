@@ -12,7 +12,7 @@ This can be done either inside this build.xml (first top property), or on the co
 
 This build only handles javacc. If changes are done to the python.asdl file, you have to
 re-generate it by hand with "python asdl_java.py Python.asdl" inside of the ast package.
-        	
+            
 Current setting is: ${javaccHome}
         </echo>
     </target>
@@ -74,8 +74,7 @@ Current setting is: ${javaccHome}
             <arg file="${parser.dir}/python.jj" />
         </java>
         <delete file="${parser.dir}/python.jj" />
-    	
-    	
+            
         <echo>Removing the files that are common among versions</echo>
         <delete file="${parser.dir}/TokenMgrError.java" />
         <delete file="${parser.dir}/Token.java" />
@@ -83,14 +82,16 @@ Current setting is: ${javaccHome}
         <delete file="${parser.dir}/ParseException.java" />
         <delete file="${parser.dir}/Node.java" />
         <delete file="${parser.dir}/CharStream.java" />
-    	
+        <delete file="${parser.dir}/PythonGrammar30TreeConstants.java" />
+        
         <echo>Updating jjFillToken in file PythonGrammar30TokenManager.java</echo>
-    	<replace file="${parser.dir}/PythonGrammar30TokenManager.java" token="Token t = Token.newToken(jjmatchedKind)" value="Token t = new Token()"/>
+        <replace file="${parser.dir}/PythonGrammar30TokenManager.java" token="Token t = Token.newToken(jjmatchedKind)" value="Token t = new Token()"/>
         <replace file="${parser.dir}/PythonGrammar30TokenManager.java" token="public class PythonGrammar30TokenManager implements PythonGrammar30Constants" 
             value="public class PythonGrammar30TokenManager extends AbstractTokenManager implements PythonGrammar30Constants"/>
-    	
+        
         <echo>Updating jjtree.builder.openNode</echo>
-    	<replace file="${parser.dir}/PythonGrammar30.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
+        <replace file="${parser.dir}/PythonGrammar30.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
+        <replace file="${parser.dir}/PythonGrammar30.java" token="PythonGrammar30TreeConstants," value=""/>
     </target>
 
     <!-- confirmation -->

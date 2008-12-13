@@ -39,9 +39,14 @@ public class SimpleNode implements Node, ISimpleNode{
 
     public SimpleNode() { }
 
-
+    private int id=-1;
+    
     public int getId() {
-        return -1;
+        return id;
+    }
+    
+    public void setId(int id){
+        this.id = id;
     }
 
     public Object getImage() {
