@@ -22,12 +22,10 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.BoolOp;
-import org.python.pydev.parser.jython.ast.Break;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Comprehension;
-import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.DictComp;
@@ -48,7 +46,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.NonLocal;
-import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Set;
@@ -174,12 +171,6 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 addSpecialsAndClearOriginal(suite, last);
             }
             return last;
-        case JJTPASS_STMT:
-            return new Pass();
-        case JJTBREAK_STMT:
-            return new Break();
-        case JJTCONTINUE_STMT:
-            return new Continue();
         case JJTBEGIN_DECORATOR:
             return new decoratorsType(null,null,null,null, null);
         case JJTDECORATORS:

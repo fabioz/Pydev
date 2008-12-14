@@ -36,6 +36,7 @@ import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -1073,20 +1074,22 @@ void Number() #Num :
     (
         t=<HEXNUMBER> {
             String s = t.image.substring(2, t.image.length());
-            jjtThis.setImage(makeInt(s, 16, t.image));
+            makeInt(s, 16, t.image, (Num)jjtThis);
         } {}
     )
 |   (
-        t=<OCTNUMBER> { jjtThis.setImage(makeInt(t.image, 8, t.image)); } {}
+        t=<OCTNUMBER> {
+            makeInt(t.image, 8, t.image, (Num) jjtThis); 
+        } {}
     )
 |   (
-        t=<DECNUMBER> { jjtThis.setImage(makeInt(t.image, 10, t.image)); } {}
+        t=<DECNUMBER> { makeInt(t.image, 10, t.image, (Num)jjtThis); } {}
     )
 |   (
-        t=<FLOAT> { jjtThis.setImage(makeFloat(t.image)); } {}
+        t=<FLOAT> { makeFloat(t.image, (Num)jjtThis); } {}
     )
 |   (
-        t=<COMPLEX> { jjtThis.setImage(makeComplex(t.image)); } {}
+        t=<COMPLEX> { makeComplex(t.image, (Num)jjtThis); } {}
     )
 }
 

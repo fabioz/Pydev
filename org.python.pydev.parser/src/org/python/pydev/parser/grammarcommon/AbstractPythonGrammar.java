@@ -242,37 +242,58 @@ public abstract class AbstractPythonGrammar implements ITreeConstants{
         return s instanceof SpecialStr;
     }
 
-    protected final Object[] makeInt(String s, int radix, String token) {
+    /**
+     * @param s the string found without any preceding char to identify the radix.
+     * @param radix the radix in which it was found (octal=8, decimal=10, hex=16)
+     * @param token this is the image of the object (the exact way it was found in the file)
+     * @param numberToFill the Num object that should be set given the other parameters
+     */
+    protected final void makeInt(String s, int radix, String token, Num numberToFill) {
+        numberToFill.num = token;
+        
         if (s.endsWith("L") || s.endsWith("l")) {
             s = s.substring(0, s.length() - 1);
-            return new Object[] { hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token };
+            numberToFill.n = hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
+            numberToFill.type = Num.Long;
+            return;
         }
         int ndigits = s.length();
         int i = 0;
         while (i < ndigits && s.charAt(i) == '0')
             i++;
         if ((ndigits - i) > 11) {
-            return new Object[] { hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token };
+            numberToFill.n = hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
+            numberToFill.type = Num.Long;
+            return;
         }
 
         long l = Long.valueOf(s, radix).longValue();
         if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
-            return new Object[] { hostLiteralMkr.newLong(new java.math.BigInteger(s, radix)), Num.Long, token };
+            numberToFill.n = hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
+            numberToFill.type = Num.Long;
+            return;
         }
-        return new Object[] { hostLiteralMkr.newInteger((int) l), Num.Int, token };
+        numberToFill.n = hostLiteralMkr.newInteger((int) l);
+        numberToFill.type = Num.Int;
     }
 
-    protected final Object[] makeFloat(String s) {
-        return new Object[] { hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue()), Num.Float, s };
+    protected final void makeFloat(String s, Num numberToFill) {
+        numberToFill.num = s;
+        numberToFill.n = hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue());
+        numberToFill.type = Num.Float;
     }
 
-    protected final Object[] makeLong(String s) {
-        return new Object[] { hostLiteralMkr.newLong(s), Num.Long, s };
+    protected final void makeLong(String s, Num numberToFill) {
+        numberToFill.num = s;
+        numberToFill.n = hostLiteralMkr.newLong(s);
+        numberToFill.type = Num.Long;
     }
 
-    protected final Object[] makeComplex(String s) {
+    protected final void makeComplex(String s, Num numberToFill) {
         String compNumber = s.substring(0, s.length() - 1);
-        return new Object[] { hostLiteralMkr.newImaginary(Double.valueOf(compNumber).doubleValue()), Num.Comp, s };
+        numberToFill.num = s;
+        numberToFill.n = hostLiteralMkr.newImaginary(Double.valueOf(compNumber).doubleValue());
+        numberToFill.type = Num.Comp;
     }
 
     /**

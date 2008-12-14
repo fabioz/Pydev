@@ -2,12 +2,15 @@ package org.python.pydev.parser.grammarcommon;
 
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Break;
+import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
@@ -84,6 +87,11 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 //the actual name will be set during the parsing (token image) -- see Name construct
                 ret = new Name(null, Name.Load, false);
                 break;
+                
+            case JJTNUM:
+                //the actual number will be set during the parsing (token image) -- see Num construct
+                ret = new Num(null, -1, null);
+                break;
 
             case JJTFOR_STMT:
                 ret = new For(null, null, null, null);
@@ -92,6 +100,19 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTEXEC_STMT:
                 ret = new Exec(null, null, null);
                 break;
+                
+            case JJTPASS_STMT:
+                ret = new Pass();
+                break;
+                
+            case JJTBREAK_STMT:
+                ret = new Break();
+                break;
+                
+            case JJTCONTINUE_STMT:
+                ret = new Continue();
+                break;
+
 
             default:
                 ret = new IdentityNode(id);
@@ -142,12 +163,11 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTTRUE:
             case JJTNONE:
             case JJTNAME:
-                return n; //it's already the correct node (and the name it's already properly set)
-                
-                
             case JJTNUM:
-                Object[] numimage = (Object[]) n.getImage();
-                return new Num(numimage[0], (Integer)numimage[1], (String)numimage[2]);
+            case JJTPASS_STMT:
+            case JJTBREAK_STMT:
+            case JJTCONTINUE_STMT:
+                return n; //it's already the correct node (and it's value is already properly set)
                 
                 
             case JJTBINARY:
