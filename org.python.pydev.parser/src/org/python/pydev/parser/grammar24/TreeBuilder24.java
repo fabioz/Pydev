@@ -191,28 +191,6 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
                 addSpecialsAndClearOriginal(suite, last);
             }
             return last;
-        case JJTBEGIN_DECORATOR:
-            return new decoratorsType(null,null,null,null, null);
-        case JJTDECORATORS:
-            ArrayList<SimpleNode> list2 = new ArrayList<SimpleNode>();
-            ArrayList<SimpleNode> listArgs = new ArrayList<SimpleNode>();
-            while(stack.nodeArity() > 0){
-                SimpleNode node = stack.popNode();
-                while(!(node instanceof decoratorsType)){
-                    if(node instanceof comprehensionType){
-                        listArgs.add(node);
-                        listArgs.add(stack.popNode()); //target
-                        
-                    }else{
-                        listArgs.add(node);
-                    }
-                    node = stack.popNode();
-                }
-                listArgs.add(node);//the decoratorsType
-                list2.add(0,makeDecorator(listArgs));
-                listArgs.clear();
-            }
-            return new Decorators((decoratorsType[]) list2.toArray(new decoratorsType[0]), JJTDECORATORS);
         case JJTCALL_OP:
             exprType starargs = null;
             exprType kwargs = null;

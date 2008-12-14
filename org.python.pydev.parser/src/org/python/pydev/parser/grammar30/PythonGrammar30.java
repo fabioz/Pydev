@@ -16,6 +16,7 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -6625,10 +6626,10 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       jjtreeOpenNodeScope(jjtn001);
       try {
         t = jj_consume_token(SINGLE_STRING);
-                          jjtn001.setImage(makeString(t.image, 1));
-                                                                        jjtree.closeNodeScope(jjtn001, true);
-                                                                        jjtc001 = false;
-                                                                        jjtreeCloseNodeScope(jjtn001);
+                          makeString(t.image, 1, (Str)jjtn001);
+                                                                    jjtree.closeNodeScope(jjtn001, true);
+                                                                    jjtc001 = false;
+                                                                    jjtreeCloseNodeScope(jjtn001);
 
       } finally {
       if (jjtc001) {
@@ -6644,10 +6645,10 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       jjtreeOpenNodeScope(jjtn002);
       try {
         t = jj_consume_token(SINGLE_STRING2);
-                           jjtn002.setImage(makeString(t.image, 1));
-                                                                         jjtree.closeNodeScope(jjtn002, true);
-                                                                         jjtc002 = false;
-                                                                         jjtreeCloseNodeScope(jjtn002);
+                           makeString(t.image, 1, (Str)jjtn002);
+                                                                     jjtree.closeNodeScope(jjtn002, true);
+                                                                     jjtc002 = false;
+                                                                     jjtreeCloseNodeScope(jjtn002);
 
       } finally {
       if (jjtc002) {
@@ -6663,10 +6664,10 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       jjtreeOpenNodeScope(jjtn003);
       try {
         t = jj_consume_token(TRIPLE_STRING);
-                          jjtn003.setImage(makeString(t.image, 3));
-                                                                        jjtree.closeNodeScope(jjtn003, true);
-                                                                        jjtc003 = false;
-                                                                        jjtreeCloseNodeScope(jjtn003);
+                          makeString(t.image, 3, (Str)jjtn003);
+                                                                    jjtree.closeNodeScope(jjtn003, true);
+                                                                    jjtc003 = false;
+                                                                    jjtreeCloseNodeScope(jjtn003);
 
       } finally {
       if (jjtc003) {
@@ -6682,10 +6683,10 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       jjtreeOpenNodeScope(jjtn004);
       try {
         t = jj_consume_token(TRIPLE_STRING2);
-                           jjtn004.setImage(makeString(t.image, 3));
-                                                                         jjtree.closeNodeScope(jjtn004, true);
-                                                                         jjtc004 = false;
-                                                                         jjtreeCloseNodeScope(jjtn004);
+                           makeString(t.image, 3, (Str)jjtn004);
+                                                                     jjtree.closeNodeScope(jjtn004, true);
+                                                                     jjtc004 = false;
+                                                                     jjtreeCloseNodeScope(jjtn004);
 
       } finally {
       if (jjtc004) {
@@ -6701,10 +6702,10 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       jjtreeOpenNodeScope(jjtn005);
       try {
         t = jj_consume_token(SINGLE_BSTRING);
-                           jjtn005.setImage(makeString(t.image, 1));
-                                                                         jjtree.closeNodeScope(jjtn005, true);
-                                                                         jjtc005 = false;
-                                                                         jjtreeCloseNodeScope(jjtn005);
+                           makeString(t.image, 1, (Str)jjtn005);
+                                                                     jjtree.closeNodeScope(jjtn005, true);
+                                                                     jjtc005 = false;
+                                                                     jjtreeCloseNodeScope(jjtn005);
 
       } finally {
       if (jjtc005) {
@@ -6720,10 +6721,10 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       jjtreeOpenNodeScope(jjtn006);
       try {
         t = jj_consume_token(SINGLE_BSTRING2);
-                            jjtn006.setImage(makeString(t.image, 1));
-                                                                          jjtree.closeNodeScope(jjtn006, true);
-                                                                          jjtc006 = false;
-                                                                          jjtreeCloseNodeScope(jjtn006);
+                            makeString(t.image, 1, (Str)jjtn006);
+                                                                      jjtree.closeNodeScope(jjtn006, true);
+                                                                      jjtc006 = false;
+                                                                      jjtreeCloseNodeScope(jjtn006);
 
       } finally {
       if (jjtc006) {
@@ -6739,10 +6740,10 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       jjtreeOpenNodeScope(jjtn007);
       try {
         t = jj_consume_token(TRIPLE_BSTRING);
-                           jjtn007.setImage(makeString(t.image, 3));
-                                                                         jjtree.closeNodeScope(jjtn007, true);
-                                                                         jjtc007 = false;
-                                                                         jjtreeCloseNodeScope(jjtn007);
+                           makeString(t.image, 3, (Str)jjtn007);
+                                                                     jjtree.closeNodeScope(jjtn007, true);
+                                                                     jjtc007 = false;
+                                                                     jjtreeCloseNodeScope(jjtn007);
 
       } finally {
       if (jjtc007) {
@@ -6758,10 +6759,10 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
       jjtreeOpenNodeScope(jjtn008);
       try {
         t = jj_consume_token(TRIPLE_BSTRING2);
-                            jjtn008.setImage(makeString(t.image, 3));
-                                                                          jjtree.closeNodeScope(jjtn008, true);
-                                                                          jjtc008 = false;
-                                                                          jjtreeCloseNodeScope(jjtn008);
+                            makeString(t.image, 3, (Str)jjtn008);
+                                                                      jjtree.closeNodeScope(jjtn008, true);
+                                                                      jjtc008 = false;
+                                                                      jjtreeCloseNodeScope(jjtn008);
 
       } finally {
       if (jjtc008) {

@@ -37,6 +37,7 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -471,7 +472,7 @@ void funcdef(): {}
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-    (begin_decorator() (<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} )* <NEWLINE> )* 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ] <NEWLINE> )* 
 }
 void begin_decorator(): {}
 { <AT> dotted_name()
@@ -1044,13 +1045,13 @@ void String() #void :
     Token t;
 }
 {
-    ( t=<SINGLE_STRING> { jjtThis.setImage(makeString(t.image, 1)); } {} )#String
-|   ( t=<SINGLE_STRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#String
-|   ( t=<TRIPLE_STRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#String
-|   ( t=<TRIPLE_STRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#String
-|   ( t=<SINGLE_USTRING> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Unicode
-|   ( t=<SINGLE_USTRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Unicode
-|   ( t=<TRIPLE_USTRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Unicode
-|   ( t=<TRIPLE_USTRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Unicode
+    ( t=<SINGLE_STRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_STRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_USTRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<SINGLE_USTRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
 }
 

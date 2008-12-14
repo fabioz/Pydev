@@ -64,7 +64,6 @@ import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
-import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
@@ -171,28 +170,6 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 addSpecialsAndClearOriginal(suite, last);
             }
             return last;
-        case JJTBEGIN_DECORATOR:
-            return new decoratorsType(null,null,null,null, null);
-        case JJTDECORATORS:
-            ArrayList<SimpleNode> list2 = new ArrayList<SimpleNode>();
-            ArrayList<SimpleNode> listArgs = new ArrayList<SimpleNode>();
-            while(stack.nodeArity() > 0){
-                SimpleNode node = stack.popNode();
-                while(!(node instanceof decoratorsType)){
-                    if(node instanceof ComprehensionCollection){
-                        listArgs.add(((ComprehensionCollection)node).getGenerators()[0]);
-                        listArgs.add(stack.popNode()); //target
-                        
-                    }else{
-                        listArgs.add(node);
-                    }
-                    node = stack.popNode();
-                }
-                listArgs.add(node);//the decoratorsType
-                list2.add(0,makeDecorator(listArgs));
-                listArgs.clear();
-            }
-            return new Decorators((decoratorsType[]) list2.toArray(new decoratorsType[0]), JJTDECORATORS);
         case JJTCALL_OP:
             exprType starargs = null;
             exprType kwargs = null;

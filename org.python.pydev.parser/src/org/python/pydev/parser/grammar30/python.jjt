@@ -38,6 +38,7 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -1155,14 +1156,14 @@ void String() #void :
     Token t;
 }
 {
-    ( t=<SINGLE_STRING> { jjtThis.setImage(makeString(t.image, 1)); } {} )#String
-|   ( t=<SINGLE_STRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#String
-|   ( t=<TRIPLE_STRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#String
-|   ( t=<TRIPLE_STRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#String
-|   ( t=<SINGLE_BSTRING> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Binary
-|   ( t=<SINGLE_BSTRING2> { jjtThis.setImage(makeString(t.image, 1)); } {} )#Binary
-|   ( t=<TRIPLE_BSTRING> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Binary
-|   ( t=<TRIPLE_BSTRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Binary
+    ( t=<SINGLE_STRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_STRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_BSTRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#Binary
+|   ( t=<SINGLE_BSTRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#Binary
 }
 
 //Token AnyName() #void://{//    Token t;//}//{//    ( t= <NAME> { ((Name)jjtThis).id = t.image; return t; } {} )#Name

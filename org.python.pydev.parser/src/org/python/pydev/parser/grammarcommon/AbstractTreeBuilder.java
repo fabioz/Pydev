@@ -1,5 +1,7 @@
 package org.python.pydev.parser.grammarcommon;
 
+import java.util.ArrayList;
+
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Break;
@@ -14,6 +16,8 @@ import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
+import org.python.pydev.parser.jython.ast.comprehensionType;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
@@ -92,6 +96,13 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 //the actual number will be set during the parsing (token image) -- see Num construct
                 ret = new Num(null, -1, null);
                 break;
+                
+            case JJTSTRING:
+            case JJTUNICODE:
+            case JJTBINARY:
+                //the actual number will be set during the parsing (token image) -- see Num construct
+                ret = new Str(null, -1, false, false, false);
+                break;
 
             case JJTFOR_STMT:
                 ret = new For(null, null, null, null);
@@ -113,7 +124,10 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 ret = new Continue();
                 break;
 
-
+            case JJTBEGIN_DECORATOR:
+                ret = new decoratorsType(null,null,null,null, null);
+                break;
+                
             default:
                 ret = new IdentityNode(id);
         }
@@ -167,15 +181,12 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTPASS_STMT:
             case JJTBREAK_STMT:
             case JJTCONTINUE_STMT:
+            case JJTSTRING:
+            case JJTUNICODE:
+            case JJTBINARY:
+            case JJTBEGIN_DECORATOR:
                 return n; //it's already the correct node (and it's value is already properly set)
                 
-                
-            case JJTBINARY:
-            case JJTUNICODE:
-            case JJTSTRING:
-                Object[] image = (Object[]) n.getImage();
-                return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2], (Boolean)image[4]);
-
                 
             case JJTSUITE:
                 stmtType[] stmts = new stmtType[arity];
@@ -219,6 +230,31 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 exec.locals = locals;
                 exec.globals = globals;
                 return exec;
+                
+                
+            case JJTDECORATORS:
+                ArrayList<SimpleNode> list2 = new ArrayList<SimpleNode>();
+                ArrayList<SimpleNode> listArgs = new ArrayList<SimpleNode>();
+                while(stack.nodeArity() > 0){
+                    SimpleNode node = stack.popNode();
+                    while(!(node instanceof decoratorsType)){
+                        if(node instanceof comprehensionType){
+                            listArgs.add(node);
+                            listArgs.add(stack.popNode()); //target
+                        }else if(node instanceof ComprehensionCollection){
+                            listArgs.add(((ComprehensionCollection)node).getGenerators()[0]);
+                            listArgs.add(stack.popNode()); //target
+                            
+                        }else{
+                            listArgs.add(node);
+                        }
+                        node = stack.popNode();
+                    }
+                    listArgs.add(node);//the decoratorsType
+                    list2.add(0,makeDecorator(listArgs));
+                    listArgs.clear();
+                }
+                return new Decorators((decoratorsType[]) list2.toArray(new decoratorsType[0]), JJTDECORATORS);
         }
 
         //if we found a node not expected in the base, let's give subclasses an opportunity for dealing with it.

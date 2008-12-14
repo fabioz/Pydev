@@ -297,14 +297,15 @@ public abstract class AbstractPythonGrammar implements ITreeConstants{
     }
 
     /**
-     * Return a Tuple where:
+     * Fills the string properly according to the representation found.
+     * 
      * 0 = the string
      * 1 = boolean indicating unicode
      * 2 = boolean indicating raw
      * 3 = style
      * 4 = boolean indicating binary
      */
-    protected final Object[] makeString(String s, int quotes) {
+    protected final void makeString(String s, int quotes, Str strToFill) {
         //System.out.println("enter: "+s);
         char quoteChar = s.charAt(0);
         int start = 0;
@@ -322,7 +323,11 @@ public abstract class AbstractPythonGrammar implements ITreeConstants{
             //raw string (does not decode slashes)
             String str = s.substring(quotes + start + 1, s.length() - quotes);
             //System.out.println("out: "+str);
-            return new Object[] { str, ustring, true, getType(s.charAt(start + 1), quotes), bstring };
+            strToFill.type = getType(s.charAt(start + 1), quotes);
+            strToFill.s = str;
+            strToFill.unicode = ustring;
+            strToFill.raw = true;
+            strToFill.binary = bstring;
 
         } else {
             int n = s.length() - quotes;
@@ -330,7 +335,11 @@ public abstract class AbstractPythonGrammar implements ITreeConstants{
 
             String str = hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
             //System.out.println("out: "+str);
-            return new Object[] { str, ustring, false, getType(s.charAt(start), quotes), bstring };
+            strToFill.type = getType(s.charAt(start), quotes);
+            strToFill.s = str;
+            strToFill.unicode = ustring;
+            strToFill.raw = false;
+            strToFill.binary = bstring;
         }
     }
 
