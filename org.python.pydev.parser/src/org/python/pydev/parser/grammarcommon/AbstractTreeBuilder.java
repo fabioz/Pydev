@@ -4,6 +4,7 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
@@ -12,6 +13,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.suiteType;
 
 /**
  * Provides the basic behavior for a tree builder (opening and closing node scopes).
@@ -60,33 +62,37 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
     public final SimpleNode openNode(int id) {
         SimpleNode ret;
 
-        switch(id){
-            
+        switch (id) {
+
             case JJTFILE_INPUT:
                 ret = new Module(null);
                 break;
-                
+
             case JJTFALSE:
                 ret = new Name("False", Name.Load, true);
                 break;
-                
+
             case JJTTRUE:
                 ret = new Name("True", Name.Load, true);
                 break;
-                
+
             case JJTNONE:
                 ret = new Name("None", Name.Load, true);
                 break;
-                
+
             case JJTNAME:
                 //the actual name will be set during the parsing (token image) -- see Name construct
                 ret = new Name(null, Name.Load, false);
                 break;
-                
+
+            case JJTFOR_STMT:
+                ret = new For(null, null, null, null);
+                break;
+
             case JJTEXEC_STMT:
                 ret = new Exec(null, null, null);
                 break;
-            
+
             default:
                 ret = new IdentityNode(id);
         }
@@ -105,6 +111,10 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
      */
     public SimpleNode closeNode(SimpleNode n, int arity) throws Exception {
         exprType value;
+        suiteType orelseSuite;
+        stmtType[] body;
+        exprType iter;
+        exprType target;
 
         if(DEBUG_TREE_BUILDER){
             System.out.println("\n\n\n---------------------------");
@@ -134,9 +144,11 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTNAME:
                 return n; //it's already the correct node (and the name it's already properly set)
                 
+                
             case JJTNUM:
                 Object[] numimage = (Object[]) n.getImage();
                 return new Num(numimage[0], (Integer)numimage[1], (String)numimage[2]);
+                
                 
             case JJTBINARY:
             case JJTUNICODE:
@@ -144,6 +156,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 Object[] image = (Object[]) n.getImage();
                 return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2], (Boolean)image[4]);
 
+                
             case JJTSUITE:
                 stmtType[] stmts = new stmtType[arity];
                 for (int i = arity-1; i >= 0; i--) {
@@ -158,6 +171,24 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 return new Suite(stmts);
 
                 
+            case JJTFOR_STMT:
+                orelseSuite = null;
+                if (stack.nodeArity() == 5){
+                    orelseSuite = popSuiteAndSuiteType();
+                }
+                
+                body = popSuite();
+                iter = (exprType) stack.popNode();
+                target = (exprType) stack.popNode();
+                ctx.setStore(target);
+                
+                For forStmt = (For) n;
+                forStmt.target = target;
+                forStmt.iter = iter;
+                forStmt.body = body;
+                forStmt.orelse = orelseSuite;
+                return forStmt;
+
                 
             case JJTEXEC_STMT:
                 exprType locals = arity >= 3 ? ((exprType) stack.popNode()) : null;

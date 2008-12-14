@@ -15,7 +15,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testExec();
+            test.testForElse();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);

@@ -31,7 +31,6 @@ import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.ExtSlice;
-import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.If;
@@ -81,6 +80,10 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
         exprType value;
         exprType[] exprs;
         Name name;
+        suiteType orelseSuite;
+        stmtType[] body;
+        exprType iter;
+        exprType target;
 
         int l;
         switch (n.getId()) {
@@ -135,25 +138,6 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             p.getSpecialsBefore().add(0, ">> ");
             p.getSpecialsBefore().add(0, "print ");
             return p;
-        case JJTBEGIN_FOR_STMT:
-            return new For(null,null,null,null);
-        case JJTFOR_STMT:
-            suiteType orelseSuite = null;
-            if (stack.nodeArity() == 6){
-                orelseSuite = popSuiteAndSuiteType();
-            }
-            
-            stmtType[] body = popSuite();
-            exprType iter = (exprType) stack.popNode();
-            exprType target = (exprType) stack.popNode();
-            ctx.setStore(target);
-            
-            For forStmt = (For) stack.popNode();
-            forStmt.target = target;
-            forStmt.iter = iter;
-            forStmt.body = body;
-            forStmt.orelse = orelseSuite;
-            return forStmt;
         case JJTBEGIN_FOR_ELSE_STMT:
             return new suiteType(null);
         case JJTBEGIN_ELSE_STMT:
