@@ -6,6 +6,7 @@ import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.JfpDef;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
