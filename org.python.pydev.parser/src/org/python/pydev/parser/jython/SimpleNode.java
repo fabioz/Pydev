@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.parser.ISimpleNode;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.commentType;
 
@@ -39,14 +40,14 @@ public class SimpleNode implements Node, ISimpleNode{
 
     public SimpleNode() { }
 
-    private int id=-1;
+    private int nodeId=-1;
     
     public int getId() {
-        return id;
+        return nodeId;
     }
     
     public void setId(int id){
-        this.id = id;
+        this.nodeId = id;
     }
 
     public Object getImage() {
@@ -54,6 +55,7 @@ public class SimpleNode implements Node, ISimpleNode{
     }
 
     public void setImage(Object image) {
+        //ignore the image at this point (only subclasses actually have it -- when that's necessary).
     }
 
     /**

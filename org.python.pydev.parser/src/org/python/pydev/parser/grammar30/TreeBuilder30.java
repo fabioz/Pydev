@@ -45,12 +45,10 @@ import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
-import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.NonLocal;
-import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
@@ -85,62 +83,13 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
     }
 
 
-    public SimpleNode closeNode(SimpleNode n, int arity) throws Exception {
+    public final SimpleNode onCloseNode(SimpleNode n, int arity) throws Exception {
         exprType value;
         exprType[] exprs;
         
-        if(DEBUG_TREE_BUILDER){
-            System.out.println("\n\n\n---------------------------");
-            System.out.println("Closing node scope: "+n);
-            System.out.println("Arity: "+arity);
-            if(arity > 0){
-                System.out.println("Nodes in scope: ");
-                for(int i=0;i<arity;i++){
-                    System.out.println(stack.peekNode(i));
-                }
-            }
-        }
 
         int l;
         switch (n.getId()) {
-        case -1:
-            System.out.println("Illegal node");
-        case JJTFILE_INPUT:
-            return new Module(makeStmts(arity));
-
-        case JJTFALSE:
-            return createName(n, "False", true);
-            
-        case JJTTRUE:
-            return createName(n, "True", true);
-            
-        case JJTNONE:
-            return createName(n, "None", true);
-            
-        case JJTNAME:
-            return createName(n, n.getImage().toString(), false);
-            
-        case JJTNUM:
-            Object[] numimage = (Object[]) n.getImage();
-            return new Num(numimage[0], (Integer)numimage[1], (String)numimage[2]);
-            
-        case JJTBINARY:
-        case JJTSTRING:
-            Object[] image = (Object[]) n.getImage();
-            return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2], (Boolean)image[4]);
-
-        case JJTSUITE:
-            stmtType[] stmts = new stmtType[arity];
-            for (int i = arity-1; i >= 0; i--) {
-                SimpleNode yield_or_stmt = stack.popNode();
-                if(yield_or_stmt instanceof Yield){
-                    stmts[i] = new Expr((Yield)yield_or_stmt);
-                    
-                }else{
-                    stmts[i] = (stmtType) yield_or_stmt;
-                }
-            }
-            return new Suite(stmts);
         case JJTEXPR_STMT:
             value = (exprType) stack.popNode();
             if (arity > 1) {
@@ -166,32 +115,6 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             Delete d = (Delete) stack.popNode();
             d.targets = exprs;
             return d;
-//        case JJTPRINT_STMT:
-//            boolean nl = true;
-//            if (stack.nodeArity() == 0){
-//                Print p = new Print(null, null, true);
-//                p.getSpecialsBefore().add(0, "print ");
-//                return p;
-//            }
-//            
-//            if (stack.peekNode().getId() == JJTCOMMA) {
-//                stack.popNode();
-//                nl = false;
-//            }
-//            Print p = new Print(null, makeExprs(), nl);
-//            p.getSpecialsBefore().add(0, "print ");
-//            return p;
-//        case JJTPRINTEXT_STMT:
-//            nl = true;
-//            if (stack.peekNode().getId() == JJTCOMMA) {
-//                stack.popNode();
-//                nl = false;
-//            }
-//            exprs = makeExprs(stack.nodeArity()-1);
-//            p = new Print(((exprType) stack.popNode()), exprs, nl);
-//            p.getSpecialsBefore().add(0, ">> ");
-//            p.getSpecialsBefore().add(0, "print ");
-//            return p;
         case JJTBEGIN_FOR_STMT:
             return new For(null,null,null,null);
         case JJTFOR_STMT:
@@ -962,20 +885,6 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             return null;
         }
     }
-
-    /**
-     * Creates a name node from the given node.
-     * @param n passed node to create Name
-     * @param repr the representation for the node.
-     * @param reserved whether this is a reserved name (keyword) -- e.g.: True, False, None in Python 3.0
-     * @return a Name node created from the passed parameters. 
-     */
-    private Name createName(SimpleNode n, String repr, boolean reserved) {
-        Name name = new Name(repr, Name.Load, reserved);
-        addSpecialsAndClearOriginal(n, name);
-        return name;
-    }
-
     
     /**
      * Should only be called from makeArguments

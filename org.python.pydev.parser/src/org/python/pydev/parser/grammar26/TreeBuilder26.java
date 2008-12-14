@@ -30,7 +30,6 @@ import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Ellipsis;
-import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
@@ -44,11 +43,9 @@ import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
-import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
-import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
@@ -83,43 +80,13 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
     }
 
 
-    
-    public SimpleNode closeNode(SimpleNode n, int arity) throws Exception {
+    public final SimpleNode onCloseNode(SimpleNode n, int arity) throws Exception {
         exprType value;
         exprType[] exprs;
+        Name name;
 
         int l;
         switch (n.getId()) {
-        case -1:
-            System.out.println("Illegal node");
-        case JJTFILE_INPUT:
-            return new Module(makeStmts(arity));
-
-        case JJTNAME:
-            Name name = new Name(n.getImage().toString(), Name.Load, false);
-            addSpecialsAndClearOriginal(n, name);
-            return name;
-        case JJTNUM:
-            Object[] numimage = (Object[]) n.getImage();
-            return new Num(numimage[0], (Integer)numimage[1], (String)numimage[2]);
-        case JJTBINARY:
-        case JJTUNICODE:
-        case JJTSTRING:
-            Object[] image = (Object[]) n.getImage();
-            return new Str((String)image[0], (Integer)image[3], (Boolean)image[1], (Boolean)image[2], (Boolean)image[4]); 
-
-        case JJTSUITE:
-            stmtType[] stmts = new stmtType[arity];
-            for (int i = arity-1; i >= 0; i--) {
-                SimpleNode yield_or_stmt = stack.popNode();
-                if(yield_or_stmt instanceof Yield){
-                    stmts[i] = new Expr((Yield)yield_or_stmt);
-                    
-                }else{
-                    stmts[i] = (stmtType) yield_or_stmt;
-                }
-            }
-            return new Suite(stmts);
         case JJTEXPR_STMT:
             value = (exprType) stack.popNode();
             if (arity > 1) {
@@ -376,15 +343,6 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
         case JJTGLOBAL_STMT:
             Global global = new Global(makeIdentifiers(NameTok.GlobalName), null);
             return global;
-        case JJTEXEC_STMT:
-            exprType locals = arity >= 3 ? ((exprType) stack.popNode()) : null;
-            exprType globals = arity >= 2 ? ((exprType) stack.popNode()) : null;
-            value = (exprType) stack.popNode();
-            Exec exec = (Exec) n;
-            exec.body = value;
-            exec.locals = locals;
-            exec.globals = globals;
-            return exec;
         case JJTASSERT_STMT:
             exprType msg = arity == 2 ? ((exprType) stack.popNode()) : null;
             test = (exprType) stack.popNode();

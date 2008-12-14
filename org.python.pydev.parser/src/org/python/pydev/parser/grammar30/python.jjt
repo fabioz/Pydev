@@ -36,6 +36,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -481,7 +482,7 @@ modType file_input(): {}
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 { 
-    <DEF> AnyName() parameters() [<MINUS><GREATER>{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);} test()#funcdef_return_annottation] <COLON> 
+    <DEF> Name() parameters() [<MINUS><GREATER>{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);} test()#funcdef_return_annottation] <COLON> 
         {this.addSpecialToken(":");}  suite() 
 }
 
@@ -540,7 +541,7 @@ void onlykeywordarg2(): {}
 //tfpdef: NAME [':' test]
 void tfpdef(): {}
 { 
-	AnyName() [LOOKAHEAD(2)<COLON> {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
+	Name() [LOOKAHEAD(2)<COLON> {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
 }
 
 
@@ -716,14 +717,14 @@ void dotted_as_name(): {}
 
 //dotted_name: NAME ('.' NAME)*
 String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
-{ t=AnyName() { sb.append(t.image); }
-    (<DOT> t=AnyName() { sb.append("." + t.image); } )*
+{ t=Name() { sb.append(t.image); }
+    (<DOT> t=Name() { sb.append("." + t.image); } )*
         { return sb.toString(); }
 }
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }
-{ t=AnyName() [<AS> {this.addSpecialToken(" as ");} Name()] { return t.image; } }
+{ t=Name() [<AS> {this.addSpecialToken(" as ");} Name()] { return t.image; } }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
@@ -953,7 +954,7 @@ void trailer() #void: {Object spStr;Object spStr2;}
     <RBRACKET> {spStr2 = createSpecialStr("]", false);}   
     )#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
-|   <DOT> AnyName() #Dot_Op(2) 
+|   <DOT> Name() #Dot_Op(2) 
 }
 
 
@@ -1142,13 +1143,12 @@ void Number() #Num :
 void Complex(): {}
 { <FLOAT>   }
 
-void Name() #Name:
+Token Name() #Name:
 {
     Token t;
 }
 {
-    t = <NAME> { jjtThis.setImage(t.image); } {}
-|   t = <AS> { jjtThis.setImage(t.image); } {}
+    t = <NAME> { ((Name)jjtThis).id = t.image; return t; } {}
 }
 
 void String() #void :
@@ -1166,39 +1166,6 @@ void String() #void :
 |   ( t=<TRIPLE_BSTRING2> { jjtThis.setImage(makeString(t.image, 3)); } {} )#Binary
 }
 
-Token AnyName() #void:
-{
-    Token t;
-}
-{
-    ( t= <NAME> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <OR_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <AND_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <NOT_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <IS> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <IN> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <LAMBDA> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <IF> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <ELSE> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <ELIF> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <WHILE> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <FOR> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <TRY> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <EXCEPT> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <DEF> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <CLASS> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <FINALLY> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <PASS> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <BREAK> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <CONTINUE> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <RETURN> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <YIELD> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <IMPORT> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <FROM> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <DEL> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <RAISE> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <GLOBAL> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <NONLOCAL> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <ASSERT> { jjtThis.setImage(t.image); return t; } {} )#Name
-|   ( t = <AS> { jjtThis.setImage(t.image); return t; } {} )#Name
-}
+//Token AnyName() #void://{//    Token t;//}//{//    ( t= <NAME> { ((Name)jjtThis).id = t.image; return t; } {} )#Name
+//|   ( t = <OR_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <AND_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <NOT_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <IS> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <IN> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <LAMBDA> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <IF> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <ELSE> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <ELIF> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <WHILE> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <FOR> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <TRY> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <EXCEPT> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <DEF> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <CLASS> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <FINALLY> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <PASS> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <BREAK> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <CONTINUE> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <RETURN> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <YIELD> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <IMPORT> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <FROM> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <DEL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <RAISE> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <GLOBAL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <NONLOCAL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <ASSERT> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <AS> { jjtThis.setImage(t.image); return t; } {} )#Name
+//}

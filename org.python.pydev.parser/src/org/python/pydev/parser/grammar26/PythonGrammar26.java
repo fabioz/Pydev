@@ -13,6 +13,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -109,7 +110,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case GLOBAL:
         case EXEC:
         case ASSERT:
-        case AS:
         case WITH:
         case AT:
         case NAME:
@@ -168,7 +168,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case GLOBAL:
         case EXEC:
         case ASSERT:
-        case AS:
         case WITH:
         case AT:
         case NAME:
@@ -235,10 +234,10 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
   jjtreeOpenNodeScope(jjtn000);
     try {
       jj_consume_token(DEF);
-      AnyName();
+      Name();
       parameters();
       jj_consume_token(COLON);
-                                          this.addSpecialToken(":");
+                                       this.addSpecialToken(":");
       suite();
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -400,7 +399,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     case LPAREN:
     case MULTIPLY:
     case POWER:
-    case AS:
     case NAME:
       varargslist();
       break;
@@ -416,7 +414,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
   final public void varargslist() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LPAREN:
-    case AS:
     case NAME:
       defaultarg();
       label_3:
@@ -609,7 +606,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
 //fpdef: NAME | '(' fplist ')'
   final public void fpdef() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case AS:
     case NAME:
       Name();
       break;
@@ -702,7 +698,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     case GLOBAL:
     case EXEC:
     case ASSERT:
-    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -777,7 +772,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     case NOT:
     case NOT_BOOL:
     case LAMBDA:
-    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -861,7 +855,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -928,7 +921,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -995,7 +987,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1062,7 +1053,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1129,7 +1119,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1196,7 +1185,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1263,7 +1251,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1330,7 +1317,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1397,7 +1383,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1464,7 +1449,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1531,7 +1515,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1598,7 +1581,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -1676,7 +1658,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
           case NOT:
           case NOT_BOOL:
           case LAMBDA:
-          case AS:
           case NAME:
           case DECNUMBER:
           case HEXNUMBER:
@@ -1997,7 +1978,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       case NOT:
       case NOT_BOOL:
       case LAMBDA:
-      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -2114,7 +2094,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       case NOT:
       case NOT_BOOL:
       case LAMBDA:
-      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -2185,7 +2164,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       case NOT:
       case NOT_BOOL:
       case LAMBDA:
-      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -2346,35 +2324,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
             this.addSpecialToken(".");level++;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case OR_BOOL:
-      case AND_BOOL:
-      case NOT_BOOL:
-      case IS:
-      case IN:
-      case LAMBDA:
-      case IF:
-      case ELSE:
-      case ELIF:
-      case WHILE:
-      case FOR:
-      case TRY:
-      case EXCEPT:
-      case DEF:
-      case CLASS:
-      case FINALLY:
-      case PRINT:
-      case PASS:
-      case BREAK:
-      case CONTINUE:
-      case RETURN:
-      case YIELD:
-      case FROM:
-      case DEL:
-      case RAISE:
-      case GLOBAL:
-      case EXEC:
-      case ASSERT:
-      case AS:
       case NAME:
         fromName = dotted_name();
         break;
@@ -2390,35 +2339,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         jj_consume_token(MULTIPLY);
                     this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);
         break;
-      case OR_BOOL:
-      case AND_BOOL:
-      case NOT_BOOL:
-      case IS:
-      case IN:
-      case LAMBDA:
-      case IF:
-      case ELSE:
-      case ELIF:
-      case WHILE:
-      case FOR:
-      case TRY:
-      case EXCEPT:
-      case DEF:
-      case CLASS:
-      case FINALLY:
-      case PRINT:
-      case PASS:
-      case BREAK:
-      case CONTINUE:
-      case RETURN:
-      case YIELD:
-      case FROM:
-      case DEL:
-      case RAISE:
-      case GLOBAL:
-      case EXEC:
-      case ASSERT:
-      case AS:
       case NAME:
         importName = import_as_name();
                                         if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
@@ -2460,35 +2380,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
              this.addSpecialToken(",");
           jj_consume_token(COMMA);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case OR_BOOL:
-          case AND_BOOL:
-          case NOT_BOOL:
-          case IS:
-          case IN:
-          case LAMBDA:
-          case IF:
-          case ELSE:
-          case ELIF:
-          case WHILE:
-          case FOR:
-          case TRY:
-          case EXCEPT:
-          case DEF:
-          case CLASS:
-          case FINALLY:
-          case PRINT:
-          case PASS:
-          case BREAK:
-          case CONTINUE:
-          case RETURN:
-          case YIELD:
-          case FROM:
-          case DEL:
-          case RAISE:
-          case GLOBAL:
-          case EXEC:
-          case ASSERT:
-          case AS:
           case NAME:
                         state=0;
             importName = import_as_name();
@@ -2582,8 +2473,8 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
                         jjtree.openNodeScope(jjtn000);
                         jjtreeOpenNodeScope(jjtn000);Token t; StringBuffer sb = new StringBuffer();
     try {
-      t = AnyName();
-                sb.append(t.image);
+      t = Name();
+             sb.append(t.image);
       label_13:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -2595,8 +2486,8 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
           break label_13;
         }
         jj_consume_token(DOT);
-        t = AnyName();
-                         sb.append("." + t.image);
+        t = Name();
+                      sb.append("." + t.image);
       }
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
@@ -2633,21 +2524,21 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
                            jjtree.openNodeScope(jjtn000);
                            jjtreeOpenNodeScope(jjtn000);Token t;
     try {
-      t = AnyName();
+      t = Name();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case AS:
         jj_consume_token(AS);
-                     this.addSpecialToken(" as ");
+                  this.addSpecialToken(" as ");
         Name();
         break;
       default:
         jj_la1[52] = jj_gen;
         ;
       }
-                                                              jjtree.closeNodeScope(jjtn000, true);
-                                                              jjtc000 = false;
-                                                              jjtreeCloseNodeScope(jjtn000);
-                                                              {if (true) return t.image;}
+                                                           jjtree.closeNodeScope(jjtn000, true);
+                                                           jjtc000 = false;
+                                                           jjtreeCloseNodeScope(jjtn000);
+                                                           {if (true) return t.image;}
     } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -3326,7 +3217,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       case NOT:
       case NOT_BOOL:
       case LAMBDA:
-      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -3523,7 +3413,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       case GLOBAL:
       case EXEC:
       case ASSERT:
-      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -3581,7 +3470,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
           case GLOBAL:
           case EXEC:
           case ASSERT:
-          case AS:
           case WITH:
           case AT:
           case NAME:
@@ -3690,7 +3578,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     case MINUS:
     case NOT:
     case NOT_BOOL:
-    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -3735,7 +3622,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       case LPAREN:
       case MULTIPLY:
       case POWER:
-      case AS:
       case NAME:
         varargslist();
                           hasArgs=true;
@@ -3788,7 +3674,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       case MINUS:
       case NOT:
       case NOT_BOOL:
-      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -4006,7 +3891,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     case PLUS:
     case MINUS:
     case NOT:
-    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -4783,7 +4667,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     case LPAREN:
     case LBRACE:
     case LBRACKET:
-    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -4947,7 +4830,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
             jjtree.openNodeScope(jjtn004);
             jjtreeOpenNodeScope(jjtn004);
           try {
-            AnyName();
+            Name();
           } catch (Throwable jjte004) {
             if (jjtc004) {
               jjtree.clearNodeScope(jjtn004);
@@ -5051,7 +4934,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -5097,7 +4979,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
           case NOT:
           case NOT_BOOL:
           case LAMBDA:
-          case AS:
           case NAME:
           case DECNUMBER:
           case HEXNUMBER:
@@ -5164,7 +5045,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
           case NOT:
           case NOT_BOOL:
           case LAMBDA:
-          case AS:
           case NAME:
           case DECNUMBER:
           case HEXNUMBER:
@@ -5230,7 +5110,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
                           }
         }
         break;
-      case AS:
       case NAME:
         Name();
         break;
@@ -5342,7 +5221,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       case LPAREN:
       case MULTIPLY:
       case POWER:
-      case AS:
       case NAME:
         varargslist();
                           hasArgs=true;
@@ -5452,7 +5330,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     case NOT:
     case NOT_BOOL:
     case LAMBDA:
-    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -5554,7 +5431,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     case NOT:
     case NOT_BOOL:
     case LAMBDA:
-    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -5592,7 +5468,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       case NOT:
       case NOT_BOOL:
       case LAMBDA:
-      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -5976,7 +5851,6 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
-        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -6045,35 +5919,8 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     case PLUS:
     case MINUS:
     case NOT:
-    case OR_BOOL:
-    case AND_BOOL:
     case NOT_BOOL:
-    case IS:
-    case IN:
     case LAMBDA:
-    case IF:
-    case ELSE:
-    case ELIF:
-    case WHILE:
-    case FOR:
-    case TRY:
-    case EXCEPT:
-    case DEF:
-    case CLASS:
-    case FINALLY:
-    case PRINT:
-    case PASS:
-    case BREAK:
-    case CONTINUE:
-    case RETURN:
-    case YIELD:
-    case FROM:
-    case DEL:
-    case RAISE:
-    case GLOBAL:
-    case EXEC:
-    case ASSERT:
-    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -6284,9 +6131,9 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     jjtreeOpenNodeScope(jjtn001);
     try {
       if (jj_2_28(2)) {
-        AnyName();
+        Name();
         jj_consume_token(EQUAL);
-                                   this.addSpecialToken("=");
+                                this.addSpecialToken("=");
       } else {
         ;
       }
@@ -6398,41 +6245,26 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     }
   }
 
-  final public void Name() throws ParseException {
+  final public Token Name() throws ParseException {
  /*@bgen(jjtree) Name */
     SimpleNode jjtn000 = jjtree.builder.openNode( JJTNAME);
     boolean jjtc000 = true;
     jjtree.openNodeScope(jjtn000);
     jjtreeOpenNodeScope(jjtn000);Token t;
     try {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case NAME:
-        t = jj_consume_token(NAME);
-                 jjtn000.setImage(t.image);
-                                                jjtree.closeNodeScope(jjtn000, true);
-                                                jjtc000 = false;
-                                                jjtreeCloseNodeScope(jjtn000);
+      t = jj_consume_token(NAME);
+                 ((Name)jjtn000).id = t.image; {if (true) return t;}
+                                                             jjtree.closeNodeScope(jjtn000, true);
+                                                             jjtc000 = false;
+                                                             jjtreeCloseNodeScope(jjtn000);
 
-        break;
-      case AS:
-        t = jj_consume_token(AS);
-               jjtn000.setImage(t.image);
-                                              jjtree.closeNodeScope(jjtn000, true);
-                                              jjtc000 = false;
-                                              jjtreeCloseNodeScope(jjtn000);
-
-        break;
-      default:
-        jj_la1[132] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
     } finally {
       if (jjtc000) {
         jjtree.closeNodeScope(jjtn000, true);
         jjtreeCloseNodeScope(jjtn000);
       }
     }
+    throw new Error("Missing return statement in function");
   }
 
   final public void String() throws ParseException {
@@ -6667,591 +6499,10 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       }
       break;
     default:
-      jj_la1[133] = jj_gen;
+      jj_la1[132] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
-  }
-
-  final public Token AnyName() throws ParseException {
-    Token t;
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case NAME:
-      SimpleNode jjtn001 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc001 = true;
-      jjtree.openNodeScope(jjtn001);
-      jjtreeOpenNodeScope(jjtn001);
-      try {
-        t = jj_consume_token(NAME);
-                  jjtn001.setImage(t.image); {if (true) return t;}
-                                                           jjtree.closeNodeScope(jjtn001, true);
-                                                           jjtc001 = false;
-                                                           jjtreeCloseNodeScope(jjtn001);
-
-      } finally {
-      if (jjtc001) {
-        jjtree.closeNodeScope(jjtn001, true);
-        jjtreeCloseNodeScope(jjtn001);
-      }
-      }
-      break;
-    case OR_BOOL:
-      SimpleNode jjtn002 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc002 = true;
-      jjtree.openNodeScope(jjtn002);
-      jjtreeOpenNodeScope(jjtn002);
-      try {
-        t = jj_consume_token(OR_BOOL);
-                      jjtn002.setImage(t.image); {if (true) return t;}
-                                                               jjtree.closeNodeScope(jjtn002, true);
-                                                               jjtc002 = false;
-                                                               jjtreeCloseNodeScope(jjtn002);
-
-      } finally {
-      if (jjtc002) {
-        jjtree.closeNodeScope(jjtn002, true);
-        jjtreeCloseNodeScope(jjtn002);
-      }
-      }
-      break;
-    case AND_BOOL:
-      SimpleNode jjtn003 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc003 = true;
-      jjtree.openNodeScope(jjtn003);
-      jjtreeOpenNodeScope(jjtn003);
-      try {
-        t = jj_consume_token(AND_BOOL);
-                       jjtn003.setImage(t.image); {if (true) return t;}
-                                                                jjtree.closeNodeScope(jjtn003, true);
-                                                                jjtc003 = false;
-                                                                jjtreeCloseNodeScope(jjtn003);
-
-      } finally {
-      if (jjtc003) {
-        jjtree.closeNodeScope(jjtn003, true);
-        jjtreeCloseNodeScope(jjtn003);
-      }
-      }
-      break;
-    case NOT_BOOL:
-      SimpleNode jjtn004 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc004 = true;
-      jjtree.openNodeScope(jjtn004);
-      jjtreeOpenNodeScope(jjtn004);
-      try {
-        t = jj_consume_token(NOT_BOOL);
-                       jjtn004.setImage(t.image); {if (true) return t;}
-                                                                jjtree.closeNodeScope(jjtn004, true);
-                                                                jjtc004 = false;
-                                                                jjtreeCloseNodeScope(jjtn004);
-
-      } finally {
-      if (jjtc004) {
-        jjtree.closeNodeScope(jjtn004, true);
-        jjtreeCloseNodeScope(jjtn004);
-      }
-      }
-      break;
-    case IS:
-      SimpleNode jjtn005 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc005 = true;
-      jjtree.openNodeScope(jjtn005);
-      jjtreeOpenNodeScope(jjtn005);
-      try {
-        t = jj_consume_token(IS);
-                 jjtn005.setImage(t.image); {if (true) return t;}
-                                                          jjtree.closeNodeScope(jjtn005, true);
-                                                          jjtc005 = false;
-                                                          jjtreeCloseNodeScope(jjtn005);
-
-      } finally {
-      if (jjtc005) {
-        jjtree.closeNodeScope(jjtn005, true);
-        jjtreeCloseNodeScope(jjtn005);
-      }
-      }
-      break;
-    case IN:
-      SimpleNode jjtn006 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc006 = true;
-      jjtree.openNodeScope(jjtn006);
-      jjtreeOpenNodeScope(jjtn006);
-      try {
-        t = jj_consume_token(IN);
-                 jjtn006.setImage(t.image); {if (true) return t;}
-                                                          jjtree.closeNodeScope(jjtn006, true);
-                                                          jjtc006 = false;
-                                                          jjtreeCloseNodeScope(jjtn006);
-
-      } finally {
-      if (jjtc006) {
-        jjtree.closeNodeScope(jjtn006, true);
-        jjtreeCloseNodeScope(jjtn006);
-      }
-      }
-      break;
-    case LAMBDA:
-      SimpleNode jjtn007 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc007 = true;
-      jjtree.openNodeScope(jjtn007);
-      jjtreeOpenNodeScope(jjtn007);
-      try {
-        t = jj_consume_token(LAMBDA);
-                     jjtn007.setImage(t.image); {if (true) return t;}
-                                                              jjtree.closeNodeScope(jjtn007, true);
-                                                              jjtc007 = false;
-                                                              jjtreeCloseNodeScope(jjtn007);
-
-      } finally {
-      if (jjtc007) {
-        jjtree.closeNodeScope(jjtn007, true);
-        jjtreeCloseNodeScope(jjtn007);
-      }
-      }
-      break;
-    case IF:
-      SimpleNode jjtn008 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc008 = true;
-      jjtree.openNodeScope(jjtn008);
-      jjtreeOpenNodeScope(jjtn008);
-      try {
-        t = jj_consume_token(IF);
-                 jjtn008.setImage(t.image); {if (true) return t;}
-                                                          jjtree.closeNodeScope(jjtn008, true);
-                                                          jjtc008 = false;
-                                                          jjtreeCloseNodeScope(jjtn008);
-
-      } finally {
-      if (jjtc008) {
-        jjtree.closeNodeScope(jjtn008, true);
-        jjtreeCloseNodeScope(jjtn008);
-      }
-      }
-      break;
-    case ELSE:
-      SimpleNode jjtn009 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc009 = true;
-      jjtree.openNodeScope(jjtn009);
-      jjtreeOpenNodeScope(jjtn009);
-      try {
-        t = jj_consume_token(ELSE);
-                   jjtn009.setImage(t.image); {if (true) return t;}
-                                                            jjtree.closeNodeScope(jjtn009, true);
-                                                            jjtc009 = false;
-                                                            jjtreeCloseNodeScope(jjtn009);
-
-      } finally {
-      if (jjtc009) {
-        jjtree.closeNodeScope(jjtn009, true);
-        jjtreeCloseNodeScope(jjtn009);
-      }
-      }
-      break;
-    case ELIF:
-      SimpleNode jjtn010 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc010 = true;
-      jjtree.openNodeScope(jjtn010);
-      jjtreeOpenNodeScope(jjtn010);
-      try {
-        t = jj_consume_token(ELIF);
-                   jjtn010.setImage(t.image); {if (true) return t;}
-                                                            jjtree.closeNodeScope(jjtn010, true);
-                                                            jjtc010 = false;
-                                                            jjtreeCloseNodeScope(jjtn010);
-
-      } finally {
-      if (jjtc010) {
-        jjtree.closeNodeScope(jjtn010, true);
-        jjtreeCloseNodeScope(jjtn010);
-      }
-      }
-      break;
-    case WHILE:
-      SimpleNode jjtn011 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc011 = true;
-      jjtree.openNodeScope(jjtn011);
-      jjtreeOpenNodeScope(jjtn011);
-      try {
-        t = jj_consume_token(WHILE);
-                    jjtn011.setImage(t.image); {if (true) return t;}
-                                                             jjtree.closeNodeScope(jjtn011, true);
-                                                             jjtc011 = false;
-                                                             jjtreeCloseNodeScope(jjtn011);
-
-      } finally {
-      if (jjtc011) {
-        jjtree.closeNodeScope(jjtn011, true);
-        jjtreeCloseNodeScope(jjtn011);
-      }
-      }
-      break;
-    case FOR:
-      SimpleNode jjtn012 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc012 = true;
-      jjtree.openNodeScope(jjtn012);
-      jjtreeOpenNodeScope(jjtn012);
-      try {
-        t = jj_consume_token(FOR);
-                  jjtn012.setImage(t.image); {if (true) return t;}
-                                                           jjtree.closeNodeScope(jjtn012, true);
-                                                           jjtc012 = false;
-                                                           jjtreeCloseNodeScope(jjtn012);
-
-      } finally {
-      if (jjtc012) {
-        jjtree.closeNodeScope(jjtn012, true);
-        jjtreeCloseNodeScope(jjtn012);
-      }
-      }
-      break;
-    case TRY:
-      SimpleNode jjtn013 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc013 = true;
-      jjtree.openNodeScope(jjtn013);
-      jjtreeOpenNodeScope(jjtn013);
-      try {
-        t = jj_consume_token(TRY);
-                  jjtn013.setImage(t.image); {if (true) return t;}
-                                                           jjtree.closeNodeScope(jjtn013, true);
-                                                           jjtc013 = false;
-                                                           jjtreeCloseNodeScope(jjtn013);
-
-      } finally {
-      if (jjtc013) {
-        jjtree.closeNodeScope(jjtn013, true);
-        jjtreeCloseNodeScope(jjtn013);
-      }
-      }
-      break;
-    case EXCEPT:
-      SimpleNode jjtn014 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc014 = true;
-      jjtree.openNodeScope(jjtn014);
-      jjtreeOpenNodeScope(jjtn014);
-      try {
-        t = jj_consume_token(EXCEPT);
-                     jjtn014.setImage(t.image); {if (true) return t;}
-                                                              jjtree.closeNodeScope(jjtn014, true);
-                                                              jjtc014 = false;
-                                                              jjtreeCloseNodeScope(jjtn014);
-
-      } finally {
-      if (jjtc014) {
-        jjtree.closeNodeScope(jjtn014, true);
-        jjtreeCloseNodeScope(jjtn014);
-      }
-      }
-      break;
-    case DEF:
-      SimpleNode jjtn015 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc015 = true;
-      jjtree.openNodeScope(jjtn015);
-      jjtreeOpenNodeScope(jjtn015);
-      try {
-        t = jj_consume_token(DEF);
-                  jjtn015.setImage(t.image); {if (true) return t;}
-                                                           jjtree.closeNodeScope(jjtn015, true);
-                                                           jjtc015 = false;
-                                                           jjtreeCloseNodeScope(jjtn015);
-
-      } finally {
-      if (jjtc015) {
-        jjtree.closeNodeScope(jjtn015, true);
-        jjtreeCloseNodeScope(jjtn015);
-      }
-      }
-      break;
-    case CLASS:
-      SimpleNode jjtn016 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc016 = true;
-      jjtree.openNodeScope(jjtn016);
-      jjtreeOpenNodeScope(jjtn016);
-      try {
-        t = jj_consume_token(CLASS);
-                    jjtn016.setImage(t.image); {if (true) return t;}
-                                                             jjtree.closeNodeScope(jjtn016, true);
-                                                             jjtc016 = false;
-                                                             jjtreeCloseNodeScope(jjtn016);
-
-      } finally {
-      if (jjtc016) {
-        jjtree.closeNodeScope(jjtn016, true);
-        jjtreeCloseNodeScope(jjtn016);
-      }
-      }
-      break;
-    case FINALLY:
-      SimpleNode jjtn017 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc017 = true;
-      jjtree.openNodeScope(jjtn017);
-      jjtreeOpenNodeScope(jjtn017);
-      try {
-        t = jj_consume_token(FINALLY);
-                      jjtn017.setImage(t.image); {if (true) return t;}
-                                                               jjtree.closeNodeScope(jjtn017, true);
-                                                               jjtc017 = false;
-                                                               jjtreeCloseNodeScope(jjtn017);
-
-      } finally {
-      if (jjtc017) {
-        jjtree.closeNodeScope(jjtn017, true);
-        jjtreeCloseNodeScope(jjtn017);
-      }
-      }
-      break;
-    case PRINT:
-      SimpleNode jjtn018 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc018 = true;
-      jjtree.openNodeScope(jjtn018);
-      jjtreeOpenNodeScope(jjtn018);
-      try {
-        t = jj_consume_token(PRINT);
-                    jjtn018.setImage(t.image); {if (true) return t;}
-                                                             jjtree.closeNodeScope(jjtn018, true);
-                                                             jjtc018 = false;
-                                                             jjtreeCloseNodeScope(jjtn018);
-
-      } finally {
-      if (jjtc018) {
-        jjtree.closeNodeScope(jjtn018, true);
-        jjtreeCloseNodeScope(jjtn018);
-      }
-      }
-      break;
-    case PASS:
-      SimpleNode jjtn019 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc019 = true;
-      jjtree.openNodeScope(jjtn019);
-      jjtreeOpenNodeScope(jjtn019);
-      try {
-        t = jj_consume_token(PASS);
-                   jjtn019.setImage(t.image); {if (true) return t;}
-                                                            jjtree.closeNodeScope(jjtn019, true);
-                                                            jjtc019 = false;
-                                                            jjtreeCloseNodeScope(jjtn019);
-
-      } finally {
-      if (jjtc019) {
-        jjtree.closeNodeScope(jjtn019, true);
-        jjtreeCloseNodeScope(jjtn019);
-      }
-      }
-      break;
-    case BREAK:
-      SimpleNode jjtn020 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc020 = true;
-      jjtree.openNodeScope(jjtn020);
-      jjtreeOpenNodeScope(jjtn020);
-      try {
-        t = jj_consume_token(BREAK);
-                    jjtn020.setImage(t.image); {if (true) return t;}
-                                                             jjtree.closeNodeScope(jjtn020, true);
-                                                             jjtc020 = false;
-                                                             jjtreeCloseNodeScope(jjtn020);
-
-      } finally {
-      if (jjtc020) {
-        jjtree.closeNodeScope(jjtn020, true);
-        jjtreeCloseNodeScope(jjtn020);
-      }
-      }
-      break;
-    case CONTINUE:
-      SimpleNode jjtn021 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc021 = true;
-      jjtree.openNodeScope(jjtn021);
-      jjtreeOpenNodeScope(jjtn021);
-      try {
-        t = jj_consume_token(CONTINUE);
-                       jjtn021.setImage(t.image); {if (true) return t;}
-                                                                jjtree.closeNodeScope(jjtn021, true);
-                                                                jjtc021 = false;
-                                                                jjtreeCloseNodeScope(jjtn021);
-
-      } finally {
-      if (jjtc021) {
-        jjtree.closeNodeScope(jjtn021, true);
-        jjtreeCloseNodeScope(jjtn021);
-      }
-      }
-      break;
-    case RETURN:
-      SimpleNode jjtn022 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc022 = true;
-      jjtree.openNodeScope(jjtn022);
-      jjtreeOpenNodeScope(jjtn022);
-      try {
-        t = jj_consume_token(RETURN);
-                     jjtn022.setImage(t.image); {if (true) return t;}
-                                                              jjtree.closeNodeScope(jjtn022, true);
-                                                              jjtc022 = false;
-                                                              jjtreeCloseNodeScope(jjtn022);
-
-      } finally {
-      if (jjtc022) {
-        jjtree.closeNodeScope(jjtn022, true);
-        jjtreeCloseNodeScope(jjtn022);
-      }
-      }
-      break;
-    case YIELD:
-      SimpleNode jjtn023 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc023 = true;
-      jjtree.openNodeScope(jjtn023);
-      jjtreeOpenNodeScope(jjtn023);
-      try {
-        t = jj_consume_token(YIELD);
-                    jjtn023.setImage(t.image); {if (true) return t;}
-                                                             jjtree.closeNodeScope(jjtn023, true);
-                                                             jjtc023 = false;
-                                                             jjtreeCloseNodeScope(jjtn023);
-
-      } finally {
-      if (jjtc023) {
-        jjtree.closeNodeScope(jjtn023, true);
-        jjtreeCloseNodeScope(jjtn023);
-      }
-      }
-      break;
-    case FROM:
-      SimpleNode jjtn024 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc024 = true;
-      jjtree.openNodeScope(jjtn024);
-      jjtreeOpenNodeScope(jjtn024);
-      try {
-        t = jj_consume_token(FROM);
-                   jjtn024.setImage(t.image); {if (true) return t;}
-                                                            jjtree.closeNodeScope(jjtn024, true);
-                                                            jjtc024 = false;
-                                                            jjtreeCloseNodeScope(jjtn024);
-
-      } finally {
-      if (jjtc024) {
-        jjtree.closeNodeScope(jjtn024, true);
-        jjtreeCloseNodeScope(jjtn024);
-      }
-      }
-      break;
-    case DEL:
-      SimpleNode jjtn025 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc025 = true;
-      jjtree.openNodeScope(jjtn025);
-      jjtreeOpenNodeScope(jjtn025);
-      try {
-        t = jj_consume_token(DEL);
-                  jjtn025.setImage(t.image); {if (true) return t;}
-                                                           jjtree.closeNodeScope(jjtn025, true);
-                                                           jjtc025 = false;
-                                                           jjtreeCloseNodeScope(jjtn025);
-
-      } finally {
-      if (jjtc025) {
-        jjtree.closeNodeScope(jjtn025, true);
-        jjtreeCloseNodeScope(jjtn025);
-      }
-      }
-      break;
-    case RAISE:
-      SimpleNode jjtn026 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc026 = true;
-      jjtree.openNodeScope(jjtn026);
-      jjtreeOpenNodeScope(jjtn026);
-      try {
-        t = jj_consume_token(RAISE);
-                    jjtn026.setImage(t.image); {if (true) return t;}
-                                                             jjtree.closeNodeScope(jjtn026, true);
-                                                             jjtc026 = false;
-                                                             jjtreeCloseNodeScope(jjtn026);
-
-      } finally {
-      if (jjtc026) {
-        jjtree.closeNodeScope(jjtn026, true);
-        jjtreeCloseNodeScope(jjtn026);
-      }
-      }
-      break;
-    case GLOBAL:
-      SimpleNode jjtn027 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc027 = true;
-      jjtree.openNodeScope(jjtn027);
-      jjtreeOpenNodeScope(jjtn027);
-      try {
-        t = jj_consume_token(GLOBAL);
-                     jjtn027.setImage(t.image); {if (true) return t;}
-                                                              jjtree.closeNodeScope(jjtn027, true);
-                                                              jjtc027 = false;
-                                                              jjtreeCloseNodeScope(jjtn027);
-
-      } finally {
-      if (jjtc027) {
-        jjtree.closeNodeScope(jjtn027, true);
-        jjtreeCloseNodeScope(jjtn027);
-      }
-      }
-      break;
-    case EXEC:
-      SimpleNode jjtn028 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc028 = true;
-      jjtree.openNodeScope(jjtn028);
-      jjtreeOpenNodeScope(jjtn028);
-      try {
-        t = jj_consume_token(EXEC);
-                   jjtn028.setImage(t.image); {if (true) return t;}
-                                                            jjtree.closeNodeScope(jjtn028, true);
-                                                            jjtc028 = false;
-                                                            jjtreeCloseNodeScope(jjtn028);
-
-      } finally {
-      if (jjtc028) {
-        jjtree.closeNodeScope(jjtn028, true);
-        jjtreeCloseNodeScope(jjtn028);
-      }
-      }
-      break;
-    case ASSERT:
-      SimpleNode jjtn029 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc029 = true;
-      jjtree.openNodeScope(jjtn029);
-      jjtreeOpenNodeScope(jjtn029);
-      try {
-        t = jj_consume_token(ASSERT);
-                     jjtn029.setImage(t.image); {if (true) return t;}
-                                                              jjtree.closeNodeScope(jjtn029, true);
-                                                              jjtc029 = false;
-                                                              jjtreeCloseNodeScope(jjtn029);
-
-      } finally {
-      if (jjtc029) {
-        jjtree.closeNodeScope(jjtn029, true);
-        jjtreeCloseNodeScope(jjtn029);
-      }
-      }
-      break;
-    case AS:
-      SimpleNode jjtn030 = jjtree.builder.openNode( JJTNAME);
-      boolean jjtc030 = true;
-      jjtree.openNodeScope(jjtn030);
-      jjtreeOpenNodeScope(jjtn030);
-      try {
-        t = jj_consume_token(AS);
-                 jjtn030.setImage(t.image); {if (true) return t;}
-                                                          jjtree.closeNodeScope(jjtn030, true);
-                                                          jjtc030 = false;
-                                                          jjtreeCloseNodeScope(jjtn030);
-
-      } finally {
-      if (jjtc030) {
-        jjtree.closeNodeScope(jjtn030, true);
-        jjtreeCloseNodeScope(jjtn030);
-      }
-      }
-      break;
-    default:
-      jj_la1[134] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-    throw new Error("Missing return statement in function");
   }
 
   final private boolean jj_2_1(int xla) {
@@ -7450,42 +6701,27 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     finally { jj_save(27, xla); }
   }
 
-  final private boolean jj_3R_115() {
-    if (jj_scan_token(AS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_57() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_114()) {
-    jj_scanpos = xsp;
-    if (jj_3R_115()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_114() {
+  final private boolean jj_3R_56() {
     if (jj_scan_token(NAME)) return true;
     return false;
   }
 
-  final private boolean jj_3R_177() {
+  final private boolean jj_3R_144() {
     if (jj_scan_token(COMPLEX)) return true;
     return false;
   }
 
-  final private boolean jj_3R_176() {
+  final private boolean jj_3R_143() {
     if (jj_scan_token(FLOAT)) return true;
     return false;
   }
 
-  final private boolean jj_3R_175() {
+  final private boolean jj_3R_142() {
     if (jj_scan_token(DECNUMBER)) return true;
     return false;
   }
 
-  final private boolean jj_3R_124() {
+  final private boolean jj_3R_91() {
     if (jj_scan_token(ASSERT)) return true;
     return false;
   }
@@ -7496,42 +6732,42 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_174() {
+  final private boolean jj_3R_141() {
     if (jj_scan_token(OCTNUMBER)) return true;
     return false;
   }
 
-  final private boolean jj_3R_123() {
+  final private boolean jj_3R_90() {
     if (jj_scan_token(EXEC)) return true;
     return false;
   }
 
-  final private boolean jj_3R_122() {
+  final private boolean jj_3R_89() {
     if (jj_scan_token(GLOBAL)) return true;
     return false;
   }
 
-  final private boolean jj_3R_173() {
-    if (jj_scan_token(HEXNUMBER)) return true;
+  final private boolean jj_3R_136() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_140()) {
+    jj_scanpos = xsp;
+    if (jj_3R_141()) {
+    jj_scanpos = xsp;
+    if (jj_3R_142()) {
+    jj_scanpos = xsp;
+    if (jj_3R_143()) {
+    jj_scanpos = xsp;
+    if (jj_3R_144()) return true;
+    }
+    }
+    }
+    }
     return false;
   }
 
-  final private boolean jj_3R_169() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_173()) {
-    jj_scanpos = xsp;
-    if (jj_3R_174()) {
-    jj_scanpos = xsp;
-    if (jj_3R_175()) {
-    jj_scanpos = xsp;
-    if (jj_3R_176()) {
-    jj_scanpos = xsp;
-    if (jj_3R_177()) return true;
-    }
-    }
-    }
-    }
+  final private boolean jj_3R_140() {
+    if (jj_scan_token(HEXNUMBER)) return true;
     return false;
   }
 
@@ -7561,23 +6797,8 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_172() {
+  final private boolean jj_3R_139() {
     if (jj_scan_token(MULTIPLY)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_171() {
-    if (jj_scan_token(POWER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_166() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_171()) {
-    jj_scanpos = xsp;
-    if (jj_3R_172()) return true;
-    }
     return false;
   }
 
@@ -7587,13 +6808,28 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
+  final private boolean jj_3R_133() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_138()) {
+    jj_scanpos = xsp;
+    if (jj_3R_139()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_138() {
+    if (jj_scan_token(POWER)) return true;
+    return false;
+  }
+
   final private boolean jj_3R_55() {
     if (jj_scan_token(MULTIPLY)) return true;
     if (jj_3R_46()) return true;
     return false;
   }
 
-  final private boolean jj_3R_145() {
+  final private boolean jj_3R_112() {
     if (jj_3R_54()) return true;
     return false;
   }
@@ -7603,20 +6839,20 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_146() {
+  final private boolean jj_3R_113() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3_26()) {
     jj_scanpos = xsp;
-    if (jj_3R_154()) return true;
+    if (jj_3R_121()) return true;
     }
     return false;
   }
 
-  final private boolean jj_3R_129() {
+  final private boolean jj_3R_96() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_146()) jj_scanpos = xsp;
+    if (jj_3R_113()) jj_scanpos = xsp;
     return false;
   }
 
@@ -7625,29 +6861,29 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_77() {
+  final private boolean jj_3R_76() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_128()) {
+    if (jj_3R_95()) {
     jj_scanpos = xsp;
-    if (jj_3R_129()) return true;
+    if (jj_3R_96()) return true;
     }
     return false;
   }
 
-  final private boolean jj_3R_128() {
-    if (jj_3R_145()) return true;
+  final private boolean jj_3R_95() {
+    if (jj_3R_112()) return true;
     return false;
   }
 
   final private boolean jj_3R_53() {
-    if (jj_3R_83()) return true;
+    if (jj_3R_82()) return true;
     return false;
   }
 
-  final private boolean jj_3R_83() {
+  final private boolean jj_3R_82() {
     if (jj_scan_token(FOR)) return true;
-    if (jj_3R_132()) return true;
+    if (jj_3R_99()) return true;
     return false;
   }
 
@@ -7673,7 +6909,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_147() {
+  final private boolean jj_3R_114() {
     if (jj_scan_token(COLON)) return true;
     return false;
   }
@@ -7684,42 +6920,42 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_142() {
+  final private boolean jj_3R_109() {
     if (jj_scan_token(FROM)) return true;
     return false;
   }
 
-  final private boolean jj_3R_121() {
+  final private boolean jj_3R_88() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_141()) {
+    if (jj_3R_108()) {
     jj_scanpos = xsp;
-    if (jj_3R_142()) return true;
+    if (jj_3R_109()) return true;
     }
     return false;
   }
 
-  final private boolean jj_3R_141() {
+  final private boolean jj_3R_108() {
     if (jj_scan_token(IMPORT)) return true;
     return false;
   }
 
-  final private boolean jj_3R_133() {
+  final private boolean jj_3R_100() {
     if (jj_3R_46()) return true;
     return false;
   }
 
-  final private boolean jj_3R_151() {
+  final private boolean jj_3R_118() {
     if (jj_scan_token(RAISE)) return true;
     return false;
   }
 
-  final private boolean jj_3R_132() {
+  final private boolean jj_3R_99() {
     if (jj_3R_52()) return true;
     return false;
   }
 
-  final private boolean jj_3R_78() {
+  final private boolean jj_3R_77() {
     if (jj_scan_token(YIELD)) return true;
     return false;
   }
@@ -7730,32 +6966,32 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_150() {
-    if (jj_3R_78()) return true;
+  final private boolean jj_3R_117() {
+    if (jj_3R_77()) return true;
     return false;
   }
 
-  final private boolean jj_3R_130() {
-    if (jj_3R_147()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_81() {
-    if (jj_3R_130()) return true;
+  final private boolean jj_3R_97() {
+    if (jj_3R_114()) return true;
     return false;
   }
 
   final private boolean jj_3R_80() {
-    if (jj_3R_46()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_156() {
-    if (jj_scan_token(RETURN)) return true;
+    if (jj_3R_97()) return true;
     return false;
   }
 
   final private boolean jj_3R_79() {
+    if (jj_3R_46()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_123() {
+    if (jj_scan_token(RETURN)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_78() {
     if (jj_scan_token(DOT)) return true;
     return false;
   }
@@ -7763,58 +6999,58 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
   final private boolean jj_3R_51() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_78()) {
+    jj_scanpos = xsp;
     if (jj_3R_79()) {
     jj_scanpos = xsp;
-    if (jj_3R_80()) {
-    jj_scanpos = xsp;
-    if (jj_3R_81()) return true;
+    if (jj_3R_80()) return true;
     }
     }
     return false;
   }
 
-  final private boolean jj_3R_149() {
-    if (jj_3R_156()) return true;
+  final private boolean jj_3R_116() {
+    if (jj_3R_123()) return true;
     return false;
   }
 
-  final private boolean jj_3R_140() {
-    if (jj_3R_151()) return true;
+  final private boolean jj_3R_107() {
+    if (jj_3R_118()) return true;
     return false;
   }
 
-  final private boolean jj_3R_139() {
-    if (jj_3R_150()) return true;
+  final private boolean jj_3R_106() {
+    if (jj_3R_117()) return true;
     return false;
   }
 
-  final private boolean jj_3R_138() {
-    if (jj_3R_149()) return true;
+  final private boolean jj_3R_105() {
+    if (jj_3R_116()) return true;
     return false;
   }
 
-  final private boolean jj_3R_137() {
+  final private boolean jj_3R_104() {
     if (jj_scan_token(CONTINUE)) return true;
     return false;
   }
 
-  final private boolean jj_3R_125() {
+  final private boolean jj_3R_92() {
     if (jj_scan_token(LAMBDA)) return true;
     return false;
   }
 
-  final private boolean jj_3R_120() {
+  final private boolean jj_3R_87() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_136()) {
+    if (jj_3R_103()) {
     jj_scanpos = xsp;
-    if (jj_3R_137()) {
+    if (jj_3R_104()) {
     jj_scanpos = xsp;
-    if (jj_3R_138()) {
+    if (jj_3R_105()) {
     jj_scanpos = xsp;
-    if (jj_3R_139()) {
+    if (jj_3R_106()) {
     jj_scanpos = xsp;
-    if (jj_3R_140()) return true;
+    if (jj_3R_107()) return true;
     }
     }
     }
@@ -7822,43 +7058,38 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_136() {
+  final private boolean jj_3R_103() {
     if (jj_scan_token(BREAK)) return true;
     return false;
   }
 
   final private boolean jj_3R_48() {
-    if (jj_3R_77()) return true;
+    if (jj_3R_76()) return true;
     return false;
   }
 
-  final private boolean jj_3R_119() {
+  final private boolean jj_3R_86() {
     if (jj_scan_token(PASS)) return true;
     return false;
   }
 
-  final private boolean jj_3R_165() {
-    if (jj_3R_170()) return true;
+  final private boolean jj_3R_132() {
+    if (jj_3R_137()) return true;
     return false;
   }
 
-  final private boolean jj_3R_164() {
-    if (jj_3R_169()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_135() {
+  final private boolean jj_3R_102() {
     if (jj_scan_token(DEL)) return true;
     return false;
   }
 
-  final private boolean jj_3R_163() {
-    if (jj_3R_57()) return true;
+  final private boolean jj_3R_131() {
+    if (jj_3R_136()) return true;
     return false;
   }
 
-  final private boolean jj_3R_162() {
-    if (jj_scan_token(150)) return true;
+  final private boolean jj_3R_130() {
+    if (jj_3R_56()) return true;
     return false;
   }
 
@@ -7873,29 +7104,29 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
+  final private boolean jj_3R_129() {
+    if (jj_scan_token(150)) return true;
+    return false;
+  }
+
   final private boolean jj_3_7() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_46()) return true;
     return false;
   }
 
-  final private boolean jj_3R_118() {
-    if (jj_3R_135()) return true;
+  final private boolean jj_3R_85() {
+    if (jj_3R_102()) return true;
     return false;
   }
 
-  final private boolean jj_3R_161() {
+  final private boolean jj_3R_128() {
     if (jj_scan_token(LBRACE)) return true;
     return false;
   }
 
-  final private boolean jj_3R_134() {
+  final private boolean jj_3R_101() {
     if (jj_scan_token(PRINT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_160() {
-    if (jj_scan_token(LBRACKET)) return true;
     return false;
   }
 
@@ -7905,8 +7136,8 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_159() {
-    if (jj_scan_token(LPAREN)) return true;
+  final private boolean jj_3R_127() {
+    if (jj_scan_token(LBRACKET)) return true;
     return false;
   }
 
@@ -7916,25 +7147,30 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_117() {
+  final private boolean jj_3R_84() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3_9()) {
     jj_scanpos = xsp;
     if (jj_3_10()) {
     jj_scanpos = xsp;
-    if (jj_3R_134()) return true;
+    if (jj_3R_101()) return true;
     }
     }
+    return false;
+  }
+
+  final private boolean jj_3R_126() {
+    if (jj_scan_token(LPAREN)) return true;
     return false;
   }
 
   final private boolean jj_3R_49() {
-    if (jj_3R_78()) return true;
+    if (jj_3R_77()) return true;
     return false;
   }
 
-  final private boolean jj_3R_59() {
+  final private boolean jj_3R_58() {
     if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
@@ -7956,26 +7192,26 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_153() {
+  final private boolean jj_3R_120() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3_15()) {
     jj_scanpos = xsp;
     if (jj_3_16()) {
     jj_scanpos = xsp;
-    if (jj_3R_159()) {
+    if (jj_3R_126()) {
     jj_scanpos = xsp;
-    if (jj_3R_160()) {
+    if (jj_3R_127()) {
     jj_scanpos = xsp;
-    if (jj_3R_161()) {
+    if (jj_3R_128()) {
     jj_scanpos = xsp;
-    if (jj_3R_162()) {
+    if (jj_3R_129()) {
     jj_scanpos = xsp;
-    if (jj_3R_163()) {
+    if (jj_3R_130()) {
     jj_scanpos = xsp;
-    if (jj_3R_164()) {
+    if (jj_3R_131()) {
     jj_scanpos = xsp;
-    if (jj_3R_165()) return true;
+    if (jj_3R_132()) return true;
     }
     }
     }
@@ -7987,23 +7223,23 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_116() {
-    if (jj_3R_133()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_70() {
-    if (jj_3R_124()) return true;
+  final private boolean jj_3R_83() {
+    if (jj_3R_100()) return true;
     return false;
   }
 
   final private boolean jj_3R_69() {
-    if (jj_3R_123()) return true;
+    if (jj_3R_91()) return true;
     return false;
   }
 
   final private boolean jj_3R_68() {
-    if (jj_3R_122()) return true;
+    if (jj_3R_90()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_67() {
+    if (jj_3R_89()) return true;
     return false;
   }
 
@@ -8013,8 +7249,8 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_67() {
-    if (jj_3R_121()) return true;
+  final private boolean jj_3R_66() {
+    if (jj_3R_88()) return true;
     return false;
   }
 
@@ -8024,8 +7260,8 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_66() {
-    if (jj_3R_120()) return true;
+  final private boolean jj_3R_65() {
+    if (jj_3R_87()) return true;
     return false;
   }
 
@@ -8035,29 +7271,31 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_65() {
-    if (jj_3R_119()) return true;
-    return false;
-  }
-
   final private boolean jj_3R_64() {
-    if (jj_3R_118()) return true;
+    if (jj_3R_86()) return true;
     return false;
   }
 
   final private boolean jj_3R_63() {
-    if (jj_3R_117()) return true;
+    if (jj_3R_85()) return true;
     return false;
   }
 
   final private boolean jj_3R_62() {
-    if (jj_3R_116()) return true;
+    if (jj_3R_84()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_61() {
+    if (jj_3R_83()) return true;
     return false;
   }
 
   final private boolean jj_3R_45() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_61()) {
+    jj_scanpos = xsp;
     if (jj_3R_62()) {
     jj_scanpos = xsp;
     if (jj_3R_63()) {
@@ -8072,9 +7310,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     jj_scanpos = xsp;
     if (jj_3R_68()) {
     jj_scanpos = xsp;
-    if (jj_3R_69()) {
-    jj_scanpos = xsp;
-    if (jj_3R_70()) return true;
+    if (jj_3R_69()) return true;
     }
     }
     }
@@ -8092,8 +7328,8 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_144() {
-    if (jj_3R_153()) return true;
+  final private boolean jj_3R_111() {
+    if (jj_3R_120()) return true;
     return false;
   }
 
@@ -8103,32 +7339,32 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_127() {
-    if (jj_3R_144()) return true;
+  final private boolean jj_3R_94() {
+    if (jj_3R_111()) return true;
     return false;
   }
 
-  final private boolean jj_3R_61() {
+  final private boolean jj_3R_60() {
     if (jj_scan_token(LPAREN)) return true;
     return false;
   }
 
-  final private boolean jj_3R_76() {
-    if (jj_3R_127()) return true;
-    return false;
-  }
-
   final private boolean jj_3R_75() {
-    if (jj_scan_token(NOT)) return true;
+    if (jj_3R_94()) return true;
     return false;
   }
 
   final private boolean jj_3R_74() {
-    if (jj_scan_token(MINUS)) return true;
+    if (jj_scan_token(NOT)) return true;
     return false;
   }
 
   final private boolean jj_3R_73() {
+    if (jj_scan_token(MINUS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_72() {
     if (jj_scan_token(PLUS)) return true;
     return false;
   }
@@ -8136,30 +7372,30 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
   final private boolean jj_3R_47() {
     Token xsp;
     xsp = jj_scanpos;
+    if (jj_3R_72()) {
+    jj_scanpos = xsp;
     if (jj_3R_73()) {
     jj_scanpos = xsp;
     if (jj_3R_74()) {
     jj_scanpos = xsp;
-    if (jj_3R_75()) {
-    jj_scanpos = xsp;
-    if (jj_3R_76()) return true;
+    if (jj_3R_75()) return true;
     }
     }
     }
     return false;
   }
 
-  final private boolean jj_3R_60() {
-    if (jj_3R_57()) return true;
+  final private boolean jj_3R_59() {
+    if (jj_3R_56()) return true;
     return false;
   }
 
   final private boolean jj_3R_44() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_60()) {
+    if (jj_3R_59()) {
     jj_scanpos = xsp;
-    if (jj_3R_61()) return true;
+    if (jj_3R_60()) return true;
     }
     return false;
   }
@@ -8169,18 +7405,18 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_167() {
-    if (jj_3R_47()) return true;
-    return false;
-  }
-
   final private boolean jj_3_1() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_41()) return true;
     return false;
   }
 
-  final private boolean jj_3R_58() {
+  final private boolean jj_3R_134() {
+    if (jj_3R_47()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_57() {
     if (jj_scan_token(POWER)) return true;
     return false;
   }
@@ -8188,9 +7424,9 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
   final private boolean jj_3R_43() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_58()) {
+    if (jj_3R_57()) {
     jj_scanpos = xsp;
-    if (jj_3R_59()) return true;
+    if (jj_3R_58()) return true;
     }
     return false;
   }
@@ -8202,7 +7438,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
 
   final private boolean jj_3R_42() {
     if (jj_scan_token(MULTIPLY)) return true;
-    if (jj_3R_57()) return true;
+    if (jj_3R_56()) return true;
     return false;
   }
 
@@ -8212,8 +7448,8 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_155() {
-    if (jj_3R_167()) return true;
+  final private boolean jj_3R_122() {
+    if (jj_3R_134()) return true;
     return false;
   }
 
@@ -8223,28 +7459,28 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_148() {
-    if (jj_3R_155()) return true;
+  final private boolean jj_3R_115() {
+    if (jj_3R_122()) return true;
     return false;
   }
 
-  final private boolean jj_3R_131() {
-    if (jj_3R_148()) return true;
+  final private boolean jj_3R_98() {
+    if (jj_3R_115()) return true;
     return false;
   }
 
-  final private boolean jj_3R_82() {
-    if (jj_3R_131()) return true;
+  final private boolean jj_3R_81() {
+    if (jj_3R_98()) return true;
     return false;
   }
 
   final private boolean jj_3R_52() {
-    if (jj_3R_82()) return true;
+    if (jj_3R_81()) return true;
     return false;
   }
 
-  final private boolean jj_3R_158() {
-    if (jj_3R_168()) return true;
+  final private boolean jj_3R_125() {
+    if (jj_3R_135()) return true;
     return false;
   }
 
@@ -8254,402 +7490,158 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_168() {
+  final private boolean jj_3R_135() {
     if (jj_3R_52()) return true;
     return false;
   }
 
-  final private boolean jj_3R_157() {
-    if (jj_scan_token(NOT_BOOL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_152() {
+  final private boolean jj_3R_119() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_157()) {
+    if (jj_3R_124()) {
     jj_scanpos = xsp;
-    if (jj_3R_158()) return true;
+    if (jj_3R_125()) return true;
     }
     return false;
   }
 
-  final private boolean jj_3R_143() {
-    if (jj_3R_152()) return true;
+  final private boolean jj_3R_124() {
+    if (jj_scan_token(NOT_BOOL)) return true;
     return false;
   }
 
-  final private boolean jj_3R_72() {
-    if (jj_3R_126()) return true;
+  final private boolean jj_3R_110() {
+    if (jj_3R_119()) return true;
     return false;
   }
 
-  final private boolean jj_3R_126() {
-    if (jj_3R_143()) return true;
+  final private boolean jj_3R_71() {
+    if (jj_3R_93()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_93() {
+    if (jj_3R_110()) return true;
     return false;
   }
 
   final private boolean jj_3R_46() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_71()) {
+    if (jj_3R_70()) {
     jj_scanpos = xsp;
-    if (jj_3R_72()) return true;
+    if (jj_3R_71()) return true;
     }
     return false;
   }
 
-  final private boolean jj_3R_71() {
-    if (jj_3R_125()) return true;
+  final private boolean jj_3R_70() {
+    if (jj_3R_92()) return true;
     return false;
   }
 
-  final private boolean jj_3R_113() {
-    if (jj_scan_token(AS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_112() {
-    if (jj_scan_token(ASSERT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_111() {
-    if (jj_scan_token(EXEC)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_110() {
-    if (jj_scan_token(GLOBAL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_109() {
-    if (jj_scan_token(RAISE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_108() {
-    if (jj_scan_token(DEL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_107() {
-    if (jj_scan_token(FROM)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_106() {
-    if (jj_scan_token(YIELD)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_105() {
-    if (jj_scan_token(RETURN)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_104() {
-    if (jj_scan_token(CONTINUE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_103() {
-    if (jj_scan_token(BREAK)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_102() {
-    if (jj_scan_token(PASS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_101() {
-    if (jj_scan_token(PRINT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_100() {
-    if (jj_scan_token(FINALLY)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_99() {
-    if (jj_scan_token(CLASS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_98() {
-    if (jj_scan_token(DEF)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_97() {
-    if (jj_scan_token(EXCEPT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_96() {
-    if (jj_scan_token(TRY)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_95() {
-    if (jj_scan_token(FOR)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_94() {
-    if (jj_scan_token(WHILE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_93() {
-    if (jj_scan_token(ELIF)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_92() {
-    if (jj_scan_token(ELSE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_91() {
-    if (jj_scan_token(IF)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_90() {
-    if (jj_scan_token(LAMBDA)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_89() {
-    if (jj_scan_token(IN)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_88() {
-    if (jj_scan_token(IS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_87() {
-    if (jj_scan_token(NOT_BOOL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_86() {
-    if (jj_scan_token(AND_BOOL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_85() {
-    if (jj_scan_token(OR_BOOL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_56() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_84()) {
-    jj_scanpos = xsp;
-    if (jj_3R_85()) {
-    jj_scanpos = xsp;
-    if (jj_3R_86()) {
-    jj_scanpos = xsp;
-    if (jj_3R_87()) {
-    jj_scanpos = xsp;
-    if (jj_3R_88()) {
-    jj_scanpos = xsp;
-    if (jj_3R_89()) {
-    jj_scanpos = xsp;
-    if (jj_3R_90()) {
-    jj_scanpos = xsp;
-    if (jj_3R_91()) {
-    jj_scanpos = xsp;
-    if (jj_3R_92()) {
-    jj_scanpos = xsp;
-    if (jj_3R_93()) {
-    jj_scanpos = xsp;
-    if (jj_3R_94()) {
-    jj_scanpos = xsp;
-    if (jj_3R_95()) {
-    jj_scanpos = xsp;
-    if (jj_3R_96()) {
-    jj_scanpos = xsp;
-    if (jj_3R_97()) {
-    jj_scanpos = xsp;
-    if (jj_3R_98()) {
-    jj_scanpos = xsp;
-    if (jj_3R_99()) {
-    jj_scanpos = xsp;
-    if (jj_3R_100()) {
-    jj_scanpos = xsp;
-    if (jj_3R_101()) {
-    jj_scanpos = xsp;
-    if (jj_3R_102()) {
-    jj_scanpos = xsp;
-    if (jj_3R_103()) {
-    jj_scanpos = xsp;
-    if (jj_3R_104()) {
-    jj_scanpos = xsp;
-    if (jj_3R_105()) {
-    jj_scanpos = xsp;
-    if (jj_3R_106()) {
-    jj_scanpos = xsp;
-    if (jj_3R_107()) {
-    jj_scanpos = xsp;
-    if (jj_3R_108()) {
-    jj_scanpos = xsp;
-    if (jj_3R_109()) {
-    jj_scanpos = xsp;
-    if (jj_3R_110()) {
-    jj_scanpos = xsp;
-    if (jj_3R_111()) {
-    jj_scanpos = xsp;
-    if (jj_3R_112()) {
-    jj_scanpos = xsp;
-    if (jj_3R_113()) return true;
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_84() {
-    if (jj_scan_token(NAME)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_189() {
+  final private boolean jj_3R_156() {
     if (jj_scan_token(TRIPLE_BSTRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_188() {
+  final private boolean jj_3R_155() {
     if (jj_scan_token(TRIPLE_BSTRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_187() {
+  final private boolean jj_3R_154() {
     if (jj_scan_token(SINGLE_BSTRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_186() {
+  final private boolean jj_3R_153() {
     if (jj_scan_token(SINGLE_BSTRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_185() {
+  final private boolean jj_3R_152() {
     if (jj_scan_token(TRIPLE_USTRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_184() {
+  final private boolean jj_3R_151() {
     if (jj_scan_token(TRIPLE_USTRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_183() {
+  final private boolean jj_3R_150() {
     if (jj_scan_token(SINGLE_USTRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_182() {
+  final private boolean jj_3R_149() {
     if (jj_scan_token(SINGLE_USTRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_181() {
+  final private boolean jj_3R_148() {
     if (jj_scan_token(TRIPLE_STRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_180() {
+  final private boolean jj_3R_147() {
     if (jj_scan_token(TRIPLE_STRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_179() {
+  final private boolean jj_3R_146() {
     if (jj_scan_token(SINGLE_STRING2)) return true;
     return false;
   }
 
-  final private boolean jj_3R_178() {
+  final private boolean jj_3R_137() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_145()) {
+    jj_scanpos = xsp;
+    if (jj_3R_146()) {
+    jj_scanpos = xsp;
+    if (jj_3R_147()) {
+    jj_scanpos = xsp;
+    if (jj_3R_148()) {
+    jj_scanpos = xsp;
+    if (jj_3R_149()) {
+    jj_scanpos = xsp;
+    if (jj_3R_150()) {
+    jj_scanpos = xsp;
+    if (jj_3R_151()) {
+    jj_scanpos = xsp;
+    if (jj_3R_152()) {
+    jj_scanpos = xsp;
+    if (jj_3R_153()) {
+    jj_scanpos = xsp;
+    if (jj_3R_154()) {
+    jj_scanpos = xsp;
+    if (jj_3R_155()) {
+    jj_scanpos = xsp;
+    if (jj_3R_156()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_145() {
     if (jj_scan_token(SINGLE_STRING)) return true;
     return false;
   }
 
-  final private boolean jj_3R_170() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_178()) {
-    jj_scanpos = xsp;
-    if (jj_3R_179()) {
-    jj_scanpos = xsp;
-    if (jj_3R_180()) {
-    jj_scanpos = xsp;
-    if (jj_3R_181()) {
-    jj_scanpos = xsp;
-    if (jj_3R_182()) {
-    jj_scanpos = xsp;
-    if (jj_3R_183()) {
-    jj_scanpos = xsp;
-    if (jj_3R_184()) {
-    jj_scanpos = xsp;
-    if (jj_3R_185()) {
-    jj_scanpos = xsp;
-    if (jj_3R_186()) {
-    jj_scanpos = xsp;
-    if (jj_3R_187()) {
-    jj_scanpos = xsp;
-    if (jj_3R_188()) {
-    jj_scanpos = xsp;
-    if (jj_3R_189()) return true;
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_154() {
-    if (jj_3R_166()) return true;
+  final private boolean jj_3R_121() {
+    if (jj_3R_133()) return true;
     return false;
   }
 
@@ -8661,7 +7653,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
   public boolean lookingAhead = false;
   private boolean jj_semLA;
   private int jj_gen;
-  final private int[] jj_la1 = new int[135];
+  final private int[] jj_la1 = new int[133];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -8675,19 +7667,19 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       jj_la1_4();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x182a0040,0x182a0040,0x0,0x20000,0x0,0x20020000,0x1000000,0x1000000,0x20000000,0x20020000,0x20000000,0x0,0x20000,0x1000000,0x182a0000,0x800000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x0,0x182a0000,0x0,0x1000000,0x1000000,0x1000000,0x0,0x0,0x182a0000,0x182a0000,0x1000000,0x1000000,0x182a0000,0x0,0x1000000,0x2000000,0x0,0x1000000,0x1000000,0x0,0x20020000,0x0,0x2000000,0x0,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1000000,0x1000000,0x182a0000,0x0,0x182a0000,0x182a0040,0x1000000,0x1000000,0x1000000,0x182a0000,0x20020000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x18000000,0x18000000,0xe0000000,0xe0000000,0x182a0000,0x2220000,0x2200000,0x0,0x182a0000,0x182a0000,0x182a0000,0x0,0x2a0000,0x0,0x20020000,0x1000000,0x4000000,0x1e2a0000,0x182a0000,0x182a0000,0x4000000,0x1000000,0x1000000,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x182a0000,0x20000,0x1000000,0x20000000,0x20000000,0x1000000,0x1000000,0x20000000,0x20000000,0x182a0000,0x20000000,0x0,0x0,0x0,0x0,};
+      jj_la1_0 = new int[] {0x182a0040,0x182a0040,0x0,0x20000,0x0,0x20020000,0x1000000,0x1000000,0x20000000,0x20020000,0x20000000,0x0,0x20000,0x1000000,0x182a0000,0x800000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x182a0000,0x0,0x182a0000,0x0,0x1000000,0x1000000,0x1000000,0x0,0x0,0x182a0000,0x182a0000,0x1000000,0x1000000,0x182a0000,0x0,0x1000000,0x2000000,0x0,0x1000000,0x1000000,0x0,0x20020000,0x0,0x2000000,0x0,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1000000,0x1000000,0x182a0000,0x0,0x182a0000,0x182a0040,0x1000000,0x1000000,0x1000000,0x182a0000,0x20020000,0x0,0x182a0000,0x0,0x0,0x182a0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x18000000,0x18000000,0xe0000000,0xe0000000,0x182a0000,0x2220000,0x2200000,0x0,0x182a0000,0x182a0000,0x182a0000,0x0,0x2a0000,0x0,0x20020000,0x1000000,0x4000000,0x1e2a0000,0x182a0000,0x182a0000,0x4000000,0x1000000,0x1000000,0x1000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x182a0000,0x20000,0x1000000,0x20000000,0x20000000,0x1000000,0x1000000,0x20000000,0x20000000,0x182a0000,0x20000000,0x0,0x0,};
    }
    private static void jj_la1_1() {
-      jj_la1_1 = new int[] {0x40000010,0x40000010,0x0,0x0,0x0,0x1,0x0,0x0,0x1,0x1,0x1,0x100,0x0,0x0,0x40000010,0x0,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x100,0x40000010,0xfff0000,0x0,0x0,0x0,0x0,0x0,0x40000010,0x40000010,0x0,0x0,0x40000010,0x0,0x0,0x0,0xf0000000,0x0,0x0,0xf0000000,0xf0000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40000010,0x0,0x40000010,0x40000010,0x0,0x0,0x0,0x40000010,0x1,0x0,0x40000010,0x10000000,0x20000000,0x40000010,0xc000fe00,0x4000fe00,0x80000000,0x40,0x20,0x80,0x6,0x6,0x0,0x0,0x8,0x8,0x10,0x0,0x0,0x0,0x40000010,0x40000010,0x40000010,0x0,0x0,0x0,0x1,0x0,0x0,0x40000010,0x40000010,0x40000010,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40000010,0x0,0x0,0x1,0x1,0x0,0x0,0x1,0x1,0xf0000010,0x1,0x0,0x0,0x0,0xf0000000,};
+      jj_la1_1 = new int[] {0x40000010,0x40000010,0x0,0x0,0x0,0x1,0x0,0x0,0x1,0x1,0x1,0x100,0x0,0x0,0x40000010,0x0,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x40000010,0x100,0x40000010,0xfff0000,0x0,0x0,0x0,0x0,0x0,0x40000010,0x40000010,0x0,0x0,0x40000010,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40000010,0x0,0x40000010,0x40000010,0x0,0x0,0x0,0x40000010,0x1,0x0,0x40000010,0x10000000,0x20000000,0x40000010,0xc000fe00,0x4000fe00,0x80000000,0x40,0x20,0x80,0x6,0x6,0x0,0x0,0x8,0x8,0x10,0x0,0x0,0x0,0x40000010,0x40000010,0x40000010,0x0,0x0,0x0,0x1,0x0,0x0,0x40000010,0x40000010,0x40000010,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40000010,0x0,0x0,0x1,0x1,0x0,0x0,0x1,0x1,0x40000010,0x1,0x0,0x0,};
    }
    private static void jj_la1_2() {
-      jj_la1_2 = new int[] {0xdffff6e6,0xdffff6e6,0x600,0x0,0x8000000,0x12000000,0x0,0x0,0x0,0x12000000,0x0,0x0,0x12000000,0x0,0xdffff6e6,0x0,0xd3fff002,0xd2020002,0xd2020002,0xd2020002,0xd2020002,0xd2020002,0xd2020002,0xd2020002,0xd2020002,0xd2020002,0xd2020002,0xd2020002,0xd2020002,0x0,0xd2020002,0x0,0x0,0x0,0x0,0x1000,0x23c000,0xd2000002,0xd2000002,0x0,0x0,0xd2000002,0xc0000,0x0,0x0,0x13fbffff,0x0,0x0,0x13fbffff,0x13fbffff,0x2000000,0x0,0x2000000,0x0,0x0,0x1,0x0,0xc0006e4,0x10,0x8,0x8,0x8,0x100,0x8,0x800,0x900,0x2000000,0x2000000,0xd2000002,0x2000000,0xdffff6e6,0xd3fff002,0x0,0x0,0x0,0xd2000002,0x12000000,0x4,0xd2000002,0x0,0x0,0xd2000000,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd2000000,0x0,0x0,0x20000,0xd2000002,0xd2000002,0xd2000002,0x0,0xd2000000,0x40,0x12000000,0x0,0x0,0xd2000002,0xd2000002,0xd2000002,0x0,0x0,0x0,0x0,0x0,0x40,0x0,0x44,0x44,0x44,0xd2000002,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd3fbffff,0x0,0xc0000000,0x12000000,0x0,0x13fbffff,};
+      jj_la1_2 = new int[] {0xddfff6e6,0xddfff6e6,0x600,0x0,0x8000000,0x10000000,0x0,0x0,0x0,0x10000000,0x0,0x0,0x10000000,0x0,0xddfff6e6,0x0,0xd1fff002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0x0,0xd0020002,0x0,0x0,0x0,0x0,0x1000,0x23c000,0xd0000002,0xd0000002,0x0,0x0,0xd0000002,0xc0000,0x0,0x0,0x10000000,0x0,0x0,0x10000000,0x10000000,0x2000000,0x0,0x2000000,0x0,0x0,0x1,0x0,0xc0006e4,0x10,0x8,0x8,0x8,0x100,0x8,0x800,0x900,0x2000000,0x2000000,0xd0000002,0x2000000,0xddfff6e6,0xd1fff002,0x0,0x0,0x0,0xd0000002,0x10000000,0x4,0xd0000002,0x0,0x0,0xd0000000,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd0000000,0x0,0x0,0x20000,0xd0000002,0xd0000002,0xd0000002,0x0,0xd0000000,0x40,0x10000000,0x0,0x0,0xd0000002,0xd0000002,0xd0000002,0x0,0x0,0x0,0x0,0x0,0x40,0x0,0x44,0x44,0x44,0xd0000002,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd0000002,0x0,0xc0000000,0x0,};
    }
    private static void jj_la1_3() {
-      jj_la1_3 = new int[] {0x1ffe0007,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x1ffe0007,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x1ffe0007,0x1ffe0007,0x0,0x0,0x0,0x1ffe0007,0x0,0x0,0x1ffe0007,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0000,0x1ffe0007,0x0,0x0,0x0,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x7,0x0,0x1ffe0000,0x0,};
+      jj_la1_3 = new int[] {0x1ffe0007,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x1ffe0007,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x1ffe0007,0x1ffe0007,0x0,0x0,0x0,0x1ffe0007,0x0,0x0,0x1ffe0007,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0000,0x1ffe0007,0x0,0x0,0x0,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x7,0x1ffe0000,};
    }
    private static void jj_la1_4() {
-      jj_la1_4 = new int[] {0x400000,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x400000,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x400000,0x400000,0x0,0x0,0x0,0x400000,0x0,0x0,0x400000,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x0,0x0,0x400000,0x400000,0x400000,0x0,0x400000,0x0,0x0,0x0,0x0,0x400000,0x400000,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_4 = new int[] {0x400000,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x400000,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x400000,0x400000,0x0,0x0,0x0,0x400000,0x0,0x0,0x400000,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x0,0x0,0x400000,0x400000,0x400000,0x0,0x400000,0x0,0x0,0x0,0x0,0x400000,0x400000,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x0,0x0,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[28];
   private boolean jj_rescan = false;
@@ -8698,7 +7690,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 135; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 133; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8708,7 +7700,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 135; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 133; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8717,7 +7709,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 135; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 133; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8727,7 +7719,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 135; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 133; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -8846,7 +7838,7 @@ public class PythonGrammar26 extends AbstractPythonGrammar implements/*@bgen(jjt
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 135; i++) {
+    for (int i = 0; i < 133; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
