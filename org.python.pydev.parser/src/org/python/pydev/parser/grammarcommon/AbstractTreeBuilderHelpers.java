@@ -220,11 +220,12 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         return aliases;
     }
 
-    protected final stmtType makeAugAssign(int op) throws Exception {
+    protected final void fillAugAssign(AugAssign augAssign) throws Exception {
         exprType value = (exprType) stack.popNode();
         exprType target = (exprType) stack.popNode();
         ctx.setAugStore(target);
-        return new AugAssign(target, op, value);
+        augAssign.target = target;
+        augAssign.value = value;
     }
 
     protected final BinOp makeBinOp(int op) {

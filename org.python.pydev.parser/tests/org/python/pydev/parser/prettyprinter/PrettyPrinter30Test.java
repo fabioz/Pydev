@@ -12,7 +12,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testNewIf();
+            test.testIf3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -39,6 +39,40 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
     public void testMetaClass2() throws Exception {
         String s = "" +
         "class IOBase(object,*args,metaclass=abc.ABCMeta):\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    
+    
+    public void testIf() throws Exception {
+        String s = "" +
+        "if a:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testIf2() throws Exception {
+        String s = "" +
+        "if a:\n" +
+        "    pass\n" +
+        "elif b:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testIf3() throws Exception {
+        String s = "" +
+        "if a:\n" +
+        "    pass\n" +
+        "elif b:\n" +
+        "    pass\n" +
+        "elif c:\n" +
+        "    pass\n" +
+        "else:\n" +
         "    pass\n" +
         "";
         checkPrettyPrintEqual(s);

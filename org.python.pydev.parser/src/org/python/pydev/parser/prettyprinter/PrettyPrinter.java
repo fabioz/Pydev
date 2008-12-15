@@ -628,6 +628,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitIf(If node) throws Exception {
         fixNewStatementCondition();
+        auxComment.moveComments(node.test, node, true, false, false);
         auxComment.writeSpecialsBefore(node);
         auxComment.moveComments(node.test, node.body[0], false, true, true);
         state.pushInStmt(node.test);

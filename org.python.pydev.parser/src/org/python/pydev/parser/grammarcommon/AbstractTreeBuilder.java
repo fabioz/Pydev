@@ -4,11 +4,14 @@ import java.util.ArrayList;
 
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.Break;
 import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
@@ -19,6 +22,7 @@ import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
@@ -128,6 +132,59 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 ret = new decoratorsType(null,null,null,null, null);
                 break;
                 
+            case JJTIF_STMT:
+                ret = new If(null, null, null);
+                break;
+                
+            case JJTAUG_PLUS:     
+                ret = new AugAssign(null, AugAssign.Add, null);
+                break;
+                
+            case JJTAUG_MINUS:   
+                ret = new AugAssign(null, AugAssign.Sub, null);
+                break;
+                
+            case JJTAUG_MULTIPLY:  
+                ret = new AugAssign(null, AugAssign.Mult, null);
+                break;
+                
+            case JJTAUG_DIVIDE:   
+                ret = new AugAssign(null, AugAssign.Div, null);
+                break;
+                
+            case JJTAUG_MODULO:  
+                ret = new AugAssign(null, AugAssign.Mod, null);
+                break;
+                
+            case JJTAUG_AND:    
+                ret = new AugAssign(null, AugAssign.BitAnd, null);
+                break;
+                
+            case JJTAUG_OR:    
+                ret = new AugAssign(null, AugAssign.BitOr, null);
+                break;
+                
+            case JJTAUG_XOR:  
+                ret = new AugAssign(null, AugAssign.BitXor, null);
+                break;
+                
+            case JJTAUG_LSHIFT:   
+                ret = new AugAssign(null, AugAssign.LShift, null);
+                break;
+                
+            case JJTAUG_RSHIFT:  
+                ret = new AugAssign(null, AugAssign.RShift, null);
+                break;
+                
+            case JJTAUG_POWER:  
+                ret = new AugAssign(null, AugAssign.Pow, null);
+                break;
+                
+            case JJTAUG_FLOORDIVIDE:  
+                ret = new AugAssign(null, AugAssign.FloorDiv, null);
+                break;
+                
+
             default:
                 ret = new IdentityNode(id);
         }
@@ -150,6 +207,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         stmtType[] body;
         exprType iter;
         exprType target;
+        exprType test;
 
         if(DEBUG_TREE_BUILDER){
             System.out.println("\n\n\n---------------------------");
@@ -219,6 +277,62 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 forStmt.body = body;
                 forStmt.orelse = orelseSuite;
                 return forStmt;
+                
+                
+            case JJTBEGIN_ELIF_STMT:
+                return new If(null, null, null);
+
+                
+            case JJTIF_STMT:
+                stmtType[] orelse = null;
+                if ((arity+1) % 3 == 1){
+                    arity--;
+                    orelse = getBodyAndSpecials();
+                }
+                
+                //make the suite
+                Suite suite = (Suite)stack.popNode();
+                arity--;
+                body = suite.body;
+                test = (exprType) stack.popNode();
+                arity--;
+                
+                //make the if
+                If last;
+                if(arity == 0){
+                    //last If found
+                    last = (If) n;
+                }else{
+                    last = (If) stack.popNode();
+                    arity--;
+                }
+                last.test = test;
+                last.body = body;
+                last.orelse = orelse;
+                addSpecialsAndClearOriginal(suite, last);
+                
+                while(arity > 0) {
+                    suite = (Suite)stack.popNode();
+                    arity--;
+                    
+                    body = suite.body;
+                    test = (exprType) stack.popNode();
+                    arity--;
+                    
+                    stmtType[] newOrElse = new stmtType[] { last };
+                    if(arity == 0){
+                        //last If found
+                        last = (If) n;
+                    }else{
+                        last = (If) stack.popNode();
+                        arity--;
+                    }
+                    last.test = test;
+                    last.body = body;
+                    last.orelse = newOrElse;
+                    addSpecialsAndClearOriginal(suite, last);
+                }
+                return last;
 
                 
             case JJTEXEC_STMT:
@@ -255,6 +369,40 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                     listArgs.clear();
                 }
                 return new Decorators((decoratorsType[]) list2.toArray(new decoratorsType[0]), JJTDECORATORS);
+                
+                
+            case JJTSUBSCRIPTLIST:
+                sliceType[] dims = new sliceType[arity];
+                for (int i = arity - 1; i >= 0; i--) {
+                    SimpleNode sliceNode = stack.popNode();
+                    if(sliceNode instanceof sliceType){
+                        dims[i] = (sliceType) sliceNode;
+                        
+                    }else if(sliceNode instanceof IdentityNode){
+                        //this should be ignored...
+                        //this happens when parsing something like a[1,], whereas a[1,2] would not have this.
+                        
+                    }else{
+                        throw new RuntimeException("Expected a sliceType or an IdentityNode. Received :"+sliceNode.getClass());
+                    }
+                }
+                return new ExtSlice(dims);
+                
+                
+            case JJTAUG_PLUS:     
+            case JJTAUG_MINUS:   
+            case JJTAUG_MULTIPLY:  
+            case JJTAUG_DIVIDE:   
+            case JJTAUG_MODULO:  
+            case JJTAUG_AND:    
+            case JJTAUG_OR:    
+            case JJTAUG_XOR:  
+            case JJTAUG_LSHIFT:   
+            case JJTAUG_RSHIFT:  
+            case JJTAUG_POWER:  
+            case JJTAUG_FLOORDIVIDE:  
+                fillAugAssign((AugAssign) n);
+                return n;
         }
 
         //if we found a node not expected in the base, let's give subclasses an opportunity for dealing with it.

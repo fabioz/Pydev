@@ -569,11 +569,13 @@ public class PyParserTest extends PyParserTestBase{
         ICallback<Object, Boolean> callback = new ICallback<Object, Boolean>(){
 
 			public Object call(Boolean failTest) {
-				calls[0] = calls[0]+1;
-				if(failTest){
-					failedComparisson[0] = true;
-				}
-				return null;
+			    synchronized (calls) {
+			        calls[0] = calls[0]+1;
+			        if(failTest){
+			            failedComparisson[0] = true;
+			        }
+			        return null;
+                }
 			}
         	
         };

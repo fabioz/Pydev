@@ -25,7 +25,6 @@ public interface ITreeConstants {
     public static final int JJTBEGIN_FINALLY_STMT = 521;
     public static final int JJTBEGIN_FOR_ELSE_STMT = 522;
     public static final int JJTBEGIN_FOR_STMT = 523;
-    public static final int JJTBEGIN_IF_STMT = 524;
     public static final int JJTBEGIN_RETURN_STMT = 525;
     public static final int JJTBEGIN_TRY_ELSE_STMT = 526;
     public static final int JJTBEGIN_TRY_STMT = 527;

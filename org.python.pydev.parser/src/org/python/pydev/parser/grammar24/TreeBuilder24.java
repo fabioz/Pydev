@@ -11,13 +11,11 @@ import org.python.pydev.parser.grammarcommon.ExtraArg;
 import org.python.pydev.parser.grammarcommon.ExtraArgValue;
 import org.python.pydev.parser.grammarcommon.ITreeBuilder;
 import org.python.pydev.parser.grammarcommon.ITreeConstants;
-import org.python.pydev.parser.grammarcommon.IdentityNode;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
-import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Call;
@@ -28,10 +26,8 @@ import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Expr;
-import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
-import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Index;
@@ -154,43 +150,6 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             w.body = body;
             w.orelse = orelseSuite;
             return w;
-        case JJTBEGIN_IF_STMT:
-            return new If(null, null, null);
-        case JJTBEGIN_ELIF_STMT:
-            return new If(null, null, null);
-        case JJTIF_STMT:
-            stmtType[] orelse = null;
-            //arity--;//because of the beg if stmt
-            if (arity % 3 == 1){
-                orelse = getBodyAndSpecials();
-            }
-            
-            //make the suite
-            Suite suite = (Suite)stack.popNode();
-            body = suite.body;
-            test = (exprType) stack.popNode();
-            
-            //make the if
-            If last = (If) stack.popNode();
-            last.test = test;
-            last.body = body;
-            last.orelse = orelse;
-            addSpecialsAndClearOriginal(suite, last);
-            
-            for (int i = 0; i < (arity / 3)-1; i++) {
-                //arity--;//because of the beg if stmt
-
-                suite = (Suite)stack.popNode();
-                body = suite.body;
-                test = (exprType) stack.popNode();
-                stmtType[] newOrElse = new stmtType[] { last };
-                last = (If) stack.popNode();
-                last.test = test;
-                last.body = body;
-                last.orelse = newOrElse;
-                addSpecialsAndClearOriginal(suite, last);
-            }
-            return last;
         case JJTCALL_OP:
             exprType starargs = null;
             exprType kwargs = null;
@@ -551,46 +510,6 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             specialsBefore.clear();
             specialsAfter.clear();
             return sliceRet;
-        case JJTSUBSCRIPTLIST:
-            sliceType[] dims = new sliceType[arity];
-            for (int i = arity - 1; i >= 0; i--) {
-                SimpleNode sliceNode = stack.popNode();
-                if(sliceNode instanceof sliceType){
-                    dims[i] = (sliceType) sliceNode;
-                    
-                }else if(sliceNode instanceof IdentityNode){
-                    //this should be ignored...
-                    //this happens when parsing something like a[1,], whereas a[1,2] would not have this.
-                    
-                }else{
-                    throw new RuntimeException("Expected a sliceType or an IdentityNode. Received :"+sliceNode.getClass());
-                }
-            }
-            return new ExtSlice(dims);
-        case JJTAUG_PLUS:     
-            return makeAugAssign(AugAssign.Add);
-        case JJTAUG_MINUS:   
-            return makeAugAssign(AugAssign.Sub);
-        case JJTAUG_MULTIPLY:  
-            return makeAugAssign(AugAssign.Mult);
-        case JJTAUG_DIVIDE:   
-            return makeAugAssign(AugAssign.Div);
-        case JJTAUG_MODULO:  
-            return makeAugAssign(AugAssign.Mod);
-        case JJTAUG_AND:    
-            return makeAugAssign(AugAssign.BitAnd);
-        case JJTAUG_OR:    
-            return makeAugAssign(AugAssign.BitOr);
-        case JJTAUG_XOR:  
-            return makeAugAssign(AugAssign.BitXor);
-        case JJTAUG_LSHIFT:   
-            return makeAugAssign(AugAssign.LShift);
-        case JJTAUG_RSHIFT:  
-            return makeAugAssign(AugAssign.RShift);
-        case JJTAUG_POWER:  
-            return makeAugAssign(AugAssign.Pow);
-        case JJTAUG_FLOORDIVIDE:  
-            return makeAugAssign(AugAssign.FloorDiv);
         case JJTLIST_FOR:
             exprType[] ifs = new exprType[arity-2];
             for (int i = arity-3; i >= 0; i--) {

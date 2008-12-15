@@ -741,15 +741,12 @@ void compound_stmt() #void : { token_source.compound = true; }
 {if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()}
 
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
-void if_stmt(): {}
+void if_stmt(): {Object spStr;}
 {
-    begin_if_stmt() test() <COLON> {this.addSpecialToken(":");} suite()
+    {spStr = createSpecialStr("if","if ", false);}
+    <IF> {this.addSpecialTokenToLastOpened(spStr);} test() <COLON> {this.addSpecialToken(":");} suite()
          (begin_elif_stmt() test() <COLON> {this.addSpecialToken(":");} suite())* 
              [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:",true);} suite()]
-}
-
-void begin_if_stmt(): {Object spStr;}
-{ {spStr = createSpecialStr("if","if ", false);} <IF> {this.addToPeek(spStr,false);} 
 }
 
 void begin_elif_stmt(): {}
