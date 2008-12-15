@@ -16,27 +16,20 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
-import org.python.pydev.parser.jython.ast.Attribute;
-import org.python.pydev.parser.jython.ast.BinOp;
-import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Comprehension;
-import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.IfExp;
-import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
-import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Print;
@@ -51,7 +44,6 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
-import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
@@ -74,7 +66,6 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
     public final SimpleNode onCloseNode(SimpleNode n, int arity) throws Exception {
         exprType value;
         exprType[] exprs;
-        Name name;
         suiteType orelseSuite;
         stmtType[] body;
         exprType iter;
@@ -96,18 +87,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
             sliceType slice = (sliceType) stack.popNode();
             value = (exprType) stack.popNode();
             return new Subscript(value, slice, Subscript.Load);
-        case JJTDOT_OP:
-            NameTok attr = makeName(NameTok.Attrib);
-            value = (exprType) stack.popNode();
-            return new Attribute(value, attr, Attribute.Load);
-        case JJTBEGIN_DEL_STMT:
-            return new Delete(null);
-        case JJTDEL_STMT:
-            exprs = makeExprs(arity-1);
-            ctx.setDelete(exprs);
-            Delete d = (Delete) stack.popNode();
-            d.targets = exprs;
-            return d;
+
         case JJTPRINT_STMT:
             boolean nl = true;
             if (stack.nodeArity() == 0){
@@ -363,76 +343,6 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
                 ctx.setStore(expr);
             }
             return expr;
-        case JJTOR_BOOLEAN:
-            return new BoolOp(BoolOp.Or, makeExprs());
-        case JJTAND_BOOLEAN:
-            return new BoolOp(BoolOp.And, makeExprs());
-        case JJTCOMPARISION:
-            l = arity / 2;
-            exprType[] comparators = new exprType[l];
-            int[] ops = new int[l];
-            for (int i = l-1; i >= 0; i--) {
-                comparators[i] = (exprType) stack.popNode();
-                SimpleNode op = stack.popNode();
-                switch (op.getId()) {
-                case JJTLESS_CMP:          ops[i] = Compare.Lt; break;
-                case JJTGREATER_CMP:       ops[i] = Compare.Gt; break;
-                case JJTEQUAL_CMP:         ops[i] = Compare.Eq; break;
-                case JJTGREATER_EQUAL_CMP: ops[i] = Compare.GtE; break;
-                case JJTLESS_EQUAL_CMP:    ops[i] = Compare.LtE; break;
-                case JJTNOTEQUAL_CMP:      ops[i] = Compare.NotEq; break;
-                case JJTIN_CMP:            ops[i] = Compare.In; break;
-                case JJTNOT_IN_CMP:        ops[i] = Compare.NotIn; break;
-                case JJTIS_NOT_CMP:        ops[i] = Compare.IsNot; break;
-                case JJTIS_CMP:            ops[i] = Compare.Is; break;
-                default:
-                    throw new RuntimeException("Unknown cmp op:" + op.getId());
-                }
-            }
-            return new Compare(((exprType) stack.popNode()), ops, comparators);
-        case JJTLESS_CMP:
-        case JJTGREATER_CMP:
-        case JJTEQUAL_CMP:
-        case JJTGREATER_EQUAL_CMP:
-        case JJTLESS_EQUAL_CMP:
-        case JJTNOTEQUAL_CMP:
-        case JJTIN_CMP:
-        case JJTNOT_IN_CMP:
-        case JJTIS_NOT_CMP:
-        case JJTIS_CMP:
-            return n;
-        case JJTOR_2OP:
-            return makeBinOp(BinOp.BitOr);
-        case JJTXOR_2OP:
-            return makeBinOp(BinOp.BitXor);
-        case JJTAND_2OP:
-            return makeBinOp(BinOp.BitAnd);
-        case JJTLSHIFT_2OP:
-            return makeBinOp(BinOp.LShift);
-        case JJTRSHIFT_2OP:
-            return makeBinOp(BinOp.RShift);
-        case JJTADD_2OP:  
-            return makeBinOp(BinOp.Add);
-        case JJTSUB_2OP: 
-            return makeBinOp(BinOp.Sub);
-        case JJTMUL_2OP:
-            return makeBinOp(BinOp.Mult);
-        case JJTDIV_2OP: 
-            return makeBinOp(BinOp.Div);
-        case JJTMOD_2OP:
-            return makeBinOp(BinOp.Mod);
-        case JJTPOW_2OP:
-            return makeBinOp(BinOp.Pow);
-        case JJTFLOORDIV_2OP:
-            return makeBinOp(BinOp.FloorDiv);
-        case JJTPOS_1OP:
-            return new UnaryOp(UnaryOp.UAdd, ((exprType) stack.popNode()));
-        case JJTNEG_1OP:
-            return new UnaryOp(UnaryOp.USub, ((exprType) stack.popNode()));
-        case JJTINVERT_1OP:
-            return new UnaryOp(UnaryOp.Invert, ((exprType) stack.popNode()));
-        case JJTNOT_1OP:
-            return new UnaryOp(UnaryOp.Not, ((exprType) stack.popNode()));
         case JJTEXTRAKEYWORDVALUELIST:
             return new ExtraArgValue(((exprType) stack.popNode()), JJTEXTRAKEYWORDVALUELIST);
         case JJTEXTRAARGVALUELIST:
@@ -594,44 +504,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
                 nT = new NameTok("", NameTok.ImportModule);
             }
             return new ImportFrom((NameTokType)nT, aliastL.toArray(new aliasType[0]), 0);
-        case JJTIMPORT:
-            return new Import(makeAliases(arity));
-    
-        case JJTDOTTED_NAME:
-            name = new Name(null, Name.Load, false);
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < arity; i++) {
-                if (i > 0){
-                    sb.insert(0, '.');
-                }
-                Name name0 = (Name) stack.popNode();
-                sb.insert(0, name0.id);
-                addSpecials(name0, name);
-                //we have to set that, because if we later add things to the previous Name, we will now want it to be added to
-                //the new name (comments will only appear later and may be added to the previous name -- so, we replace the previous
-                //name specials list).
-                name0.specialsBefore = name.getSpecialsBefore();
-                name0.specialsAfter = name.getSpecialsAfter();
-            }
-            name.id = sb.toString();
-            return name;
 
-        case JJTDOTTED_AS_NAME:
-            NameTok asname = null;
-            if (arity > 1){
-                asname = makeName(NameTok.ImportName);
-            }
-            return new aliasType(makeName(NameTok.ImportName), asname);
-
-        case JJTIMPORT_AS_NAME:
-            asname = null;
-            if (arity > 1){
-                asname = makeName(NameTok.ImportName);
-            }
-            return new aliasType(makeName(NameTok.ImportName), asname);
-        case JJTCOMMA:
-        case JJTCOLON:
-            return n;
         default:
             System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
             return null;

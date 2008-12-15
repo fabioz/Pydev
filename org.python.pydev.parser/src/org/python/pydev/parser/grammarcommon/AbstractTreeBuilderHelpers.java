@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.AugAssign;
-import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -220,28 +218,8 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         return aliases;
     }
 
-    protected final void fillAugAssign(AugAssign augAssign) throws Exception {
-        exprType value = (exprType) stack.popNode();
-        exprType target = (exprType) stack.popNode();
-        ctx.setAugStore(target);
-        augAssign.target = target;
-        augAssign.value = value;
-    }
-
-    protected final BinOp makeBinOp(int op) {
-        exprType right = (exprType) stack.popNode();
-        exprType left = (exprType) stack.popNode();
-        return new BinOp(left, op, right);
-    }
-
     protected final boolean isArg(SimpleNode n) {
-        if (n instanceof ExtraArg)
-            return true;
-        if (n instanceof DefaultArg)
-            return true;
-        if (n instanceof keywordType)
-            return true;
-        return false;
+        return n instanceof ExtraArg || n instanceof DefaultArg || n instanceof keywordType;
     }
 
 }

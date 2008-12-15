@@ -4,21 +4,30 @@ import java.util.ArrayList;
 
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
+import org.python.pydev.parser.jython.ast.BinOp;
+import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Break;
+import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Continue;
+import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
+import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.Yield;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -75,31 +84,22 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
         switch (id) {
 
-            case JJTFILE_INPUT:
-                ret = new Module(null);
-                break;
+            case JJTFILE_INPUT:ret = new Module(null);break;
 
-            case JJTFALSE:
-                ret = new Name("False", Name.Load, true);
-                break;
+            case JJTFALSE:ret = new Name("False", Name.Load, true);break;
 
-            case JJTTRUE:
-                ret = new Name("True", Name.Load, true);
-                break;
+            case JJTTRUE:ret = new Name("True", Name.Load, true);break;
 
-            case JJTNONE:
-                ret = new Name("None", Name.Load, true);
-                break;
+            case JJTNONE:ret = new Name("None", Name.Load, true);break;
 
             case JJTNAME:
+            case JJTDOTTED_NAME:
                 //the actual name will be set during the parsing (token image) -- see Name construct
-                ret = new Name(null, Name.Load, false);
-                break;
+                ret = new Name(null, Name.Load, false);break;
                 
-            case JJTNUM:
-                //the actual number will be set during the parsing (token image) -- see Num construct
-                ret = new Num(null, -1, null);
-                break;
+                
+            case JJTNUM://the actual number will be set during the parsing (token image) -- see Num construct
+                ret = new Num(null, -1, null);break;
                 
             case JJTSTRING:
             case JJTUNICODE:
@@ -108,85 +108,59 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 ret = new Str(null, -1, false, false, false);
                 break;
 
-            case JJTFOR_STMT:
-                ret = new For(null, null, null, null);
-                break;
+            case JJTFOR_STMT:ret = new For(null, null, null, null);break;
 
-            case JJTEXEC_STMT:
-                ret = new Exec(null, null, null);
-                break;
+            case JJTEXEC_STMT:ret = new Exec(null, null, null);break;
                 
-            case JJTPASS_STMT:
-                ret = new Pass();
-                break;
+            case JJTPASS_STMT:ret = new Pass();break;
                 
-            case JJTBREAK_STMT:
-                ret = new Break();
-                break;
+            case JJTBREAK_STMT:ret = new Break();break;
                 
-            case JJTCONTINUE_STMT:
-                ret = new Continue();
-                break;
+            case JJTCONTINUE_STMT:ret = new Continue();break;
 
-            case JJTBEGIN_DECORATOR:
-                ret = new decoratorsType(null,null,null,null, null);
-                break;
+            case JJTBEGIN_DECORATOR:ret = new decoratorsType(null,null,null,null, null);break;
                 
-            case JJTIF_STMT:
-                ret = new If(null, null, null);
-                break;
+            case JJTIF_STMT:ret = new If(null, null, null);break;
                 
-            case JJTAUG_PLUS:     
-                ret = new AugAssign(null, AugAssign.Add, null);
-                break;
+            case JJTAUG_PLUS:    ret = new AugAssign(null, AugAssign.Add, null);break;
+            case JJTAUG_MINUS:   ret = new AugAssign(null, AugAssign.Sub, null);break;
+            case JJTAUG_MULTIPLY:ret = new AugAssign(null, AugAssign.Mult, null);break;
+            case JJTAUG_DIVIDE:  ret = new AugAssign(null, AugAssign.Div, null);break;
+            case JJTAUG_MODULO:  ret = new AugAssign(null, AugAssign.Mod, null);break;
+            case JJTAUG_AND:     ret = new AugAssign(null, AugAssign.BitAnd, null);break;
+            case JJTAUG_OR:      ret = new AugAssign(null, AugAssign.BitOr, null);break;
+            case JJTAUG_XOR:     ret = new AugAssign(null, AugAssign.BitXor, null);break;
+            case JJTAUG_LSHIFT:  ret = new AugAssign(null, AugAssign.LShift, null);break;
+            case JJTAUG_RSHIFT:  ret = new AugAssign(null, AugAssign.RShift, null);break;
+            case JJTAUG_POWER:   ret = new AugAssign(null, AugAssign.Pow, null);break;
+            case JJTAUG_FLOORDIVIDE:  ret = new AugAssign(null, AugAssign.FloorDiv, null);break;
                 
-            case JJTAUG_MINUS:   
-                ret = new AugAssign(null, AugAssign.Sub, null);
-                break;
                 
-            case JJTAUG_MULTIPLY:  
-                ret = new AugAssign(null, AugAssign.Mult, null);
-                break;
-                
-            case JJTAUG_DIVIDE:   
-                ret = new AugAssign(null, AugAssign.Div, null);
-                break;
-                
-            case JJTAUG_MODULO:  
-                ret = new AugAssign(null, AugAssign.Mod, null);
-                break;
-                
-            case JJTAUG_AND:    
-                ret = new AugAssign(null, AugAssign.BitAnd, null);
-                break;
-                
-            case JJTAUG_OR:    
-                ret = new AugAssign(null, AugAssign.BitOr, null);
-                break;
-                
-            case JJTAUG_XOR:  
-                ret = new AugAssign(null, AugAssign.BitXor, null);
-                break;
-                
-            case JJTAUG_LSHIFT:   
-                ret = new AugAssign(null, AugAssign.LShift, null);
-                break;
-                
-            case JJTAUG_RSHIFT:  
-                ret = new AugAssign(null, AugAssign.RShift, null);
-                break;
-                
-            case JJTAUG_POWER:  
-                ret = new AugAssign(null, AugAssign.Pow, null);
-                break;
-                
-            case JJTAUG_FLOORDIVIDE:  
-                ret = new AugAssign(null, AugAssign.FloorDiv, null);
-                break;
-                
+            case JJTOR_2OP:    ret = new BinOp(null, BinOp.BitOr, null);break;
+            case JJTXOR_2OP:   ret = new BinOp(null, BinOp.BitXor, null);break;
+            case JJTAND_2OP:   ret = new BinOp(null, BinOp.BitAnd, null);break;
+            case JJTLSHIFT_2OP:ret = new BinOp(null, BinOp.LShift, null);break;
+            case JJTRSHIFT_2OP:ret = new BinOp(null, BinOp.RShift, null);break;
+            case JJTADD_2OP:   ret = new BinOp(null, BinOp.Add, null);break;
+            case JJTSUB_2OP:   ret = new BinOp(null, BinOp.Sub, null);break;
+            case JJTMUL_2OP:   ret = new BinOp(null, BinOp.Mult, null);break;
+            case JJTDIV_2OP:   ret = new BinOp(null, BinOp.Div, null);break;
+            case JJTMOD_2OP:   ret = new BinOp(null, BinOp.Mod, null);break;
+            case JJTPOW_2OP:   ret = new BinOp(null, BinOp.Pow, null);break;
+            case JJTFLOORDIV_2OP:ret = new BinOp(null, BinOp.FloorDiv, null);break;
+            
+            
+            case JJTPOS_1OP: ret = new UnaryOp(UnaryOp.UAdd, null);break;
+            case JJTNEG_1OP: ret = new UnaryOp(UnaryOp.USub, null);break;
+            case JJTINVERT_1OP: ret = new UnaryOp(UnaryOp.Invert, null);break;
+            case JJTNOT_1OP: ret = new UnaryOp(UnaryOp.Not, null);break;
 
-            default:
-                ret = new IdentityNode(id);
+            
+            case JJTIMPORT: ret = new Import(null);break;
+            case JJTDOT_OP: ret = new Attribute(null, null, Attribute.Load);break;
+
+
+            default:ret = new IdentityNode(id);break;
         }
         ret.setId(id);
         lastOpened = ret;
@@ -207,7 +181,6 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         stmtType[] body;
         exprType iter;
         exprType target;
-        exprType test;
 
         if(DEBUG_TREE_BUILDER){
             System.out.println("\n\n\n---------------------------");
@@ -221,6 +194,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             }
         }
         
+        exprType[] exprs;
         switch(n.getId()){
             case -1:
                 throw new ParseException("Illegal node found: "+n, n);
@@ -243,6 +217,8 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTUNICODE:
             case JJTBINARY:
             case JJTBEGIN_DECORATOR:
+            case JJTCOMMA:
+            case JJTCOLON:
                 return n; //it's already the correct node (and it's value is already properly set)
                 
                 
@@ -284,55 +260,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
                 
             case JJTIF_STMT:
-                stmtType[] orelse = null;
-                if ((arity+1) % 3 == 1){
-                    arity--;
-                    orelse = getBodyAndSpecials();
-                }
-                
-                //make the suite
-                Suite suite = (Suite)stack.popNode();
-                arity--;
-                body = suite.body;
-                test = (exprType) stack.popNode();
-                arity--;
-                
-                //make the if
-                If last;
-                if(arity == 0){
-                    //last If found
-                    last = (If) n;
-                }else{
-                    last = (If) stack.popNode();
-                    arity--;
-                }
-                last.test = test;
-                last.body = body;
-                last.orelse = orelse;
-                addSpecialsAndClearOriginal(suite, last);
-                
-                while(arity > 0) {
-                    suite = (Suite)stack.popNode();
-                    arity--;
-                    
-                    body = suite.body;
-                    test = (exprType) stack.popNode();
-                    arity--;
-                    
-                    stmtType[] newOrElse = new stmtType[] { last };
-                    if(arity == 0){
-                        //last If found
-                        last = (If) n;
-                    }else{
-                        last = (If) stack.popNode();
-                        arity--;
-                    }
-                    last.test = test;
-                    last.body = body;
-                    last.orelse = newOrElse;
-                    addSpecialsAndClearOriginal(suite, last);
-                }
-                return last;
+                return handleIfConstruct(n, arity);
 
                 
             case JJTEXEC_STMT:
@@ -400,13 +328,208 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTAUG_LSHIFT:   
             case JJTAUG_RSHIFT:  
             case JJTAUG_POWER:  
-            case JJTAUG_FLOORDIVIDE:  
-                fillAugAssign((AugAssign) n);
+            case JJTAUG_FLOORDIVIDE:
+                AugAssign augAssign = (AugAssign) n;  
+                exprType value1 = (exprType) stack.popNode();
+                exprType target1 = (exprType) stack.popNode();
+                ctx.setAugStore(target1);
+                augAssign.target = target1;
+                augAssign.value = value1;
                 return n;
+                
+                
+            case JJTOR_BOOLEAN:
+                return new BoolOp(BoolOp.Or, makeExprs());
+            case JJTAND_BOOLEAN:
+                return new BoolOp(BoolOp.And, makeExprs());
+            case JJTCOMPARISION:
+                int l = arity / 2;
+                exprType[] comparators = new exprType[l];
+                int[] ops = new int[l];
+                for (int i = l-1; i >= 0; i--) {
+                    comparators[i] = (exprType) stack.popNode();
+                    SimpleNode op = stack.popNode();
+                    switch (op.getId()) {
+                        case JJTLESS_CMP:          ops[i] = Compare.Lt; break;
+                        case JJTGREATER_CMP:       ops[i] = Compare.Gt; break;
+                        case JJTEQUAL_CMP:         ops[i] = Compare.Eq; break;
+                        case JJTGREATER_EQUAL_CMP: ops[i] = Compare.GtE; break;
+                        case JJTLESS_EQUAL_CMP:    ops[i] = Compare.LtE; break;
+                        case JJTNOTEQUAL_CMP:      ops[i] = Compare.NotEq; break;
+                        case JJTIN_CMP:            ops[i] = Compare.In; break;
+                        case JJTNOT_IN_CMP:        ops[i] = Compare.NotIn; break;
+                        case JJTIS_NOT_CMP:        ops[i] = Compare.IsNot; break;
+                        case JJTIS_CMP:            ops[i] = Compare.Is; break;
+                    default:
+                        throw new RuntimeException("Unknown cmp op:" + op.getId());
+                    }
+                }
+                return new Compare(((exprType) stack.popNode()), ops, comparators);
+            case JJTLESS_CMP:
+            case JJTGREATER_CMP:
+            case JJTEQUAL_CMP:
+            case JJTGREATER_EQUAL_CMP:
+            case JJTLESS_EQUAL_CMP:
+            case JJTNOTEQUAL_CMP:
+            case JJTIN_CMP:
+            case JJTNOT_IN_CMP:
+            case JJTIS_NOT_CMP:
+            case JJTIS_CMP:
+                return n;
+                
+                
+            case JJTOR_2OP:
+            case JJTXOR_2OP:
+            case JJTAND_2OP:
+            case JJTLSHIFT_2OP:
+            case JJTRSHIFT_2OP:
+            case JJTADD_2OP:  
+            case JJTSUB_2OP: 
+            case JJTMUL_2OP:
+            case JJTDIV_2OP: 
+            case JJTMOD_2OP:
+            case JJTPOW_2OP:
+            case JJTFLOORDIV_2OP:
+                BinOp op = (BinOp) n;
+                exprType right = (exprType) stack.popNode();
+                exprType left = (exprType) stack.popNode();
+                op.right = right;
+                op.left = left;
+                return n;
+                
+                
+            case JJTPOS_1OP:
+            case JJTNEG_1OP:
+            case JJTINVERT_1OP:
+            case JJTNOT_1OP:
+                ((UnaryOp)n).operand = ((exprType) stack.popNode());
+                return n;
+                
+                
+            case JJTIMPORT:
+                ((Import)n).names = makeAliases(arity);
+                return n;
+                
+                
+            case JJTDOT_OP:
+                NameTok attr = makeName(NameTok.Attrib);
+                value = (exprType) stack.popNode();
+                Attribute attribute = (Attribute) n;
+                attribute.value = value;
+                attribute.attr = attr;
+                return n;
+                
+            case JJTBEGIN_DEL_STMT:
+                return new Delete(null);
+                
+            case JJTDEL_STMT:
+                exprs = makeExprs(arity-1);
+                ctx.setDelete(exprs);
+                Delete d = (Delete) stack.popNode();
+                d.targets = exprs;
+                return d;
+                
+        
+            case JJTDOTTED_NAME:
+                Name name = (Name) n;
+                StringBuffer sb = new StringBuffer();
+                for (int i = 0; i < arity; i++) {
+                    if (i > 0){
+                        sb.insert(0, '.');
+                    }
+                    Name name0 = (Name) stack.popNode();
+                    sb.insert(0, name0.id);
+                    addSpecials(name0, name);
+                    //we have to set that, because if we later add things to the previous Name, we will now want it to be added to
+                    //the new name (comments will only appear later and may be added to the previous name -- so, we replace the previous
+                    //name specials list).
+                    name0.specialsBefore = name.getSpecialsBefore();
+                    name0.specialsAfter = name.getSpecialsAfter();
+                }
+                name.id = sb.toString();
+                return name;
+
+            case JJTDOTTED_AS_NAME:
+                NameTok asname = null;
+                if (arity > 1){
+                    asname = makeName(NameTok.ImportName);
+                }
+                return new aliasType(makeName(NameTok.ImportName), asname);
+
+            case JJTIMPORT_AS_NAME:
+                asname = null;
+                if (arity > 1){
+                    asname = makeName(NameTok.ImportName);
+                }
+                return new aliasType(makeName(NameTok.ImportName), asname);
+
         }
 
         //if we found a node not expected in the base, let's give subclasses an opportunity for dealing with it.
         return onCloseNode(n, arity);
+    }
+
+
+    /**
+     * Handles a found if construct.
+     * 
+     * @param n the node that opened the if scope.
+     * @param arity the current number of nodes in the stack.
+     * @return the If node that should close this context.
+     */
+    private final SimpleNode handleIfConstruct(SimpleNode n, int arity) {
+        stmtType[] body;
+        exprType test;
+        
+        stmtType[] orelse = null;
+        if ((arity + 1) % 3 == 1) {
+            arity--;
+            orelse = getBodyAndSpecials();
+        }
+
+        //make the suite
+        Suite suite = (Suite) stack.popNode();
+        arity--;
+        body = suite.body;
+        test = (exprType) stack.popNode();
+        arity--;
+
+        //make the if
+        If last;
+        if (arity == 0) {
+            //last If found
+            last = (If) n;
+        } else {
+            last = (If) stack.popNode();
+            arity--;
+        }
+        last.test = test;
+        last.body = body;
+        last.orelse = orelse;
+        addSpecialsAndClearOriginal(suite, last);
+
+        while (arity > 0) {
+            suite = (Suite) stack.popNode();
+            arity--;
+
+            body = suite.body;
+            test = (exprType) stack.popNode();
+            arity--;
+
+            stmtType[] newOrElse = new stmtType[] { last };
+            if (arity == 0) {
+                //last If found
+                last = (If) n;
+            } else {
+                last = (If) stack.popNode();
+                arity--;
+            }
+            last.test = test;
+            last.body = body;
+            last.orelse = newOrElse;
+            addSpecialsAndClearOriginal(suite, last);
+        }
+        return last;
     }
 
 
