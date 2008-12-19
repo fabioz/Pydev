@@ -164,7 +164,7 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         //let him choose the type of the project
         details = new PyProjectPythonDetails.RadioController();
         Control createdOn = details.doCreateContents(projectDetails);
-        details.radioPy24.setSelection(true);
+        details.setDefaultSelection();
         GridData data=new GridData(GridData.FILL_HORIZONTAL);
         data.grabExcessHorizontalSpace = true;
         createdOn.setLayoutData(data);

@@ -173,7 +173,7 @@ public class CompiledModule extends AbstractModule{
             
             //as we will use it for code completion on sources that map to modules, the __file__ should also
             //be added...
-            if(array.size() > 0 && name.equals("__builtin__")){
+            if(array.size() > 0 && (name.equals("__builtin__") || name.equals("builtins"))){
                 array.add(new CompiledToken("__file__","","",name,IToken.TYPE_BUILTIN));
                 array.add(new CompiledToken("__builtins__","","",name,IToken.TYPE_BUILTIN));
             }
@@ -343,6 +343,8 @@ public class CompiledModule extends AbstractModule{
             }
             int foundLine = def.o2[0];
             if(foundLine == 0 && foundAs.length() > 0 && mod != null && state.canStillCheckFindSourceFromCompiled(mod, foundAs)){
+                //TODO: The nature (and so the grammar to be used) must be defined by the file we'll parse
+                //(so, we need to know the system modules manager that actually created it to know the actual nature)
                 IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
                 if(sourceMod instanceof SourceModule){
                     Definition[] definitions = (Definition[]) sourceMod.findDefinition(state.getCopyWithActTok(foundAs), -1, -1, nature);

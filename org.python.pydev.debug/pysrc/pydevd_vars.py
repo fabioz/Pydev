@@ -15,8 +15,8 @@ try:
     __setFalse = False
 except:
     import __builtin__
-    __builtin__.True = 1
-    __builtin__.False = 0
+    setattr(__builtin__, 'True', 1)
+    setattr(__builtin__, 'False', 0)
 
 #------------------------------------------------------------------------------------------------------ class for errors
 
@@ -180,7 +180,7 @@ def frameVarsToXML(frame):
             xml += varToXML(v, str(k))
         except Exception, e:
             traceback.print_exc()
-            print >>sys.stderr, "unexpected error, recovered safely", str(e)
+            sys.stderr.write("unexpected error, recovered safely %s\n" % e)
     return xml
 
 def iterFrames(initialFrame):
@@ -195,13 +195,13 @@ def iterFrames(initialFrame):
     return frames
 
 def dumpFrames(thread_id):
-    print 'dumping frames'
+    sys.stdout.write('dumping frames\n')
     if thread_id != GetThreadId(threading.currentThread()) : 
         raise VariableError("findFrame: must execute on same thread")
         
     curFrame = GetFrame()
     for frame in iterFrames(curFrame):
-        print id(frame)
+        sys.stdout.write('%s\n' % id(frame))
     
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
@@ -286,7 +286,7 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
             exec expression in frame.f_globals, frame.f_locals
         else:
             result = eval(compiled, frame.f_globals, frame.f_locals)
-            print result
+            sys.stdout.write('%s\n' % (result,))
         return 
     
     else:

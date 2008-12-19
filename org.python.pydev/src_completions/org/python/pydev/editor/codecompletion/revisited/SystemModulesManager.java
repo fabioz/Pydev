@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.util.List;
 import java.util.SortedMap;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -24,6 +25,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -73,11 +76,23 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 
 
     public void setPythonNature(IPythonNature nature) {
+        Assert.isTrue(nature instanceof SystemPythonNature);
+        Assert.isTrue(((SystemPythonNature)nature).info == this.info);
+        
         this.nature = nature;
     }
 
     public IPythonNature getNature() {
-        return this.nature;
+        if(nature == null){
+            IInterpreterManager manager;
+            if(this.info.isJythonInfo()){
+                manager = PydevPlugin.getJythonInterpreterManager();
+            }else{
+                manager = PydevPlugin.getPythonInterpreterManager();
+            }
+            nature = new SystemPythonNature(manager, this.info);
+        }
+        return nature;
     }
 
     public ISystemModulesManager getSystemModulesManager() {

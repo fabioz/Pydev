@@ -13,10 +13,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -30,10 +32,11 @@ import org.python.pydev.plugin.nature.PythonNature;
 public class PyProjectPythonDetails extends PropertyPage{
 
     public static class RadioController{
-        public Button radioPy25;
-        public Button radioPy24;
-        public Button radioPy23;
-        public Button radioJy21;
+        public Button radioPy;
+        public Button radioJy;
+        public Combo comboGrammarVersion;
+        public Label versionLabel;
+        
         /**
          * @param p
          * @return
@@ -50,46 +53,61 @@ public class PyProjectPythonDetails extends PropertyPage{
 
             
             
+            //Project type
             Group group = new Group(topComp, SWT.NONE);
             group.setText("Choose the project type");
             GridLayout layout = new GridLayout();
             layout.horizontalSpacing = 8;
-            layout.numColumns = 4;
+            layout.numColumns = 2;
             group.setLayout(layout);
             gd= new GridData(GridData.FILL_HORIZONTAL);
             group.setLayoutData(gd);
 
+            radioPy = new Button(group, SWT.RADIO | SWT.LEFT);
+            radioPy.setText("Python");
+            
+            radioJy = new Button(group, SWT.RADIO | SWT.LEFT);
+            radioJy.setText("Jython");
             
             
-            radioPy23 = new Button(group, SWT.RADIO | SWT.LEFT);
-            radioPy23.setText(IPythonNature.PYTHON_VERSION_2_3);
+            
+            //Grammar version
+            versionLabel = new Label(topComp, 0);
+            versionLabel.setText("Grammar Version");
+            gd= new GridData(GridData.FILL_HORIZONTAL);
+            versionLabel.setLayoutData(gd);
+            
+            
+            
+            comboGrammarVersion = new Combo(topComp, SWT.READ_ONLY);
+            comboGrammarVersion.add("2.1");
+            comboGrammarVersion.add("2.2");
+            comboGrammarVersion.add("2.3");
+            comboGrammarVersion.add("2.4");
+            comboGrammarVersion.add("2.5");
+            comboGrammarVersion.add("2.6");
+            comboGrammarVersion.add("3.0");
+            
+            gd= new GridData(GridData.FILL_HORIZONTAL);
+            comboGrammarVersion.setLayoutData(gd);
 
-            radioPy24 = new Button(group, SWT.RADIO | SWT.LEFT);
-            radioPy24.setText(IPythonNature.PYTHON_VERSION_2_4);
-            
-            radioPy25 = new Button(group, SWT.RADIO | SWT.LEFT);
-            radioPy25.setText(IPythonNature.PYTHON_VERSION_2_5);
-            
-            radioJy21 = new Button(group, SWT.RADIO | SWT.LEFT);
-            radioJy21.setText(IPythonNature.JYTHON_VERSION_2_1);
             
             return topComp;
         }
         
         public String getSelected() {
-            if(radioPy23.getSelection()){
-                return IPythonNature.PYTHON_VERSION_2_3;
+            if(radioPy.getSelection()){
+                return "python "+comboGrammarVersion.getText();
             }
-            if(radioPy24.getSelection()){
-                return IPythonNature.PYTHON_VERSION_2_4;
-            }
-            if(radioPy25.getSelection()){
-                return IPythonNature.PYTHON_VERSION_2_5;
-            }
-            if(radioJy21.getSelection()){
-                return IPythonNature.JYTHON_VERSION_2_1;
+            if(radioJy.getSelection()){
+                return "jython "+comboGrammarVersion.getText();
             }
             throw new RuntimeException("Some radio must be selected");
+        }
+
+        public void setDefaultSelection() {
+            radioPy.setSelection(true);
+            comboGrammarVersion.setText("2.6");
         }
 
     }
@@ -130,19 +148,21 @@ public class PyProjectPythonDetails extends PropertyPage{
     private void setSelected() {
         PythonNature pythonNature = PythonNature.getPythonNature(getProject());
         try {
+            //Set whether it's Python/Jython
             String version = pythonNature.getVersion();
-            if(version.equals(IPythonNature.PYTHON_VERSION_2_3)){
-                radioController.radioPy23.setSelection(true);
+            if(IPythonNature.Versions.ALL_PYTHON_VERSIONS.contains(version)){
+                radioController.radioPy.setSelection(true);
+                
+            }else if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)){
+                radioController.radioJy.setSelection(true);
             }
-            else if(version.equals(IPythonNature.PYTHON_VERSION_2_4)){
-                radioController.radioPy24.setSelection(true);
-            }
-            else if(version.equals(IPythonNature.PYTHON_VERSION_2_5)){
-                radioController.radioPy25.setSelection(true);
-            }
-            else if(version.equals(IPythonNature.JYTHON_VERSION_2_1)){
-                radioController.radioJy21.setSelection(true);
-            }
+            
+            //We must set the grammar version too (that's from a string in the format "Python 2.4" and we only want
+            //the version).
+            String v = StringUtils.split(version, ' ')[1];
+            radioController.comboGrammarVersion.setText(v);
+            
+            
         } catch (CoreException e) {
             PydevPlugin.log(e);
         }
@@ -165,7 +185,7 @@ public class PyProjectPythonDetails extends PropertyPage{
             PythonNature pythonNature = PythonNature.getPythonNature(project);
             
             final IInterpreterManager interpreterManager;
-            if(newVersion.equals(IPythonNature.JYTHON_VERSION_2_1)){
+            if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(newVersion)){
                 interpreterManager = PydevPlugin.getJythonInterpreterManager();
             }else{
                 interpreterManager = PydevPlugin.getPythonInterpreterManager();

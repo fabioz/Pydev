@@ -107,7 +107,7 @@ class InterpreterInterface:
             try:
                 if not sys.platform.startswith("java"):
                     #Python
-                    import inspect
+                    import inspect #@UnresolvedImport
                     doc = inspect.getdoc(obj) 
                     if doc is not None:
                         return doc

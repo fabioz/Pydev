@@ -10,7 +10,7 @@ import java.io.Serializable;
  * 
  * @author Fabio
  */
-public class Tuple3<X ,Y, Z> implements Serializable{
+public class Tuple3<X, Y, Z> implements Serializable {
 
     public X o1;
     public Y o2;
@@ -21,31 +21,8 @@ public class Tuple3<X ,Y, Z> implements Serializable{
         this.o2 = o2;
         this.o3 = o3;
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof Tuple3)){
-            return false;
-        }
-        
-        Tuple3 t2 = (Tuple3) obj;
-        if(!o1.equals(t2.o1)){
-            return false;
-        }
-        if(!o2.equals(t2.o2)){
-            return false;
-        }
-        if(!o3.equals(t2.o3)){
-            return false;
-        }
-        return true;
-    }
-    
-    @Override
-    public int hashCode() {
-        return o1.hashCode() * o2.hashCode() * o3.hashCode();
-    }
-    
+
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -57,5 +34,51 @@ public class Tuple3<X ,Y, Z> implements Serializable{
         buffer.append(o3);
         buffer.append("]");
         return buffer.toString();
+    }
+
+    
+    /**
+     * Auto-generated code to deal with nulls.
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((o1 == null) ? 0 : o1.hashCode());
+        result = prime * result + ((o2 == null) ? 0 : o2.hashCode());
+        result = prime * result + ((o3 == null) ? 0 : o3.hashCode());
+        return result;
+    }
+
+    
+    /**
+     * Auto-generated code to deal with nulls.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (!(obj instanceof Tuple3)) {
+            return false;
+        }
+        final Tuple3 other = (Tuple3) obj;
+        if (o1 == null) {
+            if (other.o1 != null)
+                return false;
+        } else if (!o1.equals(other.o1))
+            return false;
+        if (o2 == null) {
+            if (other.o2 != null)
+                return false;
+        } else if (!o2.equals(other.o2))
+            return false;
+        if (o3 == null) {
+            if (other.o3 != null)
+                return false;
+        } else if (!o3.equals(other.o3))
+            return false;
+        return true;
     }
 }

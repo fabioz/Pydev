@@ -147,7 +147,9 @@ public abstract class AbstractModule implements IModule {
     }
 
     private boolean isTokenFromBuiltins(IToken token) {
-        return token.getParentPackage().startsWith("__builtin__");
+        String parentPackage = token.getParentPackage();
+        return parentPackage.equals("__builtin__") || parentPackage.startsWith("__builtin__.") || 
+            parentPackage.equals("builtins") || parentPackage.startsWith("builtins.");
     }
     
     /**
@@ -304,26 +306,7 @@ public abstract class AbstractModule implements IModule {
         return new SourceModule(moduleName, file, n, null);
     }
     
-    /**
-     * Creates a source file generated only from an ast (also discovers the module name).
-     * 
-     * @param n the ast root
-     * @param file the module file
-     * @param projModulesManager this is the manager (used to resolve the name of the module).
-     * 
-     * @return the module
-     */
-    public static IModule createModule(SimpleNode n, File file, IModulesManager projModulesManager) {
-        String moduleName = null;
-        if(file != null){
-            moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));
-        }
-        if(moduleName == null){
-            moduleName = MODULE_NAME_WHEN_FILE_IS_UNDEFINED;
-        }
-        return createModule(n, file, moduleName);
-    }
-    
+
     /**
      * @return an empty module representing the key passed.
      */

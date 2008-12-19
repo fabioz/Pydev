@@ -127,6 +127,10 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         originalName = resolveRealToAlias(originalName);
         if(originalName.startsWith("__builtin__.")){
             originalName = originalName.substring(12);
+            
+        }else if(originalName.startsWith("builtins.")){
+            originalName = originalName.substring(9);
+            
         }
         for (String baseName : contextClass.getBaseClassNames()) {
             if (baseName.endsWith(originalName)) {

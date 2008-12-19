@@ -43,6 +43,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -647,7 +648,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     
     /**
      * Returns the Python version of the Project. 
-     * because it might have changed on disk (e.g. a repository update).
+     * 
+     * It's a String in the format "python 2.4", as defined by the constants PYTHON_VERSION_XX and 
+     * JYTHON_VERSION_XX in IPythonNature.
+     * 
+     * @note it might have changed on disk (e.g. a repository update).
      * @return the python version for the project
      * @throws CoreException 
      */
@@ -666,7 +671,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
     
     /**
-     * set the project version given the constants provided
+     * set the project version given the constants PYTHON_VERSION_XX and 
+     * JYTHON_VERSION_XX in IPythonNature.
+     * 
      * @throws CoreException 
      */
     public void setVersion(String version) throws CoreException{
@@ -684,7 +691,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     
     public boolean isJython() throws CoreException {
         if(isJython == null){
-            isJython = getVersion().equals(JYTHON_VERSION_2_1);
+            isJython = IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(getVersion());
         }
         return isJython;
     }
@@ -802,14 +809,46 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     public int getGrammarVersion() {
         try {
-            if(getVersion().equals(PYTHON_VERSION_2_5)){
-                return GRAMMAR_PYTHON_VERSION_2_5;
-            }else{
-                return GRAMMAR_PYTHON_VERSION_2_4;
-            }
+            String version = getVersion();
+            String grammarVersion = StringUtils.split(version, ' ')[1];
+            return getGrammarVersionFromStr(grammarVersion);
+
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    /**
+     * @param grammarVersion a string in the format 2.x or 3.x
+     * @return the grammar version as given in IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION
+     */
+    public static int getGrammarVersionFromStr(String grammarVersion){
+        //Note that we don't have the grammar for all versions, so, we use the one closer to it (which is
+        //fine as they're backward compatible).
+        if("2.1".equals(grammarVersion)){
+            return GRAMMAR_PYTHON_VERSION_2_4;
+            
+        }else if("2.2".equals(grammarVersion)){
+            return GRAMMAR_PYTHON_VERSION_2_4;
+            
+        }else if("2.3".equals(grammarVersion)){
+            return GRAMMAR_PYTHON_VERSION_2_4;
+            
+        }else if("2.4".equals(grammarVersion)){
+            return GRAMMAR_PYTHON_VERSION_2_4;
+            
+        }else if("2.5".equals(grammarVersion)){
+            return GRAMMAR_PYTHON_VERSION_2_5;
+            
+        }else if("2.6".equals(grammarVersion)){
+            return GRAMMAR_PYTHON_VERSION_2_6;
+            
+        }else if("3.0".equals(grammarVersion)){
+            return GRAMMAR_PYTHON_VERSION_3_0;
+        }
+        
+        PydevPlugin.log("Unable to recognize version: "+grammarVersion);
+        return LATEST_GRAMMAR_VERSION;
     }
     
     protected IPythonNatureStore getStore(){

@@ -872,6 +872,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         IModule mod = nature.getBuiltinMod();
         if(mod == null){
             mod = getModule("__builtin__", nature, false);
+            if(mod == null){
+                //Python 3.0 has builtins and not __builtin__
+                mod = getModule("builtins", nature, false);
+            }
             nature.setBuiltinMod(mod);
         }
         return mod;

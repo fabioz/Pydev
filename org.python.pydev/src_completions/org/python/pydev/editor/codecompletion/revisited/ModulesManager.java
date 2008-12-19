@@ -482,7 +482,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                             //handle python file from zip... we have to create it getting the contents from the zip file
                             try {
                                 IDocument doc = REF.getDocFromZip(emptyModuleForZip.f, emptyModuleForZip.pathInZip);
-                                n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc, nature, -1, false);
+                                //NOTE: The nature (and so the grammar to be used) must be defined by this modules
+                                //manager (and not by the initial caller)!!
+                                n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc, this.getNature(), -1, false);
                                 SourceModule zipModule = (SourceModule) n;
                                 zipModule.zipFilePath = emptyModuleForZip.pathInZip;
                             } catch (Exception exc1) {
@@ -495,7 +497,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                     } else {
                         //regular case... just go on and create it.
                         try {
-                            n = AbstractModule.createModule(name, e.f, nature, -1);
+                            //NOTE: The nature (and so the grammar to be used) must be defined by this modules
+                            //manager (and not by the initial caller)!!
+                            n = AbstractModule.createModule(name, e.f, this.getNature(), -1);
                         } catch (IOException exc) {
                             keyForCacheAccess.name = name;
                             keyForCacheAccess.file = e.f;

@@ -71,6 +71,11 @@ import org.python.pydev.parser.jython.ast.commentType;
 public class PyParser implements IPyParser {
 
     /**
+     * Just for tests: show whenever we're not able to parse some file.
+     */
+    public static boolean DEBUG_SHOW_PARSE_ERRORS = false;
+    
+    /**
      * just for tests, when we don't have any editor
      */
     public static boolean ACCEPT_NULL_INPUT_EDITOR = false;
@@ -209,17 +214,7 @@ public class PyParser implements IPyParser {
      * @return a provider signaling the grammar to be used for the parser.
      */
     private static IGrammarVersionProvider getGrammarProviderFromEdit(IPyEdit editorView) {
-        try {
-            return editorView.getPythonNature();
-        } catch (RuntimeException e) {
-            //let's treat that correctly even if we do not have a default grammar (just log it)
-            return new IGrammarVersionProvider(){
-
-                public int getGrammarVersion() {
-                    return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
-                }
-            };
-        }
+        return editorView.getGrammarVersionProvider();
     }
 
 
@@ -529,6 +524,19 @@ public class PyParser implements IPyParser {
             this.moduleName = name;
             this.file = f;
         }
+        
+        public String toString() {
+            StringBuffer buf = new StringBuffer();
+            buf.append("ParserInfo [");
+            buf.append("file:");
+            buf.append(file);
+            buf.append("\nmoduleName:");
+            buf.append(moduleName);
+            buf.append("\nparseErr:");
+            buf.append(parseErr);
+            buf.append("]");
+            return buf.toString();
+        }
     }
     
     
@@ -766,6 +774,12 @@ public class PyParser implements IPyParser {
             }
         
         } 
+        
+        if(DEBUG_SHOW_PARSE_ERRORS){
+            if(returnVar.o1 == null){
+                System.out.println("Unable to parse "+info);
+            }
+        }
 //        System.out.println("Output grammar: "+returnVar);
         return returnVar;
     }

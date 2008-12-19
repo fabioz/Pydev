@@ -48,4 +48,6 @@ public interface IPyEdit extends IParserObserver{
      * Set status message
      */
     void setStatusLineErrorMessage(String msg);
+
+    IGrammarVersionProvider getGrammarVersionProvider();
 }

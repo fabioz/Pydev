@@ -18,10 +18,16 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SystemPythonNature extends AbstractPythonNature implements IPythonNature{
 
-    private IInterpreterManager manager;
+    private final IInterpreterManager manager;
+    public final IInterpreterInfo info;
     private SystemASTManager systemASTManager;
 
     public SystemPythonNature(IInterpreterManager manager){
+        this(manager, manager.getDefaultInterpreterInfo(new NullProgressMonitor()));
+    }
+    
+    public SystemPythonNature(IInterpreterManager manager, IInterpreterInfo info){
+        this.info = info;
         this.manager = manager;
     }
     
@@ -81,7 +87,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 
     public ICodeCompletionASTManager getAstManager() {
         if(systemASTManager == null){
-            systemASTManager = new SystemASTManager(this.manager, this);
+            systemASTManager = new SystemASTManager(this.manager, this, this.info);
         }
         return systemASTManager;
     }

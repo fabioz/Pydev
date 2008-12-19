@@ -4,20 +4,15 @@ import java.io.File;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 @SuppressWarnings("serial")
 public class SystemASTManager extends AbstractASTManager{
     
-    private IInterpreterManager manager;
-
-    public SystemASTManager(IInterpreterManager manager, IPythonNature nature) {
-        this.manager = manager;
-        InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
+    public SystemASTManager(IInterpreterManager manager, IPythonNature nature, IInterpreterInfo info) {
         this.modulesManager = info.getModulesManager();
         setNature(nature);
     }

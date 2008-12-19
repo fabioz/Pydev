@@ -22,4 +22,7 @@ public interface IInterpreterInfo {
      */
     public List<String> getPythonPath();
 
+
+    public IModulesManager getModulesManager();
+
 }

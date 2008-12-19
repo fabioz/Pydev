@@ -9,8 +9,8 @@ try:
     __setFalse = False
 except:
     import __builtin__
-    __builtin__.True = 1
-    __builtin__.False = 0
+    setattr(__builtin__, 'True', 1)
+    setattr(__builtin__, 'False', 0)
 
 DEBUG_TRACE_LEVEL = -1
 DEBUG_TRACE_BREAKPOINTS = -1
@@ -126,5 +126,5 @@ class Null:
     
 if __name__ == '__main__':
     if Null():
-        print 'here'
+        sys.stdout.write('here\n')
         

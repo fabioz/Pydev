@@ -11,8 +11,8 @@ try:
     __setFalse = False
 except:
     import __builtin__
-    __builtin__.True = 1
-    __builtin__.False = 0
+    setattr(__builtin__, 'True', 1)
+    setattr(__builtin__, 'False', 0)
 
 #=======================================================================================================================
 # parse_cmdline
@@ -156,7 +156,7 @@ class PydevTestRunner:
             return mod
         except ImportError:
             import traceback;traceback.print_exc()
-            print >> sys.stderr, 'ERROR: Module: %s could not be imported (alternative reason: the dir does not have __init__.py folders for all the packages?)' % (modname,)
+            sys.stderr.write('ERROR: Module: %s could not be imported (alternative reason: the dir does not have __init__.py folders for all the packages?)' % (modname,))
             return None
     
     def find_modules_from_files(self, pyfiles):
@@ -178,7 +178,7 @@ class PydevTestRunner:
                     new_imports.append(imp[len(s)+1:])
                     break
             else:
-                print 'PYTHONPATH not found for file: %s' % imp
+                sys.stdout.write('PYTHONPATH not found for file: %s\n' % imp)
                 
         imports = new_imports
         ret = [self.__get_module_from_str(import_str) for import_str in imports if import_str is not None]
@@ -223,17 +223,17 @@ class PydevTestRunner:
     
     def run_tests(self):
         """ runs all tests """
-        print "Finding files...",
+        sys.stdout.write("Finding files...\n")
         files = self.find_import_files()
-        print self.test_dir, '... done'
-        print "Importing test modules ...",
+        sys.stdout.write('%s %s\n' % (self.test_dir, '... done'))
+        sys.stdout.write("Importing test modules ... ")
         modules = self.find_modules_from_files(files)
-        print "done."
+        sys.stdout.write("done.\n")
         all_tests = self.find_tests_from_modules(modules)
         if self.test_filter is not None:
-            print 'Test Filter: %s' % [p.pattern for p in self.test_filter]
+            sys.stdout.write('Test Filter: %s' % [p.pattern for p in self.test_filter])
             all_tests = self.filter_tests(all_tests)
-        print
+        sys.stdout.write('\n')
         runner = unittest.TextTestRunner(stream=sys.stdout, descriptions=1, verbosity=verbosity)
         runner.run(unittest.TestSuite(all_tests))
         return

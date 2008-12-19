@@ -59,6 +59,7 @@ import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
@@ -1063,6 +1064,15 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
     }
 
+    
+    public IGrammarVersionProvider getGrammarVersionProvider() {
+        IPythonNature nature = getPythonNature();
+        if(nature != null){
+            return nature;
+        }
+        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        return infoForFile.o1;
+    }
     
     /**
      * @return the python nature associated with this editor.

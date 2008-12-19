@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -32,6 +31,7 @@ import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.UIConstants;
 
 
@@ -42,12 +42,12 @@ public class InterpreterInfo implements IInterpreterInfo{
      * 
      * For python, this is the path to the python executable 
      */
-    public String executableOrJar; 
+    public volatile String executableOrJar; 
     
     /**
      * folders - they should be passed to the pythonpath
      */
-    public java.util.List<String> libs = new ArrayList<String>(); 
+    public final java.util.List<String> libs = new ArrayList<String>(); 
     
     /**
      * Those libraries are not really used in python (they are found in the system pythonpath), and 
@@ -71,7 +71,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * check sys.builtin_module_names and others that should
      * be forced to use code completion as builtins, such os, math, etc.
      */
-    private Set<String> forcedLibs = new TreeSet<String>(); 
+    private final Set<String> forcedLibs = new TreeSet<String>(); 
     
     /**
      * This is the cache for the builtins (that's the same thing as the forcedLibs, but in a different format,
@@ -96,7 +96,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * This is the version for the python interpreter (it is regarded as a String with Major and Minor version
      * for python in the format '2.5' or '2.4'.
      */
-    private String version;
+    private final String version;
 
 
     /**
@@ -381,7 +381,10 @@ public class InterpreterInfo implements IInterpreterInfo{
         forcedLibs.add("os"); //we have it in source, but want to interpret it, source info (ast) does not give us much
         
         //as it is a set, there is no problem to add it twice
-        forcedLibs.add("__builtin__"); //jython bug: __builtin__ is not added
+        if(this.version.startsWith("2") || this.version.startsWith("1")){
+            //don't add it for 3.0 onwards.
+            forcedLibs.add("__builtin__"); //jython bug: __builtin__ is not added
+        }
         forcedLibs.add("sys"); //jython bug: sys is not added
         forcedLibs.add("email"); //email has some lazy imports that pydev cannot handle through the source
         
@@ -463,11 +466,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
  
     public int getGrammarVersion() {
-        int grammarVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_4;
-        if(getVersion().equals("2.5")){
-            grammarVersion = IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
-        }
-        return grammarVersion;
+        return PythonNature.getGrammarVersionFromStr(version);
     }
     
     
