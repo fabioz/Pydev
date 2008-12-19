@@ -289,7 +289,7 @@ class PyDB:
                     if not foundThreads.has_key(tId):
                         self.processThreadNotAlive(tId)
                 except:
-                    print 'Error iterating through %s (%s) - %s' % (foundThreads, foundThreads.__class__, dir(foundThreads))
+                    sys.stderr.write('Error iterating through %s (%s) - %s\n' % (foundThreads, foundThreads.__class__, dir(foundThreads)))
                     raise
                     
         finally:
@@ -418,13 +418,13 @@ class PyDB:
                     file = pydevd_file_utils.NormFileToServer(file)
                     
                     if not os.path.exists(file):
-                        print >> sys.stderr, 'pydev debugger: warning: trying to add breakpoint'\
-                            ' to file that does not exist: %s (will have no effect)' % (file, )
+                        sys.stderr.write('pydev debugger: warning: trying to add breakpoint'\
+                            ' to file that does not exist: %s (will have no effect)\n' % (file, ))
                     
                     line = int(line)
                     
                     if DEBUG_TRACE_BREAKPOINTS > 0:
-                        print 'Added breakpoint:%s - line:%s - func_name:%s' % (file, line, func_name)
+                        sys.stderr.write('Added breakpoint:%s - line:%s - func_name:%s\n' % (file, line, func_name))
                         
                     if self.breakpoints.has_key(file):
                         breakDict = self.breakpoints[file]
@@ -468,12 +468,12 @@ class PyDB:
                     try:
                         del self.breakpoints[file][line] #remove the breakpoint in that line
                         if DEBUG_TRACE_BREAKPOINTS > 0:
-                            print 'Removed breakpoint:%s' % (file)
+                            sys.stderr.write('Removed breakpoint:%s\n' % (file,))
                     except KeyError:
                         #ok, it's not there...
                         if DEBUG_TRACE_BREAKPOINTS > 0:
                             #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
-                            print >> sys.stderr, "breakpoint not found", file, str(line)
+                            sys.stderr.write("breakpoint not found: %s - %s\n" % (file, line))
                             
                 elif cmd_id == CMD_EVALUATE_EXPRESSION or cmd_id == CMD_EXEC_EXPRESSION:
                     #command to evaluate the given expression
@@ -492,8 +492,7 @@ class PyDB:
                     self.writer.addCommand(cmd)
                     del cmd
                     
-            except Exception, e:
-                traceback.print_exc(e)
+            except Exception:
                 traceback.print_exc()
                 cmd = self.cmdFactory.makeErrorMessage(seq, 
                     "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (cmd_id, seq, text)))
@@ -618,9 +617,13 @@ class PyDB:
             #each new frame...
             dbFrame = additionalInfo.CreateDbFrame(self, filename, additionalInfo, t, frame)
             return dbFrame.trace_dispatch(frame, event, arg)
-        except Exception, e:
-            if not isinstance(e, SystemExit):
-                traceback.print_exc()
+        
+        except SystemExit:
+            return None
+        
+        except Exception:
+            #Log it
+            traceback.print_exc()
             return None
             
     if USE_PSYCO_OPTIMIZATION:
@@ -636,7 +639,7 @@ class PyDB:
                 sys.exc_clear() #don't keep the traceback (let's keep it clear for when we go to the point of executing client code)
                 
             if not sys.platform.startswith("java"):
-                print >> sys.stderr, "pydev debugger: warning: psyco not available for speedups (the debugger will still work correctly, but a bit slower)"
+                sys.stderr.write("pydev debugger: warning: psyco not available for speedups (the debugger will still work correctly, but a bit slower)\n")
             
 
     def run(self, file, globals=None, locals=None):
@@ -735,12 +738,12 @@ def processCommandLine(argv):
             del argv[i]            
             retVal['DEBUG_RECORD_SOCKET_READS'] = True
         else:
-            raise ValueError, "unexpected option " + argv[i]
+            raise ValueError("unexpected option " + argv[i])
     return retVal
 
 def usage(doExit=0):
-    print 'Usage:'
-    print 'pydevd.py --port=N [(--client hostname) | --server] --file executable [file_options]'
+    sys.stdout.write('Usage:\n')
+    sys.stdout.write('pydevd.py --port=N [(--client hostname) | --server] --file executable [file_options]\n')
     if doExit:
         sys.exit(0)
 
@@ -833,12 +836,12 @@ def settrace(host = 'localhost', stdoutToServer = False, stderrToServer = False,
     
 
 if __name__ == '__main__':
-    print >>sys.stderr, "pydev debugger: starting"
+    sys.stderr.write("pydev debugger: starting\n")
     # parse the command line. --file is our last argument that is required
     try:
         setup = processCommandLine(sys.argv)
-    except ValueError, e:
-        print e
+    except ValueError:
+        traceback.print_exc()
         usage(1)
     
     #as to get here all our imports are already resolved, the psyco module can be

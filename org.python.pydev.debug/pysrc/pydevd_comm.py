@@ -134,7 +134,7 @@ def PydevdLog(level, *args):
     if level <= DEBUG_TRACE_LEVEL:
         #yes, we can have errors printing if the console of the program has been finished (and we're still trying to print something)
         try:
-            print >>sys.stderr, args
+            sys.stderr.write('%s\n' % (args,))
         except:
             pass
 
@@ -212,7 +212,7 @@ class ReaderThread(PyDBDaemonThread):
             while not self.killReceived:
                 buffer += self.sock.recv(1024)
                 if DebugInfoHolder.DEBUG_RECORD_SOCKET_READS:
-                    print 'received >>%s<<' % (buffer,)
+                    sys.stdout.write('received >>%s<<\n' % (buffer,))
                     
                 if len(buffer) == 0:
                     GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
@@ -267,7 +267,7 @@ class WriterThread(PyDBDaemonThread):
                     out_message += ' '
                     out_message += out
                     try:
-                        print >> sys.stderr, (out_message,)
+                        sys.stderr.write('%s\n' % (out_message,))
                     except:
                         pass
                 
@@ -309,8 +309,8 @@ def StartClient(host, port):
         PydevdLog(1, "Connected.")
         return s
     except:
-        print "server timed out after 10 seconds, could not connect to ", host, ":", str(port)
-        print "Exiting. Bye!"
+        sys.stderr.write("server timed out after 10 seconds, could not connect to %s: %s\n" % (host, port))
+        sys.stderr.write("Exiting. Bye!\n")
         sys.exit(1)
 
 
@@ -368,7 +368,7 @@ class NetCommandFactory:
     def makeErrorMessage(self, seq, text):
         cmd = NetCommand(CMD_ERROR, seq, text)
         if DEBUG_TRACE_LEVEL > 2:
-            print >>sys.stderr, "Error: ", text
+            sys.stderr.write("Error: %s" % (text,))
         return cmd;
 
     def makeThreadCreatedMessage(self, thread):
@@ -639,7 +639,7 @@ class InternalEvaluateExpression(InternalThreadCommand):
             dbg.writer.addCommand(cmd)
         except:
             exc = GetExceptionTracebackStr()
-            print >> sys.stderr, exc
+            sys.stderr.write('%s\n' % (exc,))
             cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + exc)
             dbg.writer.addCommand(cmd)
 
@@ -655,8 +655,8 @@ def PydevdFindThreadById(thread_id):
             if thread_id == GetThreadId(i): 
                 return i
             
-        print >>sys.stderr, "Could not find thread %s" % thread_id
-        print >>sys.stderr, "Available: %s" % [GetThreadId(t) for t in threads]
+        sys.stderr.write("Could not find thread %s\n" % thread_id)
+        sys.stderr.write("Available: %s\n" % [GetThreadId(t) for t in threads])
     except:
         traceback.print_exc()
         

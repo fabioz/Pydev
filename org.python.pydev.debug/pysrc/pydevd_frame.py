@@ -89,7 +89,7 @@ class PyDBFrame:
                             return self.trace_dispatch
                             
                     except:
-                        print >> sys.stderr, 'Error while evaluating expression'
+                        sys.stderr.write('Error while evaluating expression\n')
                         traceback.print_exc()
                         return self.trace_dispatch
                 

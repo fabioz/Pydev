@@ -33,7 +33,7 @@ def _GetStackStr(frame):
           
     if TracingFunctionHolder._traceback_limit:
         s = StringIO.StringIO()
-        print >> s, 'Call Location:'
+        s.write('Call Location:\n')
         traceback.print_stack(f=frame, limit=TracingFunctionHolder._traceback_limit, file = s)
         msg = msg+s.getvalue()
     
@@ -53,7 +53,7 @@ def _InternalSetTrace(tracing_func):
             if message not in TracingFunctionHolder._warnings_shown:
                 #only warn about each message once...
                 TracingFunctionHolder._warnings_shown[message] = 1
-                print >> sys.stderr, message
+                sys.stderr.write('%s\n' % (message,))
             
     TracingFunctionHolder._original_tracing(tracing_func)
 

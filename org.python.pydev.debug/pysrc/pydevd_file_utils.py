@@ -86,11 +86,11 @@ def _NormFile(filename):
 #related to the names generated...
 try:
     if not exists(_NormFile(rPath.func_code.co_filename)):
-        print >> sys.stderr, '-------------------------------------------------------------------------------'
-        print >> sys.stderr, 'pydev debugger: CRITICAL WARNING: This version of python seems to be incorrectly compiled (internal generated filenames are not absolute)'
-        print >> sys.stderr, 'pydev debugger: The debugger may still function, but it will work slower and may miss breakpoints.'
-        print >> sys.stderr, 'pydev debugger: Related bug: http://bugs.python.org/issue1666807'
-        print >> sys.stderr, '-------------------------------------------------------------------------------'
+        sys.stderr.write('-------------------------------------------------------------------------------\n')
+        sys.stderr.write('pydev debugger: CRITICAL WARNING: This version of python seems to be incorrectly compiled (internal generated filenames are not absolute)\n')
+        sys.stderr.write('pydev debugger: The debugger may still function, but it will work slower and may miss breakpoints.\n')
+        sys.stderr.write('pydev debugger: Related bug: http://bugs.python.org/issue1666807\n')
+        sys.stderr.write('-------------------------------------------------------------------------------\n')
         
         initial_norm_file = _NormFile
         def _NormFile(filename): #Let's redefine _NormFile to work with paths that may be incorrect
@@ -102,7 +102,7 @@ try:
                     if exists(ret):
                         break
                 else:
-                    print >> sys.stderr, 'pydev debugger: Unable to find real location for: %s' % filename
+                    sys.stderr.write('pydev debugger: Unable to find real location for: %s\n' % (filename,))
                     ret = filename
                 
             return ret
@@ -122,15 +122,15 @@ if PATHS_FROM_CLIENT_TO_SERVER:
             for client_prefix, server_prefix in PATHS_FROM_CLIENT_TO_SERVER:
                 if translated.startswith(client_prefix):
                     if DEBUG_CLIENT_SERVER_TRANSLATION:
-                        print >> sys.stderr, 'pydev debugger: replacing to server', translated
+                        sys.stderr.write('pydev debugger: replacing to server: %s\n' % (translated,))
                     translated = translated.replace(client_prefix, server_prefix)
                     if DEBUG_CLIENT_SERVER_TRANSLATION:
-                        print >> sys.stderr, 'pydev debugger: sent to server', translated
+                        sys.stderr.write('pydev debugger: sent to server: %s\n' % (translated,))
                     break
             else:
                 if DEBUG_CLIENT_SERVER_TRANSLATION:
-                    print >> sys.stderr, 'pydev debugger: unable to find matching prefix for: %s in %s' % \
-                        (translated, [x[0] for x in PATHS_FROM_CLIENT_TO_SERVER])
+                    sys.stderr.write('pydev debugger: unable to find matching prefix for: %s in %s\n' % \
+                        (translated, [x[0] for x in PATHS_FROM_CLIENT_TO_SERVER]))
                     
             ret = _NormFile(translated)
             NORM_FILENAME_TO_SERVER_CONTAINER[filename] = translated
@@ -146,15 +146,15 @@ if PATHS_FROM_CLIENT_TO_SERVER:
             for client_prefix, server_prefix in PATHS_FROM_CLIENT_TO_SERVER:
                 if translated.startswith(server_prefix):
                     if DEBUG_CLIENT_SERVER_TRANSLATION:
-                        print >> sys.stderr, 'pydev debugger: replacing to client', translated
+                        sys.stderr.write('pydev debugger: replacing to client: %s\n' % (translated,))
                     translated = translated.replace(server_prefix, client_prefix)
                     if DEBUG_CLIENT_SERVER_TRANSLATION:
-                        print >> sys.stderr, 'pydev debugger: sent to client', translated
+                        sys.stderr.write('pydev debugger: sent to client: %s\n' % (translated,))
                     break
             else:
                 if DEBUG_CLIENT_SERVER_TRANSLATION:
-                    print >> sys.stderr, 'pydev debugger: unable to find matching prefix for: %s in %s' % \
-                        (translated, [x[1] for x in PATHS_FROM_CLIENT_TO_SERVER])
+                    sys.stderr.write('pydev debugger: unable to find matching prefix for: %s in %s\n' % \
+                        (translated, [x[1] for x in PATHS_FROM_CLIENT_TO_SERVER]))
                         
             ret = _NormFile(translated)
             NORM_FILENAME_TO_CLIENT_CONTAINER[filename] = ret
