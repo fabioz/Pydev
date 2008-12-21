@@ -3,6 +3,10 @@
 """
 from pydevd_constants import * #@UnusedWildImport
 from types import * #@UnusedWildImport
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import sys #@Reimport
 import urllib
 import threading
@@ -31,20 +35,32 @@ if not sys.platform.startswith("java"):
         #None means that it should not be treated as a compound variable
         
         #isintance does not accept a tuple on some versions of python, so, we must declare it expanded
-        (NoneType, None,),
-        (IntType, None),
-        (LongType, None),
-        (FloatType, None),
-        (ComplexType, None),
-        (StringType, None),
-        (UnicodeType, None),
-        (TupleType, pydevd_resolver.tupleResolver),
-        (ListType, pydevd_resolver.tupleResolver),
-        (DictType, pydevd_resolver.dictResolver),
+        (type(None), None,),
+        (int, None),
+        (float, None),
+        (complex, None),
+        (str, None),
+        (tuple, pydevd_resolver.tupleResolver),
+        (list, pydevd_resolver.tupleResolver),
+        (dict, pydevd_resolver.dictResolver),
     ]
     
     try:
+        typeMap.append((long, None))
+    except:
+        pass #not available on all python versions
+    
+    try:
+        typeMap.append((unicode, None))
+    except:
+        pass #not available on all python versions
+    
+    try:
         typeMap.append((set, pydevd_resolver.setResolver))
+    except:
+        pass #not available on all python versions
+    
+    try:
         typeMap.append((frozenset, pydevd_resolver.setResolver))
     except:
         pass #not available on all python versions
@@ -127,7 +143,7 @@ def varToXML(v, name):
             value = str(v)
     except:
         try:
-            value = `v`
+            value = repr(v)
         except:
             value = 'Unable to get repr for %s' % v.__class__
     
@@ -178,9 +194,9 @@ def frameVarsToXML(frame):
         try:            
             v = frame.f_locals[k]            
             xml += varToXML(v, str(k))
-        except Exception, e:
+        except Exception:
             traceback.print_exc()
-            sys.stderr.write("unexpected error, recovered safely %s\n" % e)
+            sys.stderr.write("Unexpected error, recovered safely.\n")
     return xml
 
 def iterFrames(initialFrame):
@@ -283,7 +299,7 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
             #it will have whatever the user actually did)
             compiled = compile(expression, '<string>', 'eval')
         except:
-            exec expression in frame.f_globals, frame.f_locals
+            exec(expression, frame.f_globals, frame.f_locals)
         else:
             result = eval(compiled, frame.f_globals, frame.f_locals)
             sys.stdout.write('%s\n' % (result,))
@@ -293,8 +309,10 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
         result = None    
         try:
             result = eval(expression, frame.f_globals, frame.f_locals)
-        except Exception, e:
-            result = str(e)
+        except Exception:
+            s = StringIO()
+            traceback.print_exc(file=s)
+            result = s.getvalue()
         return result
     
 def changeAttrExpression(thread_id, frame_id, attr, expression):
@@ -325,10 +343,10 @@ def changeAttrExpression(thread_id, frame_id, attr, expression):
                 frame.f_globals[attr] = eval(expression, frame.f_globals, frame.f_locals)
         else:
             #default way (only works for changing it in the topmost frame)
-            exec '%s=%s' % (attr, expression) in frame.f_globals, frame.f_locals
+            exec('%s=%s' % (attr, expression), frame.f_globals, frame.f_locals)
             
             
-    except Exception, e:
+    except Exception:
         traceback.print_exc()
     
 

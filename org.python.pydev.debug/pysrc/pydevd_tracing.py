@@ -3,7 +3,10 @@ from pydevd_constants import * #@UnusedWildImport
 try:
     import cStringIO as StringIO #may not always be available @UnusedImport
 except:
-    import StringIO #@Reimport
+    try:
+        import StringIO #@Reimport
+    except:
+        import io as StringIO
 
 import threading
 import sys #@Reimport

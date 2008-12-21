@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -212,13 +211,16 @@ public class PythonRunner {
     /**
      * Actually creates the process (and create the encoding config file)
      */
+    @SuppressWarnings("deprecation")
     private static Process createProcess(ILaunch launch, String[] envp, String[] cmdLine, File workingDirectory) throws CoreException {
         //Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2
         String encoding = launch.getAttribute(IDebugUIConstants.ATTR_CONSOLE_ENCODING);
         if(encoding != null && encoding.trim().length() > 0){
-            String[] s = new String[envp.length+1];
+            String[] s = new String[envp.length+2];
             System.arraycopy(envp, 0, s, 0, envp.length);
-            s[s.length-1] = "PYDEV_CONSOLE_ENCODING="+encoding;
+            s[s.length-2] = "PYDEV_CONSOLE_ENCODING="+encoding;
+            //In Python 3.0, we can use the PYTHONIOENCODING.
+            s[s.length-1] = "PYTHONIOENCODING="+encoding;
             envp = s;
         }        
         Process p = DebugPlugin.exec(cmdLine, workingDirectory, envp);

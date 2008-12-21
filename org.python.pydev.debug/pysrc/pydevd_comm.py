@@ -57,10 +57,16 @@ from pydevd_constants import * #@UnusedWildImport
 
 import time
 import threading
-import Queue as PydevQueue
+try:
+    import Queue as PydevQueue
+except ImportError:
+    import queue as PydevQueue
 from socket import socket
 from socket import AF_INET, SOCK_STREAM
-import urllib
+try:
+    from urllib import quote
+except:
+    from urllib.parse import quote
 import pydevd_vars
 import pydevd_tracing
 import pydevd_vm_type
@@ -209,8 +215,13 @@ class ReaderThread(PyDBDaemonThread):
         pydevd_tracing.SetTrace(None) # no debugging on this thread
         buffer = ""
         try:
+            
             while not self.killReceived:
-                buffer += self.sock.recv(1024)
+                r = self.sock.recv(1024)
+                if IS_PY3K:
+                    r = r.decode('utf-8')
+                    
+                buffer += r
                 if DebugInfoHolder.DEBUG_RECORD_SOCKET_READS:
                     sys.stdout.write('received >>%s<<\n' % (buffer,))
                     
@@ -271,6 +282,8 @@ class WriterThread(PyDBDaemonThread):
                     except:
                         pass
                 
+                if IS_PY3K:
+                    out = bytearray(out, 'utf-8')
                 self.sock.send(out) #TODO: this does not guarantee that all message are sent (and jython does not have a send all)
                 if time is None:
                     break #interpreter shutdown
@@ -348,7 +361,7 @@ class NetCommand:
         return self.outgoing
     
     def makeMessage(self, cmd, seq, payload):
-        encoded = urllib.quote(str(payload), '/<>_=" \t')
+        encoded = quote(str(payload), '/<>_=" \t')
         return str(cmd) + '\t' + str(seq) + '\t' + encoded + "\n"
 
 #=======================================================================================================================
@@ -362,7 +375,7 @@ class NetCommandFactory:
     def threadToXML(self, thread):
         """ thread information as XML """
         name = pydevd_vars.makeValidXmlValue(thread.getName())
-        cmdText = '<thread name="%s" id="%s" />' % (urllib.quote(name), GetThreadId(thread))
+        cmdText = '<thread name="%s" id="%s" />' % (quote(name), GetThreadId(thread))
         return cmdText
 
     def makeErrorMessage(self, seq, text):
@@ -400,7 +413,7 @@ class NetCommandFactory:
                 v = v[0:MAX_IO_MSG_SIZE]
                 v += '...'
                 
-            v = pydevd_vars.makeValidXmlValue(urllib.quote(v, '/>_= \t'))
+            v = pydevd_vars.makeValidXmlValue(quote(v, '/>_= \t'))
             net = NetCommand(str(CMD_WRITE_TO_CONSOLE), 0, '<xml><io s="%s" ctx="%s"/></xml>' % (v, ctx))
             if dbg:
                 dbg.writer.addCommand(net)
@@ -453,7 +466,7 @@ class NetCommandFactory:
 
                 variables = ''
                 cmdTextList.append('<frame id="%s" name="%s" ' % (myId , pydevd_vars.makeValidXmlValue(myName))) 
-                cmdTextList.append('file="%s" line="%s">"'     % (urllib.quote(myFile, '/>_= \t'), myLine)) 
+                cmdTextList.append('file="%s" line="%s">"'     % (quote(myFile, '/>_= \t'), myLine)) 
                 cmdTextList.append(variables) 
                 cmdTextList.append("</frame>") 
                 curFrame = curFrame.f_back

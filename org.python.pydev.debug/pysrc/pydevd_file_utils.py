@@ -85,7 +85,11 @@ def _NormFile(filename):
 #Now, let's do a quick test to see if we're working with a version of python that has no problems
 #related to the names generated...
 try:
-    if not exists(_NormFile(rPath.func_code.co_filename)):
+    try:
+        code = rPath.func_code
+    except AttributeError:
+        code = rPath.__code__
+    if not exists(_NormFile(code.co_filename)):
         sys.stderr.write('-------------------------------------------------------------------------------\n')
         sys.stderr.write('pydev debugger: CRITICAL WARNING: This version of python seems to be incorrectly compiled (internal generated filenames are not absolute)\n')
         sys.stderr.write('pydev debugger: The debugger may still function, but it will work slower and may miss breakpoints.\n')

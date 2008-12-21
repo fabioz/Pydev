@@ -1,4 +1,7 @@
-import StringIO
+try:
+    import StringIO
+except:
+    import io as StringIO
 import traceback
 
 try:

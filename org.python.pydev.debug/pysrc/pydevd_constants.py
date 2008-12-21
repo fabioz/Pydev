@@ -12,8 +12,8 @@ except:
     setattr(__builtin__, 'True', 1)
     setattr(__builtin__, 'False', 0)
 
-DEBUG_TRACE_LEVEL = -1
-DEBUG_TRACE_BREAKPOINTS = -1
+DEBUG_TRACE_LEVEL = 2
+DEBUG_TRACE_BREAKPOINTS = 2
 
 class DebugInfoHolder:
     #we have to put it here because it can be set through the command line (so, the 
@@ -36,6 +36,17 @@ import threading
 import os
 
 _nextThreadIdLock = threading.Lock()
+
+#=======================================================================================================================
+# Python 3?
+#=======================================================================================================================
+IS_PY3K = False
+try:
+    if sys.version_info[0] >= 3:
+        IS_PY3K = True            
+except AttributeError:
+    pass #Not all versions have sys.version_info
+
 
 #=======================================================================================================================
 # NextId
