@@ -16,8 +16,8 @@ add zips to sf (sftp: frs.sourceforge.net /incoming/f/fa/fabioz/uploads) and do 
 
 tag repository: e.g.: pydev_1_3_7
 svn: 
-svn copy https://source.aptana.com/pydev_repo/trunk https://source.aptana.com/pydev_repo/tags/pydev_1_4 -m "Creating release 1.4"
-svn copy https://source.aptana.com/pydev_pro_repo/trunk https://source.aptana.com/pydev_pro_repo/tags/pydev_1_4 -m "Creating release 1.4"
+svn copy https://source.aptana.com/pydev_repo/trunk https://source.aptana.com/pydev_repo/tags/pydev_1_4_1 -m "Creating release 1.4.1"
+svn copy https://source.aptana.com/pydev_pro_repo/trunk https://source.aptana.com/pydev_pro_repo/tags/pydev_1_4_1 -m "Creating release 1.4.1"
 
 add news in forum
 
