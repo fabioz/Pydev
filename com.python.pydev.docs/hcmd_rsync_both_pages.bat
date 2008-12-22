@@ -53,9 +53,9 @@ REM ** CUSTOMIZE ** Enter your rsync command(s) here
 REM Copying open source stuff
 REM Copying open source homepage
 
-REM rsync --exclude "*.db" -r /cygdrive/d/bin/aptana_workspace/com.python.pydev.docs/new_homepage/final/ \\ironman\users\fabioz\www\pydev\
+rsync --exclude "*.db" --exclude ".svn" -r /cygdrive/d/bin/aptana_workspace/com.python.pydev.docs/new_homepage/final/ \\ironman\users\fabioz\www\pydev\
 
-rsync -h --exclude "*.db" -r /cygdrive/d/bin/aptana_workspace/com.python.pydev.docs/open_source/final/ fabioz,pydev@web.sourceforge.net:/home/groups/p/py/pydev/htdocs/
+rsync -h --exclude "*.db"  --exclude ".svn" -r /cygdrive/d/bin/aptana_workspace/com.python.pydev.docs/open_source/final/ fabioz,pydev@web.sourceforge.net:/home/groups/p/py/pydev/htdocs/
 
 
 
