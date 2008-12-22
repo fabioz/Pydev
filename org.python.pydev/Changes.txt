@@ -2,16 +2,22 @@ after 1.3.24
 
 Pydev Extensions
 <ul>
+<li><strong>Python 3.0</strong> supported</li>
+<li><strong>Python 2.6</strong> supported</li>
 <li><strong>Code-analysis</strong>: Was locking caches for too long (which could end up having stale results)</li>
 </ul>
 
 Pydev
 <ul>
-<li><strong>Find Definition</strong>: The context-sensitive code from Pydev Extensions is now moved to the open source version. 
-<li><strong>Hover</strong>: Showing docstring on hover (currently only available for files that are not analyzed as builtins). 
-<li><strong>Hover</strong>: Showing variables hover. 
-<li><strong>Parser</strong>: Investigate further one thread corrupting info from another. 
-<li><strong>Task tags</strong>: The task tags that are created by the user are no longer removed.
+<li><strong>Python 3.0</strong> supported</li>
+<li><strong>Python 2.6</strong> supported</li>
+<li><strong>Find Definition</strong>: The context-sensitive code to find a definition from Pydev Extensions is now available (and used) in the open source version</li> 
+<li><strong>Hover</strong>: Showing docstring on hover (currently only available for files that are not analyzed as builtins)</li>
+<li><strong>Hover</strong>: Showing variables on hover while debugging</li>
+<li><strong>Parser</strong>: One thread could corrupt the parse of another one (because of some static variables)</li> 
+<li><strong>Parser</strong>: Major refactoring which also made the parser faster </li>
+<li><strong>Task tags</strong>: The task tags that are created by the user are no longer removed</li>
+<li><strong>Code formatter</strong> unary operators don't have a space added</li>
 </ul>
 
 
