@@ -202,7 +202,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         }
                         if(localC == '(' || localC == ','){
                             //it's not an operator, but vararg. kwarg or list expansion
-                            break;
+                            break; //break for
                         }
                         if(Character.isJavaIdentifierPart(localC)){
                             //ok, there's a chance that it can be an operator, but we still have to check
@@ -240,7 +240,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             if(Character.isJavaIdentifierPart(localC)){
                                 localBufToCheckNumber.append(localC);
                             }else{
-                                break;
+                                break;//break for
                             }
                         }
                         boolean isExponential = true;;
@@ -253,12 +253,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             //first char checked... now, if the last is an 'e', we must leave it together no matter what
                             if(partialNumber.charAt(partialLen-1) != 'e'){
                                 isExponential = false;
-                                break;
                             }
                         }
                         if(isExponential){
                             buf.append(c);
-                            break;
+                            break;//break switch
                         }
                         //Otherwise, FALLTHROUGH
                     }
@@ -340,6 +339,15 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return the new index after handling the operator
      */
     private int handleOperator(FormatStd std, char[] cs, FastStringBuffer buf, ParsingUtils parsingUtils, int i, char c) {
+        //let's discover if it's an unary operator (~ + -)
+        
+        boolean isUnary = false;
+        if(c == '~' || c == '+' || c == '-'){
+            //could be an unary operator...
+            isUnary = buf.length() == 0;
+        }
+        
+        
         while(buf.length() > 0 && buf.lastChar() == ' '){
             buf.deleteLast();
         }
@@ -347,7 +355,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         boolean surroundWithSpaces = std.operatorsWithSpace;
         
         //add space before
-        if(surroundWithSpaces){
+        if(!isUnary && surroundWithSpaces){
             buf.append(' ');
         }
         
@@ -371,11 +379,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
             i--;
         }
         
-        //add space after
-        if(surroundWithSpaces){
+        //add space after only if it's not unary
+        if(!isUnary && surroundWithSpaces){
             buf.append(' ');
         }
-        
+       
         i = parsingUtils.eatWhitespaces(null, i+1);
         return i;
     }

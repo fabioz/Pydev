@@ -23,8 +23,8 @@ public class PyFormatStdTest extends TestCase {
         try {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
-//            DEBUG = true;
-            n.testCorrectExponentials();
+            DEBUG = true;
+            n.testSimpleOperator4();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -499,7 +499,71 @@ public class PyFormatStdTest extends TestCase {
         
         checkFormatResults(s, s1);
     }
+    
+    public void testSimpleOperator(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "86000+10\n" +
+        "";
+        
+        String s1 = "" +
+        "86000 + 10\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
+    
+    public void testSimpleOperator2(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "+1\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        "";
+        
+        String s1 = "" +
+        "+1\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
 
+    public void testSimpleOperator3(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "call(+1)\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        "";
+        
+        String s1 = "" +
+        "call(+1)\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
+    
+    public void testSimpleOperator4(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "call(1+1+2+(-1+(-1+1)))\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        "";
+        
+        String s1 = "" +
+        "call(1 + 1 + 2 + (-1 + (-1 + 1)))\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
+    
     
     public void testCorrectExponentials(){
         std.spaceAfterComma = true;
