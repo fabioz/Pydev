@@ -215,25 +215,26 @@ public class PyCodeCoverageView extends ViewPart {
                         String message = "Not Executed";
 
                         FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
-                        for (Iterator it = cache.notExecutedIterator(); it.hasNext();) {
-                            Map<String, Object> map = new HashMap<String, Object>();
-                            int errorLine = ((Integer) it.next()).intValue() - 1;
-
-                            IRegion region = document.getLineInformation(errorLine);
-                            int errorEnd = region.getOffset();
-                            int errorStart = region.getOffset() + region.getLength();
-
-                            map.put(IMarker.MESSAGE, message);
-                            map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
-                            map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
-                            map.put(IMarker.CHAR_START, new Integer(errorStart));
-                            map.put(IMarker.CHAR_END, new Integer(errorEnd));
-                            map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
-                            map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
-
-                            MarkerUtilities.createMarker(original, map, type);
+                        if(cache != null){
+                            for (Iterator<Object> it = cache.notExecutedIterator(); it.hasNext();) {
+                                Map<String, Object> map = new HashMap<String, Object>();
+                                int errorLine = ((Integer) it.next()).intValue() - 1;
+    
+                                IRegion region = document.getLineInformation(errorLine);
+                                int errorEnd = region.getOffset();
+                                int errorStart = region.getOffset() + region.getLength();
+    
+                                map.put(IMarker.MESSAGE, message);
+                                map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
+                                map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
+                                map.put(IMarker.CHAR_START, new Integer(errorStart));
+                                map.put(IMarker.CHAR_END, new Integer(errorEnd));
+                                map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
+                                map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
+    
+                                MarkerUtilities.createMarker(original, map, type);
+                            }
                         }
-
                     }
                 }
             } catch (Exception e) {

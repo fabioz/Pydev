@@ -5,7 +5,7 @@
     - execute the user site customize -- if available
     - change raw_input() and input() to also remove any trailing \r
 '''
-DEBUG = 1 #0 or 1 because of jython
+DEBUG = 0 #0 or 1 because of jython
 
 import os
 
