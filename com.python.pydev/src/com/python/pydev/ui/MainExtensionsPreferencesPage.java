@@ -50,7 +50,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
             String email = getFieldValue(PydevExtensionInitializer.USER_EMAIL);
             String licenseProvider = getFieldValue(PydevExtensionInitializer.LIC_PROVIDER);
             
-            PydevPlugin.getDefault().saveLicense( email, license.trim(), licenseProvider );
+            PydevPlugin.getDefault().saveLicense( license.trim(), email, licenseProvider );
             
             setErrorMessage(null);
             String txt = "Pydev extensions";
