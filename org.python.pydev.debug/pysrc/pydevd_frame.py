@@ -76,7 +76,7 @@ class PyDBFrame:
             #return is not taken into account for breakpoint hit because we'd have a double-hit in this case
             #(one for the line and the other for the return).
             if event != 'return' and info.pydev_state != STATE_SUSPEND and breakpoint is not None \
-                and breakpoint.has_key(line):
+                and breakpoint.__contains__(line):
                 
                 #ok, hit breakpoint, now, we have to discover if it is a conditional breakpoint
                 # lets do the conditional stuff here

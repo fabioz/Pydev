@@ -8,7 +8,10 @@ try:
 except ImportError:
     from io import StringIO
 import sys #@Reimport
-import urllib
+try:
+    from urllib import quote
+except:
+    from urllib.parse import quote
 import threading
 import pydevd_resolver
 import traceback
@@ -157,12 +160,16 @@ def varToXML(v, name):
 
         #fix to work with unicode values
         try:
-            if isinstance(value, unicode):
-                value = value.encode('utf-8')
+            if not IS_PY3K:
+                if isinstance(value, unicode):
+                    value = value.encode('utf-8')
+            else:
+                if isinstance(value, bytes):
+                    value = value.encode('utf-8')
         except TypeError: #in java, unicode is a function
             pass
             
-        xmlValue = ' value="%s"' % (makeValidXmlValue(urllib.quote(value, '/>_= \t')))
+        xmlValue = ' value="%s"' % (makeValidXmlValue(quote(value, '/>_= \t')))
     else:
         xmlValue = ''
         
@@ -242,6 +249,9 @@ def findFrame(thread_id, frame_id):
     #for some reason unknown to me, python was holding a reference to the frame
     #if we didn't explicitly add those deletes (even after ending this context)
     #so, those dels are here for a reason (but still doesn't seem to fix everything)
+    
+    #Reason: sys.exc_info holding reference to frame that raises exception (so, other places
+    #need to call sys.exc_clear()) 
     del curFrame
         
     if frameFound is None: 

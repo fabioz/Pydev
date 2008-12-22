@@ -67,6 +67,11 @@ DONT_TRACE = {
               'pydevd_psyco_stub.py':1
               }
 
+if IS_PY3K:
+    #if we try to trace io.py it seems it can get halted (see http://bugs.python.org/issue4716)
+    DONT_TRACE['io.py'] = 1
+
+
 connected = False
 bufferStdOutToServer = False
 bufferStdErrToServer = False
@@ -88,7 +93,8 @@ class PyDBCommandThread(PyDBDaemonThread):
         time.sleep(5) #this one will only start later on (because otherwise we may not have any non-daemon threads
             
         run_traced = True
-        if sys.platform.startswith("java") and sys.hexversion <= 0x020201f0:
+        
+        if pydevd_vm_type.GetVmType() == pydevd_vm_type.PydevdVmType.JYTHON and sys.hexversion <= 0x020201f0:
             #don't run untraced threads if we're in jython 2.2.1 or lower
             #jython bug: if we start a thread and another thread changes the tracing facility
             #it affects other threads (it's not set only for the thread but globally) 
@@ -286,7 +292,7 @@ class PyDB:
                         
             for tId in self.RUNNING_THREAD_IDS.keys():
                 try:
-                    if not foundThreads.has_key(tId):
+                    if not foundThreads.__contains__(tId):
                         self.processThreadNotAlive(tId)
                 except:
                     sys.stderr.write('Error iterating through %s (%s) - %s\n' % (foundThreads, foundThreads.__class__, dir(foundThreads)))
@@ -426,7 +432,7 @@ class PyDB:
                     if DEBUG_TRACE_BREAKPOINTS > 0:
                         sys.stderr.write('Added breakpoint:%s - line:%s - func_name:%s\n' % (file, line, func_name))
                         
-                    if self.breakpoints.has_key(file):
+                    if self.breakpoints.__contains__(file):
                         breakDict = self.breakpoints[file]
                     else:
                         breakDict = {}
@@ -587,11 +593,11 @@ class PyDB:
                     sys.exit(0)
     
             filename, base = pydevd_file_utils.GetFilenameAndBase(frame)
-            #print 'trace_dispatch', base, frame.f_lineno, event, frame.f_code.co_name
     
-            if DONT_TRACE.has_key(base): #we don't want to debug threading or anything related to pydevd
+            if DONT_TRACE.__contains__(base): #we don't want to debug threading or anything related to pydevd
                 return None
     
+            #print('trace_dispatch', base, frame.f_lineno, event, frame.f_code.co_name)
             try:
                 #this shouldn't give an exception, but it could happen... (python bug)
                 #see http://mail.python.org/pipermail/python-bugs-list/2007-June/038796.html
@@ -701,7 +707,12 @@ class PyDB:
             
         PyDBCommandThread(debugger).start()
 
-        execfile(file, globals, locals) #execute the script
+        if not IS_PY3K:
+            execfile(file, globals, locals) #execute the script
+        else:
+            #We need to compile before so that the module name is correct
+            obj = compile(open(file).read(), file, 'exec')
+            exec(obj, globals, locals) #execute the script
 
 
 def processCommandLine(argv):

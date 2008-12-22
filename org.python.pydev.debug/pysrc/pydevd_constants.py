@@ -12,8 +12,8 @@ except:
     setattr(__builtin__, 'True', 1)
     setattr(__builtin__, 'False', 0)
 
-DEBUG_TRACE_LEVEL = 2
-DEBUG_TRACE_BREAKPOINTS = 2
+DEBUG_TRACE_LEVEL = -1
+DEBUG_TRACE_BREAKPOINTS = -1
 
 class DebugInfoHolder:
     #we have to put it here because it can be set through the command line (so, the 
@@ -47,6 +47,15 @@ try:
 except AttributeError:
     pass #Not all versions have sys.version_info
 
+
+#=======================================================================================================================
+# Jython?
+#=======================================================================================================================
+try:
+    import org.python.core.PyDictionary
+    org.python.core.PyDictionary.__contains__ = org.python.core.PyDictionary.has_key
+except ImportError:
+    pass #That's OK
 
 #=======================================================================================================================
 # NextId

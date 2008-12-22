@@ -17,9 +17,8 @@ def SetupType(str=None):
         PydevdVmType.vm_type = str
         return
     
-    try:
-        import java.lang #@UnresolvedImport @UnusedImport
-        PydevdVmType.vm_type = 'jython'
-    except:
-        PydevdVmType.vm_type = 'python'
+    if sys.platform.startswith("java"):
+        PydevdVmType.vm_type = PydevdVmType.JYTHON
+    else:
+        PydevdVmType.vm_type = PydevdVmType.PYTHON
         

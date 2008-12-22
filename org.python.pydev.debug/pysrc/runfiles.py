@@ -14,6 +14,13 @@ except:
     setattr(__builtin__, 'True', 1)
     setattr(__builtin__, 'False', 0)
 
+
+try:
+    xrange
+except:
+    #Python 3k does not have it
+    xrange = range
+    
 #=======================================================================================================================
 # parse_cmdline
 #=======================================================================================================================
@@ -148,7 +155,7 @@ class PydevTestRunner:
     def __get_module_from_str(self, modname):
         """ Import the module in the given import path.
             * Returns the "final" module, so importing "coilib40.subject.visu" 
-            return the "visu" module, not the "coilib40" as returned by __import__ """
+            returns the "visu" module, not the "coilib40" as returned by __import__ """
         try:
             mod = __import__( modname )
             for part in modname.split('.')[1:]:
