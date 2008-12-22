@@ -333,8 +333,9 @@ class coverage:
     
     def help(self, error=None):     #pragma: no cover
         if error:
-            sys.stdout.write('%s\n\n' % (error,))
-        sys.stdout.write('%s\n' % __doc__)
+            print error
+            print
+        print __doc__
         sys.exit(1)
 
     def command_line(self, argv, help_fn=None):
@@ -595,16 +596,11 @@ class coverage:
             lines, excluded_lines, line_map = self.find_executable_statements(
                 source.read(), exclude=self.exclude_re
                 )
-        except SyntaxError:
-            import traceback;traceback.print_exc()
+        except SyntaxError, synerr:
             raise CoverageException(
-                "Couldn't parse '%s' as Python source" %
-                    (filename, )
+                "Couldn't parse '%s' as Python source: '%s' at line %d" %
+                    (filename, synerr.msg, synerr.lineno)
                 )            
-#            raise CoverageException(
-#                "Couldn't parse '%s' as Python source: '%s' at line %d" %
-#                    (filename, synerr.msg, synerr.lineno)
-#                )            
         source.close()
         result = filename, lines, excluded_lines, line_map
         self.analysis_cache[morf] = result
@@ -851,8 +847,8 @@ class coverage:
             fmt_coverage = fmt_coverage + "@   %s"
         if not file:
             file = sys.stdout
-        file.write('%s\n' % (header,))
-        file.write('%s\n' % ("-" * len(header)))
+        print >>file, header
+        print >>file, "-" * len(header)
         total_statements = 0
         total_executed = 0
         for morf in morfs:
@@ -868,7 +864,7 @@ class coverage:
                 args = (morf, n, m, pc)
                 if show_missing:
                     args = args + (readable,)
-                file.write('%s\n' % (fmt_coverage % args))
+                print >>file, fmt_coverage % args
                 total_statements = total_statements + n
                 total_executed = total_executed + m
             except KeyboardInterrupt:                       #pragma: no cover
@@ -876,9 +872,9 @@ class coverage:
             except:
                 if not ignore_errors:
                     typ, msg = sys.exc_info()[:2]
-                    file.write('%s\n' % (fmt_err % (morf, typ, msg)))
+                    print >>file, fmt_err % (morf, typ, msg)
         if len(morfs) > 1:
-            file.write('%s\n' % ("-" * len(header)))
+            print >>file, "-" * len(header)
             if total_statements > 0:
                 pc = 100.0 * total_executed / total_statements
             else:
@@ -886,7 +882,7 @@ class coverage:
             args = ("TOTAL", total_statements, total_executed, pc)
             if show_missing:
                 args = args + ("",)
-            file.write('%s\n' % (fmt_coverage % args))
+            print >>file, fmt_coverage % args
 
     # annotate(morfs, ignore_errors).
 
@@ -999,7 +995,7 @@ if __name__ == '__main__':
     global cache_location #let's set the cache location now...
     cache_location = sys.argv[1] #first parameter is the cache location.
     sys.argv.remove(cache_location)
-    sys.stdout.write('%s\n' % (cache_location,))
+    print cache_location
     
     global the_coverage
     # Singleton object.
