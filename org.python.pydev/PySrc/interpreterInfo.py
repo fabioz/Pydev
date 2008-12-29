@@ -13,8 +13,14 @@ all internal are separated by |
 '''
 import sys
 import os
-if sys.platform.startswith("java"):
-    exec ('True, False = 1,0') #That's for supporting python 3k and jython
+
+
+try:
+    #Just check if False and True are defined (depends on version, not whether it's jython/python)
+    False
+    True
+except:
+    exec ('True, False = 1,0') #An exec is used so that python 3k does not give a syntax error
     
 import time
 

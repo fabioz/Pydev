@@ -61,12 +61,18 @@ public class SimpleJythonRunner extends SimpleRunner{
             String javaLoc = javaExecutable.getCanonicalPath();
             String[] s;
             
+            //In Jython 2.5b0, if we don't set python.home, it won't be able to calculate the correct PYTHONPATH
+            //(see http://bugs.jython.org/issue1214 )
+            
+            String pythonHome = new File(jythonJar).getParent().toString();
+            
             if(additionalPythonpath != null){
                 jythonJar += SimpleRunner.getPythonPathSeparator();
                 jythonJar += additionalPythonpath;
                 s = new String[]{
                         javaLoc,
                         "-Dpython.path="+ additionalPythonpath,
+                        "-Dpython.home="+ pythonHome,
                         "-classpath",
                         jythonJar,
                         "org.python.util.jython" 
@@ -75,6 +81,7 @@ public class SimpleJythonRunner extends SimpleRunner{
             }else{
                 s = new String[]{
                     javaLoc,
+                    "-Dpython.home="+ pythonHome,
                     "-classpath",
                     jythonJar,
                     "org.python.util.jython" 
