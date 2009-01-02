@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
@@ -71,7 +72,7 @@ public abstract class SimpleRunner {
      * @return the system environment with the PYTHONPATH env variable added for a given project (if it is null, return it with the
      * default PYTHONPATH added).
      */
-    public String[] getEnvironment(IPythonNature pythonNature, String interpreter) throws CoreException {
+    public String[] getEnvironment(IPythonNature pythonNature, String interpreter, IInterpreterManager manager) throws CoreException {
         if(pythonNature == null){ //no associated nature in the project... just get the default env
             return getDefaultSystemEnvAsArray();
         }
@@ -80,8 +81,8 @@ public abstract class SimpleRunner {
         String pythonPathEnvStr = "";
         try {
             
-            if (PydevPlugin.getInterpreterManager(pythonNature).hasInfoOnInterpreter(interpreter)){ //check if we have a default interpreter.
-                pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter);
+            if (manager.hasInfoOnInterpreter(interpreter)){ //check if we have a default interpreter.
+                pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter, manager);
             }
         } catch (Exception e) {
             PydevPlugin.log(e);
@@ -214,7 +215,7 @@ public abstract class SimpleRunner {
      * @param interpreter this is the interpreter to be used to create the env.
      * @return a string that can be used as the PYTHONPATH env variable
      */
-    public static String makePythonPathEnvString(IPythonNature pythonNature, String interpreter) {
+    public static String makePythonPathEnvString(IPythonNature pythonNature, String interpreter, IInterpreterManager manager) {
         if(pythonNature == null){
             return makePythonPathEnvFromPaths(new ArrayList<String>()); //no pythonpath can be gotten (set to empty, so that the default is gotten)
         }
@@ -235,7 +236,7 @@ public abstract class SimpleRunner {
                     "please configure it correcly (please check the pydev faq at \n" +
                     "http://pydev.sf.net/faq.html for better information on how to do it).");
         }
-        paths = pythonPathNature.getCompleteProjectPythonPath(interpreter);
+        paths = pythonPathNature.getCompleteProjectPythonPath(interpreter, manager);
     
         return makePythonPathEnvFromPaths(paths);
     }
@@ -321,7 +322,8 @@ public abstract class SimpleRunner {
         Process process = null;
         try {
             monitor.setTaskName("Making pythonpath environment..."+executionString);
-            String[] envp = getEnvironment(PythonNature.getPythonNature(project), null); //should get the environment for the default interpreter and the given project
+            PythonNature nature = PythonNature.getPythonNature(project);
+            String[] envp = getEnvironment(nature, nature.getProjectInterpreter(), nature.getRelatedInterpreterManager()); 
             monitor.setTaskName("Making exec..."+executionString);
             if(workingDir != null){
                 if(!workingDir.isDirectory()){

@@ -120,7 +120,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             paths = submittedPaths;
             
             try {
-                JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
+                final JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
+                final PythonNature nature = PythonNature.this;
                 try {
                     ICodeCompletionASTManager tempAstManager = astManager;
                     if (tempAstManager == null) {
@@ -128,7 +129,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     }
                     synchronized(tempAstManager){
                         astManager = tempAstManager;
-                        tempAstManager.setProject(getProject(), PythonNature.this, false); //it is a new manager, so, remove all deltas
+                        tempAstManager.setProject(getProject(), nature, false); //it is a new manager, so, remove all deltas
 
                         //begins task automatically
                         tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
@@ -137,7 +138,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
                             try {
-                                observer.notifyProjectPythonpathRestored(PythonNature.this, jobProgressComunicator);
+                                observer.notifyProjectPythonpathRestored(nature, jobProgressComunicator);
                             } catch (Exception e) {
                                 //let's keep it safe
                                 PydevPlugin.log(e);
@@ -149,7 +150,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
 
                 initializationFinished = true;
-                PythonNatureListenersManager.notifyPythonPathRebuilt(project, PythonNature.this.pythonPathNature.getCompleteProjectPythonPath(null)); //default
+                PythonNatureListenersManager.notifyPythonPathRebuilt(project, 
+                        nature.pythonPathNature.getCompleteProjectPythonPath(nature.getProjectInterpreter(), nature.getRelatedInterpreterManager())); 
                 //end task
                 jobProgressComunicator.done();
             }catch (Exception e) {

@@ -13,6 +13,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -80,9 +81,13 @@ public class PyRefactoring extends AbstractPyRefactoring {
 
         AbstractShell pytonShell;
         try {
-            pytonShell = AbstractShell.getServerShell(request.nature, AbstractShell.OTHERS_SHELL);
+            IPythonNature nature = request.nature;
+            pytonShell = AbstractShell.getServerShell(nature, AbstractShell.OTHERS_SHELL);
             try {
-                pytonShell.changePythonPath(request.nature.getPythonPathNature().getCompleteProjectPythonPath(null)); //default
+                IInterpreterManager manager = nature.getRelatedInterpreterManager();
+                pytonShell.changePythonPath(nature.getPythonPathNature().getCompleteProjectPythonPath(
+                        nature.getProjectInterpreter(), manager)); //default
+                
                 pytonShell.write(str);
      
                 return URLDecoder.decode(pytonShell.read(request.getMonitor()), "UTF-8");

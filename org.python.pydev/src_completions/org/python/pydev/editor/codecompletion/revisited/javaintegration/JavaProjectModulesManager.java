@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
@@ -215,7 +216,7 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         return EMPTY_STRINTG_ARRAY;
     }
 
-    public List<String> getCompletePythonPath(String interpreter) {
+    public List<String> getCompletePythonPath(String interpreter, IInterpreterManager manager) {
         return new ArrayList<String>();
     }
 

@@ -9,6 +9,7 @@ Interpreter can be configured on a per-project basis
 Jython 2.5b0 properly supported
 Find with builtins working for Jython
 Fixes in Jython debugger
+Run configuration can run as python/jython even if it doesn't match the interpreter configured for the project
 
 
 

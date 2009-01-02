@@ -128,9 +128,10 @@ final class ChooseProcessTypeDialog extends Dialog {
             IProject project = this.activeEditor.getProject();
             PythonNature nature = PythonNature.getPythonNature(project);
             natures.add(nature);
+            IInterpreterManager relatedInterpreterManager = nature.getRelatedInterpreterManager();
             this.pythonpath = new ArrayList<String>(nature.getPythonPathNature().getCompleteProjectPythonPath(
-                    nature.getRelatedInterpreterManager().getDefaultInterpreter()));
-            this.interpreterManager = nature.getRelatedInterpreterManager();
+                    relatedInterpreterManager.getDefaultInterpreter(), relatedInterpreterManager));
+            this.interpreterManager = relatedInterpreterManager;
             
         }else if(checkboxPython.isEnabled() && checkboxPython.getSelection()){
             localInterpreterManager = PydevPlugin.getPythonInterpreterManager();
@@ -152,7 +153,7 @@ final class ChooseProcessTypeDialog extends Dialog {
                         if(nature.getRelatedInterpreterManager() == localInterpreterManager){
                             natures.add(nature);
                             pythonpath.addAll(nature.getPythonPathNature().
-                                    getCompleteProjectPythonPath(defaultInterpreter));
+                                    getCompleteProjectPythonPath(defaultInterpreter, localInterpreterManager));
                         }
                     }
                 }catch(Exception e){

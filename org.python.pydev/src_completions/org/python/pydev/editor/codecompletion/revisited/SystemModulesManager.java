@@ -100,15 +100,11 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
         return super.resolveModule(full);
     }
 
-    public List<String> getCompletePythonPath(String interpreter) {
-        return super.getPythonPath();
-   }
     
-    public List<String> getCompletePythonPath(String interpreter, IPythonNature nature2) {
+    public List<String> getCompletePythonPath(String interpreter, IInterpreterManager manager) {
         if(interpreter == null){
-            return super.getPythonPath();
+            throw new RuntimeException("The interpreter must be specified (received null)");
         }else{
-            IInterpreterManager manager = nature2.getRelatedInterpreterManager();
             IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
             return info.getPythonPath();
         }

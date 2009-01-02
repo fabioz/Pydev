@@ -32,7 +32,6 @@ import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimpleRunner;
 
 /**
@@ -71,7 +70,7 @@ public class PythonRunner {
      */
     public static void run(final PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
         //let's check if the interpreter is valid.
-        final IInterpreterManager interpreterManager = PythonNature.getPythonNature(config.project).getRelatedInterpreterManager();
+        final IInterpreterManager interpreterManager = config.getRelatedInterpreterManager();
         if(!interpreterManager.hasInfoOnInterpreter(config.interpreterLocation)){
             final Display display = Display.getDefault();
             display.syncExec(new Runnable(){

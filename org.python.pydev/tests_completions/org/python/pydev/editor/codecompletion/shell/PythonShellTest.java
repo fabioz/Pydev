@@ -84,7 +84,8 @@ public class PythonShellTest extends CodeCompletionTestsBase{
      * @return
      */
     private List<String> getPythonpath() {
-        return nature.getAstManager().getModulesManager().getCompletePythonPath(null); //default
+        return nature.getAstManager().getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
+                nature.getRelatedInterpreterManager()); 
     }
     
 

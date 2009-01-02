@@ -121,9 +121,13 @@ public class CompiledModule extends AbstractModule{
         if(TRACE_COMPILED_MODULES){
             PydevPlugin.log(IStatus.INFO, "Compiled modules: getting info for:"+name, null);
         }
-        AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
+        final IPythonNature nature = manager.getNature();
+        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
-            Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, manager.getModulesManager().getCompletePythonPath(null)); //default
+            Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, 
+                    manager.getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
+                            nature.getRelatedInterpreterManager())); //default
+            
             String fPath = completions.o1;
             if(!fPath.equals("None")){
                 this.file = new File(fPath);
@@ -139,8 +143,8 @@ public class CompiledModule extends AbstractModule{
             }
             ArrayList<IToken> array = new ArrayList<IToken>();
             
-            for (Iterator iter = completions.o2.iterator(); iter.hasNext();) {
-                String[] element = (String[]) iter.next();
+            for (Iterator<String[]> iter = completions.o2.iterator(); iter.hasNext();) {
+                String[] element = iter.next();
                 //let's make this less error-prone.
                 try {
                     String o1 = element[0]; //this one is really, really needed
@@ -235,15 +239,18 @@ public class CompiledModule extends AbstractModule{
 
         if(COMPILED_MODULES_ENABLED){
             try {
-                AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
+                final IPythonNature nature = manager.getNature();
+                final AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
                 synchronized(shell){
                     String act = name+"."+state.getActivationToken();
-                    List<String[]> completions = shell.getImportCompletions(act, manager.getModulesManager().getCompletePythonPath(null)).o2;//default
+                    List<String[]> completions = shell.getImportCompletions(act, 
+                            manager.getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
+                                    nature.getRelatedInterpreterManager())).o2;
                     
                     ArrayList<IToken> array = new ArrayList<IToken>();
                     
-                    for (Iterator iter = completions.iterator(); iter.hasNext();) {
-                        String[] element = (String[]) iter.next(); 
+                    for (Iterator<String[]> iter = completions.iterator(); iter.hasNext();) {
+                        String[] element = iter.next(); 
                         if(element.length >= 4){//it might be a server error
                             IToken t = new CompiledToken(element[0], element[1], element[2], act, Integer.parseInt(element[3]));
                             array.add(t);
@@ -318,7 +325,9 @@ public class CompiledModule extends AbstractModule{
         
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
-            Tuple<String[],int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager().getCompletePythonPath(null)); //default
+            Tuple<String[],int[]> def = shell.getLineCol(this.name, token, 
+                    nature.getAstManager().getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
+                            nature.getRelatedInterpreterManager())); //default
             if(def == null){
                 if(TRACE_COMPILED_MODULES){
                     System.out.println("CompiledModule.findDefinition:"+token+" = empty");

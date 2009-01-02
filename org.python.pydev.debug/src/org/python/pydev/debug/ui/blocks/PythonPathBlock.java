@@ -8,6 +8,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleRunner;
@@ -47,7 +49,14 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
     public void initializeFrom(ILaunchConfiguration configuration) {
 
         try {
-            String pythonPath = PythonRunnerConfig.getPythonpathFromConfiguration(configuration);
+            String id = configuration.getType().getIdentifier();
+            IInterpreterManager manager;
+            if(Constants.ID_JYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id) || Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)){
+                manager = PydevPlugin.getJythonInterpreterManager();
+            }else{
+                manager = PydevPlugin.getPythonInterpreterManager();
+            }
+            String pythonPath = PythonRunnerConfig.getPythonpathFromConfiguration(configuration, manager);
 
             fPythonPathList.removeAll();
             java.util.List<String> paths = SimpleRunner.splitPythonpath(pythonPath);

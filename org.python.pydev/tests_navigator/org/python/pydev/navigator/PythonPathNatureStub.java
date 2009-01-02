@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 
@@ -17,7 +18,7 @@ public class PythonPathNatureStub implements IPythonPathNature{
         this.projectSourcePathSet = projectSourcePathSet; 
     }
 
-    public List getCompleteProjectPythonPath(String interpreter) {
+    public List<String> getCompleteProjectPythonPath(String interpreter, IInterpreterManager manager) {
         throw new RuntimeException("Not impl");
         
     }

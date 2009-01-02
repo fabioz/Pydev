@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
@@ -78,12 +79,12 @@ public class PythonPathNature implements IPythonPathNature {
      * This includes the pythonpath for the project, all the referenced projects and the
      * system.
      */
-    public List<String> getCompleteProjectPythonPath(String interpreter) {
+    public List<String> getCompleteProjectPythonPath(String interpreter, IInterpreterManager manager) {
         IModulesManager projectModulesManager = getProjectModulesManager();
         if(projectModulesManager == null){
             return null;
         }
-        return projectModulesManager.getCompletePythonPath(interpreter);
+        return projectModulesManager.getCompletePythonPath(interpreter, manager);
     }
     
     private IModulesManager getProjectModulesManager(){

@@ -86,8 +86,12 @@ public class PythonRunnerConfig {
         return this.run.equals(RUN_UNITTEST) || this.run.equals(RUN_JYTHON_UNITTEST);
     }
     
+    public static boolean isJython(String run){
+        return run.equals(RUN_JYTHON) || run.equals(RUN_JYTHON_UNITTEST);
+    }
+    
     public boolean isJython(){
-        return this.run.equals(RUN_JYTHON) || this.run.equals(RUN_JYTHON_UNITTEST);
+        return isJython(this.run);
     }
     
     public boolean isFile() throws CoreException{
@@ -210,8 +214,7 @@ public class PythonRunnerConfig {
      * @throws CoreException if unable to retrieve the launch configuration attribute or if unable to 
      * resolve the default interpreter.
      */
-    public static String getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature) throws InvalidRunException, CoreException {
-        IInterpreterManager interpreterManager = PydevPlugin.getInterpreterManager(nature);
+    public static String getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature, IInterpreterManager interpreterManager) throws InvalidRunException, CoreException {
         String location = conf.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         
         if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
@@ -243,8 +246,7 @@ public class PythonRunnerConfig {
      * file system
      * @throws InvalidRunException 
      */
-    public static IPath getInterpreter(ILaunchConfiguration configuration, IPythonNature nature) throws CoreException, InvalidRunException {
-        String location = getInterpreterLocation(configuration, nature);
+    private IPath getInterpreter(String location, ILaunchConfiguration configuration, IPythonNature nature) throws CoreException, InvalidRunException {
         if (location == null) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get python interpreter for run", null));
         } else {
@@ -285,14 +287,14 @@ public class PythonRunnerConfig {
      * @throws CoreException
      * @throws InvalidRunException 
      */
-    public static String getPythonpathFromConfiguration(ILaunchConfiguration conf) throws CoreException, InvalidRunException{
+    public static String getPythonpathFromConfiguration(ILaunchConfiguration conf, IInterpreterManager manager) throws CoreException, InvalidRunException{
         IProject p = getProjectFromConfiguration(conf);
         PythonNature pythonNature = PythonNature.getPythonNature(p);
         if (pythonNature == null) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Project should have a python nature: " + p.getName(), null));
         }
-        String l = getInterpreterLocation(conf, pythonNature);
-        return SimpleRunner.makePythonPathEnvString(pythonNature, l);
+        String l = getInterpreterLocation(conf, pythonNature, manager);
+        return SimpleRunner.makePythonPathEnvString(pythonNature, l, manager);
     }
     
     public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run) throws CoreException, InvalidRunException {
@@ -319,24 +321,6 @@ public class PythonRunnerConfig {
             throw e;
         }
         
-        if(pythonNature.isJython()){
-            if(!run.equals(RUN_JYTHON) && !run.equals(RUN_JYTHON_UNITTEST)){
-                throw new InvalidRunException(StringUtils.format(
-                        "Cannot make a '%s' for the project '%s' because the project is configured as %s\n\n" +
-                        "To fix this, configure '%s' as python or run it as jython", 
-                        run, project.getName(), pythonNature.getVersion(), project.getName()));
-            }
-        }else if(pythonNature.isPython()){
-            if(!run.equals(RUN_REGULAR) && !run.equals(RUN_COVERAGE) && !run.equals(RUN_UNITTEST)){
-                throw new InvalidRunException(StringUtils.format(
-                        "Cannot make a '%s' for the project '%s' because the project is configured as %s\n\n" +
-                        "To fix this, configure '%s' as jython or run it as python", 
-                        run, project.getName(), pythonNature.getVersion(),  project.getName()));
-            }
-        }
-
-        
-        
         //now, go on configuring other things
         this.configuration = conf;
         this.run = run;
@@ -351,18 +335,25 @@ public class PythonRunnerConfig {
         workingDirectory = workingPath == null ? null : workingPath.toFile();
         acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
         
-        interpreterLocation = getInterpreterLocation(conf, pythonNature);
-        interpreter = getInterpreter(conf, pythonNature);
+        interpreterLocation = getInterpreterLocation(conf, pythonNature, this.getRelatedInterpreterManager());
+        interpreter = getInterpreter(interpreterLocation, conf, pythonNature);
         
         //make the environment
         ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         envp = launchManager.getEnvironment(conf);
+        IInterpreterManager manager;
+        if(isJython()){
+            manager = PydevPlugin.getJythonInterpreterManager();
+        }else{
+            manager = PydevPlugin.getPythonInterpreterManager();
+        }
+        
         
         if(envp == null){
             //ok, the user has done nothing to the environment, just get all the default environment and
             //put the pythonpath in it
-            envp = new SimplePythonRunner().getEnvironment(pythonNature, interpreterLocation);
-            pythonpathUsed = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation);
+            envp = new SimplePythonRunner().getEnvironment(pythonNature, interpreterLocation, manager);
+            pythonpathUsed = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation, manager);
         }else{
             boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
 
@@ -372,7 +363,7 @@ public class PythonRunnerConfig {
 
             if(!specifiedPythonpath(envMap)){
                 
-                String pythonpath = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation);
+                String pythonpath = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation, manager);
                 pythonpathUsed = pythonpath; 
                 //override it if it was the ambient pythonpath
                 for (int i = 0; i < envp.length; i++) {
@@ -650,6 +641,10 @@ public class PythonRunnerConfig {
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public IInterpreterManager getRelatedInterpreterManager() {
+        return isJython()?PydevPlugin.getJythonInterpreterManager():PydevPlugin.getPythonInterpreterManager();
     }
 
 }

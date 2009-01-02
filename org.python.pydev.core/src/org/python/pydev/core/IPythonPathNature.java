@@ -25,10 +25,14 @@ public interface IPythonPathNature {
 
     /**
      * @param interpreter: this is the interpreter that should be used for getting the pythonpathString interpreter
-     *                     (if it is null, the default interpreter is used)
+     *     (if it is null, the default interpreter is used)
+     *     
+     * @param manager this is the interpreter manager that contains the interpreter passed. It's needed so that we
+     *   can get the actual pythonpath for the interpreter passed (needed for the system pythonpath info).
+     *   
      * @return the pythonpath (source and externals) for the project as a list of strings
      */
-    public List<String> getCompleteProjectPythonPath(String interpreter);
+    public List<String> getCompleteProjectPythonPath(String interpreter, IInterpreterManager info);
 
     /**
      * @return the pythonpath (source and externals) as a string (paths separated by | )

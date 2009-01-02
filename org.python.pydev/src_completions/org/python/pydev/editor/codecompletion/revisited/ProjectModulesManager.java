@@ -523,13 +523,13 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getCompletePythonPath()
      */
-    public List<String> getCompletePythonPath(String interpreter){
+    public List<String> getCompletePythonPath(String interpreter, IInterpreterManager manager){
         List<String> l = new ArrayList<String>();
         IModulesManager[] managersInvolved = getManagersInvolved(true);
         for (IModulesManager m:managersInvolved) {
             if(m instanceof ISystemModulesManager){
                 ISystemModulesManager systemModulesManager = (ISystemModulesManager) m;
-                l.addAll(systemModulesManager.getCompletePythonPath(interpreter, nature));
+                l.addAll(systemModulesManager.getCompletePythonPath(interpreter, manager));
                 
             }else{
                 PythonPathHelper h = (PythonPathHelper)m.getPythonPathHelper();
