@@ -10,25 +10,22 @@ except ImportError:
     IS_PYTHON3K = 1
 
 try:
-    import java.lang
+    True 
+    False 
+except NameError: 
+    #If it's not defined, let's define it now.
     setattr(__builtin__, 'True', 1) #Python 3.0 does not accept __builtin__.True = 1 in its syntax
     setattr(__builtin__, 'False', 0)
+    
+try:
+    from java.lang import Thread
     IS_JYTHON = True
     SERVER_NAME = 'jycompletionserver'
-    from java.lang import Thread
     import jyimportsTipper #as importsTipper #changed to be backward compatible with 1.5
     importsTipper = jyimportsTipper
 
 except ImportError:
-    
     #it is python
-    try:
-        IS_JYTHON = False
-    except NameError:
-        #it is an early version of python
-        setattr(__builtin__, 'True', 1) #Python 3.0
-        setattr(__builtin__, 'False', 0)
-        
     IS_JYTHON = False
     SERVER_NAME = 'pycompletionserver'
     from threading import Thread
