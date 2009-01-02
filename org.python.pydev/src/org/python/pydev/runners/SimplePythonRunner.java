@@ -44,8 +44,8 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @return a string with the output of the process (stdout)
      */
-    public Tuple<String,String> runAndGetOutputFromPythonScript(String script, String[] args, File workingDir, IProject project) {
-        String[] parameters = addInterpreterToArgs(script, args);
+    public Tuple<String,String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args, File workingDir, IProject project) {
+        String[] parameters = addInterpreterToArgs(interpreter, script, args);
         return runAndGetOutput(parameters, workingDir, project, new NullProgressMonitor());
     }
 
@@ -54,8 +54,8 @@ public class SimplePythonRunner extends SimpleRunner {
      * @param args the arguments to be passed to the script
      * @return the string with the command to run the passed script with jython
      */
-    public static String[] makeExecutableCommandStr(String script, String[] args) {
-        String[] s = addInterpreterToArgs(script, args);
+    public static String[] makeExecutableCommandStr(String interpreter, String script, String[] args) {
+        String[] s = addInterpreterToArgs(interpreter, script, args);
         
         List<String> asList = new ArrayList<String>(Arrays.asList(s));
         asList.addAll(Arrays.asList(args));
@@ -63,8 +63,7 @@ public class SimplePythonRunner extends SimpleRunner {
         return asList.toArray(new String[0]);
     }
 
-    private static String[] addInterpreterToArgs(String script, String[] args) {
-        String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
+    private static String[] addInterpreterToArgs(String interpreter, String script, String[] args) {
         return preparePythonCallParameters(interpreter, script, args);
     }
 

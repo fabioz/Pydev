@@ -176,29 +176,33 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     public IPythonNature getNature() {
         return nature;
     }
-    
-    public ISystemModulesManager getSystemModulesManager(){
-        return getSystemModulesManager(null);
-    }
-    
+
     /** 
      * @param defaultSelectedInterpreter 
      * @see org.python.pydev.core.IProjectModulesManager#getSystemModulesManager()
      */
-    public ISystemModulesManager getSystemModulesManager(String defaultSelectedInterpreter){
+    public ISystemModulesManager getSystemModulesManager(){
         if(nature == null){
             PydevPlugin.log("Nature still not set");
             return null; //still not set (initialization)
         }
+        String interpreter = null;
+        try {
+            interpreter = nature.getProjectInterpreter();
+        } catch (Exception e1) {
+            PydevPlugin.log(e1);
+            return null;
+        }
+        
         IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
-        if(defaultSelectedInterpreter == null){
+        if(interpreter == null){
             try {
-                defaultSelectedInterpreter = iMan.getDefaultInterpreter();
+                interpreter = iMan.getDefaultInterpreter();
             } catch (NotConfiguredInterpreterException e) {
                 return null; //not configured
             }
         }
-        InterpreterInfo info = (InterpreterInfo) iMan.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
+        InterpreterInfo info = (InterpreterInfo) iMan.getInterpreterInfo(interpreter, new NullProgressMonitor());
         if(info == null){
             PydevPlugin.log("Info still not set");
             return null; //may happen during initialization
@@ -378,16 +382,13 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         }
     }
 
-    public String[] getBuiltins() {
-        return getBuiltins(null);
-    }
 
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getBuiltins()
      */
-    public String[] getBuiltins(String defaultSelectedInterpreter) {
+    public String[] getBuiltins() {
         String[] builtins = null;
-        ISystemModulesManager systemModulesManager = getSystemModulesManager(defaultSelectedInterpreter);
+        ISystemModulesManager systemModulesManager = getSystemModulesManager();
         if(systemModulesManager != null){
             builtins = systemModulesManager.getBuiltins();
         }
@@ -411,7 +412,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
             }
         }
         ArrayList<IModulesManager> list = new ArrayList<IModulesManager>();
-        ISystemModulesManager systemModulesManager = getSystemModulesManager(null);
+        ISystemModulesManager systemModulesManager = getSystemModulesManager();
         if(systemModulesManager == null){
             //may happen in initialization
 //            PydevPlugin.log("System modules manager still not available (still initializing or not set).");

@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -44,11 +43,13 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
     @Override
     protected void doRestore(String defaultSelectedInterpreter, IProgressMonitor monitor) {
         IInterpreterManager iMan = getInterpreterManager();
-        iMan.restorePythopathFor(defaultSelectedInterpreter, monitor);
+        iMan.restorePythopathFor(monitor);
         
         //we also need to restart our code-completion shell after doing that, as we may have a new classpath,
         //and because of some jython bugs, just adding info to the sys.path later on as in python, is not enough.
-        AbstractShell.stopServerShell(IPythonNature.JYTHON_RELATED, AbstractShell.COMPLETION_SHELL);
+        for(String interpreter:iMan.getInterpreters()){
+            AbstractShell.stopServerShell(interpreter, AbstractShell.COMPLETION_SHELL);
+        }
     }
 
     @Override

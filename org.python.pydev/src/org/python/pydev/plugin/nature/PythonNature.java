@@ -103,26 +103,21 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @author Fabio
      */
     protected class RebuildPythonNatureModules extends Job {
-        private String submittedPaths;
-        private String submittedInterpreter;
+        private volatile String submittedPaths;
 
         protected RebuildPythonNatureModules() {
           super("Python Nature: rebuilding modules");
         }
     
-        public synchronized void setParams(String paths, String defaultSelectedInterpreter) {
+        public synchronized void setParams(String paths) {
             submittedPaths = paths;
-            submittedInterpreter = defaultSelectedInterpreter;
         }
 
         @SuppressWarnings("unchecked")
         protected IStatus run(IProgressMonitor monitorArg) {
 
-            String paths, defaultSelectedInterpreter;
-            synchronized (this) {
-              paths = submittedPaths;
-              defaultSelectedInterpreter = submittedInterpreter;
-            }
+            String paths;
+            paths = submittedPaths;
             
             try {
                 JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Rebuilding modules", IProgressMonitor.UNKNOWN, this);
@@ -136,13 +131,13 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                         tempAstManager.setProject(getProject(), PythonNature.this, false); //it is a new manager, so, remove all deltas
 
                         //begins task automatically
-                        tempAstManager.changePythonPath(paths, project, jobProgressComunicator, defaultSelectedInterpreter);
+                        tempAstManager.changePythonPath(paths, project, jobProgressComunicator);
                         saveAstManager();
 
                         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
                         for (IInterpreterObserver observer : participants) {
                             try {
-                                observer.notifyProjectPythonpathRestored(PythonNature.this, jobProgressComunicator, defaultSelectedInterpreter);
+                                observer.notifyProjectPythonpathRestored(PythonNature.this, jobProgressComunicator);
                             } catch (Exception e) {
                                 //let's keep it safe
                                 PydevPlugin.log(e);
@@ -221,6 +216,18 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
         return pythonProjectVersion;
     }
+    
+    /**
+     * constant that stores the name of the python version we are using for the project with this nature
+     */
+    private static QualifiedName pythonProjectInterpreter = null;
+    static QualifiedName getPythonProjectInterpreterQualifiedName() {
+        if(pythonProjectInterpreter == null){
+            //we need to do this because the plugin ID may not be known on 'static' time
+            pythonProjectInterpreter = new QualifiedName(PydevPlugin.getPluginID(), "PYTHON_PROJECT_INTERPRETER");
+        }
+        return pythonProjectInterpreter;
+    }
 
     /**
      * This method is called only when the project has the nature added..
@@ -270,7 +277,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                             if(monitor.isCanceled()){
                                 return Status.OK_STATUS;
                             }
-                            init(null, null, monitor);
+                            init(null, null, monitor, null);
                             synchronized (jobs) {
                                 if(jobs.get(project) == this){
                                     jobs.remove(project);
@@ -295,7 +302,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             IFile file = (IFile)((FileEditorInput)element).getAdapter(IFile.class);
             if (file != null){
                 try {
-                    return PythonNature.addNature(file.getProject(), null, null, null);
+                    return PythonNature.addNature(file.getProject(), null, null, null, null);
                 } catch (CoreException e) {
                     PydevPlugin.log(e);
                 }
@@ -360,12 +367,16 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * 
      * @param projectPythonpath: @see {@link IPythonPathNature#setProjectSourcePath(String)}
      */
-    public static synchronized IPythonNature addNature(IProject project, IProgressMonitor monitor, String version, String projectPythonpath) throws CoreException {
+    public static synchronized IPythonNature addNature(IProject project, IProgressMonitor monitor, String version, 
+            String projectPythonpath, String projectInterpreter) throws CoreException {
         if (project == null || !project.isOpen()) {
             return null;
         }
         if(monitor == null){
             monitor = new NullProgressMonitor();
+        }
+        if(projectInterpreter == null){
+            projectInterpreter = IPythonNature.DEFAULT_INTERPRETER;
         }
 
         IProjectDescription desc = project.getDescription();
@@ -401,7 +412,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         if (n instanceof PythonNature) {
             PythonNature nature = (PythonNature) n;
             //call initialize always - let it do the control.
-            nature.init(version, projectPythonpath, monitor);
+            nature.init(version, projectPythonpath, monitor, projectInterpreter);
             return nature;
         }
         return null;
@@ -428,17 +439,18 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @param projectPythonpath this is the project python path to be used (may be null)  -- if not null, this nature is being created
      * @param version this is the version (project type) to be used (may be null) -- if not null, this nature is being created
      * @param monitor 
+     * @param interpreter 
      */
     @SuppressWarnings("unchecked")
-    private void init(String version, String projectPythonpath, IProgressMonitor monitor) {
+    private void init(String version, String projectPythonpath, IProgressMonitor monitor, String interpreter) {
         if(version != null || projectPythonpath != null){
             this.getStore().startInit();
             try {
                 if(projectPythonpath != null){
                     this.getPythonPathNature().setProjectSourcePath(projectPythonpath);
                 }
-                if(version != null){
-                    this.setVersion(version);
+                if(version != null || interpreter != null){
+                    this.setVersion(version, interpreter);
                 }
             } catch (CoreException e) {
                 PydevPlugin.log(e);
@@ -539,7 +551,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         try {
             clearCaches();
             String paths = this.pythonPathNature.getOnlyProjectPythonPathStr();
-            this.rebuildPath(defaultSelectedInterpreter, paths);
+            this.rebuildPath(paths);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -551,9 +563,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     /**
      * This method is called whenever the pythonpath for the project with this nature is changed. 
      */
-    private synchronized void rebuildPath(final String defaultSelectedInterpreter, final String paths) {
+    private synchronized void rebuildPath(final String paths) {
         rebuildJob.cancel();
-        rebuildJob.setParams(paths, defaultSelectedInterpreter);
+        rebuildJob.setParams(paths);
         rebuildJob.schedule(20L);
     }
         
@@ -645,6 +657,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * This is so that we don't have a runtime penalty for it.
      */
     private String versionPropertyCache = null;
+    private String interpreterPropertyCache = null;
     
     /**
      * Returns the Python version of the Project. 
@@ -661,7 +674,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             if (versionPropertyCache == null) {
                 String storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
                 if(storeVersion == null){ //there is no such property set (let's set it to the default)
-                    setVersion(getDefaultVersion()); //will set the versionPropertyCache too
+                    setVersion(getDefaultVersion(), null); //will set the versionPropertyCache too
                 }else{
                     versionPropertyCache = storeVersion;   
                 }
@@ -671,21 +684,29 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
     
     /**
-     * set the project version given the constants PYTHON_VERSION_XX and 
-     * JYTHON_VERSION_XX in IPythonNature.
+     * @param version: the project version given the constants PYTHON_VERSION_XX and 
+     * JYTHON_VERSION_XX in IPythonNature. If null, nothing is done for the version.
+     * 
+     * @param interpreter the interpreter to be set if null, nothing is done to the interpreter.
      * 
      * @throws CoreException 
      */
-    public void setVersion(String version) throws CoreException{
+    public void setVersion(String version, String interpreter) throws CoreException{
         clearCaches();
         if(project != null){
-            this.versionPropertyCache = version;
-            getStore().setPropertyToXml(getPythonProjectVersionQualifiedName(), version, true);
+            if(version != null){
+                this.versionPropertyCache = version;
+                getStore().setPropertyToXml(getPythonProjectVersionQualifiedName(), version, true);
+            }
+            if(interpreter != null){
+                this.interpreterPropertyCache = interpreter;
+                getStore().setPropertyToXml(getPythonProjectInterpreterQualifiedName(), interpreter, true);
+            }
         }
     }
 
     public String getDefaultVersion(){
-        return PYTHON_VERSION_2_5;
+        return PYTHON_VERSION_LATEST;
     }
 
     
@@ -764,6 +785,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public void clearCaches() {
         this.isJython = null;
         this.versionPropertyCache = null;
+        this.interpreterPropertyCache = null;
     }
     
     Boolean isJython = null; //cache
@@ -853,6 +875,34 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     
     protected IPythonNatureStore getStore(){
         return pythonNatureStore;
+    }
+
+    public String getProjectInterpreter(){
+        try {
+            return getProjectInterpreter(true);
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public String getProjectInterpreter(boolean ifDefaultChangeToActualInterpreter) throws CoreException{
+        if(project != null){
+            if (interpreterPropertyCache == null) {
+                String storeInterpreter = getStore().getPropertyFromXml(getPythonProjectInterpreterQualifiedName());
+                if(storeInterpreter == null){ //there is no such property set (let's set it to the default)
+                    setVersion(null, IPythonNature.DEFAULT_INTERPRETER); //will set the interpreterPropertyCache too
+                }else{
+                    interpreterPropertyCache = storeInterpreter;   
+                }
+            } 
+        }
+        if(ifDefaultChangeToActualInterpreter){
+            if(IPythonNature.DEFAULT_INTERPRETER.equals(interpreterPropertyCache)){
+                //if it's the default, let's translate it to the outside world 
+                return getRelatedInterpreterManager().getDefaultInterpreter();
+            }
+        }
+        return interpreterPropertyCache;
     }
 
 

@@ -94,14 +94,18 @@ public class IProcessFactory {
                 File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
                 String[] commandLine;
                 if(interpreterManager.isPython()){
-                    commandLine = SimplePythonRunner.makeExecutableCommandStr(scriptWithinPySrc.getAbsolutePath(), 
+                    //TODO: ASK THE USER!!!
+                    String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
+                    commandLine = SimplePythonRunner.makeExecutableCommandStr(interpreter, scriptWithinPySrc.getAbsolutePath(), 
                             new String[]{String.valueOf(port), String.valueOf(clientPort)});
                     
                 }else if(interpreterManager.isJython()){
                     String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
                         getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS);
                     
-                    commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(scriptWithinPySrc.getAbsolutePath(), 
+                    //TODO: ASK THE USER!!!
+                    String interpreter = PydevPlugin.getJythonInterpreterManager().getDefaultInterpreter();
+                    commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(interpreter, scriptWithinPySrc.getAbsolutePath(), 
                             pythonpathEnv, vmArgs, new String[]{String.valueOf(port), String.valueOf(clientPort)});
                     
                 }else{

@@ -434,20 +434,22 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     /**
-     * @see org.python.pydev.core.IInterpreterManager#restorePythopathFor(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.core.IInterpreterManager#restorePythopathFor(org.eclipse.core.runtime.IProgressMonitor)
      */
     @SuppressWarnings("unchecked")
-    public void restorePythopathFor(String defaultSelectedInterpreter, IProgressMonitor monitor) {
+    public void restorePythopathFor(IProgressMonitor monitor) {
         synchronized(lock){
-            final InterpreterInfo info = getInterpreterInfo(defaultSelectedInterpreter, monitor);
-            info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
-            
-            List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-            for (IInterpreterObserver observer : participants) {
-                try {
-                    observer.notifyDefaultPythonpathRestored(this, defaultSelectedInterpreter, monitor);
-                } catch (Exception e) {
-                    PydevPlugin.log(e);
+            for(String interpreter:exeToInfo.keySet()){
+                final InterpreterInfo info = getInterpreterInfo(interpreter, monitor);
+                info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
+                
+                List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                for (IInterpreterObserver observer : participants) {
+                    try {
+                        observer.notifyDefaultPythonpathRestored(this, interpreter, monitor);
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
                 }
             }
             

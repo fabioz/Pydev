@@ -29,7 +29,7 @@ public class SystemASTManager extends AbstractASTManager{
         throw new RuntimeException("Not implemented");
     }
 
-    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
+    public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
         throw new RuntimeException("Not implemented");
     }
 

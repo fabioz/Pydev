@@ -413,7 +413,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     
 
     /** Listener list **/
-    private List testListeners = new ArrayList();
+    private List<ITestRunListener> testListeners = new ArrayList<ITestRunListener>();
 
 
     @SuppressWarnings("unchecked")
@@ -464,7 +464,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     
     /**
      * @param file the file we want to get info on.
-     * @return a tuple with the pythonnature to be used and the name of the module represented by the file in that scenario.
+     * @return a tuple with the nature to be used and the name of the module represented by the file in that scenario.
      */
     public static Tuple<SystemPythonNature, String> getInfoForFile(File file){
         String modName = null;

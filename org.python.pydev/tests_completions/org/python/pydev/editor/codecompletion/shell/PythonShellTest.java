@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.codecompletion;
+package org.python.pydev.editor.codecompletion.shell;
 
 import java.io.IOException;
 import java.util.List;
@@ -50,7 +50,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
      */
     public static PythonShell startShell() throws IOException, Exception {
         PythonShell shell = new PythonShell();
-        shell.startIt();
+        shell.startIt(nature);
         return shell;
     }
 

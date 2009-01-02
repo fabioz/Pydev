@@ -73,13 +73,14 @@ public interface IPyRefactoring {
 
     /**
      * This function restarts the shell (if there is one).
+     * @param req 
      */
-    public void restartShell();
+    public void restartShell(RefactoringRequest req);
 
     /**
      * This function kills the shell (if there is one).
      */
-    public void killShell();
+    public void killShell(RefactoringRequest req);
 
     /**
      * @param lastRefactorResults The lastRefactorResults to set.

@@ -62,6 +62,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     public static final String JYTHON_VERSION_2_6 = "jython 2.6";
     public static final String JYTHON_VERSION_3_0 = "jython 3.0";
     
+    //NOTE: It's the latest in the 2 series (3 is as if it's a totally new thing)
     public static final String JYTHON_VERSION_LATEST = JYTHON_VERSION_2_6;
     public static final String PYTHON_VERSION_LATEST = PYTHON_VERSION_2_6;
     
@@ -74,6 +75,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      * this id is provided so that we can have an identifier for jython-related things (independent of its version)
      */
     public static final int JYTHON_RELATED = 1;
+    public static final String DEFAULT_INTERPRETER = "Default";
 
     /**
      * @return the project version given the constants provided
@@ -95,7 +97,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      * 
      * @throws CoreException 
      */
-    void setVersion(String version) throws CoreException;
+    void setVersion(String version, String interpreter) throws CoreException;
  
     /**
      * @return whether this project is a jython project
@@ -147,6 +149,9 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      */
     void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor);
     
+    /**
+     * @return the interpreter manager that's related to the interpreter configured in this nature.
+     */
     IInterpreterManager getRelatedInterpreterManager();
 
     /**
@@ -181,4 +186,13 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      */
     boolean startRequests();
     void endRequests();
+
+    /**
+     * @return the configured interpreter that should be used to get the completions (must be the same string
+     * of one of the configured interpreters in the preferences).
+     * 
+     * Must always be a valid path (e.g.: if the interpreter is internally configured as "Default", it should
+     * return the actual path, not the internal representation).
+     */
+    String getProjectInterpreter();
 }

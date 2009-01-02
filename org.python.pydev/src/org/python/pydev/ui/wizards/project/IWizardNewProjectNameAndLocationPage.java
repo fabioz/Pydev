@@ -33,4 +33,13 @@ public interface IWizardNewProjectNameAndLocationPage extends IWizardPage
      */
     public IPath getLocationPath();
 
+    /**
+     * @return "Default" to mean that the default interpreter should be used or the complete path to an interpreter
+     * configured.
+     * 
+     * Note that this changes from the python nature, where only the path is returned (because at this point, we
+     * want to give the user a visual indication that it's the Default interpreter if that's the one selected)
+     */
+    public String getProjectInterpreter();
+
 }

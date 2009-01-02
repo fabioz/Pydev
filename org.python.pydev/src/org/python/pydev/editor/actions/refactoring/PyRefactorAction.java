@@ -330,7 +330,7 @@ public abstract class PyRefactorAction extends PyAction {
         }
 
         if (operation.statusOfOperation != null && operation.statusOfOperation.startsWith("ERROR:")) {
-            restartRefactorShell();
+            restartRefactorShell(req);
             String[] strings = operation.statusOfOperation.split("DETAILS:");
 
             if (strings.length == 2) {
@@ -352,11 +352,12 @@ public abstract class PyRefactorAction extends PyAction {
 
     /**
      * If the engine has a shell... restart it
+     * @param req 
      */
-    private void restartRefactorShell() {
+    private void restartRefactorShell(final RefactoringRequest req) {
         Thread thread = new Thread() {
             public void run() {
-                AbstractPyRefactoring.restartShells();
+                AbstractPyRefactoring.restartShells(req);
             }
         };
         thread.setName("Restart Refactor Shell");

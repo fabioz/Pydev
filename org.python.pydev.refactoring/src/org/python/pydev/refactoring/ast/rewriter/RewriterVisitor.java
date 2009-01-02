@@ -153,6 +153,8 @@ public class RewriterVisitor extends AbstractRewriterVisitor {
 //        PrettyPrinterPrefs prettyPrinterPrefs = new PrettyPrinterPrefs(newLineDelim);
 //        prettyPrinterPrefs.setSpacesAfterComma(1);
 //        prettyPrinterPrefs.setSpacesBeforeComment(1);
+//        prettyPrinterPrefs.setLinesAfterMethod(1);
+//        prettyPrinterPrefs.setLinesAfterClass(1);
 //        PrettyPrinter printer = new PrettyPrinter(prettyPrinterPrefs, stringWriter);
 //        try {
 //            root.accept(printer);

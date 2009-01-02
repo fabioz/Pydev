@@ -430,7 +430,8 @@ public class AbstractWorkbenchTestCase extends TestCase{
             sourceFolder.create(true, true, monitor);
         }
         if(addNature){
-            PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar");
+            PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, 
+                    "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar", null);
         }
         return sourceFolder;
     }
@@ -442,7 +443,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
     protected void createJythonInterpreterManager(NullProgressMonitor monitor) {
         IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager(true);
         iMan.addInterpreter(TestDependent.JYTHON_JAR_LOCATION, monitor);
-        iMan.restorePythopathFor(TestDependent.JYTHON_JAR_LOCATION, monitor);
+        iMan.restorePythopathFor(monitor);
         iMan.setPersistedString(iMan.getStringToPersist(new String[]{TestDependent.JYTHON_JAR_LOCATION}));
         iMan.saveInterpretersInfoModulesManager();
     }

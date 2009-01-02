@@ -40,12 +40,12 @@ public abstract class AbstractPyRefactoring implements IPyRefactoring{
         }
     }
 
-    public static void restartShells() {
+    public static void restartShells(RefactoringRequest req) {
         if(defaultPyRefactoring != null){
-           defaultPyRefactoring.restartShell(); 
+           defaultPyRefactoring.restartShell(req); 
         }
         if(pyRefactoring != null && pyRefactoring != defaultPyRefactoring){
-            pyRefactoring.restartShell();
+            pyRefactoring.restartShell(req);
         }
     }
 

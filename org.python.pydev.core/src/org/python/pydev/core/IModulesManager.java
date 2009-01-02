@@ -89,7 +89,7 @@ public interface IModulesManager {
      */
     public abstract String resolveModule(String full, boolean checkSystemManager);
 
-    public abstract void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter);
+    public abstract void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor);
 
     /**
      * @param addDependenciesSize whether the dependencies of a given modules manager 

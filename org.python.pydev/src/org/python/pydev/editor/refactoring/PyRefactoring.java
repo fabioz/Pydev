@@ -43,19 +43,14 @@ public class PyRefactoring extends AbstractPyRefactoring {
      * Default constructor. Initializes the refactoring shell.
      */
     public PyRefactoring(){
-        try {
-            AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL); //when we initialize, initialize the server.
-        } catch (Exception e) {
-            //for the refactoring, we just let it pass...
-        }
     }
 
     /**
      * Restarts the shell if some error happened.
      */
-    public void restartShell() {
+    public void restartShell(RefactoringRequest req) {
         try {
-            AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL).restartShell();
+            AbstractShell.getServerShell(req.nature, AbstractShell.OTHERS_SHELL).restartShell();
         } catch (Exception e) {
             PydevPlugin.log(e);
         } 
@@ -64,9 +59,9 @@ public class PyRefactoring extends AbstractPyRefactoring {
     /**
      * @see org.python.pydev.editor.refactoring.IPyRefactoring#killShell()
      */
-    public void killShell() {
+    public void killShell(RefactoringRequest req) {
         try {
-            AbstractShell.getServerShell(IPythonNature.PYTHON_RELATED, AbstractShell.OTHERS_SHELL).endIt();
+            AbstractShell.getServerShell(req.nature, AbstractShell.OTHERS_SHELL).endIt();
         } catch (Exception e) {
             PydevPlugin.log(e);
         }

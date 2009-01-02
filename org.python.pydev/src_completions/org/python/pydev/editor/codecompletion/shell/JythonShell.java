@@ -23,9 +23,9 @@ public class JythonShell extends AbstractShell{
      * Will create the jython shell and return a string to be shown to the user with the jython shell command line.
      */
     @Override
-    protected synchronized String createServerProcess(int pWrite, int pRead) throws IOException, JDTNotAvailableException {
+    protected synchronized String createServerProcess(String jythonJar, int pWrite, int pRead) throws IOException, JDTNotAvailableException {
         String script = REF.getFileAbsolutePath(serverFile);
-        String[] executableStr = SimpleJythonRunner.makeExecutableCommandStr(script, "", String.valueOf(pWrite), String.valueOf(pRead));
+        String[] executableStr = SimpleJythonRunner.makeExecutableCommandStr(jythonJar, script, "", String.valueOf(pWrite), String.valueOf(pRead));
         process = SimpleRunner.createProcess(executableStr, serverFile.getParentFile());
         
         return SimpleRunner.getArgumentsAsStr(executableStr);

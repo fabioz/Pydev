@@ -103,7 +103,7 @@ public class PythonNatureStub implements IPythonNature {
         throw new RuntimeException("Not implemented");
     }
 
-    public void setVersion(String version) throws CoreException {
+    public void setVersion(String version, String interpreter) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -129,5 +129,9 @@ public class PythonNatureStub implements IPythonNature {
 
     public int getGrammarVersion() {
         return IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+    }
+
+    public String getProjectInterpreter() {
+        throw new RuntimeException("Not implemented");
     }
 }

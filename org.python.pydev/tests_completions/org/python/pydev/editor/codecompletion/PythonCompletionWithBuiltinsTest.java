@@ -20,6 +20,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
+import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     

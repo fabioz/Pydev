@@ -215,11 +215,6 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         throw new RuntimeException("Deprecated");
     }
 
-    /**
-     * Must be overriden so that the available builtins (forced or not) are returned.
-     * @param defaultSelectedInterpreter 
-     */
-    public abstract String[] getBuiltins(String defaultSelectedInterpreter);
 
     /**
      * Change the pythonpath (used for both: system and project)
@@ -227,7 +222,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @param project: may be null
      * @param defaultSelectedInterpreter: may be null
      */
-    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
+    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
         pythonPathHelper.setPythonPath(pythonpath);
         ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
 
@@ -290,7 +285,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             }
         }
 
-        onChangePythonpath(defaultSelectedInterpreter, keys);
+        onChangePythonpath(keys);
 
         //assign to instance variable
         this.setModules(keys);
@@ -301,7 +296,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * Subclasses may do more things after the defaults were added to the cache (e.g.: the system modules manager may
      * add builtins)
      */
-    protected void onChangePythonpath(String defaultSelectedInterpreter, SortedMap<ModulesKey, ModulesKey> keys) {
+    protected void onChangePythonpath(SortedMap<ModulesKey, ModulesKey> keys) {
     }
 
     /**

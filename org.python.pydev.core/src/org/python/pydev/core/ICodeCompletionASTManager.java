@@ -28,7 +28,7 @@ public interface ICodeCompletionASTManager {
      * @param project: this is the project that is associated with this manager.
      * @param monitor: monitor for progress.
      */
-    public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter);
+    public abstract void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor);
     
     /**
      * Set the project this ast manager works with.

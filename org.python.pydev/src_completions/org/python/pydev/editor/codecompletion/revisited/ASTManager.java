@@ -80,8 +80,8 @@ public class ASTManager extends AbstractASTManager implements ICodeCompletionAST
     //----------------------- AUXILIARIES
 
 
-    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor, String defaultSelectedInterpreter) {
-        getProjectModulesManager().changePythonPath(pythonpath, project, monitor, defaultSelectedInterpreter);
+    public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
+        getProjectModulesManager().changePythonPath(pythonpath, project, monitor);
     }
     public void rebuildModule(File f, IDocument doc, final IProject project, IProgressMonitor monitor, IPythonNature nature) {
         getProjectModulesManager().rebuildModule(f, doc, project, monitor, nature);

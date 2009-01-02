@@ -407,7 +407,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     public void restorePythonpath(String path, IProgressMonitor monitor) {
         //no managers involved here...
-        getModulesManager().changePythonPath(path, null, monitor, null);
+        getModulesManager().changePythonPath(path, null, monitor);
     }
     
     /**

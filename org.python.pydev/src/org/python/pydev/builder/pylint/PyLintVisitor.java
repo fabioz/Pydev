@@ -200,7 +200,15 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             String[] paramsToExe = list.toArray(new String[0]);
             write("Pylint: Executing command line:'", out, scriptToExe, paramsToExe, "'");
             
-            Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(scriptToExe, paramsToExe, arg.getParentFile(), project);
+            PythonNature nature = PythonNature.getPythonNature(project);
+            if(nature == null){
+                PydevPlugin.log(new RuntimeException("PyLint ERROR: Nature not configured for: "+project));
+                return;
+            }
+            
+            Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(
+                    nature.getProjectInterpreter(), scriptToExe, paramsToExe, arg.getParentFile(), project);
+            
             write("Pylint: The stdout of the command line is: "+outTup.o1, out);
             write("Pylint: The stderr of the command line is: "+outTup.o2, out);
             

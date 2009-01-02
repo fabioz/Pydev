@@ -92,7 +92,8 @@ public class CompiledModule extends AbstractModule{
                 }
                 
                 try {
-                    AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), AbstractShell.COMPLETION_SHELL);
+                    AbstractShell shell = AbstractShell.getServerShell(manager.getNature(), 
+                            AbstractShell.COMPLETION_SHELL);
                     synchronized(shell){
                         shell.clearSocket();
                     }

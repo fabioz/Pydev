@@ -25,4 +25,9 @@ public interface IInterpreterInfo {
 
     public IModulesManager getModulesManager();
 
+    /**
+     * @return a valid path for the interpreter (may not be human readable)
+     */
+    public String getExeAsFileSystemValidPath();
+
 }

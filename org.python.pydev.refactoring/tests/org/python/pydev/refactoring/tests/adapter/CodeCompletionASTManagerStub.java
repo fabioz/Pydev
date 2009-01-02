@@ -26,7 +26,7 @@ import org.python.pydev.parser.jython.ast.Name;
 public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
     public void changePythonPath(String pythonpath, IProject project,
-            IProgressMonitor monitor, String defaultSelectedInterpreter) {
+            IProgressMonitor monitor) {
         throw new RuntimeException("Not implemented");
     }
 

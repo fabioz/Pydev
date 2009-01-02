@@ -31,8 +31,7 @@ public class PythonShell extends AbstractShell{
 
 
     @Override
-    protected synchronized String createServerProcess(int pWrite, int pRead) throws IOException {
-        String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
+    protected synchronized String createServerProcess(String interpreter, int pWrite, int pRead) throws IOException {
         File file = new File(interpreter);
         if(file.exists() == false ){
             throw new RuntimeException("The interpreter location found does not exist. "+interpreter);

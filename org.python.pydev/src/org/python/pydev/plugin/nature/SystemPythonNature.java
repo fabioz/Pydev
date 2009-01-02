@@ -16,6 +16,11 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
+/**
+ * This nature is used only as a 'last resort', if we're unable to link a given resource to
+ * a project (and thus, we don't have project-related completions and we don't know with what
+ * exactly we're dealing with: it's usually only used for external files)
+ */
 public class SystemPythonNature extends AbstractPythonNature implements IPythonNature{
 
     private final IInterpreterManager manager;
@@ -49,7 +54,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         }
     }
 
-    public void setVersion(String version) throws CoreException {
+    public void setVersion(String version, String interpreter) throws CoreException {
         throw new RuntimeException("Not Implemented: the system nature is read-only.");
     }
 
@@ -149,6 +154,10 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         }else{
             return IPythonNature.LATEST_GRAMMAR_VERSION;
         }
+    }
+
+    public String getProjectInterpreter() {
+        return this.manager.getDefaultInterpreter();
     }
 
 }

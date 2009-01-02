@@ -71,13 +71,13 @@ public class CodeCompletionTestsBase extends TestCase {
      * nature. This is done in this way because we don't want the nature to be recreated
      * all the time among tests from the same test case.
      */
-    public static Map<String, Class> restoredClass = new HashMap<String, Class>();
+    public static Map<String, Class<?>> restoredClass = new HashMap<String, Class<?>>();
     
     /**
      * Serves the same purpose that the restoredClass serves, but for the system 
      * python nature.
      */
-    public static Class restoredSystem;
+    public static Class<?> restoredSystem;
     private Preferences preferences;
 
     public Preferences getPreferences(){
@@ -184,7 +184,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * @return the PythonNature created (if needed) or null if the creation was not needed
      */
     protected PythonNature checkNewNature(String name, boolean force){
-        Class restored = CodeCompletionTestsBase.restoredClass.get(name);
+        Class<?> restored = CodeCompletionTestsBase.restoredClass.get(name);
         if(restored == null || restored != this.getClass() || force){
             //cache
             CodeCompletionTestsBase.restoredClass.put(name, this.getClass());
@@ -208,7 +208,7 @@ public class CodeCompletionTestsBase extends TestCase {
         ASTManager astManager = ((ASTManager)pNature.getAstManager());
         astManager.setNature(pNature);
         astManager.setProject(projectStub, pNature, false);
-        astManager.changePythonPath(path, projectStub, getProgressMonitor(),null);
+        astManager.changePythonPath(path, projectStub, getProgressMonitor());
     }
 
     /**

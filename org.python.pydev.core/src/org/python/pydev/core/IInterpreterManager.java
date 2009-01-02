@@ -103,13 +103,12 @@ public interface IInterpreterManager {
     public boolean isPython();
 
     /**
-     * restores the pythonpath for the default selected interpreter (gets its information info 
+     * restores the pythonpath for all the interpreters available (gets its information info 
      * and gets it to do the restore).
      * 
-     * @param defaultSelectedInterpreter the name of the interpreter
      * @param monitor monitor used for the restore
      */
-    public void restorePythopathFor(String defaultSelectedInterpreter, IProgressMonitor monitor);
+    public void restorePythopathFor(IProgressMonitor monitor);
 
     /**
      * @return the name that is related to this manager (e.g.: python, jython...)

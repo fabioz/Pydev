@@ -30,7 +30,6 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.perspective.PythonPerspectiveFactory;
 
 /**
@@ -58,8 +57,6 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
     protected IStructuredSelection selection;
 
     public static final String WIZARD_ID = "org.python.pydev.ui.wizards.project.PythonProjectWizard";
-
-    WelcomePage welcomePage = new WelcomePage("Creating a new modelled Python Project");
 
     IWizardNewProjectNameAndLocationPage projectPage;
 
@@ -93,10 +90,6 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
      * @see org.eclipse.jface.wizard.IWizard#addPages()
      */
     public void addPages() {
-
-        if (!isInterpreterConfigured()) {
-            addPage(welcomePage);
-        }
         addPage(projectPage);
         addProjectReferencePage();
     }
@@ -121,11 +114,14 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
      * @param projectHandle the project handle to create a project resource for
      * @param monitor the progress monitor to show visual progress with
      * @param projectType
+     * @param projectInterpreter 
      * 
      * @exception CoreException if the operation fails
      * @exception OperationCanceledException if the operation is canceled
      */
-    private void createProject(IProjectDescription description, IProject projectHandle, IProgressMonitor monitor, String projectType) throws CoreException, OperationCanceledException {
+    private void createProject(IProjectDescription description, IProject projectHandle, IProgressMonitor monitor, 
+            String projectType, String projectInterpreter) throws CoreException, OperationCanceledException {
+        
         try {
             monitor.beginTask("", 2000); //$NON-NLS-1$
 
@@ -147,14 +143,10 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
             }
             
             //we should rebuild the path even if there's no source-folder (this way we will re-create the astmanager)
-            PythonNature.addNature(projectHandle, null, projectType, projectPythonpath);
+            PythonNature.addNature(projectHandle, null, projectType, projectPythonpath, projectInterpreter);
         } finally {
             monitor.done();
         }
-    }
-
-    public String getProjectType() {
-        return projectPage.getProjectType();
     }
 
     /**
@@ -184,11 +176,12 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
                 description.setReferencedProjects(refProjects);
         }
 
-        final String projectType = getProjectType();
+        final String projectType = projectPage.getProjectType();
+        final String projectInterpreter = projectPage.getProjectInterpreter();
         // define the operation to create a new project
         WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
             protected void execute(IProgressMonitor monitor) throws CoreException {
-                createProject(description, newProjectHandle, monitor, projectType);
+                createProject(description, newProjectHandle, monitor, projectType, projectInterpreter);
             }
         };
 
@@ -249,23 +242,4 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
         ImageDescriptor desc = PydevPlugin.imageDescriptorFromPlugin(PydevPlugin.getPluginID(), "icons/python_logo.png");//$NON-NLS-1$
         setDefaultPageImageDescriptor(desc);
     }
-
-    /**
-     * Check thats user has set an Python interpreter in Preferences
-     * 
-     * @return
-     */
-    boolean isInterpreterConfigured() {
-        try {
-            PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
-        } catch (NotConfiguredInterpreterException ncie) {
-            try {
-                PydevPlugin.getJythonInterpreterManager().getDefaultInterpreter();
-            } catch (Exception e) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 }

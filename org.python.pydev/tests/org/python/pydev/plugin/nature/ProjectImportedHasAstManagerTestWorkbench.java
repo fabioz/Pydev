@@ -53,7 +53,7 @@ public class ProjectImportedHasAstManagerTestWorkbench  extends AbstractWorkbenc
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
         IJobManager jobManager = Job.getJobManager();
         jobManager.resume();
-        final PythonNature nature = (PythonNature) PythonNature.addNature(project, null, null, null);
+        final PythonNature nature = (PythonNature) PythonNature.addNature(project, null, null, null, null);
         assertTrue(nature != null);
         
 

@@ -65,6 +65,8 @@ public abstract class AbstractShell {
     private boolean isInRead = false;
     private boolean isInWrite = false;
     private boolean isInRestart = false;
+    private String shellInterpreter;
+    private int shellMillis;
     
     /**
      * Lock to know if there is someone already using this shell for some operation
@@ -89,17 +91,14 @@ public abstract class AbstractShell {
      * Reference to 'global python shells'
      * 
      * this works as follows:
-     * we have a 'related to' id as the first step, according to the IPythonNature constants
-     * 
-     * @see org.python.pydev.core.IPythonNature#PYTHON_RELATED
-     * @see org.python.pydev.core.IPythonNature#JYTHON_RELATED
+     * we have the interpreter as that the shell is related to as the 1st key
      * 
      * and then we have the id with the shell type that points to the actual shell
      * 
      * @see #COMPLETION_SHELL
      * @see #OTHERS_SHELL
      */
-    protected static Map<Integer,Map<Integer,AbstractShell>> shells = new HashMap<Integer,Map<Integer,AbstractShell>>();
+    protected static Map<String,Map<Integer,AbstractShell>> shells = new HashMap<String,Map<Integer,AbstractShell>>();
     
     /**
      * if we are already finished for good, we may not start new shells (this is a static, because this 
@@ -110,8 +109,8 @@ public abstract class AbstractShell {
     /**
      * simple stop of a shell (it may be later restarted)
      */
-    public synchronized static void stopServerShell(int relatedId, int id) {
-        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
+    public synchronized static void stopServerShell(String interpreter, int id) {
+        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
         AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
         
         if(pythonShell != null){
@@ -135,8 +134,8 @@ public abstract class AbstractShell {
                 
                 Map<Integer,AbstractShell> rel = (Map<Integer, AbstractShell>) iter.next();
                 if(rel != null){
-                    for (Iterator iter2 = rel.values().iterator(); iter2.hasNext();) {
-                        AbstractShell element = (AbstractShell) iter2.next();
+                    for (Iterator<AbstractShell> iter2 = rel.values().iterator(); iter2.hasNext();) {
+                        AbstractShell element = iter2.next();
                         if(element != null){
                             try {
                                 element.shutdown(); //shutdown
@@ -152,16 +151,16 @@ public abstract class AbstractShell {
     }
 
     /**
-     * @param relatedId the id that is related to the structure we want to get
+     * @param interpreter the interpreter whose shell we want.
      * @return a map with the type of the shell mapping to the shell itself
      */
-    private synchronized static Map<Integer, AbstractShell> getTypeToShellFromId(int relatedId) {
+    private synchronized static Map<Integer, AbstractShell> getTypeToShellFromId(String interpreter) {
         synchronized(shells){
-            Map<Integer, AbstractShell> typeToShell = shells.get(relatedId);
+            Map<Integer, AbstractShell> typeToShell = shells.get(interpreter);
             
             if (typeToShell == null) {
                 typeToShell = new HashMap<Integer, AbstractShell>();
-                shells.put(relatedId, typeToShell);
+                shells.put(interpreter, typeToShell);
             }
             return typeToShell;
         }
@@ -169,18 +168,17 @@ public abstract class AbstractShell {
 
     /**
      * register a shell and give it an id
+     * 
+     * @param nature the nature (which has the information on the interpreter we want to used)
      * @param id the shell id
-     * @param shell the shell to register
-     * 
-     * @see org.python.pydev.core.IPythonNature#PYTHON_RELATED
-     * @see org.python.pydev.core.IPythonNature#JYTHON_RELATED
-     * 
      * @see #COMPLETION_SHELL
      * @see #OTHERS_SHELL
+     *
+     * @param shell the shell to register
      */
     public synchronized static void putServerShell(IPythonNature nature, int id, AbstractShell shell) {
         try {
-            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(nature.getRelatedId());
+            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(nature.getProjectInterpreter());
             typeToShell.put(new Integer(id), shell);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -189,40 +187,45 @@ public abstract class AbstractShell {
 
 
     public synchronized static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException, JDTNotAvailableException, CoreException {
-        return getServerShell(nature.getRelatedId(), id);
+        return getServerShell(nature.getProjectInterpreter(), nature.getRelatedId(), id);
     }
     
     /**
-     * @return the shell with the given id related to some nature
+     * @param interpreter the interpreter that should create the shell
      * 
+     * @param relatedTo identifies to which kind of interpreter the shell should be related.
      * @see org.python.pydev.core.IPythonNature#PYTHON_RELATED
      * @see org.python.pydev.core.IPythonNature#JYTHON_RELATED
      * 
+     * @param a given id for the shell
      * @see #COMPLETION_SHELL
      * @see #OTHERS_SHELL
+     * 
+     * @return the shell with the given id related to some nature
      * 
      * @throws CoreException
      * @throws IOException
      */
-    public synchronized static AbstractShell getServerShell(int relatedId, int id) throws IOException, JDTNotAvailableException, CoreException {
+    public synchronized static AbstractShell getServerShell(String interpreter, int relatedTo, int id) throws IOException, JDTNotAvailableException, CoreException {
         AbstractShell pythonShell = null;
         synchronized(shells){
             if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
                 Log.toLogFile("Synchronizing on shells...", AbstractShell.class);
             }
             if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
-                Log.toLogFile( "Getting shell relatedId:"+relatedId+" id:"+id, AbstractShell.class);
+                Log.toLogFile( "Getting shell related to:"+ (relatedTo==IPythonNature.PYTHON_RELATED?"Python":"Jython")+
+                        " id:"+id, AbstractShell.class);
             }
-            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(relatedId);
+            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
             pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
             
             if(pythonShell == null){
                 if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
                     Log.toLogFile("pythonShell == null", AbstractShell.class);
                 }
-                if(relatedId == IPythonNature.PYTHON_RELATED){
+                if(relatedTo == IPythonNature.PYTHON_RELATED){
                     pythonShell = new PythonShell();
-                }else if(relatedId == IPythonNature.JYTHON_RELATED){
+                }else if(relatedTo == IPythonNature.JYTHON_RELATED){
                     pythonShell = new JythonShell();
                 }else{
                     throw new RuntimeException("unknown related id");
@@ -231,7 +234,7 @@ public abstract class AbstractShell {
                     Log.toLogFile("pythonShell.startIt()", AbstractShell.class);
                     Log.addLogLevel();
                 }
-                pythonShell.startIt(); //first start it
+                pythonShell.startIt(interpreter, AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS); //first start it
                 if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
                     Log.remLogLevel();
                     Log.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
@@ -307,9 +310,9 @@ public abstract class AbstractShell {
      * @throws IOException
      * @throws CoreException
      */
-    public synchronized void startIt() throws IOException, JDTNotAvailableException, CoreException {
+    /*package*/ synchronized void startIt(IPythonNature nature) throws IOException, JDTNotAvailableException, CoreException {
         synchronized(this){
-            this.startIt(AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
+            this.startIt(nature.getProjectInterpreter(), AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
         }
     }
 
@@ -324,7 +327,9 @@ public abstract class AbstractShell {
      * @throws CoreException 
      * @throws CoreException
      */
-    protected synchronized void startIt(int milisSleep) throws IOException, JDTNotAvailableException, CoreException {
+    protected synchronized void startIt(String interpreter, int milisSleep) throws IOException, JDTNotAvailableException, CoreException {
+        this.shellMillis = milisSleep;
+        this.shellInterpreter = interpreter;
         if(inStart || isConnected){
             //it is already in the process of starting, so, if we are in another thread, just forget about it.
             return;
@@ -345,7 +350,7 @@ public abstract class AbstractShell {
                     endIt(); //end the current process
                 }
 
-                String execMsg = createServerProcess(pWrite, pRead);
+                String execMsg = createServerProcess(interpreter, pWrite, pRead);
                 dbg("executing " + execMsg,1);
 
                 sleepALittle(200);
@@ -503,7 +508,7 @@ public abstract class AbstractShell {
      * @throws IOException
      * @throws JDTNotAvailableException 
      */
-    protected abstract String createServerProcess(int pWrite, int pRead) throws IOException, JDTNotAvailableException;
+    protected abstract String createServerProcess(String interpreter, int pWrite, int pRead) throws IOException, JDTNotAvailableException;
 
     protected synchronized void communicateWork(String desc, IProgressMonitor monitor) {
         if(monitor != null){
@@ -738,7 +743,7 @@ public abstract class AbstractShell {
      * @return list with tuples: new String[]{token, description}
      * @throws CoreException
      */
-    public synchronized Tuple<String, List<String[]>> getImportCompletions(String str, List pythonpath) throws CoreException {
+    public synchronized Tuple<String, List<String[]>> getImportCompletions(String str, List<String> pythonpath) throws CoreException {
         while(isInOperation){
             sleepALittle(100);
         }
@@ -761,7 +766,7 @@ public abstract class AbstractShell {
      * @param pythonpath
      * @throws CoreException
      */
-    public synchronized void changePythonPath(List pythonpath) throws CoreException {
+    public synchronized void changePythonPath(List<String> pythonpath) throws CoreException {
         while(isInOperation){
             sleepALittle(100);
         }
@@ -777,13 +782,13 @@ public abstract class AbstractShell {
     /**
      * @param pythonpath
      */
-    private void internalChangePythonPath(List pythonpath) {
+    private void internalChangePythonPath(List<String> pythonpath) {
         if(finishedForGood){
             throw new RuntimeException("Shells are already finished for good, so, it is an invalid state to try to change its dir.");
         }
         StringBuffer buffer = new StringBuffer();
-        for (Iterator iter = pythonpath.iterator(); iter.hasNext();) {
-            String path = (String) iter.next();
+        for (Iterator<String> iter = pythonpath.iterator(); iter.hasNext();) {
+            String path = iter.next();
             buffer.append(path);
             buffer.append("|");
         }
@@ -832,7 +837,7 @@ public abstract class AbstractShell {
                 }
                 try {
                     synchronized (this) {
-                        this.startIt();
+                        this.startIt(shellInterpreter, shellMillis);
                     }
                 } catch (Exception e) {
                     PydevPlugin.log(IStatus.ERROR, "ERROR restarting shell.", e);
@@ -895,7 +900,7 @@ public abstract class AbstractShell {
      * @param token the token we are looking for
      * @return the file where the token was defined, its line and its column (or null if it was not found)
      */
-    public synchronized Tuple<String[],int []> getLineCol(String moduleName, String token, List pythonpath) {
+    public synchronized Tuple<String[],int []> getLineCol(String moduleName, String token, List<String> pythonpath) {
         while(isInOperation){
             sleepALittle(100);
         }

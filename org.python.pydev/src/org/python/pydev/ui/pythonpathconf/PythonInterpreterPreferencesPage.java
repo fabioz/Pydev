@@ -39,7 +39,7 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      */
     protected void doRestore(final String defaultSelectedInterpreter, IProgressMonitor monitor) {
         IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
-        iMan.restorePythopathFor(defaultSelectedInterpreter, monitor);
+        iMan.restorePythopathFor(monitor);
     }
     
     @Override

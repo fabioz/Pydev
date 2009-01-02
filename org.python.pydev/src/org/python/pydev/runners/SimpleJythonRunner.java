@@ -28,6 +28,7 @@ public class SimpleJythonRunner extends SimpleRunner{
      * 
      * @author Fabio
      */
+    @SuppressWarnings("serial")
     public static class JavaNotConfiguredException extends RuntimeException{
 
         public JavaNotConfiguredException(String string) {
@@ -98,8 +99,8 @@ public class SimpleJythonRunner extends SimpleRunner{
         
     }
 
-    public static String[] makeExecutableCommandStr(String script, String basePythonPath, String ... args) throws IOException, JDTNotAvailableException {
-       return makeExecutableCommandStrWithVMArgs(script, basePythonPath, "", args); 
+    public static String[] makeExecutableCommandStr(String jythonJar, String script, String basePythonPath, String ... args) throws IOException, JDTNotAvailableException {
+       return makeExecutableCommandStrWithVMArgs(jythonJar, script, basePythonPath, "", args); 
     }
     
     /**
@@ -107,7 +108,7 @@ public class SimpleJythonRunner extends SimpleRunner{
      * @return
      * @throws IOException
      */
-    public static String[] makeExecutableCommandStrWithVMArgs(String script, String basePythonPath, String vmArgs, 
+    public static String[] makeExecutableCommandStrWithVMArgs(String jythonJar, String script, String basePythonPath, String vmArgs, 
             String ... args) throws IOException, JDTNotAvailableException {
         
         IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
@@ -123,7 +124,6 @@ public class SimpleJythonRunner extends SimpleRunner{
 
         
         
-        String jythonJar = interpreterManager.getDefaultInterpreter();
         if(!new File(jythonJar).exists()){
             throw new RuntimeException(StringUtils.format("Error. The default configured interpreter: %s is does not exist!", jythonJar));
         }

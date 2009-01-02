@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.ui.PyProjectPythonDetails;
+import org.python.pydev.utils.ICallback;
 
 /**
  * First page for the new project creation wizard. This page
@@ -80,10 +81,14 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
 
     private Button browseButton;
 
-    private PyProjectPythonDetails.RadioController details;
+    private PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig details;
 
     public String getProjectType(){
-        return details.getSelected();
+        return details.getSelectedPythonOrJythonAndGrammarVersion();
+    }
+    
+    public String getProjectInterpreter(){
+        return details.getProjectInterpreter();
     }
     
     private Listener nameModifyListener = new Listener() {
@@ -162,7 +167,15 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         projectTypeLabel.setFont(font);
         projectTypeLabel.setText("Project type");
         //let him choose the type of the project
-        details = new PyProjectPythonDetails.RadioController();
+        details = new PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig(new ICallback(){
+
+            //Whenever the configuration changes there, we must evaluate whether the page is complete
+            public Object call(Object args) throws Exception {
+                setPageComplete(CopiedWizardNewProjectNameAndLocationPage.this.validatePage());
+                return null;
+            }}
+        );
+        
         Control createdOn = details.doCreateContents(projectDetails);
         details.setDefaultSelection();
         GridData data=new GridData(GridData.FILL_HORIZONTAL);
@@ -479,6 +492,11 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
 
         if (isExistingProjectLocation()) {
             setErrorMessage("Project location already exists");
+            return false;
+        }
+        
+        if(getProjectInterpreter() == null){
+            setErrorMessage("Project interpreter not specified");
             return false;
         }
 

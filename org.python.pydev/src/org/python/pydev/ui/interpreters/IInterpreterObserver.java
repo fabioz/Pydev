@@ -31,9 +31,8 @@ public interface IInterpreterObserver {
      *  
      * @param nature the nature that had its pythonpath recreated
      * @param monitor 
-     * @param defaultSelectedInterpreter 
      */
-    void notifyProjectPythonpathRestored(PythonNature nature, IProgressMonitor monitor, String defaultSelectedInterpreter);
+    void notifyProjectPythonpathRestored(PythonNature nature, IProgressMonitor monitor);
     
     /**
      * Notifies observers that the given nature has just been recreated (after the plugin restarted)
