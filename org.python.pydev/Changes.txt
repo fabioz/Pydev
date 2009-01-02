@@ -6,7 +6,9 @@ Remote debugger fix (missing import)
 
 Pydev
 Interpreter can be configured on a per-project basis
-Jython 2.5b0 can be properly supported
+Jython 2.5b0 properly supported
+Find with builtins working for Jython
+Fixes in Jython debugger
 
 
 

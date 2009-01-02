@@ -1,5 +1,5 @@
 #line to run:
-#java -classpath D:\bin\jython-2.1\jython.jar;D:\bin\eclipse331_1\plugins\org.junit_3.8.2.v200706111738\junit.jar org.python.util.jython x:\org.python.pydev\PySrc\tests\test_jysimpleTipper.py
+#java -classpath D:\bin\jython-2.1\jython.jar;D:\bin\eclipse331_1\plugins\org.junit_3.8.2.v200706111738\junit.jar;D:\bin\eclipse331_1\plugins\org.apache.ant_1.7.0.v200706080842\lib\ant.jar org.python.util.jython w:\org.python.pydev\PySrc\tests\test_jysimpleTipper.py
 
 import unittest
 import os
@@ -26,8 +26,8 @@ try:
     from java.lang.System import out #@UnresolvedImport
     import java.lang.String #@UnresolvedImport
     import org.python.core.PyDictionary #@UnresolvedImport
-except ImportError, e:
-    sys.stdout.write('%s\n' % (e,))
+except ImportError:
+    import traceback;traceback.print_exc()
 
 __DBG = 0
 def dbg(s):
@@ -144,6 +144,17 @@ class TestMod(unittest.TestCase):
         self.assertIn('get'          , tip)
 
 
+class TestSearch(unittest.TestCase):
+
+    def testSearchOnJython(self):
+        self.assertEqual( 'javaos.py', jyimportsTipper.Search('os')[0][0].split(os.sep)[-1])
+        self.assertEqual( 0, jyimportsTipper.Search('os')[0][1])
+        
+        self.assertEqual( 'javaos.py', jyimportsTipper.Search('os.makedirs')[0][0].split(os.sep)[-1])
+        self.assertNotEqual( 0, jyimportsTipper.Search('os.makedirs')[0][1])
+        
+        #print jyimportsTipper.Search('os.makedirs')
+
 class TestCompl(unittest.TestCase):
 
     def setUp(self):
@@ -231,13 +242,17 @@ class TestCompl(unittest.TestCase):
 if __name__ == '__main__':
     if sys.platform.find('java') != -1:
         #Only run if jython
-        suite2 = unittest.makeSuite(TestMod)
         suite = unittest.makeSuite(TestCompl)
+        suite2 = unittest.makeSuite(TestMod)
+        suite3 = unittest.makeSuite(TestSearch)
         
-#        suite = unittest.TestSuite()
-#        suite.addTest(Test('testCase12'))
         unittest.TextTestRunner(verbosity=1).run(suite)
         unittest.TextTestRunner(verbosity=1).run(suite2)
+        unittest.TextTestRunner(verbosity=1).run(suite3)
+        
+#        suite.addTest(Test('testCase12'))
+#        suite = unittest.TestSuite()
+#        unittest.TextTestRunner(verbosity=1).run(suite)
 
     else:
         sys.stdout.write('Not running jython tests for non-java platform: %s' % sys.platform)

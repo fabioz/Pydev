@@ -4,6 +4,7 @@ from java.lang import StringBuffer #@UnresolvedImport
 from java.lang import String #@UnresolvedImport
 import java.lang #@UnresolvedImport
 import sys
+from _tipper_common import DoFind
 
 try:
     __setFalse = False
@@ -17,6 +18,7 @@ from org.python.core import PyReflectedFunction #@UnresolvedImport
 
 from org.python import core #@UnresolvedImport
 from org.python.core import PyClass #@UnresolvedImport
+
 
 #completion types.
 TYPE_IMPORT = '0'
@@ -46,16 +48,35 @@ def Find(name):
             name = 'org.python.core.PyDictionary'
             
     mod = _imp(name)
+    parent = mod
+    foundAs = ''
+    
     if hasattr(mod, '__file__'):
         f = mod.__file__
 
-    components = name.split('.')
 
+    components = name.split('.')
+    old_comp = None
     for comp in components[1:]:
-        mod = getattr(mod, comp)
+        try:
+            #this happens in the following case:
+            #we have mx.DateTime.mxDateTime.mxDateTime.pyd
+            #but after importing it, mx.DateTime.mxDateTime does shadows access to mxDateTime.pyd
+            mod = getattr(mod, comp)
+        except AttributeError:
+            if old_comp != comp:
+                raise
+        
         if hasattr(mod, '__file__'):
             f = mod.__file__
-    return f, mod
+        else:
+            if len(foundAs) > 0:
+                foundAs = foundAs+'.'
+            foundAs = foundAs+comp
+            
+        old_comp = comp
+        
+    return f, mod, parent, foundAs
 
 def formatParamClassName(paramClassName):
     if paramClassName.startswith('['):
@@ -79,7 +100,7 @@ def GenerateTip(data):
     if data.endswith('.'):
         data = data.rstrip('.')
     
-    f, mod = Find(data)
+    f, mod, parent, foundAs = Find(data)
     tips = GenerateImportsTipForModule(mod)
     return f, tips
     
@@ -341,6 +362,21 @@ def formatArg(arg):
         s =  c + s[1:]
 
     return s
+    
+    
+    
+def Search(data):
+    '''@return file, line, col
+    '''
+    
+    data = data.replace('\n', '')
+    if data.endswith('.'):
+        data = data.rstrip('.')
+    f, mod, parent, foundAs = Find(data)
+    try:
+        return DoFind(f, mod), foundAs
+    except:
+        return DoFind(f, parent), foundAs
     
     
 def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr, filter=lambda name:True):

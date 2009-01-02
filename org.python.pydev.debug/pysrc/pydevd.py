@@ -292,7 +292,7 @@ class PyDB:
                         
             for tId in self.RUNNING_THREAD_IDS.keys():
                 try:
-                    if not foundThreads.__contains__(tId):
+                    if not DictContains(foundThreads, tId):
                         self.processThreadNotAlive(tId)
                 except:
                     sys.stderr.write('Error iterating through %s (%s) - %s\n' % (foundThreads, foundThreads.__class__, dir(foundThreads)))
@@ -432,7 +432,7 @@ class PyDB:
                     if DEBUG_TRACE_BREAKPOINTS > 0:
                         sys.stderr.write('Added breakpoint:%s - line:%s - func_name:%s\n' % (file, line, func_name))
                         
-                    if self.breakpoints.__contains__(file):
+                    if DictContains(self.breakpoints, file):
                         breakDict = self.breakpoints[file]
                     else:
                         breakDict = {}
@@ -594,7 +594,7 @@ class PyDB:
     
             filename, base = pydevd_file_utils.GetFilenameAndBase(frame)
     
-            if DONT_TRACE.__contains__(base): #we don't want to debug threading or anything related to pydevd
+            if DictContains(DONT_TRACE, base): #we don't want to debug threading or anything related to pydevd
                 return None
     
             #print('trace_dispatch', base, frame.f_lineno, event, frame.f_code.co_name)

@@ -53,9 +53,15 @@ except AttributeError:
 #=======================================================================================================================
 try:
     import org.python.core.PyDictionary
-    org.python.core.PyDictionary.__contains__ = org.python.core.PyDictionary.has_key
-except ImportError:
-    pass #That's OK
+    def DictContains(d, key):
+        return d.has_key(key)
+except:
+    try:
+        import dict
+        #Py3k does not have has_key anymore, and older versions don't have __contains__
+        DictContains = dict.__contains__
+    except:
+        DictContains = dict.has_key
 
 #=======================================================================================================================
 # NextId
