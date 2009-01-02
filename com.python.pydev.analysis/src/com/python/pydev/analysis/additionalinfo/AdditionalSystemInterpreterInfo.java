@@ -12,7 +12,10 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -21,19 +24,26 @@ import com.python.pydev.analysis.AnalysisPlugin;
 public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependencyInfo{
 
     private IInterpreterManager manager;
+    private String additionalInfoInterpreter;
+    
     /**
      * holds system info (interpreter name points to system info)
      */
-    private static Map<String, AbstractAdditionalInterpreterInfo> additionalSystemInfo = new HashMap<String, AbstractAdditionalInterpreterInfo>();
+    private static Map<Tuple<String, String>, AbstractAdditionalInterpreterInfo> additionalSystemInfo = 
+        new HashMap<Tuple<String, String>, AbstractAdditionalInterpreterInfo>();
 
-    public AdditionalSystemInterpreterInfo(IInterpreterManager manager) {
+    public AdditionalSystemInterpreterInfo(IInterpreterManager manager, String interpreter) {
+        super(false); //don't call init just right now...
         this.manager = manager;
+        this.additionalInfoInterpreter = interpreter;
+        init();
     }
     
     /**
      * @return the path to the folder we want to keep things on
      */
     protected File getPersistingFolder() {
+        File base;
         try {
             IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
             String osString = stateLocation.toOSString();
@@ -43,29 +53,43 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
                     osString += '/';
                 }
             }
-            return new File(osString);
+            base = new File(osString);
         } catch (NullPointerException e) {
             //it may fail in tests... (save it in default folder in this cases)
             PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
-            return new File(".");
+            base = new File(".");
         }
+        File file = new File(base, getInterpreterRelatedName());
+        if(!file.exists()){
+            file.mkdirs();
+        }
+        return file;
     }
 
     @Override
     protected File getPersistingLocation() {
         return new File(getPersistingFolder(), manager.getManagerRelatedName() + ".pydevsysteminfo");
     }
+    
+    
+
+    private String getInterpreterRelatedName() {
+        IInterpreterInfo info = manager.getInterpreterInfo(this.additionalInfoInterpreter, new NullProgressMonitor());
+        return manager.getManagerRelatedName() + "_"+ info.getExeAsFileSystemValidPath();
+    }
+
 
     @Override
     protected void setAsDefaultInfo() {
-        AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, this);
+        AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, this.additionalInfoInterpreter, this);
     }
 
     /**
-     * @return whether the info was succesfully loaded or not
+     * @param interpreter 
+     * @return whether the info was successfully loaded or not
      */
-    public static boolean loadAdditionalSystemInfo(IInterpreterManager manager) {
-        AbstractAdditionalInterpreterInfo info = new AdditionalSystemInterpreterInfo(manager);
+    public static boolean loadAdditionalSystemInfo(IInterpreterManager manager, String interpreter) {
+        AbstractAdditionalInterpreterInfo info = new AdditionalSystemInterpreterInfo(manager, interpreter);
         //when it is successfully loaded, it sets itself as the default (for its type)
         return info.load();
     }
@@ -74,12 +98,12 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
      * @param m the module manager that we want to get info on (python, jython...)
      * @return the additional info for the system
      */
-    public static AbstractAdditionalInterpreterInfo getAdditionalSystemInfo(IInterpreterManager manager) {
-        String key = manager.getManagerRelatedName();
+    public static AbstractAdditionalInterpreterInfo getAdditionalSystemInfo(IInterpreterManager manager, String interpreter) {
+        Tuple<String,String> key = new Tuple<String, String>(manager.getManagerRelatedName(), interpreter);
         AbstractAdditionalInterpreterInfo info = additionalSystemInfo.get(key);
         if(info == null){
-            info = new AdditionalSystemInterpreterInfo(manager);
-            additionalSystemInfo.put(key, info);
+            //temporary until it's loaded!
+            return new AdditionalSystemInterpreterInfo(manager, interpreter);
         }
         return info;
     }
@@ -89,8 +113,11 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
      * @param manager the manager we want to set info on
      * @param additionalSystemInfoToSet the info to set
      */
-    public static void setAdditionalSystemInfo(IInterpreterManager manager, AbstractAdditionalInterpreterInfo additionalSystemInfoToSet) {
-        additionalSystemInfo.put(manager.getManagerRelatedName(), additionalSystemInfoToSet);
+    public static void setAdditionalSystemInfo(IInterpreterManager manager, String interpreter, 
+            AbstractAdditionalInterpreterInfo additionalSystemInfoToSet) {
+        
+        additionalSystemInfo.put(new Tuple<String, String>(manager.getManagerRelatedName(), interpreter), 
+                additionalSystemInfoToSet);
     }
 
 }

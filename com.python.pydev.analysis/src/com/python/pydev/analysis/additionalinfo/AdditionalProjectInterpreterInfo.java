@@ -199,15 +199,20 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         return getAdditionalInfo(nature, true, false);
     }
     
+    
     /**
      * @param nature the nature we want to get info on
      * @return all the additional info that is bounded with some nature (including related projects)
      */
-    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) {
+    public static List<AbstractAdditionalInterpreterInfo> getAdditionalInfo(IPythonNature nature, boolean addSystemInfo,
+            boolean addReferencingProjects) {
         return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects).o1;
     }
     
-    public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) {
+    
+    public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
+            IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) {
+        
         List<AbstractAdditionalInterpreterInfo> ret = new ArrayList<AbstractAdditionalInterpreterInfo>();
         List<IPythonNature> natures = new ArrayList<IPythonNature>();
         
@@ -215,7 +220,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         
         //get for the system info
         if(addSystemInfo){
-            AbstractAdditionalInterpreterInfo systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(PydevPlugin.getInterpreterManager(nature));
+            AbstractAdditionalInterpreterInfo systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+                    PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter());
             ret.add(systemInfo);
         }
     

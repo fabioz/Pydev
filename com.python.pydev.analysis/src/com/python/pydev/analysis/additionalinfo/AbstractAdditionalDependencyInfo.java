@@ -68,17 +68,17 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
     
     /**
-     * 
+     * Initializes the internal DiskCache with the indexes.
      */
     protected void init() {
-        File persistingFolder = getCompletIndexPersistingFolder();
+        File persistingFolder = getCompleteIndexPersistingFolder();
         completeIndex = new DiskCache(DISK_CACHE_IN_MEMORY, persistingFolder, ".indexcache");
     }
 
     /**
      * @return a folder where the index should be persisted
      */
-    private File getCompletIndexPersistingFolder() {
+    protected File getCompleteIndexPersistingFolder() {
         File persistingFolder = getPersistingFolder();
         persistingFolder = new File(persistingFolder, "indexcache");
         
@@ -88,7 +88,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             }
         }
         if(!persistingFolder.exists()){
-            persistingFolder.mkdir();
+            persistingFolder.mkdirs();
         }
         return persistingFolder;
     }
@@ -106,6 +106,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
     
     
+    @SuppressWarnings("unchecked")
     @Override
     protected List<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
         synchronized(lock){
@@ -197,7 +198,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             throw new RuntimeException("Type Error (index == null): the info must be regenerated (changed across versions).");
         }
         
-        String shouldBeOn = REF.getFileAbsolutePath(getCompletIndexPersistingFolder());
+        String shouldBeOn = REF.getFileAbsolutePath(getCompleteIndexPersistingFolder());
         if(!completeIndex.getFolderToPersist().equals(shouldBeOn)){
             //this can happen if the user moves its .metadata folder (so, we have to validate it).
             completeIndex.setFolderToPersist(shouldBeOn);

@@ -145,7 +145,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             
             //try to load it from previous session
             IInterpreterManager interpreterManager = getInterpreterManager();
-            if(forceAdditionalInfoRecreation || !AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager)){
+            if(forceAdditionalInfoRecreation || !AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager, interpreterManager.getDefaultInterpreter())){
                 observer.notifyDefaultPythonpathRestored(interpreterManager, interpreterManager.getDefaultInterpreter(), monitor);
             }
         }
@@ -158,7 +158,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         if(ret){
             //try to load it from previous session
             if(forceAdditionalInfoRecreation || !AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature)){
-                observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor(), null);
+                observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
             }
         }
         return ret;

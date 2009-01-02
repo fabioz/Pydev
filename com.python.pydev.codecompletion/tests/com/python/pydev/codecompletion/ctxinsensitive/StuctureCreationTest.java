@@ -51,7 +51,8 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     // ------------------------------------------------------------------------------------------------- tests
     
     public void testSetup() {
-        AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(getInterpreterManager());
+        AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+                getInterpreterManager(), getInterpreterManager().getDefaultInterpreter());
         assertTrue(additionalSystemInfo.getAllTokens().size() > 0);
         List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertIsIn("TestCase", "unittest", tokensStartingWith);

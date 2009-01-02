@@ -590,8 +590,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * save the information contained for the given manager
      */
-    public static void saveAdditionalSystemInfo(IInterpreterManager manager) {
-        AbstractAdditionalInterpreterInfo info = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager);
+    public static void saveAdditionalSystemInfo(IInterpreterManager manager, String interpreter) {
+        AbstractAdditionalInterpreterInfo info = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
         info.save();
     }
 
@@ -611,7 +611,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
     }
 
     /**
-     * @return the information to be saved (if overriden, restoreSavedInfo should be overriden too)
+     * @return the information to be saved (if overridden, restoreSavedInfo should be overridden too)
      */
     @SuppressWarnings("unchecked")
     protected Object getInfoToSave(){

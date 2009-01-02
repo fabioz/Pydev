@@ -49,7 +49,7 @@ public class PyGlobalsBrowser extends PyAction{
     }
 
     /**
-     * @param selectedText the text that should be selected in the begginning (may be null)
+     * @param selectedText the text that should be selected in the beginning (may be null)
      */
     public void getFromSystemManager(String selectedText) {
         List<AbstractAdditionalInterpreterInfo> additionalInfo = new ArrayList<AbstractAdditionalInterpreterInfo>();
@@ -62,7 +62,10 @@ public class PyGlobalsBrowser extends PyAction{
                 return;
             }
             
-            AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(infoForFile.o1.getRelatedInterpreterManager());
+            IInterpreterManager manager = infoForFile.o1.getRelatedInterpreterManager();
+            AbstractAdditionalInterpreterInfo additionalSystemInfo = 
+                AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, manager.getDefaultInterpreter());
+            
             if(additionalSystemInfo == null){
                 return;
             }
@@ -83,7 +86,7 @@ public class PyGlobalsBrowser extends PyAction{
      * 
      * If none is configured, it will show an error saying so.
      *  
-     * @param selectedText the text that should be initally set as the filter
+     * @param selectedText the text that should be initially set as the filter
      */
     public static void getFromWorkspace(String selectedText) {
         IInterpreterManager useManager = ChooseInterpreterManager.chooseInterpreterManager();
@@ -91,7 +94,8 @@ public class PyGlobalsBrowser extends PyAction{
             return;
         }
         
-        AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(useManager);
+        AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+                useManager, useManager.getDefaultInterpreter());
         if(additionalSystemInfo == null){
             MessageDialog.openError(getShell(), "Error", "Additional info is null.");
             return;

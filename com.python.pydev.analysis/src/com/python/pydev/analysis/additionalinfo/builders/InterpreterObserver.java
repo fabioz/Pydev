@@ -44,27 +44,28 @@ public class InterpreterObserver implements IInterpreterObserver {
     /**
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyDefaultPythonpathRestored(org.python.pydev.ui.interpreters.AbstractInterpreterManager, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public void notifyDefaultPythonpathRestored(IInterpreterManager manager, String defaultSelectedInterpreter, IProgressMonitor monitor){
+    public void notifyDefaultPythonpathRestored(IInterpreterManager manager, String interpreter, IProgressMonitor monitor){
         if(DEBUG_INTERPRETER_OBSERVER){
-            System.out.println("notifyDefaultPythonpathRestored "+ defaultSelectedInterpreter);
+            System.out.println("notifyDefaultPythonpathRestored "+ interpreter);
         }
         try {
             try {
-                final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(defaultSelectedInterpreter, new NullProgressMonitor());
+                final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
                 int grammarVersion = interpreterInfo.getGrammarVersion();
-                AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager);
+                AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
                 if(currInfo != null){
                     currInfo.clearAllInfo();
                 }
-                InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(defaultSelectedInterpreter, monitor);
+                InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
                 ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
-                AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, "(system: " + manager.getManagerRelatedName() + ")",
-                        new AdditionalSystemInterpreterInfo(manager), null, grammarVersion);
+                AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
+                        "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
+                        new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
 
                 if (additionalSystemInfo != null) {
                     //ok, set it and save it
-                    AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, additionalSystemInfo);
-                    AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager);
+                    AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, interpreter, additionalSystemInfo);
+                    AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager, interpreter);
                 }
             } catch (NotConfiguredInterpreterException e) {
                 //ok, nothing configured, nothing to do...
@@ -83,19 +84,16 @@ public class InterpreterObserver implements IInterpreterObserver {
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
-        try {
-            iManager.getDefaultInterpreter(); //may throw a 'not configured' exception
-            
-            if (!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager)) {
+        for(final String interpreter:iManager.getInterpreters()){
+            if (!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, interpreter)) {
                 //not successfully loaded
                 Job j = new Job("Pydev... Restoring additional info") {
 
                     @Override
                     protected IStatus run(IProgressMonitor monitorArg) {
                         try {
-                            final String defaultInterpreter = iManager.getDefaultInterpreter(); //it should be configured if we reach here.
                             JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", IProgressMonitor.UNKNOWN, this);
-                            notifyDefaultPythonpathRestored(iManager, defaultInterpreter, jobProgressComunicator);
+                            notifyDefaultPythonpathRestored(iManager, interpreter, jobProgressComunicator);
                             jobProgressComunicator.done();
                         } catch (Exception e) {
                             PydevPlugin.log(e);
@@ -107,9 +105,6 @@ public class InterpreterObserver implements IInterpreterObserver {
                 j.setPriority(Job.BUILD);
                 j.schedule();
             }
-        } catch (NotConfiguredInterpreterException e) {
-            //ok, we've received the notification, so the interpreter was restored... but there is no info about it,
-            //so, just ignore it.
         }
     }
 
@@ -229,7 +224,7 @@ public class InterpreterObserver implements IInterpreterObserver {
     }
 
 
-    public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor, final String defaultSelectedInterpreter) {
+    public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
         try {
             IModulesManager m = nature.getAstManager().getModulesManager();
             IProject project = nature.getProject();
@@ -262,7 +257,7 @@ public class InterpreterObserver implements IInterpreterObserver {
             if(DEBUG_INTERPRETER_OBSERVER){
                 System.out.println("Unable to load the info correctly... restoring info from the pythonpath");
             }
-            notifyProjectPythonpathRestored(nature, monitor, null);
+            notifyProjectPythonpathRestored(nature, monitor);
         }
     }
 

@@ -99,11 +99,11 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
         return null;
     }
 
-    public void restartShell() {
+    public void restartShell(RefactoringRequest request) {
         //no shell
     }
 
-    public void killShell() {
+    public void killShell(RefactoringRequest request) {
         //no shell
     }
 
