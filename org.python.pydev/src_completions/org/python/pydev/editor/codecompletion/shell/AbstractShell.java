@@ -518,7 +518,9 @@ public abstract class AbstractShell {
     }
 
     public synchronized void clearSocket() throws IOException {
-        while(true){ //clear until we get no message...
+    	long maxTime = System.currentTimeMillis()+(1000*50); //50 secs timeout
+    	
+        while(System.currentTimeMillis() < maxTime){ //clear until we get no message and timeout is not elapsed
             byte[] b = new byte[AbstractShell.BUFFER_SIZE];
             if(this.socketToRead != null){
                 this.socketToRead.getInputStream().read(b);
@@ -528,6 +530,9 @@ public abstract class AbstractShell {
                 if(s.length() == 0){
                     return;
                 }
+            }else{
+            	//if we have no socket, simply return (nothing to clear)
+            	return;
             }
         }        
     }
