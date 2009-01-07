@@ -14,6 +14,7 @@ Fixed halting condition that could occur on code-completion
 Giving proper warning on version mismatch
 Reorganized preferences (removed editor preferences from the root)
 Preferences for showing hover info
+Fixed problem when formatting binary operator that was in a new line.
 
 after 1.4
 

@@ -47,6 +47,15 @@ public class FastStringBufferTest extends TestCase{
         }
     }
     
+    public void testReverseIterating() {
+        FastStringBuffer fastStringBuffer = new FastStringBuffer("abc", 0);
+        FastStringBuffer fastStringBuffer2 = new FastStringBuffer("", 3);
+        for (Character c : fastStringBuffer.reverseIterator()) {
+            fastStringBuffer2.append(c);
+        }
+        assertEquals("cba", fastStringBuffer2.toString());
+    }
+    
     
 //    public void testFastString() throws Exception {
 //        

@@ -24,7 +24,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testSimpleOperator4();
+            n.testSpacesOnCall();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -82,6 +82,27 @@ public class PyFormatStdTest extends TestCase {
         std.parametersWithSpace = false;
         
         checkFormatResults("import *");
+    }
+    
+    
+    public void testSpacesOnCall(){
+        std.operatorsWithSpace = true;
+        std.assignWithSpaceInsideParens = true;
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        
+        String original = "" +
+        		"raise RuntimeError( \n" +
+        		"    'text'\n" +
+        		"    % format )\n" +
+        		"";
+        
+        String expected = "" +
+                "raise RuntimeError(\n" +
+                "    'text'\n" +
+                "    % format)\n" +
+                "";
+        checkFormatResults(original, expected);
     }
     
     public void testDontDisturbVarArgsAndKwArgs(){
@@ -676,8 +697,8 @@ public class PyFormatStdTest extends TestCase {
         String formatStr = new PyFormatStd().formatStr(s, std);
         
         if(DEBUG){
-            System.out.println(">>"+s+"<<");
-            System.out.println(">>"+formatStr+"<<");
+            System.out.println(">>"+s.replace(' ', '.')+"<<");
+            System.out.println(">>"+formatStr.replace(' ', '.')+"<<");
         }
         assertEquals(expected, formatStr);
         

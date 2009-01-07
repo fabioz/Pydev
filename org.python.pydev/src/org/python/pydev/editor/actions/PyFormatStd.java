@@ -347,16 +347,33 @@ public class PyFormatStd extends PyAction implements IFormatter {
             isUnary = buf.length() == 0;
         }
         
+        boolean changeWhitespacesBefore = true;
+        if(!isUnary){
+            //We don't want to change whitespaces before in a binary operator that is in a new line.
+            for(char ch:buf.reverseIterator()){
+                if(!Character.isWhitespace(ch)){
+                    break;
+                }
+                if(ch == '\r' || ch == '\n'){
+                    changeWhitespacesBefore = false;
+                    break;
+                }
+            }
+        }
         
-        while(buf.length() > 0 && buf.lastChar() == ' '){
-            buf.deleteLast();
+        if(changeWhitespacesBefore){
+            while(buf.length() > 0 && buf.lastChar() == ' '){
+                buf.deleteLast();
+            }
         }
         
         boolean surroundWithSpaces = std.operatorsWithSpace;
         
-        //add space before
-        if(!isUnary && surroundWithSpaces){
-            buf.append(' ');
+        if(changeWhitespacesBefore){
+            //add spaces before
+            if(!isUnary && surroundWithSpaces){
+                buf.append(' ');
+            }
         }
         
         char localC = c;
@@ -445,7 +462,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
 
         if (c == ')') {
-
             //Now, when a closing parens is found, let's see the contents of the line where that parens was found
             //and if it's only whitespaces, add all those whitespaces (to handle the following case:
             //a(a, 
@@ -500,6 +516,16 @@ public class PyFormatStd extends PyAction implements IFormatter {
         while (locBuf.length() > 0 && locBuf.firstChar() == ' ') {
             locBuf.deleteCharAt(0);
         }
+        rtrim(locBuf);
+        return locBuf;
+    }
+    
+    /**
+     * We just want to trim whitespaces, not newlines!
+     * @param locBuf the buffer to be trimmed
+     * @return the same buffer passed as a parameter
+     */
+    private FastStringBuffer rtrim(FastStringBuffer locBuf) {
         while (locBuf.length() > 0 && locBuf.lastChar() == ' ') {
             locBuf.deleteLast();
         }

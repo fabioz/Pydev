@@ -1,5 +1,9 @@
 package org.python.pydev.core.structure;
 
+import java.util.Iterator;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 /**
  * This is a custom string buffer optimized for append(), clear() and deleteLast(). 
  * 
@@ -322,5 +326,36 @@ public final class FastStringBuffer{
     }
 
 
+    public static class BackwardCharIterator implements Iterable<Character>{
+
+        private int i;
+        private FastStringBuffer fastStringBuffer;
+        
+        public BackwardCharIterator(FastStringBuffer fastStringBuffer) {
+            this.fastStringBuffer = fastStringBuffer;
+            i = fastStringBuffer.length();
+        }
+        
+        public Iterator<Character> iterator() {
+            return new Iterator<Character>(){
+
+                public boolean hasNext() {
+                    return i > 0;
+                }
+
+                public Character next() {
+                    return fastStringBuffer.value[--i];
+                }
+
+                public void remove() {
+                    throw new NotImplementedException();
+                }
+            };
+        }
+    }
+    
+    public BackwardCharIterator reverseIterator() {
+        return new BackwardCharIterator(this);
+    }
     
 }
