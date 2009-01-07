@@ -7,7 +7,7 @@ package org.python.pydev.editor.autoedit;
 
 import org.python.pydev.core.cache.PyPreferencesCache;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.PydevEditorPrefs;
 
 /**
  * Provides indentation preferences from the preferences set in the preferences pages within eclipse.
@@ -55,14 +55,14 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     DefaultIndentPrefs(){
         PyPreferencesCache c = getCache();
-        useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
-        tabWidth = c.getInt(PydevPrefs.TAB_WIDTH, 4);
+        useSpaces = c.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS);
+        tabWidth = c.getInt(PydevEditorPrefs.TAB_WIDTH, 4);
     }
 
     public boolean getUseSpaces() {
         PyPreferencesCache c = getCache();
-        if(useSpaces != c.getBoolean(PydevPrefs.SUBSTITUTE_TABS)){
-            useSpaces = c.getBoolean(PydevPrefs.SUBSTITUTE_TABS);
+        if(useSpaces != c.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS)){
+            useSpaces = c.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS);
             regenerateIndentString();
         }
         return useSpaces;
@@ -73,7 +73,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         if(default1 == null){
             return 4;
         }
-        int w = default1.getPluginPreferences().getInt(PydevPrefs.TAB_WIDTH);
+        int w = default1.getPluginPreferences().getInt(PydevEditorPrefs.TAB_WIDTH);
         if(w <= 0){ //tab width should never be 0 or less (in this case, let's make the default 4)
             w = 4;
         }
@@ -82,8 +82,8 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     
     public int getTabWidth() {
         PyPreferencesCache c = getCache();
-        if(tabWidth != c.getInt(PydevPrefs.TAB_WIDTH, 4)){
-            tabWidth = c.getInt(PydevPrefs.TAB_WIDTH, 4);
+        if(tabWidth != c.getInt(PydevEditorPrefs.TAB_WIDTH, 4)){
+            tabWidth = c.getInt(PydevEditorPrefs.TAB_WIDTH, 4);
             regenerateIndentString();
         }
         return tabWidth;
@@ -91,8 +91,8 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 
     public void regenerateIndentString(){
         PyPreferencesCache c = getCache();
-        c.clear(PydevPrefs.TAB_WIDTH);
-        c.clear(PydevPrefs.SUBSTITUTE_TABS);
+        c.clear(PydevEditorPrefs.TAB_WIDTH);
+        c.clear(PydevEditorPrefs.SUBSTITUTE_TABS);
         indentString = super.getIndentationString();
     }
     /**
@@ -113,35 +113,35 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      * @see org.python.pydev.editor.autoedit.IIndentPrefs#getAutoParentesis()
      */
     public boolean getAutoParentesis() {
-        return getCache().getBoolean(PydevPrefs.AUTO_PAR);
+        return getCache().getBoolean(PydevEditorPrefs.AUTO_PAR);
     }
     
     public boolean getIndentToParLevel() {
-        return getCache().getBoolean(PydevPrefs.AUTO_INDENT_TO_PAR_LEVEL);
+        return getCache().getBoolean(PydevEditorPrefs.AUTO_INDENT_TO_PAR_LEVEL);
     }
 
     public boolean getAutoColon() {
-        return getCache().getBoolean(PydevPrefs.AUTO_COLON);
+        return getCache().getBoolean(PydevEditorPrefs.AUTO_COLON);
     }
 
     public boolean getAutoBraces() {
-        return getCache().getBoolean(PydevPrefs.AUTO_BRACES);
+        return getCache().getBoolean(PydevEditorPrefs.AUTO_BRACES);
     }
 
     public boolean getAutoWriteImport() {
-        return getCache().getBoolean(PydevPrefs.AUTO_WRITE_IMPORT_STR);
+        return getCache().getBoolean(PydevEditorPrefs.AUTO_WRITE_IMPORT_STR);
     }
 
     public boolean getSmartIndentPar() {
-        return getCache().getBoolean(PydevPrefs.SMART_INDENT_PAR);
+        return getCache().getBoolean(PydevEditorPrefs.SMART_INDENT_PAR);
     }
 
     public boolean getAutoAddSelf() {
-        return getCache().getBoolean(PydevPrefs.AUTO_ADD_SELF);
+        return getCache().getBoolean(PydevEditorPrefs.AUTO_ADD_SELF);
     }
 
     public boolean getAutoDedentElse() {
-        return getCache().getBoolean(PydevPrefs.AUTO_DEDENT_ELSE);
+        return getCache().getBoolean(PydevEditorPrefs.AUTO_DEDENT_ELSE);
     }
 
 

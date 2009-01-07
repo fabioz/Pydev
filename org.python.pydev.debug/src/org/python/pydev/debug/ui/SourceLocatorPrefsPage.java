@@ -14,7 +14,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.PydevEditorPrefs;
 
 /**
  * Preferences for the locations that should be translated -- used when the debugger is not able
@@ -45,7 +45,7 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
     @SuppressWarnings("unchecked")
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        addField(new TableEditor(PydevPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p){
+        addField(new TableEditor(PydevEditorPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p){
 
             @Override
             protected String createTable(List<String[]> items) {

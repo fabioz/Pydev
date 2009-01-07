@@ -49,7 +49,7 @@ import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.PydevEditorPrefs;
 import org.python.pydev.ui.ColorCache;
 
 /**
@@ -178,7 +178,7 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
             spaces.append(" ");
         }
 
-        boolean spacesFirst = prefs.getBoolean(PydevPrefs.SUBSTITUTE_TABS) && !(getPyAutoIndentStrategy()).getIndentPrefs().getForceTabs();
+        boolean spacesFirst = prefs.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS) && !(getPyAutoIndentStrategy()).getIndentPrefs().getForceTabs();
 
         if (spacesFirst) {
             indentPrefixes[0] = spaces.toString();
@@ -241,19 +241,19 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
 
             IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
             // Comments have uniform color
-            commentScanner = new PyColoredScanner(colorCache, PydevPrefs.COMMENT_COLOR, preferences.getInt(PydevPrefs.COMMENT_STYLE));
+            commentScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.COMMENT_COLOR, preferences.getInt(PydevEditorPrefs.COMMENT_STYLE));
             dr = new DefaultDamagerRepairer(commentScanner);
             reconciler.setDamager(dr, IPythonPartitions.PY_COMMENT);
             reconciler.setRepairer(dr, IPythonPartitions.PY_COMMENT);
 
             // Backquotes have uniform color
-            backquotesScanner = new PyColoredScanner(colorCache, PydevPrefs.BACKQUOTES_COLOR,preferences.getInt(PydevPrefs.BACKQUOTES_STYLE));
+            backquotesScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.BACKQUOTES_COLOR,preferences.getInt(PydevEditorPrefs.BACKQUOTES_STYLE));
             dr = new DefaultDamagerRepairer(backquotesScanner);
             reconciler.setDamager(dr, IPythonPartitions.PY_BACKQUOTES);
             reconciler.setRepairer(dr, IPythonPartitions.PY_BACKQUOTES);
             
             // Strings have uniform color
-            stringScanner = new PyColoredScanner(colorCache, PydevPrefs.STRING_COLOR,preferences.getInt(PydevPrefs.STRING_STYLE));
+            stringScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.STRING_COLOR,preferences.getInt(PydevEditorPrefs.STRING_STYLE));
             dr = new DefaultDamagerRepairer(stringScanner);
             reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
             reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
@@ -378,13 +378,13 @@ public class PyEditConfiguration extends TextSourceViewerConfiguration {
             
             IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
             
-            commentScanner.setStyle(preferences.getInt(PydevPrefs.COMMENT_STYLE));
+            commentScanner.setStyle(preferences.getInt(PydevEditorPrefs.COMMENT_STYLE));
             commentScanner.updateColorAndStyle();
 
-            stringScanner.setStyle(preferences.getInt(PydevPrefs.STRING_STYLE));
+            stringScanner.setStyle(preferences.getInt(PydevEditorPrefs.STRING_STYLE));
             stringScanner.updateColorAndStyle();
 
-            backquotesScanner.setStyle(preferences.getInt(PydevPrefs.BACKQUOTES_STYLE));
+            backquotesScanner.setStyle(preferences.getInt(PydevEditorPrefs.BACKQUOTES_STYLE));
             backquotesScanner.updateColorAndStyle();
         }
     }

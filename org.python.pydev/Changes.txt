@@ -11,7 +11,8 @@ Find with builtins working for Jython
 Fixes in Jython debugger
 Run configuration can run as python/jython even if it doesn't match the interpreter configured for the project
 Fixed halting condition that could occur on code-completion
-
+Giving proper warning on version mismatch
+Reorganized preferences (removed editor preferences from the root)
 
 after 1.4
 

@@ -24,6 +24,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPrefs;
 
 /**
@@ -335,7 +336,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
     public static String getStaticIndentationString(PyEdit edit) {
         try {
             int tabWidth = DefaultIndentPrefs.getStaticTabWidth();
-            boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevPrefs.SUBSTITUTE_TABS);
+            boolean useSpaces = PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS);
             boolean forceTabs = false;
             if (edit != null){
                 forceTabs = edit.getIndentPrefs().getForceTabs();

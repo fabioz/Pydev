@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -391,6 +390,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         }
     }
     
+    @SuppressWarnings("unchecked")
     protected void initializeFields() {
         
         Iterator e= fCheckBoxes.keySet().iterator();
@@ -611,19 +611,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         }
     }
     
-    /**
-     * @return the place where this plugin preferences are stored.
-     */
-    public static Preferences getPreferences() {
-        return PydevPlugin.getDefault().getPluginPreferences();
-    }
     
-    /**
-     * @return an array of strings with the available interpreters.
-     */
-    public static String[] getInterpreters() {
-        return PydevPlugin.getPythonInterpreterManager().getInterpreters();
-    }
     protected void handleAppearanceColorListSelection() {   
         int i= fAppearanceColorList.getSelectionIndex();
         String key= fAppearanceColorListModel[i][1];

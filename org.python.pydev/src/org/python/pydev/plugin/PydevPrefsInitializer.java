@@ -24,15 +24,15 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         Preferences node = new DefaultScope().getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
 
         //text
-        node.putBoolean(PydevPrefs.SMART_INDENT_PAR, PydevPrefs.DEFAULT_SMART_INDENT_PAR);
-        node.putBoolean(PydevPrefs.AUTO_PAR, PydevPrefs.DEFAULT_AUTO_PAR);
-        node.putBoolean(PydevPrefs.AUTO_INDENT_TO_PAR_LEVEL, PydevPrefs.DEFAULT_AUTO_INDENT_TO_PAR_LEVEL);
-        node.putBoolean(PydevPrefs.AUTO_DEDENT_ELSE, PydevPrefs.DEFAULT_AUTO_DEDENT_ELSE);
-        node.putBoolean(PydevPrefs.AUTO_COLON, PydevPrefs.DEFAULT_AUTO_COLON);
-        node.putBoolean(PydevPrefs.AUTO_BRACES, PydevPrefs.DEFAULT_AUTO_BRACES);
-        node.putBoolean(PydevPrefs.AUTO_WRITE_IMPORT_STR, PydevPrefs.DEFAULT_AUTO_WRITE_IMPORT_STR);
+        node.putBoolean(PydevEditorPrefs.SMART_INDENT_PAR, PydevEditorPrefs.DEFAULT_SMART_INDENT_PAR);
+        node.putBoolean(PydevEditorPrefs.AUTO_PAR, PydevEditorPrefs.DEFAULT_AUTO_PAR);
+        node.putBoolean(PydevEditorPrefs.AUTO_INDENT_TO_PAR_LEVEL, PydevEditorPrefs.DEFAULT_AUTO_INDENT_TO_PAR_LEVEL);
+        node.putBoolean(PydevEditorPrefs.AUTO_DEDENT_ELSE, PydevEditorPrefs.DEFAULT_AUTO_DEDENT_ELSE);
+        node.putBoolean(PydevEditorPrefs.AUTO_COLON, PydevEditorPrefs.DEFAULT_AUTO_COLON);
+        node.putBoolean(PydevEditorPrefs.AUTO_BRACES, PydevEditorPrefs.DEFAULT_AUTO_BRACES);
+        node.putBoolean(PydevEditorPrefs.AUTO_WRITE_IMPORT_STR, PydevEditorPrefs.DEFAULT_AUTO_WRITE_IMPORT_STR);
     
-        node.putInt(PydevPrefs.TAB_WIDTH, PydevPrefs.DEFAULT_TAB_WIDTH);
+        node.putInt(PydevEditorPrefs.TAB_WIDTH, PydevEditorPrefs.DEFAULT_TAB_WIDTH);
         
         //comment blocks
         node.put(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_CHAR, CommentBlocksPreferences.DEFAULT_MULTI_BLOCK_COMMENT_CHAR);
@@ -42,42 +42,42 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT, CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
         
         //checkboxes
-        node.putBoolean(PydevPrefs.SUBSTITUTE_TABS, PydevPrefs.DEFAULT_SUBSTITUTE_TABS);
-        node.putBoolean(PydevPrefs.AUTO_ADD_SELF, PydevPrefs.DEFAULT_AUTO_ADD_SELF);
-        node.putBoolean(PydevPrefs.GUESS_TAB_SUBSTITUTION, PydevPrefs.DEFAULT_GUESS_TAB_SUBSTITUTION);
+        node.putBoolean(PydevEditorPrefs.SUBSTITUTE_TABS, PydevEditorPrefs.DEFAULT_SUBSTITUTE_TABS);
+        node.putBoolean(PydevEditorPrefs.AUTO_ADD_SELF, PydevEditorPrefs.DEFAULT_AUTO_ADD_SELF);
+        node.putBoolean(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION, PydevEditorPrefs.DEFAULT_GUESS_TAB_SUBSTITUTION);
         
         //matching
-        node.putBoolean(PydevPrefs.USE_MATCHING_BRACKETS, PydevPrefs.DEFAULT_USE_MATCHING_BRACKETS);
-        node.put(PydevPrefs.MATCHING_BRACKETS_COLOR, StringConverter.asString(PydevPrefs.DEFAULT_MATCHING_BRACKETS_COLOR));
-        node.putInt(PydevPrefs.MATCHING_BRACKETS_STYLE, PydevPrefs.DEFAULT_MATCHING_BRACKETS_STYLE);
+        node.putBoolean(PydevEditorPrefs.USE_MATCHING_BRACKETS, PydevEditorPrefs.DEFAULT_USE_MATCHING_BRACKETS);
+        node.put(PydevEditorPrefs.MATCHING_BRACKETS_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_MATCHING_BRACKETS_COLOR));
+        node.putInt(PydevEditorPrefs.MATCHING_BRACKETS_STYLE, PydevEditorPrefs.DEFAULT_MATCHING_BRACKETS_STYLE);
         
         //colors
-        node.put(PydevPrefs.CODE_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_CODE_COLOR));
-        node.put(PydevPrefs.NUMBER_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_NUMBER_COLOR));
-        node.put(PydevPrefs.DECORATOR_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_DECORATOR_COLOR));
-        node.put(PydevPrefs.KEYWORD_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_KEYWORD_COLOR));
-        node.put(PydevPrefs.SELF_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_SELF_COLOR));
-        node.put(PydevPrefs.STRING_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_STRING_COLOR));
-        node.put(PydevPrefs.COMMENT_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_COMMENT_COLOR));
-        node.put(PydevPrefs.BACKQUOTES_COLOR,StringConverter.asString(PydevPrefs.DEFAULT_BACKQUOTES_COLOR));
-        node.put(PydevPrefs.CLASS_NAME_COLOR, StringConverter.asString(PydevPrefs.DEFAULT_CLASS_NAME_COLOR));
-        node.put(PydevPrefs.FUNC_NAME_COLOR,  StringConverter.asString(PydevPrefs.DEFAULT_FUNC_NAME_COLOR));
+        node.put(PydevEditorPrefs.CODE_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_CODE_COLOR));
+        node.put(PydevEditorPrefs.NUMBER_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_NUMBER_COLOR));
+        node.put(PydevEditorPrefs.DECORATOR_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_DECORATOR_COLOR));
+        node.put(PydevEditorPrefs.KEYWORD_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_KEYWORD_COLOR));
+        node.put(PydevEditorPrefs.SELF_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_SELF_COLOR));
+        node.put(PydevEditorPrefs.STRING_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_STRING_COLOR));
+        node.put(PydevEditorPrefs.COMMENT_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_COMMENT_COLOR));
+        node.put(PydevEditorPrefs.BACKQUOTES_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR));
+        node.put(PydevEditorPrefs.CLASS_NAME_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_CLASS_NAME_COLOR));
+        node.put(PydevEditorPrefs.FUNC_NAME_COLOR,  StringConverter.asString(PydevEditorPrefs.DEFAULT_FUNC_NAME_COLOR));
         //for selection colors see initializeDefaultColors()
         
         //font style
-        node.putInt(PydevPrefs.CODE_STYLE, PydevPrefs.DEFAULT_CODE_STYLE);
-        node.putInt(PydevPrefs.NUMBER_STYLE, PydevPrefs.DEFAULT_NUMBER_STYLE);
-        node.putInt(PydevPrefs.DECORATOR_STYLE, PydevPrefs.DEFAULT_DECORATOR_STYLE);
-        node.putInt(PydevPrefs.KEYWORD_STYLE, PydevPrefs.DEFAULT_KEYWORD_STYLE);
-        node.putInt(PydevPrefs.SELF_STYLE, PydevPrefs.DEFAULT_SELF_STYLE);
-        node.putInt(PydevPrefs.STRING_STYLE, PydevPrefs.DEFAULT_STRING_STYLE);
-        node.putInt(PydevPrefs.COMMENT_STYLE, PydevPrefs.DEFAULT_COMMENT_STYLE);
-        node.putInt(PydevPrefs.BACKQUOTES_STYLE, PydevPrefs.DEFAULT_BACKQUOTES_STYLE);
-        node.putInt(PydevPrefs.CLASS_NAME_STYLE, PydevPrefs.DEFAULT_CLASS_NAME_STYLE);
-        node.putInt(PydevPrefs.FUNC_NAME_STYLE, PydevPrefs.DEFAULT_FUNC_NAME_STYLE);
+        node.putInt(PydevEditorPrefs.CODE_STYLE, PydevEditorPrefs.DEFAULT_CODE_STYLE);
+        node.putInt(PydevEditorPrefs.NUMBER_STYLE, PydevEditorPrefs.DEFAULT_NUMBER_STYLE);
+        node.putInt(PydevEditorPrefs.DECORATOR_STYLE, PydevEditorPrefs.DEFAULT_DECORATOR_STYLE);
+        node.putInt(PydevEditorPrefs.KEYWORD_STYLE, PydevEditorPrefs.DEFAULT_KEYWORD_STYLE);
+        node.putInt(PydevEditorPrefs.SELF_STYLE, PydevEditorPrefs.DEFAULT_SELF_STYLE);
+        node.putInt(PydevEditorPrefs.STRING_STYLE, PydevEditorPrefs.DEFAULT_STRING_STYLE);
+        node.putInt(PydevEditorPrefs.COMMENT_STYLE, PydevEditorPrefs.DEFAULT_COMMENT_STYLE);
+        node.putInt(PydevEditorPrefs.BACKQUOTES_STYLE, PydevEditorPrefs.DEFAULT_BACKQUOTES_STYLE);
+        node.putInt(PydevEditorPrefs.CLASS_NAME_STYLE, PydevEditorPrefs.DEFAULT_CLASS_NAME_STYLE);
+        node.putInt(PydevEditorPrefs.FUNC_NAME_STYLE, PydevEditorPrefs.DEFAULT_FUNC_NAME_STYLE);
         
         //no UI
-        node.putInt(PydevPrefs.CONNECT_TIMEOUT, PydevPrefs.DEFAULT_CONNECT_TIMEOUT);
+        node.putInt(PydevEditorPrefs.CONNECT_TIMEOUT, PydevEditorPrefs.DEFAULT_CONNECT_TIMEOUT);
         
         
         //pydev todo tasks

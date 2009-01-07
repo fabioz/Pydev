@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.PydevEditorPrefs;
 
 /**
  * Class used to deal with the source locator prefs (even though they're edited in the SourceLocatorPrefsPage that's in
@@ -82,7 +82,7 @@ public class PySourceLocatorPrefs {
             throw new RuntimeException(valid);
         }
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        String available = store.getString(PydevPrefs.SOURCE_LOCATION_PATHS);
+        String available = store.getString(PydevEditorPrefs.SOURCE_LOCATION_PATHS);
         
         if(available == null || available.trim().length() == 0){
             available = StringUtils.join(",", translation);
@@ -106,7 +106,7 @@ public class PySourceLocatorPrefs {
                 available += StringUtils.join(",", translation);
             }
         }
-        store.putValue(PydevPrefs.SOURCE_LOCATION_PATHS, available);
+        store.putValue(PydevEditorPrefs.SOURCE_LOCATION_PATHS, available);
     }
     
     
@@ -127,7 +127,7 @@ public class PySourceLocatorPrefs {
     public static String getPathTranslation(String pathToTranslate){
         pathToTranslate = pathToTranslate.trim();
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        String available = store.getString(PydevPrefs.SOURCE_LOCATION_PATHS);
+        String available = store.getString(PydevEditorPrefs.SOURCE_LOCATION_PATHS);
         if(available == null || available.trim().length() == 0){
             return null; //nothing available
         }else{

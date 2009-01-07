@@ -36,6 +36,7 @@ import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.PyunitPrefsPage;
 import org.python.pydev.plugin.SocketUtil;
@@ -333,7 +334,7 @@ public class PythonRunnerConfig {
         arguments = getArguments(conf, makeArgumentsVariableSubstitution);
         IPath workingPath = getWorkingDirectory(conf);
         workingDirectory = workingPath == null ? null : workingPath.toFile();
-        acceptTimeout = PydevPrefs.getPreferences().getInt(PydevPrefs.CONNECT_TIMEOUT);
+        acceptTimeout = PydevPrefs.getPreferences().getInt(PydevEditorPrefs.CONNECT_TIMEOUT);
         
         interpreterLocation = getInterpreterLocation(conf, pythonNature, this.getRelatedInterpreterManager());
         interpreter = getInterpreter(interpreterLocation, conf, pythonNature);

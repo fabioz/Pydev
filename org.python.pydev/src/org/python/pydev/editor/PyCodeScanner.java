@@ -22,7 +22,7 @@ import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.PydevEditorPrefs;
 import org.python.pydev.ui.ColorCache;
 
 /**
@@ -166,13 +166,13 @@ public class PyCodeScanner extends RuleBasedScanner {
     
     private void setupRules() {
         IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
-        keywordToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevPrefs.KEYWORD_STYLE)));
-        selfToken      = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.SELF_COLOR), null, preferences.getInt(PydevPrefs.SELF_STYLE)));
-        defaultToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CODE_COLOR), null, preferences.getInt(PydevPrefs.CODE_STYLE)));
-        decoratorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.DECORATOR_COLOR), null, preferences.getInt(PydevPrefs.DECORATOR_STYLE)));
-        numberToken    = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.NUMBER_COLOR), null, preferences.getInt(PydevPrefs.NUMBER_STYLE)));
-        classNameToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.CLASS_NAME_COLOR), null, preferences.getInt(PydevPrefs.CLASS_NAME_STYLE)));
-        funcNameToken  = new Token( new TextAttribute(colorCache.getNamedColor(PydevPrefs.FUNC_NAME_COLOR), null, preferences.getInt(PydevPrefs.FUNC_NAME_STYLE)));
+        keywordToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevEditorPrefs.KEYWORD_STYLE)));
+        selfToken      = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.SELF_COLOR), null, preferences.getInt(PydevEditorPrefs.SELF_STYLE)));
+        defaultToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.CODE_COLOR), null, preferences.getInt(PydevEditorPrefs.CODE_STYLE)));
+        decoratorToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.DECORATOR_COLOR), null, preferences.getInt(PydevEditorPrefs.DECORATOR_STYLE)));
+        numberToken    = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.NUMBER_COLOR), null, preferences.getInt(PydevEditorPrefs.NUMBER_STYLE)));
+        classNameToken = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.CLASS_NAME_COLOR), null, preferences.getInt(PydevEditorPrefs.CLASS_NAME_STYLE)));
+        funcNameToken  = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.FUNC_NAME_COLOR), null, preferences.getInt(PydevEditorPrefs.FUNC_NAME_STYLE)));
         
         setDefaultReturnToken(defaultToken);
         List<IRule> rules = new ArrayList<IRule>();

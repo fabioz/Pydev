@@ -90,6 +90,7 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
@@ -404,7 +405,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             return;
         }
         
-        if (!PydevPrefs.getPreferences().getBoolean(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
+        if (!PydevPrefs.getPreferences().getBoolean(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
             getIndentPrefs().setForceTabs(false);
             return;
         }
@@ -508,7 +509,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                 public void propertyChange(Preferences.PropertyChangeEvent event) {
                     String property = event.getProperty();
                     //tab width
-                    if (property.equals(PydevPrefs.TAB_WIDTH)) {
+                    if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
                         ISourceViewer sourceViewer = getSourceViewer();
                         if (sourceViewer == null){
                             return;
@@ -516,18 +517,18 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
                         getIndentPrefs().regenerateIndentString();
                         sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
                         
-                    }else if (property.equals(PydevPrefs.SUBSTITUTE_TABS)) {
+                    }else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
                         getIndentPrefs().regenerateIndentString();
                        
                     //auto adjust for file tabs
-                    } else if (property.equals(PydevPrefs.GUESS_TAB_SUBSTITUTION)) {
+                    } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
                         resetForceTabs();
                         
                     //colors and styles
-                    } else if (property.equals(PydevPrefs.CODE_COLOR) || property.equals(PydevPrefs.DECORATOR_COLOR) || property.equals(PydevPrefs.NUMBER_COLOR)
-                            || property.equals(PydevPrefs.KEYWORD_COLOR) || property.equals(PydevPrefs.SELF_COLOR) || property.equals(PydevPrefs.COMMENT_COLOR) 
-                            || property.equals(PydevPrefs.STRING_COLOR) || property.equals(PydevPrefs.CLASS_NAME_COLOR) || property.equals(PydevPrefs.FUNC_NAME_COLOR)
-                            || property.equals(PydevPrefs.DEFAULT_BACKQUOTES_COLOR)
+                    } else if (property.equals(PydevEditorPrefs.CODE_COLOR) || property.equals(PydevEditorPrefs.DECORATOR_COLOR) || property.equals(PydevEditorPrefs.NUMBER_COLOR)
+                            || property.equals(PydevEditorPrefs.KEYWORD_COLOR) || property.equals(PydevEditorPrefs.SELF_COLOR) || property.equals(PydevEditorPrefs.COMMENT_COLOR) 
+                            || property.equals(PydevEditorPrefs.STRING_COLOR) || property.equals(PydevEditorPrefs.CLASS_NAME_COLOR) || property.equals(PydevEditorPrefs.FUNC_NAME_COLOR)
+                            || property.equals(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR)
                             || property.endsWith("_STYLE")
                             ) {
                         colorCache.reloadNamedColor(property); //all reference this cache

@@ -183,9 +183,8 @@
    <extension point="org.eclipse.ui.preferencePages">
       <page
             name="Pydev"
-            class="org.python.pydev.plugin.PydevPrefs"
+            class="org.python.pydev.plugin.PydevRootPrefs"
             id="org.python.pydev.prefs">
-            <keywordReference id="org.python.pydev.preferences.keywords"/>
       </page>
       <page
             name="Logging"
@@ -194,8 +193,15 @@
             id="org.python.pydev.logging.pyLoggingPreferencesPage">
       </page>
       <page
-            name="Typing"
+            name="Editor"
+            class="org.python.pydev.plugin.PydevEditorPrefs"
             category="org.python.pydev.prefs"
+            id="org.python.pydev.prefs.editor">
+            <keywordReference id="org.python.pydev.preferences.keywords"/>
+      </page>
+      <page
+            name="Typing"
+            category="org.python.pydev.prefs.editor"
             class="org.python.pydev.plugin.PydevPrefs2"
             id="org.python.pydev.prefs2">
       </page>
@@ -258,12 +264,12 @@
       <page
             name="Code Completion"
             class="org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage"
-            category="org.python.pydev.prefs"
+            category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.PyCodeCompletionPage"/>
       <page
             name="Templates"
             class="org.python.pydev.editor.templates.PyTemplatePreferencesPage"
-            category="org.python.pydev.prefs.PyCodeCompletionPage"
+            category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.template"/>
       <page
             class="org.python.pydev.builder.pylint.PyLintPrefPage"
@@ -282,7 +288,7 @@
             id="org.python.pydev.builder.pyDevBuilderPrefPage">
       </page>
       <page
-            category="org.python.pydev.prefs"
+            category="org.python.pydev.prefs.editor"
             class="org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage"
             id="org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage"
             name="Code Folding">
