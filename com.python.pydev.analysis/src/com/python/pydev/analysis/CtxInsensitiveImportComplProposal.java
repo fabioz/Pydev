@@ -26,6 +26,7 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -173,7 +174,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                 //let's try to group it
                 int maxCols = 80;
                 if(PydevPlugin.getDefault() != null){
-                    IPreferenceStore chainedPrefStore = PydevPlugin.getChainedPrefStore();
+                    IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
                     maxCols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
                 }
                 
