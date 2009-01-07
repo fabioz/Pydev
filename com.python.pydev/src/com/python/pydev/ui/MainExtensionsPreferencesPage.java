@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.utils.LinkFieldEditor;
 import org.python.pydev.utils.MultiStringFieldEditor;
@@ -86,6 +87,7 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
     //--------------------------------------------------------------------------------------------------------
     public MainExtensionsPreferencesPage() {
         super(GRID);
+        setDescription(StringUtils.format("Pydev Extensions version: %s", PydevPlugin.version));
         //Set the preference store for the preference page.
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());       
     }    

@@ -16,12 +16,18 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -84,8 +90,23 @@ public class PydevPlugin extends AbstractUIPlugin {
         super.start(context);
         
         if(!version.equals(org.python.pydev.plugin.PydevPlugin.version)){
-            String msg = StringUtils.format("Error: the pydev com plugin version (%s) differs from the org plugin version (%s)", version, org.python.pydev.plugin.PydevPlugin.version);
-            org.python.pydev.plugin.PydevPlugin.log(msg);
+            final String msg = StringUtils.format("The Pydev extensions version (%s) differs from " +
+            		"the Pydev version (%s) installed.", version, org.python.pydev.plugin.PydevPlugin.version);
+            
+            
+            Display disp = Display.getDefault();
+            disp.asyncExec(new Runnable() {
+                public void run() {
+                    IWorkbenchWindow window = getDefault().getWorkbench().getActiveWorkbenchWindow();
+                    Shell shell = window == null ? null : window.getShell();
+                    if (shell != null) {
+                        ErrorDialog.openError(shell, "Pydev: version mismatch.", 
+                                "The versions of Pydev Extensions and Pydev don't match.", 
+                                new Status(IStatus.ERROR, getPluginID(), msg));
+                    }
+                }
+            });
+
         }
         checkValid();
     }
@@ -518,6 +539,11 @@ public class PydevPlugin extends AbstractUIPlugin {
         licenseCalendar.setTimeInMillis(lTime);
         licenseCalendar.add(Calendar.YEAR, 1);
         return licenseCalendar;
+    }
+
+    
+    public static String getPluginID() {
+        return getDefault().getBundle().getSymbolicName();
     }
 
 }
