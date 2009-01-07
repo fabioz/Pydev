@@ -35,11 +35,11 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ImportFrom;
@@ -490,7 +490,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     private IToken[] internalGenerateGetCompletionsForModule(IModule module, ICompletionState state, 
             boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException{
         
-        if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+        if(DebugSettings.DEBUG_CODE_COMPLETION){
             Log.toLogFile(this, "getCompletionsForModule");
         }
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
@@ -793,7 +793,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      */
     public List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, 
             ICompletionState state, IModule current) {
-        if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+        if(DebugSettings.DEBUG_CODE_COMPLETION){
             Log.toLogFile(this, "getGlobalCompletions");
         }
         List<IToken> completions = new ArrayList<IToken>();
@@ -810,12 +810,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         if(!state.getBuiltinsGotten()){
             state.setBuiltinsGotten (true) ;
-            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
                 Log.toLogFile(this, "getBuiltinCompletions");
             }
             //last thing: get completions from module __builtin__
             getBuiltinCompletions(state, completions);
-            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
                 Log.toLogFile(this, "END getBuiltinCompletions");
             }
         }

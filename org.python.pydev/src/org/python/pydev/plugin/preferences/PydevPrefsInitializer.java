@@ -14,8 +14,6 @@ import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.parser.PyParserManager;
-import org.python.pydev.plugin.PyCodeFormatterPage;
-import org.python.pydev.plugin.PyCodeStylePreferencesPage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.pyunit.preferences.PyunitPrefsPage;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;

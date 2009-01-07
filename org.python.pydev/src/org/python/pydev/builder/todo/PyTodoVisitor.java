@@ -18,7 +18,7 @@ import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.DebugSettings;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**

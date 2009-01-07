@@ -23,7 +23,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.plugin.PyCodeStylePreferencesPage;
+import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
 import org.python.pydev.ui.UIConstants;
 
 /**

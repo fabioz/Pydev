@@ -25,9 +25,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.python.pydev.plugin.ColorEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
+import org.python.pydev.plugin.preferences.ColorEditor;
 
 
 /**

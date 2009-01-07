@@ -12,8 +12,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.IPyEditListener3;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.plugin.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**

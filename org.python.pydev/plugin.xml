@@ -229,13 +229,13 @@
       <page
             name="Code Style"
             category="org.python.pydev.prefs"
-            class="org.python.pydev.plugin.PyCodeStylePreferencesPage"
+            class="org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage"
             id="org.python.pydev.plugin.pyCodeStylePreferencesPage"/>
             
       <page
             name="Code Formatter"
             category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
-            class="org.python.pydev.plugin.PyCodeFormatterPage"
+            class="org.python.pydev.plugin.preferences.PyCodeFormatterPage"
             id="org.python.pydev.plugin.pyCodeFormatterPage"/>
       <page
       		name="Docstrings"

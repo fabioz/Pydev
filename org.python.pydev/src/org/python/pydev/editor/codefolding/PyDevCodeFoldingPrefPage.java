@@ -23,8 +23,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.plugin.OverlayPreferenceStore;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.OverlayPreferenceStore;
 
 /**
  * @author Carl Robinson

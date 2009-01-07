@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Scott Schlesier - minor changes for use in pydev
  *******************************************************************************/
-package org.python.pydev.plugin;
+package org.python.pydev.plugin.preferences;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;

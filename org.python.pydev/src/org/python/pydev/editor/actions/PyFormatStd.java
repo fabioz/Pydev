@@ -17,7 +17,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.prettyprinter.IFormatter;
-import org.python.pydev.plugin.PyCodeFormatterPage;
+import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 
 /**
  * @author Fabio Zadrozny

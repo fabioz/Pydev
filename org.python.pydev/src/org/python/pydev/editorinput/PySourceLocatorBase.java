@@ -30,7 +30,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.plugin.PyFileLabelProvider;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -341,7 +340,7 @@ public class PySourceLocatorBase {
      * 
      * @param files the files available for selection.
      * @return the selected file (from the files passed) or null if there was no file available for
-     * selection or if the user cancelled it.
+     * selection or if the user canceled it.
      */
     private IFile selectWorkspaceFile(final IFile[] files) {
         if(files == null || files.length == 0){

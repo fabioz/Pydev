@@ -12,7 +12,7 @@
  *     Scott Schlesier - minor changes for use in pydev
  *******************************************************************************/
  
-package org.python.pydev.plugin;
+package org.python.pydev.plugin.preferences;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;

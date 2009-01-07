@@ -1,7 +1,7 @@
 /*
  * Created on May 19, 2006
  */
-package org.python.pydev.plugin;
+package org.python.pydev.editorinput;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.ILabelProvider;

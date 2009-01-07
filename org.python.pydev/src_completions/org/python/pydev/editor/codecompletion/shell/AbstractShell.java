@@ -26,8 +26,8 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.ThreadStreamReader;
@@ -77,7 +77,7 @@ public abstract class AbstractShell {
         if(priority <= DEBUG_SHELL){
             System.out.println(string);
         }
-        if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+        if(DebugSettings.DEBUG_CODE_COMPLETION){
             Log.toLogFile(string, AbstractShell.class);
         }
     }
@@ -209,10 +209,10 @@ public abstract class AbstractShell {
     public synchronized static AbstractShell getServerShell(String interpreter, int relatedTo, int id) throws IOException, JDTNotAvailableException, CoreException {
         AbstractShell pythonShell = null;
         synchronized(shells){
-            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
                 Log.toLogFile("Synchronizing on shells...", AbstractShell.class);
             }
-            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
                 Log.toLogFile( "Getting shell related to:"+ (relatedTo==IPythonNature.PYTHON_RELATED?"Python":"Jython")+
                         " id:"+id, AbstractShell.class);
             }
@@ -220,7 +220,7 @@ public abstract class AbstractShell {
             pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
             
             if(pythonShell == null){
-                if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                if(DebugSettings.DEBUG_CODE_COMPLETION){
                     Log.toLogFile("pythonShell == null", AbstractShell.class);
                 }
                 if(relatedTo == IPythonNature.PYTHON_RELATED){
@@ -230,12 +230,12 @@ public abstract class AbstractShell {
                 }else{
                     throw new RuntimeException("unknown related id");
                 }
-                if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                if(DebugSettings.DEBUG_CODE_COMPLETION){
                     Log.toLogFile("pythonShell.startIt()", AbstractShell.class);
                     Log.addLogLevel();
                 }
                 pythonShell.startIt(interpreter, AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS); //first start it
-                if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+                if(DebugSettings.DEBUG_CODE_COMPLETION){
                     Log.remLogLevel();
                     Log.toLogFile("Finished pythonShell.startIt()", AbstractShell.class);
                 }
@@ -815,7 +815,7 @@ public abstract class AbstractShell {
             return getInvalidCompletion();
             
         } catch (Exception e) {
-            if(PyCodeCompletion.DEBUG_CODE_COMPLETION){
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
                 PydevPlugin.log(IStatus.ERROR, "ERROR getting completions.", e);
             }
             

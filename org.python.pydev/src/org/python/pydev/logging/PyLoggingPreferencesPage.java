@@ -5,8 +5,6 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.editor.codecompletion.PyCodeCompletion;
-import org.python.pydev.plugin.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
@@ -67,7 +65,7 @@ public class PyLoggingPreferencesPage  extends FieldEditorPreferencePage impleme
     @Override
     public boolean performOk() {
         boolean ret = super.performOk();
-        PyCodeCompletion.DEBUG_CODE_COMPLETION = isToDebugCodeCompletion();
+        DebugSettings.DEBUG_CODE_COMPLETION = isToDebugCodeCompletion();
         DebugSettings.DEBUG_ANALYSIS_REQUESTS = isToDebugAnalysisRequests();
         return ret;
     }

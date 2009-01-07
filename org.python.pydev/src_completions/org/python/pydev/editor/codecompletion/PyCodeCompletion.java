@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
@@ -42,7 +41,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
-import org.python.pydev.logging.PyLoggingPreferencesPage;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -61,16 +60,6 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     
     /**
-     * This constant is used to debug the code-completion process on a production environment,
-     * so that we gather enough information about what's happening and the possible reasons
-     * for some bug (at this moment this is being specifically added because of a halting bug
-     * for pydev in linux: https://sourceforge.net/tracker/index.php?func=detail&aid=1509582&group_id=85796&atid=577329)
-     * 
-     * It is kept updated from the Preferences Page
-     */
-    public static volatile boolean DEBUG_CODE_COMPLETION = PyLoggingPreferencesPage.isToDebugCodeCompletion();
-    
-    /**
      * Called when a recursion exception is detected.
      */
     public static ICallback<Object, CompletionRecursionException> onCompletionRecursionException;
@@ -78,12 +67,13 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     /* (non-Javadoc)
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
      */
+    @SuppressWarnings("unchecked")
     public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
         if(request.getPySelection().getCursorLineContents().trim().startsWith("#")){
             //this may happen if the context is still not correctly computed in python
             return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);
         }
-        if(DEBUG_CODE_COMPLETION){
+        if(DebugSettings.DEBUG_CODE_COMPLETION){
             Log.toLogFile(this,"Starting getCodeCompletionProposals");
             Log.addLogLevel();
             Log.toLogFile(this,"Request:"+request);
@@ -148,7 +138,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 //want to do the analysis...
                 state.pushFindResolveImportMemoryCtx();
                 try{
-                    for(ListIterator it=tokensList.listIterator(); it.hasNext();){
+                    for(Iterator<Object> it=tokensList.listIterator(); it.hasNext();){
                         Object o = it.next();
                         if(o instanceof IToken){
                             it.remove(); // always remove the tokens from the list (they'll be re-added later once they are filtered)
@@ -218,14 +208,14 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             if(onCompletionRecursionException != null){
                 onCompletionRecursionException.call(e);
             }
-            if(DEBUG_CODE_COMPLETION){
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
                 Log.toLogFile(e);
             }
             //PydevPlugin.log(e);
             //ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
         }
         
-        if(DEBUG_CODE_COMPLETION){
+        if(DebugSettings.DEBUG_CODE_COMPLETION){
             Log.remLogLevel();
             Log.toLogFile(this, "Finished completion. Returned:"+ret.size()+" completions.\r\n");
         }
@@ -252,12 +242,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      */
     private void doGlobalsCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, ICompletionState state) throws CompletionRecursionException {
         state.setActivationToken(request.activationToken);
-        if(DEBUG_CODE_COMPLETION){
+        if(DebugSettings.DEBUG_CODE_COMPLETION){
             Log.toLogFile(this,"astManager.getCompletionsForToken");
             Log.addLogLevel();
         }
         IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
-        if(DEBUG_CODE_COMPLETION){
+        if(DebugSettings.DEBUG_CODE_COMPLETION){
             Log.remLogLevel();
             Log.toLogFile(this,"END astManager.getCompletionsForToken");
         }
@@ -328,13 +318,13 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      */
     private void lazyStartShell(CompletionRequest request) {
         try {
-            if(DEBUG_CODE_COMPLETION){
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
                 Log.toLogFile(this,"AbstractShell.getServerShell");
             }
             if (CompiledModule.COMPILED_MODULES_ENABLED) {
                 AbstractShell.getServerShell(request.nature, AbstractShell.COMPLETION_SHELL); //just start it
             }
-            if(DEBUG_CODE_COMPLETION){
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
                 Log.toLogFile(this,"END AbstractShell.getServerShell");
             }
         } catch (RuntimeException e) {

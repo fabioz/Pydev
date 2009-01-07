@@ -3,14 +3,14 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.plugin;
+package org.python.pydev.plugin.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author Fabio Zadrozny
