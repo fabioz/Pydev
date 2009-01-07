@@ -21,7 +21,7 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.plugin.DebugSettings;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 

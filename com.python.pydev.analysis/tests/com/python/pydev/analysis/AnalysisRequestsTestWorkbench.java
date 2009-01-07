@@ -24,11 +24,11 @@ import org.python.pydev.core.Tuple3;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.DebugSettings;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.actions.AnalyzeOnRequestSetter;
