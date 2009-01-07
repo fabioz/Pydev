@@ -19,6 +19,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class SimpleJythonRunner extends SimpleRunner{
@@ -142,7 +143,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         //may have the dir or be null
         String cacheDir = null;
         try{
-            cacheDir = PydevPlugin.getChainedPrefStore().getString(IInterpreterManager.JYTHON_CACHE_DIR);
+            cacheDir = PydevPrefs.getChainedPrefStore().getString(IInterpreterManager.JYTHON_CACHE_DIR);
         }catch(NullPointerException e){
             //this may happen while running the tests... it should be ok.
             cacheDir = null;

@@ -30,6 +30,7 @@ import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevEditorPrefs;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
 public class PyPreviewConfiguration extends SourceViewerConfiguration {
@@ -177,7 +178,7 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
 
             // We need to cover all the content types from PyPartitionScanner
 
-            IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
+            IPreferenceStore preferences = PydevPrefs.getChainedPrefStore();
             // Comments have uniform color
             commentScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.COMMENT_COLOR, preferences.getInt(PydevEditorPrefs.COMMENT_STYLE));
             dr = new DefaultDamagerRepairer(commentScanner);
@@ -264,7 +265,7 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
             // type)
             codeScanner.updateColors();
 
-            IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
+            IPreferenceStore preferences = PydevPrefs.getChainedPrefStore();
 
             commentScanner.setStyle(preferences.getInt(PydevEditorPrefs.COMMENT_STYLE));
             commentScanner.updateColorAndStyle();

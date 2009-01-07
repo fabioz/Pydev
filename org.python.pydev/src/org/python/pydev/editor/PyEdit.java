@@ -261,9 +261,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
             }
             
             modelListeners = new ArrayList<IModelListener>();
-            colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
+            colorCache = new ColorCache(PydevPrefs.getChainedPrefStore());
             
-            editConfiguration = new PyEditConfiguration(colorCache, this, PydevPlugin.getChainedPrefStore());
+            editConfiguration = new PyEditConfiguration(colorCache, this, PydevPrefs.getChainedPrefStore());
             setSourceViewerConfiguration(editConfiguration);
             indentStrategy = editConfiguration.getPyAutoIndentStrategy();
             setRangeIndicator(new DefaultRangeIndicator()); // enables standard
@@ -1111,7 +1111,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     protected void initializeEditor() {
         super.initializeEditor();
         try{
-            IPreferenceStore prefStore = PydevPlugin.getChainedPrefStore();
+            IPreferenceStore prefStore = PydevPrefs.getChainedPrefStore();
             this.setPreferenceStore(prefStore);
             setEditorContextMenuId(PY_EDIT_CONTEXT);
         }catch (Throwable e) {

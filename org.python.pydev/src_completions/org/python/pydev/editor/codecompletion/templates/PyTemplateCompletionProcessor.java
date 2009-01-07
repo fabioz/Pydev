@@ -18,6 +18,7 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -32,7 +33,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor{
      * @see org.eclipse.jface.text.templates.TemplateCompletionProcessor#getTemplates(java.lang.String)
      */
     protected Template[] getTemplates(String contextTypeId) {
-        return PydevPlugin.getDefault().getTemplateStore().getTemplates();
+        return TemplateHelper.getTemplateStore().getTemplates();
     }
 
     /*
@@ -43,7 +44,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor{
      */
     protected TemplateContextType getContextType(ITextViewer viewer,
             IRegion region) {
-        return PydevPlugin.getDefault().getContextTypeRegistry()
+        return TemplateHelper.getContextTypeRegistry()
                 .getContextType(PyContextType.PY_CONTEXT_TYPE);
     }
 

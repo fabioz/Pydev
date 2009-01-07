@@ -3,12 +3,8 @@ package org.python.pydev.plugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -23,16 +19,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.jface.text.templates.ContextTypeRegistry;
-import org.eclipse.jface.text.templates.persistence.TemplateStore;
-import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
-import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.ICallback;
@@ -45,11 +34,8 @@ import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.dltk.console.ui.ScriptConsoleUIConstants;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
-import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
-import org.python.pydev.pyunit.ITestRunListener;
-import org.python.pydev.pyunit.PyUnitTestRunner;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
@@ -123,15 +109,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     private static PydevPlugin plugin; //The shared instance.
 
     private ResourceBundle resourceBundle; //Resource bundle.
-
-    /** The template store. */
-    private TemplateStore fStore;
-
-    /** The context type registry. */
-    private ContributionContextTypeRegistry fRegistry = null;
-
-    /** Key to store custom templates. */
-    private static final String CUSTOM_TEMPLATES_PY_KEY = "org.python.pydev.editor.templates.PyTemplatePreferencesPage";
 
     public static final String DEFAULT_PYDEV_SCOPE = "org.python.pydev";
 
@@ -341,40 +318,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     /**
-     * Returns this plug-in's template store.
-     * 
-     * @return the template store of this plug-in instance
-     */
-    public TemplateStore getTemplateStore() {
-        if (fStore == null) {
-            fStore = new ContributionTemplateStore(getContextTypeRegistry(), getPreferenceStore(), CUSTOM_TEMPLATES_PY_KEY);
-            try {
-                fStore.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        }
-        return fStore;
-    }
-
-    /**
-     * Returns this plug-in's context type registry.
-     * 
-     * @return the context type registry for this plug-in instance
-     */
-    public ContextTypeRegistry getContextTypeRegistry() {
-        if (fRegistry == null) {
-            // create an configure the contexts available in the template editor
-            fRegistry = new ContributionContextTypeRegistry();
-            fRegistry.addContextType(PyContextType.PY_CONTEXT_TYPE);
-        }
-        return fRegistry;
-    }
-
-    
-    
-    /**
      * @return the script to get the variables.
      * 
      * @throws CoreException
@@ -410,57 +353,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
     //End Images for the console
 
-    
-
-    /** Listener list **/
-    private List<ITestRunListener> testListeners = new ArrayList<ITestRunListener>();
-
-
-    @SuppressWarnings("unchecked")
-    public void addTestListener(ITestRunListener listener) {
-        testListeners.add(listener);
-    }
-    
-    public void removeTestListener(ITestRunListener listener) {
-        testListeners.remove(listener);
-    }
-
-    public List getListeners() {
-        return testListeners;
-    }
-    
-    public void runTests(String moduleDir, String moduleName, IProject project) throws IOException, CoreException {
-        new PyUnitTestRunner().runTests(moduleDir, moduleName, project);
-    }
-    
-    public void fireTestsStarted(int count) {
-        for (Iterator all=getListeners().iterator(); all.hasNext();) {
-            ITestRunListener each = (ITestRunListener) all.next();
-            each.testsStarted(count);
-        }
-    }
-
-    public void fireTestsFinished() {
-        for (Iterator all=getListeners().iterator(); all.hasNext();) {
-            ITestRunListener each = (ITestRunListener) all.next();
-            each.testsFinished();
-        }
-    }
-
-    public void fireTestStarted(String klass, String methodName) {
-        for (Iterator all=getListeners().iterator(); all.hasNext();) {
-            ITestRunListener each = (ITestRunListener) all.next();
-            each.testStarted(klass, methodName);
-        }
-    }
-
-    public void fireTestFailed(String klass, String methodName, String trace) {
-        for (Iterator all=getListeners().iterator(); all.hasNext();) {
-            ITestRunListener each = (ITestRunListener) all.next();
-            each.testFailed(klass, methodName, trace);
-        }
-    }
-    
     
     /**
      * @param file the file we want to get info on.
@@ -530,23 +422,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         return name;
     }
 
-    /**
-     * This is a preference store that combines the preferences for pydev with the general preferences for editors.
-     */
-    private static IPreferenceStore fChainedPrefStore;
-    
-    /**
-     * @return a preference store that has the pydev preference store and the default editors text store
-     */
-    public synchronized static IPreferenceStore getChainedPrefStore() {
-        if(fChainedPrefStore == null){
-            IPreferenceStore general = EditorsUI.getPreferenceStore();
-            IPreferenceStore preferenceStore = getDefault().getPreferenceStore();
-            fChainedPrefStore = new ChainedPreferenceStore(new IPreferenceStore[] { preferenceStore, general });
-        }
-        return fChainedPrefStore;
-    }
-    
     /**
      * Given a resource get the string in the filesystem for it.
      */

@@ -21,8 +21,8 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.PydevEditorPrefs;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
 /**
@@ -165,7 +165,7 @@ public class PyCodeScanner extends RuleBasedScanner {
     }
     
     private void setupRules() {
-        IPreferenceStore preferences = PydevPlugin.getChainedPrefStore();
+        IPreferenceStore preferences = PydevPrefs.getChainedPrefStore();
         keywordToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevEditorPrefs.KEYWORD_STYLE)));
         selfToken      = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.SELF_COLOR), null, preferences.getInt(PydevEditorPrefs.SELF_STYLE)));
         defaultToken   = new Token( new TextAttribute(colorCache.getNamedColor(PydevEditorPrefs.CODE_COLOR), null, preferences.getInt(PydevEditorPrefs.CODE_STYLE)));

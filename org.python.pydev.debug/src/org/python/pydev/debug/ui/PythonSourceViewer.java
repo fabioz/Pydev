@@ -23,7 +23,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 
 /**
  * Source viewer for the breakpoints editor
@@ -208,7 +208,7 @@ public class PythonSourceViewer extends SourceViewer implements IPropertyChangeL
      * @return the Java UI preferences
      */
     protected IPreferenceStore getPreferenceStore() {
-        return PydevPlugin.getChainedPrefStore();
+        return PydevPrefs.getChainedPrefStore();
     }
 
     /**

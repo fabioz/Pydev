@@ -32,6 +32,7 @@ import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -358,7 +359,7 @@ public class PyOrganizeImports extends PyAction{
         int maxCols = 80;
         if(multilineImports){
             if(PydevPlugin.getDefault() != null){
-                IPreferenceStore chainedPrefStore = PydevPlugin.getChainedPrefStore();
+                IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
                 maxCols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
             }
         }else{

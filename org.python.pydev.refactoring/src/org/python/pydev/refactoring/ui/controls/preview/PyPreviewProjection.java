@@ -9,7 +9,7 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
 public class PyPreviewProjection extends ProjectionViewer {
@@ -26,7 +26,7 @@ public class PyPreviewProjection extends ProjectionViewer {
     @Override
     protected void createControl(Composite parent, int styles) {
         super.createControl(parent, styles);
-        colorCache = new ColorCache(PydevPlugin.getChainedPrefStore());
+        colorCache = new ColorCache(PydevPrefs.getChainedPrefStore());
         editConfiguration = new PyPreviewConfiguration(colorCache);
         configure(editConfiguration);
         getTextWidget().setEditable(false);

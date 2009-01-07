@@ -7,6 +7,7 @@ import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
 public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompletion{
@@ -42,7 +43,7 @@ public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompl
             //just for tests
             return new TemplateContextType();
         }
-        return plugin.getContextTypeRegistry().getContextType(PyContextType.PY_CONTEXT_TYPE);
+        return TemplateHelper.getContextTypeRegistry().getContextType(PyContextType.PY_CONTEXT_TYPE);
     }
 
 }

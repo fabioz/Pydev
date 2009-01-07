@@ -7,6 +7,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevPrefs;
 
 public abstract class AbstractBlockCommentAction extends PyAction {
     
@@ -60,7 +61,7 @@ public abstract class AbstractBlockCommentAction extends PyAction {
         char c = '-';
         
         try{
-            IPreferenceStore chainedPrefStore = PydevPlugin.getChainedPrefStore();
+            IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
             cols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
             Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
             c = prefs.getString(getPreferencesNameForChar()).charAt(0);
