@@ -7,8 +7,8 @@ import java.util.List;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevEditorPrefs;
 
 /**
  * Class used to deal with the source locator prefs (even though they're edited in the SourceLocatorPrefsPage that's in

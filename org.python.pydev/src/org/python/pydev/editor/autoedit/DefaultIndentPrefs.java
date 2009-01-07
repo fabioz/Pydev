@@ -6,8 +6,8 @@
 package org.python.pydev.editor.autoedit;
 
 import org.python.pydev.core.cache.PyPreferencesCache;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevEditorPrefs;
 
 /**
  * Provides indentation preferences from the preferences set in the preferences pages within eclipse.

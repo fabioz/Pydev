@@ -21,8 +21,8 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.plugin.PydevEditorPrefs;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
 /**

@@ -8,7 +8,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.plugin.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 
 
 /**

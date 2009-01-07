@@ -1,7 +1,7 @@
 /*
  * Created on May 29, 2006
  */
-package org.python.pydev.plugin;
+package org.python.pydev.plugin.preferences;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +30,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.python.pydev.plugin.ColorEditor;
+import org.python.pydev.plugin.OverlayPreferenceStore;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.StatusInfo;
+import org.python.pydev.plugin.OverlayPreferenceStore.OverlayKey;
 
 public abstract class AbstractPydevPrefs extends PreferencePage implements IWorkbenchPreferencePage{
 

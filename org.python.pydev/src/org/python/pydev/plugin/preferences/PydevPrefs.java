@@ -1,9 +1,10 @@
-package org.python.pydev.plugin;
+package org.python.pydev.plugin.preferences;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Helper to deal with the pydev preferences.

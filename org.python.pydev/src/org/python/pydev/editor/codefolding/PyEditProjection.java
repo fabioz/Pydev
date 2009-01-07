@@ -20,8 +20,8 @@ import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.parser.IParserObserver;
-import org.python.pydev.plugin.PydevEditorPrefs;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 
 /**
  * @author Fabio Zadrozny

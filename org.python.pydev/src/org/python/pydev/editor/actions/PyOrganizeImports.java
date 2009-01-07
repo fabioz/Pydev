@@ -32,7 +32,7 @@ import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**

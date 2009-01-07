@@ -10,7 +10,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.LabelFieldEditorWith2Cols;
 
 /**

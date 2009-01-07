@@ -3,7 +3,7 @@
  * Created: Jun 23, 2003
  * License: Common Public License v1.0
  */
-package org.python.pydev.plugin;
+package org.python.pydev.pyunit.preferences;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -12,6 +12,7 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.utils.LabelFieldEditor;
 
 /**

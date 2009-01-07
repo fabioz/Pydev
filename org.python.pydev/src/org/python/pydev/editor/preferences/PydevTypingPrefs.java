@@ -1,7 +1,7 @@
 /*
  * Created on May 29, 2006
  */
-package org.python.pydev.plugin;
+package org.python.pydev.editor.preferences;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
@@ -9,6 +9,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.python.pydev.core.docutils.WordUtils;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 
 
 /**
@@ -17,14 +19,13 @@ import org.python.pydev.core.docutils.WordUtils;
  * 
  * @author Fabio
  */
-public class PydevPrefs2  extends AbstractPydevPrefs {
+public class PydevTypingPrefs  extends AbstractPydevPrefs {
 
-    public PydevPrefs2(){
+    public PydevTypingPrefs(){
         setDescription("Editor"); 
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         this.
         fOverlayStore= createOverlayStore();
-        
     }
     
     protected Control createAppearancePage(Composite parent) {

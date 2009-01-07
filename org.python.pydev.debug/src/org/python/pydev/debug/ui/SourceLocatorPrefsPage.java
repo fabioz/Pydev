@@ -12,9 +12,9 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevEditorPrefs;
 
 /**
  * Preferences for the locations that should be translated -- used when the debugger is not able

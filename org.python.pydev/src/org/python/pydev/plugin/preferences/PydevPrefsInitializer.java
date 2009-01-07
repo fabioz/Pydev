@@ -1,7 +1,7 @@
 /*
  * Created on 20/08/2005
  */
-package org.python.pydev.plugin;
+package org.python.pydev.plugin.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -12,7 +12,12 @@ import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.parser.PyParserManager;
+import org.python.pydev.plugin.PyCodeFormatterPage;
+import org.python.pydev.plugin.PyCodeStylePreferencesPage;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.pyunit.preferences.PyunitPrefsPage;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 

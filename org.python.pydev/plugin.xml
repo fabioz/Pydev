@@ -17,7 +17,7 @@
 <!-- Initialize our preferences -->
    <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="org.python.pydev.builder.pylint.PyLintPrefInitializer"/>
-      <initializer class="org.python.pydev.plugin.PydevPrefsInitializer"/>
+      <initializer class="org.python.pydev.plugin.preferences.PydevPrefsInitializer"/>
       <initializer class="org.python.pydev.editor.codecompletion.PyCodeCompletionInitializer"/>
    </extension>
 <!-- document provider (even for the external files) -->
@@ -183,7 +183,7 @@
    <extension point="org.eclipse.ui.preferencePages">
       <page
             name="Pydev"
-            class="org.python.pydev.plugin.PydevRootPrefs"
+            class="org.python.pydev.plugin.preferences.PydevRootPrefs"
             id="org.python.pydev.prefs">
       </page>
       <page
@@ -194,7 +194,7 @@
       </page>
       <page
             name="Editor"
-            class="org.python.pydev.plugin.PydevEditorPrefs"
+            class="org.python.pydev.editor.preferences.PydevEditorPrefs"
             category="org.python.pydev.prefs"
             id="org.python.pydev.prefs.editor">
             <keywordReference id="org.python.pydev.preferences.keywords"/>
@@ -202,7 +202,7 @@
       <page
             name="Typing"
             category="org.python.pydev.prefs.editor"
-            class="org.python.pydev.plugin.PydevPrefs2"
+            class="org.python.pydev.editor.preferences.PydevTypingPrefs"
             id="org.python.pydev.prefs2">
       </page>
       <page
@@ -224,7 +224,7 @@
       <page
       		name="Pyunit"
             category="org.python.pydev.prefs"
-            class="org.python.pydev.plugin.PyunitPrefsPage"
+            class="org.python.pydev.pyunit.preferences.PyunitPrefsPage"
             id="org.python.pydev.prefs.pyunitPage"/>
       <page
             name="Code Style"

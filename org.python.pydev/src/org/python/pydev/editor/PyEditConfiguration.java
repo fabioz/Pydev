@@ -47,10 +47,10 @@ import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyTextHover;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.PydevEditorPrefs;
-import org.python.pydev.plugin.PydevPrefs;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
 /**
