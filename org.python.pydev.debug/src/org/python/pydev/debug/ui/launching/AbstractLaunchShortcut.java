@@ -5,7 +5,6 @@
  */
 package org.python.pydev.debug.ui.launching;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,16 +16,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.variables.IStringVariableManager;
-import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -38,11 +33,9 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.NotConfiguredInterpreterException;
 
 /**
  * Called when "Run Script..." popup menu item is selected.
@@ -53,8 +46,6 @@ import org.python.pydev.ui.NotConfiguredInterpreterException;
  * Based on org.eclipse.ui.externaltools.internal.ant.launchConfigurations.AntLaunchShortcut
  */
 public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
-
-    boolean fShowDialog = false; // show configuration dialog?
 
     //=============================================================================================
     // ILaunchShortcut IMPL
@@ -142,15 +133,6 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         reportError(msg, null);
     }
 
-    protected boolean verifyMode(String mode) {
-        boolean ok = mode.equals(ILaunchManager.RUN_MODE) || mode.equals(ILaunchManager.DEBUG_MODE);
-
-        if (!ok) {
-            reportError("Unknown launch mode: " + mode, null);
-        }
-        return ok;
-    }
-
     /**
      * Report some error to the user.
      */
@@ -185,8 +167,8 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             ILaunchConfiguration[] configs = manager.getLaunchConfigurations(type);
             
             //let's see if we can find it with a location relative or not.
-            String defaultLocation = getDefaultLocation(file, true);
-            String defaultLocation2 = getDefaultLocation(file, false);
+            String defaultLocation = LaunchConfigurationCreator.getDefaultLocation(file, true);
+            String defaultLocation2 = LaunchConfigurationCreator.getDefaultLocation(file, false);
             
             for (int i = 0; i < configs.length; i++) {
                 String configPath = configs[i].getAttribute(Constants.ATTR_LOCATION, "");
@@ -201,33 +183,6 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     }
 
     /**
-     * @param file
-     * @return default string for the location field
-     */
-    public static String getDefaultLocation(IResource[] file, boolean makeRelative) {
-        StringBuffer buffer = new StringBuffer();
-
-        for (IResource r : file) {
-            if (buffer.length() > 0) {
-                buffer.append("|");
-            }
-            
-            String loc;
-            
-            if(makeRelative){
-                IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-                loc = makeFileRelativeToWorkspace(file, varManager);
-            }else{
-                loc = r.getRawLocation().toString();
-            }
-            buffer.append(loc);
-        }
-        return buffer.toString();
-        // E3        IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-        // E3        return varManager.generateVariableExpression("workspace_loc", file.getFullPath().toString());
-    }
-
-    /**
      * @return a string with the launch configuration type that should be used for the run.
      */
     protected abstract String getLaunchConfigurationType();
@@ -235,120 +190,21 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     protected ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource) {
         IInterpreterManager pythonInterpreterManager = getInterpreterManager();
         String projName = resource[0].getProject().getName();
-        return createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(), getDefaultLocation(resource, false), //it'll be made relative later on
-                pythonInterpreterManager, projName);
-    }
-
-    public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource, String launchConfigurationType,
-            String location, IInterpreterManager pythonInterpreterManager, String projName) {
-        return createDefaultLaunchConfiguration(resource, launchConfigurationType, location, pythonInterpreterManager, projName, null);
-    }
-
-    public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource, String launchConfigurationType,
-            String location, IInterpreterManager pythonInterpreterManager, String projName, String vmargs) {
-        return createDefaultLaunchConfiguration(resource, launchConfigurationType, location, pythonInterpreterManager, 
-                projName, vmargs, "", true);
-    }
-//    
-    /**
-     * 
-     * @param resource only used if captureOutput is true!
-     * @param location only used if captureOutput is false!
-     * @param captureOutput determines if the output should be captured or not (if captured a console will be
-     * shown to it by default)
-     */
-    public static ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource, String launchConfigurationType,
-            String location, IInterpreterManager pythonInterpreterManager, String projName, String vmargs, String programArguments,
-            boolean captureOutput) {
-
-        ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
-        ILaunchConfigurationType type = manager.getLaunchConfigurationType(launchConfigurationType);
-        if (type == null) {
-            reportError("Python launch configuration not found", null);
-            return null;
-        }
-
-        IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-        
-        String name;
-        String baseDirectory;
-        String moduleFile;
-        int resourceType;
-        
-        if(captureOutput){
-            StringBuffer buffer = new StringBuffer(projName);
-            buffer.append(" ");
-            StringBuffer resourceNames = new StringBuffer();
-            for(IResource r:resource){
-                if(resourceNames.length() > 0){
-                    resourceNames.append(" - ");
-                }
-                resourceNames.append(r.getName());
-            }
-            buffer.append(resourceNames);
-            name = buffer.toString().trim();
-            
-            // Build the working directory to a path relative to the workspace_loc
-            baseDirectory = resource[0].getFullPath().removeLastSegments(1).makeRelative().toString();
-            baseDirectory = varManager.generateVariableExpression("workspace_loc", baseDirectory);
-            
-            // Build the location to a path relative to the workspace_loc
-            moduleFile = makeFileRelativeToWorkspace(resource, varManager);
-            resourceType = resource[0].getType();
-        }else{
-            captureOutput = true;
-            name = location;
-            baseDirectory = new File(location).getParent();
-            moduleFile = location;
-            resourceType = IResource.FILE;
-        }
-        
-        name = manager.generateUniqueLaunchConfigurationNameFrom(name);
-
         try {
+            ILaunchConfigurationWorkingCopy createdConfiguration = LaunchConfigurationCreator
+                    .createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(),
+                            LaunchConfigurationCreator.getDefaultLocation(resource, false), //it'll be made relative later on
+                            pythonInterpreterManager, projName);
 
-            ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
-            // Python Main Tab Arguments
-
-            workingCopy.setAttribute(Constants.ATTR_PROJECT, projName);
-            workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE, resourceType);
-            workingCopy.setAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
-
-            workingCopy.setAttribute(Constants.ATTR_LOCATION, moduleFile);
-            workingCopy.setAttribute(Constants.ATTR_WORKING_DIRECTORY, baseDirectory);
-            workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, programArguments);
-            workingCopy.setAttribute(Constants.ATTR_VM_ARGUMENTS, vmargs);
-            
-            workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, captureOutput);
-            workingCopy.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, captureOutput);
-
-            workingCopy.setMappedResources(resource);
-            
             // Common Tab Arguments
             CommonTab tab = new CommonTab();
-            tab.setDefaults(workingCopy);
+            tab.setDefaults(createdConfiguration);
             tab.dispose();
-            return workingCopy.doSave();
-        } catch (NotConfiguredInterpreterException e) {
-            reportError(e.getMessage(), e);
-            throw e;
+            return createdConfiguration.doSave();
         } catch (CoreException e) {
             reportError(null, e);
             return null;
         }
-    }
-
-    private static String makeFileRelativeToWorkspace(IResource[] resource, IStringVariableManager varManager) {
-        FastStringBuffer moduleFile = new FastStringBuffer(80*resource.length);
-        for(IResource r:resource){
-            String m = r.getFullPath().makeRelative().toString();
-            m = varManager.generateVariableExpression("workspace_loc", m);
-            if(moduleFile.length() > 0){
-                moduleFile.append("|");
-            }
-            moduleFile.append(m);
-        }
-        return moduleFile.toString();
     }
 
     /**
@@ -393,46 +249,27 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
      * configuration targets attribute.
      */
     protected void launch(IResource[] file, String mode, String targetAttribute) {
-        if (!verifyMode(mode)) {
-            reportError("Invalid mode " + mode, null);
-            return;
-        }
-
         ILaunchConfiguration conf = null;
         List<ILaunchConfiguration> configurations = findExistingLaunchConfigurations(file);
         if (configurations.isEmpty())
             conf = createDefaultLaunchConfiguration(file);
         else {
             if (configurations.size() == 1) {
-                conf = (ILaunchConfiguration) configurations.get(0);
+                conf = configurations.get(0);
             } else {
                 conf = chooseConfig(configurations);
-                if (conf == null)
+                if (conf == null){
                     // User cancelled selection
                     return;
+                }
             }
         }
 
         if (conf != null) {
-            if (fShowDialog) {
-                String groupID = "";
-
-                if (mode.equals("run")) {
-                    groupID = Constants.PYTHON_RUN_LAUNCH_GROUP;
-                } else if (mode.equals("debug")) {
-                    groupID = Constants.PYTHON_DEBUG_LAUNCH_GROUP;
-                }
-
-                DebugUITools.openLaunchConfigurationDialog(PydevDebugPlugin.getActiveWorkbenchWindow().getShell(), conf, groupID, null);
-            } else {
-                DebugUITools.launch(conf, mode);
-            }
+            DebugUITools.launch(conf, mode);
             return;
         }
         fileNotFound();
     }
 
-    public void setShowDialog(boolean showDialog) {
-        fShowDialog = showDialog;
-    }
 }
