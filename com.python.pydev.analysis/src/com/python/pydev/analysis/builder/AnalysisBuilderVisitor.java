@@ -33,11 +33,11 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      */
     public static final boolean DEBUG_DEPENDENCIES = false;
 
+    
     @Override
     protected int getPriority() {
         return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION+1; //just after the code-completion priority
     }
-
     
     
     @Override
@@ -124,12 +124,19 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(isFullBuild()){
             runnable.run();
         }else{
-            Job workbenchJob = new Job("") {
+            final String name = "AnalysisBuilderThread :"+moduleName;
+            Job workbenchJob = new Job(name) {
             
                 @Override
                 public IStatus run(IProgressMonitor monitor) {
-                    this.getThread().setName("AnalysisBuilderThread :"+moduleName);
-                    runnable.run();
+                    final String originalName = this.getThread().getName();
+                    try {
+                        this.getThread().setName(name);
+                        runnable.run();
+                    } finally {
+                        //Restore the name of threads after finishing.
+                        try {this.getThread().setName(originalName);} catch (Exception e) {Log.log(e);}
+                    }
                     return Status.OK_STATUS;
                 }
             
