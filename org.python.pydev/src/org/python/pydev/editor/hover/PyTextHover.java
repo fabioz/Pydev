@@ -92,7 +92,9 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
 
                 
                 getMarkerHover(hoverRegion, s);
-                getDocstringHover(hoverRegion, s, ps);
+                if(PyHoverPreferencesPage.getShowDocstringOnHover()){
+                    getDocstringHover(hoverRegion, s, ps);
+                }
                 
                 List<IPyHoverParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_HOVER);
                 for (IPyHoverParticipant pyHoverParticipant : participants) {

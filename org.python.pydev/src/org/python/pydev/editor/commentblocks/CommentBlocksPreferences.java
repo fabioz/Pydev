@@ -43,9 +43,9 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
         addField(new BooleanFieldEditor(SINGLE_BLOCK_COMMENT_ALIGN_RIGHT, "Align text in single-block to the right?", p));
     
     }
+    
     public void init(IWorkbench workbench) {
         // pass
-        
     }
     
     

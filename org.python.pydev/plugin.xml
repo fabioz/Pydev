@@ -267,6 +267,11 @@
             category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.PyCodeCompletionPage"/>
       <page
+            name="Hover"
+            class="org.python.pydev.editor.hover.PyHoverPreferencesPage"
+            category="org.python.pydev.prefs.editor"
+            id="org.python.pydev.editor.hover.PyHoverPreferencesPage"/>
+      <page
             name="Templates"
             class="org.python.pydev.editor.templates.PyTemplatePreferencesPage"
             category="org.python.pydev.prefs.editor"
