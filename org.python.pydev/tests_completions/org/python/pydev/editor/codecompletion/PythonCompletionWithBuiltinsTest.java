@@ -28,7 +28,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.test__all__();
+            builtins.testPreferCompiledOnBootstrap();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -145,7 +145,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         requestCompl(s, s.length(), -1, new String[]{"RuntimeError"});
 
         //check for builtins..3 (builtins should not be available because it is an import request for completions)
-        requestCompl("from testlib.unittest import  ", new String[]{"__init__", "__path__", "anothertest"
+        requestCompl("from testlib.unittest import  ", new String[]{"__file__", "__init__", "__path__", "anothertest"
                 , "AnotherTest", "GUITest", "guitestcase", "main", "relative", "t", "TestCase", "testcase", "TestCaseAlias", 
                 });
 
@@ -355,7 +355,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         s = "" +
         "from testlib.unittest import anothertest\n"+
         "anothertest.";         
-        requestCompl(s, s.length(), 2, new String[]{"AnotherTest","t"});
+        requestCompl(s, s.length(), 3, new String[]{"__file__", "AnotherTest","t"});
 
     }
     

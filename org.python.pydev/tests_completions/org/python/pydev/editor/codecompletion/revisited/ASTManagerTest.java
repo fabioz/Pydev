@@ -12,6 +12,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PydevPlugin;
@@ -84,7 +85,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(1, comps.length);
+        checkExpected(1);
         assertEquals("makeit", comps[0].getRepresentation());
         
         
@@ -105,7 +106,9 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(3, comps.length);
+        
+        checkExpected(4);
+        assertIsIn("__file__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
@@ -130,7 +133,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(4, comps.length);
+        checkExpected(5);
+        assertIsIn("__file__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
@@ -156,7 +160,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(3, comps.length);
+        checkExpected(4);
+        assertIsIn("__file__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
@@ -176,7 +181,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(2, comps.length);
+        checkExpected(2);
         assertIsIn("a", comps);
         assertIsIn("foo", comps);
         
@@ -196,7 +201,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(3, comps.length);
+        checkExpected(3);
         assertIsIn("foo", comps);
         assertIsIn("a", comps);
         assertIsIn("test", comps);
@@ -227,6 +232,16 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         
     }
 
+    private void checkExpected(int expected) {
+        FastStringBuffer buf = new FastStringBuffer(40*comps.length);
+        for(IToken t:comps){
+            buf.append(t.getRepresentation());
+            buf.append(", ");
+        }
+        String msg = "Expected "+expected+". Found: "+buf.toString();
+        assertEquals(msg, expected, comps.length);
+    }
+
     private IToken[] getComps()  {
         try {
             return getManager().getCompletionsForToken(doc, state);
@@ -245,7 +260,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(0, comps.length); //no tokens returned
+        checkExpected(0); //no tokens returned
         
     }
     
@@ -260,7 +275,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(1, comps.length);
+        checkExpected(1);
         assertIsIn("test1", comps);
         
     }
@@ -275,8 +290,9 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(1, comps.length );
+        checkExpected(2);
         assertIsIn("contentsCopy", comps);
+        assertIsIn("__file__", comps);
     }
     
     public void testLocals2(){
@@ -289,7 +305,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(3, comps.length );
+        checkExpected(4);
+        assertIsIn("__file__", comps);
         assertIsIn("par1", comps);
         assertIsIn("par2", comps);
         assertIsIn("met", comps);
@@ -305,7 +322,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(4, comps.length );
+        checkExpected(5);
+        assertIsIn("__file__", comps);
         assertIsIn("par1", comps);
         assertIsIn("par2", comps);
         assertIsIn("self", comps);
@@ -323,7 +341,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(5, comps.length );
+        checkExpected(6);
+        assertIsIn("__file__", comps);
         assertIsIn("par1", comps);
         assertIsIn("loc1", comps);
         assertIsIn("par2", comps);
@@ -343,7 +362,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        assertEquals(5, comps.length );
+        checkExpected(6);
+        assertIsIn("__file__", comps);
         assertIsIn("par1", comps);
         assertIsIn("loc1", comps);
         assertIsIn("par2", comps);

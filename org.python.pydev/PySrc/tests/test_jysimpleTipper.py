@@ -14,7 +14,7 @@ sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
 #sys.path.insert(1, r"D:\bin\eclipse321\plugins\org.junit_3.8.1\junit.jar" ) #some late loading jar tests
 #sys.path.insert(1, r"D:\bin\eclipse331_1\plugins\org.apache.ant_1.7.0.v200706080842\lib\ant.jar" ) #some late loading jar tests
 
-try:
+if sys.platform.find('java') != -1:
     from jyimportsTipper import ismethod
     from jyimportsTipper import isclass
     from jyimportsTipper import dirObj
@@ -26,8 +26,7 @@ try:
     from java.lang.System import out #@UnresolvedImport
     import java.lang.String #@UnresolvedImport
     import org.python.core.PyDictionary #@UnresolvedImport
-except ImportError:
-    import traceback;traceback.print_exc()
+
 
 __DBG = 0
 def dbg(s):

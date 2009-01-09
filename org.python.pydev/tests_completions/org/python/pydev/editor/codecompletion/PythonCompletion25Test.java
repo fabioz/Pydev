@@ -52,7 +52,8 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
     //changed... returns all but testcase
     public String[] getTestLibUnittestTokens() {
         return new String[]{
-          "__init__"
+          "__file__"
+        , "__init__"
         , "__path__"
         , "anothertest"
         , "AnotherTest"
@@ -72,7 +73,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
                 "from .file1 import imp1\n" +
                 "imp1.";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/extendable/newimport/sub1/file2.py");
-        String[] toks = new String[]{"Imp1"};
+        String[] toks = new String[]{"__file__", "Imp1"};
         requestCompl(file,doc, doc.length(), toks.length, toks);
     }
     
@@ -81,7 +82,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         "from .. import imp1\n" +
         "imp1.";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/extendable/newimport/sub1/file1.py");
-        String[] toks = new String[]{"Imp1"};
+        String[] toks = new String[]{"__file__", "Imp1"};
         requestCompl(file,doc, doc.length(), toks.length, toks);
     }
     
@@ -105,7 +106,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         //considering we're at: testlib.unittest.testcase
         String doc = "from .anothertest import "; 
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/testlib/unittest/testcase.py");
-        String[] toks = new String[]{"t", "AnotherTest"};
+        String[] toks = new String[]{"__file__", "t", "AnotherTest"};
         requestCompl(file,doc, doc.length(), toks.length, toks);
     }
     
@@ -113,7 +114,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         //considering we're at: testlib.unittest.testcase
         String doc = "from ..unittest.anothertest import "; 
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/testlib/unittest/testcase.py");
-        String[] toks = new String[]{"t", "AnotherTest"};
+        String[] toks = new String[]{"__file__", "t", "AnotherTest"};
         requestCompl(file,doc, doc.length(), toks.length, toks);
     }
     

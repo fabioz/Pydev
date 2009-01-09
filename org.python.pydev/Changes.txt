@@ -16,6 +16,7 @@ Reorganized preferences (removed editor preferences from the root)
 Preferences for showing hover info
 Fixed problem when formatting binary operator that was in a new line
 When converting spaces to tabs (and vice-versa), the number of spaces for each tab is asked
+__file__ available in code-completion
 
 after 1.4
 

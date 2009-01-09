@@ -35,16 +35,24 @@ public class GlobalModelVisitor extends AbstractVisitor {
     private Assign lastAssign;
     private boolean onlyAllowTokensIn__all__;
 
+    public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__) {
+        this(visitWhat, moduleName, onlyAllowTokensIn__all__, false);
+    }
+    
     /**
      * @param moduleName
      * @param global_tokens2
      */
-    public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__) {
+    public GlobalModelVisitor(int visitWhat, String moduleName, boolean onlyAllowTokensIn__all__, boolean lookingInLocalContext) {
         this.visitWhat = visitWhat;
         this.moduleName = moduleName;
         this.onlyAllowTokensIn__all__ = onlyAllowTokensIn__all__;
         if(moduleName != null && moduleName.endsWith("__init__")){
             this.tokens.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "", moduleName));
+        }
+        if(!lookingInLocalContext && ((this.visitWhat & GLOBAL_TOKENS) != 0)){
+            //__file__ is always available for any module
+            this.tokens.add(new SourceToken(new Name("__file__", Name.Load, false), "__file__", "", "", moduleName));
         }
     }
 

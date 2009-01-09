@@ -155,7 +155,7 @@ public class LocalScope implements ILocalScope {
             if(body != null){
                 try {
                     for (int i = 0; i < body.length; i++) {
-                        GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "", false);
+                        GlobalModelVisitor visitor = new GlobalModelVisitor(GlobalModelVisitor.GLOBAL_TOKENS, "", false, true);
                         stmtType stmt = body[i];
                         if(stmt == null){
                             continue;

@@ -84,12 +84,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testCompleteImportCompletion() throws CoreException, BadLocationException{
         requestCompl("from testl"                          , "testlib");
         requestCompl("import testl"                        , "testlib");
-        requestCompl("from testlib import "                , new String[]{"__init__", "unittest", "__path__"});
+        requestCompl("from testlib import "                , new String[]{"__file__", "__init__", "unittest", "__path__"});
         requestCompl("from testlib import unittest, __in"  , new String[]{"__init__"});
         requestCompl("from testlib import unittest,__in"   , new String[]{"__init__"});
         requestCompl("from testlib import unittest ,__in"  , new String[]{"__init__"});
         requestCompl("from testlib import unittest , __in" , new String[]{"__init__"});
-        requestCompl("from testlib import unittest , "     , new String[]{"__init__", "unittest", "__path__"});
+        requestCompl("from testlib import unittest , "     , new String[]{"__file__", "__init__", "unittest", "__path__"});
         
         requestCompl("from testlib.unittest import  ", getTestLibUnittestTokens());
 
@@ -214,7 +214,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testMultilineImportCompletion() throws CoreException, BadLocationException{
         String s = "from testlib import (\n";
         
-        requestCompl(s, new String[]{"__init__", "unittest", "__path__"});
+        requestCompl(s, new String[]{"__file__", "__init__", "unittest", "__path__"});
         
     }
 
@@ -223,7 +223,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
      */
     public String[] getTestLibUnittestTokens() {
         return new String[]{
-          "__init__"
+          "__file__"
+        , "__init__"
         , "__path__"
         , "anothertest"
         , "AnotherTest"

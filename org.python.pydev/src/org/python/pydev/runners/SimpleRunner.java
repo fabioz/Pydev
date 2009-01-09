@@ -322,8 +322,11 @@ public abstract class SimpleRunner {
         Process process = null;
         try {
             monitor.setTaskName("Making pythonpath environment..."+executionString);
-            PythonNature nature = PythonNature.getPythonNature(project);
-            String[] envp = getEnvironment(nature, nature.getProjectInterpreter(), nature.getRelatedInterpreterManager()); 
+            String[] envp = null;
+            if(project != null){
+                PythonNature nature = PythonNature.getPythonNature(project);
+                envp = getEnvironment(nature, nature.getProjectInterpreter(), nature.getRelatedInterpreterManager());
+            }
             monitor.setTaskName("Making exec..."+executionString);
             if(workingDir != null){
                 if(!workingDir.isDirectory()){
