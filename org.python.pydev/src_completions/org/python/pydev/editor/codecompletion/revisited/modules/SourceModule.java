@@ -1044,46 +1044,46 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public boolean isBootstrapModule() {
         if(bootstrap == null){
             IToken[] ret = getGlobalTokens();
-            if(ret != null && ret.length == 1 && this.file != null){
-                IToken tok = ret[0];
-
-                if("__bootstrap__".equals(tok.getRepresentation())){
-                    //if we get here, we already know that it defined a __bootstrap__, so, let's see if it was also called
-                    SimpleNode ast = this.getAst();
-                    if(ast instanceof Module){
-                        Module module = (Module) ast;
-                        if(module.body != null && module.body.length > 0){
-                            ast = module.body[module.body.length-1];
-                            if(ast instanceof Expr){
-                                Expr expr = (Expr) ast;
-                                ast = expr.value;
-                                if(ast instanceof Call){
-                                    Call call = (Call) ast;
-                                    String callRep = NodeUtils.getRepresentationString(call);
-                                    if(callRep != null && callRep.equals("__bootstrap__")){
-                                        //ok, and now , the last thing is checking if there's a dll with the same name...
-                                        final String modName = FullRepIterable.getLastPart(this.getName());
-                                        
-                                        File folder = file.getParentFile();
-                                        File[] validBootsrappedDlls = folder.listFiles(new FilenameFilter(){
-
-                                            public boolean accept(File dir, String name) {
-                                                int i = name.lastIndexOf('.');
-                                                if(i > 0){
-                                                    String namePart = name.substring(0, i);
-                                                    if(namePart.equals(modName)){
-                                                        String extension = name.substring(i+1);
-                                                        if(extension.length() > 0 && FileTypesPreferencesPage.isValidDllExtension(extension)){
-                                                            return true;
+            if(ret != null && (ret.length == 1 || ret.length == 2) && this.file != null){ //also checking 2 tokens because of __file__
+                for(IToken tok:ret){
+                    if("__bootstrap__".equals(tok.getRepresentation())){
+                        //if we get here, we already know that it defined a __bootstrap__, so, let's see if it was also called
+                        SimpleNode ast = this.getAst();
+                        if(ast instanceof Module){
+                            Module module = (Module) ast;
+                            if(module.body != null && module.body.length > 0){
+                                ast = module.body[module.body.length-1];
+                                if(ast instanceof Expr){
+                                    Expr expr = (Expr) ast;
+                                    ast = expr.value;
+                                    if(ast instanceof Call){
+                                        Call call = (Call) ast;
+                                        String callRep = NodeUtils.getRepresentationString(call);
+                                        if(callRep != null && callRep.equals("__bootstrap__")){
+                                            //ok, and now , the last thing is checking if there's a dll with the same name...
+                                            final String modName = FullRepIterable.getLastPart(this.getName());
+                                            
+                                            File folder = file.getParentFile();
+                                            File[] validBootsrappedDlls = folder.listFiles(new FilenameFilter(){
+    
+                                                public boolean accept(File dir, String name) {
+                                                    int i = name.lastIndexOf('.');
+                                                    if(i > 0){
+                                                        String namePart = name.substring(0, i);
+                                                        if(namePart.equals(modName)){
+                                                            String extension = name.substring(i+1);
+                                                            if(extension.length() > 0 && FileTypesPreferencesPage.isValidDllExtension(extension)){
+                                                                return true;
+                                                            }
                                                         }
                                                     }
-                                                }
-                                                return false;
-                                            }}
-                                        );
-                                        
-                                        if(validBootsrappedDlls.length > 0){
-                                            bootstrap = Boolean.TRUE;
+                                                    return false;
+                                                }}
+                                            );
+                                            
+                                            if(validBootsrappedDlls.length > 0){
+                                                bootstrap = Boolean.TRUE;
+                                            }
                                         }
                                     }
                                 }

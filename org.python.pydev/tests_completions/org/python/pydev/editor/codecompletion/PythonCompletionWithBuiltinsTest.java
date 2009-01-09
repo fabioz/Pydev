@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -256,12 +257,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         String s = ""+
         "from extendable.bootstrap_dll import umath\n"+
         "umath.";
+        IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
+        assertTrue("Expected CompiledModule. Found: "+module.getClass(), module instanceof CompiledModule);
         requestCompl(s, s.length(), -1, new String[]{"less"});
     }
     
     public void testPreferCompiledOnBootstrap2() throws BadLocationException, IOException, Exception{
         String s = ""+
         "from extendable.bootstrap_dll.umath import ";
+        IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
+        assertTrue(module instanceof CompiledModule);
         requestCompl(s, s.length(), -1, new String[]{"less"});
     }
     
