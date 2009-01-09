@@ -30,7 +30,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testModuleNotFoundOnRelativeAndFullMixed();
+            analyzer2.testUndefinedVariableFromSourceModule();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -1965,6 +1965,30 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUndefinedVariableBuiltin2() {
         doc = new Document(
             "print __file__" //source folder always has the builtin __file__
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testUndefinedVariableFromBuiltinModule() {
+        doc = new Document(
+                "import os\n" +
+                "print os.__file__" 
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs);
+        assertEquals(0, msgs.length);
+    }
+    
+    public void testUndefinedVariableFromSourceModule() {
+        doc = new Document(
+                "import testlib\n" +
+                "print testlib.__file__" 
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
