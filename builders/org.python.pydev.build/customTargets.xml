@@ -83,6 +83,13 @@
 	<!-- Steps to do after fetching the build elements -->
 	<!-- ===================================================================== -->
 	<target name="postFetch">
+		<!-- Copied from old releng customTargets.xml -->
+		<replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${version.full}" byline="true">
+			<fileset dir="${buildDirectory}" includes="**/*.MF" />
+		</replaceregexp>
+
+		<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="0(.*)"' replace='version="${version.full}"' byline="true" />
+		<replaceregexp file="${buildDirectory}\plugins\org.python.pydev\src\org\python\pydev\plugin\PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
 	</target>
 
 	<!-- ===================================================================== -->
@@ -149,7 +156,7 @@
 		<zip destfile="${buildDirectory}/${topLevelElementId}-${version.full}.zip">
 			<fileset dir="${p2.repo.dir}" defaultexcludes="false" />
 		</zip>
-		<move file="${buildDirectory}/${topLevelElementId}-${version.full}.zip" todir="${p2.repo.dir}"/>
+		<move file="${buildDirectory}/${topLevelElementId}-${version.full}.zip" todir="${p2.repo.dir}" />
 		<copy file="${builder}/index.html" tofile="${p2.repo.dir}/index.html" />
 		<replace token="ZIP_FILE" value="${topLevelElementId}-${version.full}.zip" file="${p2.repo.dir}/index.html" />
 	</target>
