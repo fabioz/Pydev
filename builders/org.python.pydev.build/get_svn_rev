@@ -1,0 +1,5 @@
+#!/bin/bash
+# Get the revision number of this checked out copy
+svn info $1|grep 'Last Changed Rev:'|awk '{print $4}'|xargs printf "%06d\n"
+# Following line is incorrect because it gets the latest rev in the repo, not this checked out working copy!
+#svn stat -u $1|awk '/revision/ {print $4}'|xargs printf "%06d\n"
