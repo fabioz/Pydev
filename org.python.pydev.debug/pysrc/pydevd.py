@@ -289,6 +289,9 @@ class PyDB:
 
             if not foundNonPyDBDaemonThread:
                 self.finishDebuggingSession = True
+                for t in threads: 
+                    if hasattr(t, 'doKill'):
+                        t.doKill()
                         
             for tId in self.RUNNING_THREAD_IDS.keys():
                 try:
@@ -585,12 +588,7 @@ class PyDB:
                 for t in threads: 
                     if hasattr(t, 'doKill'):
                         t.doKill()
-                time.sleep(0.2) #give them some time to release their locks...
-                try:
-                    import java.lang.System #@UnresolvedImport
-                    java.lang.System.exit(0)
-                except:
-                    sys.exit(0)
+                return None
     
             filename, base = pydevd_file_utils.GetFilenameAndBase(frame)
     

@@ -2,6 +2,7 @@ After 1.4.1
 
 Pydev Extensions
 Remote debugger fix (missing import)
+fixed code analysis problem on staticmethod
 
 
 Pydev
@@ -17,6 +18,9 @@ Preferences for showing hover info
 Fixed problem when formatting binary operator that was in a new line
 When converting spaces to tabs (and vice-versa), the number of spaces for each tab is asked
 __file__ available in code-completion
+When finishing the user code debugging, it doesn't step into the debugger anymore
+
+
 
 after 1.4
 

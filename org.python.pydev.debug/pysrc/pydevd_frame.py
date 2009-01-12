@@ -1,6 +1,8 @@
 from pydevd_comm import * #@UnusedWildImport
 from pydevd_constants import * #@UnusedWildImport
 import traceback #@Reimport
+import os.path
+basename = os.path.basename
 
 #=======================================================================================================================
 # PyDBFrame
@@ -127,8 +129,17 @@ class PyDBFrame:
                 if event == 'line':
                     self.setSuspend(thread, info.pydev_step_cmd)
                     self.doWaitSuspend(thread, frame, event, arg)
-                else:
+                else: #return event
                     back = frame.f_back
+                    if back is not None:
+                        
+                        #When we get to the pydevd run function, the debugging has actually finished for the main thread
+                        #(note that it can still go on for other threads, but for this one, we just make it finish)
+                        #So, just setting it to None should be OK
+                        if basename(back.f_code.co_filename) == 'pydevd.py' and back.f_code.co_name == 'run':
+                            back = None
+                            
+                        
                     if back is not None:
                         #if we're in a return, we want it to appear to the user in the previous frame!
                         self.setSuspend(thread, info.pydev_step_cmd)

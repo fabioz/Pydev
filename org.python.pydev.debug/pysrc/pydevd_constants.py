@@ -57,7 +57,6 @@ try:
         return d.has_key(key)
 except:
     try:
-        import dict
         #Py3k does not have has_key anymore, and older versions don't have __contains__
         DictContains = dict.__contains__
     except:

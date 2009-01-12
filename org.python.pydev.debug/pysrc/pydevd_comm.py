@@ -193,12 +193,6 @@ class PyDBDaemonThread(threading.Thread):
     def doKill(self):
         #that was not working very well because jython gave some socket errors
         self.killReceived = True
-#        if hasattr(self, 'sock'):
-#            try:
-#                self.sock.close()
-#            except:
-#                #just ignore that
-#                pass
             
 #=======================================================================================================================
 # ReaderThread
@@ -210,6 +204,17 @@ class ReaderThread(PyDBDaemonThread):
         PyDBDaemonThread.__init__(self)
         self.sock = sock
         self.setName("pydevd.Reader")
+        
+        
+    def doKill(self):
+        #We must close the socket so that it doesn't stay halted there.
+        self.killReceived = True
+        try:
+            self.sock.close()
+        except:
+            #just ignore that
+            pass
+        
      
     def OnRun(self):
         pydevd_tracing.SetTrace(None) # no debugging on this thread
@@ -536,12 +541,7 @@ class InternalTerminateThread(InternalThreadCommand):
         PydevdLog(1, "killing ", str(self.thread_id))
         cmd = dbg.cmdFactory.makeThreadKilledMessage(self.thread_id)
         dbg.writer.addCommand(cmd)
-        time.sleep(0.1)
-        try:
-            import java.lang.System #@UnresolvedImport
-            java.lang.System.exit(0)
-        except:
-            sys.exit(0)
+
 
 #=======================================================================================================================
 # InternalGetVariable
