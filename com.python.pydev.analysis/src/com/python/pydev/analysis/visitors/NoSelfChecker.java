@@ -152,7 +152,7 @@ public class NoSelfChecker {
             }else if(!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod){
                 maybeNoSelfDefinedItems.peek().put(rep, new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
             
-            }else if(startsWithCls && !isClassMethod){
+            }else if(startsWithCls && !isClassMethod && !isStaticMethod){
                 String classBase = classBases.peek();
                 if(rep.equals("__init__") && "type".equals(classBase)){
                     //ok, in this case, cls is expected

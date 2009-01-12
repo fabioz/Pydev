@@ -23,7 +23,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testInitDef();
+            analyzer2.testNoStaticComplain();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -209,6 +209,36 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         );
         checkNoError();
 
+    }
+    
+    public void testNoStaticComplain() throws IOException{
+        doc = new Document(
+                "class SomeClass(object):\n" +
+                "    @staticmethod\n" +
+                "    def m1(cls):\n"+
+                "        pass\n"
+        );
+        checkNoError();
+    }
+    
+    public void testNoStaticComplain2() throws IOException{
+        doc = new Document(
+                "class SomeClass(object):\n" +
+                "    @staticmethod\n" +
+                "    def m1():\n"+
+                "        pass\n"
+        );
+        checkNoError();
+    }
+    
+    public void testNoStaticComplain3() throws IOException{
+        doc = new Document(
+                "class SomeClass(object):\n" +
+                "    @staticmethod\n" +
+                "    def m1(self):\n"+
+                "        pass\n"
+        );
+        checkNoError();
     }
     
 }
