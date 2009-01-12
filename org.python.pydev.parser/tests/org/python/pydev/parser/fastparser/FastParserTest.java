@@ -21,7 +21,7 @@ public class FastParserTest extends TestCase {
         try {
             FastParserTest test = new FastParserTest();
             test.setUp();
-            test.testGettingClass3();
+            test.testBackwardsUntil1stGlobal2();
             test.tearDown();
             junit.textui.TestRunner.run(FastParserTest.class);
 
@@ -142,6 +142,69 @@ public class FastParserTest extends TestCase {
         List<stmtType> all = FastParser.parseClassesAndFunctions(doc);
         assertEquals(1, all.size());
     }
+    
+    
+    public void testBackwardsUntil1stGlobal() throws Exception {
+        Document doc = new Document();
+        doc.set("def b():\n" +
+        		"    pass\n" +
+        		"\n" +
+        		"def a():\n" +
+                "    curr_widget_def = 10\n" +
+                "\n" +
+                "" +
+        "");
+        
+        List<stmtType> stmts = FastParser.parseToKnowGloballyAccessiblePath(doc, 4);
+        assertEquals(1, stmts.size());
+        assertEquals("a", NodeUtils.getRepresentationString(stmts.get(0)));
+    }
+    
+    public void testBackwardsUntil1stGlobal2() throws Exception {
+        Document doc = new Document();
+        doc.set("def b():\n" +
+                "    pass\n" +
+                "\n" +
+                "def a():\n" +
+                "    def f():\n" +
+                "        curr_widget_def = 10\n" +
+                "    def c():\n" +
+                "        curr_widget_def = 10\n" +
+                "\n" +
+                "" +
+        "");
+        
+        List<stmtType> stmts;
+        
+        for (int i = 6; i <= 7; i++) {
+            //6 and 7
+            stmts = FastParser.parseToKnowGloballyAccessiblePath(doc, i);
+            assertEquals(2, stmts.size());
+            assertEquals("a", NodeUtils.getRepresentationString(stmts.get(0)));
+            assertEquals("c", NodeUtils.getRepresentationString(stmts.get(1)));
+        }
+        
+        
+        for (int i = 4; i <= 5; i++) {
+            //4 and 5
+            stmts = FastParser.parseToKnowGloballyAccessiblePath(doc, i);
+            assertEquals(2, stmts.size());
+            assertEquals("a", NodeUtils.getRepresentationString(stmts.get(0)));
+            assertEquals("f", NodeUtils.getRepresentationString(stmts.get(1)));
+        }
+        
+        //3
+        stmts = FastParser.parseToKnowGloballyAccessiblePath(doc, 3);
+        assertEquals(1, stmts.size());
+        assertEquals("a", NodeUtils.getRepresentationString(stmts.get(0)));
+        
+        for (int i = 0; i <= 2; i++) {
+            //2, 1 and 0
+            stmts = FastParser.parseToKnowGloballyAccessiblePath(doc, i);
+            assertEquals(1, stmts.size());
+            assertEquals("b", NodeUtils.getRepresentationString(stmts.get(0)));
+        }
+    }
 
     private void check(List<stmtType> all, int position, int classBeginLine, int classBeginCol, int nameBeginLine, int nameBeginCol) {
         SimpleNode node = all.get(position);
@@ -156,4 +219,6 @@ public class FastParserTest extends TestCase {
         assertEquals(nameBeginLine, name.beginLine);
         assertEquals(nameBeginCol, name.beginColumn);
     }
+    
+    
 }

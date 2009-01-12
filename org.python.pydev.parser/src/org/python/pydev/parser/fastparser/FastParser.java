@@ -40,28 +40,86 @@ public class FastParser {
     
 
     //constant with the prefix position in the pattern (class or def)
+    @SuppressWarnings("unused")
     private static final int PREFIX_GROUP = 2;
     
     //constant with the name position in the pattern
     private static final int NAME_GROUP = 3;
     
+
+    /**
+     * doc the document to be parsed
+     */
+    private IDocument doc;
+    
+    /**
+     * currentLine the line where the parsing should begin (inclusive -- starts at 0)
+     */
+    private int currentLine; 
+    
+    /**
+     * forward determines whether we should be iterating forward or backward
+     */
+    private boolean forward;
+    
+    /**
+     * stopOnFirstMatch if true, will return right after getting the 1st match
+     */
+    private boolean stopOnFirstMatch;
+    
+    /**
+     * If true, we'll stop when we're able to find the match to the globally accessible way for the current line.
+     */
+    private boolean findGloballyAccessiblePath;
+
+    private int firstCharCol = -1;
+
+    
+    /**
+     * Use the parse* methods to access what you need to create the parse.
+     */
+    private FastParser(IDocument doc, int currentLine, boolean forward, boolean stopOnFirstMatch){
+        this.doc = doc;
+        this.currentLine = currentLine;
+        this.forward = forward;
+        this.stopOnFirstMatch = stopOnFirstMatch;
+    }
     
     /**
      * @param doc the document to be parsed
      * @return a list of statements with the classes and functions for this document
      */
     public static List<stmtType> parseClassesAndFunctions(IDocument doc) {
-        return parseClassesAndFunctions(doc, 0, true, false);
+        return new FastParser(doc, 0, true, false).parse();
     }
+    
+
+    /**
+     * @param doc the document to be parsed
+     * @param currentLine the line where the parsing should begin (inclusive -- starts at 0)
+     * @return the path to the current statement (where the current is the last element and the top-level is the 1st).
+     * If it's empty that means that we're already in the top-level.
+     */
+    public static List<stmtType> parseToKnowGloballyAccessiblePath(IDocument doc, int currentLine) {
+        FastParser parser = new FastParser(doc, currentLine, false, false);
+        parser.findGloballyAccessiblePath = true;
+        return parser.parse();
+    }
+
     
     /**
      * @param doc the document to be parsed
-     * @param currentLine the line where the parsing should begin (inclusive)
+     * @param currentLine the line where the parsing should begin (inclusive -- starts at 0)
      * @param forward determines whether we should be iterating forward or backward
      * @param stopOnFirstMatch if true, will return right after getting the 1st match
      * @return a list of statements with the classes and functions for this document
      */
     private static List<stmtType> parseClassesAndFunctions(IDocument doc, int currentLine, boolean forward, boolean stopOnFirstMatch) {
+        return new FastParser(doc, currentLine, forward, stopOnFirstMatch).parse();
+    }
+    
+    
+    private List<stmtType> parse() {
         List<stmtType> body = new ArrayList<stmtType>();
         PySelection ps = new PySelection(doc);
         DocIterator it = new PySelection.DocIterator(forward, ps, currentLine, false);
@@ -69,8 +127,19 @@ public class FastParser {
         Matcher functionMatcher = FUNCTION_PATTERN.matcher("");
         Matcher classMatcher = CLASS_PATTERN.matcher("");
         
+        
         while(it.hasNext()){
             String line = it.next();
+            
+            //we don't care about empty lines
+            if(line.trim().length() == 0){
+                continue;
+            }
+            
+            if(firstCharCol == -1 && findGloballyAccessiblePath){
+                firstCharCol = PySelection.getFirstCharPosition(line);
+            }
+            
             
             functionMatcher.reset(line);
             
@@ -79,13 +148,12 @@ public class FastParser {
                 NameTok nameTok = createNameTok(functionMatcher, lastReturnedLine, NameTok.FunctionName, ps);
                 
                 if(nameTok != null){
-                    argumentsType args = new argumentsType(EMTPY_EXPR_TYPE, null, null, EMTPY_EXPR_TYPE,
-                            null, null, null, null, null, null);
-                    FunctionDef functionDef = new FunctionDef(nameTok, args, EMTPY_STMT_TYPE, EMTPY_DECORATORS_TYPE, null);
-                    functionDef.beginLine = lastReturnedLine+1;
-                    functionDef.beginColumn = functionMatcher.start(PREFIX_GROUP)+1;
+                    FunctionDef functionDef = createFunctionDef(lastReturnedLine, nameTok, PySelection.getFirstCharPosition(line)); 
                     
-                    body.add(functionDef);
+                    if(!addStatement(body, functionDef)){
+                        return body;
+                    }
+                    
                     if(stopOnFirstMatch){
                         return body;
                     }
@@ -101,11 +169,12 @@ public class FastParser {
                 NameTok nameTok = createNameTok(classMatcher, lastReturnedLine, NameTok.ClassName, ps);
                 
                 if(nameTok != null){
-                    ClassDef classDef = new ClassDef(nameTok, EMTPY_EXPR_TYPE, EMTPY_STMT_TYPE, null, null, null, null);
-                    classDef.beginLine = lastReturnedLine+1;
-                    classDef.beginColumn = classMatcher.start(PREFIX_GROUP)+1;
+                    ClassDef classDef = createClassDef(lastReturnedLine, nameTok, PySelection.getFirstCharPosition(line)); 
                     
-                    body.add(classDef);
+                    if(!addStatement(body, classDef)){
+                        return body;
+                    }
+                    
                     if(stopOnFirstMatch){
                         return body;
                     }
@@ -116,6 +185,45 @@ public class FastParser {
         }
         
         return body;
+    }
+
+    /**
+     * @return whether we should continue iterating.
+     */
+    private boolean addStatement(List<stmtType> body, stmtType stmt) {
+        if(!findGloballyAccessiblePath){
+            body.add(stmt);
+            return true;
+        }else{
+            if(body.size() > 0){
+                if(stmt.beginColumn == body.get(0).beginColumn){
+                  //don't add one that's in the same column of the last found (we need only the path to the parent, not siblings)
+                    return true; 
+                }
+            }
+            body.add(0, stmt);
+            if(stmt.beginColumn == 1){
+                //gotten to root
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private FunctionDef createFunctionDef(int lastReturnedLine, NameTok nameTok, int matchedCol) {
+        argumentsType args = new argumentsType(EMTPY_EXPR_TYPE, null, null, EMTPY_EXPR_TYPE,
+                null, null, null, null, null, null);
+        FunctionDef functionDef = new FunctionDef(nameTok, args, EMTPY_STMT_TYPE, EMTPY_DECORATORS_TYPE, null);
+        functionDef.beginLine = lastReturnedLine+1;
+        functionDef.beginColumn = matchedCol+1;
+        return functionDef;
+    }
+
+    private ClassDef createClassDef(int lastReturnedLine, NameTok nameTok, int matchedCol) {
+        ClassDef classDef = new ClassDef(nameTok, EMTPY_EXPR_TYPE, EMTPY_STMT_TYPE, null, null, null, null);
+        classDef.beginLine = lastReturnedLine+1;
+        classDef.beginColumn = matchedCol+1;
+        return classDef;
     }
 
     
@@ -143,7 +251,7 @@ public class FastParser {
      * @return null if the location is not a valid location for a function or class or a NameTok to
      * be used with the ClassDef / FunctionDef
      */
-    private static NameTok createNameTok(Matcher matcher, int lastReturnedLine, int type, PySelection ps) {
+    private NameTok createNameTok(Matcher matcher, int lastReturnedLine, int type, PySelection ps) {
         int col = matcher.start(NAME_GROUP);
         
         int absoluteCursorOffset = ps.getAbsoluteCursorOffset(lastReturnedLine, col);
@@ -156,5 +264,6 @@ public class FastParser {
         nameTok.beginColumn = col+1;
         return nameTok;
     }
+
 
 }

@@ -11,6 +11,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.editor.PyEdit;
@@ -31,7 +32,7 @@ public class PyOpenEditor {
      * @throws PartInitException
      */
     public static IEditorPart openEditorInput(IEditorInput file) throws PartInitException {
-        final IWorkbench workbench = PydevPlugin.getDefault().getWorkbench();
+        final IWorkbench workbench = PlatformUI.getWorkbench();
         if(workbench == null){
             throw new RuntimeException("workbench cannot be null");
         }

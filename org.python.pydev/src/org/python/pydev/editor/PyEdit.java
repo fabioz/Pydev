@@ -11,6 +11,8 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
@@ -43,10 +45,12 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
@@ -59,6 +63,7 @@ import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
@@ -75,20 +80,31 @@ import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.model.IModelListener;
+import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.scripting.PyEditScripting;
+import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.editorinput.PydevFileEditorInput;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.PyParserManager;
+import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -96,6 +112,7 @@ import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * The TextWidget.
@@ -1047,6 +1064,76 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     public SimpleNode getAST() {
         return ast;
     }
+    
+    /**
+     * @return a list of tuples, where the 1st element in the tuple is a String and the 2nd element is
+     * an icon, ordered so that the 1st item is the topmost and the last is the innermost.
+     */
+    public List<String[]> getInnerStructureFromLine(int line){
+        ArrayList<String[]> ret = new ArrayList<String[]>();
+        
+        List<stmtType> parseToKnowGloballyAccessiblePath = 
+            FastParser.parseToKnowGloballyAccessiblePath(getDocument(), line);
+        
+        for (stmtType stmtType : parseToKnowGloballyAccessiblePath) {
+            String rep = NodeUtils.getRepresentationString(stmtType);
+            String image;
+            if(stmtType instanceof ClassDef){
+                image = UIConstants.CLASS_ICON;
+            }else if(stmtType instanceof FunctionDef){
+                image = UIConstants.PUBLIC_METHOD_ICON;
+            }else{
+                image = UIConstants.ERROR;
+            }
+            ret.add(new String[]{rep, image});
+        }
+
+        return ret;
+    }
+
+    /**
+     * This function will open an editor given the passed parameters
+     * 
+     * @param projectName
+     * @param path
+     * @param innerStructure
+     */
+    public static void openWithPathAndInnerStructure(String projectName, IPath path, List<String> innerStructure){
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        IProject project = workspace.getRoot().getProject(projectName);
+        if(project != null){
+            IFile file = project.getFile(path);
+            if(file != null){
+                IEditorPart editor = PyOpenEditor.doOpenEditor(file);
+                if(editor instanceof PyEdit){
+                    PyEdit pyEdit = (PyEdit) editor;
+                    IPythonNature nature = pyEdit.getPythonNature();
+                    AbstractModule mod = AbstractModule.createModuleFromDoc(nature.resolveModule(file), file.getLocation().toFile(), pyEdit.getDocument(), nature, 0);
+                    
+                    StringBuffer tok = new StringBuffer(80);
+                    for(String s:innerStructure){
+                        if(tok.length() > 0){
+                            tok.append('.');
+                        }
+                        tok.append(s);
+                    }
+                    
+                    try {
+                        IDefinition[] definitions = mod.findDefinition(
+                                CompletionStateFactory.getEmptyCompletionState(tok.toString(), nature, new CompletionCache()), -1, -1, nature);
+                        List<ItemPointer> pointers = new ArrayList<ItemPointer>();
+                        PyRefactoringFindDefinition.getAsPointers(pointers, (Definition[]) definitions);
+                        if(pointers.size() > 0){
+                            new PyOpenAction().run(pointers.get(0));
+                        }
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
+                }
+            }
+        }
+    }
+    
     
     /**
      * @return the last error description found (may be null)
