@@ -350,8 +350,10 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         try {
             //actually remove the pydev configurations
             IResource member = project.findMember(".pydevproject");
-            member.delete(true, null);
-        } catch (Exception e) {
+            if(member != null){
+                member.delete(true, null);
+            }
+        } catch (CoreException e) {
             PydevPlugin.log(e);
         }
 
@@ -360,7 +362,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         IProjectDescription description = project.getDescription();
         List<String> natures = new ArrayList<String>(Arrays.asList(description.getNatureIds()));
         natures.remove(PYTHON_NATURE_ID);
-        description.setNatureIds((String[]) natures.toArray(new String[natures.size()]));
+        description.setNatureIds(natures.toArray(new String[natures.size()]));
         project.setDescription(description, monitor);
     }
 
@@ -474,7 +476,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         //Change: 1.3.10: no longer in a Job... should already be called in a job if that's needed.
 
         try {
-            astManager = (ICodeCompletionASTManager) ASTManager.loadFromFile(getAstOutputFile());
+            astManager = ASTManager.loadFromFile(getAstOutputFile());
             if (astManager != null) {
                 synchronized (astManager) {
                     astManager.setProject(getProject(), this, true); // this is the project related to it, restore the deltas (we may have some crash)
@@ -521,8 +523,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @return
      */
     public static File getCompletionsCacheDir(IProject p) {
-        IPath location = p.getWorkingLocation(PydevPlugin.getPluginID());
-        IPath path = location;
+        IPath path = p.getWorkingLocation(PydevPlugin.getPluginID());
     
         File file = new File(path.toOSString());
         return file;
@@ -534,7 +535,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     /**
-     * @param dir: parent directory where file should be.
      * @return the file where the python path helper should be saved.
      */
     private File getAstOutputFile() {
