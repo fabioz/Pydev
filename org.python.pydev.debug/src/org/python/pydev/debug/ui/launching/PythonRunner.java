@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
@@ -94,8 +93,11 @@ public class PythonRunner {
             if (config.isDebug) {
                 runDebug(config, launch, monitor);
                 
-            }else if (config.isUnittest()) { 
-                runUnitTest(config, launch, monitor);
+            }else if (config.isUnittest()) {
+                //I know it's the same, but let's leave it separate (if some day we want to show
+                //a view and connect to the process through sockets, this is the place for doing it...)
+                //for now, only the command line (which is handled by the config) is needed.
+                doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
                 
             }else { //default - just configured by command line (the others need special attention)
                 doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
@@ -186,20 +188,13 @@ public class PythonRunner {
 
         IProcess process;
         String label = cmdLine[cmdLine.length-1];
-        if(config.isJython()) {
-            if(config.isInteractive){
-                throw new RuntimeException("Interactive not supported here!");
-            }
-            process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, "java");
-        } else {
             
-            //in the interactive session, we'll just create the process, it won't actually be registered
-            //in the debug plugin (the communication is all done through xml-rpc).
-            if(config.isInteractive){
-                throw new RuntimeException("Interactive not supported here!");
-            }
-            process = registerWithDebugPlugin(label, launch, p, processAttributes);
+        //in the interactive session, we'll just create the process, it won't actually be registered
+        //in the debug plugin (the communication is all done through xml-rpc).
+        if(config.isInteractive){
+            throw new RuntimeException("Interactive not supported here!");
         }
+        process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, config.getProcessType());
         checkProcess(p, process);
 
         // Registered the process with the debug plugin
@@ -226,10 +221,6 @@ public class PythonRunner {
         return p;
     }
 
-    private static void runUnitTest(PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException{
-        doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
-    }
-
     /**
      * The debug plugin needs to be notified about our process.
      * It'll then display the appropriate UI.
@@ -238,17 +229,10 @@ public class PythonRunner {
     private static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) throws JDTNotAvailableException {
         HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
         processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
-        return registerWithDebugPlugin(config.getRunningName(), launch,p, processAttributes);
+        return registerWithDebugPluginForProcessType(config.getRunningName(), launch,p, processAttributes, config.getProcessType());
     }
 
-    
-    /**
-     * The debug plugin needs to be notified about our process.
-     * It'll then display the appropriate UI.
-     */
-    private static IProcess registerWithDebugPlugin(String label, ILaunch launch, Process p, Map<Object, Object> processAttributes) {
-        return registerWithDebugPluginForProcessType(label, launch, p, processAttributes, Constants.PROCESS_TYPE);
-    }
+
     
     /**
      * The debug plugin needs to be notified about our process.

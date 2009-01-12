@@ -431,6 +431,14 @@ public class PythonRunnerConfig {
     }
 
 
+    /**
+     * @return attribute value of {@code IProcess.ATTR_PROCESS_TYPE}
+     */
+    public String getProcessType() {
+        return isJython() ? "java" : Constants.PROCESS_TYPE;
+    }
+    
+    
     public static String getRunningName(IPath[] paths) {
         FastStringBuffer buf = new FastStringBuffer(20*paths.length);
         for(IPath p:paths){
