@@ -1,26 +1,34 @@
 After 1.4.1
 
 Pydev Extensions
-Remote debugger fix (missing import)
-fixed code analysis problem on staticmethod
+<ul>
+<li>Fixed code analysis problem on staticmethod</li>
+<li>Context insensitive code-completion working with multiple interpreters</li>
+<li>Giving proper warning on version mismatch</li>
+<li>Remote debugger fix</li>
+</ul>
 
 
 Pydev
-Interpreter can be configured on a per-project basis
-Jython 2.5b0 properly supported
-Find with builtins working for Jython
-Fixes in Jython debugger
-Run configuration can run as python/jython even if it doesn't match the interpreter configured for the project
-Fixed halting condition that could occur on code-completion
-Giving proper warning on version mismatch
-Reorganized preferences (removed editor preferences from the root)
-Preferences for showing hover info
-Fixed problem when formatting binary operator that was in a new line
-When converting spaces to tabs (and vice-versa), the number of spaces for each tab is asked
-__file__ available in code-completion
-When finishing the user code debugging, it doesn't step into the debugger anymore
-Fixed problem on find definition if one of the interpreters was not configured
-Fixed debugger problem in Python 3.0 (could not resolve variables)
+<ul>
+<li><strong>Interpreter</strong> can be configured on a <strong>per-project</strong> basis</li>
+<li>Jython 2.5b0 properly supported</li>
+<li>Find working for Jython builtins</li>
+<li><strong>Run</strong>: can be python/jython even if it doesn't match the interpreter configured for the project</li>
+<li>Fixed problem on find definition if one of the interpreters was not configured</li>
+<li>Fixed halting condition that could occur on code-completion</li>
+<li>__file__ available in code-completion</li>
+<li>Reorganized preferences (removed editor preferences from the root)</li>
+<li>Preferences for showing hover info</li>
+<li>Fixed problem when formatting binary operator that was in a new line</li>
+<li>When converting spaces to tabs (and vice-versa), the number of spaces for each tab is asked</li>
+<li><strong>Debugger</strong></li>
+<ul>
+    <li>When finishing the user code debugging, it doesn't step into the debugger code anymore</li>
+    <li>Fixes for working with Jython</li>
+    <li>Fix for Python 3.0 integration (could not resolve variables)</li>
+</ul>
+</ul>
 
 
 after 1.4
