@@ -35,6 +35,29 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h3>New Release: LAST_VERSION_TAG</h3>
 
 <ul>
+<li><strong>Interpreter</strong> can be configured on a <strong>per-project</strong> basis</li>
+<li>Jython 2.5b0 properly supported</li>
+<li>Find definition working for Jython builtins</li>
+<li><strong>Run</strong>: can be python/jython even if it doesn't match the interpreter configured for the project</li>
+<li>Fixed problem on find definition if one of the interpreters was not configured</li>
+<li>Fixed halting condition that could occur on code-completion</li>
+<li>__file__ available in code-completion</li>
+<li>Reorganized preferences (removed editor preferences from the root)</li>
+<li>Preferences for showing hover info</li>
+<li>Fixed problem when formatting binary operator that was in a new line</li>
+<li>When converting spaces to tabs (and vice-versa), the number of spaces for each tab is asked</li>
+<li><strong>Debugger</strong></li>
+<ul>
+    <li>When finishing the user code debugging, it doesn't step into the debugger code anymore</li>
+    <li>Fixes for working with Jython</li>
+    <li>Fix for Python 3.0 integration (could not resolve variables)</li>
+</ul>
+</ul>
+
+
+<h3>New Release: 1.4</h3>
+
+<ul>
 <li><strong>Python 3.0</strong> supported</li>
 <li><strong>Python 2.6</strong> supported</li>
 <li><strong>Find Definition</strong>: The context-sensitive code to find a definition from Pydev Extensions is now available (and used) in the open source version</li> 
