@@ -37,7 +37,10 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
  */
 public class PythonPathHelper implements IPythonPathHelper, Serializable {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Changed to 2L on 1.4.2
+     */
+    private static final long serialVersionUID = 2L;
 
     /**
      * This is a list of Files containg the pythonpath.

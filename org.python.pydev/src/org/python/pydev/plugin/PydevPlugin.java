@@ -366,18 +366,21 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             return null;
         }
     
-        SystemPythonNature systemPythonNature = new SystemPythonNature(pythonInterpreterManager);
-        SystemPythonNature pySystemPythonNature = systemPythonNature;
+        SystemPythonNature systemPythonNature = null;
+        SystemPythonNature pySystemPythonNature = null;
         SystemPythonNature jySystemPythonNature = null;
+        
         try {
+            systemPythonNature = new SystemPythonNature(pythonInterpreterManager);
+            pySystemPythonNature = systemPythonNature;
             modName = systemPythonNature.resolveModule(file);
         } catch (Exception e) {
             // that's ok
         }
         if(modName == null){
-            systemPythonNature = new SystemPythonNature(jythonInterpreterManager);
-            jySystemPythonNature = systemPythonNature;
             try {
+                systemPythonNature = new SystemPythonNature(jythonInterpreterManager);
+                jySystemPythonNature = systemPythonNature;
                 modName = systemPythonNature.resolveModule(file);
             } catch (Exception e) {
                 // that's ok

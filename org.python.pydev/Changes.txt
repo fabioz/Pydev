@@ -19,7 +19,8 @@ Fixed problem when formatting binary operator that was in a new line
 When converting spaces to tabs (and vice-versa), the number of spaces for each tab is asked
 __file__ available in code-completion
 When finishing the user code debugging, it doesn't step into the debugger anymore
-
+Fixed problem on find definition if one of the interpreters was not configured
+Fixed debugger problem in Python 3.0 (could not resolve variables)
 
 
 after 1.4

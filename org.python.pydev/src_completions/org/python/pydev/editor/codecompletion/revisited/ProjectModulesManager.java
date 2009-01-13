@@ -49,7 +49,10 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
  */
 public class ProjectModulesManager extends ProjectModulesManagerBuild implements IDeltaProcessor<ModulesKey>{
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Forcing rebuild for 1.4.2 (a bug was making pydev loose information, so, that should make it 'right')
+     */
+    private static final long serialVersionUID = 2L;
 
     /**
      * Determines whether we are testing it.

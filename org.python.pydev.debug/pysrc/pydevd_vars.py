@@ -195,8 +195,7 @@ def frameVarsToXML(frame):
     <var name="var_name" scope="local" type="type" value="value"/>
     """    
     xml = ""
-    keys = frame.f_locals.keys()
-    keys.sort()    
+    keys = sorted(frame.f_locals.keys())
     for k in keys:
         try:            
             v = frame.f_locals[k]            

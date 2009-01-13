@@ -22,8 +22,6 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.IASTManagerObserver;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.interpreters.IInterpreterObserver;
 
 
 /**
@@ -40,9 +38,9 @@ public class ASTManager extends AbstractASTManager implements ICodeCompletionAST
 
     
     /**
-     * changed to 10L on release 1.0
+     * changed to 11L on release 1.4.2
      */
-    protected static final long serialVersionUID = 10L;
+    protected static final long serialVersionUID = 11L;
     
     public ASTManager() {}
     

@@ -36,8 +36,11 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 
     /**
      * Version changed from 1.3.6 to 1.3.7 to force it to be reconstructed (because it was not being correctly saved).
+     * 
+     * Also changed from 1.4.1 to 1.4.2 (because of multiple interpreters: secondary interpreters had no info -- because
+     * they weren't actually needed)
      */
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 5L;
     
     /**
      * The system modules manager may have a nature if we create a SystemASTManager

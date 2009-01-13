@@ -560,8 +560,7 @@ class InternalGetVariable(InternalThreadCommand):
         try:
             xml = "<xml>"            
             valDict = pydevd_vars.resolveCompoundVariable(self.thread_id, self.frame_id, self.scope, self.attributes)                        
-            keys = valDict.keys()
-            keys.sort()
+            keys = sorted(valDict.keys())
             for k in keys:
                 xml += pydevd_vars.varToXML(valDict[k], str(k))
 
