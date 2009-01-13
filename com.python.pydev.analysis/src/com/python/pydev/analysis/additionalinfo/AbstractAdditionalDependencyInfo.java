@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
@@ -189,7 +189,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     @Override
     protected void restoreSavedInfo(Object o){
         Tuple readFromFile = (Tuple) o;
-        if(!(readFromFile.o1 instanceof Tuple) && ! (readFromFile.o1 instanceof Tuple3)){
+        if(!(readFromFile.o1 instanceof Tuple4)){
             throw new RuntimeException("Type Error: the info must be regenerated (changed across versions).");
         }
         

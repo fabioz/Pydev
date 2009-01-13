@@ -23,7 +23,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
@@ -167,6 +167,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
         }
         
     };
+
+    private static final int version = 1;
 
     public AbstractAdditionalInterpreterInfo(){
     }
@@ -615,7 +617,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     @SuppressWarnings("unchecked")
     protected Object getInfoToSave(){
-        return new Tuple3(this.topLevelInitialsToInfo, this.innerInitialsToInfo, this.modulesAnalyzed);
+        return new Tuple4(this.topLevelInitialsToInfo, this.innerInitialsToInfo, this.modulesAnalyzed, 
+                AbstractAdditionalInterpreterInfo.version);
     }
     
     /**
@@ -645,38 +648,12 @@ public abstract class AbstractAdditionalInterpreterInfo {
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o){
         synchronized (lock) {
-            if(o instanceof Tuple){
-                Tuple readFromFile = (Tuple) o;
-                this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
-                this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
-                
-                //backward compatibility: if the modules analyzed info is not available, we've to generate it from
-                //what we have
-                this.modulesAnalyzed = new HashMap<String, byte[]>();
-                
-                //we just check the top level (it is not possible to have info on an inner structure without
-                //having it in the top level too).
-                Iterator<List<IInfo>> itListOfInfo = topLevelInitialsToInfo.values().iterator();
-                
-                byte[] empty = new byte[0];
-                while (itListOfInfo.hasNext()) {
-        
-                    Iterator<IInfo> it = itListOfInfo.next().iterator();
-                    while (it.hasNext()) {
-        
-                        IInfo info = it.next();
-                        if(info != null && info.getDeclaringModuleName() != null){
-                            this.modulesAnalyzed.put(info.getDeclaringModuleName(), empty);
-                        }
-                    }
-                }
-
-                
-            }else if(o instanceof Tuple3){
-                Tuple3 readFromFile = (Tuple3) o;
-                this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
-                this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
-                this.modulesAnalyzed = (HashMap<String, byte[]>) readFromFile.o3;
+            Tuple4 readFromFile = (Tuple4) o;
+            this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
+            this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
+            this.modulesAnalyzed = (HashMap<String, byte[]>) readFromFile.o3;
+            if(AbstractAdditionalInterpreterInfo.version != (Integer)readFromFile.o4){
+                throw new RuntimeException("I/O version doesn't match. Rebuilding internal info.");
             }
         }
     }
