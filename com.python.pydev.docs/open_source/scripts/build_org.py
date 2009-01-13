@@ -18,7 +18,6 @@ def _topicDefault():
 </tr>
 </tbody>
 </table>
-import sys
 </td>
 '''
 
