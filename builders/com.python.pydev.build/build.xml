@@ -90,6 +90,10 @@
 			<param name="p2.installIU" value="org.python.pydev.feature.feature.group" />
 			<param name="p2.repo" value="${pydev.p2.repo}" />
 		</antcall>
+		<antcall target="run.director">
+			<param name="p2.installIU" value="com.aptana.ide.feature.feature.group" />
+			<param name="p2.repo" value="${studio.p2.repo}" />
+		</antcall>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
