@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     Dec 8, 2008 2:05:07 PM                                                        
+
+     PyDev 
+     Builds the PyDev feature
+                   
+     cwilliams                                                                
+     ====================================================================== -->
+<project name="PyDev" default="build">
+	<description>
+            Builds the PyDev feature
+    </description>
+
+	<property file="build_local.properties" />
+
+	<!-- ================================= 
+          target: build              
+         ================================= -->
+	<target name="build" description="Builds the PyDev feature" depends="generate.build.properties,get.revision,generate.base">
+		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="yes">
+			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/org.eclipse.pde.build_3.4.1.R34x_v20080805/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
+		</java>
+	</target>
+	
+	<!-- ================================= 
+          target: generate.build.properties              
+         ================================= -->
+	<target name="generate.build.properties" description="Takes in properties from build_local.properties and the command line overrides and generates a combined build.properties to use for the build">
+		<echoproperties destfile="build.properties">
+			<propertyset negate="true">
+				<propertyref prefix="java." />
+				<propertyref prefix="ant." />
+				<propertyref prefix="awt." />
+				<propertyref prefix="user." />
+				<propertyref prefix="sun." />
+			</propertyset>
+		</echoproperties>
+	</target>
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+	<target name="clean" depends="generate.build.properties" description="Clean up temp and build files">
+		<delete failonerror="false">
+			<fileset dir="${buildDirectory}" defaultexcludes="true">
+				<include name="assemble.*" />
+				<include name="finalFeaturesVersions.*" />
+				<include name="finalPluginsVersions.*" />
+				<include name="package.*" />
+			</fileset>
+		</delete>
+		<delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
+		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="false">
+			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/org.eclipse.pde.build_3.4.1.R34x_v20080805/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
+		</java>
+		<delete dir="${baseLocation}" />
+		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
+		<delete dir="${p2.repo.dir}" failonerror="false" />
+		<!-- Do an svn revert of the build directory -->
+		<exec executable="svn">
+			<arg line="revert -R ${buildDirectory}" />
+		</exec>
+	</target>
+
+
+	<!-- - - - - - - - - - - - - - - - - - 
+	          target: get.revision                      
+	         - - - - - - - - - - - - - - - - - -->
+	<target name="get.revision">
+		<!-- FIXME This won't work on windows! -->
+		<!-- TODO Instead of passing -D args to build, maybe we could generate a new build.properties file with the few extra calculated variables like build.revision? -->
+		<echo message="Retrieving Subversion revision number" level="info" />
+		<exec executable="${basedir}/get_svn_rev" outputproperty="build.revision">
+			<arg line="${buildDirectory}" />
+		</exec>
+		<echo message="Revision: ${build.revision}" level="info" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+	          target: generate.base                      
+	         - - - - - - - - - - - - - - - - - -->
+	<target name="generate.base">
+		<!-- Copy over the original base eclipse to a new location.
+			Have to use exec cp to retain permissions. FIXME Won't work on Windows! -->
+		<exec executable="cp">
+			<arg line="-R ${vanilla.eclipse} ${baseLocation}" />
+		</exec>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+		          target: run.director                      
+		         - - - - - - - - - - - - - - - - - -->
+	<target name="run.director" description="Runs the p2 director installs">
+		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="true" dir="${baseLocation}" timeout="900000">
+			<arg line="-application org.eclipse.equinox.p2.director.app.application" />
+			<arg line="-nosplash" />
+			<arg line="-consoleLog" />
+			<arg line="-metadataRepository ${p2.repo}" />
+			<arg line="-artifactRepository ${p2.repo}" />
+			<arg line="-installIU ${p2.installIU}" />
+		</java>
+	</target>
+
+</project>
