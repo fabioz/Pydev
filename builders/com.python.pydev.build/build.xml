@@ -88,7 +88,7 @@
 		</exec>
 		<antcall target="run.director">
 			<param name="p2.installIU" value="org.python.pydev.feature.feature.group" />
-			<param name="p2.repo" value="${studio.p2.repo}" />
+			<param name="p2.repo" value="${pydev.p2.repo}" />
 		</antcall>
 	</target>
 
