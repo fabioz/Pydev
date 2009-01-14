@@ -22,7 +22,7 @@
 			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/org.eclipse.pde.build_3.4.1.R34x_v20080805/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
 		</java>
 	</target>
-	
+
 	<!-- ================================= 
           target: generate.build.properties              
          ================================= -->
@@ -86,6 +86,10 @@
 		<exec executable="cp">
 			<arg line="-R ${vanilla.eclipse} ${baseLocation}" />
 		</exec>
+		<antcall target="run.director">
+			<param name="p2.installIU" value="org.python.pydev.feature.feature.group" />
+			<param name="p2.repo" value="${studio.p2.repo}" />
+		</antcall>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
