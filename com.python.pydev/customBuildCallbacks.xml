@@ -61,8 +61,11 @@
 	</target>
 
 	<target name="pre.pydev.jar">
+		<mkdir dir="src/com/aptana/ide/core/licensing" />
+		<mkdir dir="src/com/aptana/ide/core/ui/preferences" />
+		<mkdir dir="src/com/aptana/ide/professional/licensing" />
 		<!-- We need to export it: checkout cannot get a single file -->
-		<svn username="build" password="build$$1" javahl="false">
+		<svn username="build" password="build$$1" svnkit="true" javahl="false">
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core/src/com/aptana/ide/core/URLEncoder.java" destPath="src/com/aptana/ide/core/URLEncoder.java" />
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core/src/com/aptana/ide/core/licensing/ClientKey.java" destPath="src/com/aptana/ide/core/licensing/ClientKey.java" />
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core/src/com/aptana/ide/core/licensing/ClientKeyService.java" destPath="src/com/aptana/ide/core/licensing/ClientKeyService.java" />
