@@ -7,7 +7,12 @@
 	<property name="aptana.svn.base.url" value="http://svn.aptana.local/svn/aptana/aptana/ide_suite/trunk" />
 	<property name="aptana.svn.core.url" value="${aptana.svn.base.url}/ide_core" />
 	<property name="aptana.svn.pro.url" value="${aptana.svn.base.url}/ide_pro" />
-	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpath="lib/svnant.jar;lib/svnClientAdapter.jar" />
+	<path id="svn.classpath">
+		<pathelement location="lib/svnant.jar" />
+		<pathelement location="lib/svnClientAdapter.jar" />
+		<pathelement location="lib/svnkit.jar" />
+	</path>
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svn.classpath" />
 
 	<!-- ===================================================================== -->
 	<!-- Default target                                                        -->
