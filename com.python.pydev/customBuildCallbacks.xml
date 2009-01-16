@@ -3,8 +3,8 @@
 <!-- Set customBuildCallbacks=<path/to/this/file> in your build.properties.-->
 <!-- ===================================================================== -->
 <project name="Build specific targets and properties" default="noDefault">
-	<property name="svn.username" value="hudson"/>
-	<property name="svn.password" value="hudson$$1"/>
+	<property name="svn.username" value="pydevbuild"/>
+	<property name="svn.password" value="Ph64rnT"/>
 	<property name="aptana.svn.base.url" value="http://svn.aptana.local/svn/aptana/aptana/ide_suite/trunk" />
 	<property name="aptana.svn.core.url" value="${aptana.svn.base.url}/ide_core" />
 	<property name="aptana.svn.pro.url" value="${aptana.svn.base.url}/ide_pro" />
