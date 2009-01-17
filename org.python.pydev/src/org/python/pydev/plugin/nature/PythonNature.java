@@ -834,7 +834,13 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public int getGrammarVersion() {
         try {
             String version = getVersion();
-            String grammarVersion = StringUtils.split(version, ' ')[1];
+            String[] splitted = StringUtils.split(version, ' ');
+            if(splitted == null || splitted.length != 2){
+                Log.log("Found invalid version: "+version+". Reseting to default.");
+                version = getDefaultVersion();
+                splitted = StringUtils.split(version, ' ');
+            }
+            String grammarVersion = splitted[1];
             return getGrammarVersionFromStr(grammarVersion);
 
         } catch (CoreException e) {
