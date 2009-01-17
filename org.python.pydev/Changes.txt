@@ -1,3 +1,11 @@
+After 1.4.2
+
+Pydev Extensions
+Search references should be working on Ecilpse 3.3 and Eclipse 3.4 (again)
+
+Pydev
+
+
 After 1.4.1
 
 Pydev Extensions
