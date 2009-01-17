@@ -3,7 +3,6 @@ package com.python.pydev.refactoring.refactorer.search;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.search.internal.ui.SearchPluginImages;
-import org.eclipse.search.internal.ui.text.FileSearchResult;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.IEditorMatchAdapter;
@@ -13,13 +12,12 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
-public class PythonFileSearchResult extends FileSearchResult implements IEditorMatchAdapter, IFileMatchAdapter {
+public class PythonFileSearchResult extends AbstractTextSearchResult implements IEditorMatchAdapter, IFileMatchAdapter {
     private final Match[] EMPTY_ARR= new Match[0];
     
     private AbstractPythonSearchQuery fQuery;
 
     public PythonFileSearchResult(AbstractPythonSearchQuery query) {
-        super(null);
         fQuery= query;
     }
     public ImageDescriptor getImageDescriptor() {

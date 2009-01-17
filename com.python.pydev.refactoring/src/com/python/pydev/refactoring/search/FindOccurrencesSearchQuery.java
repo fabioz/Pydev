@@ -13,6 +13,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.search.ui.ISearchResult;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -23,6 +24,7 @@ import com.python.pydev.refactoring.actions.PyFindAllOccurrences;
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.wizards.rename.AbstractRenameRefactorProcess;
 import com.python.pydev.ui.search.FileMatch;
+import com.python.pydev.ui.search.LineElement;
 
 public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
 
@@ -68,7 +70,13 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
                         if(PyFindAllOccurrences.DEBUG_FIND_REFERENCES){
                             System.out.println("Adding match:"+file);
                         }
-                        findOccurrencesSearchResult.addMatch(new FileMatch(file, offset, length));
+                        PySelection ps = new PySelection(doc, offset);
+                        int lineNumber = ps.getLineOfOffset();
+                        String lineContents = ps.getLine(lineNumber);
+                        int lineStartOffset = ps.getLineOffset(lineNumber);
+                        
+                        LineElement element = new LineElement(file, lineNumber, lineStartOffset, lineContents);
+                        findOccurrencesSearchResult.addMatch(new FileMatch(file, offset, length, element));
                     }
                 }
             }

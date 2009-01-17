@@ -16,6 +16,7 @@ import org.eclipse.search.ui.text.Match;
 import org.python.pydev.core.docutils.StringUtils;
 
 import com.python.pydev.ui.search.FileMatch;
+import com.python.pydev.ui.search.LineElement;
 
 /**
  * Based on the org.eclipse.search.internal.ui.text.FileSearchQuery
@@ -38,7 +39,7 @@ public class PythonFileSearchQuery extends AbstractPythonSearchQuery implements 
         
         public boolean acceptFile(IFile file) throws CoreException {
             if (fIsFileSearchOnly) {
-                fResult.addMatch(new FileMatch(file, 0, 0));
+                fResult.addMatch(new FileMatch(file));
             }
             flushMatches();
             return true;
@@ -51,11 +52,69 @@ public class PythonFileSearchQuery extends AbstractPythonSearchQuery implements 
             return fSearchInBinaries;
         }
 
-        @SuppressWarnings("unchecked")
         public boolean acceptPatternMatch(TextSearchMatchAccess matchRequestor) throws CoreException {
-            fCachedMatches.add(new FileMatch(matchRequestor.getFile(), matchRequestor.getMatchOffset(), matchRequestor.getMatchLength()));
+            int offset = matchRequestor.getMatchOffset();
+			IFile file = matchRequestor.getFile();
+			int len = matchRequestor.getMatchLength();
+			fCachedMatches.add(new FileMatch(file, offset, len, getLineElement(offset, matchRequestor)));
             return true;
         }
+        
+        
+		private LineElement getLineElement(int offset, TextSearchMatchAccess matchRequestor) {
+			int lineNumber= 1;
+			int lineStart= 0;
+			if (!fCachedMatches.isEmpty()) {
+				// match on same line as last?
+				FileMatch last= (FileMatch) fCachedMatches.get(fCachedMatches.size() - 1);
+				LineElement lineElement= last.getLineElement();
+				if (lineElement.contains(offset)) {
+					return lineElement;
+				}
+				// start with the offset and line information from the last match
+				lineStart= lineElement.getOffset() + lineElement.getLength();
+				lineNumber= lineElement.getLine() + 1;
+			}
+			if (offset < lineStart) {
+				return null; // offset before the last line
+			}
+			
+			int i= lineStart;
+			int contentLength= matchRequestor.getFileContentLength();
+			while (i < contentLength) {
+				char ch= matchRequestor.getFileContentChar(i++);
+				if (ch == '\n' || ch == '\r') {
+					if (ch == '\r' && i < contentLength && matchRequestor.getFileContentChar(i) == '\n') {
+						i++;
+					}
+					if (offset < i) {
+						String lineContent= getContents(matchRequestor, lineStart, i); // include line delimiter
+						return new LineElement(matchRequestor.getFile(), lineNumber, lineStart, lineContent);
+					}
+					lineNumber++;
+					lineStart= i;
+				}
+			}
+			if (offset < i) {
+				String lineContent= getContents(matchRequestor, lineStart, i); // until end of file
+				return new LineElement(matchRequestor.getFile(), lineNumber, lineStart, lineContent);
+			}
+			return null; // offset outside of range
+		}
+		
+		
+		private static String getContents(TextSearchMatchAccess matchRequestor, int start, int end) {
+			StringBuffer buf= new StringBuffer();
+			for (int i= start; i < end; i++) {
+				char ch= matchRequestor.getFileContentChar(i);
+				if (Character.isWhitespace(ch) || Character.isISOControl(ch)) {
+					buf.append(' ');
+				} else {
+					buf.append(ch);
+				}
+			}
+			return buf.toString();
+		}
 
         public void beginReporting() {
             fCachedMatches= new ArrayList<Match>();
