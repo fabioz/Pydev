@@ -13,6 +13,10 @@
     </description>
 
 	<property file="build_local.properties" />
+	<path id="svn.classpath">
+		<fileset dir="lib" includes="*.jar" />
+	</path>
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svn.classpath" />
 
 	<!-- ================================= 
           target: build              
@@ -23,7 +27,7 @@
 		</java>
 		<antcall target="clean.after" />
 	</target>
-	
+
 	<!-- ================================= 
           target: generate.build.properties              
          ================================= -->
@@ -59,54 +63,58 @@
 		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
 		<delete dir="${p2.repo.dir}" failonerror="false" />
 		<!-- Do an svn revert of the build directory -->
-		<exec executable="svn">
-			<arg line="revert -R ${buildDirectory}" />
-		</exec>
+		<svn>
+			<revert recurse="true" dir="${buildDirectory}" />
+		</svn>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.after                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="clean.after" if="cleanAfter">
-            <antcall target="clean" />
-    </target>
-
-	<!-- - - - - - - - - - - - - - - - - - 
-	          target: get.revision                      
-	         - - - - - - - - - - - - - - - - - -->
-	<target name="get.revision">
-		<!-- FIXME This won't work on windows! -->
-		<!-- TODO Instead of passing -D args to build, maybe we could generate a new build.properties file with the few extra calculated variables like build.revision? -->
-		<echo message="Retrieving Subversion revision number" level="info" />
-		<exec executable="${basedir}/get_svn_rev" outputproperty="build.revision">
-			<arg line="${buildDirectory}" />
-		</exec>
-		<echo message="Revision: ${build.revision}" level="info" />
+	<target name="clean.after" if="cleanAfter">
+		<antcall target="clean" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-	          target: generate.base                      
-	         - - - - - - - - - - - - - - - - - -->
-	<target name="generate.base">
+          target: get.revision                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="get.revision">
+		<echo message="Retrieving Subversion revision number" level="info" />
+		<svn>
+			<wcversion path="${basedir}" prefix="svn." />
+		</svn>
+		<property name="build.revision" value="${svn.revision.max}" />
+		<echo message="Revision: ${build.revision}" level="info" />
+	</target>
+
+
+	<!-- Set IsWindows property IF the OS is from the Windows family -->
+	<condition property="is.windows" value="true">
+		<os family="windows" />
+	</condition>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: generate.base                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="generate.base" depends="copy.base.windows,copy.base" />
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: copy.base                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="copy.base">
 		<!-- Copy over the original base eclipse to a new location.
-			Have to use exec cp to retain permissions. FIXME Won't work on Windows! -->
+			Have to use exec cp to retain permissions on *nix, Mac -->
 		<exec executable="cp">
 			<arg line="-R ${vanilla.eclipse} ${baseLocation}" />
 		</exec>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-		          target: run.director                      
-		         - - - - - - - - - - - - - - - - - -->
-	<target name="run.director" description="Runs the p2 director installs">
-		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="true" dir="${baseLocation}" timeout="900000">
-			<arg line="-application org.eclipse.equinox.p2.director.app.application" />
-			<arg line="-nosplash" />
-			<arg line="-consoleLog" />
-			<arg line="-metadataRepository ${p2.repo}" />
-			<arg line="-artifactRepository ${p2.repo}" />
-			<arg line="-installIU ${p2.installIU}" />
-		</java>
+          target: copy.base.windows                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="copy.base.windows" if="is.windows">
+		<copy todir="${baseLocation}">
+			<fileset dir="${vanilla.eclipse}" includes="**/*" defaultexcludes="false" />
+		</copy>
 	</target>
-
 </project>
