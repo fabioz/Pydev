@@ -63,9 +63,9 @@
 		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
 		<delete dir="${p2.repo.dir}" failonerror="false" />
 		<!-- Do an svn revert of the build directory -->
-		<exec executable="svn">
-			<arg line="revert -R ${buildDirectory}" />
-		</exec>
+		<svn>
+			<revert recurse="true" dir="${buildDirectory}" />
+		</svn>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -83,7 +83,7 @@
 		<svn>
 			<wcversion path="${basedir}" prefix="svn." />
 		</svn>
-		<property name="build.revision" value="${svn.revision.max}"/>
+		<property name="build.revision" value="${svn.revision.max}" />
 		<echo message="Revision: ${build.revision}" level="info" />
 	</target>
 
