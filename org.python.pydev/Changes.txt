@@ -2,6 +2,7 @@ After 1.4.2
 
 Pydev Extensions
 Search references should be working on Ecilpse 3.3 and Eclipse 3.4 (again)
+Lambda properly treated as a new context for code-analysis
 
 Pydev
 Debugger getting variables on Jython 2.1 / 2.2
