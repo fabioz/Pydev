@@ -6,6 +6,7 @@ Search references should be working on Ecilpse 3.3 and Eclipse 3.4 (again)
 Pydev
 Debugger getting variables on Jython 2.1 / 2.2
 The project preferences would not be applied if the page to configure the project type was not visible.
+Jython 2.5b1 working (sitecustomize would not work)
 
 After 1.4.1
 

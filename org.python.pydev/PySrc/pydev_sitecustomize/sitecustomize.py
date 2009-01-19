@@ -113,7 +113,12 @@ if not IS_PYTHON_3K: #For Python 3.0, the PYTHONIOENCODING should already treat 
 #remove the pydev site customize (and the pythonpath for it)
 try:
     for c in sys.path[:]:
-        if c.find('pydev_sitecustomize') != -1:
+        #Pydev controls the whole classpath in Jython already, so, we don't want a a duplicate for
+        #what we've already added there (this is needed to support Jython 2.5b1 onwards -- otherwise, as
+        #we added the sitecustomize to the pythonpath and to the classpath, we'd have to remove it from the
+        #classpath too -- and I don't think there's a way to do that... or not?)
+        if c.find('pydev_sitecustomize') != -1 or c == '__classpath__' or c == '__pyclasspath__' or \
+            c == '__classpath__/' or c == '__pyclasspath__/' or  c == '__classpath__\\' or c == '__pyclasspath__\\':
             sys.path.remove(c)
             
     del sys.modules['sitecustomize'] #this module
