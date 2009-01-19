@@ -87,19 +87,40 @@
 		<echo message="Revision: ${build.revision}" level="info" />
 	</target>
 
+
+	<!-- Set IsWindows property IF the OS is from the Windows family -->
+	<condition property="is.windows" value="true">
+		<os family="windows" />
+	</condition>
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="generate.base">
-		<!-- Copy over the original base eclipse to a new location.
-			Have to use exec cp to retain permissions. FIXME Won't work on Windows! -->
-		<exec executable="cp">
-			<arg line="-R ${vanilla.eclipse} ${baseLocation}" />
-		</exec>
+	<target name="generate.base" depends="copy.base.windows,copy.base">
 		<antcall target="run.director">
 			<param name="p2.installIU" value="org.python.pydev.feature.feature.group" />
 			<param name="p2.repo" value="${pydev.p2.repo}" />
 		</antcall>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: copy.base                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="copy.base">
+		<!-- Copy over the original base eclipse to a new location.
+			Have to use exec cp to retain permissions on *nix, Mac -->
+		<exec executable="cp">
+			<arg line="-R ${vanilla.eclipse} ${baseLocation}" />
+		</exec>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: copy.base.windows                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="copy.base.windows" if="is.windows">
+		<copy todir="${baseLocation}">
+			<fileset dir="${vanilla.eclipse}" includes="**/*" defaultexcludes="false" />
+		</copy>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
