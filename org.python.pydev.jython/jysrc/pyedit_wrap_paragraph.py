@@ -428,7 +428,7 @@ if cmd == 'onCreateActions':
     from org.eclipse.ui.texteditor import IEditorStatusLine #@UnresolvedImport
     from org.eclipse.swt.widgets import Display #@UnresolvedImport
     from java.lang import Runnable #@UnresolvedImport
-    from org.python.pydev.plugin import PydevPlugin #@UnresolvedImport
+    from org.python.pydev.plugin.preferences import PydevPrefs #@UnresolvedImport
     from org.eclipse.ui.texteditor import AbstractDecoratedTextEditorPreferenceConstants #@UnresolvedImport
 #------------------------ HELPER TO RUN THINGS IN THE UI -----------------------
 
@@ -613,7 +613,7 @@ if cmd == 'onCreateActions':
                     paragraph.append(p.getCurrentLine())
                                           
                 # paragraph now contains all of the lines so rewrap it [1].
-                noCols = PydevPlugin.getChainedPrefStore().\
+                noCols = PydevPrefs.getChainedPrefStore().\
                          getInt(AbstractDecoratedTextEditorPreferenceConstants.\
                          EDITOR_PRINT_MARGIN_COLUMN )
                 paragraph = [line.rstrip() + " "  for line in paragraph]
