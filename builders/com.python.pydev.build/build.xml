@@ -13,6 +13,10 @@
     </description>
 
 	<property file="build_local.properties" />
+	<path id="svn.classpath">
+		<fileset dir="lib" includes="*.jar" />
+	</path>
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svn.classpath" />
 
 	<!-- ================================= 
           target: build              
@@ -72,21 +76,20 @@
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-	          target: get.revision                      
-	         - - - - - - - - - - - - - - - - - -->
+          target: get.revision                      
+         - - - - - - - - - - - - - - - - - -->
 	<target name="get.revision">
-		<!-- FIXME This won't work on windows! -->
-		<!-- TODO Instead of passing -D args to build, maybe we could generate a new build.properties file with the few extra calculated variables like build.revision? -->
 		<echo message="Retrieving Subversion revision number" level="info" />
-		<exec executable="${basedir}/get_svn_rev" outputproperty="build.revision">
-			<arg line="${buildDirectory}" />
-		</exec>
+		<svn>
+			<wcversion path="${basedir}" prefix="svn." />
+		</svn>
+		<property name="build.revision" value="${svn.revision.max}"/>
 		<echo message="Revision: ${build.revision}" level="info" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-	          target: generate.base                      
-	         - - - - - - - - - - - - - - - - - -->
+          target: generate.base                      
+         - - - - - - - - - - - - - - - - - -->
 	<target name="generate.base">
 		<!-- Copy over the original base eclipse to a new location.
 			Have to use exec cp to retain permissions. FIXME Won't work on Windows! -->
@@ -100,8 +103,8 @@
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-		          target: run.director                      
-		         - - - - - - - - - - - - - - - - - -->
+          target: run.director                      
+         - - - - - - - - - - - - - - - - - -->
 	<target name="run.director" description="Runs the p2 director installs">
 		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="true" dir="${baseLocation}" timeout="900000">
 			<arg line="-application org.eclipse.equinox.p2.director.app.application" />
