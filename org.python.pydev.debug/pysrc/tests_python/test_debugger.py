@@ -158,7 +158,8 @@ class AbstractWriterThread(threading.Thread):
             i += 1
             time.sleep(1)
             if i >= 10:
-                raise AssertionError('After %s seconds, a break was not hit.' % i)
+                raise AssertionError('After %s seconds, the vars were not found. Last found:\n%s' % 
+                    (i, self.readerThread.lastReceived))
 
         return True
     
@@ -682,7 +683,7 @@ class Test(unittest.TestCase):
             self.fail(processReadThread.resultStr)
             
         if not writerThread.finishedOk:
-            self.fail("The thread that was doing the tests didn't finish succesfully. Output: %s" % processReadThread.resultStr)
+            self.fail("The thread that was doing the tests didn't finish successfully. Output: %s" % processReadThread.resultStr)
             
 
             
@@ -768,6 +769,6 @@ if __name__ == '__main__':
     suite = unittest.makeSuite(Test)
     
 #    suite = unittest.TestSuite()
-#    suite.addTest(Test('testCase12'))
-    unittest.TextTestRunner(verbosity=1).run(suite)
+#    suite.addTest(Test('testCase7a'))
+    unittest.TextTestRunner(verbosity=3).run(suite)
 

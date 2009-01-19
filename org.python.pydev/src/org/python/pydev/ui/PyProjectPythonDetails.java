@@ -43,6 +43,7 @@ public class PyProjectPythonDetails extends PropertyPage{
      * correct interpreter and grammar.
      */
     public static class ProjectInterpreterAndGrammarConfig{
+        private static final String INTERPRETER_NOT_CONFIGURED_MSG = "<a>Please configure an interpreter in the related preferences before proceeding.</a>";
         public Button radioPy;
         public Button radioJy;
         public Combo comboGrammarVersion;
@@ -161,7 +162,7 @@ public class PyProjectPythonDetails extends PropertyPage{
                         
                     }else{
                         interpretersChoice.setVisible(false);
-                        interpreterNoteText.setText("<a>Please configure an interpreter in the related preferences before proceeding.</a>");
+                        interpreterNoteText.setText(INTERPRETER_NOT_CONFIGURED_MSG);
                         
                     }
                     //config which preferences page should be opened!
@@ -223,7 +224,7 @@ public class PyProjectPythonDetails extends PropertyPage{
         }
         
         public String getProjectInterpreter(){
-            if(interpretersChoice.isVisible() == false){
+            if(INTERPRETER_NOT_CONFIGURED_MSG.equals(interpreterNoteText.getText())){
                 return null;
             }
             return interpretersChoice.getText();

@@ -195,7 +195,13 @@ def frameVarsToXML(frame):
     <var name="var_name" scope="local" type="type" value="value"/>
     """    
     xml = ""
-    keys = sorted(frame.f_locals.keys())
+    
+    keys = frame.f_locals.keys()
+    if hasattr(keys, 'sort'):
+        keys.sort() #Python 3.0 does not have it
+    else:
+        keys = sorted(keys) #Jython 2.1 does not have it
+
     for k in keys:
         try:            
             v = frame.f_locals[k]            
