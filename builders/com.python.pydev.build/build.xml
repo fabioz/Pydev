@@ -13,6 +13,10 @@
     </description>
 
 	<property file="build_local.properties" />
+	<!-- Set is.windows property IF the OS is from the Windows family -->
+	<condition property="is.windows" value="true">
+		<os family="windows" />
+	</condition>
 	<path id="svn.classpath">
 		<fileset dir="lib" includes="*.jar" />
 	</path>
@@ -87,12 +91,6 @@
 		<echo message="Revision: ${build.revision}" level="info" />
 	</target>
 
-
-	<!-- Set IsWindows property IF the OS is from the Windows family -->
-	<condition property="is.windows" value="true">
-		<os family="windows" />
-	</condition>
-
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
          - - - - - - - - - - - - - - - - - -->
@@ -106,7 +104,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy.base                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="copy.base">
+	<target name="copy.base" unless="is.windows">
 		<!-- Copy over the original base eclipse to a new location.
 			Have to use exec cp to retain permissions on *nix, Mac -->
 		<exec executable="cp">
