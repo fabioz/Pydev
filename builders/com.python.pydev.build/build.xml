@@ -2,14 +2,14 @@
 <!-- ====================================================================== 
      Dec 8, 2008 2:05:07 PM                                                        
 
-     PyDev 
-     Builds the PyDev feature
+     PyDev Extensions
+     Builds the PyDev Extensions feature
                    
      cwilliams                                                                
      ====================================================================== -->
-<project name="PyDev" default="build">
+<project name="PyDev Extensions" default="build">
 	<description>
-            Builds the PyDev feature
+            Builds the PyDev Extensions feature
     </description>
 
 	<property file="build_local.properties" />
@@ -21,7 +21,7 @@
 	<!-- ================================= 
           target: build              
          ================================= -->
-	<target name="build" description="Builds the PyDev feature" depends="generate.build.properties,get.revision,generate.base">
+	<target name="build" description="Builds the PyDev Extensions feature" depends="generate.build.properties,get.revision,generate.base">
 		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="yes">
 			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/org.eclipse.pde.build_3.4.1.R34x_v20080805/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
 		</java>
