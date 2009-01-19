@@ -268,7 +268,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
             for (Found f : m.values()) {
                 if(!f.isUsed()){
                     // we don't get unused at the global scope or class definition scope unless it's an import
-                    if(scopeType == Scope.SCOPE_TYPE_METHOD || f.isImport()){ //only within methods do we put things as unused 
+                    if((scopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 || f.isImport()){ //only within methods do we put things as unused 
                         messagesManager.addUnusedMessage(node, f);
                     }
                 }
@@ -302,7 +302,7 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
             duplicationChecker.beforeClassDef((ClassDef) node);
             noSelfChecker.beforeClassDef((ClassDef) node);
             
-        }else if(newScopeType == Scope.SCOPE_TYPE_METHOD){
+        }else if((newScopeType & Scope.SCOPE_TYPE_METHOD) != 0){
             duplicationChecker.beforeFunctionDef((FunctionDef) node); //duplication checker
             noSelfChecker.beforeFunctionDef((FunctionDef) node);
         }

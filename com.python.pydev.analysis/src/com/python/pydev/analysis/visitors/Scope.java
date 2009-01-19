@@ -48,6 +48,11 @@ public class Scope implements Iterable<ScopeItems>{
     public static final int SCOPE_TYPE_LIST_COMP = 8;
     
     /**
+     * the scope type is a lambda
+     */
+    public static final int SCOPE_TYPE_LAMBDA = 16;
+    
+    /**
      * when we are at method definition, not always is as expected...
      */
     public boolean isInMethodDefinition = false;
@@ -55,12 +60,17 @@ public class Scope implements Iterable<ScopeItems>{
     /**
      * Constant defining the scopes that should be considered when we're in a method
      */
-    public static final int ACCEPTED_METHOD_SCOPES = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_LIST_COMP;
+    public static final int ACCEPTED_METHOD_SCOPES = SCOPE_TYPE_GLOBAL | SCOPE_TYPE_METHOD| SCOPE_TYPE_LAMBDA | SCOPE_TYPE_LIST_COMP;
     
     /**
      * Constant defining all the available scopes
      */
-    public static final int ACCEPTED_ALL_SCOPES = Scope.SCOPE_TYPE_GLOBAL | Scope.SCOPE_TYPE_METHOD | Scope.SCOPE_TYPE_CLASS | Scope.SCOPE_TYPE_LIST_COMP;
+    public static final int ACCEPTED_ALL_SCOPES = SCOPE_TYPE_GLOBAL | SCOPE_TYPE_METHOD| SCOPE_TYPE_LAMBDA | SCOPE_TYPE_CLASS | SCOPE_TYPE_LIST_COMP;
+
+    /**
+     * Constant defining that method and lambda are accepted.
+     */
+    public static final int ACCEPTED_METHOD_AND_LAMBDA = SCOPE_TYPE_METHOD | SCOPE_TYPE_LAMBDA;
     
     
     /**
@@ -81,6 +91,8 @@ public class Scope implements Iterable<ScopeItems>{
             return "Class Scope";
         case Scope.SCOPE_TYPE_METHOD:
             return "Method Scope";
+        case Scope.SCOPE_TYPE_LAMBDA:
+            return "Lambda Scope";
         case Scope.SCOPE_TYPE_LIST_COMP:
             return "List Comp Scope";
         }
@@ -211,12 +223,12 @@ public class Scope implements Iterable<ScopeItems>{
                     if(found.getSingle().scopeFound.getScopeId() == getCurrScopeId()){
                         
                         //we don't get unused at the global scope or class definition scope unless it's an import
-                        if(found.getSingle().scopeFound.getScopeType() == Scope.SCOPE_TYPE_METHOD || found.isImport()){ 
+                        if((found.getSingle().scopeFound.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 || found.isImport()){ 
                             visitor.onAddUnusedMessage(null, found);
                         }
                     }
                     
-                } else if (!(m.getScopeType() == Scope.SCOPE_TYPE_METHOD && found.getSingle().scopeFound.getScopeType() == Scope.SCOPE_TYPE_CLASS)){
+                } else if (!((m.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 && found.getSingle().scopeFound.getScopeType() == Scope.SCOPE_TYPE_CLASS)){
                     //if it was found but in a class scope (and we're now in a method scope), we will have to create a new Found.
                     
                     //found... may have been or not used, (if we're in an if scope, that does not matter, because
@@ -393,7 +405,7 @@ public class Scope implements Iterable<ScopeItems>{
         
         for(ScopeItems s : this.scope){
             //ok, if we are in a scope method, we may not get things that were defined in a class scope.
-            if(currScopeType == SCOPE_TYPE_METHOD && s.getScopeType() == SCOPE_TYPE_CLASS){
+            if((currScopeType & ACCEPTED_METHOD_AND_LAMBDA) != 0 && s.getScopeType() == SCOPE_TYPE_CLASS){
                 continue;
             }
             

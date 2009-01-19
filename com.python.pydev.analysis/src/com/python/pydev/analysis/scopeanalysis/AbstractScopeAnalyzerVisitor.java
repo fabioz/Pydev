@@ -229,7 +229,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             GenAndTok single = n.getSingle();
             int foundScopeType = single.scopeFound.getScopeType();
             //ok, if we are in a scope method, we may not get things that were defined in a class scope.
-            if(foundScopeType == Scope.SCOPE_TYPE_METHOD && scope.getCurrScopeItems().getScopeType() == Scope.SCOPE_TYPE_CLASS){
+            if(((foundScopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0) && scope.getCurrScopeItems().getScopeType() == Scope.SCOPE_TYPE_CLASS){
                 continue;
             }
             IToken tok = single.tok;
@@ -317,6 +317,55 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
 
         endScope(node); //don't report unused variables if the method is virtual
+        return null;
+    }
+    
+    /**
+     * we are starting a new scope when visiting a lambda 
+     */
+    public Object visitLambda(org.python.pydev.parser.jython.ast.Lambda node) throws Exception {
+        unhandled_node(node);
+        
+        AbstractScopeAnalyzerVisitor visitor = this;
+        argumentsType args = node.args;
+        
+        //visit the defaults first (before starting the scope, because this is where the load of variables from other scopes happens)
+        if(args.defaults != null){
+            for(exprType expr : args.defaults){
+                if(expr != null){
+                    expr.accept(visitor);
+                }
+            }
+        }
+        
+        startScope(Scope.SCOPE_TYPE_LAMBDA, node);
+        
+        
+        scope.isInMethodDefinition = true;
+        //visit regular args
+        if (args.args != null){
+            for(exprType expr : args.args){
+                expr.accept(visitor);
+            }
+        }
+        
+        //visit varargs
+        if(args.vararg != null){
+            args.vararg.accept(visitor);
+        }
+        
+        //visit kwargs
+        if(args.kwarg != null){
+            args.kwarg.accept(visitor);
+        }
+        scope.isInMethodDefinition = false;
+        
+        //visit the body
+        if (node.body != null) {
+            node.body.accept(visitor);
+        }
+        
+        endScope(node);
         return null;
     }
     
@@ -755,7 +804,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                 final GenAndTok foundItemFirst = found.getSingle();
                 
                 //if something was not defined in a method, if we are in the class definition, it won't be found.
-                if(probablyNotDefinedFirst.scopeFound.getScopeType() == Scope.SCOPE_TYPE_METHOD &&
+                
+                if((probablyNotDefinedFirst.scopeFound.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 &&
                     m.getScopeType() != Scope.SCOPE_TYPE_CLASS){
                     if(foundItemFirst.scopeId < probablyNotDefinedFirst.scopeId){
                         found.setUsed(true);
@@ -828,7 +878,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         int acceptedScopes = 0;
         ScopeItems currScopeItems = scope.getCurrScopeItems();
         
-        if(currScopeItems.getScopeType() == Scope.SCOPE_TYPE_METHOD){
+        if((currScopeItems.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0){
             acceptedScopes = Scope.ACCEPTED_METHOD_SCOPES;
         }else{
             acceptedScopes = Scope.ACCEPTED_ALL_SCOPES;

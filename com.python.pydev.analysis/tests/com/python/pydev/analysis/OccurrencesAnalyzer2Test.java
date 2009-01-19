@@ -23,7 +23,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testNoStaticComplain();
+            analyzer2.testInnerAndOuterScopeReference2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -237,6 +237,25 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "    @staticmethod\n" +
                 "    def m1(self):\n"+
                 "        pass\n"
+        );
+        checkNoError();
+    }
+    
+    public void testInnerAndOuterScopeReference() throws IOException{
+        doc = new Document(
+            "EnumType = lambda: EnumType\n" +
+            "print(EnumType())\n"
+        );
+        checkNoError();
+    }
+    
+    public void testInnerAndOuterScopeReference2() throws IOException{
+        doc = new Document(
+                "def m1():\n" +
+                "    c = lambda: a\n" +
+                "    a = 10\n" +
+                "    print c\n" +
+                "\n"
         );
         checkNoError();
     }
