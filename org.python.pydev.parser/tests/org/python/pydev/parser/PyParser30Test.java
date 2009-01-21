@@ -21,7 +21,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testMisc2();
+            test.testSetComprehension2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -465,6 +465,26 @@ public class PyParser30Test extends PyParserTestBase{
         parseILegalDocStr(s);
     }
     
+    
+    public void testSetComprehension2() {
+        String s = "" +
+    		"{x + 1 for x in s}\n" +
+    		"";
+        parseLegalDocStr(s);
+    }
+    
+    
+    public void testComprehensions() {
+        String s = "" +
+        "s = {1, 2, 3}\n" +
+        "print(s)\n" +
+        "s = {x + 1 for x in s}\n" +
+        "print(s)\n" +
+        "s = {x : x * 2 for x in s}\n" +
+        "print(s)\n" +
+        "";
+        parseLegalDocStr(s);
+    }
     
     
     public void testLib() throws Exception {

@@ -1037,16 +1037,19 @@ void testlist() #void: {}
 //                )
 void dictorsetmaker() #void: {}
 {
-    LOOKAHEAD(2)
-    (test() <COLON> {this.addSpecialToken(":");} test() 
-        (
-            comp_for()|
-            (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test()<COLON> {this.addSpecialToken(":");} test())*
-            [{this.addSpecialToken(",");} <COMMA>]
-        )
-    )    |
-    (
-      test() (LOOKAHEAD(2) comp_for() | ({this.addSpecialToken(",");} <COMMA> test())*#set [{this.addSpecialToken(",");} <COMMA>] )
+	test()
+	
+	(
+	    ( <COLON> {this.addSpecialToken(":");} test() 
+	        (
+	            comp_for()|
+	            (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test()<COLON> {this.addSpecialToken(":");} test())*
+	            [{this.addSpecialToken(",");} <COMMA>]
+	        )
+	    )        |
+	    (
+	      (LOOKAHEAD(2) comp_for() | ({this.addSpecialToken(",");} <COMMA> test())*#set [{this.addSpecialToken(",");} <COMMA>] )
+	    )
     )
 }
 
