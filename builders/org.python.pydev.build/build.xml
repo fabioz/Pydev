@@ -94,7 +94,12 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="generate.base" depends="copy.base.windows,copy.base" />
+	<target name="generate.base" depends="copy.base.windows,copy.base">
+		<antcall target="run.director">
+			<param name="p2.installIU" value="org.eclipse.jdt.feature.group" />
+			<param name="p2.repo" value="${jdt.p2.repo}" />
+		</antcall>
+	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy.base                      
@@ -114,5 +119,19 @@
 		<copy todir="${baseLocation}">
 			<fileset dir="${vanilla.eclipse}" includes="**/*" defaultexcludes="false" />
 		</copy>
+	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: run.director                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="run.director" description="Runs the p2 director installs">
+		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="true" dir="${baseLocation}" timeout="900000">
+			<arg line="-application org.eclipse.equinox.p2.director.app.application" />
+			<arg line="-nosplash" />
+			<arg line="-consoleLog" />
+			<arg line="-metadataRepository ${p2.repo}" />
+			<arg line="-artifactRepository ${p2.repo}" />
+			<arg line="-installIU ${p2.installIU}" />
+		</java>
 	</target>
 </project>
