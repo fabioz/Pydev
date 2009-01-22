@@ -60,7 +60,7 @@
 			</fileset>
 		</delete>
 		<delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
-		<java jar="${baseLocation}/plugins/${launcher.jar}" fork="true" failonerror="false">
+		<java jar="${vanilla.eclipse}/plugins/${launcher.jar}" fork="true" failonerror="false">
 			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${pde.build.version}/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
 		</java>
 		<delete dir="${baseLocation}" />
@@ -82,7 +82,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: get.revision                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="get.revision">
+	<target name="get.revision" unless="build.revision">
 		<echo message="Retrieving Subversion revision number" level="info" />
 		<svn>
 			<wcversion path="${basedir}" prefix="svn." />
