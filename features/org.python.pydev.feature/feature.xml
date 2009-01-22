@@ -22,7 +22,6 @@ Doesn&apos;t that feel good? Yum.
 Aleks and Fabio
    </license>
 
-
    <requires>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
@@ -88,7 +87,8 @@ Aleks and Fabio
          id="org.python.pydev.templates"
          download-size="36"
          install-size="36"
-         version="0.9.7.1"/>
+         version="0.9.7.1"
+         unpack="false"/>
 
    <plugin
          id="org.python.pydev.refactoring"
