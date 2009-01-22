@@ -98,14 +98,14 @@
 	<!-- Steps to do before generating the build scripts. -->
 	<!-- ===================================================================== -->
 	<target name="preGenerate">
-		<!-- Seems to be breaking the build!
-		<replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${version.full}" byline="true">
-			<fileset dir="${buildDirectory}" includes="**/*.MF" />
+		<echo message="Replacing feature and plugin versions to be: ${version.full}" />
+		<!--FIXME Handle when old version number is not 0.9.7.1! -->
+		<replaceregexp match="Bundle-Version: 0.9.7.1" replace="Bundle-Version: ${version.full}" byline="true">
+			<fileset dir="${buildDirectory}" includes="plugins/**/META-INF/MANIFEST.MF" />
 		</replaceregexp>
 
-		<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="0(.*)"' replace='version="${version.full}"' byline="true" />
+		<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="0.9.7.1"' replace='version="${version.full}"' byline="true" />
 		<replaceregexp file="${buildDirectory}\plugins\org.python.pydev\src\org\python\pydev\plugin\PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
-		-->
 	</target>
 
 	<!-- ===================================================================== -->
