@@ -125,7 +125,15 @@
 	<!-- Steps to do after running the build.xmls for the elements being built. -->
 	<!-- ===================================================================== -->
 	<target name="postProcess">
-		<!-- TODO Set up retroweaver to run on the jar's contents
+		<!-- Set up retroweaver to run on the jar's contents -->
+		<property name="jar1" value="${buildDirectory}/plugins/org.python.pydev/pydev"/>
+		<property name="jar2" value="${buildDirectory}/plugins/org.python.pydev.core/core"/>
+		<property name="jar3" value="${buildDirectory}/plugins/org.python.pydev.parser/parser"/>
+		<property name="jar4" value="${buildDirectory}/plugins/org.python.pydev.ast/ast"/>
+		<property name="jar5" value="${buildDirectory}/plugins/org.python.pydev.debug/pydev-debug"/>
+		<property name="jar8" value="${buildDirectory}/plugins/org.python.pydev.jython/pydev-jython"/>
+		<property name="jar9" value="${buildDirectory}/plugins/org.python.pydev.refactoring/refactoring"/>
+		<echo message="Deleting JAR folders" />
 		<delete dir="${jar1}" />
 		<delete dir="${jar2}" />
 		<delete dir="${jar3}" />
@@ -133,7 +141,7 @@
 		<delete dir="${jar5}" />
 		<delete dir="${jar8}" />
 		<delete dir="${jar9}" />
-
+		<echo message="Unzipping JARs" />
 		<unzip src="${jar1}.jar" dest="${jar1}/out"><patternset><include name="**/*.*" /></patternset></unzip>
 		<unzip src="${jar2}.jar" dest="${jar2}/out"><patternset><include name="**/*.*" /></patternset></unzip>
 		<unzip src="${jar3}.jar" dest="${jar3}/out"><patternset><include name="**/*.*" /></patternset></unzip>
@@ -141,7 +149,7 @@
 		<unzip src="${jar5}.jar" dest="${jar5}/out"><patternset><include name="**/*.*" /></patternset></unzip>
 		<unzip src="${jar8}.jar" dest="${jar8}/out"><patternset><include name="**/*.*" /></patternset></unzip>
 		<unzip src="${jar9}.jar" dest="${jar9}/out"><patternset><include name="**/*.*" /></patternset></unzip>
-		
+		<echo message="Running retroweaver on JAR contents" />
 		<retroweaver srcdir="${jar1}/out" verbose="false" destdir="${jar1}/out" version="1.4" />
 		<retroweaver srcdir="${jar2}/out" verbose="false" destdir="${jar2}/out" version="1.4" />
 		<retroweaver srcdir="${jar3}/out" verbose="false" destdir="${jar3}/out" version="1.4" />
@@ -149,7 +157,7 @@
 		<retroweaver srcdir="${jar5}/out" verbose="false" destdir="${jar5}/out" version="1.4" />
 		<retroweaver srcdir="${jar8}/out" verbose="false" destdir="${jar8}/out" version="1.4" />
 		<retroweaver srcdir="${jar9}/out" verbose="false" destdir="${jar9}/out" version="1.4" />
-		
+		<echo message="Deleting original JARs" />
 		<delete file="${jar1}.jar" />
 		<delete file="${jar2}.jar" />
 		<delete file="${jar3}.jar" />
@@ -157,7 +165,7 @@
 		<delete file="${jar5}.jar" />
 		<delete file="${jar8}.jar" />
 		<delete file="${jar9}.jar" />
-		
+		<echo message="Re-creating JARs with retroweaved binaries" />
 		<jar jarfile="${jar1}.jar" basedir="${jar1}/out" update="true" manifest="${jar1}/out/META-INF/MANIFEST.MF" />
 		<jar jarfile="${jar2}.jar" basedir="${jar2}/out" update="true" manifest="${jar2}/out/META-INF/MANIFEST.MF" />
 		<jar jarfile="${jar3}.jar" basedir="${jar3}/out" update="true" manifest="${jar3}/out/META-INF/MANIFEST.MF" />
@@ -165,7 +173,6 @@
 		<jar jarfile="${jar5}.jar" basedir="${jar5}/out" update="true" manifest="${jar5}/out/META-INF/MANIFEST.MF" />
 		<jar jarfile="${jar8}.jar" basedir="${jar8}/out" update="true" manifest="${jar8}/out/META-INF/MANIFEST.MF" />
 		<jar jarfile="${jar9}.jar" basedir="${jar9}/out" update="true" manifest="${jar9}/out/META-INF/MANIFEST.MF" />
-	  -->
 	</target>
 
 	<!-- ===================================================================== -->
