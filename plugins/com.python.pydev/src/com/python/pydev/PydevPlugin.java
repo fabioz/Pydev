@@ -32,7 +32,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
@@ -52,7 +51,7 @@ public class PydevPlugin extends AbstractUIPlugin {
      * This is an exception that indicates that the license is invalid
      */
     @SuppressWarnings("serial")
-    private static class InvalidLicenseException extends RuntimeException{
+    static class InvalidLicenseException extends RuntimeException{
 
         /**
          * Indicates whether the license was correctly decrypted or not -- if it was,
@@ -194,8 +193,8 @@ public class PydevPlugin extends AbstractUIPlugin {
     /**
      * @return null if no contents are available or a tuple with the key and the e-mail to be used as the license.
      */
-    public Tuple<String, String> getLicenseKeyAndEmail(){
-        Tuple<String, String> keyAndEmail = getLicenseKeyAndEmailFromPluginLocation();
+    public UserAndLicense getLicenseKeyAndEmail(){
+        UserAndLicense keyAndEmail = getLicenseKeyAndEmailFromPluginLocation();
         if(hasContentsForKeyAndEmail(keyAndEmail)){
             return keyAndEmail;
         }
@@ -264,8 +263,9 @@ public class PydevPlugin extends AbstractUIPlugin {
      * 
      * @return true if it was validated correctly and false otherwise.
      */
-    private boolean tryToValidateKeyAndEmail(Tuple<String, String> keyAndEmail) {
-        if(keyAndEmail.o1 != null && keyAndEmail.o2 != null && isLicenseValid(keyAndEmail.o1, keyAndEmail.o2, false)) {
+    private boolean tryToValidateKeyAndEmail(UserAndLicense keyAndEmail) {
+        if(keyAndEmail.emailOrUser != null && keyAndEmail.license != null && 
+                isLicenseValid(keyAndEmail.license, keyAndEmail.emailOrUser, false, getPreferenceStore())) {
             validated = true;
             return true;
         }
@@ -275,7 +275,7 @@ public class PydevPlugin extends AbstractUIPlugin {
     /**
      * @return a tuple with the key and the e-mail that should eb used to decrypt it from the pydev preferences.
      */
-    private Tuple<String, String> getLicenseKeyAndEmailFromPreferences() {
+    private UserAndLicense getLicenseKeyAndEmailFromPreferences() {
         Bundle bundle = Platform.getBundle("com.python.pydev");
         IPath path = Platform.getStateLocation( bundle );        
         path = path.addTrailingSeparator();
@@ -290,7 +290,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             
             encLicense = REF.getFileContents(f);
             email = getPreferenceStore().getString(PydevExtensionInitializer.USER_EMAIL);
-            return new Tuple<String, String>(encLicense, email);
+            return new UserAndLicense(email, encLicense);
         } catch (FileNotFoundException e) {
             String ret = "The license file: "+path.toOSString()+" was not found.";
             throw new RuntimeException(ret);
@@ -301,16 +301,16 @@ public class PydevPlugin extends AbstractUIPlugin {
     /**
      * @return a tuple with the key and the e-mail that should eb used to decrypt it from the pydev preferences.
      */
-    private Tuple<String, String> getLicenseKeyAndEmailFromAptana() {
+    private UserAndLicense getLicenseKeyAndEmailFromAptana() {
         String email = ApplicationPreferences.getInstance().getString(IPreferenceConstants.ACTIVATION_EMAIL_ADDRESS);
         String key = ApplicationPreferences.getInstance().getString(IPreferenceConstants.ACTIVATION_KEY);
-        return new Tuple<String, String>(email, key);
+        return new UserAndLicense(email, key);
     }
     
     /**
      * @return a tuple with the key and the e-mail that should be used to decrypt it from a file in the plugin location.
      */
-    private Tuple<String, String> getLicenseKeyAndEmailFromPluginLocation() {
+    private UserAndLicense getLicenseKeyAndEmailFromPluginLocation() {
         try{
             Location configurationLocation = Platform.getInstallLocation();
             URL url = configurationLocation.getURL();
@@ -336,7 +336,7 @@ public class PydevPlugin extends AbstractUIPlugin {
                 String encLicense = REF.getFileContents(fileLicense).replaceAll("\n", "").replaceAll("\r", "").replaceAll(" ", "");
                 String enteredEmail = REF.getFileContents(fileEmail).trim();
                 
-                return new Tuple<String, String>(encLicense, enteredEmail);
+                return new UserAndLicense(enteredEmail, encLicense);
             }
         }catch(Throwable e){
         }
@@ -349,23 +349,51 @@ public class PydevPlugin extends AbstractUIPlugin {
      * @return true if the given tuple has enough information to be considered valid as a key license and the
      * related e-mail to use it.
      */
-    private boolean hasContentsForKeyAndEmail(Tuple<String, String> keyAndEmail) {
-        return keyAndEmail != null && keyAndEmail.o1 != null && keyAndEmail.o2 != null && 
-            keyAndEmail.o1.trim().length() > 0 && keyAndEmail.o2.trim().length() > 0;
+    private boolean hasContentsForKeyAndEmail(UserAndLicense keyAndEmail) {
+        return keyAndEmail != null && keyAndEmail.emailOrUser != null && keyAndEmail.license != null && 
+            keyAndEmail.emailOrUser.trim().length() > 0 && keyAndEmail.license.trim().length() > 0;
     }
     
 
+    private static class UserAndLicense{
+        public String license;
+        public String emailOrUser;
+        public UserAndLicense(String emailOrUser, String license) {
+            this.emailOrUser = emailOrUser;
+            this.license = license;
+        }
+    }
+    
+    private static class PrefsToShow{
+        public PrefsToShow(String name, String time, String licenseType, String devs, boolean hideDetails,
+                boolean isPydevLicense) {
+            this.name = name;
+            this.time = time;
+            this.licenseType = licenseType;
+            this.devs = devs;
+            this.hideDetails = hideDetails;
+            this.isPydevLicense = isPydevLicense;
+        }
+        public String name;
+        public String time;
+        public String licenseType;
+        public String devs;
+        public boolean hideDetails;
+        public boolean isPydevLicense;        
+    }
+    
     /**
      * @param hideDetails if true, it'll just show 'install validated for xxx' in the dialog (otherwise, the proper
      * key will be shown)
      * 
      * @return true if the given license is valid for the passed e-mail and false otherwise. 
      */
-    private boolean isLicenseValid(String encLicense, String enteredEmail, boolean hideDetails) {
+    public static final boolean isLicenseValid(String encLicense, String enteredEmail, boolean hideDetails, IPreferenceStore prefsStore) {
         try{
             //already decrypted
-            IPreferenceStore prefsStore = getPreferenceStore();
-            
+            if(prefsStore == null){
+                prefsStore = new NullPrefsStore();
+            }
             prefsStore.setValue(PydevExtensionInitializer.USER_NAME, "");
             prefsStore.setValue(PydevExtensionInitializer.LIC_TIME, "");
             prefsStore.setValue(PydevExtensionInitializer.LIC_TYPE, "");
@@ -374,32 +402,8 @@ public class PydevPlugin extends AbstractUIPlugin {
             String license = ClientEncryption.getInstance().decrypt(encLicense);
             
             try {
-                Properties properties = new Properties();
-                properties.load(new ByteArrayInputStream(license.getBytes()));
-                
-                String eMail = (String) properties.remove("e-mail");
-                String name  = (String) properties.remove("name");
-                String time = (String) properties.remove("time");
-                String licenseType = (String) properties.remove("licenseType");
-                String devs = (String) properties.remove("devs");
-                
-                if(eMail == null || name == null || time == null || licenseType == null || devs == null || enteredEmail == null){
-                    throw new InvalidLicenseException("The license is not correct, please re-paste it. If this error persists, please request a new license.", true);
-                }
-                if(!enteredEmail.equalsIgnoreCase(eMail)){
-                    throw new InvalidLicenseException("The e-mail specified is different from the e-mail this license was generated for.", true);
-                }
-                
-                
-                Calendar currentCalendar = Calendar.getInstance();
-                Calendar licenseCalendar = getExpTime(time);
-                if(currentCalendar.after(licenseCalendar)){
-                    throw new InvalidLicenseException("The current license expired at: "+formatDate(licenseCalendar), true);
-                }
-                
-                
-                setPrefsToShow(name, time, licenseType, devs, hideDetails, true);
-                
+                PrefsToShow prefsToShow = getPrefsToShowFromPydevLicense(enteredEmail, hideDetails, license);
+                setPrefsToShow(prefsToShow, prefsStore);
             } catch (IOException e) {
                 throw new InvalidLicenseException(e.getMessage(), false);
             }
@@ -431,7 +435,8 @@ public class PydevPlugin extends AbstractUIPlugin {
                             licenseType += " pro";
                         }
                         if(!clientKey.isExpired()){
-                            setPrefsToShow(clientKey.getEmail(), clientKey.getExpiration().getTimeInMillis()+"", licenseType, "1", hideDetails, false);
+                            PrefsToShow prefsToShow = new PrefsToShow(clientKey.getEmail(), clientKey.getExpiration().getTimeInMillis()+"", licenseType, "1", hideDetails, false);
+                            setPrefsToShow(prefsToShow, prefsStore);
                             return true;
                         }else{
                             //change the exception to be thrown
@@ -456,10 +461,50 @@ public class PydevPlugin extends AbstractUIPlugin {
 
     
     /**
+     * Preferences from the pydev license
+     */
+    private static PrefsToShow getPrefsToShowFromPydevLicense(String enteredEmail, boolean hideDetails, String license)
+            throws IOException {
+        Properties properties = new Properties();
+        properties.load(new ByteArrayInputStream(license.getBytes()));
+        
+        String eMail = (String) properties.remove("e-mail");
+        String name  = (String) properties.remove("name");
+        String time = (String) properties.remove("time");
+        String licenseType = (String) properties.remove("licenseType");
+        String devs = (String) properties.remove("devs");
+        
+        if(eMail == null || name == null || time == null || licenseType == null || devs == null || enteredEmail == null){
+            throw new InvalidLicenseException("The license is not correct, please re-paste it. If this error persists, please request a new license.", false);
+        }
+        if(!enteredEmail.equalsIgnoreCase(eMail)){
+            throw new InvalidLicenseException("The e-mail specified is different from the e-mail this license was generated for.", true);
+        }
+        
+        
+        Calendar currentCalendar = Calendar.getInstance();
+        Calendar licenseCalendar = getExpTime(time);
+        if(currentCalendar.after(licenseCalendar)){
+            throw new InvalidLicenseException("The current license expired at: "+formatDate(licenseCalendar), true);
+        }
+        
+        
+        PrefsToShow prefsToShow = new PrefsToShow(name, time, licenseType, devs, hideDetails, true);
+        return prefsToShow;
+    }
+
+    
+    /**
      * Sets in the preferences the strings that should be shown to the user in the preferences dialog.
      */
-    private void setPrefsToShow(String name, String time, String licenseType, String devs, boolean hideDetails, boolean isPydevLicense) {
-        IPreferenceStore prefsStore = getPreferenceStore();
+    private static void setPrefsToShow(PrefsToShow prefsToShow, IPreferenceStore prefsStore) {
+        String name=prefsToShow.name;
+        String time=prefsToShow.time;
+        String licenseType=prefsToShow.licenseType;
+        String devs=prefsToShow.devs;
+        boolean hideDetails=prefsToShow.hideDetails;
+        boolean isPydevLicense=prefsToShow.isPydevLicense;
+        
         prefsStore.setValue(PydevExtensionInitializer.USER_NAME, name);
         prefsStore.setValue(PydevExtensionInitializer.LIC_TIME, time);
         prefsStore.setValue(PydevExtensionInitializer.LIC_TYPE, licenseType);
