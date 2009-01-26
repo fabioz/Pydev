@@ -11,25 +11,32 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.editor.codecompletion.revisited.ASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
+import org.python.pydev.plugin.nature.PythonNature;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
+    
+    
+    protected boolean isInTestFindDefinition = false;
     
     public static void main(String[] args) {
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testPreferCompiledOnBootstrap();
+            builtins.testFindDefinition();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -38,6 +45,32 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
             e.printStackTrace();
         }
         
+    }
+    
+    @Override
+    protected PythonNature createNature() {
+        return new PythonNature(){
+            @Override
+            public boolean isJython() throws CoreException {
+                return false;
+            }
+            @Override
+            public boolean isPython() throws CoreException {
+                return true;
+            }
+            @Override
+            public int getGrammarVersion() {
+                return IPythonNature.LATEST_GRAMMAR_VERSION;
+            }
+            
+            @Override
+            public String resolveModule(File file) {
+                if(isInTestFindDefinition){
+                    return null;
+                }
+                return super.resolveModule(file);
+            }
+        };
     }
 
     private static PythonShell shell;
@@ -387,4 +420,19 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         requestCompl(s, -1, new String[] {"ThisGoes", "RuntimeError"});
     }
 
+    
+    public void testFindDefinition() throws Exception {
+        isInTestFindDefinition = true;
+        try {
+            CompiledModule mod = new CompiledModule("os", nature.getAstManager());
+            Definition[] findDefinition = mod.findDefinition(
+                    CompletionStateFactory.getEmptyCompletionState("walk", nature, new CompletionCache()), -1, -1, nature);
+            assertEquals(1, findDefinition.length);
+            assertEquals("os", findDefinition[0].module.getName());
+        } finally {
+            isInTestFindDefinition = false;
+        }
+    }
+    
+    
 }

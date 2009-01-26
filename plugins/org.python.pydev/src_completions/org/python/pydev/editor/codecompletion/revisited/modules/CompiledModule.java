@@ -348,12 +348,21 @@ public class CompiledModule extends AbstractModule{
             String foundModName = nature.resolveModule(f);
             String foundAs = def.o1[1];
             
-            IModule mod = nature.getAstManager().getModule(foundModName, nature, true);
+            IModule mod;
+            if(foundModName == null){
+                //this can happen in a case where we have a definition that's found from a compiled file which actually
+                //maps to a file that's outside of the pythonpath known by Pydev.
+                String n = FullRepIterable.getFirstPart(f.getName());
+                mod = AbstractModule.createModule(n, f, nature, -1);
+            }else{
+                mod = nature.getAstManager().getModule(foundModName, nature, true);
+            }
+            
             if(TRACE_COMPILED_MODULES){
                 System.out.println("CompiledModule.findDefinition: found at:"+mod.getName());
             }
             int foundLine = def.o2[0];
-            if(foundLine == 0 && foundAs.length() > 0 && mod != null && state.canStillCheckFindSourceFromCompiled(mod, foundAs)){
+            if(foundLine == 0 && foundAs != null && foundAs.length() > 0 && mod != null && state.canStillCheckFindSourceFromCompiled(mod, foundAs)){
                 //TODO: The nature (and so the grammar to be used) must be defined by the file we'll parse
                 //(so, we need to know the system modules manager that actually created it to know the actual nature)
                 IModule sourceMod = AbstractModule.createModuleFromDoc(mod.getName(), f, new Document(REF.getFileContents(f)), nature, 0);
