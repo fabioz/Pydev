@@ -1976,7 +1976,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUndefinedVariableFromBuiltinModule() {
         doc = new Document(
                 "import os\n" +
-                "print os.__file__" 
+                "print os.__file__\n"+ 
+                "print os.__name__\n" 
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1988,7 +1989,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUndefinedVariableFromSourceModule() {
         doc = new Document(
                 "import testlib\n" +
-                "print testlib.__file__" 
+                "print testlib.__file__\n" +
+                "print testlib.__name__" 
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
