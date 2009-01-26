@@ -53,6 +53,7 @@ public class GlobalModelVisitor extends AbstractVisitor {
         if(!lookingInLocalContext && ((this.visitWhat & GLOBAL_TOKENS) != 0)){
             //__file__ is always available for any module
             this.tokens.add(new SourceToken(new Name("__file__", Name.Load, false), "__file__", "", "", moduleName));
+            this.tokens.add(new SourceToken(new Name("__name__", Name.Load, false), "__name__", "", "", moduleName));
         }
     }
 

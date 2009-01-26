@@ -107,7 +107,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
         
-        checkExpected(4);
+        checkExpected(5);
+        assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
@@ -133,7 +134,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(5);
+        checkExpected(6);
+        assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
@@ -160,7 +162,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(4);
+        checkExpected(5);
+        assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
@@ -290,9 +293,10 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(2);
+        checkExpected(3);
         assertIsIn("contentsCopy", comps);
         assertIsIn("__file__", comps);
+        assertIsIn("__name__", comps);
     }
     
     public void testLocals2(){
@@ -305,8 +309,9 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(4);
+        checkExpected(5);
         assertIsIn("__file__", comps);
+        assertIsIn("__name__", comps);
         assertIsIn("par1", comps);
         assertIsIn("par2", comps);
         assertIsIn("met", comps);
@@ -322,7 +327,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(5);
+        checkExpected(6);
+        assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
         assertIsIn("par1", comps);
         assertIsIn("par2", comps);
@@ -341,7 +347,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(6);
+        checkExpected(7);
+        assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
         assertIsIn("par1", comps);
         assertIsIn("loc1", comps);
@@ -362,7 +369,8 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line,col, token, nature,"");
         comps = getComps();
-        checkExpected(6);
+        checkExpected(7);
+        assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
         assertIsIn("par1", comps);
         assertIsIn("loc1", comps);

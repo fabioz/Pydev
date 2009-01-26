@@ -34,8 +34,8 @@ public class ModuleTest extends TestCase {
         IModule module = AbstractModule.createModule(n);
        
         IToken[] globalTokens = module.getGlobalTokens();
-        assertEquals(6, globalTokens.length); //C c D d a __file__
-        compareReps(globalTokens, "__file__ C c D d a");
+        assertEquals(7, globalTokens.length); //C c D d a __file__ __name__
+        compareReps(globalTokens, "__file__ __name__ C c D d a");
 
         IToken[] wildImportedModules = module.getWildImportedModules();
         assertEquals(1, wildImportedModules.length); //m4

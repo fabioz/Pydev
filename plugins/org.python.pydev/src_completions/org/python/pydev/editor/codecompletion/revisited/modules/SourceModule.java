@@ -1044,7 +1044,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public boolean isBootstrapModule() {
         if(bootstrap == null){
             IToken[] ret = getGlobalTokens();
-            if(ret != null && (ret.length == 1 || ret.length == 2) && this.file != null){ //also checking 2 tokens because of __file__
+            if(ret != null && (ret.length == 1 || ret.length == 2 || ret.length == 3) && this.file != null){ //also checking 2 or 3 tokens because of __file__ and __name__
                 for(IToken tok:ret){
                     if("__bootstrap__".equals(tok.getRepresentation())){
                         //if we get here, we already know that it defined a __bootstrap__, so, let's see if it was also called
