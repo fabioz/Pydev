@@ -3,6 +3,8 @@ After 1.4.2
 Pydev Extensions
 Search references should be working on Ecilpse 3.3 and Eclipse 3.4 (again)
 Lambda properly treated as a new context for code-analysis
+Analysis was not recognizing __name__
+
 
 Pydev
 Debugger getting variables on Jython 2.1 / 2.2
@@ -10,7 +12,7 @@ The project preferences would not be applied if the page to configure the projec
 Jython 2.5b1 working (sitecustomize would not work)
 Wrap paragraph fixed
 Fixed problem recognizing set comprehension on Python 3.0
-
+Fixed problem when a find definition found a module outside of the known pythonpath 
 
 
 
