@@ -13,7 +13,7 @@ Jython 2.5b1 working (sitecustomize would not work)
 Wrap paragraph fixed
 Fixed problem recognizing set comprehension on Python 3.0
 Fixed problem when a find definition found a module outside of the known pythonpath 
-
+Debugger using globals as an union of original globals+locals so that generator expressions can be evaluated
 
 
 
