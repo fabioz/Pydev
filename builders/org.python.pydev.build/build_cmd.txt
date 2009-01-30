@@ -4,4 +4,4 @@ w:
 cd W:\temp_buildDir
 svn co http://svn.aptana.local/svn/pydev/trunk pydev
 cd pydev\builders\org.python.pydev.build
-ant -DbuildDirectory=W:/temp_buildDir/pydev -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -Ddeploy.dir=w:/temp_deployDir -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_341_clean
+ant -DbuildDirectory=W:/temp_buildDir/pydev -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -Ddeploy.dir=w:/temp_deployDir/pydev -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_341_clean

@@ -84,9 +84,13 @@
 	<target name="get.revision" unless="build.revision">
 		<echo message="Retrieving Subversion revision number" level="info" />
 		<svn>
-			<wcversion path="${basedir}" prefix="svn." />
+            <!-- Not using wcversion anymore because it'd get the revision of the externals too (and we only want the pydev revision)
+            Note that the com plugin must use the same version of the org plugin (so, we use the http version for that)
+            TODO: make the target a variable 
+            -->
+			<info target="http://svn.aptana.local/svn/pydev"/>
 		</svn>
-		<property name="build.revision" value="${svn.revision.max}" />
+		<property name="build.revision" value="${svn.info.rev}" />
 		<echo message="Revision: ${build.revision}" level="info" />
 	</target>
 
