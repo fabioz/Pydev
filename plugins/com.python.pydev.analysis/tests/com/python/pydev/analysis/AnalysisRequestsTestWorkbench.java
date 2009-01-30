@@ -200,11 +200,6 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         try{
             editor.close(false);
             
-            PythonNature nature = PythonNature.getPythonNature(mod1);
-            AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-            assertTrue(info.getLastModificationHash("pack1.pack2.mod1") != null);
-            
-            
             fastParsesDone.clear();
             
             print("----------- Setting invalid contents ---------");

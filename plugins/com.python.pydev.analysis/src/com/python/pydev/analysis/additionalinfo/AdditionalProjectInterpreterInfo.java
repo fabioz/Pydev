@@ -53,30 +53,36 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     
     @Override
     protected void add(IInfo info, boolean generateDelta, int doOn) {
-        super.add(info, generateDelta, doOn);
-        //after adding any info, we have to save the delta.
-        if(generateDelta){
-            deltaSaver.addInsertCommand(info);
-            checkDeltaSize();
+        synchronized (lock) {
+            super.add(info, generateDelta, doOn);
+            //after adding any info, we have to save the delta.
+            if(generateDelta){
+                deltaSaver.addInsertCommand(info);
+                checkDeltaSize();
+            }
         }
     }
 
     
     @Override
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
-        super.removeInfoFromModule(moduleName, generateDelta);
-        if(generateDelta){
-            this.deltaSaver.addDeleteCommand(moduleName);
-            checkDeltaSize();
+        synchronized (lock) {
+            super.removeInfoFromModule(moduleName, generateDelta);
+            if(generateDelta){
+                this.deltaSaver.addDeleteCommand(moduleName);
+                checkDeltaSize();
+            }
         }
     }
 
     @Override
     protected void restoreSavedInfo(Object o) {
-        super.restoreSavedInfo(o);
-        //when we do a load, we have to process the deltas that may exist
-        if(deltaSaver.availableDeltas() > 0){
-            deltaSaver.processDeltas(this);
+        synchronized (lock) {
+            super.restoreSavedInfo(o);
+            //when we do a load, we have to process the deltas that may exist
+            if(deltaSaver.availableDeltas() > 0){
+                deltaSaver.processDeltas(this);
+            }
         }
     }
 
@@ -336,6 +342,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         }
         return ret;
     }
+
+
     
 
 }

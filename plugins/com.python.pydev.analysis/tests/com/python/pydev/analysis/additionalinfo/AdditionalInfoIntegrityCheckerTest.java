@@ -39,11 +39,11 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
     }
 
     public void testIntegrityInModuleHasNoFile() {
-        IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor);
+        IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertTrue(info.desc.toString(), info.allOk);
         
         addFooModule(new Module(new stmtType[0]));
-        info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor);
+        info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertFalse(info.allOk);
         assertEquals(1, info.modulesNotInDisk.size());
         assertEquals(info.modulesNotInDisk.get(0), new ModulesKey("foo", null));
@@ -56,7 +56,7 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
         file.createNewFile();
         
         try{
-            IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor);
+            IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
             assertFalse(info.allOk);
             if(info.modulesNotInMemory.size() != 1){
                 StringBuffer notInMemo = new StringBuffer("Modules not in memory (expected only: extendable/initially_not_existant.py)\n");
@@ -73,7 +73,7 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
             file.delete();
         }
         
-        IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor);
+        IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertFalse(info.allOk);
         assertEquals(1, info.modulesNotInDisk.size());
         assertEquals(info.modulesNotInDisk.get(0), new ModulesKey(MOD_NAME, null));
@@ -83,8 +83,12 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
     }
 
     private void fixAndCheckAllOk(IntegrityInfo info) {
-        AdditionalInfoIntegrityChecker.fix(info);
-        info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor);
+        
+        info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, true);
+        assertTrue(info.desc.toString(), !info.allOk);
+        
+        //the last check should've fixed it
+        info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertTrue(info.desc.toString(), info.allOk);
     }
     

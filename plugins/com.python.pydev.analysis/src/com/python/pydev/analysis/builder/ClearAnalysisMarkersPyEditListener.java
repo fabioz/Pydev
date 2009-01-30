@@ -10,10 +10,6 @@ import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.IPyEditListener3;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.nature.PythonNature;
-
-import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
-import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
 /**
  * When the editor is disposed, if needed this class will remove the markers from the related
@@ -57,17 +53,6 @@ public class ClearAnalysisMarkersPyEditListener implements IPyEditListener, IPyE
         if(input != null && PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()){
             IFile relatedFile = (IFile) input.getAdapter(IFile.class);
             
-            PythonNature nature = PythonNature.getPythonNature(relatedFile);
-            if(nature != null){
-                String moduleName = nature.resolveModule(relatedFile);
-                if(moduleName != null){
-                    AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-                    if(info != null){
-                        //clear the hash
-                        info.setLastModificationHash(moduleName, new byte[0]);
-                    }
-                }
-            }
             if(relatedFile != null && relatedFile.exists()){
                 //when disposing, remove all markers
                 AnalysisRunner.deleteMarkers(relatedFile);

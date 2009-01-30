@@ -8,8 +8,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -18,7 +20,6 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Adds dependency information to the interpreter information. This should be used only for
@@ -139,7 +140,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
     
     @Override
-    public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature, boolean generateDelta) {
+    public void addAstInfo(SimpleNode node, String moduleName, IPythonNature nature, boolean generateDelta) {
         if(node == null || moduleName == null){
             return;
         }
@@ -189,7 +190,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     @Override
     protected void restoreSavedInfo(Object o){
         Tuple readFromFile = (Tuple) o;
-        if(!(readFromFile.o1 instanceof Tuple4)){
+        if(!(readFromFile.o1 instanceof Tuple3)){
             throw new RuntimeException("Type Error: the info must be regenerated (changed across versions).");
         }
         

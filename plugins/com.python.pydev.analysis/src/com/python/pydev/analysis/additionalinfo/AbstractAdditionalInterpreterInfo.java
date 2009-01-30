@@ -9,10 +9,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -20,10 +19,11 @@ import java.util.Map.Entry;
 
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple4;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
@@ -36,7 +36,6 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 
 /**
@@ -107,11 +106,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected TreeMap<String, List<IInfo>> innerInitialsToInfo = new TreeMap<String, List<IInfo>>();
     
-    /**
-     * Map with the name of the module -> hash of the document that was parsed.
-     */
-    protected volatile Map<String, byte[]> modulesAnalyzed = new HashMap<String, byte[]>();
-    
 
     /**
      * Should be used before re-creating the info, so that we have enough memory. 
@@ -123,9 +117,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
             }
             if(innerInitialsToInfo != null){
                 innerInitialsToInfo.clear();
-            }
-            if(modulesAnalyzed != null){
-                modulesAnalyzed.clear();
             }
         }
     }
@@ -168,7 +159,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
         
     };
 
-    private static final int version = 1;
+    /**
+     * 2 because we've removed some info (the hash is no longer saved)
+     */
+    private static final int version = 2;
 
     public AbstractAdditionalInterpreterInfo(){
     }
@@ -179,28 +173,29 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param info information to be added
      */
     protected void add(IInfo info, boolean generateDelta, int doOn) {
-        String name = info.getName();
-        String initials = getInitials(name);
-        TreeMap<String, List<IInfo>> initialsToInfo;
-        
-        if(doOn == TOP_LEVEL){
-            if(info.getPath() != null && info.getPath().length() > 0){
-                throw new RuntimeException("Error: the info being added is added as an 'top level' info, but has path. Info:"+info);
-            }
-            initialsToInfo = topLevelInitialsToInfo;
+        synchronized (lock) {
+            String name = info.getName();
+            String initials = getInitials(name);
+            TreeMap<String, List<IInfo>> initialsToInfo;
             
-        }else if (doOn == INNER){
-            if(info.getPath() == null || info.getPath().length() == 0){
-                throw new RuntimeException("Error: the info being added is added as an 'inner' info, but does not have a path. Info: "+info);
+            if(doOn == TOP_LEVEL){
+                if(info.getPath() != null && info.getPath().length() > 0){
+                    throw new RuntimeException("Error: the info being added is added as an 'top level' info, but has path. Info:"+info);
+                }
+                initialsToInfo = topLevelInitialsToInfo;
+                
+            }else if (doOn == INNER){
+                if(info.getPath() == null || info.getPath().length() == 0){
+                    throw new RuntimeException("Error: the info being added is added as an 'inner' info, but does not have a path. Info: "+info);
+                }
+                initialsToInfo = innerInitialsToInfo;
+                
+            }else{
+                throw new RuntimeException("List to add is invalid: "+doOn);
             }
-            initialsToInfo = innerInitialsToInfo;
-            
-        }else{
-            throw new RuntimeException("List to add is invalid: "+doOn);
+            List<IInfo> listForInitials = getAndCreateListForInitials(initials, initialsToInfo);
+            listForInitials.add(info);
         }
-        List<IInfo> listForInitials = getAndCreateListForInitials(initials, initialsToInfo);
-        listForInitials.add(info);
-
     }
 
     /**
@@ -235,10 +230,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param doOn 
      */
     protected void addMethod(FunctionDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
-        synchronized (lock) {
-            FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path, pool);
-            add(info2, generateDelta, doOn);
-        }
+        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path, pool);
+        add(info2, generateDelta, doOn);
     }
     
     /**
@@ -246,10 +239,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param doOn 
      */
     protected void addClass(ClassDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
-        synchronized (lock) {
-            ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path, pool);
-            add(info, generateDelta, doOn);
-        }
+        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path, pool);
+        add(info, generateDelta, doOn);
     }
     
     
@@ -257,10 +248,8 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Adds an attribute to the definition (this is either a global, a class attribute or an instance (self) attribute
      */
     protected void addAttribute(String def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
-        synchronized (lock) {
-            AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path, pool);
-            add(info, generateDelta, doOn);
-        }
+        AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path, pool);
+        add(info, generateDelta, doOn);
     }
 
     /**
@@ -298,7 +287,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Adds information for a source module
      * @param m the module we want to add to the info
      */
-    public void addSourceModuleInfo(SourceModule m, PythonNature nature, boolean generateDelta) {
+    public void addSourceModuleInfo(SourceModule m, IPythonNature nature, boolean generateDelta) {
         addAstInfo(m.getAst(), m.getName(), nature, generateDelta);
     }
 
@@ -307,15 +296,13 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Add info from a generated ast
      * @param node the ast root
      */
-    public void addAstInfo(SimpleNode node, String moduleName, PythonNature nature, boolean generateDelta) {
+    public void addAstInfo(SimpleNode node, String moduleName, IPythonNature nature, boolean generateDelta) {
         if(node == null || moduleName == null){
             return;
         }
         
         try {
-            DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
-            node.accept(visitor);
-            Iterator<ASTEntry> entries = visitor.getOutline();
+            Iterator<ASTEntry> entries = getInnerEntriesForAST(node);
 
             FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>();
             
@@ -356,7 +343,46 @@ public abstract class AbstractAdditionalInterpreterInfo {
         }
 
     }
+
     
+    /**
+     * @return an iterator that'll get the outline entries for the given ast.
+     */
+    public static Iterator<ASTEntry> getInnerEntriesForAST(SimpleNode node) throws Exception {
+        DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
+        node.accept(visitor);
+        Iterator<ASTEntry> entries = visitor.getOutline();
+        return entries;
+    }
+    
+    
+    
+    /**
+     * @return a set with the module names that have tokens.
+     */
+    public Set<String> getAllModulesWithTokens() {
+        HashSet<String> ret = new HashSet<String>();
+        synchronized (lock) {
+            Set<Entry<String, List<IInfo>>> entrySet = this.topLevelInitialsToInfo.entrySet();
+            for (Entry<String, List<IInfo>> entry : entrySet) {
+                List<IInfo> value = entry.getValue();
+                for (IInfo info : value) {
+                    ret.add(info.getDeclaringModuleName());
+                }
+            }
+            
+            entrySet = this.innerInitialsToInfo.entrySet();
+            for (Entry<String, List<IInfo>> entry : entrySet) {
+                List<IInfo> value = entry.getValue();
+                for (IInfo info : value) {
+                    ret.add(info.getDeclaringModuleName());
+                }
+            }
+        }
+        return ret;
+
+    }
+
 
 
     /**
@@ -430,7 +456,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
         synchronized (lock) {
-            modulesAnalyzed.remove(moduleName);
             removeInfoFromMap(moduleName, topLevelInitialsToInfo);
             removeInfoFromMap(moduleName, innerInitialsToInfo);
         }
@@ -458,32 +483,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
         }
     }
     
-    
-    /**
-     * @param name the name of the module
-     * @return the hash that was used in the last analysis of the module (or null if not available)
-     */
-    public byte[] getLastModificationHash(String name) {
-        synchronized (lock){
-            byte[] ret = this.modulesAnalyzed.get(name);
-            if(ret == null){
-                return new byte[0];
-            }
-            return ret;
-        }
-    }
-
-    /**
-     * Sets the hash used for some module
-     * @param name the name of the module
-     * @param hash the hash set for it
-     */
-    public void setLastModificationHash(String name, byte[] hash) {
-        synchronized (lock){
-            this.modulesAnalyzed.put(name, hash);
-        }
-    }
-
 
 
     /**
@@ -617,8 +616,12 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     @SuppressWarnings("unchecked")
     protected Object getInfoToSave(){
-        return new Tuple4(this.topLevelInitialsToInfo, this.innerInitialsToInfo, this.modulesAnalyzed, 
-                AbstractAdditionalInterpreterInfo.version);
+        synchronized (lock) {
+            return new Tuple3(
+                    new TreeMap<String, List<IInfo>>(this.topLevelInitialsToInfo), 
+                    new TreeMap<String, List<IInfo>>(this.innerInitialsToInfo), 
+                    AbstractAdditionalInterpreterInfo.version);
+        }
     }
     
     /**
@@ -648,11 +651,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
     @SuppressWarnings("unchecked")
     protected void restoreSavedInfo(Object o){
         synchronized (lock) {
-            Tuple4 readFromFile = (Tuple4) o;
+            Tuple3 readFromFile = (Tuple3) o;
             this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;
             this.innerInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o2;
-            this.modulesAnalyzed = (HashMap<String, byte[]>) readFromFile.o3;
-            if(AbstractAdditionalInterpreterInfo.version != (Integer)readFromFile.o4){
+            if(AbstractAdditionalInterpreterInfo.version != (Integer)readFromFile.o3){
                 throw new RuntimeException("I/O version doesn't match. Rebuilding internal info.");
             }
         }
