@@ -75,7 +75,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.after                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="clean.after" if="cleanAfter">
+	<target name="clean.after" if="${cleanAfter}">
 		<antcall target="clean" />
 	</target>
 
