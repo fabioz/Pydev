@@ -47,9 +47,9 @@
 	</target>
 
 	<!-- ================================= 
-          target: clean              
+          target: clean.sources
          ================================= -->
-	<target name="clean" depends="generate.build.properties" description="Clean up temp and build files">
+	<target name="clean.sources" depends="generate.build.properties" description="Clean up temp and build files">
 		<delete failonerror="false">
 			<fileset dir="${buildDirectory}" defaultexcludes="true">
 				<include name="assemble.*" />
@@ -62,7 +62,6 @@
 		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="false">
 			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/org.eclipse.pde.build_3.4.1.R34x_v20080805/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
 		</java>
-		<delete dir="${baseLocation}" />
 		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
 		<delete dir="${p2.repo.dir}" failonerror="false" />
 		<!-- Do an svn revert of the build directory -->
@@ -71,6 +70,14 @@
 		</svn>
 	</target>
 
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: clean
+         - - - - - - - - - - - - - - - - - -->
+	<target name="clean" depends="clean.sources">
+		<delete dir="${baseLocation}" />
+	</target>
+	
+	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.after                      
          - - - - - - - - - - - - - - - - - -->
