@@ -1,4 +1,13 @@
 <project name="Build specific targets and properties" default="noDefault">
+	
+    <property name="builder" location="." />
+    <property name="retroweaver.home" location="${builder}/retroweaver" />
+    <taskdef name="retroweaver" classname="com.rc.retroweaver.ant.RetroWeaverTask">
+        <classpath>
+            <fileset dir="${retroweaver.home}/lib" includes="**/*" />
+            <pathelement location="${retroweaver.home}/release/retroweaver.jar" />
+        </classpath>
+    </taskdef>
 
 	<!-- ===================================================================== -->
 	<!-- Run a given ${target} on all elements being built -->
