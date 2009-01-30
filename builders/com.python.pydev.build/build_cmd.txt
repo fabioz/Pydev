@@ -2,6 +2,6 @@ set path=%path%;W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\
 set JAVA_HOME=D:\bin\jdk_1_5_09
 w:
 cd W:\temp_buildDir
-svn co http://svn.aptana.com/svn/pydev_pro/trunk pydev_pro
+svn co http://svn.aptana.local/svn/pydev_pro/trunk pydev_pro
 cd pydev_pro\builders\com.python.pydev.build
 ant -DbuildDirectory=W:/temp_buildDir/pydev_pro -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -Ddeploy.dir=w:/temp_deployDirPro -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_341_clean
