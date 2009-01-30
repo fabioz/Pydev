@@ -25,7 +25,7 @@
 	<!-- ================================= 
           target: build              
          ================================= -->
-	<target name="build" description="Builds the PyDev Extensions feature" depends="generate.build.properties,get.revision,generate.base">
+	<target name="doit" description="Builds the PyDev Extensions feature" depends="generate.build.properties,get.revision,generate.base">
 		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="yes">
 			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/org.eclipse.pde.build_3.4.1.R34x_v20080805/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
 		</java>
@@ -75,7 +75,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: clean.after                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="clean.after" if="${cleanAfter}">
+	<target name="build" depends="doit" if="cleanAfter">
 		<antcall target="clean" />
 	</target>
 
