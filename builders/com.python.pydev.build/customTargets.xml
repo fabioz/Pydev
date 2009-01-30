@@ -91,11 +91,11 @@
 	<target name="preGenerate">
 		<!-- Copied from old releng customTargets.xml -->
 		<replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${version.full}" byline="true">
-			<fileset dir="${buildDirectory}" includes="**/*.MF" />
+			<fileset dir="${buildDirectory}" includes="**/META-INF/MANIFEST.MF" />
 		</replaceregexp>
 
-		<replaceregexp file="${buildDirectory}\features\com.python.pydev.extensions\feature.xml" match='version="0(.*)"' replace='version="${version.full}"' byline="true" />
-		<replaceregexp file="${buildDirectory}\plugins\com.python.pydev\src\com\python\pydev\plugin\PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
+		<replaceregexp file="${buildDirectory}\features\com.python.pydev.extensions\feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
+		<replaceregexp file="${buildDirectory}\plugins\com.python.pydev\src\com\python\pydev\PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
 	</target>
 
 	<!-- ===================================================================== -->
