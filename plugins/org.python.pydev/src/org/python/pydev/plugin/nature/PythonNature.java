@@ -834,12 +834,17 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public int getGrammarVersion() {
         try {
             String version = getVersion();
+            if(version == null){
+                Log.log("Found null version. Returning default.");
+                return LATEST_GRAMMAR_VERSION;
+            }
+            
             String[] splitted = StringUtils.split(version, ' ');
             if(splitted == null || splitted.length != 2){
-                Log.log("Found invalid version: "+version+". Reseting to default.");
-                version = getDefaultVersion();
-                splitted = StringUtils.split(version, ' ');
+                Log.log("Found invalid version: "+version+". Returning default.");
+                return LATEST_GRAMMAR_VERSION;
             }
+            
             String grammarVersion = splitted[1];
             return getGrammarVersionFromStr(grammarVersion);
 
@@ -877,7 +882,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             return GRAMMAR_PYTHON_VERSION_3_0;
         }
         
-        PydevPlugin.log("Unable to recognize version: "+grammarVersion);
+        PydevPlugin.log("Unable to recognize version: "+grammarVersion+" returning default.");
         return LATEST_GRAMMAR_VERSION;
     }
     
