@@ -217,6 +217,13 @@
 		<move file="${buildDirectory}/${topLevelElementId}-${version.full}.zip" todir="${p2.repo.dir}" />
 		<copy file="${builder}/index.html" tofile="${p2.repo.dir}/index.html" />
 		<replace token="ZIP_FILE" value="${topLevelElementId}-${version.full}.zip" file="${p2.repo.dir}/index.html" />
+		
+		
+       <zip destfile="${buildDirectory}/${topLevelElementId}-${version.full}-sources.zip" basedir="${buildDirectory}" includes="features/**, plugins/**" 
+            excludes="**/temp.folder/**,**/bin/**,**/emails_to_announce.txt,**/*.jpage,**/cachedir,**/*.indexcache,**/*.pyc,**/*.class,**/out/**,**/org.python.pydev.releng/**,**/org.python.pydev.runalltests/**,**/org.python.pydev.site/**,*.jar.args,.settings"
+            filesonly="true">
+        </zip>
+
 	</target>
 
 	<!-- ===================================================================== -->
