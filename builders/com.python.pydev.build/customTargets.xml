@@ -89,9 +89,10 @@
 	<!-- Steps to do before generating the build scripts. -->
 	<!-- ===================================================================== -->
 	<target name="preGenerate">
+        <echo message="Replacing feature and plugin versions to be: ${version.full}" />
 		<!-- Copied from old releng customTargets.xml -->
 		<replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${version.full}" byline="true">
-			<fileset dir="${buildDirectory}" includes="**/META-INF/MANIFEST.MF" />
+			<fileset dir="${buildDirectory}" includes="plugins/**/META-INF/MANIFEST.MF" />
 		</replaceregexp>
 
 		<replaceregexp file="${buildDirectory}\features\com.python.pydev.extensions\feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
