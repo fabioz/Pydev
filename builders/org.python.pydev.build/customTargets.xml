@@ -100,8 +100,8 @@
 	<target name="preGenerate">
 		<echo message="Replacing feature and plugin versions to be: ${version.full}" />
 		<!--FIXME Handle when old version number is not 0.9.7.1! -->
-		<replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${version.full}" byline="true">
-			<fileset dir="${buildDirectory}" includes="**/META-INF/MANIFEST.MF" />
+        <replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${version.full}" byline="true">
+            <fileset dir="${buildDirectory}" includes="plugins/**/META-INF/MANIFEST.MF" />
 		</replaceregexp>
 
 		<replaceregexp file="${buildDirectory}\features\org.python.pydev.feature\feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
