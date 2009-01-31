@@ -4,6 +4,7 @@ Pydev Extensions
 Search references should be working on Ecilpse 3.3 and Eclipse 3.4 (again)
 Lambda properly treated as a new context for code-analysis
 Analysis was not recognizing __name__
+Fixed analysis where augstore (+=) was not marked to use the variable
 
 
 Pydev
@@ -14,7 +15,8 @@ Wrap paragraph fixed
 Fixed problem recognizing set comprehension on Python 3.0
 Fixed problem when a find definition found a module outside of the known pythonpath 
 Debugger using globals as an union of original globals+locals so that generator expressions can be evaluated
-
+Fixed problem where the source folder would not be gotten correctly because the workspace was not refreshed
+Fixed problem when getting the grammar version for a project (could loose its indexing when that went wrong)
 
 
 

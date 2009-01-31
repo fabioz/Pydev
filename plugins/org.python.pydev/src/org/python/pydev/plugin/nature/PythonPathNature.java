@@ -123,6 +123,9 @@ public class PythonPathNature implements IPythonPathNature {
         //relative to the project location
         String[] strings = source.split("\\|");
         FastStringBuffer buf = new FastStringBuffer();
+        
+        IWorkspaceRoot root = null;
+        boolean isSynchronized=false;
         for (int i = 0; i < strings.length; i++) {
             if(strings[i].trim().length()>0){
                 IPath p = new Path(strings[i]);
@@ -134,7 +137,14 @@ public class PythonPathNature implements IPythonPathNature {
                     continue;
                 }
                 
-                IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+                if(root == null){
+                    root = ResourcesPlugin.getWorkspace().getRoot();
+                    isSynchronized = root.isSynchronized(IResource.DEPTH_INFINITE); 
+                    if(!isSynchronized){
+                        root.refreshLocal(IResource.DEPTH_INFINITE, null);
+                        isSynchronized = root.isSynchronized(IResource.DEPTH_INFINITE); 
+                    }
+                }
                 
                 //try to get relative to the workspace 
                 IContainer container = null;
@@ -160,18 +170,35 @@ public class PythonPathNature implements IPythonPathNature {
                     }
                 
                 }else{
-                    if(root.isSynchronized(IResource.DEPTH_INFINITE)){
+                    if(isSynchronized){
                         //if it's synchronized, it really doesn't exist (let's warn about it)
                         //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
                         Log.log(IStatus.WARNING, "Unable to find the path "+strings[i]+" in the project were it's \n" +
                                 "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
                     }
                     
+                    String curr = strings[i];
+                    IPath path = new Path(curr.trim());
+                    if(project.getFullPath().isPrefixOf(path)){
+                        path = path.removeFirstSegments(1);
+                        if(FileTypesPreferencesPage.isValidZipFile(curr)){
+                            r = project.getFile(path);
+                            
+                        }else{
+                            //get it relative to the project
+                            r = project.getFolder(path);
+                        }
+                        if(r!=null){
+                            buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
+                            buf.append("|");
+                            continue; //Don't go on to append it relative to the workspace root.
+                        }
+                    }
+                    //get it relative to the workspace
                     IPath rootLocation = root.getRawLocation();
                     //still, let's add it there (this'll be cached for later use)
                     buf.append(REF.getFileAbsolutePath(rootLocation.append(strings[i].trim()).toFile()));
                     buf.append("|");
-                    
                 }
             }
         }
