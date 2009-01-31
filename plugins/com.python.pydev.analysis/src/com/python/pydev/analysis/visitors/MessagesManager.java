@@ -123,11 +123,13 @@ public class MessagesManager {
         Message messageToAdd = new Message(type, string,token, prefs);
         
         String messageToIgnore = prefs.getRequiredMessageToIgnore(messageToAdd.getType());
-        int startLine = messageToAdd.getStartLine(document) - 1;
-        String line = PySelection.getLine(document, startLine);
-        if(line.indexOf(messageToIgnore) != -1){
-            //keep going... nothing to see here...
-            return;
+        if(messageToIgnore != null){
+            int startLine = messageToAdd.getStartLine(document) - 1;
+            String line = PySelection.getLine(document, startLine);
+            if(line.indexOf(messageToIgnore) != -1){
+                //keep going... nothing to see here...
+                return;
+            }
         }
 
         msgs.add(messageToAdd);

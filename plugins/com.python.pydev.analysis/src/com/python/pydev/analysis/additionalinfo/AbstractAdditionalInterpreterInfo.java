@@ -618,9 +618,9 @@ public abstract class AbstractAdditionalInterpreterInfo {
     protected Object getInfoToSave(){
         synchronized (lock) {
             return new Tuple3(
-                    new TreeMap<String, List<IInfo>>(this.topLevelInitialsToInfo), 
-                    new TreeMap<String, List<IInfo>>(this.innerInitialsToInfo), 
-                    AbstractAdditionalInterpreterInfo.version);
+                this.topLevelInitialsToInfo, 
+                this.innerInitialsToInfo, 
+                AbstractAdditionalInterpreterInfo.version);
         }
     }
     

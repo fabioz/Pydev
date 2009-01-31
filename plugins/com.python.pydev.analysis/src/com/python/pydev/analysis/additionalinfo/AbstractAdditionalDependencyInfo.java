@@ -12,7 +12,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.cache.DiskCache;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
@@ -144,26 +143,29 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         if(node == null || moduleName == null){
             return;
         }
-        super.addAstInfo(node, moduleName, nature, generateDelta);
+        HashSet<String> nameIndexes = new HashSet<String>();
+        SequencialASTIteratorVisitor visitor2 = new SequencialASTIteratorVisitor();
         try {
-            HashSet<String> nameIndexes = new HashSet<String>();
-            
-            //ok, now, add 'all the names'
-            SequencialASTIteratorVisitor visitor2 = new SequencialASTIteratorVisitor();
             node.accept(visitor2);
             Iterator<ASTEntry> iterator = visitor2.getNamesIterator();
-            while (iterator.hasNext()) {
-                ASTEntry entry = iterator.next();
-                String id;
-                //I was having out of memory errors without using this pool (running with a 64mb vm)
-                if (entry.node instanceof Name) {
-                    id = ((Name) entry.node).id;
-                } else {
-                    id = ((NameTok) entry.node).id;
+            
+            synchronized (lock) {
+                super.addAstInfo(node, moduleName, nature, generateDelta);
+                
+                //ok, now, add 'all the names'
+                while (iterator.hasNext()) {
+                    ASTEntry entry = iterator.next();
+                    String id;
+                    //I was having out of memory errors without using this pool (running with a 64mb vm)
+                    if (entry.node instanceof Name) {
+                        id = ((Name) entry.node).id;
+                    } else {
+                        id = ((NameTok) entry.node).id;
+                    }
+                    nameIndexes.add(id);
                 }
-                nameIndexes.add(id);
+                completeIndex.add(moduleName, nameIndexes);
             }
-            completeIndex.add(moduleName, nameIndexes);
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
@@ -183,29 +185,34 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
     @Override
     protected Object getInfoToSave() {
-        return new Tuple<Object, Object>(super.getInfoToSave(), completeIndex);
+        synchronized (lock) {
+            return new Tuple<Object, Object>(super.getInfoToSave(), completeIndex);
+        }
     }
+    
     
     @SuppressWarnings("unchecked")
     @Override
     protected void restoreSavedInfo(Object o){
-        Tuple readFromFile = (Tuple) o;
-        if(!(readFromFile.o1 instanceof Tuple3)){
-            throw new RuntimeException("Type Error: the info must be regenerated (changed across versions).");
+        synchronized (lock) {
+            Tuple readFromFile = (Tuple) o;
+            if(!(readFromFile.o1 instanceof Tuple3)){
+                throw new RuntimeException("Type Error: the info must be regenerated (changed across versions).");
+            }
+            
+            completeIndex = (DiskCache) readFromFile.o2;
+            if(completeIndex == null){
+                throw new RuntimeException("Type Error (index == null): the info must be regenerated (changed across versions).");
+            }
+            
+            String shouldBeOn = REF.getFileAbsolutePath(getCompleteIndexPersistingFolder());
+            if(!completeIndex.getFolderToPersist().equals(shouldBeOn)){
+                //this can happen if the user moves its .metadata folder (so, we have to validate it).
+                completeIndex.setFolderToPersist(shouldBeOn);
+            }
+            
+            super.restoreSavedInfo(readFromFile.o1);
         }
-        
-        completeIndex = (DiskCache) readFromFile.o2;
-        if(completeIndex == null){
-            throw new RuntimeException("Type Error (index == null): the info must be regenerated (changed across versions).");
-        }
-        
-        String shouldBeOn = REF.getFileAbsolutePath(getCompleteIndexPersistingFolder());
-        if(!completeIndex.getFolderToPersist().equals(shouldBeOn)){
-            //this can happen if the user moves its .metadata folder (so, we have to validate it).
-            completeIndex.setFolderToPersist(shouldBeOn);
-        }
-        
-        super.restoreSavedInfo(readFromFile.o1);
     }
 
 
