@@ -17,6 +17,7 @@ Fixed problem when a find definition found a module outside of the known pythonp
 Debugger using globals as an union of original globals+locals so that generator expressions can be evaluated
 Fixed problem where the source folder would not be gotten correctly because the workspace was not refreshed
 Fixed problem when getting the grammar version for a project (could loose its indexing when that went wrong)
+The definitions parser was not handling some assign cases correctly
 
 
 
