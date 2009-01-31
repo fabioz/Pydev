@@ -22,6 +22,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     public static class Versions{
         public static final HashSet<String> ALL_PYTHON_VERSIONS = new HashSet<String>();
         public static final HashSet<String> ALL_JYTHON_VERSIONS = new HashSet<String>();
+        public static final HashSet<String> ALL_VERSIONS_ANY_FLAVOR = new HashSet<String>();
         
         static{
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_1);
@@ -39,6 +40,9 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_5);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_6);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_0);
+            
+            ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_JYTHON_VERSIONS);
+            ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_PYTHON_VERSIONS);
         }
     }
     

@@ -678,9 +678,28 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 if(storeVersion == null){ //there is no such property set (let's set it to the default)
                     setVersion(getDefaultVersion(), null); //will set the versionPropertyCache too
                 }else{
-                    versionPropertyCache = storeVersion;   
+                    //now, before returning and setting in the cache, let's make sure it's a valid version.
+                    if(!IPythonNature.Versions.ALL_VERSIONS_ANY_FLAVOR.contains(storeVersion)){
+                        Log.log("The stored version is invalid ("+storeVersion+"). Setting default.");
+                        setVersion(getDefaultVersion(), null); //will set the versionPropertyCache too
+                    }else{
+                        //Ok, it's correct.
+                        versionPropertyCache = storeVersion;   
+                    }
                 }
             } 
+        }else{
+            Log.log("Trying to get version without project set. Returning default.");
+            return getDefaultVersion();
+        }
+        
+        if(versionPropertyCache == null){
+            Log.log("The cached version is null. Returning default.");
+            return getDefaultVersion();
+            
+        }else if(!IPythonNature.Versions.ALL_VERSIONS_ANY_FLAVOR.contains(versionPropertyCache)){
+            Log.log("The cached version ("+versionPropertyCache+") is invalid. Returning default.");
+            return getDefaultVersion();
         }
         return versionPropertyCache;
     }
@@ -695,13 +714,20 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     public void setVersion(String version, String interpreter) throws CoreException{
         clearCaches();
+        
+        if(version != null){
+            this.versionPropertyCache = version;
+        }
+        
+        if(interpreter != null){
+            this.interpreterPropertyCache = interpreter;
+        }
+        
         if(project != null){
             if(version != null){
-                this.versionPropertyCache = version;
                 getStore().setPropertyToXml(getPythonProjectVersionQualifiedName(), version, true);
             }
             if(interpreter != null){
-                this.interpreterPropertyCache = interpreter;
                 getStore().setPropertyToXml(getPythonProjectInterpreterQualifiedName(), interpreter, true);
             }
         }
