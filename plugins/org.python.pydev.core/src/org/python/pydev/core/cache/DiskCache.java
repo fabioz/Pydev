@@ -26,6 +26,8 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
 
     private static final boolean DEBUG = false;
     
+    private transient Object lock = new Object();
+    
     /**
      * This is the folder that the cache can use to persist its values
      */
@@ -45,8 +47,8 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
      * Custom deserialization is needed.
      */
     @SuppressWarnings("unchecked")
-    private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
-        
+    private synchronized void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
+        lock = new Object(); //It's transient, so, we must restore it.
         aStream.defaultReadObject();
         keys = (Set<String>) aStream.readObject();
         folderToPersist = (String) aStream.readObject();
@@ -60,18 +62,20 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
     /**
      * Custom serialization is needed.
      */
-    private void writeObject(ObjectOutputStream aStream) throws IOException {
-        aStream.defaultWriteObject();
-        //write only the keys
-        aStream.writeObject(keys());
-        //the folder to persist
-        aStream.writeObject(folderToPersist);
-        //the suffix 
-        aStream.writeObject(suffix);
-        //and the maxSize 
-        aStream.writeInt(maxSize);
-        
-        //the cache will be re-created in a 'clear' state
+    private synchronized void writeObject(ObjectOutputStream aStream) throws IOException {
+        synchronized (lock) {
+            aStream.defaultWriteObject();
+            //write only the keys
+            aStream.writeObject(keys());
+            //the folder to persist
+            aStream.writeObject(folderToPersist);
+            //the suffix 
+            aStream.writeObject(suffix);
+            //and the maxSize 
+            aStream.writeInt(maxSize);
+            
+            //the cache will be re-created in a 'clear' state
+        }
     }
     
     public DiskCache(int maxSize, File folderToPersist, String suffix) {
@@ -82,7 +86,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
     
     
     public synchronized Serializable getObj(String key) {
-        synchronized(cache){
+        synchronized(lock){
             Serializable v = super.getObj(key);
             if(v == null && keys.contains(key)){
                 //miss in memory... get from disk
@@ -113,7 +117,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
      * Removes both: from the memory and from the disk
      */
     public synchronized void remove(String key) {
-        synchronized(cache){
+        synchronized(lock){
             if(DEBUG){
                 System.out.println("Disk cache - Removing: "+key);
             }
@@ -128,7 +132,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
      * Adds to both: the memory and the disk
      */
     public synchronized void add(String key, Serializable n) {
-        synchronized(cache){
+        synchronized(lock){
             super.add(key, n);
             File fileForKey = getFileForKey(key);
             if(DEBUG){
@@ -143,7 +147,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
      * Clear the whole cache.
      */
     public synchronized void clear() {
-        synchronized(cache){
+        synchronized(lock){
             for(String key : keys){
                 super.remove(key);
                 File fileForKey = getFileForKey(key);
@@ -157,7 +161,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
      * @return a copy of the keys available 
      */
     public synchronized Set<String> keys() {
-        synchronized(cache){
+        synchronized(lock){
             return new HashSet<String>(keys);
         }
     }
