@@ -508,7 +508,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         String fullRep = token.getRepresentation();
 
-        if (node.ctx == Attribute.Store || node.ctx == Attribute.Param) {
+        if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.AugStore) {
             //in a store attribute, the first part is always a load
             int i = fullRep.indexOf('.', 0);
             String sub = fullRep;

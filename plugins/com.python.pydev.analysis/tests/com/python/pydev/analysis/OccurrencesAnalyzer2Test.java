@@ -23,7 +23,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testInnerAndOuterScopeReference2();
+            analyzer2.testAssignNotAcknowledged();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -255,6 +255,16 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "    c = lambda: a\n" +
                 "    a = 10\n" +
                 "    print c\n" +
+                "\n"
+        );
+        checkNoError();
+    }
+    
+    public void testAssignNotAcknowledged() throws IOException{
+        doc = new Document(
+                "def m1():\n" +
+                "    c = object()\n" +
+                "    c.x += 1\n" +
                 "\n"
         );
         checkNoError();
