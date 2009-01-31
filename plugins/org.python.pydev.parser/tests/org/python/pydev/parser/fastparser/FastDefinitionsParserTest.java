@@ -28,7 +28,7 @@ public class FastDefinitionsParserTest extends TestCase {
         try {
             FastDefinitionsParserTest test = new FastDefinitionsParserTest();
             test.setUp();
-            test.testGlobalAttributes5();
+            test.testGlobalAttributes6();
             test.NotestGlobalAttributesWX();
             
             
@@ -306,6 +306,21 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals(2, m.body.length);
         Assign assign = ((Assign)m.body[1]);
         assertEquals("GLOBAL_ATTR", ((Name)assign.targets[0]).id);
+    }
+    
+    
+    public void testGlobalAttributes6() {
+        String str = 
+            "# on_fail constants    \n" +
+            "RAISE  = 'RAISE'\n" +
+            "IGNORE = 'IGNORE'\n" +
+            "SKIP   = 'SKIP'\n" +
+            "\n" +
+            "";
+        Module m = (Module) FastDefinitionsParser.parse(str);
+        assertEquals(3, m.body.length);
+        Assign assign = ((Assign)m.body[1]);
+        assertEquals("IGNORE", ((Name)assign.targets[0]).id);
     }
     
     public void NotestGlobalAttributesWX() {

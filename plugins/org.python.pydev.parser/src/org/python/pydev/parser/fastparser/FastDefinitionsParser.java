@@ -202,7 +202,7 @@ public final class FastDefinitionsParser {
                         String[] splitted = StringUtils.split(equalsLine, '=');
                         ArrayList<exprType> targets = new ArrayList<exprType>();
                         
-                        for(int j=0; j< splitted.length-1; j++){ //we don't want to get the last one.
+                        for(int j=0; j< splitted.length-1||(splitted.length==1 && j==0); j++){ //we don't want to get the last one.
                             String lineContents = splitted[j].trim(); 
                             if(lineContents.length() == 0){
                                 continue;
