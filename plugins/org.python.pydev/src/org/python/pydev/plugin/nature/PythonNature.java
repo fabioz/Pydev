@@ -525,6 +525,10 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public static File getCompletionsCacheDir(IProject p) {
         IPath path = p.getWorkingLocation(PydevPlugin.getPluginID());
     
+        if(path == null){
+            //this can happen if the project was removed.
+            return null;
+        }
         File file = new File(path.toOSString());
         return file;
     }
@@ -750,12 +754,19 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
     
     public void saveAstManager() {
+        File astOutputFile = getAstOutputFile();
+        if(astOutputFile == null){
+            //The project was removed. Nothing to save here.
+            Log.log(IStatus.INFO, "Not saving ast manager for: "+this.project+". No write area available.", null);
+            return;
+        }
+        
         if(astManager == null){
-            REF.writeToFile(null, getAstOutputFile());
+            REF.writeToFile(null, astOutputFile);
             
         }else{
             synchronized(astManager){
-                REF.writeToFile(astManager, getAstOutputFile());
+                REF.writeToFile(astManager, astOutputFile);
             }
         }
     }

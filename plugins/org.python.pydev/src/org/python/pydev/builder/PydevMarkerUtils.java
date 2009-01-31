@@ -10,12 +10,15 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.ICallback;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -103,25 +106,36 @@ public class PydevMarkerUtils {
             
             if(absoluteStart == -1 || absoluteEnd == -1){
                 //if the absolute wasn't specified, let's calculate it
-                IRegion start = doc.getLineInformation(lineStart);
-                absoluteStart = start.getOffset() + colStart;
-                if (lineEnd >= 0 && colEnd >= 0) {
-                    IRegion end = doc.getLineInformation(lineEnd);
-                    absoluteEnd = end.getOffset() + colEnd;
-                } else {
-                    //ok, we have to calculate it based on the line contents...
-                    String line = doc.get(start.getOffset(), start.getLength());
-                    int i;
-                    FastStringBuffer buffer;
-                    if ((i = line.indexOf('#')) != -1) {
-                        buffer = new FastStringBuffer(line.substring(0, i), 0);
+                IRegion start;
+                try {
+                    start = doc.getLineInformation(lineStart);
+                } catch (Exception e) {
+                    Log.log(IStatus.ERROR, "Could not get line: "+lineStart+" to add message: "+message, e);
+                    start = new Region(0, 0);
+                }
+                
+                try{
+                    absoluteStart = start.getOffset() + colStart;
+                    if (lineEnd >= 0 && colEnd >= 0) {
+                        IRegion end = doc.getLineInformation(lineEnd);
+                        absoluteEnd = end.getOffset() + colEnd;
                     } else {
-                        buffer = new FastStringBuffer(line, 0);
+                        //ok, we have to calculate it based on the line contents...
+                        String line = doc.get(start.getOffset(), start.getLength());
+                        int i;
+                        FastStringBuffer buffer;
+                        if ((i = line.indexOf('#')) != -1) {
+                            buffer = new FastStringBuffer(line.substring(0, i), 0);
+                        } else {
+                            buffer = new FastStringBuffer(line, 0);
+                        }
+                        while (buffer.length() > 0 && Character.isWhitespace(buffer.lastChar())) {
+                            buffer.deleteLast();
+                        }
+                        absoluteEnd = start.getOffset() + buffer.length();
                     }
-                    while (buffer.length() > 0 && Character.isWhitespace(buffer.charAt(buffer.length() - 1))) {
-                        buffer.deleteLast();
-                    }
-                    absoluteEnd = start.getOffset() + buffer.length();
+                }catch (Exception e) {
+                    Log.log(IStatus.INFO, "Problem creating map for:"+this.toString(), e);
                 }
             }
             
@@ -138,6 +152,38 @@ public class PydevMarkerUtils {
                 map.putAll(additionalInfo);
             }
             return map;
+        }
+
+
+        /**
+         * Constructs a <code>String</code> with all attributes
+         * in name = value format.
+         *
+         * @return a <code>String</code> representation 
+         * of this object.
+         */
+        public String toString(){
+            final String NL = "\n";
+            
+            StringBuffer retValue = new StringBuffer();
+            
+            retValue.append("MarkerInfo (\n")
+                .append("doc = ").append(this.doc).append(NL)
+                .append("message = ").append(this.message).append(NL)
+                .append("markerType = ").append(this.markerType).append(NL)
+                .append("severity = ").append(this.severity).append(NL)
+                .append("userEditable = ").append(this.userEditable).append(NL)
+                .append("isTransient = ").append(this.isTransient).append(NL)
+                .append("lineStart = ").append(this.lineStart).append(NL)
+                .append("colStart = ").append(this.colStart).append(NL)
+                .append("lineEnd = ").append(this.lineEnd).append(NL)
+                .append("absoluteStart = ").append(this.absoluteStart).append(NL)
+                .append("absoluteEnd = ").append(this.absoluteEnd).append(NL)
+                .append("colEnd = ").append(this.colEnd).append(NL)
+                .append("additionalInfo = ").append(this.additionalInfo).append(NL)
+                .append(")");
+            
+            return retValue.toString();
         }
         
         

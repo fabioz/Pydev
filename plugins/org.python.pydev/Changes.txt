@@ -5,6 +5,7 @@ Search references should be working on Ecilpse 3.3 and Eclipse 3.4 (again)
 Lambda properly treated as a new context for code-analysis
 Analysis was not recognizing __name__
 Fixed analysis where augstore (+=) was not marked to use the variable
+Fixed synchronization issues which could make the indexing be corrupted.
 
 
 Pydev
