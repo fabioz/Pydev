@@ -12,6 +12,7 @@ import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 public class StringUtils {
@@ -342,6 +343,22 @@ public class StringUtils {
             }
         }
         return ret.toArray(new String[ret.size()]);
+    }
+    
+    /**
+     * Splits some string given some char in 2 parts. If the separator is not found, 
+     * everything is put in the 1st part.
+     */
+    public static Tuple<String, String> splitOnFirst(String fullRep, char toSplit) {
+        int i = fullRep.indexOf(toSplit);
+        if(i != -1){
+            return new Tuple<String, String>( 
+                    fullRep.substring(0, i), 
+                    fullRep.substring(i+1));
+        }else{
+            return new Tuple<String, String>(fullRep,"");
+        }
+
     }
 
     /**

@@ -29,5 +29,19 @@ public interface IInterpreterInfo {
      * @return a valid path for the interpreter (may not be human readable)
      */
     public String getExeAsFileSystemValidPath();
+    
+    /**
+     * @return the environment variables that should be set when running this interpreter.
+     * It can be null if the default environment should be used.
+     */
+    public String[] getEnvVariables();
+
+    /**
+     * This method receives the environment variables available for a run and updates them with the environment
+     * variables that are contained in this interpreter.
+     * 
+     * Note that if a key already exists in the passed env and in the env contained for this interpreter, it's overridden.
+     */
+    public String[] updateEnv(String[] env);
 
 }

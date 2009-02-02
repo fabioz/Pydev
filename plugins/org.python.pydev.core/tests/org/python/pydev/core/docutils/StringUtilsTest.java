@@ -3,6 +3,8 @@
  */
 package org.python.pydev.core.docutils;
 
+import org.python.pydev.core.Tuple;
+
 import junit.framework.TestCase;
 
 public class StringUtilsTest extends TestCase {
@@ -67,4 +69,11 @@ public class StringUtilsTest extends TestCase {
         assertEquals("foo\n", StringUtils.removeWhitespaceColumnsToLeft("   foo\n"));
         assertEquals("foo\n   foo\n", StringUtils.removeWhitespaceColumnsToLeft(" foo\n    foo\n"));
     }
+    
+    public void testSplitOn1st() throws Exception {
+        assertEquals(new Tuple<String, String>("aa", "bb.cc"), StringUtils.splitOnFirst("aa.bb.cc", '.'));
+        assertEquals(new Tuple<String, String>("aa_bb_cc", ""), StringUtils.splitOnFirst("aa_bb_cc", '.'));
+        
+    }
 }
+
