@@ -1231,7 +1231,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     
     private LocalResourceManager resourceManager;
     
-    public LocalResourceManager getResourceManager() {
+    public synchronized LocalResourceManager getResourceManager() {
         if(resourceManager == null){
             resourceManager = new LocalResourceManager(JFaceResources.getResources());
         }

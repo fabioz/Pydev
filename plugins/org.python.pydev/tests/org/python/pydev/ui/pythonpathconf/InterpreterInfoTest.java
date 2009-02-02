@@ -6,6 +6,8 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -16,7 +18,16 @@ import junit.framework.TestCase;
 public class InterpreterInfoTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(InterpreterInfoTest.class);
+        
+        InterpreterInfoTest test = new InterpreterInfoTest();
+        try {
+            test.setUp();
+            test.testInfo4();
+            test.tearDown();
+            junit.textui.TestRunner.run(InterpreterInfoTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -114,6 +125,35 @@ public class InterpreterInfoTest extends TestCase {
         
         String s = "EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tk\n| c:\\bin\\python24\n@\n$\n| __builtin__| __main__\n| _bisect\n";
         assertEquals(info8, InterpreterInfo.fromString(s));
+        
+    }
+    
+    public void testInfo3() throws Exception {
+        InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
+        info.setEnvVariables(new String[]{"PATH=c:\\bin;d:\\bin", "LIBPATH=k:\\foo"});
+        String string = info.toString();
+        InterpreterInfo newInfo = InterpreterInfo.fromString(string);
+        assertEquals(info, newInfo);
+        assertEquals(newInfo, info);
+        assertTrue(Arrays.equals(info.getEnvVariables(), newInfo.getEnvVariables()));
+        newInfo.setEnvVariables(null);
+        assertFalse(info.equals(newInfo));
+        assertFalse(newInfo.equals(info));
+        
+        assertEquals(newInfo, InterpreterInfo.fromString(newInfo.toString()));
+    }
+    
+    public void testInfo4() throws Exception {
+        InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
+        String[] original1 = new String[]{"PATH=c:\\bin;d:\\bin", "LIBPATH=k:\\foo"};
+        info.setEnvVariables(original1);
+        assertTrue(Arrays.equals(info.updateEnv(null), original1));
+        
+        assertTrue(Arrays.equals(info.updateEnv(new String[0]), original1));
+        
+        String[] original2 = new String[]{"PATH=c:\\bin;d:\\bin2", "LIBPATH=k:\\foo", "boo=boo"};
+        String[] expected2 = new String[]{"PATH=c:\\bin;d:\\bin", "LIBPATH=k:\\foo", "boo=boo"};
+        assertEquals(new HashSet<String>(Arrays.asList(info.updateEnv(original2))), new HashSet<String>(Arrays.asList(expected2)));
         
     }
 }

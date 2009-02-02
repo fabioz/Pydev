@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * 
@@ -74,7 +73,7 @@ public class SimplePythonRunner extends SimpleRunner {
      * 
      * @param interpreter the interpreter we want to use for executing
      * @param script the python script to execute
-     * @param args the arguments to the scripe
+     * @param args the arguments to the script
      * @param workingDir the directory where the script should be executed
      * 
      * @return the stdout of the run (if any)

@@ -19,7 +19,7 @@ Debugger using globals as an union of original globals+locals so that generator 
 Fixed problem where the source folder would not be gotten correctly because the workspace was not refreshed
 Fixed problem when getting the grammar version for a project (could loose its indexing when that went wrong)
 The definitions parser was not handling some assign cases correctly
-
+The interpreter to be used on the interactive interpreter can be chosen
 
 
 After 1.4.1

@@ -6,11 +6,14 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -26,6 +29,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
@@ -98,6 +102,12 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     private final String version;
 
+    /**
+     * This are the environment variables that should be used when this interpreter is specified.
+     * May be null if no env. variables are specified.
+     */
+    private String[] envVariables;
+    
 
     /**
      * Sets the modules manager that should be used in this interpreter info.
@@ -140,11 +150,22 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
     
     public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
-        this(version, exe, libs0, dlls);
-        forcedLibs.addAll(forced);
-        this.builtinsCache = null; //force cache recreation
+        this(version, exe, libs0, dlls, forced, null);
     }
 
+    public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced, List<String> envVars) {
+        this(version, exe, libs0, dlls);
+        forcedLibs.addAll(forced);
+        
+        if(envVars == null){
+            this.setEnvVariables(null);
+        }else{
+            this.setEnvVariables(envVars.toArray(new String[envVars.size()]));
+        }
+        
+        this.builtinsCache = null; //force cache recreation
+    }
+    
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
@@ -166,6 +187,22 @@ public class InterpreterInfo implements IInterpreterInfo{
             return false;
         }
         
+        if(this.envVariables != null){
+            if(info.envVariables == null){
+                return false;
+            }
+            //both not null
+            if(!Arrays.equals(this.envVariables, info.envVariables)){
+                return false;
+            }
+        }else{
+            //env is null -- the other must be too
+            if(info.envVariables != null){
+                return false;
+            }
+        }
+        
+        
         return true;
     }
 
@@ -176,11 +213,11 @@ public class InterpreterInfo implements IInterpreterInfo{
     /**
      * Format we receive should be:
      * 
-     * Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2
+     * Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2
      * 
      * or
      * 
-     * Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2
+     * Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2
      * (added only when version 2.5 was added, so, if the string does not have it, it is regarded as 2.4)
      * 
      * Symbols ': @ $'
@@ -190,9 +227,12 @@ public class InterpreterInfo implements IInterpreterInfo{
             throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"+received);
         }
         received = received.replaceAll("\n", "").replaceAll("\r", "");
-        String[] forcedSplit = received.split("\\$");
-        String[] libsSplit = forcedSplit[0].split("\\@");
-        String exeAndLibs = libsSplit[0];
+        Tuple<String, String> envVarsSplit = StringUtils.splitOnFirst(received, '^');
+        Tuple<String, String> forcedSplit = StringUtils.splitOnFirst(envVarsSplit.o1, '$');
+        Tuple<String, String> libsSplit = StringUtils.splitOnFirst(forcedSplit.o1, '@');
+        String exeAndLibs = libsSplit.o1;
+        
+        
         String version = "2.4"; //if not found in the string, the grammar version is regarded as 2.4 
         
         String[] exeAndLibs1 = exeAndLibs.split("\\|");
@@ -321,30 +361,32 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
         
         ArrayList<String> l1 = new ArrayList<String>();
-        if(libsSplit.length > 1){
-            String dllLibs = libsSplit[1];
-            String[] dllLibs1 = dllLibs.split("\\|");
-            for (int i = 0; i < dllLibs1.length; i++) {
-                String trimmed = dllLibs1[i].trim();
-                if(trimmed.length() > 0){
-                    l1.add(trimmed);
-                }
-            }
+        if(libsSplit.o2.length() > 1){
+            fillList(libsSplit, l1);
         }
             
         ArrayList<String> l2 = new ArrayList<String>();
-        if(forcedSplit.length > 1){
-            String forcedLibs = forcedSplit[1];
-            String[] forcedLibs1 = forcedLibs.split("\\|");
-            for (int i = 0; i < forcedLibs1.length; i++) {
-                String trimmed = forcedLibs1[i].trim();
-                if(trimmed.length() > 0){
-                    l2.add(trimmed);
-                }
+        if(forcedSplit.o2.length() > 1){
+            fillList(forcedSplit, l2);
+        }    
+        
+        ArrayList<String> l3 = new ArrayList<String>();
+        if(envVarsSplit.o2.length() > 1){
+            fillList(envVarsSplit, l3);
+        }
+        return new InterpreterInfo(version, executable, l, l1, l2, l3);
+    }
+
+    
+    private static void fillList(Tuple<String, String> forcedSplit, ArrayList<String> l2) {
+        String forcedLibs = forcedSplit.o2;
+        String[] forcedLibs1 = StringUtils.split(forcedLibs, '|');
+        for (int i = 0; i < forcedLibs1.length; i++) {
+            String trimmed = forcedLibs1[i].trim();
+            if(trimmed.length() > 0){
+                l2.add(trimmed);
             }
-        }                
-        return new InterpreterInfo(version, executable, l, l1, l2);
-            
+        }
     }
     
     /**
@@ -369,6 +411,15 @@ public class InterpreterInfo implements IInterpreterInfo{
                 buffer.append(iter.next().toString());
             }
         }
+        
+        if(this.envVariables != null){
+            buffer.append("^");
+            for(String s:envVariables){
+                buffer.append(s);
+                buffer.append("|");
+            }
+        }
+        
         
         return buffer.toString();
     }
@@ -493,5 +544,55 @@ public class InterpreterInfo implements IInterpreterInfo{
         return forcedLibs.iterator();
     }
     //END: Things related to the builtins (forcedLibs) -----------------------------------------------------------------
+
+    
+    
+    public void setEnvVariables(String[] env) {
+        if(env != null && env.length == 0){
+            env = null;
+        }
+
+        this.envVariables = env;
+    }
+    
+    public String[] getEnvVariables() {
+        return this.envVariables;
+    }
+
+    public String[] updateEnv(String[] env) {
+        if(this.envVariables == null || this.envVariables.length == 0){
+            return env; //nothing to change
+        }
+        //Ok, it's not null... 
+        
+        if(env == null || env.length == 0){
+            //if the passed was null, just repass the ones contained here
+            return this.envVariables;
+        }
+        
+        //both not null, let's merge them
+        HashMap<String, String> hashMap = new HashMap<String, String>();
+        
+        fillMapWithEnv(env, hashMap);
+        fillMapWithEnv(envVariables, hashMap); //will override the keys already there.
+        Set<Entry<String, String>> entrySet = hashMap.entrySet();
+        String[] ret = new String[entrySet.size()];
+        int i=0;
+        for (Entry<String, String> entry : entrySet) {
+            ret[i] = entry.getKey()+"="+entry.getValue();
+            i++;
+        }
+        
+        return ret;
+    }
+
+    private void fillMapWithEnv(String[] env, HashMap<String, String> hashMap) {
+        for(String s: env){
+            Tuple<String, String> sp = StringUtils.splitOnFirst(s, '=');
+            if(sp.o1.length() != 0 && sp.o2.length() != 0){
+                hashMap.put(sp.o1, sp.o2);
+            }
+        }
+    }
     
 }

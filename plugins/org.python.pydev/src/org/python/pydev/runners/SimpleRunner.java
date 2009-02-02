@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
@@ -73,23 +74,28 @@ public abstract class SimpleRunner {
      * default PYTHONPATH added).
      */
     public String[] getEnvironment(IPythonNature pythonNature, String interpreter, IInterpreterManager manager) throws CoreException {
+        String[] env;
         if(pythonNature == null){ //no associated nature in the project... just get the default env
-            return getDefaultSystemEnvAsArray();
-        }
-        
-        
-        String pythonPathEnvStr = "";
-        try {
-            
-            if (manager.hasInfoOnInterpreter(interpreter)){ //check if we have a default interpreter.
-                pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter, manager);
+            env = getDefaultSystemEnvAsArray();
+        }else{
+            String pythonPathEnvStr = "";
+            try {
+                
+                if (manager.hasInfoOnInterpreter(interpreter)){ //check if we have a default interpreter.
+                    pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter, manager);
+                }
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+                return null; //we cannot get it
             }
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-            return null; //we cannot get it
+        
+            env = createEnvWithPythonpath(pythonPathEnvStr);
         }
-    
-        return createEnvWithPythonpath(pythonPathEnvStr);
+        
+        //IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
+        //env = info.updateEnv(env);
+        //TODO: do that when analyzing all the needed places (to finish task)
+        return env;
     }
 
     public static String[] createEnvWithPythonpath(String pythonPathEnvStr) throws CoreException {
@@ -100,6 +106,7 @@ public abstract class SimpleRunner {
             env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
             return getMapEnvAsArray(env);
         }else{
+            //should only happen in tests.
             return null;
         }
     }
