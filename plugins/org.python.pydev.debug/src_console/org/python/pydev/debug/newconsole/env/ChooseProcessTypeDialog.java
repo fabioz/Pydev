@@ -34,8 +34,6 @@ final class ChooseProcessTypeDialog extends Dialog {
 
     private PyEdit activeEditor;
 
-    private Collection<String> pythonpath;
-
     private IInterpreterManager interpreterManager;
     
     private List<IPythonNature> natures = new ArrayList<IPythonNature>();
@@ -122,45 +120,19 @@ final class ChooseProcessTypeDialog extends Dialog {
      */
     @Override
     protected void okPressed() {
-        IInterpreterManager localInterpreterManager = null;
-        
         if(checkboxForCurrentEditor.isEnabled() && checkboxForCurrentEditor.getSelection()){
             IProject project = this.activeEditor.getProject();
             PythonNature nature = PythonNature.getPythonNature(project);
             natures.add(nature);
             IInterpreterManager relatedInterpreterManager = nature.getRelatedInterpreterManager();
-            this.pythonpath = new ArrayList<String>(nature.getPythonPathNature().getCompleteProjectPythonPath(
-                    relatedInterpreterManager.getDefaultInterpreter(), relatedInterpreterManager));
             this.interpreterManager = relatedInterpreterManager;
             
         }else if(checkboxPython.isEnabled() && checkboxPython.getSelection()){
-            localInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+            this.interpreterManager = PydevPlugin.getPythonInterpreterManager();
             
         }else if(checkboxJython.isEnabled() && checkboxJython.getSelection()){
-            localInterpreterManager = PydevPlugin.getJythonInterpreterManager();
+            this.interpreterManager = PydevPlugin.getJythonInterpreterManager();
             
-        }
-        
-        if(localInterpreterManager != null){
-            this.interpreterManager = localInterpreterManager;
-            String defaultInterpreter = localInterpreterManager.getDefaultInterpreter();
-            IWorkspace w = ResourcesPlugin.getWorkspace();
-            HashSet<String> pythonpath = new HashSet<String>();
-            for(IProject p:w.getRoot().getProjects()){
-                PythonNature nature = PythonNature.getPythonNature(p);
-                try{
-                    if(nature != null){
-                        if(nature.getRelatedInterpreterManager() == localInterpreterManager){
-                            natures.add(nature);
-                            pythonpath.addAll(nature.getPythonPathNature().
-                                    getCompleteProjectPythonPath(defaultInterpreter, localInterpreterManager));
-                        }
-                    }
-                }catch(Exception e){
-                    PydevPlugin.log(e);
-                }
-            }
-            this.pythonpath = pythonpath;
         }
         
         super.okPressed();
@@ -170,8 +142,38 @@ final class ChooseProcessTypeDialog extends Dialog {
     /**
      * @return the pythonpath to be used or null if not configured.
      */
-    public Collection<String> getPythonpath() {
-        return this.pythonpath;
+    public Collection<String> getPythonpath(String interpreter) {
+        
+        if(this.interpreterManager != null){
+            if(this.natures.size() == 1){
+                //chosen for the editor
+                IPythonNature nature = this.natures.get(0);
+                return new ArrayList<String>(nature.getPythonPathNature().getCompleteProjectPythonPath(
+                        interpreter, this.interpreterManager));
+
+            }
+            
+            //we need to get the natures matching the one selected in all the projects.
+            IWorkspace w = ResourcesPlugin.getWorkspace();
+            HashSet<String> pythonpath = new HashSet<String>();
+            for(IProject p:w.getRoot().getProjects()){
+                PythonNature nature = PythonNature.getPythonNature(p);
+                try{
+                    if(nature != null){
+                        if(nature.getRelatedInterpreterManager() == this.interpreterManager){
+                            natures.add(nature);
+                            pythonpath.addAll(nature.getPythonPathNature().
+                                    getCompleteProjectPythonPath(interpreter, this.interpreterManager));
+                        }
+                    }
+                }catch(Exception e){
+                    PydevPlugin.log(e);
+                }
+            }
+            return pythonpath;
+        }
+        
+        return null;
     }
 
     public IInterpreterManager getInterpreterManager() {

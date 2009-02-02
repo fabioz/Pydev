@@ -9,11 +9,16 @@ import java.util.List;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.Launch;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple3;
@@ -25,6 +30,7 @@ import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * This class is used to create the given IProcess and get the console that is attached to that process. 
@@ -76,10 +82,9 @@ public class IProcessFactory {
         ChooseProcessTypeDialog dialog = new ChooseProcessTypeDialog(getShell(), edit);
         if(dialog.open() == ChooseProcessTypeDialog.OK){
             
-            Collection<String> pythonpath = dialog.getPythonpath();
             IInterpreterManager interpreterManager = dialog.getInterpreterManager();
             
-            if(pythonpath != null && interpreterManager != null){
+            if(interpreterManager != null){
                 naturesUsed = dialog.getNatures();
                 int port = SocketUtil.findUnusedLocalPort();
                 int clientPort = SocketUtil.findUnusedLocalPort();
@@ -88,14 +93,29 @@ public class IProcessFactory {
                 launch.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, "false");
                 launch.setAttribute(INTERACTIVE_LAUNCH_PORT, ""+port);
                 
-                String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
-                String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv);
         
                 File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
                 String[] commandLine;
+                ListDialog listDialog = createChoiceDialog(workbenchWindow, interpreterManager);
+                int open = listDialog.open();
+                if(open != ListDialog.OK || listDialog.getResult().length != 1){
+                    return null;
+                }
+                
+                //TODO: Instead of opening 2 dialogs, open only 1 which asks everything.
+                String interpreter = (String) listDialog.getResult()[0];
+                if(interpreter == null){
+                    return null;
+                }
+                
+                Collection<String> pythonpath = dialog.getPythonpath(interpreter);
+                if(pythonpath == null){
+                    return null;
+                }
+                String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
+                String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv);
+                
                 if(interpreterManager.isPython()){
-                    //TODO: ASK THE USER!!!
-                    String interpreter = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
                     commandLine = SimplePythonRunner.makeExecutableCommandStr(interpreter, scriptWithinPySrc.getAbsolutePath(), 
                             new String[]{String.valueOf(port), String.valueOf(clientPort)});
                     
@@ -103,14 +123,15 @@ public class IProcessFactory {
                     String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
                         getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS);
                     
-                    //TODO: ASK THE USER!!!
-                    String interpreter = PydevPlugin.getJythonInterpreterManager().getDefaultInterpreter();
                     commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(interpreter, scriptWithinPySrc.getAbsolutePath(), 
                             pythonpathEnv, vmArgs, new String[]{String.valueOf(port), String.valueOf(clientPort)});
                     
                 }else{
                     throw new RuntimeException("Expected interpreter manager to be python or jython related.");
                 }
+                
+                
+                
                 process = SimpleRunner.createProcess(commandLine, env, null);
                 PydevSpawnedInterpreterProcess spawnedInterpreterProcess = 
                     new PydevSpawnedInterpreterProcess(process, launch);
@@ -121,6 +142,35 @@ public class IProcessFactory {
             }
         }
         return null;
+    }
+
+    private ListDialog createChoiceDialog(IWorkbenchWindow workbenchWindow, IInterpreterManager pythonInterpreterManager) {
+        ListDialog listDialog = new ListDialog(workbenchWindow.getShell());
+        listDialog.setContentProvider(new IStructuredContentProvider(){
+
+            public Object[] getElements(Object inputElement) {
+                if(inputElement instanceof String[]){
+                    return (String[]) inputElement;
+                }
+                return new Object[0];
+            }
+
+            public void dispose() {
+            }
+
+            public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+                
+            }}
+        );
+        listDialog.setLabelProvider(new LabelProvider(){
+            public Image getImage(Object element) {
+                return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+            }
+        });
+        String[] interpreters = pythonInterpreterManager.getInterpreters();
+        listDialog.setInput(interpreters);
+        listDialog.setMessage("Select interpreter to be used.");
+        return listDialog;
     }
 
 
