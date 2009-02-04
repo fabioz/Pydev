@@ -92,9 +92,10 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
                         expectedModuleNames.add(new ModulesKey(modName, moduleFile));
                         buffer.append(StringUtils.format("Found module: %s - %s\n", modName, moduleFile));
                     }else{
-                        info.allOk = false;
-                        pythonPathHelper.resolveModule(REF.getFileAbsolutePath(moduleFile), true);
-                        buffer.append(StringUtils.format("Unable to resolve module: %s (gotten null module name)", moduleFile));
+                        if(PythonPathHelper.isValidModuleLastPart(StringUtils.stripExtension((moduleFile.getName())))){
+                            info.allOk = false;
+                            buffer.append(StringUtils.format("Unable to resolve module: %s (gotten null module name)\n", moduleFile));
+                        }
                     }
                 }
             }else{

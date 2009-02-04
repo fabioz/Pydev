@@ -1,6 +1,5 @@
 package com.python.pydev.analysis;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -51,6 +50,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     //gives both, a syntax and analysis error!
     private String invalidMod1Contents = "import java.lang.Class\njava.lang.Class\nkkk invalid kkk\nprint kkk";
     private String validMod1Contents = "import java.lang.Class\njava.lang.Class";
+    private String validMod1ContentsWithToken = "class Foo:\n    pass\n";
     private ICallback<Object, Tuple3<SimpleNode, Throwable, ParserInfo>> addParsesToListListener;
     private IFile mod2;
     private PyEdit editor2;
@@ -93,60 +93,39 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     }
     
     public void testRefreshAnalyzesFiles() throws Exception {
-        MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-        digest.update(validMod1Contents.getBytes());
-        byte[] hashValidMod1Contents = digest.digest();
-        digest.update(invalidMod1Contents.getBytes());
-        byte[] hashInvalidMod1Contents = digest.digest();
-        
         editor.close(false);
         goToIdleLoopUntilCondition(getInitialParsesCondition()); //just to have any parse events consumed
         goToManual(TIME_FOR_ANALYSIS); //give it a bit more time...
         
         PythonNature nature = PythonNature.getPythonNature(mod1);
         AbstractAdditionalInterpreterInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-//        assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashValidMod1Contents));
+        //all modules are empty
+        assertEquals(new HashSet<String>(), info.getAllModulesWithTokens());
+        
+        
         ICallback<Object, IResource> analysisCallback = getAnalysisCallback();
         AnalysisBuilderRunnable.analysisBuilderListeners.add(analysisCallback);
         
         
         try {
-            print("------------- Setting INvalid contents -------------");
-            resourcesAnalyzed.clear();
-            parsesDone.clear();
-            setFileContents(invalidMod1Contents);
-            goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
-            goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
-            goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(), getMarkers());
-//            assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashInvalidMod1Contents));
-            assertEquals(1, parsesDone.size());
+            checkSetInvalidContents();
             
+            checkSetValidContents(info);
+            
+            checkSetValidContentsWithFooToken(info);
+            
+            checkSetValidContents(info);
+            
+            //can analyze when editor is opened
+            resourcesAnalyzed.clear();
+            print("-------- Opening editor ----------");
+            editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
+            goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+            assertEquals(1, resourcesAnalyzed.size());
 
             
-            print("-------- Setting valid contents -------------");
+            //analyze when forced
             resourcesAnalyzed.clear();
-            parsesDone.clear();
-            setFileContents(validMod1Contents);
-            goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
-            goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
-            goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
-//            assertTrue(Arrays.equals(info.getLastModificationHash("pack1.pack2.mod1"), hashValidMod1Contents));
-            assertEquals(1, parsesDone.size());
-            
-            
-            
-            resourcesAnalyzed.clear();
-            ICallback<Object, IResource> analysisErrorCallback = getAnalysisErrorCallback();
-            AnalysisBuilderRunnable.analysisBuilderListeners.add(analysisErrorCallback);
-            try{
-                print("-------- Opening editor ----------");
-                editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
-                goToManual(TIME_FOR_ANALYSIS); //in 3 seconds, no analysis should happen
-                assertEquals("Expected no resources analyzed. Found: "+resourcesAnalyzed, 0, resourcesAnalyzed.size());
-            }finally{
-                AnalysisBuilderRunnable.analysisBuilderListeners.remove(analysisErrorCallback);
-            }
-            
             AnalyzeOnRequestAction analyzeOnRequestAction = new AnalyzeOnRequestSetter.AnalyzeOnRequestAction(editor);
             analyzeOnRequestAction.run();
             goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, 1 analysis should happen
@@ -158,6 +137,41 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         }
         
         CheckRefreshAnalyzesFilesOnlyOnActiveEditor();
+    }
+
+    private void checkSetValidContentsWithFooToken(AbstractAdditionalInterpreterInfo info) throws CoreException {
+        print("-------- Setting valid contents with some token -------------");
+        resourcesAnalyzed.clear();
+        parsesDone.clear();
+        setFileContents(validMod1ContentsWithToken);
+        goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+        goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
+        goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
+        assertEquals(1, parsesDone.size());
+        assertEquals(new HashSet<String>(Arrays.asList(new String[]{"pack1.pack2.mod1"})), info.getAllModulesWithTokens());
+    }
+
+    private void checkSetValidContents(AbstractAdditionalInterpreterInfo info) throws CoreException {
+        print("-------- Setting valid contents -------------");
+        resourcesAnalyzed.clear();
+        parsesDone.clear();
+        setFileContents(validMod1Contents);
+        goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+        goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
+        goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
+        assertEquals(1, parsesDone.size());
+        assertEquals(new HashSet<String>(), info.getAllModulesWithTokens());
+    }
+
+    private void checkSetInvalidContents() throws CoreException {
+        print("------------- Setting INvalid contents -------------");
+        resourcesAnalyzed.clear();
+        parsesDone.clear();
+        setFileContents(invalidMod1Contents);
+        goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
+        goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+        goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(), getMarkers());
+        assertEquals(1, parsesDone.size());
     }
     
     
