@@ -22,6 +22,8 @@ The definitions parser was not handling some assign cases correctly
 The interpreter to be used on the interactive interpreter can be chosen
 Invalid modules could get in the memory
 New modules can be created from templates
+multiple external zip files can be added at once to the pythonpath
+nonlocal added to keywords
 
 
 After 1.4.1
