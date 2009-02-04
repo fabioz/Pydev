@@ -246,7 +246,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
         boolean isFile = moduleFile.isFile();
 
         List<String> pythonPathCopy = getPythonpath();
-        //go through our pythonpath and check the beggining
+        //go through our pythonpath and check the beginning
         for(String pathEntry : pythonPathCopy) {
 
             String element = getDefaultPathStr(pathEntry);
@@ -262,7 +262,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
                     sWithoutExtension = sWithoutExtension.substring(1);
                 }
 
-                if (!isValidModule(sWithoutExtension)) {
+                if (!isValidModuleLastPart(sWithoutExtension)) {
                     continue;
                 }
 
@@ -345,7 +345,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
                     if (s.startsWith("/")) {
                         s = s.substring(1);
                     }
-                    if (!isValidModule(s)) {
+                    if (!isValidModuleLastPart(s)) {
                         continue;
                     }
                     s = s.replaceAll("/", ".");
@@ -403,8 +403,14 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
      * @param s
      * @return
      */
-    protected static boolean isValidModule(String s) {
-        return s.indexOf("-") == -1 && s.indexOf(" ") == -1 && s.indexOf(".") == -1;
+    public static boolean isValidModuleLastPart(String s) {
+        for(int i=0;i<s.length();i++){
+            char c = s.charAt(i);
+            if(c == '-' || c == ' ' || c == '.'|| c == '+'){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -482,7 +488,9 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
                     } else {
                         modName = stripExtension(file.getName());
                     }
-                    ret.regularModules.put(file, modName);
+                    if(isValidModuleLastPart(FullRepIterable.getLastPart(modName))){
+                        ret.regularModules.put(file, modName);
+                    }
                 }
 
             } else { //ok, it was null, so, maybe this is not a folder, but zip file with java classes...

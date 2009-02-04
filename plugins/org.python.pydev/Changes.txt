@@ -20,6 +20,7 @@ Fixed problem where the source folder would not be gotten correctly because the 
 Fixed problem when getting the grammar version for a project (could loose its indexing when that went wrong)
 The definitions parser was not handling some assign cases correctly
 The interpreter to be used on the interactive interpreter can be chosen
+Invalid modules could get in the memory
 
 
 After 1.4.1
