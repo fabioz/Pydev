@@ -521,6 +521,166 @@ for k in keyword.kwlist:
 ${prop} = property(**${prop}())${cursor}</pattern>
 </template>
 
+
+
+
+
+
+<!-- Module Templates -->
+
+<template
+   autoinsert="false"
+   contextTypeId="org.python.pydev.editor.templates.python.modules"
+   description="Module: Unittest with setUp and tearDown"
+   icon="icons/template.gif"
+   id="org.python.pydev.editor.templates.python.module.setup_and_teardown"
+   name="Module: Unittest with setUp and tearDown">
+   <pattern>'''
+Created on ${date}
+
+@author: ${user}
+'''
+import unittest
+
+
+class Test(unittest.TestCase):
+
+
+    def setUp(self):
+        pass
+
+
+    def tearDown(self):
+        pass
+
+
+    def test${Name}(self):
+        ${pass}${cursor}
+
+
+if __name__ == "__main__":
+    #import sys;sys.argv = ['', 'Test.test${Name}']
+    unittest.main()
+</pattern>
+</template>
+
+
+
+
+
+<template
+   autoinsert="false"
+   contextTypeId="org.python.pydev.editor.templates.python.modules"
+   description="Module: Main"
+   icon="icons/template.gif"
+   id="org.python.pydev.editor.templates.python.module.main"
+   name="Module: Main">
+   <pattern>'''
+Created on ${date}
+
+@author: ${user}
+'''
+
+if __name__ == '__main__':
+    ${pass}${cursor}
+</pattern>
+</template>
+
+
+
+
+
+
+
+
+<template
+   autoinsert="false"
+   contextTypeId="org.python.pydev.editor.templates.python.modules"
+   description="Module: Class"
+   icon="icons/template.gif"
+   id="org.python.pydev.editor.templates.python.module.class"
+   name="Module: Class">
+   <pattern>'''
+Created on ${date}
+
+@author: ${user}
+'''
+
+class ${MyClass}(${object}):
+    '''
+    ${classdocs}
+    '''
+
+
+    def __init__(self${params}):
+        '''
+        ${Constructor}
+        '''
+        ${cursor}
+</pattern>
+</template>
+
+
+
+
+
+
+
+<template
+   autoinsert="false"
+   contextTypeId="org.python.pydev.editor.templates.python.modules"
+   description="Module: Empty"
+   icon="icons/template.gif"
+   id="org.python.pydev.editor.templates.python.module.empty"
+   name="&lt;Empty&gt;">
+   <pattern>'''
+Created on ${date}
+
+@author: ${user}
+'''
+${cursor}
+</pattern>
+</template>
+
+
+
+
+
+
+<template
+   autoinsert="false"
+   contextTypeId="org.python.pydev.editor.templates.python.modules"
+   description="Module: Unittest"
+   icon="icons/template.gif"
+   id="org.python.pydev.editor.templates.python.module.unittest"
+   name="Module: Unittest">
+   <pattern>'''
+Created on ${date}
+
+@author: ${user}
+'''
+import unittest
+
+
+class Test(unittest.TestCase):
+
+
+    def test${Name}(self):
+        ${pass}${cursor}
+
+
+if __name__ == "__main__":
+    #import sys;sys.argv = ['', 'Test.test${Name}']
+    unittest.main()
+</pattern>
+</template>
+
+
+
+
+
+
+
    </extension>
 
 </plugin>
