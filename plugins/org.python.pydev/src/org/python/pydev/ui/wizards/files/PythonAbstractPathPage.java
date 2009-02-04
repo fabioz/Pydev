@@ -4,7 +4,6 @@
 package org.python.pydev.ui.wizards.files;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TreeMap;
 
 import org.eclipse.core.resources.IContainer;
