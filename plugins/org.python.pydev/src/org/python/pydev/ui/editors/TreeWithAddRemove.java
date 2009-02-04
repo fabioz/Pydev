@@ -144,11 +144,15 @@ public class TreeWithAddRemove extends Composite{
                 if(d instanceof FileDialog){
                     FileDialog dialog = (FileDialog) d;
                     dialog.setFilterPath(lastFileDialogPath);
-                    String filePath = dialog.open();
-                    if(filePath != null){
-                        lastFileDialogPath = filePath;
+                    dialog.open();
+                    String[] fileNames = dialog.getFileNames();
+                    if(fileNames != null && fileNames.length > 0){
+                        lastFileDialogPath = fileNames[0];
+                        for(String s:fileNames){
+                            addTreeItem(s);
+                        }
                     }
-                    addTreeItem(filePath);
+                    
 
                 }else if(d instanceof DirectoryDialog){
                     DirectoryDialog dialog = (DirectoryDialog) d;

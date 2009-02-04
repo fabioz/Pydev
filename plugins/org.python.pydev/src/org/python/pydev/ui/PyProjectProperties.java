@@ -105,7 +105,7 @@ public class PyProjectProperties extends PropertyPage {
                     
                     @Override
                     protected Object getSelectionDialogAddZip() {
-                        return new FileDialog(getShell());
+                        return new FileDialog(getShell(), SWT.MULTI);
                     }
                 };
                 data = new GridData(GridData.FILL_BOTH);
