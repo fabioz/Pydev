@@ -1017,8 +1017,13 @@
 <!-- templates -->
     <extension point="org.eclipse.ui.editors.templates">
          <contextType
-            class="org.python.pydev.editor.templates.PyContextType"
-            id="org.python.pydev.editor.templates.python"/>
+               class="org.python.pydev.editor.templates.PyContextType"
+               id="org.python.pydev.editor.templates.python"
+               name="Editor"/>
+         <contextType
+               class="org.python.pydev.editor.templates.PyContextType"
+               id="org.python.pydev.editor.templates.python.modules"
+               name="New Module"/>
     </extension>
    <extension-point id="pydev_builder" name="Pydev Builder" schema="schema/pydev_builder.exsd"/>
 <!-- extensions -->
@@ -1052,12 +1057,12 @@
             category="org.python.pydev.PythonCategory"
             class="org.python.pydev.ui.wizards.project.PythonProjectWizard"
             descriptionImage="icons/python_logo.png"
-            finalPerspective="org.python.pydev.plugin.PythonPerspective"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/python_16x16.png"
             id="org.python.pydev.ui.wizards.project.PythonProjectWizard"
             name="Pydev Project"
-            preferredPerspectives="org.python.pydev.plugin.PythonPerspective"
+            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>
       <wizard
             canFinishEarly="false"

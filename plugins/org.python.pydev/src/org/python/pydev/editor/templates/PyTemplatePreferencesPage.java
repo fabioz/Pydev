@@ -18,6 +18,7 @@ public class PyTemplatePreferencesPage extends TemplatePreferencePage implements
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         setTemplateStore(TemplateHelper.getTemplateStore());
         setContextTypeRegistry(TemplateHelper.getContextTypeRegistry());
+        setDescription("Templates for editor and new modules");
     }
 
     protected boolean isShowFormatterSetting() {

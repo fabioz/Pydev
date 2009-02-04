@@ -3,6 +3,10 @@
  */
 package org.python.pydev.ui.wizards.files;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -14,6 +18,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
+import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -25,11 +32,17 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.editor.templates.PyContextType;
+import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.dialogs.PythonPackageSelectionDialog;
@@ -87,6 +100,8 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
 
     private Text lastWithFocus;
     protected String lastWithFocusStr;
+    private List templateList;
+    private TreeMap<String, TemplatePersistenceData> nameToTemplateData;
     private void setFocusOn(Text txt, String string) {
         if(txt != null){
             //System.out.println("seting focus on:"+string);
@@ -143,9 +158,22 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         setMessage(null);
         setControl(topLevel);
     }
+    
+    /**
+     * Decide whether a source folder must be selected to complete the dialog.
+     * 
+     * Subclasses can override.
+     * 
+     * @return true if a source folder should be selected and false if it shouldn't
+     */
     protected boolean shouldCreateSourceFolderSelect() {
         return true;
     }
+    
+    /**
+     * Subclasses should override to decide whether a package must be selected to complete the dialog.
+     * @return true if a package should be selected and false if it shouldn't
+     */
     protected abstract boolean shouldCreatePackageSelect() ;
 
     
@@ -166,6 +194,98 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             setFocusOn(textName, "name");
             textName.setSelection(textName.getText().length());
         }
+        
+        
+        //just create an empty to complete it
+        label = new Label(topLevel, SWT.NONE);
+        label.setText("");
+        
+        
+
+
+        final TemplateStore templateStore = TemplateHelper.getTemplateStore();
+        if(templateStore != null){
+            TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
+            if(templateData != null && templateData.length > 0){
+                //create the template selection
+                label = new Label(topLevel, SWT.NONE);
+                label.setText("Template");
+                
+                templateList = new List(topLevel, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+                fillTemplateOptions(templateData, templateList);
+
+                
+                //if in the text, pressing down should go to the templates list
+                textName.addKeyListener(new KeyListener(){
+
+                    public void keyPressed(KeyEvent e) {
+                    }
+
+                    public void keyReleased(KeyEvent e) {
+                        if(e.keyCode == SWT.ARROW_DOWN){
+                            templateList.setFocus();
+                        }
+                    }}
+                );
+
+                
+                Link link = new Link(topLevel, SWT.NONE);
+                link.setText("<a>Config...</a>");
+                
+                link.addSelectionListener(new SelectionListener() {
+                    public void widgetSelected(SelectionEvent e) {
+                        PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, 
+                                "org.python.pydev.prefs.template", null, null);
+                        dialog.open(); 
+                        //Fill it after having the settings edited.
+                        TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
+                        if(templateData != null && templateData.length > 0){
+                            fillTemplateOptions(templateData, templateList);
+                        }else{
+                            fillTemplateOptions(new TemplatePersistenceData[0], templateList);
+                        }
+                    }
+
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
+                
+                setLayout(label, templateList, link);
+            }
+        }
+    }
+    
+    
+    /**
+     * @return the data for the selected template or null if not available.
+     */
+    public TemplatePersistenceData getSelectedTemplate() {
+        if(templateList != null && nameToTemplateData != null){
+            String[] sel = templateList.getSelection();
+            if(sel != null && sel.length > 0){
+                return nameToTemplateData.get(sel[0]);
+            }
+        }
+        return null;
+    }
+
+    
+    
+    /**
+     * Sets the template options in the passed list (swt)
+     */
+    private void fillTemplateOptions(TemplatePersistenceData[] templateData, List list) {
+        nameToTemplateData = new TreeMap<String, TemplatePersistenceData>();
+        
+        for (TemplatePersistenceData data : templateData) {
+            if(PyContextType.PY_MODULES_CONTEXT_TYPE.equals(data.getTemplate().getContextTypeId())){
+                String name = data.getTemplate().getName();
+                nameToTemplateData.put(name, data);
+            }
+        }
+        ArrayList<String> lst = new ArrayList<String>(nameToTemplateData.keySet());
+        list.setItems(lst.toArray(new String[lst.size()]));
+        list.setSelection(0);
     }
 
 
@@ -266,6 +386,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
                 }
                 
             });
+            
         }
         
         Object element = selection.getFirstElement();
@@ -422,7 +543,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         return null;
     }
 
-    private void setLayout(Label label, Text text, Button bt) {
+    private void setLayout(Label label, Control text, Control bt) {
         GridData data;
         
         data = new GridData();
@@ -436,7 +557,9 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         if(bt != null){
             data = new GridData();
             bt.setLayoutData(data);
-            bt.setText("Browse...");
+            if(bt instanceof Button){
+                ((Button)bt).setText("Browse...");
+            }
         }
     }
 

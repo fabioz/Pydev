@@ -7,6 +7,15 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateProposal;
+import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
+import org.eclipse.ui.IEditorPart;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
+import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
+import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 
@@ -64,6 +73,31 @@ public class PythonModuleWizard extends AbstractPythonWizard {
         return file;
     }
 
+    
+    /**
+     * Applies the template if one was specified.
+     */
+    @Override
+    protected void afterEditorCreated(IEditorPart openEditor) {
+        if(!(openEditor instanceof PyEdit)){
+            return; //only works for PyEdit...
+        }
+        
+        TemplatePersistenceData selectedTemplate = filePage.getSelectedTemplate();
+        if(selectedTemplate == null){
+            return; //no template selected, nothing to apply!
+        }
+        
+        Template template = selectedTemplate.getTemplate();
+
+        PyEdit pyEdit = (PyEdit) openEditor;
+        Region region = new Region(0, 0);
+        PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(new PyContextType(), 
+                pyEdit.getPySourceViewer(), region);
+        
+        TemplateProposal templateProposal = new TemplateProposal(template, context, region, null);
+        templateProposal.apply(pyEdit.getPySourceViewer(), '\n', 0, 0);
+    }
 
 
 

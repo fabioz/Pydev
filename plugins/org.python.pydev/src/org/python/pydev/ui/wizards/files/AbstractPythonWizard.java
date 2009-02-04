@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -95,7 +96,8 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
                 if (dw != null) {
                     IWorkbenchPage page = dw.getActivePage();
                     if (page != null) {
-                        IDE.openEditor(page, file, true);
+                        IEditorPart openEditor = IDE.openEditor(page, file, true);
+                        afterEditorCreated(openEditor);
                     }
                 }
             } catch (PartInitException e) {
@@ -107,6 +109,15 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
             return false;
         }
         return true;
+    }
+
+    /**
+     * Subclasses may override to do something after the editor was opened with a given file.
+     * 
+     * @param openEditor the opened editor
+     */
+    protected void afterEditorCreated(IEditorPart openEditor) {
+        
     }
 
     /**

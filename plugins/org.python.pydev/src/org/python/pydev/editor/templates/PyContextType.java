@@ -13,7 +13,15 @@ import org.eclipse.jface.text.templates.TemplateContextType;
  */
 public class PyContextType extends TemplateContextType {
 
-    public static final String PY_CONTEXT_TYPE = "org.python.pydev.editor.templates.python";
+    /**
+     * Context type used for code-completions
+     */
+    public static final String PY_COMPLETIONS_CONTEXT_TYPE = "org.python.pydev.editor.templates.python";
+    
+    /**
+     * Context type used for new modules (wizard)
+     */
+    public static final String PY_MODULES_CONTEXT_TYPE = "org.python.pydev.editor.templates.python.modules";
 
     /**
      * Creates a new XML context type. 

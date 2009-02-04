@@ -43,7 +43,7 @@ public abstract class AbstractTemplateCodeCompletion extends AbstractPyCodeCompl
             //just for tests
             return new TemplateContextType();
         }
-        return TemplateHelper.getContextTypeRegistry().getContextType(PyContextType.PY_CONTEXT_TYPE);
+        return TemplateHelper.getContextTypeRegistry().getContextType(PyContextType.PY_COMPLETIONS_CONTEXT_TYPE);
     }
 
 }

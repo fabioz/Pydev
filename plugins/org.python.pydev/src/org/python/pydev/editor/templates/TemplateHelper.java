@@ -52,7 +52,8 @@ public class TemplateHelper {
         if (fRegistry == null) {
             // create an configure the contexts available in the template editor
             fRegistry = new ContributionContextTypeRegistry();
-            fRegistry.addContextType(PyContextType.PY_CONTEXT_TYPE);
+            fRegistry.addContextType(PyContextType.PY_COMPLETIONS_CONTEXT_TYPE);
+            fRegistry.addContextType(PyContextType.PY_MODULES_CONTEXT_TYPE);
         }
         return fRegistry;
     }

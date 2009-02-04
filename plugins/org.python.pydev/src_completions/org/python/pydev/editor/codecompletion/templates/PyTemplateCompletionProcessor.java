@@ -45,7 +45,7 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor{
     protected TemplateContextType getContextType(ITextViewer viewer,
             IRegion region) {
         return TemplateHelper.getContextTypeRegistry()
-                .getContextType(PyContextType.PY_CONTEXT_TYPE);
+                .getContextType(PyContextType.PY_COMPLETIONS_CONTEXT_TYPE);
     }
 
     /*
@@ -79,20 +79,28 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor{
 
     }
 
+    
     /**
      * Overridden so that we can do the indentation in this case.
-     * 
-     * Creates a concrete template context for the given region in the document. This involves finding out which
-     * context type is valid at the given location, and then creating a context of this type. The default implementation
-     * returns a <code>DocumentTemplateContext</code> for the context type at the given location.
-     *
-     * @param viewer the viewer for which the context is created
-     * @param region the region into <code>document</code> for which the context is created
-     * @return a template context that can handle template insertion at the given location, or <code>null</code>
      */
     @Override
     protected TemplateContext createContext(final ITextViewer viewer, final IRegion region) {
         TemplateContextType contextType= getContextType(viewer, region);
+        return createContext(contextType, viewer, region);
+    }
+    
+    
+    /**
+     * Creates a concrete template context for the given region in the document. This involves finding out which
+     * context type is valid at the given location, and then creating a context of this type. The default implementation
+     * returns a <code>DocumentTemplateContext</code> for the context type at the given location.
+     *
+     * @param contextType the context type for the template.
+     * @param viewer the viewer for which the context is created
+     * @param region the region into <code>document</code> for which the context is created
+     * @return a template context that can handle template insertion at the given location, or <code>null</code>
+     */
+    public static PyDocumentTemplateContext createContext(final TemplateContextType contextType, final ITextViewer viewer, final IRegion region) {
         if (contextType != null) {
             IDocument document= viewer.getDocument();
             String indent = "";
