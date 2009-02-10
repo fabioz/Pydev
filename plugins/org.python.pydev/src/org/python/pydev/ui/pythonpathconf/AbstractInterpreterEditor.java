@@ -28,14 +28,19 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
@@ -204,27 +209,47 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     
     protected void adjustForNumColumns(int numColumns) {
         super.adjustForNumColumns(numColumns);
-        ((GridData) l1.getLayoutData()).horizontalSpan = numColumns;
-        ((GridData) tree.getLayoutData()).horizontalSpan = numColumns-1;
-        ((GridData) boxSystem.getLayoutData()).horizontalSpan = 1;
-        ((GridData) l2.getLayoutData()).horizontalSpan = numColumns;
-        ((GridData) listBuiltins.getLayoutData()).horizontalSpan = numColumns-1;
-        ((GridData) box.getLayoutData()).horizontalSpan = 1;
+        ((GridData) tabFolder.getLayoutData()).horizontalSpan = numColumns;
     }
     
-    Label l1;
-    Label l2;
+    protected TabFolder tabFolder;
     
     /**
      * @see org.eclipse.jface.preference.ListEditor#doFillIntoGrid(org.eclipse.swt.widgets.Composite, int)
      */
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         super.doFillIntoGrid(parent, numColumns);
-        
-        l1 = new Label(parent, SWT.None);
-        l1.setText("System PYTHONPATH");
         GridData gd = new GridData();
-        gd.horizontalSpan = numColumns;
+        
+        tabFolder = new TabFolder(parent, SWT.None);
+        gd = new GridData();
+        gd.horizontalAlignment = SWT.FILL;
+        gd.verticalAlignment = SWT.FILL;
+        gd.grabExcessVerticalSpace = true;
+        gd.horizontalSpan  = numColumns;
+        tabFolder.setLayoutData(gd);
+        
+        createTreeLibsControlTab();
+        createForcedBuiltinsTab();
+    }
+
+    /**
+     * Creates tab to show the pythonpath (libraries)
+     */
+    private void createTreeLibsControlTab() {
+        Composite parent;
+        GridData gd;
+        TabItem tabItem = new TabItem(tabFolder, SWT.None);
+        tabItem.setText("Libraries");
+
+        Composite composite = new Composite(tabFolder, SWT.None);
+        parent = composite;
+        composite.setLayout(new GridLayout(2, false));
+        
+        Label l1 = new Label(parent, SWT.None);
+        l1.setText("System PYTHONPATH");
+        gd = new GridData();
+        gd.horizontalSpan = 2;
         l1.setLayoutData(gd);
 
         //the tree
@@ -232,7 +257,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
         gd.verticalAlignment = SWT.FILL;
+        gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = true;
+        gd.heightHint = 200;
         tree.setLayoutData(gd);
 
         //buttons at the side of the tree
@@ -240,19 +267,52 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         gd = new GridData();
         gd.verticalAlignment = GridData.BEGINNING;
         control.setLayoutData(gd);
+        
+        tabItem.setControl(composite);
+    }
 
+    /**
+     * Creates tab for the forced builtins
+     */
+    private void createForcedBuiltinsTab() {
+        Composite parent;
+        GridData gd;
+        TabItem tabItem;
+        Composite composite;
+        Composite control;
+        tabItem = new TabItem(tabFolder, SWT.None);
+        tabItem.setText("Forced Builtins");
+        
+        composite = new Composite(tabFolder, SWT.None);
+        parent = composite;
+        composite.setLayout(new GridLayout(2, false));
+
+        
         //label
-        l2 = new Label(parent, SWT.None);
-        l2.setText("Forced builtin libs (check http://pydev.sf.net/faq.html for more info).");
+        Link l2 = new Link(parent, SWT.None);
+        l2.setText("Forced Builtins (check <a>Manual</a> for more info).");
+        l2.addSelectionListener(new SelectionListener(){
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+
+            public void widgetSelected(SelectionEvent e) {
+                Program.launch("http://fabioz.com/pydev/manual_101_interpreter.html");
+            }}
+        );
+        
         gd = new GridData();
+        gd.horizontalSpan = 2;
         l2.setLayoutData(gd);
 
         //the list with the builtins
         List list = getBuiltinsListControl(parent);
         gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
-        gd.grabExcessHorizontalSpace = false;
-        gd.heightHint = 100;
+        gd.verticalAlignment = SWT.FILL;
+        gd.grabExcessHorizontalSpace = true;
+        gd.grabExcessVerticalSpace = true;
+        gd.heightHint = 200;
         list.setLayoutData(gd);
         
         //the builtins buttons
@@ -260,7 +320,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         gd = new GridData();
         gd.verticalAlignment = GridData.BEGINNING;
         control.setLayoutData(gd);
+        tabItem.setControl(composite);
     }
+    
+    
     /**
      * @param parent
      * @return
