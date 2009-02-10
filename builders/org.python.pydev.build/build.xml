@@ -95,7 +95,7 @@
             Note that the com plugin must use the same version of the org plugin (so, we use the http version for that)
             TODO: make the target a variable 
             -->
-			<info target="http://svn.aptana.local/svn/pydev"/>
+			<info target="${basedir}"/>
 		</svn>
 		<property name="build.revision" value="${svn.info.rev}" />
 		<echo message="Revision: ${build.revision}" level="info" />
