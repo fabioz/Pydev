@@ -17,10 +17,17 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Tree;
@@ -282,6 +289,45 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
             };
             addSelectionChangedListener(selectionListener);    
             createActions();
+            
+            //OK, instead of using the default selection engine, we recreate it only to handle mouse
+            //and key events directly, because it seems that sometimes, SWT creates spurious select events
+            //when those shouldn't be created, and there's also a risk of creating loops with the selection,
+            //as when one selection arrives when we're linked, we have to perform a selection and doing that
+            //selection could in turn trigger a new selection, so, we remove that treatment and only start
+            //selections from interactions the user did.
+            //see: Cursor jumps to method definition when an error is detected
+            //https://sourceforge.net/tracker2/?func=detail&aid=2057092&group_id=85796&atid=577329
+            TreeViewer treeViewer = getTreeViewer();
+            treeViewer.removeSelectionChangedListener(this);
+            Tree tree = treeViewer.getTree();
+            
+            tree.addMouseListener(new MouseListener(){
+
+                public void mouseDoubleClick(MouseEvent e) {
+                    tryToMakeSelection();
+                }
+
+                public void mouseDown(MouseEvent e) {
+                }
+
+                public void mouseUp(MouseEvent e) {
+                    tryToMakeSelection();
+                }}
+            );
+            
+            tree.addKeyListener(new KeyListener(){
+
+                public void keyPressed(KeyEvent e) {
+                }
+
+                public void keyReleased(KeyEvent e) {
+                    if(e.keyCode == SWT.ARROW_UP || e.keyCode == SWT.ARROW_DOWN){
+                        tryToMakeSelection();
+                    }
+                }}
+            );
+            
         }catch(Throwable e){
             PydevPlugin.log(e);
         }
@@ -299,6 +345,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
         return null;
     }
 
+    
     @Override
     public void selectionChanged(SelectionChangedEvent event) {
         super.selectionChanged(event);
@@ -344,6 +391,32 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
             }else if(linkLevel > 1){
                 throw new RuntimeException("Error: relinking without unlinking 1st");
             }
+        }
+    }
+
+    /**
+     * Creates an event of a selection change if it's possible to do so (otherwise returns null)
+     */
+    private SelectionChangedEvent createSelectionEvent() {
+        SelectionChangedEvent event = null;
+        ISelection selection = getSelection();
+        if(selection instanceof IStructuredSelection){
+            IStructuredSelection s = (IStructuredSelection) selection;
+            if(s.iterator().hasNext()){
+                //only make the selection if there's some item selected
+                event = new SelectionChangedEvent(getTreeViewer(), selection);
+            }
+        }
+        return event;
+    }
+
+    /**
+     * Tries to trigger a selection changed event (if a selection is available for doing so)
+     */
+    private void tryToMakeSelection() {
+        SelectionChangedEvent event = createSelectionEvent();
+        if(event != null){
+            selectionChanged(event);
         }
     }
 
