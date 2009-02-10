@@ -30,7 +30,11 @@ public abstract class AbstractPythonNature implements IPythonNature{
      * @return the name of the module in the environment
      */
     public String resolveModule(IResource resource) {
-        return resolveModule(PydevPlugin.getIResourceOSString(resource));
+        String resourceOSString = PydevPlugin.getIResourceOSString(resource);
+        if(resourceOSString == null){
+            return null;
+        }
+        return resolveModule(resourceOSString);
     }
     
     public String resolveModule(File file) {

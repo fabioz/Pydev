@@ -434,10 +434,13 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                                     //ok, something strange happened... it shouldn't be null... maybe empty, but not null at this point
                                     //so, if it exists, let's try to create it...
                                     //TODO: This should be moved to somewhere else.
-                                    File f = new File(PydevPlugin.getIResourceOSString(file.getActualObject()));
-                                    if(f.exists()){
-                                        projectModulesManager.addModule(new ModulesKey(moduleName, f));
-                                        module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
+                                    String resourceOSString = PydevPlugin.getIResourceOSString(file.getActualObject());
+                                    if(resourceOSString != null){
+                                        File f = new File(resourceOSString);
+                                        if(f.exists()){
+                                            projectModulesManager.addModule(new ModulesKey(moduleName, f));
+                                            module = projectModulesManager.getModuleInDirectManager(moduleName, nature, true);
+                                        }
                                     }
                                 }
                                 if (module instanceof SourceModule) {

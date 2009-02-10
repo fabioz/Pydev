@@ -5,6 +5,7 @@ package org.python.pydev.editorinput;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -145,7 +146,13 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
 
         if (o instanceof IFileEditorInput) {
             IFileEditorInput input = (IFileEditorInput) o;
-            File otherFile = new File(PydevPlugin.getIResourceOSString(input.getFile()));
+            IFile file = input.getFile();
+            String resourceOSString = PydevPlugin.getIResourceOSString(file);
+            if(resourceOSString == null){
+                //the resource does not exist anymore (unable to get location)
+                return false;
+            }
+            File otherFile = new File(resourceOSString);
             return fFile.equals(otherFile);
         }
         

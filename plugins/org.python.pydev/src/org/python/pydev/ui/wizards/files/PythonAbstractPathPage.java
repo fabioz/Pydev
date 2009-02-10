@@ -200,56 +200,56 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         label.setText("");
         
         
-
-
-        final TemplateStore templateStore = TemplateHelper.getTemplateStore();
-        if(templateStore != null){
-            TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
-            if(templateData != null && templateData.length > 0){
-                //create the template selection
-                label = new Label(topLevel, SWT.NONE);
-                label.setText("Template");
-                
-                templateList = new List(topLevel, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
-                fillTemplateOptions(templateData, templateList);
-
-                
-                //if in the text, pressing down should go to the templates list
-                textName.addKeyListener(new KeyListener(){
-
-                    public void keyPressed(KeyEvent e) {
-                    }
-
-                    public void keyReleased(KeyEvent e) {
-                        if(e.keyCode == SWT.ARROW_DOWN){
-                            templateList.setFocus();
+        if(shouldCreatePackageSelect()){
+            final TemplateStore templateStore = TemplateHelper.getTemplateStore();
+            if(templateStore != null){
+                TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
+                if(templateData != null && templateData.length > 0){
+                    //create the template selection
+                    label = new Label(topLevel, SWT.NONE);
+                    label.setText("Template");
+                    
+                    templateList = new List(topLevel, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+                    fillTemplateOptions(templateData, templateList);
+    
+                    
+                    //if in the text, pressing down should go to the templates list
+                    textName.addKeyListener(new KeyListener(){
+    
+                        public void keyPressed(KeyEvent e) {
                         }
-                    }}
-                );
-
-                
-                Link link = new Link(topLevel, SWT.NONE);
-                link.setText("<a>Config...</a>");
-                
-                link.addSelectionListener(new SelectionListener() {
-                    public void widgetSelected(SelectionEvent e) {
-                        PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, 
-                                "org.python.pydev.prefs.template", null, null);
-                        dialog.open(); 
-                        //Fill it after having the settings edited.
-                        TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
-                        if(templateData != null && templateData.length > 0){
-                            fillTemplateOptions(templateData, templateList);
-                        }else{
-                            fillTemplateOptions(new TemplatePersistenceData[0], templateList);
+    
+                        public void keyReleased(KeyEvent e) {
+                            if(e.keyCode == SWT.ARROW_DOWN){
+                                templateList.setFocus();
+                            }
+                        }}
+                    );
+    
+                    
+                    Link link = new Link(topLevel, SWT.NONE);
+                    link.setText("<a>Config...</a>");
+                    
+                    link.addSelectionListener(new SelectionListener() {
+                        public void widgetSelected(SelectionEvent e) {
+                            PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null, 
+                                    "org.python.pydev.prefs.template", null, null);
+                            dialog.open(); 
+                            //Fill it after having the settings edited.
+                            TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
+                            if(templateData != null && templateData.length > 0){
+                                fillTemplateOptions(templateData, templateList);
+                            }else{
+                                fillTemplateOptions(new TemplatePersistenceData[0], templateList);
+                            }
                         }
-                    }
-
-                    public void widgetDefaultSelected(SelectionEvent e) {
-                    }
-                });
-                
-                setLayout(label, templateList, link);
+    
+                        public void widgetDefaultSelected(SelectionEvent e) {
+                        }
+                    });
+                    
+                    setLayout(label, templateList, link);
+                }
             }
         }
     }

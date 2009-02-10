@@ -429,7 +429,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * Given a resource get the string in the filesystem for it.
      */
     public static String getIResourceOSString(IResource f) {
-        String fullPath = f.getRawLocation().toOSString();
+        IPath rawLocation = f.getRawLocation();
+        if(rawLocation == null){
+            return null; //yes, we could have a resource that was deleted but we still have it's representation...
+        }
+        String fullPath = rawLocation.toOSString();
         //now, we have to make sure it is canonical...
         File file = new File(fullPath);
         if(file.exists()){

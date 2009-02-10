@@ -24,6 +24,8 @@ Invalid modules could get in the memory
 New modules can be created from templates
 multiple external zip files can be added at once to the pythonpath
 nonlocal added to keywords
+Fixed problem where cursor was jumping when it shouldn't (outline)
+
 
 
 After 1.4.1
