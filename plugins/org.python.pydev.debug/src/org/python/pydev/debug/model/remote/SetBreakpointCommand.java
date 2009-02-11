@@ -18,6 +18,12 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
     public String condition;
     private String functionName;
 
+    /**
+     * @param functionName 
+     * - If functionName == "None" or null it'll match any context (so, any statement in the file will be debugged). 
+     * - If functionName == "", it'll match only statements in the global level (not inside functions)
+     * - If functionName == "The name of some function", it'll only debug statements inside a function with the same name. 
+     */
     public SetBreakpointCommand(AbstractDebugTarget debugger, String file, Object line, String condition, String functionName) {
         super(debugger);
         this.file = file;
@@ -34,8 +40,8 @@ public class SetBreakpointCommand extends AbstractDebuggerCommand {
         StringBuffer cmd = new StringBuffer().
         append(file).append("\t").append(line);
         
-        if(functionName != null && functionName.trim().length() > 0){
-            cmd.append("\t**FUNC**").append(FullRepIterable.getLastPart(functionName));
+        if(functionName != null){
+            cmd.append("\t**FUNC**").append(FullRepIterable.getLastPart(functionName).trim());
         }
         
         cmd.append("\t").append(condition);

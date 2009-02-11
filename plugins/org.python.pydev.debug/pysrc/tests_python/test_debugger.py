@@ -71,7 +71,9 @@ class AbstractWriterThread(threading.Thread):
         self.finishedOk = False
         
     def DoKill(self):
-        self.readerThread.DoKill()
+        if hasattr(self, 'readerThread'):
+            #if it's not created, it's not there...
+            self.readerThread.DoKill()
         self.sock.close()
         
     def Write(self, s):
@@ -214,21 +216,24 @@ class WriterThreadCase12(AbstractWriterThread):
         
     def run(self):
         self.StartSocket()
-        self.WriteAddBreakpoint(2, 'Method1') 
+        self.WriteAddBreakpoint(2, '') #Should not be hit: setting empty function (not None) should only hit global.
+        self.WriteAddBreakpoint(6, 'Method1a')  
         self.WriteAddBreakpoint(11, 'Method2') 
         self.WriteMakeInitialRun()
         
-        threadId, frameId = self.WaitForBreakpointHit('111')
+        threadId, frameId, line = self.WaitForBreakpointHit('111', True)
+        
+        assert line == 11, 'Expected return to be in line 11, was: %s' % line
         
         self.WriteStepReturn(threadId)
         
         threadId, frameId, line = self.WaitForBreakpointHit('111', True) #not a return (it stopped in the other breakpoint)
         
-        assert line == 2, 'Expected return to be in line 2, was: %s' % line
+        assert line == 6, 'Expected return to be in line 6, was: %s' % line
         
         self.WriteRunThread(threadId)
 
-        assert 11 == self._sequence, 'Expected 11. Had: %s'  % self._sequence
+        assert 13 == self._sequence, 'Expected 13. Had: %s'  % self._sequence
         
         self.finishedOk = True
         
@@ -284,7 +289,7 @@ class WriterThreadCase10(AbstractWriterThread):
         
     def run(self):
         self.StartSocket()
-        self.WriteAddBreakpoint(2, 'Method1') 
+        self.WriteAddBreakpoint(2, 'None') #None or Method should make hit. 
         self.WriteMakeInitialRun()
         
         threadId, frameId = self.WaitForBreakpointHit('111')
@@ -515,7 +520,8 @@ class WriterThreadCase3(AbstractWriterThread):
         self.StartSocket()
         self.WriteMakeInitialRun()
         time.sleep(1)
-        self.WriteAddBreakpoint(4, None) 
+        self.WriteAddBreakpoint(4, '') 
+        self.WriteAddBreakpoint(5, 'FuncNotAvailable') #Check that it doesn't get hit in the global when a function is available
         
         threadId, frameId = self.WaitForBreakpointHit()
         
@@ -531,7 +537,7 @@ class WriterThreadCase3(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
         
-        assert 15 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
+        assert 17 == self._sequence, 'Expected 17. Had: %s'  % self._sequence
         
         self.finishedOk = True
 
@@ -769,6 +775,7 @@ if __name__ == '__main__':
     suite = unittest.makeSuite(Test)
     
 #    suite = unittest.TestSuite()
-#    suite.addTest(Test('testCase7a'))
+#    suite.addTest(Test('testCase12'))
+#    suite.addTest(Test('testCase12a'))
     unittest.TextTestRunner(verbosity=3).run(suite)
 

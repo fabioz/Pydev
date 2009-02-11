@@ -409,6 +409,8 @@ class PyDB:
                     self.postInternalCommand(int_cmd, thread_id)
                         
                 elif cmd_id == CMD_SET_BREAK:
+                    #func name: 'None': match anything. Empty: match global, specified: only method context.
+                    
                     #command to add some breakpoint.
                     # text is file\tline. Add to breakpoints dictionary
                     file, line, condition = text.split('\t', 2)
@@ -422,7 +424,8 @@ class PyDB:
                             
                         func_name = func_name[8:]
                     else:
-                        func_name = ''
+                        func_name = 'None' #Match anything if not specified.
+                        
                     
                     file = pydevd_file_utils.NormFileToServer(file)
                     

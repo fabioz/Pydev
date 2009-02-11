@@ -63,6 +63,9 @@ public class PyBreakpoint extends LineBreakpoint {
         return PyDebugModelPresentation.PY_DEBUG_MODEL_ID;
     }
     
+    /**
+     * @return the file to be debugged or null if it cannot be determined.
+     */
     public String getFile() {
         IMarker marker = getMarker();
         IResource r = marker.getResource();
@@ -93,14 +96,20 @@ public class PyBreakpoint extends LineBreakpoint {
         }
     }
     
+    /**
+     * @return The nature to be used for this breakpoint or null if it cannot be determined.
+     */
     private IPythonNature getPythonNature() {
         IMarker marker = getMarker();
         IPythonNature nature = PythonNature.getPythonNature(marker.getResource());
         if(nature == null){
             try {
-                Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(new File((String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID)));
-                if(infoForFile != null){
-                    nature = infoForFile.o1;
+                String externalPath = (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
+                if(externalPath != null){
+                    Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(new File(externalPath));
+                    if(infoForFile != null){
+                        nature = infoForFile.o1;
+                    }
                 }
             } catch (CoreException e) {
                 throw new RuntimeException(e);
@@ -178,11 +187,14 @@ public class PyBreakpoint extends LineBreakpoint {
             return functionName;
         }
         
-        timestep = file.lastModified();
-        
         try {
             IPythonNature nature = getPythonNature();
             if(nature != null){
+                //Only mark it as found if we were able to get the python nature (otherwise, this could change later
+                //if requesting during a setup)
+                timestep = file.lastModified();
+                
+                
                 String modName = nature.resolveModule(fileStr);
                 SourceModule sourceModule = null;
                 if(modName != null){
@@ -214,15 +226,19 @@ public class PyBreakpoint extends LineBreakpoint {
                 
                 functionName = NodeUtils.getContextName(lineToUse, ast);
                 if(functionName == null){
-                    functionName = "";
+                    functionName = ""; //global context
                 }
+                return functionName;
             }
-            return functionName;
-            
-        } catch (CoreException e) {
+            //If it was found, it would've already returned. So, match anything as we couldn't determine it.
             functionName = "None";
-            return functionName;
+            
+        } catch (Exception e) {
+            //Some error happened determining it. Match anything.
+            PydevPlugin.log("Error determining breakpoint context. Breakpoint at: "+file+" will match any context.", e);
+            functionName = "None";
         }
+        return functionName;
     }
 
 }

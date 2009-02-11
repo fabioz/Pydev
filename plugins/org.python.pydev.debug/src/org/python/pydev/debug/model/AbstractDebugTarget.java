@@ -54,6 +54,7 @@ import org.python.pydev.plugin.PydevPlugin;
  *
  * @author Fabio
  */
+@SuppressWarnings("restriction")
 public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmission implements IDebugTarget, ILaunchListener {
     
     private static final boolean DEBUG = false;
@@ -256,7 +257,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                         condition = StringUtils.replaceAll(condition, "\n", "@_@NEW_LINE_CHAR@_@");
                         condition = StringUtils.replaceAll(condition, "\t", "@_@TAB_CHAR@_@");
                     }
-                    SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.getFile(), b.getLine(), condition, b.getFunctionName());
+                    SetBreakpointCommand cmd = new SetBreakpointCommand(
+                            this, b.getFile(), b.getLine(), condition, b.getFunctionName());
                     this.postCommand(cmd);
                 }
             }
@@ -571,7 +573,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      * This function adds the input listener extension point, so that plugins that only care about
      * the input in the console can know about it.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "restriction" })
     public void addConsoleInputListener(){
         IConsole console = DebugUITools.getConsole(this.getProcess());
         if (console instanceof ProcessConsole) {
@@ -651,6 +653,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return disconnected;
     }
     
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {        
         AdapterDebug.print(this, adapter);
         

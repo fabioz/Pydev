@@ -10,10 +10,8 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IWatchExpression;
@@ -22,10 +20,10 @@ import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.editorinput.PyOpenEditor;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editorinput.PydevFileEditorInput;
 
 /**
  * Provides decoration for model elements in the debugger interface.
@@ -172,9 +170,12 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
         if (element instanceof PyBreakpoint) {
             String file = ((PyBreakpoint) element).getFile();
             if(file != null){
-                IPath path = new Path(file);
-                IEditorPart part = PyOpenEditor.doOpenEditor(path);
-                return part.getEditorInput();
+                return new PydevFileEditorInput(new File(file));
+                
+                //We should not open the editor here, just create the input... the debug framework opens it later on.
+                //IPath path = new Path(file);
+                //IEditorPart part = PyOpenEditor.doOpenEditor(path);
+                //return part.getEditorInput();
             }
         }
         return null;
@@ -184,7 +185,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
      * @see org.eclipse.debug.ui.ISourcePresentation#getEditorInput
      */
     public String getEditorId(IEditorInput input, Object element) {
-        return null;
+        return PyEdit.EDITOR_ID;
     }
 
     public void setAttribute(String attribute, Object value) {
