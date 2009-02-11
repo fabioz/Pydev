@@ -7,6 +7,7 @@ package org.python.pydev.core;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -58,27 +59,40 @@ public interface IInterpreterManager {
     public IInterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor);
     
     /**
-     * This function should be used to add an interpreter to the system. Note that it should not be
+     * This function should be used to create the interpreter info of some executable.
+     * 
+     * @param executable interpreter for which the info should be created.
+     * @param monitor
+     * @return the executable gotten (it could be different from the input, because we could receive a link and
+     * return the actual executable in the system).
+     * @throws JDTNotAvailableException 
+     * @throws CoreException 
+     */
+    public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor);
+    
+    
+    /**
+     * This function should be used to set an interpreter in the system. Note that it should not be
      * persisted here.
      * 
      * @param executable interpreter to be added
      * @param monitor
-     * @return the executable gotten (it could be different from the input, because we could receive a link and
-     * return the actual executable in the system).
+     * @throws JDTNotAvailableException 
+     * @throws CoreException 
      */
-    public String addInterpreter(String executable, IProgressMonitor monitor);
+    public void addInterpreterInfo(IInterpreterInfo info);
     
     /**
      * @param persisted string previously persisted
-     * @return list of executables
+     * @return list of interpreter infos
      */
-    public String [] getInterpretersFromPersistedString(String persisted);
+    public IInterpreterInfo[] getInterpretersFromPersistedString(String persisted);
     
     /**
      * @param executables executables that should be persisted
      * @return string to persist with the passed executables.
      */
-    public String getStringToPersist(String[] executables);
+    public String getStringToPersist(IInterpreterInfo[] executables);
 
     /**
      * @param nature is needed because we want to know which kind of project we are dealing with
@@ -90,7 +104,7 @@ public interface IInterpreterManager {
      * All the information cached should be cleared but the information related to the passed interpreters
      * @param allButTheseInterpreters name of the interpreters that should not have the information cleared
      */
-    public void clearAllBut(List<String> allButTheseInterpreters);
+    public void setInfos(List<IInterpreterInfo> allButTheseInterpreters);
 
     /**
      * @return whether this manager treats jython
@@ -108,7 +122,7 @@ public interface IInterpreterManager {
      * 
      * @param monitor monitor used for the restore
      */
-    public void restorePythopathFor(IProgressMonitor monitor);
+    public void restorePythopathForAllInterpreters(IProgressMonitor monitor);
 
     /**
      * @return the name that is related to this manager (e.g.: python, jython...)

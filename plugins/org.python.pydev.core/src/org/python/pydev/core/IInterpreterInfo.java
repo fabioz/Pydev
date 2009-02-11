@@ -44,4 +44,10 @@ public interface IInterpreterInfo {
      */
     public String[] updateEnv(String[] env);
 
+    /**
+     * Creates a copy of the current interpreter info (shares no variables with the original interpreter info). 
+     */
+    IInterpreterInfo makeCopy();
+
+    public String getExecutableOrJar();
 }
