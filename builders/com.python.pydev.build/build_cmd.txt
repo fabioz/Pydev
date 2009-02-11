@@ -1,3 +1,16 @@
+To build the open source (same as org.python.pydev.build/build_cmd.txt):
+
+set path=%path%;W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin
+set JAVA_HOME=D:\bin\jdk_1_5_09
+w:
+cd W:\temp_buildDir
+svn co http://svn.aptana.local/svn/pydev/trunk pydev
+cd pydev\builders\org.python.pydev.build
+ant -DbuildDirectory=W:/temp_buildDir/pydev -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -Ddeploy.dir=w:/temp_deployDir/pydev -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_341_clean
+
+
+
+to build the extensions
 set path=%path%;W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin
 set JAVA_HOME=D:\bin\jdk_1_5_09
 w:
@@ -8,12 +21,3 @@ ant -DbuildDirectory=W:/temp_buildDir/pydev_pro -Dpydev.p2.repo=file:W:/temp_dep
 
 
 
-To build the open source (same as org.python.pydev.build/build_cmd.txt):
-
-set path=%path%;W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin
-set JAVA_HOME=D:\bin\jdk_1_5_09
-w:
-cd W:\temp_buildDir
-svn co http://svn.aptana.local/svn/pydev/trunk pydev
-cd pydev\builders\org.python.pydev.build
-ant -DbuildDirectory=W:/temp_buildDir/pydev -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -Ddeploy.dir=w:/temp_deployDir/pydev -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_341_clean
