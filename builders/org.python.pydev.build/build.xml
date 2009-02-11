@@ -88,18 +88,18 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: get.revision                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="get.revision" unless="build.revision">
-		<echo message="Retrieving Subversion revision number" level="info" />
-		<svn>
+    <target name="get.revision" unless="build.revision">
+        <echo message="Retrieving Subversion revision number" level="info" />
+        <svn>
             <!-- Not using wcversion anymore because it'd get the revision of the externals too (and we only want the pydev revision)
             Note that the com plugin must use the same version of the org plugin (so, we use the http version for that)
             TODO: make the target a variable 
             -->
-			<info target="${basedir}"/>
-		</svn>
-		<property name="build.revision" value="${svn.info.rev}" />
-		<echo message="Revision: ${build.revision}" level="info" />
-	</target>
+            <info target="${basedir}"/>
+        </svn>
+        <property name="build.revision" value="${svn.info.rev}" />
+        <echo message="Revision: ${build.revision} - Target: ${basedir}" level="info" />
+    </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
