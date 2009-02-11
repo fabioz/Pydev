@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -44,9 +45,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * This is the cache, that points from an interpreter to its information.
      */
-    private Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
+    protected Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
     private Preferences prefs;
     private String[] interpretersFromPersistedString;
+    private IInterpreterInfo[] interpreterInfosFromPersistedString;
     
 
     //caches that are filled at runtime -------------------------------------------------------------------------------
@@ -84,22 +86,28 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public AbstractInterpreterManager(Preferences prefs) {
         this.prefs = prefs;
         prefs.setDefault(getPreferenceName(), "");
-        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-        for (IInterpreterObserver observer : participants) {
-            observer.notifyInterpreterManagerRecreated(this);
-        }
         prefs.addPropertyChangeListener(new Preferences.IPropertyChangeListener(){
 
             public void propertyChange(PropertyChangeEvent event) {
                 clearCaches();
             }
         });
+        
+        IInterpreterInfo[] interpreterInfos = this.getInterpreterInfos();
+        for (IInterpreterInfo interpreterInfo : interpreterInfos) {
+            this.exeToInfo.put(interpreterInfo.getExecutableOrJar(), (InterpreterInfo) interpreterInfo);
+        }
+        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+        for (IInterpreterObserver observer : participants) {
+            observer.notifyInterpreterManagerRecreated(this);
+        }
     }
 
     public void clearCaches() {
         builtinMod = null;
         builtinCompletions = null;
         interpretersFromPersistedString = null;
+        interpreterInfosFromPersistedString = null;
     }
 
     /**
@@ -124,17 +132,11 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
     }
 
-    public void clearAllBut(List<String> allButTheseInterpreters) {
+    public void setInfos(List<IInterpreterInfo> infos) {
         synchronized(exeToInfo){
-            ArrayList<String> toRemove = new ArrayList<String>();
-            for (String interpreter : exeToInfo.keySet()) {
-                if(!allButTheseInterpreters.contains(interpreter)){
-                    toRemove.add(interpreter);
-                }
-            }
-            //we do not want to remove it while we are iterating...
-            for (Object object : toRemove) {
-                exeToInfo.remove(object);
+            this.exeToInfo.clear();
+            for(IInterpreterInfo info:infos){
+                exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
             }
         }
     }
@@ -144,12 +146,24 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     protected abstract String getNotConfiguredInterpreterMsg(); 
 
+    public IInterpreterInfo[] getInterpreterInfos() {
+        if(interpreterInfosFromPersistedString == null){
+            interpreterInfosFromPersistedString = getInterpretersFromPersistedString(getPersistedString());
+        }
+        return interpreterInfosFromPersistedString;
+        
+    }
     /**
      * @see org.python.pydev.core.IInterpreterManager#getInterpreters()
      */
     public String[] getInterpreters() {
         if(interpretersFromPersistedString == null){
-            interpretersFromPersistedString = getInterpretersFromPersistedString(getPersistedString());
+            IInterpreterInfo[] interpretersFromPersistedString2 = getInterpreterInfos();
+            List<String> lst = new ArrayList<String>();
+            for (IInterpreterInfo interpreterInfo : interpretersFromPersistedString2) {
+                lst.add(((InterpreterInfo)interpreterInfo).executableOrJar);
+            }
+            interpretersFromPersistedString = lst.toArray(new String[lst.size()]);
         }
         return interpretersFromPersistedString;
     }
@@ -190,7 +204,59 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @throws CoreException 
      * @throws JDTNotAvailableException 
      */
-    public abstract Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException;
+    protected abstract Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException;
+    
+    /**
+     * Creates the information for the passed interpreter.
+     */
+    public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor){
+        
+        monitor.worked(5);
+        //ok, we have to get the info from the executable (and let's cache results for future use)...
+        Tuple<InterpreterInfo,String> tup = null;
+        InterpreterInfo info;
+        try {
+
+            tup = internalCreateInterpreterInfo(executable, monitor);
+            if(tup == null){
+                //Canceled (in the dialog that asks the user to choose the valid paths)
+                return null;
+            }
+            info = tup.o1;
+            
+        } catch (RuntimeException e) {
+            PydevPlugin.log(e);
+            throw e;
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+            throw new RuntimeException(e);
+        }
+        if(info.executableOrJar == null || info.executableOrJar.trim().length() == 0){
+            //it is null or empty
+            final String title = "Invalid interpreter:"+executable;
+            final String msg = "Unable to get information on interpreter!";
+            String reasonCreation = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar+"\n";
+            if(tup != null){
+                reasonCreation += "The standard output gotten from the executed shell was: >>"+tup.o2+"<<";
+            }
+            final String reason = reasonCreation;
+            
+            try {
+                final Display disp = Display.getDefault();
+                disp.asyncExec(new Runnable(){
+                    public void run() {
+                        ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));
+                    }
+                });
+            } catch (Throwable e) {
+                // ignore error communication error
+            }
+            throw new RuntimeException(reason);
+        }
+
+        return info;
+        
+    }
 
     /**
      * Creates the interpreter info from the output. Checks for errors.
@@ -211,51 +277,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
         synchronized(lock){
             InterpreterInfo info = (InterpreterInfo) exeToInfo.get(executable);
-            if(info == null){
-                monitor.worked(5);
-                //ok, we have to get the info from the executable (and let's cache results for future use)...
-                Tuple<InterpreterInfo,String> tup = null;
-                try {
-    
-                    tup = createInterpreterInfo(executable, monitor);
-                    if(tup == null){
-                        //cancelled (in the dialog that asks the user to choose the valid paths)
-                        return null;
-                    }
-                    info = tup.o1;
-                    
-                } catch (RuntimeException e) {
-                    PydevPlugin.log(e);
-                    throw e;
-                } catch (Exception e) {
-                    PydevPlugin.log(e);
-                    throw new RuntimeException(e);
-                }
-                if(info.executableOrJar != null && info.executableOrJar.trim().length() > 0){
-                    exeToInfo.put(info.executableOrJar, info);
-                    
-                }else{ //it is null or empty
-                    final String title = "Invalid interpreter:"+executable;
-                    final String msg = "Unable to get information on interpreter!";
-                    String reasonCreation = "The interpreter (or jar): '"+executable+"' is not valid - info.executable found: "+info.executableOrJar+"\n";
-                    if(tup != null){
-                        reasonCreation += "The standard output gotten from the executed shell was: >>"+tup.o2+"<<";
-                    }
-                    final String reason = reasonCreation;
-                    
-                    try {
-                        final Display disp = Display.getDefault();
-                        disp.asyncExec(new Runnable(){
-                            public void run() {
-                                ErrorDialog.openError(null, title, msg, new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, reason, null));
-                            }
-                        });
-                    } catch (Throwable e) {
-                        // ignore error comunication error
-                    }
-                    throw new RuntimeException(reason);
-                }
-            }
             return info;
         }
     }
@@ -265,32 +286,27 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * 
      * @see org.python.pydev.core.IInterpreterManager#addInterpreter(java.lang.String)
      */
-    public String addInterpreter(String executable, IProgressMonitor monitor) {
-        exeToInfo.remove(executable); //always clear it
-        InterpreterInfo info = getInterpreterInfo(executable, monitor);
-        if(info == null){
-            //cancelled on the screen that the user has to choose paths...
-            return null;
-        }
-        return info.executableOrJar;
+    public void addInterpreterInfo(IInterpreterInfo info2) {
+        InterpreterInfo info = (InterpreterInfo) info2;
+        exeToInfo.put(info.executableOrJar, info);
     }
 
     private Object lock = new Object();
     //little cache...
     private String persistedCache;
-    private String [] persistedCacheRet;
+    private IInterpreterInfo [] persistedCacheRet;
     
     /**
      * @see org.python.pydev.core.IInterpreterManager#getInterpretersFromPersistedString(java.lang.String)
      */
-    public String[] getInterpretersFromPersistedString(String persisted) {
+    public IInterpreterInfo[] getInterpretersFromPersistedString(String persisted) {
         synchronized(lock){
             if(persisted == null || persisted.trim().length() == 0){
-                return new String[0];
+                return new IInterpreterInfo[0];
             }
             
             if(persistedCache == null || persistedCache.equals(persisted) == false){
-                List<String> ret = new ArrayList<String>();
+                List<IInterpreterInfo> ret = new ArrayList<IInterpreterInfo>();
     
                 try {
                     List<InterpreterInfo> list = new ArrayList<InterpreterInfo>();                
@@ -306,15 +322,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             "Please restore it (window > preferences > Pydev > Interpreter)";
                             PydevPlugin.log(errMsg, e);
                             
-                            return new String[0];
+                            return new IInterpreterInfo[0];
                         }
                     }
                     
                     //then, put it in cache
                     for (InterpreterInfo info: list) {
                         if(info != null && info.executableOrJar != null){
-                            this.exeToInfo.put(info.executableOrJar, info);
-                            ret.add(info.executableOrJar);
+                            ret.add(info);
                         }
                     }
                     
@@ -361,23 +376,22 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     PydevPlugin.log(e);
                     
                     //ok, some error happened (maybe it's not configured)
-                    return new String[0];
+                    return new IInterpreterInfo[0];
                 }
                 
                 persistedCache = persisted;
-                persistedCacheRet = ret.toArray(new String[0]);
+                persistedCacheRet = ret.toArray(new IInterpreterInfo[0]);
             }
         }
         return persistedCacheRet;
     }
 
     /**
-     * @see org.python.pydev.core.IInterpreterManager#getStringToPersist(java.lang.String[])
+     * @see org.python.pydev.core.IInterpreterManager#getStringToPersist(IInterpreterInfo[])
      */
-    public String getStringToPersist(String[] executables) {
+    public String getStringToPersist(IInterpreterInfo[] executables) {
         FastStringBuffer buf = new FastStringBuffer();
-        for (String exe : executables) {
-            InterpreterInfo info = this.exeToInfo.get(exe);
+        for (IInterpreterInfo info : executables) {
             if(info!=null){
                 buf.append(info.toString());
                 buf.append("&&&&&");
@@ -434,10 +448,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     /**
-     * @see org.python.pydev.core.IInterpreterManager#restorePythopathFor(org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.python.pydev.core.IInterpreterManager#restorePythopathForAllInterpreters(org.eclipse.core.runtime.IProgressMonitor)
      */
     @SuppressWarnings("unchecked")
-    public void restorePythopathFor(IProgressMonitor monitor) {
+    public void restorePythopathForAllInterpreters(IProgressMonitor monitor) {
         synchronized(lock){
             for(String interpreter:exeToInfo.keySet()){
                 final InterpreterInfo info = getInterpreterInfo(interpreter, monitor);

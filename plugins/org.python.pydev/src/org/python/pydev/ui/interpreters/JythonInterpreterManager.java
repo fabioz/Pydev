@@ -41,7 +41,7 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String>createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
         return doCreateInterpreterInfo(executable, monitor);
     }
 

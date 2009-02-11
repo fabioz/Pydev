@@ -7,6 +7,7 @@ package org.python.pydev.ui.pythonpathconf;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -17,6 +18,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -106,16 +108,16 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @param defaultSelectedInterpreter this is the path to the default selected file (interpreter)
      * @param monitor a monitor to display the progress to the user.
      */
-    protected abstract void doRestore(final String defaultSelectedInterpreter, IProgressMonitor monitor);
+    protected abstract void doRestore(IProgressMonitor monitor);
     
     /**
      * all the information should be cleared but the related to the interpreters passed
      * @param allButTheseInterpreters
      * @param monitor
      */
-    protected void doClear(final List<String> allButTheseInterpreters, IProgressMonitor monitor){
+    protected void setInfos(final List<IInterpreterInfo> allButTheseInterpreters, IProgressMonitor monitor){
         IInterpreterManager iMan = getInterpreterManager();
-        iMan.clearAllBut(allButTheseInterpreters);
+        iMan.setInfos(allButTheseInterpreters);
     }
     
     /**
@@ -151,22 +153,15 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      */
     protected void restoreModules() {
     
-        if(pathEditor.getExesList().getItemCount() <= 0){
-            doClear(new ArrayList<String>(),new NullProgressMonitor());
+        final IInterpreterInfo[] exesList = pathEditor.getExesList();
+        if(exesList.length <= 0){
+            setInfos(new ArrayList<IInterpreterInfo>(),new NullProgressMonitor());
             return;
     
         } else{
             //this is the default interpreter
-            final String item = pathEditor.getExesList().getItem(0);
             ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
             monitorDialog.setBlockOnOpen(false);
-
-            final List<String> exesToKeep = new ArrayList<String>();
-            org.eclipse.swt.widgets.List exesList = pathEditor.getExesList();
-            String[] items = exesList.getItems();
-            for (String exeToKeep : items) {
-                exesToKeep.add(exeToKeep);
-            }
     
             try {
                 IRunnableWithProgress operation = new IRunnableWithProgress(){
@@ -174,10 +169,10 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
                     public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                         monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
                         //clear all but the ones that appear
-                        doClear(exesToKeep,monitor);
+                        setInfos(Arrays.asList(exesList), monitor);
                         
                         //restore the default
-                        doRestore(item, monitor);
+                        doRestore(monitor);
                         monitor.done();
                     }};
                     

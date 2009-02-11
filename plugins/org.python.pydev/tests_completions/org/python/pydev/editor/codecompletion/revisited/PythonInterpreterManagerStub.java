@@ -8,8 +8,10 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
@@ -32,24 +34,24 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
         return new String[]{TestDependent.PYTHON_EXE};
     }
 
-    public String addInterpreter(String executable, IProgressMonitor monitor) {
-        throw new RuntimeException("not impl");
-    }
-
-    public String[] getInterpretersFromPersistedString(String persisted) {
-        throw new RuntimeException("not impl");
-    }
-
-    public String getStringToPersist(String[] executables) {
-        throw new RuntimeException("not impl");
+    @Override
+    public IInterpreterInfo[] getInterpreterInfos() {
+        String defaultInterpreter = getDefaultInterpreter();
+        InterpreterInfo info = (InterpreterInfo) this.createInterpreterInfo(defaultInterpreter, new NullProgressMonitor());
+        if(!InterpreterInfo.isJythonExecutable(defaultInterpreter)){
+            TestDependent.PYTHON_EXE = info.executableOrJar;
+        }
+        return new IInterpreterInfo[]{info};
     }
     
     /**
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
-        
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
+        if(info == null){
+            throw new RuntimeException("Unable to get info for: "+executable+". Available: "+this.exeToInfo.keySet());
+        }
         if(!InterpreterInfo.isJythonExecutable(executable)){
             TestDependent.PYTHON_EXE = info.executableOrJar;
         }
@@ -74,7 +76,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
         return PythonInterpreterManager.doCreateInterpreterInfo(executable, monitor);
     }
 

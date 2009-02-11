@@ -33,6 +33,7 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.ICallback;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
@@ -442,9 +443,10 @@ public class AbstractWorkbenchTestCase extends TestCase{
      */
     protected void createJythonInterpreterManager(NullProgressMonitor monitor) {
         IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager(true);
-        iMan.addInterpreter(TestDependent.JYTHON_JAR_LOCATION, monitor);
-        iMan.restorePythopathFor(monitor);
-        iMan.setPersistedString(iMan.getStringToPersist(new String[]{TestDependent.JYTHON_JAR_LOCATION}));
+        IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, monitor);
+        iMan.addInterpreterInfo(interpreterInfo);
+        iMan.restorePythopathForAllInterpreters(monitor);
+        iMan.setPersistedString(iMan.getStringToPersist(new IInterpreterInfo[]{interpreterInfo}));
         iMan.saveInterpretersInfoModulesManager();
     }
 

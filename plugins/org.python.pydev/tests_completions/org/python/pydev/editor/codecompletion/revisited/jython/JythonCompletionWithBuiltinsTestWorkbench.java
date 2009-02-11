@@ -18,7 +18,7 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends AbstractJythonWor
         try {
             JythonCompletionWithBuiltinsTestWorkbench test = new JythonCompletionWithBuiltinsTestWorkbench();
             test.setUp();
-//            test.testCompleteImportBuiltin2();
+            test.testCompleteImportBuiltin2();
             test.tearDown();
             
             junit.textui.TestRunner.run(JythonCompletionWithBuiltinsTestWorkbench.class);

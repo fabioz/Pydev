@@ -41,9 +41,9 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
     }
 
     @Override
-    protected void doRestore(String defaultSelectedInterpreter, IProgressMonitor monitor) {
+    protected void doRestore(IProgressMonitor monitor) {
         IInterpreterManager iMan = getInterpreterManager();
-        iMan.restorePythopathFor(monitor);
+        iMan.restorePythopathForAllInterpreters(monitor);
         
         //we also need to restart our code-completion shell after doing that, as we may have a new classpath,
         //and because of some jython bugs, just adding info to the sys.path later on as in python, is not enough.

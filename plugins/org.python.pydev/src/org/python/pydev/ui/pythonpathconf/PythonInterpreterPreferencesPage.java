@@ -37,9 +37,9 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @param defaultSelectedInterpreter this is the path to the default selected file (interpreter)
      * @param monitor a monitor to display the progress to the user.
      */
-    protected void doRestore(final String defaultSelectedInterpreter, IProgressMonitor monitor) {
+    protected void doRestore(IProgressMonitor monitor) {
         IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
-        iMan.restorePythopathFor(monitor);
+        iMan.restorePythopathForAllInterpreters(monitor);
     }
     
     @Override

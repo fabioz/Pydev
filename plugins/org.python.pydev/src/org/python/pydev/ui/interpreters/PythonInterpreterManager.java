@@ -38,7 +38,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String>createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException {
         return doCreateInterpreterInfo(executable, monitor);
     }
 

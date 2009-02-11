@@ -48,6 +48,10 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     public volatile String executableOrJar; 
     
+    public String getExecutableOrJar() {
+        return executableOrJar;
+    }
+    
     /**
      * folders - they should be passed to the pythonpath
      */
@@ -593,6 +597,14 @@ public class InterpreterInfo implements IInterpreterInfo{
                 hashMap.put(sp.o1, sp.o2);
             }
         }
+    }
+    
+    
+    /**
+     * @return a new interpreter info that's a copy of the current interpreter info.
+     */
+    public InterpreterInfo makeCopy() {
+        return fromString(toString());
     }
     
 }

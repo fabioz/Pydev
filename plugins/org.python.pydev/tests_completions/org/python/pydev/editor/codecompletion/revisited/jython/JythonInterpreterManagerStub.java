@@ -32,20 +32,14 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
         throw new RuntimeException("not impl");
     }
 
-    public String[] getInterpretersFromPersistedString(String persisted) {
-        throw new RuntimeException("not impl");
-    }
-
-    public String getStringToPersist(String[] executables) {
-        throw new RuntimeException("not impl");
-    }
-    
     /**
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
     public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
-        
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
+        if(info == null){
+            throw new RuntimeException("Unable to get info for: "+executable+". Available: "+this.exeToInfo.keySet());
+        }
         if(!info.executableOrJar.equals(TestDependent.JYTHON_JAR_LOCATION)){
             throw new RuntimeException("expected same");
         }
@@ -70,7 +64,7 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     }
 
     @Override
-    public Tuple<InterpreterInfo,String> createInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
+    public Tuple<InterpreterInfo,String> internalCreateInterpreterInfo(String executable, IProgressMonitor monitor) throws CoreException, JDTNotAvailableException {
         return JythonInterpreterManager.doCreateInterpreterInfo(executable, monitor);
     }
 
