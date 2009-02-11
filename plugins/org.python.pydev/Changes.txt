@@ -26,6 +26,8 @@ multiple external zip files can be added at once to the pythonpath
 nonlocal added to keywords
 Fixed problem where cursor was jumping when it shouldn't (outline)
 Interpreter configuration improved (editing a copy of the data and applying correctly later on)
+Breakpoints only opened on double-click (no longer on select)
+Fixed problem where the breakpoint could be lost (now, playing safe and matching anything in the file if the context cannot be gotten)
 
 
 After 1.4.1
