@@ -44,8 +44,10 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     /**
      * @return whether this page has changed
      */
-    protected boolean hasChanged(){
-        return changed || isEditorChanged();
+    protected boolean checkChangedAndMarkUnchanged(){
+        boolean ret = changed || pathEditor.checkChangedAndMarkUnchanged();
+        changed = false;
+        return ret;
     }
     
     public void init(IWorkbench workbench) {
@@ -91,16 +93,15 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         //info is going to be used when restoring them.
         super.performOk();
         
-        if(hasChanged()){
+        if(checkChangedAndMarkUnchanged()){
             restoreModules();
+            
+            //When we call performOk, the editor is going to store its values, but after actually restoring the modules, we
+            //need to serialize the SystemModulesManager to be used when reloading the PydevPlugin
+            this.getInterpreterManager().saveInterpretersInfoModulesManager();
         }
         
-        //When we call performOk, the editor is going to store its values, but after actually restoring the modules, we
-        //need to serialize the SystemModulesManager to be used when reloading the PydevPlugin
-        this.getInterpreterManager().saveInterpretersInfoModulesManager();
         
-        changed = false;
-        setEditorUnchanged();
         return true;
     }
 
@@ -124,14 +125,6 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @return the interpreter manager associated to this page.
      */
     protected abstract IInterpreterManager getInterpreterManager();
-
-    protected boolean isEditorChanged() {
-        return pathEditor.hasChanged();
-    }
-
-    protected void setEditorUnchanged() {
-        pathEditor.changed = false;
-    }
 
     /**
      * Creates the editors - also provides a hook for getting a different interpreter editor

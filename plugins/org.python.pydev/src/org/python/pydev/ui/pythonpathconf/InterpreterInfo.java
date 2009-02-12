@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map.Entry;
@@ -579,6 +580,12 @@ public class InterpreterInfo implements IInterpreterInfo{
         
         fillMapWithEnv(env, hashMap);
         fillMapWithEnv(envVariables, hashMap); //will override the keys already there.
+        String[] ret = createEnvWithMap(hashMap);
+        
+        return ret;
+    }
+
+    public static String[] createEnvWithMap(Map<String, String> hashMap) {
         Set<Entry<String, String>> entrySet = hashMap.entrySet();
         String[] ret = new String[entrySet.size()];
         int i=0;
@@ -586,11 +593,10 @@ public class InterpreterInfo implements IInterpreterInfo{
             ret[i] = entry.getKey()+"="+entry.getValue();
             i++;
         }
-        
         return ret;
     }
 
-    private void fillMapWithEnv(String[] env, HashMap<String, String> hashMap) {
+    public static void fillMapWithEnv(String[] env, HashMap<String, String> hashMap) {
         for(String s: env){
             Tuple<String, String> sp = StringUtils.splitOnFirst(s, '=');
             if(sp.o1.length() != 0 && sp.o2.length() != 0){

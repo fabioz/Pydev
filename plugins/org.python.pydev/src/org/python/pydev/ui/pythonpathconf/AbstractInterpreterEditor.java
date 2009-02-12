@@ -107,10 +107,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private Button removeBtOthers;
 
     private SelectionListener selectionListenerOthers;
+    
+    private boolean changed;
 
     private List listBuiltins;
-
-    boolean changed = false;
 
     private Composite boxSystem;
 
@@ -212,23 +212,23 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected void removePressed() {
         super.removePressed();
         updateTree();
-        changed = true;
+//        changed = true;
     }
 
     protected void addPressed() {
         super.addPressed();
         updateTree();
-        changed = true;
+//        changed = true;
     }
 
     protected void upPressed() {
         super.upPressed();
-        changed = true;
+//        changed = true;
     }
     
     protected void downPressed() {
         super.downPressed();
-        changed = true;
+//        changed = true;
     }
     
     protected void adjustForNumColumns(int numColumns) {
@@ -237,6 +237,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
     
     protected TabFolder tabFolder;
+
+    private EnvironmentTab environmentTab;
+
+    private MyEnvWorkingCopy workingCopy = new MyEnvWorkingCopy();
     
     /**
      * @see org.eclipse.jface.preference.ListEditor#doFillIntoGrid(org.eclipse.swt.widgets.Composite, int)
@@ -255,7 +259,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         
         createTreeLibsControlTab();
         createForcedBuiltinsTab();
-//        createEnvironmentVariablesTab(); -- still not ready...
+        createEnvironmentVariablesTab();
     }
     
     /**
@@ -271,7 +275,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         parent = composite;
         composite.setLayout(new GridLayout(1, false));
         
-        EnvironmentTab environmentTab = new EnvironmentTab(){
+        environmentTab = new EnvironmentTab(){
             protected void createAppendReplace(Composite parent) {
                 super.createAppendReplace(parent);
                 appendEnvironment.setVisible(false);
@@ -279,7 +283,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             }
         };
         environmentTab.createControl(parent);
-        
         
         GridData gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
@@ -511,7 +514,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             if(filePath != null){
                                 lastDirectoryDialogPath = filePath;
                                 info.libs.add(filePath);
-                                changed = true;
+//                                changed = true;
                             }
                             
                         } else if (widget == addBtSystemJar) {
@@ -537,7 +540,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                         info.libs.add(f);
                                     }
                                 }
-                                changed = true;
+//                                changed = true;
                             }
                                 
                         } else if (widget == removeBtSystemFolder) {
@@ -546,7 +549,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 TreeItem s = selection[i];
                                 String text = s.getText();
                                 info.libs.remove(text);
-                                changed = true;
+//                                changed = true;
                             }
                         }
                         updateTree();
@@ -570,7 +573,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             int retCode = d.open();
             if (retCode == InputDialog.OK) {
                 info.addForcedLib(d.getValue());
-                changed = true;
+//                changed = true;
             }
 
         }
@@ -587,7 +590,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             
             InterpreterInfo info = (InterpreterInfo) this.exeToInfo.get(executable);
             info.removeForcedLib(builtin);
-            changed = true;
+//            changed = true;
         }
         updateTree();
     }
@@ -641,6 +644,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         tree.removeAll();
         listBuiltins.removeAll();
         
+        //before any change, apply the changes in the previous info (if not set, that's ok)
+        if(workingCopy.getInfo() != null){
+            environmentTab.performApply(workingCopy);
+        }
+        
         if(executable != null){
             TreeItem item = new TreeItem(tree, SWT.NONE);
             item.setText("System libs");
@@ -662,7 +670,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                     listBuiltins.add((String) iter.next());
                 }
             }
+            
+            workingCopy.setInfo(info);
+            environmentTab.initializeFrom(workingCopy);
         }
+        
+
     }
 
 
@@ -771,10 +784,21 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     @Override
     protected void doStore() {
-        String s = createListFromInterpreterInfo(getExesList());
-        if (s != null){
-            interpreterManager.setPersistedString(s);
+        //The doStore is called before hasChanged, so, at this point, we set the changed variable and update the persisted
+        //string (if needed)
+        
+        //we need to update the tree so that the environment variables stay correct. 
+        this.updateTree();
+        
+        String newStringToPersist = createListFromInterpreterInfo(getExesList());
+        String oldStringToPersist = createListFromInterpreterInfo(interpreterManager.getInterpreterInfos());
+        if(!newStringToPersist.equals(oldStringToPersist)){
+            interpreterManager.setPersistedString(newStringToPersist);
+            changed = true;
+        }else{
+            changed = false;
         }
+
     }
     
     @Override
@@ -830,8 +854,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
 
     
-    public boolean hasChanged() {
-        return changed;
+    public boolean checkChangedAndMarkUnchanged() {
+        //doStore was called before and should've updated the changed state properly.
+        boolean ret = changed;
+        changed = false;
+        return ret;
     }
 
 }

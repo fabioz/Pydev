@@ -43,7 +43,7 @@ public abstract class SimpleRunner {
     }
     
     /**
-     * Passes the commands directly to Runtime.exec (with a null envp)
+     * Passes the commands directly to Runtime.exec (with the passed envp)
      */
     public static Process createProcess(String[] cmdarray, String[] envp, File workingDir) throws IOException {
         return Runtime.getRuntime().exec(getWithoutEmptyParams(cmdarray), getWithoutEmptyParams(envp), workingDir);
@@ -75,6 +75,7 @@ public abstract class SimpleRunner {
      */
     public String[] getEnvironment(IPythonNature pythonNature, String interpreter, IInterpreterManager manager) throws CoreException {
         String[] env;
+        
         if(pythonNature == null){ //no associated nature in the project... just get the default env
             env = getDefaultSystemEnvAsArray();
         }else{
