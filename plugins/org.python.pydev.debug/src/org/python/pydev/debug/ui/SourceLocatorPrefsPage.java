@@ -42,7 +42,6 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
     /**
      * Creates the editors
      */
-    @SuppressWarnings("unchecked")
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
         addField(new TableEditor(PydevEditorPrefs.SOURCE_LOCATION_PATHS, "Translation paths to use:", p){
