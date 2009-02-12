@@ -45,6 +45,11 @@ public interface IInterpreterManager {
     public String [] getInterpreters();
     
     /**
+     * @return the interpreter infos kept internally in the interpreter manager.
+     */
+    public IInterpreterInfo[] getInterpreterInfos();
+    
+    /**
      * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
      * 
      * @param executable this is the executable from where we want to get the info
