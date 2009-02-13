@@ -10,11 +10,11 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Region;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ArrayUtils;
 import org.python.pydev.core.ICallback;
@@ -94,7 +94,7 @@ public class PydevMarkerUtils {
         }
 
         /**
-         * @return a map with the properties to be set in the marker
+         * @return a map with the properties to be set in the marker or null if some error happened while doing it.
          * @throws BadLocationException 
          */
         private HashMap<String, Object> getAsMap() throws BadLocationException {
@@ -109,9 +109,14 @@ public class PydevMarkerUtils {
                 IRegion start;
                 try {
                     start = doc.getLineInformation(lineStart);
+                } catch (BadLocationException e) {
+                    //Don't log it. Just return null -- this happens because there's a delay from calculating things
+                    //to actually using them and the document might have changed and the given line is no longer available
+                    //(a new request should fix this)
+                    return null;
                 } catch (Exception e) {
                     Log.log(IStatus.ERROR, "Could not get line: "+lineStart+" to add message: "+message, e);
-                    start = new Region(0, 0);
+                    return null;
                 }
                 
                 try{
@@ -134,8 +139,15 @@ public class PydevMarkerUtils {
                         }
                         absoluteEnd = start.getOffset() + buffer.length();
                     }
+                } catch (BadLocationException e) {
+                    //Don't log it. Just return null -- this happens because there's a delay from calculating things
+                    //to actually using them and the document might have changed and the given line is no longer available
+                    //(a new request should fix this and create the markers correctly because of the change in the document)
+                    return null;
+
                 }catch (Exception e) {
                     Log.log(IStatus.INFO, "Problem creating map for:"+this.toString(), e);
+                    return null;
                 }
             }
             
@@ -198,8 +210,9 @@ public class PydevMarkerUtils {
      * @param resource the resource were the markers should be replaced
      * @param markerType the type of the marker that'll be replaced
      * @param removeUserEditable if true, will remove the user-editable markers too (otherwise, will leave the user-editable markers)
+     * @param monitor used to check whether this process should be canceled.
      */
-    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType, boolean removeUserEditable) {
+    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType, boolean removeUserEditable, IProgressMonitor monitor) {
         IMarker[] existingMarkers;
         try {
             existingMarkers = resource.findMarkers(markerType, false, IResource.DEPTH_ZERO);
@@ -223,12 +236,27 @@ public class PydevMarkerUtils {
         int lastExistingUsed = 0;
         try {
             for (MarkerInfo markerInfo : lst) {
-                if(lastExistingUsed < existingMarkers.length){
-                    IMarker marker = existingMarkers[lastExistingUsed];
-                    marker.setAttributes(markerInfo.getAsMap());
-                    lastExistingUsed += 1;
-                }else{
-                    MarkerUtilities.createMarker(resource, markerInfo.getAsMap(), markerType);
+                HashMap<String, Object> asMap = markerInfo.getAsMap();
+                if(monitor.isCanceled()){
+                    return; //Canceled it. Don't keep on doing anything with the markers.
+                }
+                if(asMap != null){
+                    if(lastExistingUsed < existingMarkers.length){
+                        IMarker marker = existingMarkers[lastExistingUsed];
+                        try{
+                            marker.setAttributes(asMap);
+                        } catch (Exception e) {
+                            PydevPlugin.log(e);
+                        }
+
+                        lastExistingUsed += 1;
+                    }else{
+                        try{
+                            MarkerUtilities.createMarker(resource, asMap, markerType);
+                        } catch (Exception e) {
+                            PydevPlugin.log(e);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
@@ -236,13 +264,13 @@ public class PydevMarkerUtils {
         }
         
         //erase the ones that weren't replaced.
-        try {
-            for(int i=lastExistingUsed; i < existingMarkers.length; i++){
+        for(int i=lastExistingUsed; i < existingMarkers.length; i++){
+            try {
                 //erase the ones we didn't use
                 existingMarkers[i].delete();
+            } catch (Exception e) {
+                PydevPlugin.log(e);
             }
-        } catch (Exception e) {
-            PydevPlugin.log(e);
         }
     }
 
@@ -250,10 +278,10 @@ public class PydevMarkerUtils {
     /**
      * Replaces all the markers (including user-editable markers)
      * 
-     * @see #replaceMarkers(List, IResource, String, boolean)
+     * @see #replaceMarkers(List, IResource, String, boolean, IProgressMonitor)
      */
-    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType) {
-        replaceMarkers(lst, resource, markerType, true);
+    public static void replaceMarkers(List<MarkerInfo> lst, IResource resource, String markerType, IProgressMonitor monitor) {
+        replaceMarkers(lst, resource, markerType, true, monitor);
         
     }
 }

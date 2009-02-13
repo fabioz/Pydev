@@ -72,7 +72,7 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
                     if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
                         Log.toLogFile(this, "Adding todo markers");
                     }
-                    PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK, false);
+                    PydevMarkerUtils.replaceMarkers(lst, resource, IMarker.TASK, false, monitor);
                     //timer.printDiff("Total time to put markers: "+lst.size());
                 } catch (Exception e) {
                     PydevPlugin.log(e);
