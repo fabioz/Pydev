@@ -76,6 +76,8 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
      */
     private boolean finished = false;
     
+    private String currentStep = "<unspecified>";
+    
     /**
      * Creates the debug file and editor.
      */
@@ -124,11 +126,11 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
         //Make it fail if we encountered some problem
         if(failException != null){
             failException.printStackTrace();
-            fail(failException.getMessage());
+            fail("Current Step: "+currentStep+"\n"+failException.getMessage());
         }
         if(!finished){
             if(failException == null){
-                fail("The test didn't finish in the available time: "+TOTAL_TIME_FOR_TESTS/1000+ " secs.");
+                fail("Current Step: "+currentStep+"\nThe test didn't finish in the available time: "+TOTAL_TIME_FOR_TESTS/1000+ " secs.");
             }
         }
     }
@@ -140,6 +142,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
         @Override
         public void run() {
             try{
+                currentStep = "launchEditorInDebug";
                 //make a launch for debugging 
                 launchEditorInDebug();
                 
@@ -148,8 +151,11 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
                 BreakpointRulerAction createAddBreakPointAction = createAddBreakPointAction(1);
                 createAddBreakPointAction.run();
                 
+                currentStep = "waitForLaunchAvailable";
                 ILaunch launch = waitForLaunchAvailable();
                 PyDebugTarget target = (PyDebugTarget) waitForDebugTargetAvailable(launch);
+                
+                currentStep = "waitForSuspendedThread";
                 IThread suspendedThread = waitForSuspendedThread(target);
                 assertTrue(suspendedThread.getName().startsWith("MainThread"));
                 IStackFrame topStackFrame = suspendedThread.getTopStackFrame();
@@ -263,8 +269,8 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
                     }
                 }
                 return false;
-            }}
-        );
+            }}, "waitForSuspendedThread");
+        
         return ret[0];
     }
 
@@ -279,7 +285,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
             public Object call(Object args) throws Exception {
                 ILaunch[] launches = launchManager.getLaunches();
                 return launches.length > 0;
-            }});
+            }}, "waitForLaunchAvailable");
         return launchManager.getLaunches()[0];
     }
     
@@ -293,7 +299,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
 
             public Object call(Object args) throws Exception {
                 return launch.getDebugTarget() != null;
-            }});
+            }}, "waitForDebugTargetAvailable");
         
         return launch.getDebugTarget();
     }
@@ -303,7 +309,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
      * Keeps on a busy loop with a timeout until the given callback returns true (otherwise, an
      * exception is thrown when the total time is elapsed).
      */
-    private void waitForCondition(ICallback callback) throws Throwable {
+    private void waitForCondition(ICallback callback, String errorMessage) throws Throwable {
         if(failException != null){
             throw failException;
         }
@@ -321,7 +327,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
                 }
             }
         }
-        fail("Unable to get to condition after "+(loops*STEP_TIMEOUT)/1000+" seconds.");
+        fail("Unable to get to condition after "+(loops*STEP_TIMEOUT)/1000+" seconds.\nMessage: "+errorMessage);
     }
 
 
