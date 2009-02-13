@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -27,10 +28,12 @@ public class TabNanny{
 
     /**
      * Analyze the doc for mixed tabs and indents with the wrong number of chars.
+     * @param monitor 
      * 
      * @return a list with the error messages to be shown to the user.
      */
-    public static List<IMessage> analyzeDoc(IDocument doc, IAnalysisPreferences analysisPrefs, String moduleName, IIndentPrefs indentPrefs) {
+    public static List<IMessage> analyzeDoc(IDocument doc, IAnalysisPreferences analysisPrefs, String moduleName, 
+            IIndentPrefs indentPrefs, IProgressMonitor monitor) {
         ArrayList<IMessage> ret = new ArrayList<IMessage>();
         
         //don't even try to gather indentation errors if they should be ignored.
@@ -50,6 +53,9 @@ public class TabNanny{
             }
             if(indentation.o1.indexOf(' ') != -1){ 
                 foundSpaces.add(indentation);
+            }
+            if(monitor.isCanceled()){
+                return ret;
             }
         }
         
@@ -88,7 +94,7 @@ public class TabNanny{
             errorMsg = "Mixed Indentation: Tab found"; 
             errorChar = '\t';
             
-            createBadIndentForSpacesMessages(doc, analysisPrefs, indentPrefs, ret, validsAre);
+            createBadIndentForSpacesMessages(doc, analysisPrefs, indentPrefs, ret, validsAre, monitor);
             
         }else{
             validsAre = foundTabs;
@@ -97,15 +103,16 @@ public class TabNanny{
             errorChar = ' ';
         }
 
-        createMixedErrorMessages(doc, analysisPrefs, ret, errorsAre, errorMsg, errorChar);
+        createMixedErrorMessages(doc, analysisPrefs, ret, errorsAre, errorMsg, errorChar, monitor);
         return ret;
     }
 
     /**
      * Creates the errors that are related to a bad indentation (number of space chars is not ok).
+     * @param monitor 
      */
     private static void createBadIndentForSpacesMessages(IDocument doc, IAnalysisPreferences analysisPrefs, IIndentPrefs indentPrefs,
-            ArrayList<IMessage> ret, List<Tuple3<String, Integer, Boolean>> validsAre) {
+            ArrayList<IMessage> ret, List<Tuple3<String, Integer, Boolean>> validsAre, IProgressMonitor monitor) {
         
         int tabWidth = indentPrefs.getTabWidth();
         //if we're analyzing the spaces, let's mark invalid indents (tabs are not searched for those because
@@ -113,6 +120,9 @@ public class TabNanny{
         
         FastStringBuffer buffer = new FastStringBuffer();
         for(Tuple3<String, Integer, Boolean> indentation:validsAre){
+            if(monitor.isCanceled()){
+                return;
+            }
             
             if(!indentation.o3){ //if it does not have more contents (its only whitespaces), let's keep on going!
                 continue;
@@ -137,16 +147,22 @@ public class TabNanny{
                         startLine, startLine, startCol, endCol, analysisPrefs));
                     
             }
+            
         }
     }
 
     /**
      * Creates the errors that are related to the mixed indentation.
+     * @param monitor 
      */
     private static void createMixedErrorMessages(IDocument doc, IAnalysisPreferences analysisPrefs, ArrayList<IMessage> ret,
-            List<Tuple3<String, Integer, Boolean>> errorsAre, String errorMsg, char errorChar) {
+            List<Tuple3<String, Integer, Boolean>> errorsAre, String errorMsg, char errorChar, IProgressMonitor monitor) {
         
         for(Tuple3<String, Integer, Boolean> indentation:errorsAre){
+            if(monitor.isCanceled()){
+                return;
+            }
+
             Integer offset = indentation.o2;
             int startLine = PySelection.getLineOfOffset(doc, offset)+1;
             IRegion region;

@@ -28,12 +28,7 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
-    /**
-     * Do you want to gather information about dependencies?
-     */
-    public static final boolean DEBUG_DEPENDENCIES = false;
 
-    
     @Override
     protected int getPriority() {
         return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION+1; //just after the code-completion priority
@@ -53,12 +48,6 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(nature == null){
             return;
         }
-        boolean analyzeDependent;
-        if(isFullBuild()){
-            analyzeDependent = false;
-        }else{
-            analyzeDependent = true;
-        }
         
         
         //depending on the level of analysis we have to do, we'll decide whether we want
@@ -67,9 +56,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         ICallback<IModule, Integer> moduleCallback = new ICallback<IModule, Integer>(){
 
 			public IModule call(Integer arg) {
-				if(arg == AnalysisBuilderRunnable.FULL_MODULE){
+				if(arg == IAnalysisBuilderRunnable.FULL_MODULE){
 					return getSourceModule(resource, document, nature);
-				}else if(arg == AnalysisBuilderRunnable.DEFINITIONS_MODULE){
+					
+				}else if(arg == IAnalysisBuilderRunnable.DEFINITIONS_MODULE){
 	                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
 	                    Log.toLogFile(this, "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
 	                }
@@ -78,12 +68,14 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 	                String moduleName = getModuleName(resource, nature);
 	                return new SourceModule(moduleName, new File(file), 
 	                        FastDefinitionsParser.parse(document.get(), moduleName), null);
+	                
 				}else{
 					throw new RuntimeException("Unexpected parameter: "+arg);
 				}
-			}}
-        ;
-		doVisitChangedResource(nature, resource, document, moduleCallback, null, analyzeDependent, monitor, false, 
+			}
+		};
+		
+		doVisitChangedResource(nature, resource, document, moduleCallback, null, monitor, false, 
                 AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER);
     }
     
@@ -94,7 +86,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      * Either the module callback or the module must be set.
      */
     public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document, 
-    		ICallback<IModule, Integer> moduleCallback, final IModule module, boolean analyzeDependent, IProgressMonitor monitor, boolean forceAnalysis,
+    		ICallback<IModule, Integer> moduleCallback, final IModule module, IProgressMonitor monitor, boolean forceAnalysis,
             int analysisCause) {
         
         if(module != null){
@@ -117,9 +109,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         }
         
         final String moduleName = getModuleName(resource, nature);
-        final AnalysisBuilderRunnable runnable = AnalysisBuilderRunnable.createRunnable(
-                document, resource, moduleCallback, analyzeDependent, monitor, isFullBuild(), moduleName, 
-                forceAnalysis, analysisCause);
+        
+        final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
+                document, resource, moduleCallback, isFullBuild(), moduleName, 
+                forceAnalysis, analysisCause, nature);
         
         if(isFullBuild()){
             runnable.run();
@@ -129,14 +122,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             
                 @Override
                 public IStatus run(IProgressMonitor monitor) {
-                    final String originalName = this.getThread().getName();
-                    try {
-                        this.getThread().setName(name);
-                        runnable.run();
-                    } finally {
-                        //Restore the name of threads after finishing.
-                        try {this.getThread().setName(originalName);} catch (Exception e) {Log.log(e);}
-                    }
+                    runnable.run();
                     return Status.OK_STATUS;
                 }
             
@@ -148,16 +134,20 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
     }
 
 
-
-
     @Override
     public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         PythonNature nature = getPythonNature(resource);
         if(nature == null){
             return;
         }
-        String moduleName = getModuleName(resource, nature);
-        fillDependenciesAndRemoveInfo(moduleName, nature, true, monitor, isFullBuild());
+        if(!isFullBuild()){
+            //on a full build, it'll already remove all the info
+            String moduleName = getModuleName(resource, nature);
+            final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
+                    moduleName, nature, isFullBuild(), false, AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER);
+            
+            runnable.run();
+        }
     }
     
 
@@ -171,25 +161,6 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         }
     }
     
-    /**
-     * @param moduleName this is the module name
-     * @param nature this is the nature
-     * @param analyzeDependent determines if we should add dependent modules to be analyzed later
-     */
-    public static void fillDependenciesAndRemoveInfo(String moduleName, PythonNature nature, 
-            boolean analyzeDependent, IProgressMonitor monitor, boolean isFullBuild) {
-        if(moduleName != null && nature != null){
-            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.
-                getAdditionalInfoForProject(nature);
-            
-            boolean generateDelta;
-            if(isFullBuild){
-                generateDelta = false;
-            }else{
-                generateDelta = true;
-            }
-            info.removeInfoFromModule(moduleName, generateDelta);
-        }
-    }
+
 
 }

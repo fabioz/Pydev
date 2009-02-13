@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
@@ -82,10 +83,11 @@ public class AnalysisRunner {
      * @param resource the resource where we want to add the markers
      * @param document the document
      * @param messages the messages to add
+     * @param monitor monitor to check if we should stop the process.
      * @param existing these are the existing markers. After this method, the list will contain only the ones that
      * should be removed.
      */
-    public void setMarkers(IResource resource, IDocument document, IMessage[] messages) {
+    public void setMarkers(IResource resource, IDocument document, IMessage[] messages, IProgressMonitor monitor) {
         if(resource == null){
             return;
         }
@@ -116,6 +118,9 @@ public class AnalysisRunner {
                     System.out.printf("\nAdding at start:%s end:%s line:%s message:%s " , startCol, endCol, startLine, msg);
                 }
                 
+                if(monitor.isCanceled()){
+                    return;
+                }
                 
                 MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(document, msg, 
                         AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, m.getSeverity(), 
@@ -123,7 +128,11 @@ public class AnalysisRunner {
                 lst.add(markerInfo);
             }
             
-            PydevMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER);
+            if(monitor.isCanceled()){
+                return;
+            }
+            
+            PydevMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, monitor);
             //timer.printDiff("Time to put markers: "+lst.size());
         } catch (Exception e) {
             Log.log(e);

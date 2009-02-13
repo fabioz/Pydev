@@ -69,7 +69,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
             }
         }
 
-        if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() ==    IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE
+        if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE
                 || force){
             
             //create the module
@@ -94,7 +94,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
                 AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
                 visitor.memo = new HashMap<String, Object>();
                 visitor.visitingWillStart(new NullProgressMonitor(), false, null);
-                visitor.doVisitChangedResource(nature, fileAdapter, doc, null, module, true, new NullProgressMonitor(), force, 
+                visitor.doVisitChangedResource(nature, fileAdapter, doc, null, module, new NullProgressMonitor(), force, 
                         AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER); 
                 
                 visitor.visitingEnded(new NullProgressMonitor());

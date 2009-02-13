@@ -177,6 +177,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitClassDef(org.python.pydev.parser.jython.ast.ClassDef)
      */
     public Object visitClassDef(ClassDef node) throws Exception {
+        unhandled_node(node);
+        
         AbstractScopeAnalyzerVisitor visitor = this;
 
         //we want to visit the bases before actually starting the class scope (as it's as if they're attribute

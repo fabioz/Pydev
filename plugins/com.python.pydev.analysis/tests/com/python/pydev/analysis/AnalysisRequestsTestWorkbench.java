@@ -11,6 +11,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -55,7 +57,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     private IFile mod2;
     private PyEdit editor2;
     
-    public static final int TIME_FOR_ANALYSIS = 1500;
+    public static final int TIME_FOR_ANALYSIS = 2000;
     
     @Override
     protected void setUp() throws Exception {
@@ -114,6 +116,8 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             
             checkSetValidContentsWithFooToken(info);
             
+            checkRename(info);
+            
             checkSetValidContents(info);
             
             //can analyze when editor is opened
@@ -149,6 +153,50 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
         assertEquals(1, parsesDone.size());
         assertEquals(new HashSet<String>(Arrays.asList(new String[]{"pack1.pack2.mod1"})), info.getAllModulesWithTokens());
+    }
+    
+    private void checkRename(final AbstractAdditionalInterpreterInfo info) throws CoreException {
+        print("-------- Renaming and checking if tokens are OK -------------");
+        resourcesAnalyzed.clear();
+        parsesDone.clear();
+        IPath initialPath = mod1.getFullPath();
+        IPath newPath = initialPath.removeLastSegments(1).append("new_mod.py");
+        
+        mod1.move(newPath, true, new NullProgressMonitor());
+        
+//        goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+        goToIdleLoopUntilCondition(
+                
+            new ICallback<Boolean, Object>(){
+                public Boolean call(Object arg) {
+                    return new HashSet<String>(Arrays.asList(new String[]{"pack1.pack2.new_mod"})).equals(info.getAllModulesWithTokens());
+                }}, 
+            
+            new ICallback<String, Object>(){
+                public String call(Object arg) {
+                    return "Was expecting only: 'pack1.pack2.new_mod'. Found: "+info.getAllModulesWithTokens();
+                }});
+        
+        
+        goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
+        assertEquals(1, parsesDone.size());
+        
+
+        //now, go back to what it was...
+        IFile new_mod = initFile.getParent().getFile(new Path("new_mod.py"));
+        new_mod.move(initialPath, true, new NullProgressMonitor());
+//        goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
+        goToIdleLoopUntilCondition(
+                
+            new ICallback<Boolean, Object>(){
+                public Boolean call(Object arg) {
+                    return new HashSet<String>(Arrays.asList(new String[]{"pack1.pack2.mod1"})).equals(info.getAllModulesWithTokens());
+                }}, 
+            
+            new ICallback<String, Object>(){
+                public String call(Object arg) {
+                    return "Was expecting only: 'pack1.pack2.mod1'. Found: "+info.getAllModulesWithTokens();
+                }});
     }
 
     private void checkSetValidContents(AbstractAdditionalInterpreterInfo info) throws CoreException {
@@ -398,7 +446,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     /**
      * @return a condition that'll check if all the needed modules were already checked 
      */
-    private ICallback<Boolean, Object> getModulesParsedCondition(final String ... modulesParsed) {
+    protected ICallback<Boolean, Object> getModulesParsedCondition(final String ... modulesParsed) {
         return new ICallback<Boolean, Object>(){
             
             public Boolean call(Object arg) {

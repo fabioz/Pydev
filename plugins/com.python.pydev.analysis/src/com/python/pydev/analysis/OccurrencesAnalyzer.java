@@ -3,6 +3,7 @@
  */
 package com.python.pydev.analysis;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -57,11 +58,14 @@ public class OccurrencesAnalyzer implements IAnalyzer {
             PydevPlugin.log(IStatus.ERROR, "Error while visiting "+module.getName()+" ("+module.getFile()+")",e);
         }
         
-        List<IMessage> messages = visitor.getMessages();
-        try{
-            messages.addAll(TabNanny.analyzeDoc(document, prefs, module.getName(), indentPrefs));
-        }catch(Exception e){
-            PydevPlugin.log(e); //just to be safe... (shouldn't happen).
+        List<IMessage> messages = new ArrayList<IMessage>();
+        if(!monitor.isCanceled()){
+            messages = visitor.getMessages();
+            try{
+                messages.addAll(TabNanny.analyzeDoc(document, prefs, module.getName(), indentPrefs, monitor));
+            }catch(Exception e){
+                PydevPlugin.log(e); //just to be safe... (shouldn't happen).
+            }
         }
         return messages.toArray(new IMessage[messages.size()]);
     }

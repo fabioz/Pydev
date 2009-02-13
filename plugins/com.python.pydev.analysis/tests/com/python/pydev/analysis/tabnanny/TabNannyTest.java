@@ -4,6 +4,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.TestIndentPrefs;
 
@@ -45,7 +46,7 @@ public class TabNannyTest extends TestCase {
                 ""
                 );
         
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4));
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
         for(IMessage m:messages){
             assertEquals("Mixed Indentation: Tab found", m.getMessage());
             int startLine = m.getStartLine(null);
@@ -77,7 +78,7 @@ public class TabNannyTest extends TestCase {
                 ""
         );
         
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4));
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
         IMessage m = messages.get(0);
         assertEquals(1, messages.size());
         assertEquals("Mixed Indentation: Tab found", m.getMessage());
@@ -97,7 +98,7 @@ public class TabNannyTest extends TestCase {
                 ""
         );
         
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4));
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
         assertEquals(0, messages.size());
         
     }
@@ -114,7 +115,7 @@ public class TabNannyTest extends TestCase {
                 ""
         );
         
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4));
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
         assertEquals(0, messages.size());
         
     }
@@ -127,7 +128,7 @@ public class TabNannyTest extends TestCase {
                 ""
         );
         
-        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4));
+        List<IMessage> messages = TabNanny.analyzeDoc(doc, this.prefs, "", new TestIndentPrefs(true, 4), new NullProgressMonitor());
         assertEquals(1, messages.size());
         IMessage m = messages.get(0);
         assertEquals("Bad Indentation (3 spaces)", m.getMessage());
