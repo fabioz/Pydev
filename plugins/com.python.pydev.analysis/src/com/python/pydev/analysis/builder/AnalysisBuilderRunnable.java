@@ -62,15 +62,17 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
      */
     /*Default*/ AnalysisBuilderRunnable(IDocument document, IResource resource, ICallback<IModule, Integer> module, 
             boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause, 
-            IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature) {
-        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature);
+            IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime) {
+        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime);
         
         this.document = document;
         this.resource = new WeakReference<IResource>(resource);
         this.module = module;
     }
 
+    
     protected void dispose() {
+        super.dispose();
         this.document = null;
         this.resource = null;
         this.module = null;
@@ -122,7 +124,6 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             //remove dependency information (and anything else that was already generated), but first, gather 
             //the modules dependent on this one.
             if(!isFullBuild){
-
                 //if it is a full build, that info is already removed
                 AnalysisBuilderRunnableForRemove.removeInfoForModule(moduleName, nature, isFullBuild);
             }
@@ -167,17 +168,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             }
             
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                String analysisCauseStr;
-                if(analysisCause == ANALYSIS_CAUSE_BUILDER){
-                    analysisCauseStr = "Builder";
-                }else if(analysisCause == ANALYSIS_CAUSE_PARSER){
-                    analysisCauseStr = "Parser";
-                }else{
-                    analysisCauseStr = "Unknown?";
-                }
-                
                 Log.toLogFile(this, "makeAnalysis:"+makeAnalysis+" " +
-                		"analysisCause: "+analysisCauseStr+" -- "+moduleName);
+                		"analysisCause: "+getAnalysisCauseStr()+" -- "+moduleName);
             }
             
             checkStop();
@@ -191,9 +183,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             checkStop();
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
                 Log.toLogFile(this, "Adding markers for module: "+moduleName);
-                for (IMessage message : messages) {
-                    Log.toLogFile(this, message.toString());
-                }
+                //for (IMessage message : messages) {
+                //    Log.toLogFile(this, message.toString());
+                //}
             }
             
             //last chance to stop...
@@ -212,9 +204,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
 
         } catch (OperationCanceledException e) {
             //ok, ignore it
-            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                Log.toLogFile(this, "OperationCanceledException: cancelled by new runnable -- "+moduleName);
-            }
+            logOperationCancelled();
         } catch (Exception e){
             PydevPlugin.log(e);
         } finally{
@@ -226,10 +216,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             
             dispose();
         }
-        
-
     }
-
+    
     
     /**
      * @return false if there's no modification among the current version of the file and the last version analyzed.

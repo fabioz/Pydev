@@ -75,8 +75,13 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 			}
 		};
 		
-		doVisitChangedResource(nature, resource, document, moduleCallback, null, monitor, false, 
-                AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER);
+		long documentTime = this.getDocumentTime();
+		if(documentTime == -1){
+		    Log.log("Warning: The document time in the visitor is -1. Changing for current time.");
+		    documentTime = System.currentTimeMillis();
+		}
+        doVisitChangedResource(nature, resource, document, moduleCallback, null, monitor, false, 
+                AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime);
     }
     
 
@@ -87,7 +92,15 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
      */
     public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document, 
     		ICallback<IModule, Integer> moduleCallback, final IModule module, IProgressMonitor monitor, boolean forceAnalysis,
-            int analysisCause) {
+            int analysisCause, long documentTime) {
+        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+            if(analysisCause == AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER){
+                System.out.println("doVisitChangedResource: BUILDER -- "+documentTime);
+            }else{
+                System.out.println("doVisitChangedResource: PARSER -- "+documentTime);
+            }
+        }
+        
         
         if(module != null){
         	if(moduleCallback != null){
@@ -112,7 +125,12 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
         final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
                 document, resource, moduleCallback, isFullBuild(), moduleName, 
-                forceAnalysis, analysisCause, nature);
+                forceAnalysis, analysisCause, nature, documentTime);
+       
+        if(runnable == null){
+            //It may be null if the document version of the new one is lower than one already active.
+            return;
+        }
         
         if(isFullBuild()){
             runnable.run();
@@ -143,9 +161,22 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(!isFullBuild()){
             //on a full build, it'll already remove all the info
             String moduleName = getModuleName(resource, nature);
-            final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
-                    moduleName, nature, isFullBuild(), false, AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER);
             
+            long documentTime = this.getDocumentTime();
+            if(documentTime == -1){
+                Log.log("Warning: The document time in the visitor for remove is -1. Changing for current time.");
+                documentTime = System.currentTimeMillis();
+            }
+            
+            
+            final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
+                    moduleName, nature, isFullBuild(), false, AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime);
+            
+            if(runnable == null){
+                //It may be null if the document version of the new one is lower than one already active.
+                return;
+            }
+
             runnable.run();
         }
     }

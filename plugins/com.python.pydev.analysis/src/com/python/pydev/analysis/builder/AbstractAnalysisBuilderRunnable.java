@@ -8,6 +8,11 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
 
+/**
+ * Abstract class for the builder runnables.
+ * 
+ * @author Fabio
+ */
 public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilderRunnable{
 
     
@@ -23,19 +28,24 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
     protected IPythonNature nature;
     protected volatile boolean runFinished = false;
     private IAnalysisBuilderRunnable oldAnalysisBuilderThread;
+    private long documentTime;
     
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
     
     public AbstractAnalysisBuilderRunnable(boolean isFullBuild, String moduleName, boolean forceAnalysis, 
-            int analysisCause, IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature) {
+            int analysisCause, IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime) {
         this.isFullBuild = isFullBuild;
         this.moduleName = moduleName;
         this.forceAnalysis = forceAnalysis;
         this.analysisCause = analysisCause;
         this.oldAnalysisBuilderThread = oldAnalysisBuilderThread;
         this.nature = nature;
+        this.documentTime = documentTime;
     }
     
+    public long getDocumentTime() {
+        return documentTime;
+    }
     
     public int getAnalysisCause() {
         return analysisCause;
@@ -53,6 +63,32 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
         return moduleName;
     }
     
+    
+    public String getAnalysisCauseStr() {
+        String analysisCauseStr;
+        if(analysisCause == ANALYSIS_CAUSE_BUILDER){
+            analysisCauseStr = "Builder";
+        }else if(analysisCause == ANALYSIS_CAUSE_PARSER){
+            analysisCauseStr = "Parser";
+        }else{
+            analysisCauseStr = "Unknown?";
+        }
+        return analysisCauseStr;
+    }
+    
+
+    protected void logOperationCancelled() {
+        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+            Log.toLogFile(this, "OperationCanceledException: cancelled by new runnable -- "+moduleName+". Cancelled was from: "+getAnalysisCauseStr());
+        }
+    }
+
+
+    /**
+     * The run for this runnable will only start if there's no other runnable active for the same module.
+     * 
+     * This method will do that and call doAnalysis() if it hasn't been cancelled itself.
+     */
     public void run() {
         try{
             try{
@@ -60,6 +96,10 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
                     if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
                         Log.toLogFile(this, "Waiting for other to be finished...");
                     }
+                    
+                    //just to make sure that the analysis of the existing runnable had a request for stopping already
+                    oldAnalysisBuilderThread.stopAnalysis();
+                    
                     int attempts = 0;
                     while(!oldAnalysisBuilderThread.getRunFinished()){
                         attempts += 1;
@@ -68,7 +108,6 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
                                 Thread.sleep(50);
                             } catch (InterruptedException e) {
                                 //ignore
-                                e.printStackTrace();
                             }
                         }
                     }                    
@@ -79,17 +118,16 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
                 //that's all we need it for... we can already dispose of it.
                 this.oldAnalysisBuilderThread = null;
                 
-                doAnalysis();
+                if(!internalCancelMonitor.isCanceled()){
+                    doAnalysis();
+                }else{
+                    logOperationCancelled();
+                }
             }catch(NoClassDefFoundError e){
                 //ignore, plugin finished and thread still active
             }
             
 
-        } catch (OperationCanceledException e) {
-            //ok, ignore it
-            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                Log.toLogFile(this, "OperationCanceledException: cancelled by new runnable");
-            }
         } catch (Exception e){
             PydevPlugin.log(e);
         } finally{
@@ -110,14 +148,23 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
         this.oldAnalysisBuilderThread = null;
     }
 
+    /**
+     * This method should be overridden to actually make the action that this analysis triggered.
+     */
     protected abstract void doAnalysis();
     
-    
 
+    /**
+     * Stops the analysis whenever it gets a chance to do so.
+     */
     public synchronized void stopAnalysis() {
         this.internalCancelMonitor.setCanceled(true);
     }
+
     
+    /**
+     * Checks if the analysis in this runnable should be stopped (raises an OperationCanceledException if it should be stopped)
+     */
     protected void checkStop(){
         if(this.internalCancelMonitor.isCanceled()){
             throw new OperationCanceledException();

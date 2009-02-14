@@ -33,8 +33,11 @@ public interface IAnalysisBuilderRunnable extends Runnable {
      */
     boolean getForceAnalysis();
     
-    
     boolean getRunFinished();
 
     String getModuleName();
+    
+    String getAnalysisCauseStr();
+    
+    long getDocumentTime();
 }

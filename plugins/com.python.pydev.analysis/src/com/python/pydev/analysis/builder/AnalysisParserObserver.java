@@ -10,11 +10,14 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.parser.ChangedParserInfoForObservers;
+import org.python.pydev.core.parser.ErrorParserInfoForObservers;
 import org.python.pydev.core.parser.IParserObserver;
-import org.python.pydev.core.parser.IParserObserver2;
+import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -29,37 +32,37 @@ import com.python.pydev.analysis.IAnalysisPreferences;
  * 
  * @author Fabio
  */
-public class AnalysisParserObserver implements IParserObserver, IParserObserver2{
+public class AnalysisParserObserver implements IParserObserver, IParserObserver3{
 
 
     public static final String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
 
     @SuppressWarnings("unchecked")
-    public void parserChanged(ISimpleNode iroot, IAdaptable resource, IDocument doc, Object... argsToReparse) {
-        SimpleNode root = (SimpleNode) iroot;
+    public void parserChanged(ChangedParserInfoForObservers info) {
+        SimpleNode root = (SimpleNode) info.root;
         //don't analyze it if we're still not 'all set'
         if(!PydevPlugin.isPythonInterpreterInitialized() || !PydevPlugin.isJythonInterpreterInitialized()){
             return;
         }
         
-        if(resource == null){
+        if(info.file == null){
             return;
         }
         IFile fileAdapter = null;
-        if(resource instanceof IFile){
-            fileAdapter = (IFile) resource;
+        if(info.file instanceof IFile){
+            fileAdapter = (IFile) info.file;
         }
         
         if(fileAdapter == null){
-            fileAdapter = (IFile) resource.getAdapter(IFile.class);
+            fileAdapter = (IFile) info.file.getAdapter(IFile.class);
             if(fileAdapter == null){
                 return;
             }
         }
         boolean force = false;
-        if(argsToReparse != null && argsToReparse.length > 0){
-            if(argsToReparse[0] instanceof Tuple){
-                Tuple t = (Tuple) argsToReparse[0];
+        if(info.argsToReparse != null && info.argsToReparse.length > 0){
+            if(info.argsToReparse[0] instanceof Tuple){
+                Tuple t = (Tuple) info.argsToReparse[0];
                 if (t.o1 instanceof String && t.o2 instanceof Boolean){
                     if (t.o1.equals(ANALYSIS_PARSER_OBSERVER_FORCE)){ 
                         //if this message is passed, it will decide whether we will force the analysis or not
@@ -69,8 +72,8 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
             }
         }
 
-        if(AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze() == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE
-                || force){
+        int whenAnalyze = AnalysisPreferences.getAnalysisPreferences().getWhenAnalyze();
+        if(whenAnalyze == IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE || force){
             
             //create the module
             IPythonNature nature = PythonNature.getPythonNature(fileAdapter);
@@ -93,9 +96,11 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
                 //visit it
                 AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
                 visitor.memo = new HashMap<String, Object>();
+                visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
+                visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, info.documentTime);
                 visitor.visitingWillStart(new NullProgressMonitor(), false, null);
-                visitor.doVisitChangedResource(nature, fileAdapter, doc, null, module, new NullProgressMonitor(), force, 
-                        AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER); 
+                visitor.doVisitChangedResource(nature, fileAdapter, info.doc, null, module, new NullProgressMonitor(), force, 
+                        AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentTime); 
                 
                 visitor.visitingEnded(new NullProgressMonitor());
             }finally{
@@ -115,7 +120,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver2
     }
 
     
-    public void parserError(Throwable error, IAdaptable file, IDocument doc, Object... argsToReparse) {
+    public void parserError(ErrorParserInfoForObservers info) {
         //ignore
     }
 
