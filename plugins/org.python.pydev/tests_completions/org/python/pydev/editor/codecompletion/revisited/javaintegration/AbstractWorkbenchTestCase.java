@@ -47,6 +47,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
+import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -105,12 +106,14 @@ public class AbstractWorkbenchTestCase extends TestCase{
                 }
             };
             PydevPlugin.setJythonInterpreterManager(new JythonInterpreterManager(PydevPlugin.getDefault().getPluginPreferences()));
+            PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManager(PydevPlugin.getDefault().getPluginPreferences()));
             
             
             ProjectModulesManager.IN_TESTS = true;
             NullProgressMonitor monitor = new NullProgressMonitor();
             
             createJythonInterpreterManager(monitor);
+            createPythonInterpreterManager(monitor);
             
             IProject project = createProject(monitor, "pydev_unit_test_project");
             IJavaProject javaProject = configureAsJavaProject(createProject(monitor, "java_unit_test_project"), monitor);
@@ -450,6 +453,18 @@ public class AbstractWorkbenchTestCase extends TestCase{
         iMan.saveInterpretersInfoModulesManager();
     }
 
+    /**
+     * Creates the python interpreter manager with the default jython jar location.
+     */
+    protected void createPythonInterpreterManager(NullProgressMonitor monitor) {
+        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
+        IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.PYTHON_EXE, monitor);
+        iMan.addInterpreterInfo(interpreterInfo);
+        iMan.restorePythopathForAllInterpreters(monitor);
+        iMan.setPersistedString(iMan.getStringToPersist(new IInterpreterInfo[]{interpreterInfo}));
+        iMan.saveInterpretersInfoModulesManager();
+    }
+    
 
     /**
      * Creates a junit.jar file in the project.

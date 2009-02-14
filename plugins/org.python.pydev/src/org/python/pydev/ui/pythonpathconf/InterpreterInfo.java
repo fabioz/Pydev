@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -565,6 +566,10 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
 
     public String[] updateEnv(String[] env) {
+        return updateEnv(env, null);
+    }
+    
+    public String[] updateEnv(String[] env, Set<String> keysThatShouldNotBeUpdated) {
         if(this.envVariables == null || this.envVariables.length == 0){
             return env; //nothing to change
         }
@@ -579,7 +584,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         HashMap<String, String> hashMap = new HashMap<String, String>();
         
         fillMapWithEnv(env, hashMap);
-        fillMapWithEnv(envVariables, hashMap); //will override the keys already there.
+        fillMapWithEnv(envVariables, hashMap, keysThatShouldNotBeUpdated); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
         String[] ret = createEnvWithMap(hashMap);
         
         return ret;
@@ -597,9 +602,17 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
 
     public static void fillMapWithEnv(String[] env, HashMap<String, String> hashMap) {
+        fillMapWithEnv(env, hashMap, null);
+    }
+    
+    public static void fillMapWithEnv(String[] env, HashMap<String, String> hashMap, Set<String> keysThatShouldNotBeUpdated) {
+        if(keysThatShouldNotBeUpdated == null){
+            keysThatShouldNotBeUpdated = new HashSet<String>();
+        }
+
         for(String s: env){
             Tuple<String, String> sp = StringUtils.splitOnFirst(s, '=');
-            if(sp.o1.length() != 0 && sp.o2.length() != 0){
+            if(sp.o1.length() != 0 && sp.o2.length() != 0 && !keysThatShouldNotBeUpdated.contains(sp.o1)){
                 hashMap.put(sp.o1, sp.o2);
             }
         }

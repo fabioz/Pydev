@@ -9,8 +9,13 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 
 /**
@@ -48,7 +53,17 @@ public class PythonShell extends AbstractShell{
             execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
         }
         String[] parameters = {interpreter, REF.getFileAbsolutePath(serverFile), ""+pWrite, ""+pRead};
-        process = SimpleRunner.createProcess(parameters, serverFile.getParentFile());
+        
+        IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager();
+        
+        String[] envp = null;
+        try {
+            envp = new SimplePythonRunner().getEnvironment(null, interpreter, manager);
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+        
+        process = SimpleRunner.createProcess(parameters, envp, serverFile.getParentFile());
 
         return execMsg;
     }

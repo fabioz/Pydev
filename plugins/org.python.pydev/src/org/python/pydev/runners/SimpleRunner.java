@@ -36,13 +36,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 public abstract class SimpleRunner {
 
     /**
-     * Passes the commands directly to Runtime.exec (with a null envp)
-     */
-    public static Process createProcess(String[] cmdarray, File workingDir) throws IOException {
-        return Runtime.getRuntime().exec(getWithoutEmptyParams(cmdarray), null, workingDir);
-    }
-    
-    /**
      * Passes the commands directly to Runtime.exec (with the passed envp)
      */
     public static Process createProcess(String[] cmdarray, String[] envp, File workingDir) throws IOException {
@@ -85,21 +78,40 @@ public abstract class SimpleRunner {
                 if (manager.hasInfoOnInterpreter(interpreter)){ //check if we have a default interpreter.
                     pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter, manager);
                 }
+                env = createEnvWithPythonpath(pythonPathEnvStr);
+                
             } catch (Exception e) {
                 PydevPlugin.log(e);
-                return null; //we cannot get it
+                //We cannot get it. Log it and keep with the default.
+                env = getDefaultSystemEnvAsArray();
             }
-        
-            env = createEnvWithPythonpath(pythonPathEnvStr);
         }
         
-        //IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
-        //env = info.updateEnv(env);
-        //TODO: do that when analyzing all the needed places (to finish task)
+        IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
+        if(info == null){
+            StringBuffer interpretersStr = new StringBuffer("Unable to get interpreter info for: "+interpreter+"\nAvailable:\n");
+            for(String s:manager.getInterpreters()){
+                interpretersStr.append(s);
+                interpretersStr.append("\n");
+            }
+            Log.log(interpretersStr.toString());
+        }else{
+            env = info.updateEnv(env);
+        }
         return env;
     }
 
-    public static String[] createEnvWithPythonpath(String pythonPathEnvStr) throws CoreException {
+    /**
+     * Same as the getEnvironment, but with a pre-specified pythonpath.
+     */
+    public static String[] createEnvWithPythonpath(String pythonPathEnvStr, String interpreter, IInterpreterManager manager) throws CoreException {
+        String[] env = createEnvWithPythonpath(pythonPathEnvStr);
+        IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
+        env = info.updateEnv(env);
+        return env;
+    }
+    
+    private static String[] createEnvWithPythonpath(String pythonPathEnvStr) throws CoreException {
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
         if(defaultPlugin != null){
             Map<String,String> env = getDefaultSystemEnv(defaultPlugin);        

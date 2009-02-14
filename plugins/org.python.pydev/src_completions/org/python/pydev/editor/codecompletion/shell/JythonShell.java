@@ -7,9 +7,12 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 
 public class JythonShell extends AbstractShell{
@@ -26,7 +29,17 @@ public class JythonShell extends AbstractShell{
     protected synchronized String createServerProcess(String jythonJar, int pWrite, int pRead) throws IOException, JDTNotAvailableException {
         String script = REF.getFileAbsolutePath(serverFile);
         String[] executableStr = SimpleJythonRunner.makeExecutableCommandStr(jythonJar, script, "", String.valueOf(pWrite), String.valueOf(pRead));
-        process = SimpleRunner.createProcess(executableStr, serverFile.getParentFile());
+        
+        IInterpreterManager manager = PydevPlugin.getJythonInterpreterManager();
+        
+        String[] envp = null;
+        try {
+            envp = new SimplePythonRunner().getEnvironment(null, jythonJar, manager);
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+
+        process = SimpleRunner.createProcess(executableStr, envp, serverFile.getParentFile());
         
         return SimpleRunner.getArgumentsAsStr(executableStr);
     }
