@@ -18,6 +18,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.variables.IStringVariableManager;
@@ -27,9 +28,11 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.codecoverage.PyCoverage;
@@ -65,7 +68,8 @@ public class PythonRunnerConfig {
     public final String interpreterLocation;
     private final String arguments;
     public final File workingDirectory;
-    public String pythonpathUsed;
+    public final String pythonpathUsed;
+    
     // debugging
     public final boolean isDebug;
     public final boolean isInteractive;
@@ -350,49 +354,76 @@ public class PythonRunnerConfig {
         }
         
         
+        boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
+        
         if(envp == null){
-            //ok, the user has done nothing to the environment, just get all the default environment and
-            //put the pythonpath in it
+            //ok, the user has done nothing to the environment, just get all the default environment which has the pythonpath in it
             envp = new SimplePythonRunner().getEnvironment(pythonNature, interpreterLocation, manager);
-            pythonpathUsed = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation, manager);
+            
         }else{
-            boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
-
             //ok, the user has done something to configure it, so, just add the pythonpath to the
             //current env (if he still didn't do so)
             Map envMap = conf.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map)null);
 
+            //it's not specified in the launch dialog (the launch dialog has priority over any other place)
             if(!specifiedPythonpath(envMap)){
                 
+                boolean addPythonpath = true;
                 String pythonpath = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation, manager);
-                pythonpathUsed = pythonpath; 
                 //override it if it was the ambient pythonpath
                 for (int i = 0; i < envp.length; i++) {
                     if(win32){
                         //case insensitive
-                        if(envp[i].toUpperCase().startsWith("PYTHONPATH")){
+                        if(envp[i].toUpperCase().startsWith("PYTHONPATH=")){
                             //OK, finish it.
                             envp[i] = "PYTHONPATH="+pythonpath;
-                            return;
+                            addPythonpath = false;
+                            break;
                         }
                     }else{
-                        if(envp[i].startsWith("PYTHONPATH")){
+                        if(envp[i].startsWith("PYTHONPATH=")){
                             //OK, finish it.
                             envp[i] = "PYTHONPATH="+pythonpath;
-                            return;
+                            addPythonpath = false;
+                            break;
                         }
                     }
                     
                 }
-                
-                //there was no pythonpath, let's set it
-                String[] s = new String[envp.length+1];
-                System.arraycopy(envp, 0, s, 0, envp.length);
-                s[s.length-1] = "PYTHONPATH="+pythonpath;
-                envp = s;
-                    
+
+                if(addPythonpath){
+                    //there was no pythonpath, let's set it
+                    String[] s = new String[envp.length+1];
+                    System.arraycopy(envp, 0, s, 0, envp.length);
+                    s[s.length-1] = "PYTHONPATH="+pythonpath;
+                    envp = s;
+                }
+            }
+            
+            //And we also must get the environment variables specified in the interpreter manager.
+            IInterpreterInfo info = manager.getInterpreterInfo(interpreterLocation, new NullProgressMonitor());
+            envp = info.updateEnv(envp, envMap.keySet());
+        }
+        
+        
+        //Now, set the pythonpathUsed according to what's in the environment.
+        String p = "";
+        for(String s:envp){
+            Tuple<String, String> tup = StringUtils.splitOnFirst(s, '=');
+            if(win32){
+                if(tup.o1.toUpperCase().equals("PYTHONPATH")){
+                    p = tup.o2;
+                    break;
+                }
+            }else{
+                //case must not be changed
+                if(tup.o1.equals("PYTHONPATH")){
+                    p = tup.o2;
+                    break;
+                }
             }
         }
+        this.pythonpathUsed = p;
     }
     
     /**

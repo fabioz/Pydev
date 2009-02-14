@@ -113,7 +113,7 @@ public class IProcessFactory {
                     return null;
                 }
                 String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
-                String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv);
+                String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter, interpreterManager);
                 
                 if(interpreterManager.isPython()){
                     commandLine = SimplePythonRunner.makeExecutableCommandStr(interpreter, scriptWithinPySrc.getAbsolutePath(), 
