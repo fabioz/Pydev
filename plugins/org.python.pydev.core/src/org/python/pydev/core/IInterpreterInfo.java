@@ -4,6 +4,7 @@
 package org.python.pydev.core;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IInterpreterInfo {
     
@@ -35,12 +36,18 @@ public interface IInterpreterInfo {
      * It can be null if the default environment should be used.
      */
     public String[] getEnvVariables();
-
+    
     /**
      * This method receives the environment variables available for a run and updates them with the environment
      * variables that are contained in this interpreter.
      * 
-     * Note that if a key already exists in the passed env and in the env contained for this interpreter, it's overridden.
+     * Note that if a key already exists in the passed env and in the env contained for this interpreter, it's overridden
+     * unless it's specified in keysThatShouldNotBeUpdated (which may be null). 
+     */
+    public String[] updateEnv(String[] env, Set<String> keysThatShouldNotBeUpdated);
+
+    /**
+     * Same as updateEnv(env, null)
      */
     public String[] updateEnv(String[] env);
 
