@@ -100,9 +100,15 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     public HashMap<String, Object> memo;
 
     /**
-     * Constant indicating value in memory to represent a ful build.
+     * Constant indicating value in memory to represent a full build.
      */
     public static final String IS_FULL_BUILD = "IS_FULL_BUILD";
+
+    /**
+     * Constant indicating value in memory to represent the creation time of the document in memory that the visitor
+     * is getting. 
+     */
+    public static final String DOCUMENT_TIME = "DOCUMENT_TIME";
 
     /**
      * @return whether we are doing a full build right now.
@@ -113,6 +119,17 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
             return false; // we surely will have it set when it is a full build. (the other way around may not be true).
         }
         return b.booleanValue();
+    }
+    
+    /**
+     * @return The time of the document creation used for this visitor or -1 if the document creation time is not available.
+     */
+    protected long getDocumentTime(){
+        Long b = (Long) memo.get(DOCUMENT_TIME);
+        if(b == null){
+            return -1;
+        }
+        return b.longValue();
     }
     
     /**

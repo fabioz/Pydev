@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
@@ -131,14 +132,19 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
     protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
         switch (delta.getKind()) {
             case IResourceDelta.ADDED :
-                visitAddedResource(resource, REF.getDocFromResource(resource), monitor);
+                IDocument doc = REF.getDocFromResource(resource);
+                memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
+                visitAddedResource(resource, doc, monitor);
                 isAddOrChange = true;
                 break;
             case IResourceDelta.CHANGED:
-                visitChangedResource(resource, REF.getDocFromResource(resource), monitor);
+                doc = REF.getDocFromResource(resource);
+                memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
+                visitChangedResource(resource, doc, monitor);
                 isAddOrChange = true;
                 break;
             case IResourceDelta.REMOVED:
+                memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                 visitRemovedResource(resource, null, monitor);
                 break;
         }
