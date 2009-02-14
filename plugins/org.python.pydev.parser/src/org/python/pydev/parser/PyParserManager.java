@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.parser.IPyParser;
 
@@ -163,7 +164,9 @@ public class PyParserManager {
             pyParser.resetTimeoutPreferences(useAnalysisOnlyOnDocSave);
             
             makeParserAssociations(edit, pyParser);
-            pyParser.setDocument(edit.getDocument(), edit.getEditorInput());
+            IDocument doc = edit.getDocument();
+            long documentTime = System.currentTimeMillis();
+            pyParser.setDocument(doc, edit.getEditorInput(), documentTime);
             
             if(DEBUG){
                 System.out.println("Available parsers:"+this.parsers.size());
@@ -233,7 +236,9 @@ public class PyParserManager {
             }else{
                 //otherwise, just set its new input
                 IPyEdit pyEdit = lst.get(0);
-                parser.setDocument(pyEdit.getDocument(), pyEdit.getEditorInput());
+                IDocument doc = pyEdit.getDocument();
+                long documentTime = System.currentTimeMillis();
+                parser.setDocument(doc, pyEdit.getEditorInput(), documentTime);
             }
         }
     }

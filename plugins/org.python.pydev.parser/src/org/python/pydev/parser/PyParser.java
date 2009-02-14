@@ -40,8 +40,11 @@ import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.parser.ChangedParserInfoForObservers;
+import org.python.pydev.core.parser.ErrorParserInfoForObservers;
 import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.IParserObserver2;
+import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
@@ -96,9 +99,14 @@ public class PyParser implements IPyParser {
     private volatile IDocument document;
 
     /**
-     * ast for the last succesful parsing
+     * ast for the last successful parsing
      */
     private SimpleNode root = null; 
+    
+    /**
+     * The time the document set was created.
+     */
+    private long documentTime;
 
     /**
      * listens to changes in the document
@@ -256,12 +264,13 @@ public class PyParser implements IPyParser {
      */
     private IEditorInput input;
     
-    public void setDocument(IDocument document, IEditorInput input) {
-        setDocument(document, true, input);
+    public void setDocument(IDocument document, IEditorInput input, long documentTime) {
+        setDocument(document, true, input, documentTime);
     }
     
-    public synchronized void setDocument(IDocument doc, boolean addToScheduler, IEditorInput input) {
+    public synchronized void setDocument(IDocument doc, boolean addToScheduler, IEditorInput input, long documentTime) {
         this.input = input;
+        this.documentTime = documentTime;
         // Cleans up old listeners
         if (this.document != null) {
             this.document.removeDocumentListener(documentListener);
@@ -308,23 +317,32 @@ public class PyParser implements IPyParser {
      * @param original 
      */
     @SuppressWarnings("unchecked")
-    protected void fireParserChanged(SimpleNode root, IAdaptable file, IDocument doc, Object ... argsToReparse) {
-        this.root = root;
+    protected void fireParserChanged(ChangedParserInfoForObservers info) {
+        this.root = (SimpleNode) info.root;
         synchronized(parserListeners){
-            for (IParserObserver l : new ArrayList<IParserObserver>(parserListeners)) { //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
-                if(l instanceof IParserObserver2){
-                    ((IParserObserver2)l).parserChanged(root, file, doc, argsToReparse);
+            for (IParserObserver l : new ArrayList<IParserObserver>(parserListeners)) { 
+                //work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
+                if(l instanceof IParserObserver3){
+                    ((IParserObserver3)l).parserChanged(info);
+                    
+                }else if(l instanceof IParserObserver2){
+                    ((IParserObserver2)l).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
+                    
                 }else{
-                    l.parserChanged(root, file, doc);
+                    l.parserChanged(info.root, info.file, info.doc);
                 }
             }
 
             List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
             for (IParserObserver observer : participants) {
-                if(observer instanceof IParserObserver2){
-                    ((IParserObserver2)observer).parserChanged(root, file, doc, argsToReparse);
+                if(observer instanceof IParserObserver3){
+                    ((IParserObserver3)observer).parserChanged(info);
+                    
+                }else if(observer instanceof IParserObserver2){
+                    ((IParserObserver2)observer).parserChanged(info.root, info.file, info.doc, info.argsToReparse);
+                    
                 }else{
-                    observer.parserChanged(root, file, doc);
+                    observer.parserChanged(info.root, info.file, info.doc);
                 }
             }
         }
@@ -335,21 +353,29 @@ public class PyParser implements IPyParser {
      * @param original 
      */
     @SuppressWarnings("unchecked")
-    protected void fireParserError(Throwable error, IAdaptable file, IDocument doc, Object ... argsToReparse) {
+    protected void fireParserError(ErrorParserInfoForObservers info) {
         synchronized(parserListeners){
             for (IParserObserver l : new ArrayList<IParserObserver>(parserListeners)) {//work on a copy (because listeners may want to remove themselves and we cannot afford concurrent modifications here)
-                if(l instanceof IParserObserver2){
-                    ((IParserObserver2)l).parserError(error, file, doc, argsToReparse);
+                if(l instanceof IParserObserver3){
+                    ((IParserObserver3)l).parserError(info);
+                    
+                }else if(l instanceof IParserObserver2){
+                    ((IParserObserver2)l).parserError(info.error, info.file, info.doc, info.argsToReparse);
+                        
                 }else{
-                    l.parserError(error, file, doc);
+                    l.parserError(info.error, info.file, info.doc);
                 }
             }
             List<IParserObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PARSER_OBSERVER);
             for (IParserObserver observer : participants) {
-                if(observer instanceof IParserObserver2){
-                    ((IParserObserver2)observer).parserError(error, file, doc, argsToReparse);
+                if(observer instanceof IParserObserver3){
+                    ((IParserObserver3)observer).parserError(info);
+                    
+                }else if(observer instanceof IParserObserver2){
+                    ((IParserObserver2)observer).parserError(info.error, info.file, info.doc, info.argsToReparse);
+                    
                 }else{
-                    observer.parserError(error, file, doc);
+                    observer.parserError(info.error, info.file, info.doc);
                 }
             }
         }
@@ -419,16 +445,14 @@ public class PyParser implements IPyParser {
 
         
         if(obj.o1 != null){
-            //ok, reparse succesful, lets erase the markers that are in the editor we just parsed
-            fireParserChanged(obj.o1, adaptable, document, argsToReparse);
+            //Ok, reparse successful, lets erase the markers that are in the editor we just parsed
+            ChangedParserInfoForObservers info = new ChangedParserInfoForObservers(obj.o1, adaptable, document, documentTime, argsToReparse);
+            fireParserChanged(info);
         }
         
-        if(obj.o2 != null && obj.o2 instanceof ParseException){
-            fireParserError((ParseException) obj.o2, adaptable, document, argsToReparse);
-        }
-        
-        if(obj.o2 != null && obj.o2 instanceof TokenMgrError){
-            fireParserError((TokenMgrError) obj.o2, adaptable, document, argsToReparse);
+        if(obj.o2 instanceof ParseException || obj.o2 instanceof TokenMgrError){
+            ErrorParserInfoForObservers info = new ErrorParserInfoForObservers(obj.o2, adaptable, document, argsToReparse);
+            fireParserError(info);
         }
         
         return obj;
