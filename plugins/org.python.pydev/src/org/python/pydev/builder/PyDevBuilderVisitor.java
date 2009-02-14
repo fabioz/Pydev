@@ -155,7 +155,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param document
      * @return
      */
-    private static SourceModule createSoureModule(IResource resource, IDocument document, String moduleName) {
+    protected SourceModule createSoureModule(IResource resource, IDocument document, String moduleName) {
         SourceModule module;
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
         IFile f = (IFile) resource;
