@@ -49,6 +49,10 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             return;
         }
         
+        //Put things from the memo to final variables as we might need them later on and we cannot get them from
+        //the memo later.
+        final String moduleName = getModuleName(resource, nature);
+        final SourceModule module = (SourceModule) memo.get(MODULE_CACHE);
         
         //depending on the level of analysis we have to do, we'll decide whether we want
         //to make the full parse (slower) or the definitions parse (faster but only with info
@@ -56,8 +60,16 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         ICallback<IModule, Integer> moduleCallback = new ICallback<IModule, Integer>(){
 
 			public IModule call(Integer arg) {
+			    
+			    //Note: we cannot get anything from the memo at this point because it'll be called later on from a thread
+			    //and the memo might have changed already (E.g: moduleName and module)
+			    
 				if(arg == IAnalysisBuilderRunnable.FULL_MODULE){
-					return getSourceModule(resource, document, nature);
+				    if(module != null){
+				        return module;
+				    }else{
+				        return createSoureModule(resource, document, moduleName);
+				    }
 					
 				}else if(arg == IAnalysisBuilderRunnable.DEFINITIONS_MODULE){
 	                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
@@ -65,7 +77,6 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 	                }
 	                IFile f = (IFile) resource;
 	                String file = f.getRawLocation().toOSString();
-	                String moduleName = getModuleName(resource, nature);
 	                return new SourceModule(moduleName, new File(file), 
 	                        FastDefinitionsParser.parse(document.get(), moduleName), null);
 	                

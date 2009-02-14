@@ -29,6 +29,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -297,6 +298,9 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param node the ast root
      */
     public void addAstInfo(SimpleNode node, String moduleName, IPythonNature nature, boolean generateDelta) {
+        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+            Log.toLogFile(this, "Adding ast info to: "+moduleName);
+        }
         if(node == null || moduleName == null){
             return;
         }
@@ -455,6 +459,9 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param moduleName the name of the module we want to remove info from
      */
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
+        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+            Log.toLogFile(this, "Removing ast info from: "+moduleName);
+        }
         synchronized (lock) {
             removeInfoFromMap(moduleName, topLevelInitialsToInfo);
             removeInfoFromMap(moduleName, innerInitialsToInfo);
