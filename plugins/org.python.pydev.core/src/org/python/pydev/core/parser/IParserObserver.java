@@ -22,7 +22,8 @@ public interface IParserObserver {
      * @param file the file that has just been analyzed (it may be null)
      * 
      * It is meant to be an org.eclipse.core.resources.IFile or an 
-     * org.eclipse.ui.internal.editors.text.JavaFileEditorInput
+     * org.eclipse.ui.internal.editors.text.JavaFileEditorInput (external files) or
+     * PydevFileEditorInput.
      * 
      */
     void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc);
