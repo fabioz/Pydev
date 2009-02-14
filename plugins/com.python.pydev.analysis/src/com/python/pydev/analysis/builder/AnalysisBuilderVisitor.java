@@ -143,6 +143,15 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
             return;
         }
         
+        execRunnable(moduleName, runnable);
+    }
+
+
+    /**
+     * Depending on whether we're in a full build or delta build, this method will run the runnable directly
+     * or schedule it as a job.
+     */
+    private void execRunnable(final String moduleName, final IAnalysisBuilderRunnable runnable) {
         if(isFullBuild()){
             runnable.run();
         }else{
@@ -188,7 +197,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
                 return;
             }
 
-            runnable.run();
+            execRunnable(moduleName, runnable);
         }
     }
     
