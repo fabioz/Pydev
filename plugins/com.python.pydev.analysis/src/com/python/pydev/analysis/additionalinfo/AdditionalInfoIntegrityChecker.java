@@ -202,7 +202,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
     }
 
     public void onCreateActions(ListResourceBundle resources, final PyEdit edit, IProgressMonitor monitor) {
-        edit.addOfflineActionListener("--d", new Action(){
+        edit.addOfflineActionListener("--internal-test-modules", new Action(){
             @Override
             public void run() {
                 List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
@@ -212,7 +212,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
                 }
                 UIUtils.showString(buf.toString());
             }
-        });
+        }, "Used just for testing (do not use).", true);
     }
 
     public void onDispose(PyEdit edit, IProgressMonitor monitor) {
