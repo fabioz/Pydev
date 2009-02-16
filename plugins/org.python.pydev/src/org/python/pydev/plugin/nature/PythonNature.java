@@ -507,7 +507,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         //errors can happen when restoring it
         if(astManager == null){
             try {
-                rebuildPath(null, monitor);
+                rebuildPath();
             } catch (Exception e) {
                 PydevPlugin.log(e);
             }
@@ -549,11 +549,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * Can be called to refresh internal info (or after changing the path in the preferences).
      */
     public void rebuildPath() {
-        this.rebuildPath(null, new NullProgressMonitor());
-    }
-    
-    
-    public void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor) {
         try {
             clearCaches();
             String paths = this.pythonPathNature.getOnlyProjectPythonPathStr();
@@ -617,7 +612,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     /**
-     * @return all the python natures available in the workspace 
+     * @return all the python natures available in the workspace (for opened and existing projects) 
      */
     public static List<IPythonNature> getAllPythonNatures() {
         List<IPythonNature> natures = new ArrayList<IPythonNature>();

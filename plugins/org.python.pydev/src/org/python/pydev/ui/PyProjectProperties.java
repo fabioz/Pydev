@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
@@ -163,9 +164,8 @@ public class PyProjectProperties extends PropertyPage {
                 String sourcePath = pythonPathNature.getProjectSourcePath();
                 String externalSourcePath = pythonPathNature.getProjectExternalSourcePath();
                 
-                String newSourcePath = treeSourceFolders.getTreeItemsAsStr();
-                String newExternalSourcePath = treeExternalLibs.getTreeItemsAsStr();
-                
+                String newSourcePath = StringUtils.leftAndRightTrim(treeSourceFolders.getTreeItemsAsStr(), '|');
+                String newExternalSourcePath = StringUtils.leftAndRightTrim(treeExternalLibs.getTreeItemsAsStr(), '|');
                 
                 if(sourcePath ==  null || sourcePath.equals(newSourcePath) == false){
                     pythonPathNature.setProjectSourcePath(newSourcePath);

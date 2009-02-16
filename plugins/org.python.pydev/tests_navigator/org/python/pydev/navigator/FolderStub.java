@@ -527,4 +527,12 @@ public class FolderStub implements IFolder{
         
     }
 
+    public boolean isHidden(int options) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean isTeamPrivateMember(int options) {
+        throw new RuntimeException("Not implemented");
+    }
+
 }

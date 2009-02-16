@@ -28,6 +28,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
@@ -125,7 +126,10 @@ public class PythonPathNature implements IPythonPathNature {
         FastStringBuffer buf = new FastStringBuffer();
         
         IWorkspaceRoot root = null;
-        boolean isSynchronized=false;
+        
+        boolean checkedFullSynch = false;
+        Set<String> directMembersChecked = new HashSet<String>();
+        
         for (int i = 0; i < strings.length; i++) {
             if(strings[i].trim().length()>0){
                 IPath p = new Path(strings[i]);
@@ -139,11 +143,11 @@ public class PythonPathNature implements IPythonPathNature {
                 
                 if(root == null){
                     root = ResourcesPlugin.getWorkspace().getRoot();
-                    isSynchronized = root.isSynchronized(IResource.DEPTH_INFINITE); 
-                    if(!isSynchronized){
-                        root.refreshLocal(IResource.DEPTH_INFINITE, null);
-                        isSynchronized = root.isSynchronized(IResource.DEPTH_INFINITE); 
-                    }
+                }
+                
+                if(p.segmentCount() < 1){
+                    Log.log("Found no segment in: "+strings[i]+" for: "+this.project);
+                    continue; //No segment? Really weird!
                 }
                 
                 //try to get relative to the workspace 
@@ -154,6 +158,35 @@ public class PythonPathNature implements IPythonPathNature {
                 } catch (Exception e) {
                     PydevPlugin.log(e);
                 }
+                
+                if(!(r instanceof IContainer) && !(r instanceof IFile)){
+                    
+                    //If we didn't find the file, let's try to sync things, as this can happen if the workspace
+                    //is still not properly synchronized.
+                    String firstSegment = p.segment(0);
+                    IResource firstSegmentResource = root.findMember(firstSegment);
+                    if(!(firstSegmentResource instanceof IContainer) && !(firstSegmentResource instanceof IFile)){
+                        //we cannot even get the 1st part... let's do a full sync
+                        if(!checkedFullSynch){
+                            checkedFullSynch = true;
+                            root.refreshLocal(IResource.DEPTH_INFINITE, null); 
+                        }
+                        
+                    }else if(!directMembersChecked.contains(firstSegment)){
+                        directMembersChecked.add(firstSegment);
+                        //OK, we can get to the 1st segment, so, let's do a refresh just from that point on, not in the whole workspace...
+                        firstSegmentResource.refreshLocal(IResource.DEPTH_INFINITE, null);
+                        
+                    } 
+                    
+                    //Now, try to get it knowing that it's properly synched (it may still not be there, but at least we tried it)
+                    try {
+                        r = root.findMember(p);
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
+                }
+                
                 if(r instanceof IContainer){
                     container = (IContainer) r;
                     buf.append(REF.getFileAbsolutePath(container.getLocation().toFile()));
@@ -170,13 +203,13 @@ public class PythonPathNature implements IPythonPathNature {
                     }
                 
                 }else{
-                    if(isSynchronized){
-                        //if it's synchronized, it really doesn't exist (let's warn about it)
-                        //not in workspace?... maybe it was removed, so, do nothing, but let the user know about it
-                        Log.log(IStatus.WARNING, "Unable to find the path "+strings[i]+" in the project were it's \n" +
-                                "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
-                    }
+                    //We're now always making sure that it's all synchronized, so, if we got here, it really doesn't exist (let's warn about it)
                     
+                    //Not in workspace?... maybe it was removed, so, let the user know about it (and still add it to the pythonpath as is)
+                    Log.log(IStatus.WARNING, "Unable to find the path "+strings[i]+" in the project were it's \n" +
+                            "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
+                    
+                    //No good: try to get it relative to the project
                     String curr = strings[i];
                     IPath path = new Path(curr.trim());
                     if(project.getFullPath().isPrefixOf(path)){
@@ -194,9 +227,11 @@ public class PythonPathNature implements IPythonPathNature {
                             continue; //Don't go on to append it relative to the workspace root.
                         }
                     }
-                    //get it relative to the workspace
+                    
+                    //Nothing worked: force it to be relative to the workspace.
                     IPath rootLocation = root.getRawLocation();
-                    //still, let's add it there (this'll be cached for later use)
+                    
+                    //Note that this'll be cached for later use.
                     buf.append(REF.getFileAbsolutePath(rootLocation.append(strings[i].trim()).toFile()));
                     buf.append("|");
                 }
@@ -309,7 +344,7 @@ public class PythonPathNature implements IPythonPathNature {
                     nature.rebuildPath();
                 }
             }
-            return projectSourcePath;
+            return StringUtils.leftAndRightTrim(projectSourcePath, '|');
         }
     }
 
@@ -323,7 +358,7 @@ public class PythonPathNature implements IPythonPathNature {
             if(extPath == null){
                 extPath = "";
             }
-            return extPath;
+            return StringUtils.leftAndRightTrim(extPath, '|');
         }
     }
 

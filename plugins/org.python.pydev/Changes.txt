@@ -29,7 +29,8 @@ Interpreter configuration improved (editing a copy of the data and applying corr
 Breakpoints only opened on double-click (no longer on select)
 Fixed problem where the breakpoint could be lost (now, playing safe and matching anything in the file if the context cannot be gotten)
 Environment variables can be specified for a given interpreter
-
+Ctrl+2+reindex
+Fixed problem on project config (changing nothing and pressing OK could make it reanalyze the modules)
 
 After 1.4.1
 

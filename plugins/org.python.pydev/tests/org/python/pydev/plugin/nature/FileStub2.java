@@ -385,5 +385,15 @@ public class FileStub2 implements IFile {
         
     }
 
+    public boolean isHidden(int options) {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean isTeamPrivateMember(int options) {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("Not implemented");
+    }
+
 
 }

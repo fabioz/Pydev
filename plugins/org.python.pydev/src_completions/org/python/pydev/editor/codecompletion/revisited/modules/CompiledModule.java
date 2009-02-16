@@ -241,7 +241,13 @@ public class CompiledModule extends AbstractModule{
         if(COMPILED_MODULES_ENABLED){
             try {
                 final IPythonNature nature = manager.getNature();
-                final AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+                
+                final AbstractShell shell;
+                try {
+                    shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
+                } catch (Exception e) {
+                    throw new RuntimeException("Unable to create shell for CompiledModule: "+this.name, e);
+                }
                 synchronized(shell){
                     String act = name+"."+state.getActivationToken();
                     List<String[]> completions = shell.getImportCompletions(act, 
@@ -266,9 +272,7 @@ public class CompiledModule extends AbstractModule{
                     cache.put(state.getActivationToken(), map);
                 }
             } catch (Exception e) {
-                System.err.println("Error while getting info for module:"+this.name);
-                e.printStackTrace();
-                PydevPlugin.log(e);
+                PydevPlugin.log("Error while getting info for module:"+this.name+". Project: "+manager.getNature().getProject(), e);
             }
         }
         return toks;

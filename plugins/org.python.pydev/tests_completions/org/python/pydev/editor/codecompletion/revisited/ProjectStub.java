@@ -488,4 +488,12 @@ public class ProjectStub implements IProject {
         
     }
 
+    public boolean isHidden(int options) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean isTeamPrivateMember(int options) {
+        throw new RuntimeException("Not implemented");
+    }
+
 }

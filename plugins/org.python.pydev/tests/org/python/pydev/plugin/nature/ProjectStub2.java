@@ -475,4 +475,14 @@ public class ProjectStub2 implements IProject {
         
     }
 
+    public boolean isHidden(int options) {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean isTeamPrivateMember(int options) {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("Not implemented");
+    }
+
 }

@@ -432,4 +432,20 @@ public class WorkspaceRootStub implements IWorkspaceRoot, IWorkbenchAdapter{
         
     }
 
+    public IContainer[] findContainersForLocationURI(URI location, int memberFlags) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public IFile[] findFilesForLocationURI(URI location, int memberFlags) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean isHidden(int options) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean isTeamPrivateMember(int options) {
+        throw new RuntimeException("Not implemented");
+    }
+
 }

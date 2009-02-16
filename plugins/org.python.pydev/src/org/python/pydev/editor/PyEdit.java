@@ -133,6 +133,7 @@ import org.python.pydev.ui.UIConstants;
  * @see <a href="http://dev.eclipse.org/newslists/news.eclipse.tools/msg61594.html">This eclipse article was an inspiration </a>
  *  
  */
+@SuppressWarnings("deprecation")
 public class PyEdit extends PyEditProjection implements IPyEdit {
 
     static{

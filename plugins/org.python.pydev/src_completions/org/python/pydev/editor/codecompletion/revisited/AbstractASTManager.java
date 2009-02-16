@@ -412,7 +412,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     /** 
      * @see org.python.pydev.editor.codecompletion.revisited.ICodeCompletionASTManage#getCompletionsForModule(org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule, org.python.pydev.editor.codecompletion.revisited.CompletionState, boolean, boolean)
      */
-    @SuppressWarnings("unchecked")
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, 
             boolean lookForArgumentCompletion) throws CompletionRecursionException{
         return getCompletionsForModule(module, state, searchSameLevelMods, lookForArgumentCompletion, false);
@@ -424,7 +423,6 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * Same thing but may handle things as if it was a wild import (in which case, the tokens starting with '_' are
      * removed and if __all__ is available, only the tokens contained in __all__ are returned)
      */
-    @SuppressWarnings("unchecked")
     public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods, 
             boolean lookForArgumentCompletion, boolean handleAsWildImport) throws CompletionRecursionException{
         String name = module.getName();

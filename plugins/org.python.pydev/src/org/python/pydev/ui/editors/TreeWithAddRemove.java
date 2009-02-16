@@ -273,9 +273,12 @@ public class TreeWithAddRemove extends Composite{
         TreeItem[] items = tree.getItems();
         for (int i = 0; i < items.length; i++) {
             String text = items[i].getText();
+            
             if(text != null && text.trim().length() > 0){
+                if(ret.length() > 0){
+                    ret.append("|");
+                }
                 ret.append(text);
-                ret.append("|");
             }
         }
         return ret.toString();
