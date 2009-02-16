@@ -42,19 +42,35 @@ if cmd == 'onCreateActions':
     class ListCommand(Action):
         def run(self):
             try:
-                offlineActionDescriptions = editor.getOfflineActionDescriptions()
                 lines = []
-                line = ' - '.join([format('Binding', 8), format('Description', 40), 'Automatically activated?'])
-                lines.append(line)
-                for actDesc in offlineActionDescriptions:
+                bindingMaxLen = 0
+                descMaxLen = 0
+                for actDesc in editor.getOfflineActionDescriptions():
+                    bindingMaxLen = max(len(actDesc.binding), bindingMaxLen)
+                    descMaxLen = max(len(actDesc.description), descMaxLen)
+                    
+                bindingMaxLen += 2
+                descMaxLen += 2
+                    
+                for actDesc in editor.getOfflineActionDescriptions():
                     if actDesc.needsEnter:
                         auto = 'No'
                     else:
                         auto = 'Yes'
-                    line = ' - '.join([format(actDesc.binding, 8), format(actDesc.description, 40), auto])
+                        
+                    binding = format(actDesc.binding, bindingMaxLen)
+                    description = format(actDesc.description, descMaxLen)
+                    
+                    line = '  '.join([binding, description, auto])
                     lines.append(line)
+                lines.sort()
     #            MessageDialog.openInformation(editor.getSite().getShell(), "Keys available", '\n'.join(lines));
-                d = CustomDialog(editor.getSite().getShell(), "Keys available", None, '\n'.join(lines), 2, array([String('Ok')], String), 0);
+    
+    
+                line = '  '.join([format('Binding', bindingMaxLen), format('Description', descMaxLen), 'Auto activate?'])
+                lines.insert(0, line)
+                
+                d = CustomDialog(editor.getSite().getShell(), "Keys available", None, '\n\n'.join(lines), 2, array([String('Ok')], String), 0);
                 d.open()
             except:
                 traceback.print_exc()
