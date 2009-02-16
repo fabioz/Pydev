@@ -1,0 +1,74 @@
+Pydev page structure:
+
+- Home (What is Pydev / Pydev Extensions)
+	- Latest release news
+	
+- Blog (external)
+- Roadmap
+- Screenshots
+- Download
+- Getting Started
+- FAQ
+- Reporting bugs
+- Developers Guide
+- Contacting (pydev-code list, pydev-users list, users forum)
+- Screencasts
+
+- Pydev Open Source
+	- Features History
+	- License
+	- Pydev at Sourceforge
+	
+- Pydev Extensions
+	- Evaluate
+	- Buy
+	- Features History
+	- License
+	
+- Manual
+	- Getting Started
+		- Topics
+			- Installing
+			- Configuring the interpreter
+			- Creating a project
+			- Further configuring your project
+			- Creating your first Python module
+			- Running/Debugging your program
+			- Configuring Eclipse essentials
+			- Tips for programming with Pydev Extensions
+			
+		- Working with Turbogears
+		- Working with Django
+		- Working with Google App Engine
+
+- Features Matrix
+	- Editor
+	- Debugger
+		- Remote debugging
+		- Debug Console
+	- Code Completion
+		- Templates
+		- Context-Sensitive
+		- Context-Insensitive with auto-import
+		- Auto-suggest keywords and other customizable tokens
+	- Code Coverage
+	- Content Assistants
+	- Refactoring
+	- Tasks
+	- Code Analysis
+		- PyLint
+		- Pydev Extensions
+	- Interactive Console
+		- Interactive Console Shortcuts
+		- Interactive Console Auto-Import
+	- Pydev Package Explorer
+	- Script Pydev with Jython
+	- Refactoring
+	- Editor Content Assistants
+	- Mark Occurrences
+	- Rename Occurrences
+	- Quick Outline
+	- Quick Open Definition Outline
+	- Hierarchy View
+	- Go to definition
+	
