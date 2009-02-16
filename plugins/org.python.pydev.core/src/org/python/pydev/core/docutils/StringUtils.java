@@ -147,6 +147,13 @@ public class StringUtils {
     }
     
     /**
+     * Removes the occurrences of the passed char in the start and end of the string.
+     */
+    public static String leftAndRightTrim(String input, char charToTrim) {
+        return rightTrim(leftTrim(input, charToTrim), charToTrim);
+    }
+    
+    /**
      * Removes the occurrences of the passed char in the end of the string.
      */
     public static String leftTrim(String input, char charToTrim) {

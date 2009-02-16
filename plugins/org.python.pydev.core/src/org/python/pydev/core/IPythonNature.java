@@ -9,7 +9,6 @@ import java.util.HashSet;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * @author Fabio
@@ -148,10 +147,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      */
     void rebuildPath();
 
-    /**
-     * Rebuilds the path with the current path information, but using the interpreter passed
-     */
-    void rebuildPath(String defaultSelectedInterpreter, IProgressMonitor monitor);
     
     /**
      * @return the interpreter manager that's related to the interpreter configured in this nature.
