@@ -178,13 +178,18 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(nature == null){
             return;
         }
+        if(resource.getType() == IResource.FOLDER){
+            //We don't need to explicitly treat any folder (just its children -- such as __init__ and submodules)
+            return;
+        }
         if(!isFullBuild()){
             //on a full build, it'll already remove all the info
             String moduleName = getModuleName(resource, nature);
             
             long documentTime = this.getDocumentTime();
             if(documentTime == -1){
-                Log.log("Warning: The document time in the visitor for remove is -1. Changing for current time.");
+                Log.log("Warning: The document time in the visitor for remove is -1. Changing for current time. " +
+                		"Resource: "+resource+". Module name: "+moduleName);
                 documentTime = System.currentTimeMillis();
             }
             
