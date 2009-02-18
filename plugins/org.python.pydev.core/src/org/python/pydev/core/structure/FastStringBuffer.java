@@ -2,8 +2,6 @@ package org.python.pydev.core.structure;
 
 import java.util.Iterator;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 /**
  * This is a custom string buffer optimized for append(), clear() and deleteLast(). 
  * 
@@ -348,7 +346,7 @@ public final class FastStringBuffer{
                 }
 
                 public void remove() {
-                    throw new NotImplementedException();
+                    throw new RuntimeException("Not implemented");
                 }
             };
         }
