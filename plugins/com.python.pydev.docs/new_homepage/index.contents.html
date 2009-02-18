@@ -12,8 +12,21 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 
 <h3>Release Changes</h3>
 
+
 	<ul>
-		<li><h4>Release 1.4.2 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.4.3 <IMG src="images/new.png" border="0" /></h4></li>
+		<ul>
+			<li>Fixed racing conditions in the context-insensitive indexing which could corrupt the index.</li>
+			<li>Search references working on Eclipse 3.3 and Eclipse 3.4</li>
+			<li>Lambda properly treated as a new context for code-analysis</li>
+			<li>Analysis is now recognizing __name__</li>
+			<li>Analysis now marks variables used when accessed with augstore (+=)</li>
+			<li>Some definitions were not properly indexed on some assign cases</li>
+		</ul>
+	</ul>
+
+	<ul>
+		<li><h4>Release 1.4.2</h4></li>
 		<ul>
 			<li>Context insensitive code-completion working with <strong>multiple interpreters</strong></li>
 			<li>Fixed code analysis problem on staticmethod</li>
@@ -32,99 +45,6 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 		</ul>
 	</ul>
 
-	<ul>
-		<li><h4>Release 1.3.24</h4></li>
-		<ul>
-			<li><strong>Code-analysis</strong>: Import was not recognized on code-analysis on some specific cases</li>
-		</ul>
-	</ul>
-
-	<ul>
-		<li><h4>Release 1.3.23</h4></li>
-		<ul>
-			<li><strong>Code-analysis</strong>: Fixed condition that could make code-analysis get into a halt depending on the code structure</li>
-			<li><strong>Remote Debugger</strong>: Can properly debug multiple processes concurrently</li>
-			<li><strong>Remote Debugger</strong>: Makes the proper setup of breakpoints when pydevd.settrace is called with suspend=False</li>
-		</ul>
-	</ul>
-
-
-	<ul>
-		<li><h4>Release 1.3.22</h4></li>
-		<ul>
-			<li><strong>Code-analysis</strong>: Option to analyze only active editor (window > preferences > pydev > builders)</li>
-			<li><strong>Code-analysis</strong>: works on case where imported module has same name of builtin.</li>
-		</ul>
-	</ul>
-	
-	<ul>
-		<li><h4>Release 1.3.21</h4></li>
-		<ul>
-			<li>Internal release</li>
-		</ul>
-	</ul>
-	
-	<ul>
-		<li><h4>Release 1.3.20</h4></li>
-		<ul>
-			<li><strong>Code Analysis</strong>: Show error if using token not defined in __all__ in wild import.</li>
-			<li><strong>Search</strong>: Working with eclipse 3.4.</li>
-		</ul>
-	</ul>
-
-
-	<ul>
-		<li><h4>Release 1.3.19</h4></li>
-		<ul>
-			<li><strong>Code Analysis</strong>: Not all unused imports are shown in the message anymore (could give problems saving workspace).</li>
-			<li><strong>Code Analysis</strong>: Fixed problem on double cycle in list comprehension.</li>
-			<li><strong>Interpreter config</strong>: The initial parse of the modules is much faster.</li>
-		</ul>
-	</ul>
-
-
-	<ul>
-		<li><h4>Release 1.3.18</h4></li>
-		<ul>
-			<li><strong>Auto-import</strong>: Groups imports when possible.</li>
-			<li><strong>Auto-import</strong>: Doesn't bring imports for completions already in the document even if a parse is not successful.</li>
-			<li><strong>Organize Imports (ctrl+shift+O)</strong>: Suggests imports to the undefined tokens in the editor.</li>
-			<li><strong>Import quick-fix</strong>: Icons correspondent to the element being imported.</li>
-		</ul>
-	</ul>
-	
-	<ul>
-		<li><h4>Release 1.3.17</h4></li>
-		<ul>
-			<li>Bug-fix release.</li>
-		</ul>
-	</ul>
-	
-	<ul>
-		<li><h4>Release 1.3.16</h4></li>
-		<ul>
-			<li><strong>Code Analysis</strong>: __path__ Not correctly found on some situations.</li>
-			<li><strong>Local rename (ctrl+2+r)</strong>: Positions correctly ordered for tabbing.</li>
-		</ul>
-	</ul>
-	
-	<ul>
-		<li><h4>Release 1.3.15</h4></li>
-		<ul>
-		<li><strong>Globals Browser</strong>: Was not correctly showing definition on a case with multiple projects when one did not have the python nature configured.</li>
-		<li><strong>Code Analysis</strong>: False positive: Classes defined within a class context are correctly found when later accessed in the parent context.</li>
-		<li><strong>Interactive console integration</strong></li>
-			<ul>
-				<li>Context insensitive completions with auto-import in console</li>
-				<li>Ctrl+Alt+Enter: can be used to:</li>
-				<ul>
-					<li>Create console if no console exists</li> 
-					<li>Send selected text to console</li>
-					<li>Make execfile for current file if there's no selected text</li>
-				</ul>
-			</ul>
-		</ul>
-	</ul>
 	
 	Check the <a href="history.html">Releases History</a> for info on previous versions.
 

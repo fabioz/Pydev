@@ -1,24 +1,40 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
+
 <ul>
-<li><strong>Interpreter</strong> can be configured on a <strong>per-project</strong> basis</li>
-<li>Jython 2.5b0 properly supported</li>
-<li>Find definition working for Jython builtins</li>
-<li><strong>Run</strong>: can be python/jython even if it doesn't match the interpreter configured for the project</li>
-<li>Fixed problem on find definition if one of the interpreters was not configured</li>
-<li>Fixed halting condition that could occur on code-completion</li>
-<li>__file__ available in code-completion</li>
-<li>Reorganized preferences (removed editor preferences from the root)</li>
-<li>Preferences for showing hover info</li>
-<li>Fixed problem when formatting binary operator that was in a new line</li>
-<li>When converting spaces to tabs (and vice-versa), the number of spaces for each tab is asked</li>
+<li><strong>Interactive console</strong> The interpreter to be used can be chosen</li>
+<li><strong>New modules</strong> can be created from <strong>templates</strong></li>
+
+<li><strong>Interpreter configuration</strong> improved!</li>
+<ul>
+    <li>Environment variables can be specified for a given interpreter</li>
+    <li>Canceling operation now works correctly</li>
+</ul><br>
+
+
 <li><strong>Debugger</strong></li>
 <ul>
-    <li>When finishing the user code debugging, it doesn't step into the debugger code anymore</li>
-    <li>Fixes for working with Jython</li>
-    <li>Fix for Python 3.0 integration (could not resolve variables)</li>
+    <li>Variables correctly gotten on Jython 2.1 / 2.2</li>
+    <li>Using globals as an union of original globals+locals so that generator expressions can be evaluated</li>
+    <li>Breakpoints only opened on double-click (no longer on select)</li>
+</ul><br>
+
+<li>The project preferences are now applied even if the page to configure the project is not visible.</li>
+<li>Jython 2.5b1 working (problem with sitecustomize)</li>
+<li>Wrap paragraph fixed</li>
+<li>Set comprehension working on Python 3.0 parsing</li>
+<li>Find definition working when a module outside of the known pythonpath is found</li>
+<li>Source folders were not properly found sometimes -- when workspace was not properly refreshed</li>
+<li>Invalid modules could get in the memory</li>
+<li>Getting the grammar version for a project could be wrong (and could loose its indexing at that time)</li>
+<li>Multiple external zip files can be added at once to the pythonpath</li>
+<li>nonlocal added to keywords</li>
+<li>Fixed annoying problem where cursor was jumping when it shouldn't (outline)</li>
+<li>Fixed problem where the breakpoint could be lost (now, playing safe and matching anything in the file if the context cannot be gotten)</li>
+<li>Ctrl + 2 + --reindex can be used to reindex all the opened projects if the indexing becomes corrupt</li>
+<li>Changing nothing on project config and pressing OK no longer reanalyzes the modules</li>
 </ul>
-</ul>
+
 
 
 
@@ -122,6 +138,29 @@
 
 <hr/>
 <h2>Features History</h2>
+
+<h3>New Release: 1.4.1</h3>
+<ul>
+<li><strong>Interpreter</strong> can be configured on a <strong>per-project</strong> basis</li>
+<li>Jython 2.5b0 properly supported</li>
+<li>Find definition working for Jython builtins</li>
+<li><strong>Run</strong>: can be python/jython even if it doesn't match the interpreter configured for the project</li>
+<li>Fixed problem on find definition if one of the interpreters was not configured</li>
+<li>Fixed halting condition that could occur on code-completion</li>
+<li>__file__ available in code-completion</li>
+<li>Reorganized preferences (removed editor preferences from the root)</li>
+<li>Preferences for showing hover info</li>
+<li>Fixed problem when formatting binary operator that was in a new line</li>
+<li>When converting spaces to tabs (and vice-versa), the number of spaces for each tab is asked</li>
+<li><strong>Debugger</strong></li>
+<ul>
+    <li>When finishing the user code debugging, it doesn't step into the debugger code anymore</li>
+    <li>Fixes for working with Jython</li>
+    <li>Fix for Python 3.0 integration (could not resolve variables)</li>
+</ul>
+</ul>
+
+
 
 <h3>New on: 1.4</h3>
 <ul>
