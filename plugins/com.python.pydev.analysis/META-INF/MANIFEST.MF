@@ -4,7 +4,7 @@ Bundle-Name: Analysis Plug-in
 Bundle-SymbolicName: com.python.pydev.analysis; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
-Bundle-Vendor: Fabio Zadrozny
+Bundle-Vendor: Aptana
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
