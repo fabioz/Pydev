@@ -1,4 +1,4 @@
-This License Agreement is a legal contract between you (either as an individual or as an entity) and Fabio Zadrozny for the Pydev Extensions Software (&quot;Software&quot;).
+This License Agreement is a legal contract between you (either as an individual or as an entity) and APTANA for the Pydev Extensions Software (&quot;Software&quot;).
 
 You should carefully read the following terms and conditions before using the Software. Installation or use of the Software indicates your acceptance of this License Agreement.
 
@@ -23,6 +23,10 @@ Site License
 
 With a Site License you are granted a non-exclusive, nontransferable license to install the Software to any number of computers provided that the product is used solely by employees of the license owner that reside in the same geographic facility (e.g., campus, branch, etc) that was indicated as the Company Site Name in the product order. This license is valid within 1 year from the date of the license purchase. 
 
+Worldwide License
+
+With a Worldwide License you are granted a non-exclusive, nontransferable license to install the Software to any number of computers provided that the product is used solely by employees of the license owner that was indicated as the Company Name in the product order. This license is valid within 1 year from the date of the license purchase.
+
 Upgrades
 
 Unless otherwise indicated, a valid license to use the registered version includes the right to install free version updates, patches, bug-fixes and major upgrades, provided that the release date of the upgrade is within 1 year from the date of the license purchase. 
@@ -33,7 +37,7 @@ Provided that you are distributing the evaluation version and NOT the registered
 
 You are specifically prohibited from charging, or requesting donations, for any such copies, however made; and from distributing the Software with other products (commercial or otherwise) without prior written permission.
 
-You may NOT redistribute any derivative works of the Software without prior written permission from Fabio Zadrozny. 
+You may NOT redistribute any derivative works of the Software without prior written permission from APTANA. 
 
 OTHER RESTRICTIONS.
 
@@ -41,26 +45,26 @@ You may not disclose, publish, translate, rent, lease, transfer, export or other
 
 COPYRIGHT.
 
-The Software and Documentation are copyrighted by Fabio Zadrozny and are protected by international copyright laws. The product contains copyrighted software of Fabio Zadrozny. All rights reserved. You agree not to remove any trademarks or copyright notices from the Software or Documentation.
+The Software and Documentation are copyrighted by APTANA and are protected by international copyright laws. The product contains copyrighted software of APTANA. All rights reserved. You agree not to remove any trademarks or copyright notices from the Software or Documentation.
 
 Term and Termination
 
-If you have acquired an evaluation version, the license granted herein shall automatically terminate thirty (30) days after you first install such version. Subsequent downloads, installations or use of the evaluation version by or for you will not extend, renew, or otherwise restart the term of the license. The license granted for the commercial version will continue until it is terminated. Fabio Zadrozny may terminate any license granted herein if you fail to comply with the terms of this License Agreement. Upon the termination of a license for any reason, you must promptly  destroy all copies of the software covered by the license.
+If you have acquired an evaluation version, the license granted herein shall automatically terminate thirty (30) days after you first install such version. Subsequent downloads, installations or use of the evaluation version by or for you will not extend, renew, or otherwise restart the term of the license. The license granted for the commercial version will continue until it is terminated. APTANA may terminate any license granted herein if you fail to comply with the terms of this License Agreement. Upon the termination of a license for any reason, you must promptly  destroy all copies of the software covered by the license.
 
 DISCLAIMER OF WARRANTY
 
-FABIO ZADROZNY EXPRESSLY DISCLAIMS ANY WARRANTY FOR THE SOFTWARE. THE SOFTWARE AND ANY RELATED DOCUMENTATION IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. THE ENTIRE RISK ARISING OUT OF USE OR PERFORMANCE OF THE SOFTWARE REMAINS WITH YOU.
+APTANA EXPRESSLY DISCLAIMS ANY WARRANTY FOR THE SOFTWARE. THE SOFTWARE AND ANY RELATED DOCUMENTATION IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. THE ENTIRE RISK ARISING OUT OF USE OR PERFORMANCE OF THE SOFTWARE REMAINS WITH YOU.
 
 LIMITATION OF LIABILITY
 
-TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL FABIO ZADROZNY OR ITS SUPPLIERS BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, ANY OTHER PECUNIARY LOSS, ATTORNEY FEES AND COURT COSTS) ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE OR THE PROVISION OF OR FAILURE TO PROVIDE SUPPORT SERVICES, EVEN IF FABIO ZADROZNY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL APTANA OR ITS SUPPLIERS BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, ANY OTHER PECUNIARY LOSS, ATTORNEY FEES AND COURT COSTS) ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE OR THE PROVISION OF OR FAILURE TO PROVIDE SUPPORT SERVICES, EVEN IF APTANA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
 
 General
 
-This License Agreement will be governed by the laws of Brazil. This License Agreement may only be modified by a license addendum, which accompanies this License Agreement or by a written document which has been signed, by both you and Fabio Zadrozny. This License Agreement has been written in the English language only and is not to be translated or interpreted in any other language. Prices, costs and fees for use of Pydev Extensions are subject to change without notice to you. In the event of invalidity of any provision of this License Agreement, the invalidity shall not affect the validity of the remaining portions of this License Agreement. 
+This License Agreement will be governed by the laws of Brazil. This License Agreement may only be modified by a license addendum, which accompanies this License Agreement or by a written document which has been signed, by both you and APTANA. This License Agreement has been written in the English language only and is not to be translated or interpreted in any other language. Prices, costs and fees for use of Pydev Extensions are subject to change without notice to you. In the event of invalidity of any provision of this License Agreement, the invalidity shall not affect the validity of the remaining portions of this License Agreement. 
 
 ENTIRE AGREEMENT.
 
-You agree that this Agreement expresses the entire understanding between you and Fabio Zadrozny, and supersedes all other communications, oral or written, relating to the Software.
+You agree that this Agreement expresses the entire understanding between you and APTANA, and supersedes all other communications, oral or written, relating to the Software.
 
-COPYRIGHT 2006 FABIO ZADROZNY
+COPYRIGHT 2006-2008 APTANA
