@@ -1083,6 +1083,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                             
                                             if(validBootsrappedDlls.length > 0){
                                                 bootstrap = Boolean.TRUE;
+                                                break;
                                             }
                                         }
                                     }

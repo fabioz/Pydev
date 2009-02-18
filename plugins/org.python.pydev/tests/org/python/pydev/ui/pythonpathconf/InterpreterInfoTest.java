@@ -128,6 +128,12 @@ public class InterpreterInfoTest extends TestCase {
         
     }
     
+    private void compareArray(String []a, String[] b) {
+        if(!Arrays.equals(a, b)){
+            fail(Arrays.asList(a)+" != "+ Arrays.asList(b));
+        }
+    }
+    
     public void testInfo3() throws Exception {
         InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
         info.setEnvVariables(new String[]{"PATH=c:\\bin;d:\\bin", "LIBPATH=k:\\foo"});
@@ -135,7 +141,7 @@ public class InterpreterInfoTest extends TestCase {
         InterpreterInfo newInfo = InterpreterInfo.fromString(string);
         assertEquals(info, newInfo);
         assertEquals(newInfo, info);
-        assertTrue(Arrays.equals(info.getEnvVariables(), newInfo.getEnvVariables()));
+        compareArray(info.getEnvVariables(), newInfo.getEnvVariables());
         newInfo.setEnvVariables(null);
         assertFalse(info.equals(newInfo));
         assertFalse(newInfo.equals(info));
@@ -145,14 +151,14 @@ public class InterpreterInfoTest extends TestCase {
     
     public void testInfo4() throws Exception {
         InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
-        String[] original1 = new String[]{"PATH=c:\\bin;d:\\bin", "LIBPATH=k:\\foo"};
+        String[] original1 = new String[]{"LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin"};
         info.setEnvVariables(original1);
-        assertTrue(Arrays.equals(info.updateEnv(null), original1));
+        compareArray(info.updateEnv(null), original1);
         
-        assertTrue(Arrays.equals(info.updateEnv(new String[0]), original1));
+        compareArray(info.updateEnv(new String[0]), original1);
         
-        String[] original2 = new String[]{"PATH=c:\\bin;d:\\bin2", "LIBPATH=k:\\foo", "boo=boo"};
-        String[] expected2 = new String[]{"PATH=c:\\bin;d:\\bin", "LIBPATH=k:\\foo", "boo=boo"};
+        String[] original2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2"};
+        String[] expected2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin"};
         assertEquals(new HashSet<String>(Arrays.asList(info.updateEnv(original2))), new HashSet<String>(Arrays.asList(expected2)));
         
     }

@@ -35,7 +35,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testFindDefinition();
+            builtins.testPreferCompiledOnBootstrap();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -291,6 +291,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "umath.";
         IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
         assertTrue("Expected CompiledModule. Found: "+module.getClass(), module instanceof CompiledModule);
+        //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
         requestCompl(s, s.length(), -1, new String[]{"less"});
     }
     
@@ -299,6 +300,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "from extendable.bootstrap_dll.umath import ";
         IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
         assertTrue(module instanceof CompiledModule);
+        //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
         requestCompl(s, s.length(), -1, new String[]{"less"});
     }
     

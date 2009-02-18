@@ -8,6 +8,7 @@ package org.python.pydev.ui.pythonpathconf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -557,15 +558,28 @@ public class InterpreterInfo implements IInterpreterInfo{
     //END: Things related to the builtins (forcedLibs) -----------------------------------------------------------------
 
     
-    
+    /**
+     * Sets the environment variables to be kept in the interpreter info.
+     * 
+     * Some notes:
+     * - Will remove (and warn) about any PYTHONPATH env. var.
+     * - Will keep the env. variables sorted internally.
+     */
     public void setEnvVariables(String[] env) {
 
         if(env != null){
+            ArrayList<String> lst = new ArrayList<String>();
             //We must make sure that the PYTHONPATH is not in the env. variables.
-            HashMap<String, String> map = new HashMap<String, String>();
-            fillMapWithEnv(env, map);
-            removePythonPathFromEnvMapWithWarning(map);
-            env = createEnvWithMap(map);
+            for(String s: env){
+                Tuple<String, String> sp = StringUtils.splitOnFirst(s, '=');
+                if(sp.o1.length() != 0 && sp.o2.length() != 0){
+                    if(!checkIfPythonPathEnvVarAndWarnIfIs(sp.o1)){
+                        lst.add(s);
+                    }
+                }
+            }
+            Collections.sort(lst);
+            env = lst.toArray(new String[lst.size()]);
         }
 
         if(env != null && env.length == 0){
@@ -642,34 +656,49 @@ public class InterpreterInfo implements IInterpreterInfo{
             return;
         }
         
-        boolean win32 = REF.isWindowsPlatform();
         for(Iterator<Map.Entry<String, String>> it=map.entrySet().iterator();it.hasNext();){
             Map.Entry<String, String> next = it.next();
-        
+            
             String key = next.getKey();
-            if(win32){
-                key = key.toUpperCase();
-            }
-            if(key.equals("PYTHONPATH")){
-                final String msg = "Ignoring PYTHONPATH specified in the interpreter info.\n" +
-                "It's managed depending on the project and other configurations and cannot be directly specified in the interpreter.";
-                try {
-                    RunInUiThread.async(new Runnable(){
-                        public void run() {
-                            MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-                            message.setText("Ignoring PYTHONPATH");
-                            message.setMessage(msg);
-                            message.open();
-                        }
-                    });
-                } catch (Throwable e) {
-                    // ignore error communication error
-                }
-                
-                Log.log(IStatus.WARNING, msg, null);
+            
+            if(checkIfPythonPathEnvVarAndWarnIfIs(key)){
                 it.remove();
             }
         }
+    }
+
+    /**
+     * Warns if the passed key is the PYTHONPATH env. var.
+     * 
+     * @param key the key to check.
+     * @return true if the passed key is a PYTHONPATH env. var. (considers platform)
+     */
+    public static boolean checkIfPythonPathEnvVarAndWarnIfIs(String key) {
+        boolean isPythonPath = false;
+        boolean win32 = REF.isWindowsPlatform();
+        if(win32){
+            key = key.toUpperCase();
+        }
+        if(key.equals("PYTHONPATH")){
+            final String msg = "Ignoring PYTHONPATH specified in the interpreter info.\n" +
+            "It's managed depending on the project and other configurations and cannot be directly specified in the interpreter.";
+            try {
+                RunInUiThread.async(new Runnable(){
+                    public void run() {
+                        MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+                        message.setText("Ignoring PYTHONPATH");
+                        message.setMessage(msg);
+                        message.open();
+                    }
+                });
+            } catch (Throwable e) {
+                // ignore error communication error
+            }
+            
+            Log.log(IStatus.WARNING, msg, null);
+            isPythonPath = true;
+        }
+        return isPythonPath;
     }
 
     
