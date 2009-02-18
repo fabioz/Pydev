@@ -77,15 +77,14 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
         if (type == IResource.FOLDER) {
             switch (delta.getKind()) {
                 case IResourceDelta.REMOVED:
+                    memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                     visitRemovedResource(resource, null, monitor);
                     break;
                 //for folders, we don't have to do anything if added or changed (we just treat their children, that should
                 //resolve for modules -- we do, however have to treat __init__.py differently).
             }
-        }
-        
-        
-        if (type == IResource.FILE) {
+            
+        } else if (type == IResource.FILE) {
             String ext = resource.getFileExtension();
             if(ext == null){ //resource.getFileExtension() may return null if it has none.
                 return true;
@@ -100,6 +99,8 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
                 if (PythonPathHelper.isValidSourceFile("."+ext)) {
                     
                     boolean isAddOrChange = false;
+                    
+                    //document time is updated here
                     isAddOrChange = chooseVisit(delta, resource, isAddOrChange);
 
                     if(isAddOrChange){

@@ -52,7 +52,6 @@ import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Field editor for a list of python interpreter with executable verifier.
@@ -822,9 +821,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     
     /** Overridden
      */
-    @Override
     protected String createList(String[] executables) {
-        throw new NotImplementedException();
+        throw new RuntimeException("Not implemented (doLoad overridden so that we don't need it)");
     }
     
     
@@ -835,7 +833,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
     
     protected String[] parseString(String stringList) {
-        throw new NotImplementedException();
+        throw new RuntimeException("Not implemented (doLoad overridden so that we don't need it)");
     }
     
     /** Overridden
@@ -850,7 +848,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * @see org.python.copiedfromeclipsesrc.PythonListEditor#doLoadDefault()
      */
     protected void doLoadDefault() {
-        throw new RuntimeException("Default loading not implemented for interpreters.");
+        //do nothing
     }
 
     

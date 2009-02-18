@@ -13,7 +13,7 @@ import org.python.pydev.editor.PyEdit;
 public class PyNatureReindexer implements IPyEditListener{
 
     public void onCreateActions(ListResourceBundle resources, PyEdit edit, IProgressMonitor monitor) {
-        edit.addOfflineActionListener("reindex", new Action(){
+        edit.addOfflineActionListener("--reindex", new Action(){
             @Override
             public void run() {
                 for (IPythonNature nature : PythonNature.getAllPythonNatures()) {
