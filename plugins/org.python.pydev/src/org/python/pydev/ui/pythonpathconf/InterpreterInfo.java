@@ -18,13 +18,16 @@ import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.Window;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterInfo;
@@ -32,8 +35,10 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -554,6 +559,15 @@ public class InterpreterInfo implements IInterpreterInfo{
     
     
     public void setEnvVariables(String[] env) {
+
+        if(env != null){
+            //We must make sure that the PYTHONPATH is not in the env. variables.
+            HashMap<String, String> map = new HashMap<String, String>();
+            fillMapWithEnv(env, map);
+            removePythonPathFromEnvMapWithWarning(map);
+            env = createEnvWithMap(map);
+        }
+
         if(env != null && env.length == 0){
             env = null;
         }
@@ -618,6 +632,46 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
     }
     
+    
+    /**
+     * This function will remove any PYTHONPATH entry from the given map (considering the case based on the system)
+     * and will give a warning to the user if that's actually done.
+     */
+    public static void removePythonPathFromEnvMapWithWarning(HashMap<String, String> map) {
+        if(map == null){
+            return;
+        }
+        
+        boolean win32 = REF.isWindowsPlatform();
+        for(Iterator<Map.Entry<String, String>> it=map.entrySet().iterator();it.hasNext();){
+            Map.Entry<String, String> next = it.next();
+        
+            String key = next.getKey();
+            if(win32){
+                key = key.toUpperCase();
+            }
+            if(key.equals("PYTHONPATH")){
+                final String msg = "Ignoring PYTHONPATH specified in the interpreter info.\n" +
+                "It's managed depending on the project and other configurations and cannot be directly specified in the interpreter.";
+                try {
+                    RunInUiThread.async(new Runnable(){
+                        public void run() {
+                            MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+                            message.setText("Ignoring PYTHONPATH");
+                            message.setMessage(msg);
+                            message.open();
+                        }
+                    });
+                } catch (Throwable e) {
+                    // ignore error communication error
+                }
+                
+                Log.log(IStatus.WARNING, msg, null);
+                it.remove();
+            }
+        }
+    }
+
     
     /**
      * @return a new interpreter info that's a copy of the current interpreter info.
