@@ -354,7 +354,7 @@ public class PythonRunnerConfig {
         }
         
         
-        boolean win32= Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
+        boolean win32 = REF.isWindowsPlatform();
         
         if(envp == null){
             //ok, the user has done nothing to the environment, just get all the default environment which has the pythonpath in it
