@@ -8,6 +8,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.parser.PyParser;
 
 import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
@@ -21,8 +22,10 @@ public class AnalyzeOnRequestSetter implements IPyEditListener{
             this.edit = edit;
         }
         public  void run(){
-            //just send a reparse
-            edit.getParser().forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+            PyParser parser = edit.getParser();
+            //reset the document and force a reparse
+            parser.setDocument(edit.getDocument(), edit.getEditorInput(), System.currentTimeMillis());
+            parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
     }
     

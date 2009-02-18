@@ -23,6 +23,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
     final protected boolean isFullBuild;
     final protected boolean forceAnalysis;
     final protected int analysisCause;
+    final protected KeyForAnalysisRunnable key;
     final private Object lock = new Object();
     
     protected IPythonNature nature;
@@ -33,7 +34,8 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
     
     public AbstractAnalysisBuilderRunnable(boolean isFullBuild, String moduleName, boolean forceAnalysis, 
-            int analysisCause, IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime) {
+            int analysisCause, IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime,
+            KeyForAnalysisRunnable key) {
         this.isFullBuild = isFullBuild;
         this.moduleName = moduleName;
         this.forceAnalysis = forceAnalysis;
@@ -41,6 +43,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
         this.oldAnalysisBuilderThread = oldAnalysisBuilderThread;
         this.nature = nature;
         this.documentTime = documentTime;
+        this.key = key;
     }
     
     public long getDocumentTime() {
@@ -132,7 +135,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
             PydevPlugin.log(e);
         } finally{
             try{
-                AnalysisBuilderRunnableFactory.removeFromThreads(moduleName, this);
+                AnalysisBuilderRunnableFactory.removeFromThreads(key, this);
             }catch (Throwable e){
                 PydevPlugin.log(e);
             }finally{

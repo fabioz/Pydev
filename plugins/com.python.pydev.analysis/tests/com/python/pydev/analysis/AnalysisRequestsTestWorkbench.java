@@ -253,6 +253,11 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         //analyze all files
         PyDevBuilderPrefPage.setAnalyzeOnlyActiveEditor(true);
         
+        print("----------- CLOSING EDITOR ---------");
+        editor.close(false);
+        goToManual(TIME_FOR_ANALYSIS); //wait a bit for the current things to clear
+        
+        
         ICallback<Object, Tuple<String, SimpleNode>> parseFastDefinitionsCallback = getParseFastDefinitionsCallback();
         FastDefinitionsParser.parseCallbacks.add(parseFastDefinitionsCallback);
         
@@ -260,7 +265,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         AnalysisBuilderRunnable.analysisBuilderListeners.add(analysisErrorCallback);
         
         try{
-            editor.close(false);
+            //no active editor, no analysis in this mode!
             
             fastParsesDone.clear();
             
@@ -299,7 +304,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             setFileContents(invalidMod1Contents);
             goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
             goToManual(TIME_FOR_ANALYSIS);  
-            goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(), getMarkers());
+            goToIdleLoopUntilCondition(getHasSyntaxErrorMarkersCondition(mod1), getMarkers());
             
             resourcesAnalyzed.clear();
             print("------------- Requesting analysis -------------");
@@ -527,6 +532,32 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
                     if(markers.length > 0){
                         markers = file.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
                         if(markers.length > 0){
+                            return true;
+                        }
+                    }
+                    return false;
+                } catch (CoreException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            
+        };
+    }
+    
+    /**
+     * Callback that'll check if there are error markers in the mod1.py resource
+     */
+    private ICallback<Boolean, Object> getHasSyntaxErrorMarkersCondition(final IFile file) {
+        return new ICallback<Boolean, Object>(){
+            
+            public Boolean call(Object arg) {
+                try {
+                    //must have only syntax error
+                    IMarker[] markers = file.findMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+                    if(markers.length > 0){
+                        //no analysis error
+                        markers = file.findMarkers(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+                        if(markers.length == 0){
                             return true;
                         }
                     }

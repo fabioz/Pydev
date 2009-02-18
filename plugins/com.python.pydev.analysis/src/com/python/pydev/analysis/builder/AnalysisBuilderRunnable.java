@@ -62,8 +62,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
      */
     /*Default*/ AnalysisBuilderRunnable(IDocument document, IResource resource, ICallback<IModule, Integer> module, 
             boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause, 
-            IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime) {
-        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime);
+            IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime,
+            KeyForAnalysisRunnable key) {
+        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, key);
         
         this.document = document;
         this.resource = new WeakReference<IResource>(resource);
@@ -80,12 +81,13 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
     
     
     protected void doAnalysis(){
+        
         try {
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-                Log.toLogFile(this, "doAnalysis() - "+moduleName);
+                Log.toLogFile(this, "doAnalysis() - "+moduleName+" "+this.getAnalysisCauseStr());
             }
             //if the resource is not open, there's not much we can do...
-            IResource r = resource.get();
+            final IResource r = resource.get();
             if(r == null || !r.getProject().isOpen()){
                 Log.toLogFile(this, "Finished analysis -- resource null or project closed -- "+moduleName);
                 return;
@@ -192,14 +194,17 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             checkStop();
             
             //don't stop after setting to add / remove the markers
-            r = resource.get();
             if(r != null){
                 runner.setMarkers(r, document, messages, this.internalCancelMonitor);
             }
             
             //if there are callbacks registered, call them if we still didn't return (mostly for tests)
             for(ICallback<Object, IResource> callback:analysisBuilderListeners){
-                callback.call(resource.get());
+                try {
+                    callback.call(r);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
             }
 
         } catch (OperationCanceledException e) {
@@ -209,7 +214,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             PydevPlugin.log(e);
         } finally{
             try{
-                AnalysisBuilderRunnableFactory.removeFromThreads(moduleName, this);
+                AnalysisBuilderRunnableFactory.removeFromThreads(key, this);
             }catch (Throwable e){
                 PydevPlugin.log(e);
             }

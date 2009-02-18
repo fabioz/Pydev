@@ -24,8 +24,9 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
      * The parameter is FULL_MODULE or DEFINITIONS_MODULE
      */
     /*Default*/ AnalysisBuilderRunnableForRemove(String moduleName, IPythonNature nature, boolean isFullBuild, 
-            IAnalysisBuilderRunnable oldAnalysisBuilderThread, boolean forceAnalysis, int analysisCause, long documentTime) {
-        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime);
+            IAnalysisBuilderRunnable oldAnalysisBuilderThread, boolean forceAnalysis, int analysisCause, long documentTime,
+            KeyForAnalysisRunnable key) {
+        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, key);
     }
 
 
