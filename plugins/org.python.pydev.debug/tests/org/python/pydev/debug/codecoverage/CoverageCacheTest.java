@@ -74,7 +74,7 @@ public class CoverageCacheTest extends TestCase {
 
 
         String statistics = cache.getStatistics(folder1);
-        assertEquals("" +
+        String expected = "" +
                 "Name                                    Stmts     Exec     Cover  Missing\n" +
                 "-----------------------------------------------------------------------------\n" +
                 "                                       b     20     10        50%  6-10\n" +
@@ -84,7 +84,11 @@ public class CoverageCacheTest extends TestCase {
                 ".. ggggggggggggggggggggggggggggggggggggg     28     10      35,7%  6-10\n" +
                 "-----------------------------------------------------------------------------\n" +
                 "                                   TOTAL    120     50      41,7%  \n" +
-                "", statistics);
+                "";
+        
+        if(!expected.equals(statistics) && !expected.replace(',', '.').equals(statistics)){
+            assertEquals(expected, statistics);
+        }
         
     }
 }
