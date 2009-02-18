@@ -4,7 +4,7 @@ Bundle-Name: Codecompletion Plug-in
 Bundle-SymbolicName: com.python.pydev.codecompletion; singleton:=true
 Bundle-Version: 0.9.7.1
 Bundle-Activator: com.python.pydev.codecompletion.CodecompletionPlugin
-Bundle-Vendor: Fabio Zadrozny
+Bundle-Vendor: Aptana
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
