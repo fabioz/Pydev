@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Templates Plug-in
 Bundle-SymbolicName: org.python.pydev.templates; singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-Vendor: Fabio Zadrozny
+Bundle-Vendor: Aptana
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
