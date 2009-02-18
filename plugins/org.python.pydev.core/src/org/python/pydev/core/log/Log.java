@@ -60,6 +60,9 @@ public class Log {
     
     public synchronized static void toLogFile(Object obj, String string) {
         synchronized(lock){
+            if(obj == null){
+                obj = new Object();
+            }
             Class<? extends Object> class1 = obj.getClass();
             toLogFile(string, class1);
         }
