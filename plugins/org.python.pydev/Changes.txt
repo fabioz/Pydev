@@ -12,9 +12,12 @@ Pydev Extensions
 Pydev
 
 <ul>
-<li>Interpreter configuration improved!</li>
-<li>Environment variables can be specified for a given interpreter</li>
-<li>The interpreter to be used on the interactive interpreter can be chosen</li>
+<li><strong>Interpreter configuration</strong> improved!</li>
+<ul>
+    <li>Environment variables can be specified for a given interpreter</li>
+    <li>Canceling operation now works correctly</li>
+</ul>
+<li><strong>Interactive Interpreter</strong>The interpreter to be used on the interactive interpreter can be chosen</li>
 <li>New modules can be created from templates</li>
 <li>Debugger getting variables on Jython 2.1 / 2.2</li>
 <li>Debugger using globals as an union of original globals+locals so that generator expressions can be evaluated</li>
@@ -32,7 +35,7 @@ Pydev
 <li>Fixed problem where cursor was jumping when it shouldn't (outline)</li>
 <li>Fixed problem where the breakpoint could be lost (now, playing safe and matching anything in the file if the context cannot be gotten)</li>
 <li>Ctrl + 2 + --reindex can be used to reindex all the opened projects if the indexing becomes corrupt</li>
-<li>Fixed problem on project config (changing nothing and pressing OK could make it reanalyze the modules)</li>
+<li>Changing nothing on project config and pressing OK no longer reanalyzes the modules</li>
 </ul>
 
 After 1.4.1
