@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site pack200="true">
-   <description url="http://pydev.sourceforge.net/">The python development environment.</description>   
+   <description url="http://fabioz.com/pydev/">PyDev Extensions</description>   
+   
+   
    <feature url="features/com.python.pydev.extensions_{version.full}.jar" id="com.python.pydev.extensions" version="{version.full}">
-      <category name="Pydev"/>
-   </feature> 
-   <category-def name="Pydev" label="Pydev">
-      <description>Pydev Extensions plugin</description>
-   </category-def>
+      <category name="PyDev Extensions"/>
+   </feature>
+   
+
+   <category-def name="PyDev Extensions" label="PyDev Extensions">
+      <description>PyDev Extensions</description>
+   </category-def>   
+   
 </site>
