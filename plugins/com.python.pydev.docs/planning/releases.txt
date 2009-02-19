@@ -1,0 +1,6 @@
+1.4.4
+- Make code-completion support with external definition 
+
+1.4.5
+- Show working set as top-level elements
+- Show flat view

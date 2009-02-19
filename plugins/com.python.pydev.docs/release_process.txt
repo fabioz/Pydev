@@ -1,4 +1,4 @@
-Remove old install from org.python.pydev.site
+Revert W:\temp_deployDir to its initial state
 
 Update the home page and run its script
 
