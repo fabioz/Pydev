@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site pack200="true">
-   <description url="http://pydev.sourceforge.net/">The python development environment.</description>   
+   <description url="http://pydev.sourceforge.net/">PyDev</description>   
+   
    <feature url="features/org.python.pydev.feature_{version.full}.jar" id="org.python.pydev.feature" version="{version.full}">
-      <category name="Pydev"/>
+      <category name="PyDev"/>
    </feature>
+   
    <feature url="features/org.python.pydev.mylyn.feature_0.3.0.jar" id="org.python.pydev.mylyn.feature" version="0.3.0">
-      <category name="Optional"/>
+      <category name="PyDev Mylyn Integration"/>
    </feature>   
-   <category-def name="Pydev" label="Pydev">
-      <description>Pydev core plugin</description>
+   
+   <category-def name="PyDev" label="PyDev">
+      <description>PyDev</description>
    </category-def>   
-   <category-def name="Optional" label="Pydev Optional Extensions (requires Mylyn)">
-      <description>Optional extensions to pydev (requires mylyn)</description>
+   
+   <category-def name="PyDev Mylyn Integration" label="PyDev Mylyn Integration (optional)">
+      <description>Optional extensions to PyDev (requires mylyn)</description>
    </category-def>
+   
 </site>
