@@ -34,9 +34,9 @@ if cmd == 'onCreateActions':
                 
                 for manager in managers:
                     try:
-                        info = manager.getInterpreterInfo(manager.getDefaultInterpreter(), NullProgressMonitor())
-                        info.modulesManager.clearCache()
-                        manager.clearCaches()
+                        for info in manager.getInterpreterInfos():
+                            info.modulesManager.clearCache()
+                            manager.clearCaches()
                     except NotConfiguredInterpreterException:
                         pass #that's ok -- it's not configured
             except:
