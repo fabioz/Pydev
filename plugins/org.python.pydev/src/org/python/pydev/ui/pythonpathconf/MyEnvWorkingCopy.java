@@ -50,7 +50,11 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
             return;
         }
         
-        HashMap<String, String> map = new HashMap<String, String>((Map)this.attributes.get(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES));
+        Map existing = (Map)this.attributes.get(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES);
+        HashMap<String, String> map = null;
+        if(existing != null){
+            map = new HashMap<String, String>(existing);
+        }
         //The interpreter info should never contain the PYTHONPATH, as it's managed from other places and not env. attributes.
         InterpreterInfo.removePythonPathFromEnvMapWithWarning(map);
         if(map == null){
