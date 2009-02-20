@@ -1,10 +1,10 @@
-OK Revert W:\temp_deployDir to its initial state
+Revert W:\temp_deployDir to its initial state
 
-OK Update the home page and run its script
+Update the home page and run its script
 
-OK Run the build script
+Run the build script
 
-OK Change site.xml in org.python.pydev.site
+Change site.xml in org.python.pydev.site
 
 Download the current artifacts.jar and content.jar and properly update it with the current site.
 
@@ -37,37 +37,17 @@ svn:
 svn copy https://source.aptana.com/pydev_repo/trunk https://source.aptana.com/pydev_repo/tags/pydev_1_4_1 -m "Creating release 1.4.1"
 svn copy https://source.aptana.com/pydev_pro_repo/trunk https://source.aptana.com/pydev_pro_repo/tags/pydev_1_4_1 -m "Creating release 1.4.1"
 
+
+
+
 add news in forum
 
 send e-mail
-
-Add blog post
 
 update in eclipse plugin central:
 EPIC: Login -- http://www.eclipseplugincentral.com/user.html user:fabioz
 find Pydev plugin > Modify link > add update site
 
-
-
-
-
-
-
-
-set EC_HOME=C:\bin\eclipse33_win32_SDK
-set EC_WORKSPACE=X:\
-set RETROWEAVER_HOME=E:\install\Dev.Retroweaver
-set PDE_BUILD_SCRIPTS=\plugins\org.eclipse.pde.build_3.3.0.v20070612\scripts
-x:
-
-
-set PYDEV_VERSION=1.3.7
-set BUILD_ID=1_3_7
-
-cd %EC_WORKSPACE%\org.python.pydev.releng 
-%EC_HOME%\eclipsec.exe -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%  -DRETROWEAVER_HOME=%RETROWEAVER_HOME% -DdontFetchAnything=True -DcleanAfter=True -DPDE_BUILD_SCRIPTS=%PDE_BUILD_SCRIPTS%
-
-cd %EC_WORKSPACE%\com.python.pydev.releng 
-%EC_HOME%\eclipsec.exe -application org.eclipse.ant.core.antRunner -buildfile build.xml -Dconfigs="*,*,*" -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -DbaseLocation=%EC_HOME% -DjavacFailOnError=true -DEC_HOME=%EC_HOME% -DEC_WORKSPACE=%EC_WORKSPACE% -DPYDEV_VERSION=%PYDEV_VERSION% -DBUILD_ID=%BUILD_ID%  -DRETROWEAVER_HOME=%RETROWEAVER_HOME% -DdontFetchAnything=True -DcleanAfter=True -DPDE_BUILD_SCRIPTS=%PDE_BUILD_SCRIPTS%
+Add blog post
 
 
