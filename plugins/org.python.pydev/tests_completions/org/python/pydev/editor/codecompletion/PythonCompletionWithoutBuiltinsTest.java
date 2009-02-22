@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testInvalidNotFound();
+          test.testVarargsAndKwargsFound();
           test.tearDown();
           System.out.println("Finished");
 
@@ -1176,6 +1176,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	requestCompl(s, -1, new String[] {"method1()"});
     }
 
+    
+    public void testVarargsAndKwargsFound() throws Exception {
+        String s = 
+            "class A:\n" +
+            "    def method1(self, *args, **kwargs):\n" +
+            "        "; 
+        
+        requestCompl(s, -1, new String[] {"args", "kwargs"});
+    }
+    
     
     public void testInvalidNotFound() throws Exception {
         assertNull(nature.getAstManager().getModule("extendable.invalid-module", nature, true));
