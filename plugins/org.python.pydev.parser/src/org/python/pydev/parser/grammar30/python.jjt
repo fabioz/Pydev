@@ -843,8 +843,7 @@ void with_var():{}
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
-{ simple_stmt() |  <NEWLINE>
-                   { token_source.expect_indent = true; } <INDENT> { token_source.expect_indent = false; } (stmt())+ <DEDENT> }
+{ simple_stmt() |  <NEWLINE> <INDENT> (stmt())+ <DEDENT> }
 
 
 //test: or_test ['if' or_test 'else' test] | lambdef

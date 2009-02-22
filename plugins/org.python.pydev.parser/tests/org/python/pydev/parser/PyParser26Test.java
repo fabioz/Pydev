@@ -1,8 +1,10 @@
 package org.python.pydev.parser;
 
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.visitors.NodeUtils;
 
@@ -12,7 +14,7 @@ public class PyParser26Test extends PyParserTestBase{
         try {
             PyParser26Test test = new PyParser26Test();
             test.setUp();
-            test.testFunctionCallWithListComp();
+            test.testSuccessWithError();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser26Test.class);
@@ -93,6 +95,21 @@ public class PyParser26Test extends PyParserTestBase{
         assertEquals("classdec2", NodeUtils.getRepresentationString(d.decs[1].func));        
     }
     
+    
+    public void testSuccessWithError() {
+        PyParser.TRY_REPARSE = true;
+        String s = 
+            "class A:\n" +
+            "    def method1(self, *args, **kwargs):\n" +
+            "        "; 
+
+            
+        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+        Module m = (Module) tup.o1;
+        ClassDef c = (ClassDef) m.body[0];
+        FunctionDef func = (FunctionDef) c.body[0];
+        assertEquals("method1", NodeUtils.getRepresentationString(func));
+    }
     
 
 }

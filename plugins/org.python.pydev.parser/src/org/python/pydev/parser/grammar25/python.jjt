@@ -796,8 +796,7 @@ void with_var():{}
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
-{ simple_stmt() |  <NEWLINE>
-                   { token_source.expect_indent = true; } <INDENT> { token_source.expect_indent = false; } (stmt())+ <DEDENT> }
+{ simple_stmt() |  <NEWLINE> <INDENT> (stmt())+ <DEDENT> }
 
 //Backward compatibility cruft to support:
 //[ x for x in lambda: True, lambda: False if x() ]

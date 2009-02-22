@@ -753,8 +753,7 @@ void begin_except_clause(): {}
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
-{ simple_stmt() |  <NEWLINE>
-                   { token_source.expect_indent = true; } <INDENT> { token_source.expect_indent = false; } (stmt())+ <DEDENT> }
+{ simple_stmt() |  <NEWLINE> <INDENT> (stmt())+ <DEDENT> }
 
 
 //test: and_test ('or' and_test)* | lambdef

@@ -3662,9 +3662,7 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
         break;
       case NEWLINE:
         jj_consume_token(NEWLINE);
-                     token_source.expect_indent = true;
         jj_consume_token(INDENT);
-                                                                     token_source.expect_indent = false;
         label_21:
         while (true) {
           stmt();
@@ -6989,13 +6987,13 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3_33() {
-    if (jj_3R_70()) return true;
+  final private boolean jj_3R_109() {
+    if (jj_scan_token(ASSERT)) return true;
     return false;
   }
 
-  final private boolean jj_3R_109() {
-    if (jj_scan_token(ASSERT)) return true;
+  final private boolean jj_3_33() {
+    if (jj_3R_70()) return true;
     return false;
   }
 
@@ -7023,14 +7021,14 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3_31() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_66()) return true;
+  final private boolean jj_3R_108() {
+    if (jj_scan_token(NONLOCAL)) return true;
     return false;
   }
 
-  final private boolean jj_3R_108() {
-    if (jj_scan_token(NONLOCAL)) return true;
+  final private boolean jj_3_31() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_66()) return true;
     return false;
   }
 
@@ -7156,12 +7154,6 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3_23() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_50()) return true;
-    return false;
-  }
-
   final private boolean jj_3R_47() {
     if (jj_3R_72()) return true;
     return false;
@@ -7169,6 +7161,12 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
 
   final private boolean jj_3R_128() {
     if (jj_3R_92()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_23() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_50()) return true;
     return false;
   }
 
@@ -7220,13 +7218,13 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_98() {
-    if (jj_3R_63()) return true;
+  final private boolean jj_3R_118() {
+    if (jj_3R_127()) return true;
     return false;
   }
 
-  final private boolean jj_3R_118() {
-    if (jj_3R_127()) return true;
+  final private boolean jj_3R_98() {
+    if (jj_3R_63()) return true;
     return false;
   }
 
@@ -7276,13 +7274,13 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_111() {
-    if (jj_3R_124()) return true;
+  final private boolean jj_3R_104() {
+    if (jj_scan_token(PASS)) return true;
     return false;
   }
 
-  final private boolean jj_3R_104() {
-    if (jj_scan_token(PASS)) return true;
+  final private boolean jj_3R_111() {
+    if (jj_3R_124()) return true;
     return false;
   }
 
@@ -7293,6 +7291,11 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
 
   final private boolean jj_3R_95() {
     if (jj_3R_50()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_115() {
+    if (jj_scan_token(DEL)) return true;
     return false;
   }
 
@@ -7311,11 +7314,6 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
 
   final private boolean jj_3R_94() {
     if (jj_scan_token(DOT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_115() {
-    if (jj_scan_token(DEL)) return true;
     return false;
   }
 
@@ -7355,16 +7353,6 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_134() {
-    if (jj_scan_token(NONE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_135() {
-    if (jj_3R_58()) return true;
-    return false;
-  }
-
   final private boolean jj_3_3() {
     if (jj_scan_token(COMMA)) return true;
     Token xsp;
@@ -7378,6 +7366,16 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
 
   final private boolean jj_3R_102() {
     if (jj_3R_114()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_134() {
+    if (jj_scan_token(NONE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_135() {
+    if (jj_3R_58()) return true;
     return false;
   }
 
@@ -7396,13 +7394,13 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_131() {
-    if (jj_scan_token(LBRACE)) return true;
+  final private boolean jj_3R_87() {
+    if (jj_3R_109()) return true;
     return false;
   }
 
-  final private boolean jj_3R_87() {
-    if (jj_3R_109()) return true;
+  final private boolean jj_3R_131() {
+    if (jj_scan_token(LBRACE)) return true;
     return false;
   }
 
@@ -7437,13 +7435,13 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_130() {
-    if (jj_scan_token(LBRACKET)) return true;
+  final private boolean jj_3R_81() {
+    if (jj_3R_103()) return true;
     return false;
   }
 
-  final private boolean jj_3R_81() {
-    if (jj_3R_103()) return true;
+  final private boolean jj_3R_130() {
+    if (jj_scan_token(LBRACKET)) return true;
     return false;
   }
 
@@ -7502,6 +7500,11 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
+  final private boolean jj_3R_79() {
+    if (jj_scan_token(LPAREN)) return true;
+    return false;
+  }
+
   final private boolean jj_3_18() {
     if (jj_scan_token(LPAREN)) return true;
     if (jj_scan_token(RPAREN)) return true;
@@ -7542,11 +7545,6 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_79() {
-    if (jj_scan_token(LPAREN)) return true;
-    return false;
-  }
-
   final private boolean jj_3_10() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_52()) return true;
@@ -7556,12 +7554,6 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
   final private boolean jj_3_7() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_51()) return true;
-    return false;
-  }
-
-  final private boolean jj_3_17() {
-    if (jj_scan_token(POWER)) return true;
-    if (jj_3R_59()) return true;
     return false;
   }
 
@@ -7577,6 +7569,12 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     jj_scanpos = xsp;
     if (jj_3R_79()) return true;
     }
+    return false;
+  }
+
+  final private boolean jj_3_17() {
+    if (jj_scan_token(POWER)) return true;
+    if (jj_3R_59()) return true;
     return false;
   }
 
@@ -7679,13 +7677,13 @@ public class PythonGrammar30 extends AbstractPythonGrammar implements/*@bgen(jjt
     return false;
   }
 
-  final private boolean jj_3R_144() {
-    if (jj_3R_59()) return true;
+  final private boolean jj_3R_49() {
+    if (jj_scan_token(POWER)) return true;
     return false;
   }
 
-  final private boolean jj_3R_49() {
-    if (jj_scan_token(POWER)) return true;
+  final private boolean jj_3R_144() {
+    if (jj_3R_59()) return true;
     return false;
   }
 
