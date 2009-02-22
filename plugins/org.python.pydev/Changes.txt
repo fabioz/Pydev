@@ -4,6 +4,7 @@ After 1.4.3
 Pydev Extensions
 Pydev
 When killing the shells only the default interpreter was actually cleared (now clears all).
+Fix in the grammar when dealing with EOF and dedents
 
 
 After 1.4.2
