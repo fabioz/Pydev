@@ -58,7 +58,7 @@ public class FastStack<E> implements Iterable<E> {
      * @exception EmptyStackException
      *                if this stack is empty.
      */
-    public synchronized E pop() {
+    public E pop() {
         if (size == 0) {
             throw new EmptyStackException();
         }
@@ -75,7 +75,7 @@ public class FastStack<E> implements Iterable<E> {
      * @exception EmptyStackException
      *                if this stack is empty.
      */
-    public synchronized E peek() {
+    public E peek() {
         if (size == 0) {
             throw new EmptyStackException();
         }
