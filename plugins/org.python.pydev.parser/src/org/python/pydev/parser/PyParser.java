@@ -587,18 +587,13 @@ public class PyParser implements IPyParser {
             info.initial = startDoc;
         }
 
-        IDocument newDoc = new Document(startDoc);
-        
         CharStream in = null;
         if(USE_FAST_STREAM){
             //we don't want to keep the string from being released, so, just get the char array from the string
-            char[] cs = newDoc.get().toCharArray();
+            char[] cs = startDoc.toCharArray();
             in = new FastCharStream(cs);
         }else{
-            //this should be deprecated in the future (it is still here so that we can evaluate
-            //the changes done by the change of the reader).
-            String initialDoc = newDoc.get();
-            StringReader inString = new StringReader(initialDoc);
+            StringReader inString = new StringReader(startDoc);
             in = new ReaderCharStream(inString);
             throw new RuntimeException("This char stream reader was deprecated (was maintained only for testing purposes).");
         }
@@ -648,7 +643,6 @@ public class PyParser implements IPyParser {
             //ok, some error happened when trying the parse... let's go and clear the local info before doing
             //another parse.
             startDoc = null;
-            newDoc = null;
             in = null;
             host = null;
             grammar = null;

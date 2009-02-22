@@ -219,11 +219,13 @@ public class PyParserEditorIntegrationTest extends TestCase {
             }
         }
     }
+    
+    Object lock = new Object();
 
     private void checkParserChanged(PyEditStub pyEdit, int expected) throws InterruptedException {
         for(int i=0;i<20&&pyEdit.parserChanged<expected;i++){
-            synchronized(this){
-                this.wait(100);
+            synchronized(lock){
+                lock.wait(250);
             }
         }
         assertEquals(expected, pyEdit.parserChanged);

@@ -85,7 +85,28 @@ public class PyParserTestBase extends TestCase {
         }
         return err;
     }
+    
+    protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(String doc) {
+        return parseILegalDocSuccessfully(new Document(doc));
+    }
+    
+    protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(IDocument doc) {
+        parser.setDocument(doc, false, null, System.currentTimeMillis());
+        Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
+        Throwable err = objects.o2;
+        if(err == null){
+            fail("Expected a ParseException and the doc was successfully parsed.");
+        }
+        if(!(err instanceof ParseException) && !(err instanceof TokenMgrError)){
+            fail("Expected a ParseException and received:"+err.getClass());
+        }
+        if(objects.o1 == null){
+            fail("Expected the ast to be generated with the parse. Error: "+objects.o2.getMessage());
+        }
+        return objects;
+    }
 
+    
     /**
      * @param additionalErrInfo can be used to add additional errors to the fail message if the doc is not parseable
      * @param parser the parser to be used to do the parsing.

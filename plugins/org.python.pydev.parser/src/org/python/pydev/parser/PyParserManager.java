@@ -134,7 +134,7 @@ public class PyParserManager {
             //remove previous...
             IPyParser existingParser = getParser(edit);
             if(existingParser != null){
-                //it was already bonded to a parser, so, we have to remove that one before
+                //it was already bounded to a parser, so, we have to remove that one before
                 //attaching a new one
                 notifyEditorDisposed(edit);
             }
