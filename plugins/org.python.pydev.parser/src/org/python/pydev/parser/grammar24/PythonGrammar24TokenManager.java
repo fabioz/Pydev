@@ -22,11 +22,9 @@ import org.python.pydev.parser.jython.TokenMgrError;
 
 public class PythonGrammar24TokenManager extends AbstractTokenManager implements PythonGrammar24Constants
 {
-    protected final int getDedentId(){return DEDENT;}
-    protected final int getEofId(){return EOF;}
-    protected final int getDefaultId(){return DEFAULT;}
-    protected final int getNewlineId(){return NEWLINE;}
-    protected final int getCurLexState(){return curLexState;}
+    protected Class getConstantsClass(){
+        return PythonGrammar24Constants.class;
+    }
 
 
     private final void indenting(int ind) {

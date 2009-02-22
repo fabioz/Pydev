@@ -122,11 +122,9 @@ PARSER_END(PythonGrammar30)
 
 TOKEN_MGR_DECLS:
 {
-    protected final int getDedentId(){return DEDENT;}
-    protected final int getEofId(){return EOF;}
-    protected final int getDefaultId(){return DEFAULT;}
-    protected final int getNewlineId(){return NEWLINE;}
-    protected final int getCurLexState(){return curLexState;}
+    protected Class getConstantsClass(){
+        return PythonGrammar30Constants.class;
+    }
 
 
     private final void indenting(int ind) {
@@ -509,12 +507,16 @@ void parameters() #void:  {}
   <RPAREN>{this.findTokenAndAdd(")");} 
 }
   
-//typedargslist: ((tfpdef ['=' test] ',')*//                ('*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)//                | tfpdef ['=' test] (',' tfpdef ['=' test])* [','])
+//typedargslist: ((tfpdef ['=' test] ',')*
+//                ('*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
+//                | tfpdef ['=' test] (',' tfpdef ['=' test])* [','])
 void typedargslist() #void: {}
 {
 // Doing the exact same does not yield good results for javacc, so, we have to work with an alternative specification
 // (that does the same thing)
-//       (LOOKAHEAD(2) (defaultarg2() <COMMA>)*//        (ExtraArgList2() (<COMMA> defaultarg2())* [<COMMA> ExtraKeywordList2()] | ExtraKeywordList2())//        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
+//       (LOOKAHEAD(2) (defaultarg2() <COMMA>)*
+//        (ExtraArgList2() (<COMMA> defaultarg2())* [<COMMA> ExtraKeywordList2()] | ExtraKeywordList2())
+//        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
 
 
        ((defaultarg2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg2())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg2())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [{this.addSpecialToken(",");} <COMMA>]
@@ -547,7 +549,9 @@ void tfpdef(): {}
 }
 
 
-//varargslist: ((vfpdef ['=' test] ',')*//              ('*' [vfpdef] (',' vfpdef ['=' test])*  [',' '**' vfpdef] | '**' vfpdef)//              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
+//varargslist: ((vfpdef ['=' test] ',')*
+//              ('*' [vfpdef] (',' vfpdef ['=' test])*  [',' '**' vfpdef] | '**' vfpdef)
+//              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
 void varargslist() #void: {}
 {
        ((defaultarg() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]) | (ExtraKeywordList()) )]) [{this.addSpecialToken(",");} <COMMA>]
@@ -734,7 +738,8 @@ void global_stmt(): {}
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
-void nonlocal_stmt(): {}{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()]}
+void nonlocal_stmt(): {}
+{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()]}
 
 
 //assert_stmt: 'assert' test [',' test]
@@ -956,7 +961,10 @@ void trailer() #void: {Object spStr;Object spStr2;}
 
 
 
-//atom: ('(' [yield_expr|testlist_comp] ')' |//       '[' [testlist_comp] ']' |//       '{' [dictorsetmaker] '}' |//       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
+//atom: ('(' [yield_expr|testlist_comp] ')' |
+//       '[' [testlist_comp] ']' |
+//       '{' [dictorsetmaker] '}' |
+//       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
 void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
@@ -1046,7 +1054,8 @@ void dictorsetmaker() #void: {}
 	            (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test()<COLON> {this.addSpecialToken(":");} test())*
 	            [{this.addSpecialToken(",");} <COMMA>]
 	        )
-	    )        |
+	    )
+        |
 	    (
 	      (LOOKAHEAD(2) comp_for() | ({this.addSpecialToken(",");} <COMMA> test())*#set [{this.addSpecialToken(",");} <COMMA>] )
 	    )
@@ -1085,7 +1094,9 @@ void classdef(): {Object spStr;Object spStr2;}
         {this.addSpecialToken(":");} suite()
 }
 
-//arglist: (argument ',')* (argument [',']//                         |'*' test (',' argument)* [',' '**' test] //                         |'**' test)
+//arglist: (argument ',')* (argument [',']
+//                         |'*' test (',' argument)* [',' '**' test] 
+//                         |'**' test)
 void arglist() #void: {}
 {
        ((argument() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> argument())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgValueList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> argument())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [{this.addSpecialToken(",");} <COMMA>]
@@ -1167,6 +1178,39 @@ void String() #void :
 |   ( t=<TRIPLE_BSTRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#Binary
 }
 
-//Token AnyName() #void://{//    Token t;//}//{//    ( t= <NAME> { ((Name)jjtThis).id = t.image; return t; } {} )#Name
-//|   ( t = <OR_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <AND_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <NOT_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <IS> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <IN> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <LAMBDA> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <IF> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <ELSE> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <ELIF> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <WHILE> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <FOR> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <TRY> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <EXCEPT> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <DEF> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <CLASS> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <FINALLY> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <PASS> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <BREAK> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <CONTINUE> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <RETURN> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <YIELD> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <IMPORT> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <FROM> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <DEL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <RAISE> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <GLOBAL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <NONLOCAL> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <ASSERT> { jjtThis.setImage(t.image); return t; } {} )#Name//|   ( t = <AS> { jjtThis.setImage(t.image); return t; } {} )#Name
+//Token AnyName() #void:
+//{
+//    Token t;
+//}
+//{
+//    ( t= <NAME> { ((Name)jjtThis).id = t.image; return t; } {} )#Name
+//|   ( t = <OR_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <AND_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <NOT_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <IS> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <IN> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <LAMBDA> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <IF> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <ELSE> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <ELIF> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <WHILE> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <FOR> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <TRY> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <EXCEPT> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <DEF> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <CLASS> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <FINALLY> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <PASS> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <BREAK> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <CONTINUE> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <RETURN> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <YIELD> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <IMPORT> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <FROM> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <DEL> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <RAISE> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <GLOBAL> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <NONLOCAL> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <ASSERT> { jjtThis.setImage(t.image); return t; } {} )#Name
+//|   ( t = <AS> { jjtThis.setImage(t.image); return t; } {} )#Name
 //}

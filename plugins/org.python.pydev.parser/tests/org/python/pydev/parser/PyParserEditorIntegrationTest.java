@@ -122,12 +122,10 @@ public class PyParserEditorIntegrationTest extends TestCase {
         checkParserChanged(pyEdit, 2);
         
         pyParserManager.attachParserTo(pyEdit);
-        waitABit();
-        assertEquals(3, pyEdit.parserChanged);
+        checkParserChanged(pyEdit, 3);
         
         doc.replace(0, 0, "\r\ntest"); //after this change, only 1 reparse should be asked, as the editor and doc is the same
-        waitABit();
-        assertEquals(4, pyEdit.parserChanged);
+        checkParserChanged(pyEdit, 4);
         
         pyParserManager.notifyEditorDisposed(pyEdit);
         doc.replace(0, 0, "\r\ntest"); //after this change, only 1 reparse should be asked, as the editor and doc is the same
@@ -137,6 +135,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
         assertEquals(0, pyParserManager.getParsers().size());
     }
     
+
     public void testDifferentEditorsSameInput() throws Exception {
         Preferences preferences = new Preferences();
         PyParserManager pyParserManager = PyParserManager.getPyParserManager(preferences);
@@ -153,36 +152,34 @@ public class PyParserEditorIntegrationTest extends TestCase {
         checkParserChanged(pyEdit1, 2);
         
         pyParserManager.attachParserTo(pyEdit2);
-        waitABit();
-        assertEquals(3, pyEdit1.parserChanged);
-        assertEquals(1, pyEdit2.parserChanged);
+        checkParserChanged(pyEdit1, 3);
+        checkParserChanged(pyEdit2, 1);
 
         IDocument doc2 = new Document();
         pyEdit2.setDocument(doc2);
         pyParserManager.notifyEditorDisposed(pyEdit1);
         
-        waitABit();
-        assertEquals(3, pyEdit1.parserChanged); 
-        assertEquals(2, pyEdit2.parserChanged);
+        checkParserChanged(pyEdit1, 3);
+        checkParserChanged(pyEdit2, 2);
         
         assertNull(pyParserManager.getParser(pyEdit1));
         doc2.replace(0, 0, "\r\ntest");
-        waitABit();
-        assertEquals(3, pyEdit1.parserChanged); 
-        assertEquals(3, pyEdit2.parserChanged);
+        checkParserChanged(pyEdit1, 3);
+        checkParserChanged(pyEdit2, 3);
+        
         
         doc.replace(0, 0, "\r\ntest"); //no one's listening this one anymore
         waitABit();
-        assertEquals(3, pyEdit1.parserChanged); 
-        assertEquals(3, pyEdit2.parserChanged);
+        checkParserChanged(pyEdit1, 3);
+        checkParserChanged(pyEdit2, 3);
         
         pyParserManager.notifyEditorDisposed(pyEdit2);
         assertNull(pyParserManager.getParser(pyEdit2));
         doc2.replace(0, 0, "\r\ntest"); //no one's listening this one anymore
         doc.replace(0, 0, "\r\ntest"); //no one's listening this one anymore
         waitABit();
-        assertEquals(3, pyEdit1.parserChanged); 
-        assertEquals(3, pyEdit2.parserChanged);
+        checkParserChanged(pyEdit1, 3);
+        checkParserChanged(pyEdit2, 3);
         assertEquals(0, pyParserManager.getParsers().size());
         
     }
@@ -216,7 +213,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
     }
 
     private void waitABit() throws InterruptedException {
-        for(int i=0;i<7;i++){
+        for(int i=0;i<10;i++){
             synchronized(this){
                 this.wait(25);
             }

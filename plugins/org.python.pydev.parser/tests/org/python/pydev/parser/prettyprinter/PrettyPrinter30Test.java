@@ -3,6 +3,9 @@
  */
 package org.python.pydev.parser.prettyprinter;
 import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.commentType;
 
 
 public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
@@ -270,6 +273,32 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "j = stop if (arg in gets) else start\n"+
         "";
         checkPrettyPrintEqual(s);
+        
+    }
+    
+    public void testEndWithComment() {
+        String s = 
+                "class C: \n" +
+                "    pass\n" +
+                "#end\n" +
+                "";
+        Module ast = (Module) parseLegalDocStr(s);
+        ClassDef d = (ClassDef) ast.body[0];
+        assertEquals(1, d.specialsAfter.size());
+        commentType c = (commentType) d.specialsAfter.get(0);
+        assertEquals("#end", c.id);
+        
+    }
+    
+    public void testOnlyComment() {
+        String s = 
+            "#end\n" +
+            "\n" +
+            "";
+        Module ast = (Module) parseLegalDocStr(s);
+        assertEquals(1, ast.specialsBefore.size());
+        commentType c = (commentType) ast.specialsBefore.get(0);
+        assertEquals("#end", c.id);
         
     }
     

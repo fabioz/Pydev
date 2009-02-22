@@ -92,6 +92,8 @@ Current setting is: ${javaccHome}
         <echo>Updating jjtree.builder.openNode</echo>
     	<replace file="${parser.dir}/PythonGrammar24.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
     	<replace file="${parser.dir}/PythonGrammar24.java" token="PythonGrammar24TreeConstants," value=""/>
+    	
+    	<fixcrlf srcdir="${parser.dir}"></fixcrlf>
     </target>
 
     <!-- confirmation -->

@@ -110,11 +110,9 @@ PARSER_END(PythonGrammar25)
 
 TOKEN_MGR_DECLS:
 {
-    protected final int getDedentId(){return DEDENT;}
-    protected final int getEofId(){return EOF;}
-    protected final int getDefaultId(){return DEFAULT;}
-    protected final int getNewlineId(){return NEWLINE;}
-    protected final int getCurLexState(){return curLexState;}
+    protected Class getConstantsClass(){
+        return PythonGrammar25Constants.class;
+    }
     
 
     private final void indenting(int ind) {

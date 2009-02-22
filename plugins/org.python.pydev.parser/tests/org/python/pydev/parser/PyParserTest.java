@@ -38,7 +38,7 @@ public class PyParserTest extends PyParserTestBase{
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
             //timer.printDiff();
-            test.testThreadingInParser();
+            test.testEmpty();
             test.tearDown();
             
             
@@ -55,66 +55,6 @@ public class PyParserTest extends PyParserTestBase{
         PyParser.USE_FAST_STREAM = true;
     }
     
-    
-
-    public void testRemoveEndingComments() throws Exception {
-        String s = 
-                "class Foo:pass\n" +
-                "#comm1\n" +
-                "#comm2\n" +
-                "print 'no comm'\n" +
-                "#comm3\n" +
-                "#comm4";
-        Document doc = new Document(s);
-        
-        List<commentType> comments = PyParser.removeEndingComments(doc);
-        assertEquals("#comm3", comments.get(0).id);
-        assertEquals(1, comments.get(0).beginColumn);
-        assertEquals(5, comments.get(0).beginLine);
-        
-        assertEquals("#comm4", comments.get(1).id);
-        assertEquals(1, comments.get(1).beginColumn);
-        assertEquals(6, comments.get(1).beginLine);
-        
-        assertEquals("class Foo:pass\n" +
-                "#comm1\n" +
-                "#comm2\n" +
-                "print 'no comm'\n", doc.get());
-    }
-    
-    public void testRemoveEndingComments2() throws Exception {
-        String s = 
-            "class C: \n" +
-            "    pass\n" +
-            "#end\n" +
-            "";
-        Document doc = new Document(s);
-        List<commentType> comments = PyParser.removeEndingComments(doc);
-        assertEquals(1, comments.get(0).beginColumn);
-        assertEquals(3, comments.get(0).beginLine);
-        assertEquals("#end" , comments.get(0).id);
-        assertEquals("class C: \n" +
-                "    pass\n" 
-                , doc.get());
-    }
-    
-    public void testRemoveEndingComments3() throws Exception {
-        String s = 
-            "##end\n" +
-            "##end\n" +
-            "";
-        Document doc = new Document(s);
-        List<commentType> comments = PyParser.removeEndingComments(doc);
-        
-        assertEquals(1, comments.get(0).beginColumn);
-        assertEquals(1, comments.get(0).beginLine);
-        assertEquals("##end" , comments.get(0).id);
-        
-        assertEquals(2, comments.get(1).beginLine);
-        assertEquals(1, comments.get(1).beginColumn);
-        assertEquals("##end" , comments.get(1).id);
-        assertEquals("", doc.get());
-    }
     
     public void testTryReparse() throws BadLocationException{
         Document doc = new Document("");
@@ -438,11 +378,36 @@ public class PyParserTest extends PyParserTestBase{
     }
 
     public void testEndWithComment() {
-        String s = "class C: \n" +
+        String s = 
+                "class C: \n" +
                 "    pass\n" +
                 "#end\n" +
                 "";
-        parseLegalDocStr(s);
+        Module ast = (Module) parseLegalDocStr(s);
+        ClassDef d = (ClassDef) ast.body[0];
+        assertEquals(1, d.specialsAfter.size());
+        commentType c = (commentType) d.specialsAfter.get(0);
+        assertEquals("#end", c.id);
+        
+    }
+    
+    public void testOnlyComment() {
+        String s = 
+            "#end\n" +
+            "\n" +
+            "";
+        Module ast = (Module) parseLegalDocStr(s);
+        assertEquals(1, ast.specialsBefore.size());
+        commentType c = (commentType) ast.specialsBefore.get(0);
+        assertEquals("#end", c.id);
+        
+    }
+    
+    public void testEmpty() {
+        String s = 
+            "";
+        Module ast = (Module) parseLegalDocStr(s);
+        assertNotNull(ast);
     }
     
     public void testParser7() {

@@ -6365,6 +6365,11 @@ public class PythonGrammar25 extends AbstractPythonGrammar implements/*@bgen(jjt
     finally { jj_save(26, xla); }
   }
 
+  final private boolean jj_3R_126() {
+    if (jj_scan_token(LBRACKET)) return true;
+    return false;
+  }
+
   final private boolean jj_3_9() {
     if (jj_scan_token(PRINT)) return true;
     if (jj_scan_token(RSHIFT)) return true;
@@ -7263,11 +7268,6 @@ public class PythonGrammar25 extends AbstractPythonGrammar implements/*@bgen(jjt
   final private boolean jj_3_10() {
     if (jj_scan_token(PRINT)) return true;
     if (jj_3R_45()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_126() {
-    if (jj_scan_token(LBRACKET)) return true;
     return false;
   }
 
