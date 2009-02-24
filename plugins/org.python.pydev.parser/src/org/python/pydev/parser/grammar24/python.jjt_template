@@ -15,42 +15,19 @@ options
 
     USER_CHAR_STREAM      = true;
     UNICODE_INPUT         = true;
-    ERROR_REPORTING       = true;  // this is NOT used to shut down errors regarding javacc org.python.pydev.parser.jython.PythonGrammar$LookaheadSuccess
+    ERROR_REPORTING       = true;  // this is NOT used to shut down errors regarding javacc org.python.pydev.parser.jython.PythonGrammar$$LookaheadSuccess
                                       // because the generated information is not complete enough if we do it.
 }
 
 
-PARSER_BEGIN(PythonGrammar25)
-package org.python.pydev.parser.grammar25;
-
-import java.util.List;
-import java.util.ArrayList;
-import org.python.pydev.parser.IGrammar;
-import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
-import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
-import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
-import org.python.pydev.parser.grammarcommon.JfpDef;
-import org.python.pydev.parser.jython.CharStream;
-import org.python.pydev.parser.jython.IParserHost;
-import org.python.pydev.parser.jython.ParseException;
-import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.Token;
-import org.python.pydev.parser.jython.ast.Import;
-import org.python.pydev.parser.jython.ast.ImportFrom;
-import org.python.pydev.parser.jython.ast.Name;
-import org.python.pydev.parser.jython.ast.Num;
-import org.python.pydev.parser.jython.ast.Str;
-import org.python.pydev.parser.jython.ast.Yield;
-import org.python.pydev.parser.jython.ast.modType;
-import org.python.pydev.parser.jython.TokenMgrError;
-import org.python.pydev.parser.grammarcommon.EmptySuiteException;
-import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
+PARSER_BEGIN(PythonGrammar24)
+package org.python.pydev.parser.grammar24;
+$IMPORTS
 
 
-
-public class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
+public class PythonGrammar24 extends AbstractPythonGrammar implements IGrammar
 {
-	
+
     /**
      * @return the current token found.
      */
@@ -84,24 +61,14 @@ public class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
     }
     
     
-    private boolean acceptWithStmt = false;
-    
-    
-    void handleFutureImports(String importName){
-    	if(importName.equals("with_statement")){
-    		acceptWithStmt = true;
-    	}
-    }
-    
-
    // constructors taking a IParserHost impl
 
-   public PythonGrammar25(CharStream stream,IParserHost host) {
+   public PythonGrammar24(CharStream stream,IParserHost host) {
        this(stream);
        hostLiteralMkr = host;
    }
 
-   public PythonGrammar25(PythonGrammar25TokenManager tm,
+   public PythonGrammar24(PythonGrammar24TokenManager tm,
                         IParserHost host)
    {
         this(tm);
@@ -111,14 +78,14 @@ public class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
 }
 
 
-PARSER_END(PythonGrammar25)
+PARSER_END(PythonGrammar24)
 
 TOKEN_MGR_DECLS:
 {
     protected Class getConstantsClass(){
-        return PythonGrammar25Constants.class;
+        return PythonGrammar24Constants.class;
     }
-    
+
 
     private final void indenting(int ind) {
         indent = ind;
@@ -158,6 +125,11 @@ SKIP :
 { <NEWLINE2: ("\n" | "\r")> { matchedToken.kind = NEWLINE; }: INDENTING }
 
 
+// causes expected warning
+<MAYBE_FORCE_NEWLINE_IF_EOF> SKIP :
+{
+    <""> { indenting(0); }
+}
 
 <INDENTING, INDENTATION_UNCHANGED> SKIP :
 {
@@ -315,7 +287,6 @@ TOKEN : /* KEYWORDS */
 |   < EXEC: "exec" >
 |   < ASSERT: "assert" >
 |   < AS: "as" >
-|   <WITH: "with" >
 |   < AT: "@" >
 }
 
@@ -475,13 +446,13 @@ modType file_input(): {}
 void funcdef(): {}
 { 
     decorators()
-    <DEF> Name() parameters() {this.findTokenAndAdd(":");} <COLON> suite() 
+    <DEF> Name() parameters() $COLON suite() 
 }
 
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() {this.findTokenAndAdd(")");}<RPAREN> ] <NEWLINE> )* 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() $RPAREN ] <NEWLINE> )* 
 }
 void begin_decorator(): {}
 { <AT> dotted_name()
@@ -491,7 +462,7 @@ void begin_decorator(): {}
 void parameters() #void: {}
 { <LPAREN>{this.findTokenAndAdd("(");}
   [varargslist()] 
-  {this.findTokenAndAdd(")");}<RPAREN> 
+  $RPAREN 
   }
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
@@ -517,31 +488,17 @@ void defaultarg(): {}
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() {this.findTokenAndAdd(")");}<RPAREN>  }
+{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() $RPAREN  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
 { fpdef() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> fpdef())* [{this.addSpecialToken(",");} <COMMA>] }
 
 
-
-//stmt: simple_stmt | compound_stmt
-void stmt() #void: {}
-{ simple_stmt() | compound_stmt() }
+$STMT
 
 
-
-
-//simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
-void simple_stmt() #void: {}
-{ 
-    small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* 
-    [<SEMICOLON>] 
-    try{<NEWLINE>}catch(ParseException e){
-        handleNoNewline(e);
-    }
-}
-
+$SIMPLE_STMT
 
 
 //small_stmt: expr_stmt | print_stmt  | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | exec_stmt | assert_stmt
@@ -558,25 +515,24 @@ void small_stmt() #void: {SimpleNode simpleNode;}
 |   assert_stmt() {addToPeek("assert ", false); }
 }
 
-//expr_stmt: testlist (augassign (yield_expr|testlist) |
-//                     ('=' (yield_expr|testlist))*)
+//expr_stmt: testlist (augassign testlist | ('=' testlist)*)
 void expr_stmt() #void: {}
 {
     SmartTestList() (
-    <PLUSEQ>        (yield_expr()|SmartTestList())   #aug_plus(2)
-|   <MINUSEQ>       (yield_expr()|SmartTestList())   #aug_minus(2)
-|   <MULTIPLYEQ>    (yield_expr()|SmartTestList())   #aug_multiply(2)
-|   <DIVIDEEQ>      (yield_expr()|SmartTestList())   #aug_divide(2)
-|   <FLOORDIVIDEEQ> (yield_expr()|SmartTestList())   #aug_floordivide(2)
-|   <MODULOEQ>      (yield_expr()|SmartTestList())   #aug_modulo(2)
-|   <ANDEQ>         (yield_expr()|SmartTestList())   #aug_and(2)
-|   <OREQ>          (yield_expr()|SmartTestList())   #aug_or(2)
-|   <XOREQ>         (yield_expr()|SmartTestList())   #aug_xor(2)
-|   <LSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_lshift(2)
-|   <RSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_rshift(2)
-|   <POWEREQ>       (yield_expr()|SmartTestList())   #aug_power(2)
-|  (<EQUAL>         (yield_expr()|SmartTestList()))* #expr_stmt(jjtree.nodeArity()+1))
-
+    <PLUSEQ> SmartTestList() #aug_plus(2)
+|   <MINUSEQ> SmartTestList() #aug_minus(2)
+|   <MULTIPLYEQ> SmartTestList() #aug_multiply(2)
+|   <DIVIDEEQ> SmartTestList() #aug_divide(2)
+|   <FLOORDIVIDEEQ> SmartTestList() #aug_floordivide(2)
+|   <MODULOEQ> SmartTestList() #aug_modulo(2)
+|   <ANDEQ> SmartTestList() #aug_and(2)
+|   <OREQ> SmartTestList() #aug_or(2)
+|   <XOREQ> SmartTestList() #aug_xor(2)
+|   <LSHIFTEQ> SmartTestList() #aug_lshift(2)
+|   <RSHIFTEQ> SmartTestList() #aug_rshift(2)
+|   <POWEREQ> SmartTestList() #aug_power(2)
+|   (<EQUAL> SmartTestList())* #expr_stmt(jjtree.nodeArity()+1)
+    )
 }
 
 //print_stmt: 'print' (test ',')* [test] | 'print' '>>' test (, test)+ [,]
@@ -624,14 +580,10 @@ void begin_return_stmt(): {}
 }
 
 
-//yield_stmt: yield_expr
-void yield_stmt(): {}
-{ yield_expr() }
+//yield_stmt: 'yield' testlist
+void yield_stmt(): {Object spStr;}
+{ {spStr = createSpecialStr("yield","yield ", false);} <YIELD> SmartTestList() {this.addToPeek(spStr, false, Yield.class);}}
 
-
-//yield_expr: 'yield' [testlist]
-void yield_expr(): {Object spStr;}
-{ {spStr = createSpecialStr("yield","yield ", false);} <YIELD> [SmartTestList()] {this.addToPeek(spStr, false, Yield.class);}}
 
 
 //raise_stmt: 'raise' [test [',' test [',' test]]]
@@ -650,27 +602,20 @@ Import Import(): {}
   {return (Import)jjtree.peekNode();}
 }
 
-//import_from: ('from' ('.'* dotted_name | '.'+)
-//              'import' ('*' | '(' import_as_names ')' | import_as_names))
-void ImportFrom(): { int level=0; int state=0;String fromName=null;String importName=null; }
+//TODO: allways allowed (treat different versions in other places, to see if this is correct or not)
+void ImportFrom(): { String mod; String name;int state=0; }
 {
-    //we need to set the  <IMPORT> {this.addSpecialToken(" import ");} in both otherwise the lookahead will not work as we want it to work
-    //because it confuses the import with the dotted name
-     (("." {this.addSpecialToken(".");level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
-     <IMPORT> {this.addSpecialToken(" import ");} 
-    
+    mod=dotted_name() <IMPORT> {this.addSpecialToken(" import ");}
     (
         //from xxx import *
         <MULTIPLY> {this.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
         
         //from xxx import a,b,c
-        | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
-        	({this.addSpecialToken(",");} <COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
-          ) 
+        | (name=import_as_name() ({this.addSpecialToken(",");} <COMMA> import_as_name())*) 
         
         //from xxx import (a,b,c)
         | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
-          (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
+          name=import_as_name() 
           (
            ({
              if(state!=0){
@@ -679,12 +624,10 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
              state=1; 
              this.addSpecialToken(",");
              } 
-             <COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
-           {this.findTokenAndAdd(")");}<RPAREN> 
+             <COMMA> ( {state=0;} import_as_name())? )* 
+           $RPAREN 
           )
     )
-    //now, let's set the correct level for the module
-    {((ImportFrom)jjtree.peekNode()).level = level;}
 }
 
 //dotted_as_name: dotted_name [NAME NAME]
@@ -714,19 +657,18 @@ void exec_stmt(): {}
 void assert_stmt(): {}
 { <ASSERT> test() [{this.addSpecialToken(",");} <COMMA> test()] }
 
-//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
+//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | funcdef | classdef
 void compound_stmt() #void : { token_source.compound = true; }
-{if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef()}
+{if_stmt() | while_stmt() | for_stmt() | try_stmt()  | funcdef() | classdef()}
 
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {Object spStr;}
 {
     {spStr = createSpecialStr("if","if ", false);}
-    <IF> {this.addSpecialTokenToLastOpened(spStr);} test() {this.findTokenAndAdd(":");} <COLON> suite()
-         (begin_elif_stmt() test() {this.findTokenAndAdd(":");} <COLON> suite())* 
+    <IF> {this.addSpecialTokenToLastOpened(spStr);} test() $COLON suite()
+         (begin_elif_stmt() test() $COLON suite())* 
              [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:",true);} suite()]
 }
-
 
 void begin_elif_stmt(): {}
 { <ELIF> {this.addToPeek("elif",false);}
@@ -735,7 +677,7 @@ void begin_elif_stmt(): {}
 
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {}
-{ begin_while_stmt() test() {this.findTokenAndAdd(":");} <COLON> suite() 
+{ begin_while_stmt() test() $COLON suite() 
   [ begin_else_stmt()  suite()] }
 
 void begin_while_stmt(): {}
@@ -747,7 +689,7 @@ void begin_else_stmt(): {}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() {this.findTokenAndAdd(":");} <COLON> suite()
+{   <FOR> {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() $COLON suite()
     [begin_for_else_stmt() suite()]
     
 } 
@@ -758,22 +700,16 @@ void begin_for_else_stmt(): {}
 }
 //try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
 //           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
-void try_stmt() #void: {SimpleNode tryNode;int i=0;}
+void try_stmt() #void: {SimpleNode tryNode;}
 { 
     begin_try_stmt() {tryNode = (SimpleNode)jjtree.peekNode();}  suite() (
-		(
-			(except_clause(tryNode) {i++;})+ 
+    ((except_clause(tryNode))+ 
     
-			[begin_try_else_stmt() suite() {i++;} #tryelse_stmt(2) ]
-			
-			[begin_finally_stmt()  suite() {i++;} #tryfinally_outer_stmt(2)]
-			
-			#try_stmt(i)
-		)
+    [begin_try_else_stmt()  suite()])
+        #try_stmt(jjtree.nodeArity()+1)
         
-		| begin_finally_stmt() suite()
-			#tryfinally_stmt(jjtree.nodeArity()+1)
-	)
+    | begin_finally_stmt() suite()
+        #tryfinally_stmt(jjtree.nodeArity()+1))
 }
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
@@ -790,88 +726,17 @@ void begin_finally_stmt(): {}
 
 //except_clause: 'except' [test [',' test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(",");} <COMMA> test()]] {this.findTokenAndAdd(":");} <COLON> suite() }
+{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(",");} <COMMA> test()]] $COLON suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
 
 
-//with_stmt: 'with' test [ with_var ] ':' suite
-void with_stmt(): {}
-{ <WITH> 
-	{this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
-	
-	test() 
-	
-	{if(!acceptWithStmt)throw new ParseException("'from __future__ import with_statement' must be specified to accept 'with' statement.",jjtree.peekNode());	}
-	
-	[with_var()] {this.findTokenAndAdd(":");} <COLON> suite() }
+$SUITE
 
-//with_var: 'as' expr
-void with_var():{}
-{ <AS> {this.addSpecialToken(" as ", STRATEGY_BEFORE_NEXT);} expr()}
-
-
-//suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
-void suite(): {}
-{ 
-
-try{
-        simple_stmt() 
-    |  
-    
-        try{<NEWLINE><INDENT>}catch(ParseException e){handleErrorInIndent(e);}
-        
-        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-        
-        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-    
-    |
-    try{
-        {handleNoIndentInSuiteFound();}
-        
-        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-        
-        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-    }catch(EmptySuiteException emptySuiteE){} //just close it 'gracefully'
-        
-
-}catch(ParseException e){handleNoSuiteMatch(e);}
-
-}
-
-
-//Backward compatibility cruft to support:
-//[ x for x in lambda: True, lambda: False if x() ]
-//even while also allowing:
-//lambda x: 5 if x else 2
-//(But not a mix of the two)
-//
-//testlist_safe: old_test [(',' old_test)+ [',']]
-void testlist_safe()#void:{}
-{old_test()  [  ({this.addSpecialToken(",");}<COMMA> old_test() )+ [{this.addSpecialToken(",");}<COMMA>]  ]}
-
-//old_test: or_test | old_lambdef
-void old_test()#void:{}
-{or_test() | old_lambdef()}
-
-//old_lambdef: 'lambda' [varargslist] ':' old_test
-void old_lambdef():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} old_test() }
-
-
-//test: or_test ['if' or_test 'else' test] | lambdef
-void test(): {}
-{  lambdef() | or_test() [if_exp()] }
-
-void if_exp():{}
-{<IF> {this.addSpecialToken(" if ",STRATEGY_ADD_AFTER_PREV);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
-
-
-//or_test: or_test: and_test ('or' and_test)*
-void or_test() #or_boolean(>1): {}
-{ and_test() (<OR_BOOL> and_test())* }
-
+//test: and_test ('or' and_test)* | lambdef
+void test() #or_boolean(>1): {}
+{ lambdef() | and_test() (<OR_BOOL> and_test())* }
 
 //and_test: not_test ('and' not_test)*
 void and_test() #and_boolean(>1): {}
@@ -987,12 +852,12 @@ void atom() #void: {Object spStr;Object spStr2;}
 
 |   LOOKAHEAD(2) (  
       {spStr  = createSpecialStr("(", false);} <LPAREN>  
-      (yield_expr() | insidetuporcall())
+      insidetuporcall() 
       {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
-|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] {this.findTokenAndAdd(")");}<RPAREN>  )
+|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] $RPAREN )
 
 |   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
       [listmaker()] 
@@ -1055,27 +920,29 @@ void testlist() #void: {}
 
 //dictmaker: test ':' test (',' test ':' test)* [',']
 void dictmaker() #void: {}
-{test() {this.findTokenAndAdd(":");} <COLON> test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test() {this.findTokenAndAdd(":");} <COLON> test())* [{this.addSpecialToken(",");} <COMMA>]}
+{test() $COLON test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test() $COLON test())* [{this.addSpecialToken(",");} <COMMA>]}
 
 //listmaker: test ( list_for | (',' test)* [','] )
 void listmaker() #void: {}
-{ test() ( LOOKAHEAD(2)(list_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
+{ test() ( (list_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
+
+void complistmaker() #void: {}
+{ test() list_for()  
+}
 
 //list_iter: [list_for | list_if]
-void list_iter() #void: {}
-{ list_for() | list_if() }
+//void list_iter() #void: {}
+//{ [ (list_for() | list_if()) ] }
 
 //list_for: 'for' exprlist 'in' testlist list_iter
 void list_for(): {}
-{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} testlist_safe() [list_iter()] }
-
-void list_if()#void:{}
-{ <IF>  {this.addSpecialToken(" if ");} old_test() [list_iter()]}
+{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() (<IF>  {this.addSpecialToken(" if ");} test())* }
 
 
-//classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
+
+//classdef: 'class' NAME ['(' testlist ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] {this.findTokenAndAdd(")");}<RPAREN> ] {this.findTokenAndAdd(":");} <COLON> suite()}
+{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   testlist() $RPAREN ] $COLON suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
@@ -1132,26 +999,12 @@ void Number() #Num :
     )
 }
 
+
 void Complex(): {}
 { <FLOAT>   }
 
 
-
-Token Name() #Name:
-{
-    Token t;
-}
-{
-    try{
-        t = <NAME> 
-    }catch(ParseException e){
-        t = handleErrorInName(e);
-    }
-
-        { ((Name)jjtThis).id = t.image; return t; } {}
-
-}
-
+$NAME_DEFINITION
 
 
 void String() #void :
@@ -1168,3 +1021,4 @@ void String() #void :
 |   ( t=<TRIPLE_USTRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
 |   ( t=<TRIPLE_USTRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
 }
+

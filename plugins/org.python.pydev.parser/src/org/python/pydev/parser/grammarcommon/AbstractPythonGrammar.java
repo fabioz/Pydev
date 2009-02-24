@@ -1,8 +1,14 @@
 package org.python.pydev.parser.grammarcommon;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.REF;
+import org.python.pydev.parser.IGrammar;
+import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
@@ -13,12 +19,27 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 
-public abstract class AbstractPythonGrammar implements ITreeConstants{
+public abstract class AbstractPythonGrammar implements ITreeConstants, IGrammar{
 
+    public static boolean DEBUG = false;
+    public final static boolean DEBUG_SHOW_PARSE_ERRORS = PyParser.DEBUG_SHOW_PARSE_ERRORS;
+    
+    
     public IParserHost hostLiteralMkr;
     public SimpleNode prev;
-    public static boolean DEBUG = false;
+    private AbstractTokenManager tokenManager;
     public final static boolean DEFAULT_SEARCH_ON_LAST = false;
+    
+    
+    /**
+     * @return The token manager.
+     */
+    protected final AbstractTokenManager getTokenManager() {
+        if(this.tokenManager == null){
+            this.tokenManager =  (AbstractTokenManager) REF.getAttrObj(this, "token_source", true);
+        }
+        return this.tokenManager;
+    }
 
     /**
      * @return the actual jjtree used to build the nodes (tree)
@@ -45,24 +66,71 @@ public abstract class AbstractPythonGrammar implements ITreeConstants{
      * @return the current token
      */
     protected abstract Token getCurrentToken();
+    
+    /**
+     * List with the errors we handled during the parsing
+     */
+    private List<ParseException> parseErrors = new ArrayList<ParseException>();
+    
+    /**
+     * @return a list with the parse errors. Note that the returned value is not a copy, but the actual
+     * internal list used to store the errors.
+     */
+    public List<ParseException> getParseErrors(){
+        return parseErrors;
+    }
 
-    protected final void addToPeek(Object t, boolean after) {
+    /**
+     * Adds some parse exception to the list of parse exceptions found.
+     */
+    private void addParseError(ParseException e) {
+        parseErrors.add(e);
+    }
+
+    /**
+     * @return the 1st error that happened while parsing (or null if no error happened)
+     */
+    public Throwable getErrorOnParsing() {
+        if(this.parseErrors != null && this.parseErrors.size() > 0){
+            return this.parseErrors.get(0);
+        }
+        return null;
+    }
+    
+    
+    
+    //---------------------------- Helpers to add special tokens.
+    
+    /**
+     * Adds a special token to the current token that's in the top of the stack (the peeked token)
+     */
+    protected final void addToPeek(Object t, boolean after) throws ParseException {
         addToPeek(t, after, null);
     }
 
+    /**
+     * Adds a special token to the current token that's in the top of the stack (the peeked token)
+     * Considers that the token at the stack is a Call and adds it to its function.
+     */
     protected final void addToPeekCallFunc(Object t, boolean after) {
         Call n = (Call) getJJTree().peekNode();
         n.func.addSpecial(t, after);
     }
 
+    /**
+     * Adds a special token to the current token that's in the top of the stack (the peeked token)
+     */
     @SuppressWarnings("unchecked")
-    protected final void addToPeek(Object t, boolean after, Class class_) {
+    protected final void addToPeek(Object t, boolean after, Class class_) throws ParseException {
         SimpleNode peeked = (SimpleNode) getJJTree().peekNode();
         addToPeek(peeked, t, after, class_);
     }
 
+    /**
+     * Adds a special token to the current token that's in the top of the stack (the peeked token)
+     */
     @SuppressWarnings("unchecked")
-    protected final void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) {
+    protected final void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) throws ParseException {
         if (class_ != null) {
             // just check if it is the class we were expecting.
             if (peeked.getClass().equals(class_) == false) {
@@ -71,9 +139,107 @@ public abstract class AbstractPythonGrammar implements ITreeConstants{
             }
         }
         t = convertStringToSpecialStr(t);
-        peeked.addSpecial(t, after);
+        if(t != null){
+            peeked.addSpecial(t, after);
+        }
 
     }
+    
+    
+    
+    
+    
+    
+    //---------------------------- Helpers to handle errors in the grammar.
+
+    protected final void addAndReport(ParseException e, String msg){
+        if(DEBUG_SHOW_PARSE_ERRORS){
+            System.out.println(msg);
+            e.printStackTrace();
+        }
+        addParseError(e);
+    }
+    
+    /**
+     * Called when there was an error trying to indent.
+     */
+    protected final void handleErrorInIndent(ParseException e) throws ParseException{
+        addAndReport(e, "Handle indent");
+    }
+    
+    /**
+     * Called when there was an error trying to dedent.
+     */
+    protected final void handleErrorInDedent(ParseException e) throws ParseException{
+        addAndReport(e, "Handle dedent");
+    }
+    
+    /**
+     * Called when there was an error while resolving a statement.
+     */
+    protected final void handleErrorInStmt(ParseException e) throws ParseException{
+        addAndReport(e, "Handle stmt");
+    }
+    
+    /**
+     * Called when there was an error while resolving a statement.
+     */
+    protected final void handleNoNewline(ParseException e) throws ParseException{
+        addAndReport(e, "Handle no newline");
+    }
+    
+    
+    /**
+     * This is called when recognized a suite without finding its indent.
+     * 
+     * @throws EmptySuiteException if it was called when an empty suite was actually matched (and thus, we should
+     * go out of the suite context).
+     */
+    protected final void handleNoIndentInSuiteFound() throws EmptySuiteException{
+        Token currentToken = getCurrentToken();
+        addAndReport(new ParseException("No indent found.", currentToken), "Handle no indent in suite");
+        
+        JJTPythonGrammarState tree = (JJTPythonGrammarState) this.getJJTree();
+        if(tree.lastIsNewScope()){
+            //this is something like:
+            //class A(ueo
+            //def m1
+            //where the def is out of the suite scope
+            throw new EmptySuiteException();
+        }
+    }
+    
+    
+
+    
+    protected final void handleNoSuiteMatch(ParseException e){
+        addAndReport(e, "Handle no suite match");
+        
+//      Should we try to find a dedent to keep on going?
+//        Token token = getCurrentToken();
+//        int dedentId = getTokenManager().getDedentId();
+//        int eofId = getTokenManager().getEofId();
+//        
+//        //go until the next dedent.
+//        while(token != null && token.kind != dedentId && token.kind != eofId){
+//            token = getTokenManager().getNextToken();
+//        }
+    }
+
+    
+    /**
+     * Called when there was an error trying to indent.
+     * 
+     * Actually creates a name so that the parsing can continue.
+     */
+    protected final Token handleErrorInName(ParseException e) throws ParseException{
+        addAndReport(e, "Handle name");
+        Token currentToken = getCurrentToken();
+        
+        return this.getTokenManager().createFrom(currentToken, this.getTokenManager().getNameId(), "!<MissingName>!");
+    }
+    
+
     
     /**
      * Opens a node scope
@@ -88,12 +254,14 @@ public abstract class AbstractPythonGrammar implements ITreeConstants{
         getJJTree().pushNodePos(t.beginLine, t.beginColumn);
     }
 
+    
     /**
      * Closes a node scope
      * 
      * @param n the node that should have its scope closed.
+     * @throws ParseException 
      */
-    protected final void jjtreeCloseNodeScope(Node n) {
+    protected final void jjtreeCloseNodeScope(Node n) throws ParseException {
         if (DEBUG) {
             System.out.println("closing scope:" + n);
         }
@@ -168,21 +336,25 @@ public abstract class AbstractPythonGrammar implements ITreeConstants{
 
     }
 
-    public final void addSpecialTokenToLastOpened(Object o){
+    public final void addSpecialTokenToLastOpened(Object o) throws ParseException{
         o = convertStringToSpecialStr(o);
-        getJJTree().getLastOpened().getSpecialsBefore().add(o);
+        if(o != null){
+            getJJTree().getLastOpened().getSpecialsBefore().add(o);
+        }
     }
     
-    public final void addSpecialToken(Object o, int strategy) {
+    public final void addSpecialToken(Object o, int strategy) throws ParseException {
         o = convertStringToSpecialStr(o);
-        getTokenSourceSpecialTokensList().add(new Object[] { o, strategy });
+        if(o != null){
+            getTokenSourceSpecialTokensList().add(new Object[] { o, strategy });
+        }
     }
 
-    public final Object convertStringToSpecialStr(Object o) {
+    private final Object convertStringToSpecialStr(Object o) throws ParseException{
         if (o instanceof String) {
-            try {
-                o = createSpecialStr((String) o);
-            } catch (ParseException e) {
+            Object s = createSpecialStr(((String) o).trim(), (String) o, DEFAULT_SEARCH_ON_LAST, false);
+            if(s != null){
+                o = s;
             }
         }
         return o;
@@ -193,45 +365,109 @@ public abstract class AbstractPythonGrammar implements ITreeConstants{
         getTokenSourceSpecialTokensList().add(new Object[] { o, STRATEGY_ADD_AFTER_PREV });
     }
 
-    public final boolean findTokenAndAdd(String token) throws ParseException {
-        return findTokenAndAdd(token, token, DEFAULT_SEARCH_ON_LAST);
-    }
-
-    public final Object createSpecialStr(String token) throws ParseException {
-        return createSpecialStr(token, token);
-    }
 
     public final Object createSpecialStr(String token, boolean searchOnLast) throws ParseException {
         return createSpecialStr(token, token, searchOnLast);
     }
 
-    public final Object createSpecialStr(String token, String put) throws ParseException {
-        return createSpecialStr(token, put, DEFAULT_SEARCH_ON_LAST);
-    }
-
     public final Object createSpecialStr(String token, String put, boolean searchOnLast) throws ParseException {
+        return createSpecialStr(token, put, searchOnLast, true);
+    }
+    
+    public final Object createSpecialStr(String token, String put, boolean searchOnLast, boolean throwException) throws ParseException {
         Token t;
+        final Token currentToken = getCurrentToken();
+        
         if (searchOnLast) {
             t = getJJLastPos();
         } else {
-            t = getCurrentToken();
+            t = currentToken;
         }
+        
+        AbstractTokenManager tokenManager = getTokenManager();
+        Token nextLoaded = null;
+        boolean loadedOneMore = false;
         while (t != null && t.image != null && t.image.equals(token) == false) {
+            if(!loadedOneMore && t.next == null){
+                
+                int curLexState = tokenManager.getCurLexState();
+                if(curLexState == 0){
+                    boolean foundNewLine = searchNewLine(tokenManager);
+                    if(foundNewLine){
+                        nextLoaded = tokenManager.createCustom(t, "\n");
+                        t.next = nextLoaded;
+                    }
+                }
+                if(nextLoaded == null){
+                    nextLoaded = tokenManager.getNextToken();
+                    t.next = nextLoaded;
+                    loadedOneMore = true;
+                }
+            }
             t = t.next;
         }
+        
         if (t != null) {
             return new SpecialStr(put, t.beginLine, t.beginColumn);
         }
-        //return put;
-        if (getCurrentToken() != null) {
-            throw new ParseException("Expected:" + token, getCurrentToken());
-        } else if (getJJLastPos() != null) {
-            throw new ParseException("Expected:" + token, getJJLastPos());
-        } else {
-            throw new ParseException("Expected:" + token);
+        
+        if(throwException){
+            ParseException e;
+            //return put;
+            if (currentToken != null) {
+                e = new ParseException("Expected:" + token, currentToken);
+                
+            } else if (getJJLastPos() != null) {
+                e = new ParseException("Expected:" + token, getJJLastPos());
+                
+            } else {
+                e = new ParseException("Expected:" + token);
+            }
+            
+            if(currentToken != null){
+                if(tokenManager.addCustom(currentToken, token)){
+                    addParseError(e);
+                    return new SpecialStr(put, currentToken.beginLine, currentToken.beginColumn);
+                }
+            }
+            throw e;
         }
+        return null;
     }
 
+    private boolean searchNewLine(AbstractTokenManager tokenManager) {
+        boolean foundNewLine = false;
+        FastCharStream inputStream = tokenManager.getInputStream();
+        int currentPos = inputStream.getCurrentPos();
+
+        try {
+            while(true){
+                try {
+                    char c = inputStream.readChar();
+                    if(c == '\r' || c == '\n'){
+                        foundNewLine = true;
+                        break;
+                    }
+                    if(!Character.isWhitespace(c)){
+                        break;
+                    }
+                } catch (IOException e) {
+                    break;
+                }
+            }
+        } finally {
+            if(!foundNewLine){
+                inputStream.restorePos(currentPos);
+            }
+        }
+        return foundNewLine;
+    }
+
+
+    public final boolean findTokenAndAdd(String token) throws ParseException {
+        return findTokenAndAdd(token, token, DEFAULT_SEARCH_ON_LAST);
+    }
+    
     /**
      * This is so that we add the String with the beginLine and beginColumn
      * @throws ParseException 

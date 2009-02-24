@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
@@ -37,7 +36,6 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
-import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.ChangedParserInfoForObservers;
 import org.python.pydev.core.parser.ErrorParserInfoForObservers;
@@ -76,7 +74,7 @@ public class PyParser implements IPyParser {
     /**
      * Just for tests: show whenever we're not able to parse some file.
      */
-    public static boolean DEBUG_SHOW_PARSE_ERRORS = false;
+    public final static boolean DEBUG_SHOW_PARSE_ERRORS = false;
     
     /**
      * just for tests, when we don't have any editor
@@ -496,16 +494,6 @@ public class PyParser implements IPyParser {
         public Set<Integer> linesChanged = new HashSet<Integer>();
         
         /**
-         * The 1st parse error we receive when doing the parsing of a document.
-         */
-        public ParseException parseErr;
-        
-        /**
-         * Marks whether we should use an heuristic to try to make reparses (if false, it will bail out in the 1st error).
-         */
-        public boolean tryReparse = TRY_REPARSE;
-        
-        /**
          * This is the version of the grammar to be used 
          * @see IPythonNature.GRAMMAR_XXX constants
          */
@@ -556,8 +544,6 @@ public class PyParser implements IPyParser {
             buf.append(file);
             buf.append("\nmoduleName:");
             buf.append(moduleName);
-            buf.append("\nparseErr:");
-            buf.append(parseErr);
             buf.append("]");
             return buf.toString();
         }
@@ -638,46 +624,37 @@ public class PyParser implements IPyParser {
                     callback.call(param);
                 }
             }        
+            
+            returnVar.o2 = grammar.getErrorOnParsing();
 
         } catch (Throwable e) {
             //ok, some error happened when trying the parse... let's go and clear the local info before doing
             //another parse.
+            if(DEBUG_SHOW_PARSE_ERRORS){
+                e.printStackTrace();
+            }
+            
+            //If the grammar was not created, the problem wasn't in the parsing... so, let's just rethrow the error
+            if(grammar == null){
+                throw new RuntimeException(e);
+            }
+            
+            //We have to change it for the 1st error we got (the one in catch is the last one).
+            Throwable errorOnParsing = grammar.getErrorOnParsing();
+            if(errorOnParsing != null){
+                e = errorOnParsing;
+            }else if(DEBUG_SHOW_PARSE_ERRORS){
+                System.out.println("Unhandled error");
+                e.printStackTrace();
+            }
+            
             startDoc = null;
             in = null;
             host = null;
             grammar = null;
             
-            if(e instanceof ParseException){
-                ParseException parseErr = (ParseException) e;
-                SimpleNode newRoot = null;
-                
-                if(info.parseErr == null){
-                    info.parseErr = parseErr;
-                }
-                
-                if(info.tryReparse){
-                    if (info.stillTryToChangeCurrentLine){
-                        newRoot = tryReparseAgain(info, info.parseErr);
-                    } else {
-                        info.currentLine = -1;
-                        info.document = new Document(info.initial);
-                        newRoot = tryReparseAgain(info, info.parseErr);
-                    }
-                }
-                
-                returnVar = new Tuple<SimpleNode, Throwable>(newRoot, parseErr);
-                
-            }else if(e instanceof TokenMgrError){
-                TokenMgrError tokenErr = (TokenMgrError) e;
-                SimpleNode newRoot = null;
-                
-                if(info.tryReparse){
-                    if (info.stillTryToChangeCurrentLine){
-                        newRoot = tryReparseAgain(info, tokenErr);
-                    }
-                }
-                
-                returnVar = new Tuple<SimpleNode, Throwable>(newRoot, tokenErr);
+            if(e instanceof ParseException || e instanceof TokenMgrError){
+                returnVar = new Tuple<SimpleNode, Throwable>(null, e);
                 
             }else if(e.getClass().getName().indexOf("LookaheadSuccess") != -1){
                 //don't log this kind of error...
@@ -697,106 +674,7 @@ public class PyParser implements IPyParser {
     }
 
     
-    /**
-     * @param tokenErr
-     */
-    private static SimpleNode tryReparseAgain(ParserInfo info, TokenMgrError tokenErr) {
-        int line = -1;
-        
-        if(info.currentLine > -1){
-            line = info.currentLine;
-        }else{
-            line = tokenErr.errorLine;
-        }
-        
-        return tryReparseChangingLine(info, line);
-    }
 
-    /**
-     * This method tries to reparse the code again, changing the current line to
-     * a 'pass'
-     * 
-     * Any new errors are ignored, and the error passed as a parameter is fired
-     * anyway, so, the utility of this function is trying to make a real model
-     * without any problems, so that we can update the outline and ModelUtils
-     * with a good approximation of the code.
-     * 
-     * @param tokenErr
-     */
-    private static SimpleNode tryReparseAgain(ParserInfo info, ParseException tokenErr) {
-        int line = -1;
-        
-        if(info.currentLine > -1){
-            line = info.currentLine;
-        
-        }else{
-            if(tokenErr.currentToken != null){
-                line = tokenErr.currentToken.beginLine-2;
-            
-            }else{
-                return null;   
-            }
-        }
-        
-        if(line < 0){
-            line = 0;
-        }
-        
-        boolean okToGo = false;
-        
-        while(! okToGo){
-            
-            if(!lineIn(info.linesChanged, line)){
-                info.linesChanged.add(new Integer(line));
-                okToGo = true;
-            } 
-            
-            if(!okToGo){
-                if(info.linesChanged.size() < 5){
-                    line += 1;
-                    
-                } else{
-                    //it can go up to 5 reparses before bailing out and returning null.
-                    return null;
-                }
-            }
-        }
-
-        return tryReparseChangingLine(info, line);
-    }
-
-    /**
-     * @param linesChanged the lines that were already changed in the document
-     * @param line the line which we want to check if it was already changed or not
-     * @return true if the line passed was already changed and false otherwise.
-     */
-    private static boolean lineIn(Set<Integer> linesChanged, int line) {
-        if(linesChanged.contains(line)){
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Try a reparse changing the offending line.
-     * 
-     * @param document: this is the document to be changed
-     * @param line: offending line to be changed to try a reparse.
-     * 
-     */
-    private static SimpleNode tryReparseChangingLine(ParserInfo info, int line) {
-        String docToParse = DocUtils.getDocToParseFromLine(info.document, line);
-        if(docToParse != null){
-            //System.out.println("\n\n\n\n\nSTART Parsing -------------------------");
-            //System.out.println(docToParse);
-            //System.out.println("END Parsing -------------------------");
-            Document doc = new Document(docToParse);
-            info.document = doc;
-            info.stillTryToChangeCurrentLine = false;
-            return reparseDocument(info).o1;
-        }
-        return null;
-    }
 
     public void resetTimeoutPreferences(boolean useAnalysisOnlyOnDocSave) {
         this.useAnalysisOnlyOnDocSave = useAnalysisOnlyOnDocSave;

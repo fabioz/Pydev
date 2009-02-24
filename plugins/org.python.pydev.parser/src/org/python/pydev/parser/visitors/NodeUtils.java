@@ -773,4 +773,20 @@ public class NodeUtils {
         return false;
     }
 
+
+    /**
+     * @return true if the given name is a valid python name.
+     */
+    public static boolean isValidNameRepresentation(String rep) {
+        if(rep == null){
+            return false;
+        }
+        if("pass".equals(rep) || rep.startsWith("!<") || rep.indexOf(' ') != -1){
+            //Name generated during the parsing (in AbstractPythonGrammar)
+            return false;
+        }
+        
+        return true;
+    }
+
 }

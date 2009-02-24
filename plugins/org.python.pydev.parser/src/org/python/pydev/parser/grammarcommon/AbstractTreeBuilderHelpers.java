@@ -26,11 +26,11 @@ import org.python.pydev.parser.jython.ast.suiteType;
  */
 public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeConstants {
 
-    protected final AbstractJJTPythonGrammarState stack;
+    protected final JJTPythonGrammarState stack;
     protected final CtxVisitor ctx;
     protected SimpleNode lastPop;
 
-    public AbstractTreeBuilderHelpers(AbstractJJTPythonGrammarState stack) {
+    public AbstractTreeBuilderHelpers(JJTPythonGrammarState stack) {
         this.stack = stack;
         this.ctx = new CtxVisitor();
     }

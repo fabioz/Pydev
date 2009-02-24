@@ -22,6 +22,7 @@ options
 
 PARSER_BEGIN(PythonGrammar30)
 package org.python.pydev.parser.grammar30;
+
 import java.util.List;
 import java.util.ArrayList;
 import org.python.pydev.parser.IGrammar;
@@ -42,6 +43,8 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
+import org.python.pydev.parser.grammarcommon.EmptySuiteException;
+import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 
 
 public class PythonGrammar30 extends AbstractPythonGrammar implements IGrammar
@@ -482,8 +485,8 @@ modType file_input(): {}
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 { 
-    <DEF> Name() parameters() [<MINUS><GREATER>{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);} test()#funcdef_return_annottation] <COLON> 
-        {this.addSpecialToken(":");}  suite() 
+    <DEF> Name() parameters() [<MINUS><GREATER>{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);} test()#funcdef_return_annottation] {this.findTokenAndAdd(":");} <COLON> 
+        suite() 
 }
 
 
@@ -492,7 +495,7 @@ void funcdef(): {}
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <NEWLINE> )+ 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] {this.findTokenAndAdd(")");}<RPAREN> ] <NEWLINE> )+ 
 }
 
 
@@ -504,7 +507,7 @@ void begin_decorator(): {}
 void parameters() #void:  {}
 { <LPAREN>{this.findTokenAndAdd("(");}
   [typedargslist()] 
-  <RPAREN>{this.findTokenAndAdd(")");} 
+  {this.findTokenAndAdd(")");}<RPAREN> 
 }
   
 //typedargslist: ((tfpdef ['=' test] ',')*
@@ -573,21 +576,32 @@ void defaultarg(): {}
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() <RPAREN> {this.findTokenAndAdd(")");}  }
+{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() {this.findTokenAndAdd(")");}<RPAREN>  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
 { fpdef() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> fpdef())* [{this.addSpecialToken(",");} <COMMA>] }
 
 
+
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
 { simple_stmt() | compound_stmt() }
 
+
+
+
 //simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 void simple_stmt() #void: {}
-{ small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* [<SEMICOLON>] <NEWLINE>
+{ 
+    small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* 
+    [<SEMICOLON>] 
+    try{<NEWLINE>}catch(ParseException e){
+        handleNoNewline(e);
+    }
 }
+
+
 
 //small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt 
 void small_stmt() #void: {SimpleNode simpleNode;}
@@ -659,9 +673,10 @@ void begin_return_stmt(): {}
 void yield_stmt(): {}
 { yield_expr() }
 
+
 //yield_expr: 'yield' [testlist]
-void yield_expr(): {}
-{ <YIELD> [SmartTestList()] {this.addToPeek("yield ",false, Yield.class);}}
+void yield_expr(): {Object spStr;}
+{ {spStr = createSpecialStr("yield","yield ", false);} <YIELD> [SmartTestList()] {this.addToPeek(spStr, false, Yield.class);}}
 
 
 //raise_stmt: 'raise' [test ['from' test]]
@@ -710,7 +725,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
              this.addSpecialToken(",");
              } 
              <COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
-           <RPAREN>  {this.findTokenAndAdd(")");} 
+           {this.findTokenAndAdd(")");}<RPAREN> 
           )
     )
     //now, let's set the correct level for the module
@@ -754,8 +769,8 @@ void compound_stmt() #void : { token_source.compound = true; }
 void if_stmt(): {Object spStr;}
 {
 	{spStr = createSpecialStr("if","if ", false);}
-    <IF> {this.addSpecialTokenToLastOpened(spStr);} test() <COLON> {this.addSpecialToken(":");} suite()
-         (begin_elif_stmt() test() <COLON> {this.addSpecialToken(":");} suite())* 
+    <IF> {this.addSpecialTokenToLastOpened(spStr);} test() {this.findTokenAndAdd(":");} <COLON> suite()
+         (begin_elif_stmt() test() {this.findTokenAndAdd(":");} <COLON> suite())* 
              [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:",true);} suite()]
 }
 
@@ -767,7 +782,7 @@ void begin_elif_stmt(): {}
 
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {}
-{ begin_while_stmt() test() <COLON> {this.addSpecialToken(":");} suite() 
+{ begin_while_stmt() test() {this.findTokenAndAdd(":");} <COLON> suite() 
   [ begin_else_stmt()  suite()] }
 
 void begin_while_stmt(): {}
@@ -779,7 +794,7 @@ void begin_else_stmt(): {}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() <COLON> {this.addSpecialToken(":");} suite()
+{   <FOR> {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() {this.findTokenAndAdd(":");} <COLON> suite()
     [begin_for_else_stmt() suite()]
     
 } 
@@ -822,7 +837,7 @@ void begin_finally_stmt(): {}
 
 //except_clause: 'except' [test [as test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(" as ");} <AS> test()]] <COLON> { this.addSpecialToken(":");} suite() }
+{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(" as ");} <AS> test()]] {this.findTokenAndAdd(":");} <COLON> suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
@@ -835,15 +850,40 @@ void with_stmt(): {}
     
     test() 
     
-    [with_var()] <COLON> { this.addSpecialToken(":");} suite() }
+    [with_var()] {this.findTokenAndAdd(":");} <COLON> suite() }
 
 //with_var: 'as' expr
 void with_var():{}
 { <AS> {this.addSpecialToken(" as ", STRATEGY_BEFORE_NEXT);} expr()}
 
+
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
-{ simple_stmt() |  <NEWLINE> <INDENT> (stmt())+ <DEDENT> }
+{ 
+
+try{
+        simple_stmt() 
+    |  
+    
+        try{<NEWLINE><INDENT>}catch(ParseException e){handleErrorInIndent(e);}
+        
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
+        
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
+    
+    |
+    try{
+        {handleNoIndentInSuiteFound();}
+        
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
+        
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
+    }catch(EmptySuiteException emptySuiteE){} //just close it 'gracefully'
+        
+
+}catch(ParseException e){handleNoSuiteMatch(e);}
+
+}
 
 
 //test: or_test ['if' or_test 'else' test] | lambdef
@@ -1047,10 +1087,10 @@ void dictorsetmaker() #void: {}
 	test()
 	
 	(
-	    ( <COLON> {this.addSpecialToken(":");} test() 
+	    ( {this.findTokenAndAdd(":");} <COLON> test() 
 	        (
 	            comp_for()|
-	            (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test()<COLON> {this.addSpecialToken(":");} test())*
+	            (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test(){this.findTokenAndAdd(":");} <COLON> test())*
 	            [{this.addSpecialToken(",");} <COMMA>]
 	        )
 	    )
@@ -1089,8 +1129,8 @@ void decorated():{}
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
 void classdef(): {Object spStr;Object spStr2;}
 {
-    <CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_AFTER_PREV);}   [arglist()] <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> 
-        {this.addSpecialToken(":");} suite()
+    <CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_AFTER_PREV);}   [arglist()] {this.findTokenAndAdd(")");}<RPAREN> ] {this.findTokenAndAdd(":");} <COLON>
+        suite()
 }
 
 //arglist: (argument ',')* (argument [',']
@@ -1154,13 +1194,24 @@ void Number() #Num :
 void Complex(): {}
 { <FLOAT>   }
 
+
+
 Token Name() #Name:
 {
     Token t;
 }
 {
-    t = <NAME> { ((Name)jjtThis).id = t.image; return t; } {}
+    try{
+        t = <NAME> 
+    }catch(ParseException e){
+        t = handleErrorInName(e);
+    }
+
+        { ((Name)jjtThis).id = t.image; return t; } {}
+
 }
+
+
 
 void String() #void :
 {
@@ -1177,39 +1228,3 @@ void String() #void :
 |   ( t=<TRIPLE_BSTRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#Binary
 }
 
-//Token AnyName() #void:
-//{
-//    Token t;
-//}
-//{
-//    ( t= <NAME> { ((Name)jjtThis).id = t.image; return t; } {} )#Name
-//|   ( t = <OR_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <AND_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <NOT_BOOL> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <IS> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <IN> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <LAMBDA> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <IF> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <ELSE> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <ELIF> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <WHILE> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <FOR> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <TRY> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <EXCEPT> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <DEF> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <CLASS> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <FINALLY> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <PASS> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <BREAK> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <CONTINUE> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <RETURN> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <YIELD> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <IMPORT> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <FROM> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <DEL> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <RAISE> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <GLOBAL> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <NONLOCAL> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <ASSERT> { jjtThis.setImage(t.image); return t; } {} )#Name
-//|   ( t = <AS> { jjtThis.setImage(t.image); return t; } {} )#Name
-//}

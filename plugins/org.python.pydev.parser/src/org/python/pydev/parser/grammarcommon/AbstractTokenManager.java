@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.REF;
-import org.python.pydev.parser.jython.CharStream;
+import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.Token;
 
 /**
@@ -59,11 +59,17 @@ public abstract class AbstractTokenManager implements ITreeConstants{
     public final List<Object> specialTokens = new ArrayList<Object>();
     private final int passId;
     private final int dedentId;
+    private final int indentId;
     private final int defaultId;
     private final int newlineId;
     private final int eofId;
+    private final int rparenId;
+    private final int lparenId;
     private final int singleLineCommentId;
-    private final CharStream inputStream;
+    private final int nameId;
+    private final int colonId;
+    
+    private FastCharStream inputStream;
 
     @SuppressWarnings("unchecked")
     protected abstract Class getConstantsClass();
@@ -83,11 +89,22 @@ public abstract class AbstractTokenManager implements ITreeConstants{
     //constants
     protected final int getPassId(){return passId;}
     protected final int getDedentId(){return dedentId;}
+    protected final int getIndentId(){return indentId;}
     protected final int getDefaultId(){return defaultId;}
     protected final int getNewlineId(){return newlineId;}
     protected final int getEofId(){return eofId;}
+    protected final int getRParenId(){return rparenId;}
+    protected final int getLParenId(){return lparenId;}
+    protected final int getColonId(){return colonId;}
+    protected final int getNameId(){return nameId;}
     protected final int getSingleLineCommentId(){return singleLineCommentId;}
-    protected final CharStream getInputStream(){return inputStream;}
+    
+    protected final FastCharStream getInputStream(){
+        if(this.inputStream == null){
+            this.inputStream =  (FastCharStream) REF.getAttrObj(this, "input_stream", true);
+        }
+        return inputStream;
+    }
     
     //must be calculated
     protected final int getCurLexState(){
@@ -100,26 +117,72 @@ public abstract class AbstractTokenManager implements ITreeConstants{
     protected AbstractTokenManager(){
         passId = getFromConstants("PASS");
         dedentId = getFromConstants("DEDENT");
+        indentId = getFromConstants("INDENT");
         defaultId = getFromConstants("DEFAULT");
         newlineId =  getFromConstants("NEWLINE");
+        rparenId =  getFromConstants("RPAREN");
+        lparenId =  getFromConstants("LPAREN");
+        nameId =  getFromConstants("NAME");
         eofId =  getFromConstants("EOF");
+        colonId =  getFromConstants("COLON");
         singleLineCommentId =  getFromConstants("SINGLE_LINE_COMMENT");
-        inputStream =  (CharStream) REF.getAttrObj(this, "input_stream", true);
     }
 
-    protected final Token addDedent(Token previous) {
+    protected final Token createFrom(Token previous, int kind, String image) {
         Token t = new Token();
-        t.kind = getDedentId();
+        t.kind = kind;
         t.beginLine = previous.beginLine;
         t.endLine = previous.endLine;
         t.beginColumn = previous.beginColumn;
         t.endColumn = previous.endColumn;
-        t.image = "<DEDENT>";
+        t.image = image;
         t.specialToken = null;
         t.next = null;
-        previous.next = t;
         return t;
     }
+    
+    /**
+     * Creates a new token based on the coordinates on the previous and sets it as the next from the previous
+     */
+    protected final Token createFromAndSetAsNext(Token previous, int kind, String image) {
+        Token t = createFrom(previous, kind, image);
+        Token oldNext = previous.next;
+        previous.next = t;
+        t.next = oldNext;
+        return t;
+    }
+    
+    protected final Token addDedent(Token previous) {
+        return createFromAndSetAsNext(previous, getDedentId(), "<DEDENT>");
+    }
+    
+    protected final Token addIndent(Token previous) {
+        return createFromAndSetAsNext(previous, getIndentId(), "<INDENT>");
+    }
+    
+    public Token createCustom(Token curr, String token) {
+        if("\n".equals(token)){
+            return createFromAndSetAsNext(curr, getNewlineId(), "\n");
+        }
+        return null;
+    }
+    
+    public boolean addCustom(Token curr, String token) {
+        if(")".equals(token)){
+            createFromAndSetAsNext(curr, getRParenId(), ")");
+            return true;
+        }
+        if(":".equals(token)){
+            createFromAndSetAsNext(curr, getColonId(), ":");
+            return true;
+        }
+        if("(".equals(token)){
+            createFromAndSetAsNext(curr, getLParenId(), "(");
+            return true;
+        }
+        return false;
+    }
+
 
     protected final void CommonTokenAction(final Token initial) {
         /*

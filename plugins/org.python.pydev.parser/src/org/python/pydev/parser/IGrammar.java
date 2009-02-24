@@ -31,4 +31,9 @@ public interface IGrammar {
      */
     SimpleNode file_input() throws ParseException;
 
+    /**
+     * @return the 1st error that occurred while parsing.
+     */
+    Throwable getErrorOnParsing();
+
 }

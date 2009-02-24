@@ -59,7 +59,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
     /**
      * Constructor
      */
-    public AbstractTreeBuilder(AbstractJJTPythonGrammarState stack) {
+    public AbstractTreeBuilder(JJTPythonGrammarState stack) {
         super(stack);
     }
     

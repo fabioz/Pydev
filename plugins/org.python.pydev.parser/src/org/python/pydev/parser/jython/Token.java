@@ -72,11 +72,19 @@ public class Token {
    */
   public static final Token newToken(int ofKind)
   {
-      throw new RuntimeException("It should be initialized directly.");
-//     switch(ofKind)
-//     {
-//       default : return new Token();
-//     }
+      Token ret = new Token();
+      ret.kind = ofKind;
+      return ret;
   }
 
+  
+  public static final Token newToken(int ofKind, String image)
+  {
+      Token ret = new Token();
+      ret.kind = ofKind;
+      ret.image = image;
+      return ret;
+  }
+  
+  
 }

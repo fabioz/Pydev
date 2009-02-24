@@ -24,6 +24,7 @@ import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.prettyprinter.PrettyPrinter;
 import org.python.pydev.parser.prettyprinter.PrettyPrinterPrefs;
 import org.python.pydev.parser.prettyprinter.WriterEraser;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
@@ -38,7 +39,8 @@ public class PyParserTest extends PyParserTestBase{
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
             //timer.printDiff();
-            test.testEmpty();
+            test.testErr();
+//            test.testErr();
             test.tearDown();
             
             
@@ -63,7 +65,6 @@ public class PyParserTest extends PyParserTestBase{
         }
         
         PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(doc, true, IPythonNature.LATEST_GRAMMAR_VERSION);
-        parserInfo.tryReparse = true;
         Tuple<SimpleNode,Throwable> reparseDocument = PyParser.reparseDocument(parserInfo);
         assertTrue(reparseDocument.o1 == null);
         assertTrue(reparseDocument.o2 != null);
@@ -115,7 +116,11 @@ public class PyParserTest extends PyParserTestBase{
         String s = "" +
         "def m():\n" +
         "    call(a,";
-        parseILegalDoc(new Document(s));
+        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+        Module m = (Module) tup.o1;
+        assertEquals(1, m.body.length);
+        FunctionDef f = (FunctionDef) m.body[0];
+        assertEquals("m", NodeUtils.getRepresentationString(f));
     }
     
     
@@ -370,6 +375,10 @@ public class PyParserTest extends PyParserTestBase{
         "\n" +
         "";
         parseILegalDoc(new Document(s));
+//        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+//        Module m = (Module) tup.o1;
+//        ImportFrom i = (ImportFrom) m.body[0];
+//        assertEquals("a", NodeUtils.getRepresentationString(i.module));
     }
     
     public void testParser() {

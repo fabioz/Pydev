@@ -11,6 +11,7 @@ import org.python.pydev.parser.grammarcommon.ExtraArg;
 import org.python.pydev.parser.grammarcommon.ExtraArgValue;
 import org.python.pydev.parser.grammarcommon.ITreeBuilder;
 import org.python.pydev.parser.grammarcommon.ITreeConstants;
+import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
@@ -56,7 +57,7 @@ import org.python.pydev.parser.jython.ast.suiteType;
 
 public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
 
-    public TreeBuilder24(JJTPythonGrammar24State stack) {
+    public TreeBuilder24(JJTPythonGrammarState stack) {
         super(stack);
     }
 

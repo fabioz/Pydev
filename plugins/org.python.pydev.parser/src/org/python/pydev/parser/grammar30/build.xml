@@ -1,6 +1,6 @@
 <project name="jython-parser" default="parser">
 
-    <property name="javaccHome" value="D:\Install\javacc-4.0" />
+    <property name="javaccHome" value="D:\Install\javacc-4.2" />
     <property name="basedir" value="." />
     <property name="parser.dir" value="${basedir}" />
 
@@ -83,15 +83,16 @@ Current setting is: ${javaccHome}
         <delete file="${parser.dir}/Node.java" />
         <delete file="${parser.dir}/CharStream.java" />
         <delete file="${parser.dir}/PythonGrammar30TreeConstants.java" />
+        <delete file="${parser.dir}/JJTPythonGrammar30State.java" />
         
         <echo>Updating jjFillToken in file PythonGrammar30TokenManager.java</echo>
-        <replace file="${parser.dir}/PythonGrammar30TokenManager.java" token="Token t = Token.newToken(jjmatchedKind)" value="Token t = new Token()"/>
         <replace file="${parser.dir}/PythonGrammar30TokenManager.java" token="public class PythonGrammar30TokenManager implements PythonGrammar30Constants" 
             value="public class PythonGrammar30TokenManager extends AbstractTokenManager implements PythonGrammar30Constants"/>
         
         <echo>Updating jjtree.builder.openNode</echo>
         <replace file="${parser.dir}/PythonGrammar30.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
         <replace file="${parser.dir}/PythonGrammar30.java" token="PythonGrammar30TreeConstants," value=""/>
+    	<replace file="${parser.dir}/PythonGrammar30.java" token="protected JJTPythonGrammar30State jjtree = new JJTPythonGrammar30State();" value="protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder30.class);"/>
         <fixcrlf srcdir="${parser.dir}"></fixcrlf>
     </target>
 

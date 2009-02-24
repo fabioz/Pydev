@@ -22,12 +22,14 @@ options
 
 PARSER_BEGIN(PythonGrammar24)
 package org.python.pydev.parser.grammar24;
+
 import java.util.List;
 import java.util.ArrayList;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.JfpDef;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
@@ -41,6 +43,9 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
+import org.python.pydev.parser.grammarcommon.EmptySuiteException;
+import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
+
 
 
 public class PythonGrammar24 extends AbstractPythonGrammar implements IGrammar
@@ -464,13 +469,13 @@ modType file_input(): {}
 void funcdef(): {}
 { 
     decorators()
-    <DEF> Name() parameters() <COLON> {this.addSpecialToken(":");} suite() 
+    <DEF> Name() parameters() {this.findTokenAndAdd(":");} <COLON> suite() 
 }
 
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() <RPAREN>  {this.findTokenAndAdd(")");} ] <NEWLINE> )* 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() {this.findTokenAndAdd(")");}<RPAREN> ] <NEWLINE> )* 
 }
 void begin_decorator(): {}
 { <AT> dotted_name()
@@ -480,7 +485,7 @@ void begin_decorator(): {}
 void parameters() #void: {}
 { <LPAREN>{this.findTokenAndAdd("(");}
   [varargslist()] 
-  <RPAREN>{this.findTokenAndAdd(")");} 
+  {this.findTokenAndAdd(")");}<RPAREN> 
   }
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
@@ -506,21 +511,32 @@ void defaultarg(): {}
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() <RPAREN> {this.findTokenAndAdd(")");}  }
+{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() {this.findTokenAndAdd(")");}<RPAREN>  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
 { fpdef() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> fpdef())* [{this.addSpecialToken(",");} <COMMA>] }
 
 
+
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
 { simple_stmt() | compound_stmt() }
 
+
+
+
 //simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 void simple_stmt() #void: {}
-{ small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* [<SEMICOLON>] <NEWLINE>
+{ 
+    small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* 
+    [<SEMICOLON>] 
+    try{<NEWLINE>}catch(ParseException e){
+        handleNoNewline(e);
+    }
 }
+
+
 
 //small_stmt: expr_stmt | print_stmt  | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | exec_stmt | assert_stmt
 void small_stmt() #void: {SimpleNode simpleNode;}
@@ -601,9 +617,11 @@ void begin_return_stmt(): {}
 }
 
 
-//yield_stmt: 'yield' [testlist]
-void yield_stmt(): {}
-{ <YIELD> SmartTestList() {this.addToPeek("yield ",false, Yield.class);}}
+//yield_stmt: 'yield' testlist
+void yield_stmt(): {Object spStr;}
+{ {spStr = createSpecialStr("yield","yield ", false);} <YIELD> SmartTestList() {this.addToPeek(spStr, false, Yield.class);}}
+
+
 
 //raise_stmt: 'raise' [test [',' test [',' test]]]
 void raise_stmt(): {}
@@ -644,7 +662,7 @@ void ImportFrom(): { String mod; String name;int state=0; }
              this.addSpecialToken(",");
              } 
              <COMMA> ( {state=0;} import_as_name())? )* 
-           <RPAREN>  {this.findTokenAndAdd(")");} 
+           {this.findTokenAndAdd(")");}<RPAREN> 
           )
     )
 }
@@ -684,8 +702,8 @@ void compound_stmt() #void : { token_source.compound = true; }
 void if_stmt(): {Object spStr;}
 {
     {spStr = createSpecialStr("if","if ", false);}
-    <IF> {this.addSpecialTokenToLastOpened(spStr);} test() <COLON> {this.addSpecialToken(":");} suite()
-         (begin_elif_stmt() test() <COLON> {this.addSpecialToken(":");} suite())* 
+    <IF> {this.addSpecialTokenToLastOpened(spStr);} test() {this.findTokenAndAdd(":");} <COLON> suite()
+         (begin_elif_stmt() test() {this.findTokenAndAdd(":");} <COLON> suite())* 
              [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:",true);} suite()]
 }
 
@@ -696,7 +714,7 @@ void begin_elif_stmt(): {}
 
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {}
-{ begin_while_stmt() test() <COLON> {this.addSpecialToken(":");} suite() 
+{ begin_while_stmt() test() {this.findTokenAndAdd(":");} <COLON> suite() 
   [ begin_else_stmt()  suite()] }
 
 void begin_while_stmt(): {}
@@ -708,7 +726,7 @@ void begin_else_stmt(): {}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() <COLON> {this.addSpecialToken(":");} suite()
+{   <FOR> {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() {this.findTokenAndAdd(":");} <COLON> suite()
     [begin_for_else_stmt() suite()]
     
 } 
@@ -745,15 +763,40 @@ void begin_finally_stmt(): {}
 
 //except_clause: 'except' [test [',' test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(",");} <COMMA> test()]] <COLON> { this.addSpecialToken(":");} suite() }
+{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(",");} <COMMA> test()]] {this.findTokenAndAdd(":");} <COLON> suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
 
 
+
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 void suite(): {}
-{ simple_stmt() |  <NEWLINE> <INDENT> (stmt())+ <DEDENT> }
+{ 
+
+try{
+        simple_stmt() 
+    |  
+    
+        try{<NEWLINE><INDENT>}catch(ParseException e){handleErrorInIndent(e);}
+        
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
+        
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
+    
+    |
+    try{
+        {handleNoIndentInSuiteFound();}
+        
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
+        
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
+    }catch(EmptySuiteException emptySuiteE){} //just close it 'gracefully'
+        
+
+}catch(ParseException e){handleNoSuiteMatch(e);}
+
+}
 
 
 //test: and_test ('or' and_test)* | lambdef
@@ -879,7 +922,7 @@ void atom() #void: {Object spStr;Object spStr2;}
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
-|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] <RPAREN>  {this.findTokenAndAdd(")");}  )
+|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] {this.findTokenAndAdd(")");}<RPAREN> )
 
 |   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
       [listmaker()] 
@@ -942,7 +985,7 @@ void testlist() #void: {}
 
 //dictmaker: test ':' test (',' test ':' test)* [',']
 void dictmaker() #void: {}
-{test() <COLON> {this.addSpecialToken(":");} test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test() <COLON> {this.addSpecialToken(":");} test())* [{this.addSpecialToken(",");} <COMMA>]}
+{test() {this.findTokenAndAdd(":");} <COLON> test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test() {this.findTokenAndAdd(":");} <COLON> test())* [{this.addSpecialToken(",");} <COMMA>]}
 
 //listmaker: test ( list_for | (',' test)* [','] )
 void listmaker() #void: {}
@@ -964,7 +1007,7 @@ void list_for(): {}
 
 //classdef: 'class' NAME ['(' testlist ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   testlist() <RPAREN>  {this.findTokenAndAdd(")");} ] <COLON> {this.addSpecialToken(":");} suite()}
+{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   testlist() {this.findTokenAndAdd(")");}<RPAREN> ] {this.findTokenAndAdd(":");} <COLON> suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
@@ -1025,13 +1068,23 @@ void Number() #Num :
 void Complex(): {}
 { <FLOAT>   }
 
+
+
 Token Name() #Name:
 {
     Token t;
 }
 {
-    t = <NAME> { ((Name)jjtThis).id = t.image; return t; } {}
+    try{
+        t = <NAME> 
+    }catch(ParseException e){
+        t = handleErrorInName(e);
+    }
+
+        { ((Name)jjtThis).id = t.image; return t; } {}
+
 }
+
 
 
 void String() #void :

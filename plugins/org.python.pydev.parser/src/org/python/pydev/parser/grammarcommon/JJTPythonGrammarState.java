@@ -1,11 +1,13 @@
 package org.python.pydev.parser.grammarcommon;
 
+import java.lang.reflect.Constructor;
+
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public abstract class AbstractJJTPythonGrammarState implements IJJTPythonGrammarState{
+public class JJTPythonGrammarState implements IJJTPythonGrammarState{
 
     protected FastStack<SimpleNode> nodes;
     protected IntStack marks;
@@ -18,21 +20,25 @@ public abstract class AbstractJJTPythonGrammarState implements IJJTPythonGrammar
 
     public ITreeBuilder builder;
 
-    protected AbstractJJTPythonGrammarState() {
+    public JJTPythonGrammarState(Class<?> treeBuilderClass) {
         nodes = new FastStack<SimpleNode>();
         marks = new IntStack();
         lines = new IntStack();
         columns = new IntStack();
         sp = 0;
         mk = 0;
-        this.builder = createBuilder();
+        
+        try {
+            Constructor<?> constructor = treeBuilderClass.getConstructor(JJTPythonGrammarState.class);
+            this.builder = (ITreeBuilder) constructor.newInstance(new Object[]{this});
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } 
     }
     
     public final SimpleNode getLastOpened() {
         return this.builder.getLastOpened();
     }
-
-    protected abstract ITreeBuilder createBuilder();
 
     /* Determines whether the current node was actually closed and
        pushed.  This should only be called in the final user action of a
@@ -187,6 +193,18 @@ public abstract class AbstractJJTPythonGrammarState implements IJJTPythonGrammar
             mk = marks.pop();
             node_created = false;
         }
+    }
+
+    /**
+     * @return true if the last scope found has the same indent or a lower indent from the scope just before it.
+     * false is returned if the last scope has a higher indent than the scope before it.
+     */
+    public boolean lastIsNewScope() {
+        int size = this.columns.size();
+        if(size > 1){
+            return this.columns.elementAt(size-1) <= this.columns.elementAt(size-2);
+        }
+        return true;
     }
 
 

@@ -43,6 +43,15 @@ public final class FastCharStream implements CharStream {
         this.bufline = new int[cs.length];
         this.bufcolumn = new int[cs.length];
     }
+    
+    public int getCurrentPos() {
+        return bufpos;
+    }
+    
+    public void restorePos(int pos) {
+        bufpos = pos;
+    }
+
 
     public final char readChar() throws IOException {
         try {
@@ -179,5 +188,6 @@ public final class FastCharStream implements CharStream {
         bufline = null;
         bufcolumn = null;
     }
+
 
 }

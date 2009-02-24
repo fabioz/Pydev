@@ -12,6 +12,7 @@ import org.python.pydev.parser.grammarcommon.ExtraArgValue;
 import org.python.pydev.parser.grammarcommon.FuncDefReturnAnn;
 import org.python.pydev.parser.grammarcommon.ITreeBuilder;
 import org.python.pydev.parser.grammarcommon.ITreeConstants;
+import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -62,7 +63,7 @@ import org.python.pydev.parser.jython.ast.suiteType;
 
 public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
     
-    public TreeBuilder30(JJTPythonGrammar30State stack) {
+    public TreeBuilder30(JJTPythonGrammarState stack) {
         super(stack);
     }
 
