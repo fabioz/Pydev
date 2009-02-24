@@ -27,6 +27,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -137,10 +138,22 @@ public class LocalScope implements ILocalScope {
             stmtType[] body = null;
             if (element instanceof FunctionDef) {
                 FunctionDef f = (FunctionDef) element;
-                for (int i = 0; i < f.args.args.length; i++) {
-                    String s = NodeUtils.getRepresentationString(f.args.args[i]);
-                    comps.add(new SourceToken(f.args.args[i], s, "", "", "", IToken.TYPE_PARAM));
+                final argumentsType args = f.args;
+                
+                for (int i = 0; i < args.args.length; i++) {
+                    String s = NodeUtils.getRepresentationString(args.args[i]);
+                    comps.add(new SourceToken(args.args[i], s, "", "", "", IToken.TYPE_PARAM));
                 }
+                if(args.vararg != null){
+                    String s = NodeUtils.getRepresentationString(args.vararg);
+                    comps.add(new SourceToken(args.vararg, s, "", "", "", IToken.TYPE_PARAM));
+                }
+                
+                if(args.kwarg != null){
+                    String s = NodeUtils.getRepresentationString(args.kwarg);
+                    comps.add(new SourceToken(args.kwarg, s, "", "", "", IToken.TYPE_PARAM));
+                }
+                
                 if(onlyArgs){
                     continue;
                 }
@@ -212,7 +225,7 @@ public class LocalScope implements ILocalScope {
             String rep = NodeUtils.getFullRepresentationString(entry.node);
             if(rep.startsWith(dottedActTok)){
                 rep = rep.substring(dottedActTok.length());
-                if(!"pass".equals(rep)){ //that'd be something that can happen when trying to recreate the parsing
+                if(NodeUtils.isValidNameRepresentation(rep)){ //that'd be something that can happen when trying to recreate the parsing
                     comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", IToken.TYPE_OBJECT_FOUND_INTERFACE));
                 }
             }

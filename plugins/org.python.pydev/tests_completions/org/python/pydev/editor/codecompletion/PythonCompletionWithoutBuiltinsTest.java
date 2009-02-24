@@ -1076,7 +1076,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, new String[] {"_scalar_bars"});
     }
 
-    public void testInnerDefinition() throws Exception {
+    public void testInnerDefinition() throws Throwable {
         //NOTE: THIS TEST IS CURRENTLY EXPECTED TO FAIL!
         //testInnerDefinition2 is the same but gets the context correctly (must still check why this happens).
         String s = 
@@ -1088,7 +1088,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         try{
             requestCompl(s, new String[] {"Foo"});
         }catch(Throwable e){
-            fail("Expected to fail!");
+            if(e.getMessage().indexOf("The string >>Foo<< was not found in the returned completions.") != -1){
+                fail("Expected to fail!");
+            }
+            throw e;
         }
     }
     

@@ -27,7 +27,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         try {
             PythonPathHelperTest test = new PythonPathHelperTest();
             test.setUp();
-            test.testImportAs();
+            test.testRecursion2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PythonPathHelperTest.class);
