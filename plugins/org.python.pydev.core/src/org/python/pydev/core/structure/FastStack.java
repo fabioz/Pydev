@@ -64,6 +64,7 @@ public class FastStack<E> implements Iterable<E> {
         }
         size--;
         E item = this.elementData[size];
+        this.elementData[size] = null; //make it available for garbage collection
         return item;
     }
 
