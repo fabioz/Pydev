@@ -18,7 +18,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         try {
             PyParserErrorsTest test = new PyParserErrorsTest();
             test.setUp();
-            test.testErrorHandled3();
+            test.testErrorHandled13();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserErrorsTest.class);
@@ -343,7 +343,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 assertEquals(3, cdef.body.length);
                 assertEquals("__init__", NodeUtils.getRepresentationString((FunctionDef) cdef.body[0]));
                 assertEquals("method2", NodeUtils.getRepresentationString((FunctionDef) cdef.body[1]));
-                assertEquals("method3", NodeUtils.getRepresentationString((FunctionDef) cdef.body[3]));
+                assertEquals("method3", NodeUtils.getRepresentationString((FunctionDef) cdef.body[2]));
                 return true;
             }
         });
@@ -374,6 +374,32 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 assertEquals("LinkedList", NodeUtils.getRepresentationString(cdef));
                 assertEquals(1, cdef.body.length);
                 assertEquals("__init__", NodeUtils.getRepresentationString((FunctionDef) cdef.body[0]));
+                return true;
+            }
+        });
+        
+    }
+    
+    public void testErrorHandled13() {
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer arg) {
+                String s = 
+                    "class LinkedList:                      \n" +
+                    "    def m1(self):"+
+                    "        self.content=content           \n"+
+                    "        self thueo ueo                 \n" +
+                    "" +
+                    "class B:\n";
+                
+                Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+                Module m = (Module) tup.o1;
+                assertEquals(2, m.body.length);
+                ClassDef cdef = (ClassDef) m.body[0];
+                assertEquals("LinkedList", NodeUtils.getRepresentationString(cdef));
+                assertEquals(1, cdef.body.length);
+                assertEquals("m1", NodeUtils.getRepresentationString((FunctionDef) cdef.body[0]));
+                assertEquals("B", NodeUtils.getRepresentationString(m.body[1]));
                 return true;
             }
         });

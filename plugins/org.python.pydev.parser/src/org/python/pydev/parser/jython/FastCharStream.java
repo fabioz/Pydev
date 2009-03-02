@@ -2,6 +2,8 @@ package org.python.pydev.parser.jython;
 
 import java.io.IOException;
 
+import org.python.pydev.core.log.Log;
+
 /**
  * An implementation of interface CharStream, where the data is read from a Reader. Completely recreated so that we can read data directly from a String, as the
  * initial implementation was highly inefficient when working only with a string (actually, if it was small, there would be no noticeable
@@ -51,6 +53,37 @@ public final class FastCharStream implements CharStream {
     public void restorePos(int pos) {
         bufpos = pos;
     }
+    
+    /**
+     * Restores a previous position.
+     * Don't forget to restore the level if eof was already found!
+     */
+    public void restoreLineColPos(final int endLine, final int endColumn) {
+        final int initialBufPos = bufpos;
+        final int currLine = getEndLine();
+        
+        int attempts = 0;
+        if(currLine < endLine){
+            //note: we could do it, but it's not what we want!
+            Log.log("Cannot backtrack to a later position -- current line: "+getEndLine()+" requested line:"+endLine);
+            return;
+        }else if(currLine == endLine && getEndColumn() < endColumn){
+            Log.log("Cannot backtrack to a later position -- current col: "+getEndColumn()+" requested col:"+endColumn);
+            return;
+        }
+        
+        while((getEndLine() != endLine || getEndColumn() != endColumn) && bufpos >=0){
+            attempts += 1;
+            bufpos--;
+        }
+        
+        if(bufpos < 0 || getEndLine() != endLine){
+            //we couldn't find it. Let's restore the position when we started it.
+            bufpos = initialBufPos;
+            Log.log("Couldn't backtrack to position: line"+endLine+ " -- col:"+endColumn);
+        }
+    }
+
 
 
     public final char readChar() throws IOException {
@@ -188,6 +221,7 @@ public final class FastCharStream implements CharStream {
         bufline = null;
         bufcolumn = null;
     }
+
 
 
 }

@@ -554,7 +554,14 @@ void fplist() #tuple: {}
 
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
-{ simple_stmt() | try{compound_stmt()}catch(ParseException e){handleErrorInCompountStmt(e);} }
+{ 
+        simple_stmt() 
+    | 
+        try{
+            compound_stmt()
+        }catch(ParseException e){
+            handleErrorInCompountStmt(e);} 
+        }
 
 
 
@@ -731,8 +738,10 @@ void assert_stmt(): {}
 
 
 //compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | funcdef | classdef
-void compound_stmt() #void : { token_source.compound = true; }
-{if_stmt() | while_stmt() | for_stmt() | try_stmt()  | funcdef() | classdef()}
+void compound_stmt() #void : {}
+{
+    if_stmt() | while_stmt() | for_stmt() | try_stmt()  | funcdef() | classdef()
+}
 
 
 
@@ -827,15 +836,7 @@ try{
     |
         try{
             <INDENT>
-            {handleNoIndentInSuiteFound();}
-            
-            (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-            
-            try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-        }catch(EmptySuiteException emptySuiteE){} //just close it 'gracefully'
-    |
-        try{
-            {handleNoIndentInSuiteFound();}
+            {handleNoNewlineInSuiteFound();}
             
             (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
             

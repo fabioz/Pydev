@@ -91,15 +91,7 @@ try{
     |
         try{
             <INDENT>
-            {handleNoIndentInSuiteFound();}
-            
-            (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-            
-            try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-        }catch(EmptySuiteException emptySuiteE){} //just close it 'gracefully'
-    |
-        try{
-            {handleNoIndentInSuiteFound();}
+            {handleNoNewlineInSuiteFound();}
             
             (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
             
@@ -122,7 +114,14 @@ def CreateStmt():
     return '''
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
-{ simple_stmt() | try{compound_stmt()}catch(ParseException e){handleErrorInCompountStmt(e);} }
+{ 
+        simple_stmt() 
+    | 
+        try{
+            compound_stmt()
+        }catch(ParseException e){
+            handleErrorInCompountStmt(e);} 
+        }
 '''
 
 #=======================================================================================================================

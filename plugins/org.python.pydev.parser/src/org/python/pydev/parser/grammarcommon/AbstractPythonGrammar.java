@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.parser.IGrammar;
+import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
@@ -37,11 +38,6 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      */
     protected abstract Token getJJLastPos();
 
-
-    
-
-    
-    
     
     //---------------------------- Helpers to add special tokens.
     
@@ -245,7 +241,6 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
         Token foundToken = null;
         
         
-        AbstractTokenManager tokenManager = getTokenManager();
         int foundAtPos = 0;
         
         //lot's of tokens, but we'll bail out on an indent, so, that's OK.
@@ -287,8 +282,23 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
             
             //create a 'synthetic token' in the place we were expecting it.
             if(currentToken != null){
-                if(tokenManager.addCustom(currentToken, token)){
-                    addParseError(e);
+                AbstractTokenManager tokenManager = getTokenManager();
+                FastCharStream inputStream = tokenManager.getInputStream();
+
+                final int created = tokenManager.addCustom(currentToken, token);
+                if(created != AbstractTokenManager.CUSTOM_NOT_CREATED){
+                    if(created == AbstractTokenManager.CUSTOM_CREATED_WAS_PARENS){
+                        //if we had a parens, let's clear the tokens we iterated because we can have skipped indentations!
+                        currentToken.next.next = null;
+                        
+                        //EOF was already found... let's restore the previous indentation level!
+                        if(tokenManager.levelBeforeEof != -1){
+                            tokenManager.level = tokenManager.levelBeforeEof;
+                            tokenManager.levelBeforeEof = -1; //mark it as not found again.
+                        }
+                        inputStream.restoreLineColPos(currentToken.endLine, currentToken.endColumn);
+                    }
+                    addAndReport(e, "Created custom token: "+token);
                     return new SpecialStr(put, currentToken.beginLine, currentToken.beginColumn);
                 }
             }
@@ -297,6 +307,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
         return null;
     }
 
+    
     private ParseException createException(String token, final Token currentToken) {
         ParseException e;
         //return put;

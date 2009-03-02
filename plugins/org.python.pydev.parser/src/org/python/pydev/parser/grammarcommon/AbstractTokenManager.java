@@ -20,19 +20,41 @@ import org.python.pydev.parser.jython.Token;
  */
 public abstract class AbstractTokenManager extends AbstractTokenManagerWithConstants implements ITreeConstants, ITokenManager{
     
+    /**
+     * A stack with the indentations... No sure why it's not a stack (indentation+level)
+     */
     protected final int indentation[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    
+    /**
+     * The current indentation level.
+     */
     protected int level = 0;
+    
+    /**
+     * When we find an EOF, we create artificially all the dedents. So, if we need to go back, we might
+     * need to get back to the point we were previously.
+     */
+    protected int levelBeforeEof = -1;
+    
+    /**
+     * If > 0, we're in a (, [ or {
+     */
     protected int parens = 0;
+    
+    /**
+     * This is the indentation in the current line (number of chars found after a \n)
+     */
     protected int indent;
 
-    public boolean expect_indent = false;
-
-    public boolean compound = false;
-
+    /**
+     * The special tokens available.
+     */
     public final List<Object> specialTokens = new ArrayList<Object>();
     
+    /**
+     * The input stream.
+     */
     private FastCharStream inputStream;
-
 
     
     public final FastCharStream getInputStream(){
@@ -42,17 +64,27 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
         return inputStream;
     }
     
+    
     //must be calculated
     protected final int getCurLexState(){
         return (Integer)REF.getAttrObj(this, "curLexState", true);
     }
     
-    public abstract void SwitchTo(int lexState);
+    /**
+     * Gets the next token. Note that indents and dedents can be skipped if we're not currently
+     * in a new line (that's the reason for a number of tricks while trying to recover from errors)
+     */
     public abstract Token getNextToken();
     
     protected AbstractTokenManager(){
     }
 
+    /**
+     * Creates a new token of the given kind (with the given image) in the same position as the 
+     * previous token passed (note that even endline and endColumn are in the same position...
+     * even if that'd be strange, that's what we want because those positions can be used
+     * later and we need that specific point in the grammar)
+     */
     protected final Token createFrom(Token previous, int kind, String image) {
         Token t = new Token();
         t.kind = kind;
@@ -77,55 +109,89 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
         return t;
     }
     
+    /**
+     * Adds and returns a dedent token
+     */
     protected final Token addDedent(Token previous) {
         return createFromAndSetAsNext(previous, getDedentId(), "<DEDENT>");
     }
     
-    protected final Token addIndent(Token previous) {
-        return createFromAndSetAsNext(previous, getIndentId(), "<INDENT>");
-    }
+
+    /**
+     * Map pointing a token representation (, [, {, :, etc. to its id in the grammar.
+     */
+    private Map<String, Integer> tokenToIdCache;
     
-    public Token createCustom(Token curr, String token) {
-        if("\n".equals(token)){
-            return createFromAndSetAsNext(curr, getNewlineId(), "\n");
-        }
-        return null;
-    }
-    
-    
-    private Map<String, Integer> tokenToId;
+    /**
+     * @return a map pointing a token representation (, [, {, :, etc. to its id in the grammar.
+     */
     private Map<String, Integer> getTokenToId() {
-        if(tokenToId == null){
-            tokenToId = new HashMap<String, Integer>();
-            tokenToId.put(")", getRparenId());
-            tokenToId.put("]", getRbracketId());
-            tokenToId.put("}", getRbraceId());
-            tokenToId.put(":", getColonId());
-            tokenToId.put("(", getLparenId());
-            tokenToId.put(",", getCommaId());
+        if(tokenToIdCache == null){
+            tokenToIdCache = new HashMap<String, Integer>();
+            
+            tokenToIdCache.put(")", getRparenId());
+            tokenToIdCache.put("]", getRbracketId());
+            tokenToIdCache.put("}", getRbraceId());
+            
+            tokenToIdCache.put(":", getColonId());
+            tokenToIdCache.put("(", getLparenId());
+            tokenToIdCache.put(",", getCommaId());
         }
-        return tokenToId;
+        return tokenToIdCache;
     }
     
-    public boolean addCustom(Token curr, String token) {
+    /**
+     * Identifies that a custom token could not be created.
+     */
+    public static int CUSTOM_NOT_CREATED = 0;
+    
+    /**
+     * Identifies that a custom token was created and it wasn't a parens
+     * (meaning that we didn't change the parens level by creating it)
+     */
+    public static int CUSTOM_CREATED_NOT_PARENS = 1;
+    
+    /**
+     * Identifies that a custom token was created and it wasn a parens
+     * (meaning that we did change the parens level by creating it -- which
+     * might requiring getting back in the input source to recreate possibly skipped
+     * indents and dedents)
+     */
+    public static int CUSTOM_CREATED_WAS_PARENS = 2;
+    
+    /**
+     * Creates a custom token for the given token representation (if possible)
+     * 
+     * @see #CUSTOM_NOT_CREATED
+     * @see #CUSTOM_CREATED_NOT_PARENS
+     * @see #CUSTOM_CREATED_WAS_PARENS
+     */
+    public int addCustom(Token curr, String token) {
         Integer id = getTokenToId().get(token);
         if(id != null){
             createFromAndSetAsNext(curr, id, token);
-            return true;
+            int ret = CUSTOM_CREATED_NOT_PARENS;
+            if(id == getRparenId() || id == getRbracketId() || id == getRbraceId()){
+                parens--;
+                ret = CUSTOM_CREATED_WAS_PARENS;
+            }else if(id == getLparenId()){
+                parens++;
+                ret = CUSTOM_CREATED_WAS_PARENS;
+            }
+            return ret;
         }
-        return false;
+        return CUSTOM_NOT_CREATED;
     }
 
 
+    /**
+     * Called right after the creation of any token.
+     * 
+     * We may need to add the special tokens found while parsing to it and
+     * add dedents (otherwise the grammar won't finish successfully if we don't have
+     * a new line in the end).
+     */
     protected final void CommonTokenAction(final Token initial) {
-        /*
-           if not partial: EOF is expanded to token sequences comprising
-               [NEWLINE] necessary DEDENT EOF
-           if partial: EOF expansion happens only if EOF preceded by empty line (etc),
-           i.e. lexer is in MAYBE_FORCE_NEWLINE_IF_EOF state
-           System.out.println("Token:'"+t+"'");
-           System.out.println("Special:'"+t.specialToken+"'");
-        */
         Token t = initial;
 
         int i = specialTokens.size();
@@ -140,6 +206,8 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
         //This is the place we check if we have to add dedents so that the parsing ends 'gracefully' when
         //we find and EOF.
         if (t.kind == getEofId()) {
+            //Store it because if we backtrack we have to restore it!!
+            this.levelBeforeEof = level;
             if (getCurLexState() == getLexerDefaultId()) {
                 t.kind = getNewlineId();
             } else {
@@ -154,14 +222,12 @@ public abstract class AbstractTokenManager extends AbstractTokenManagerWithConst
             t.kind = getEofId();
             t.image = "<EOF>";
         }
-        
     }
 
     /**
      * Must be called right after a new line with 0 as a parameter. Identifies the number of whitespaces in the current line.
      */
     public abstract void indenting(int i);
-    
     
     /**
      * @return The current level of the indentation in the current line.

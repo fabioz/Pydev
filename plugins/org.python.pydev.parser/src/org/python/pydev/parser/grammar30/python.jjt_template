@@ -680,8 +680,10 @@ $ASSERT
 
 
 //compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
-void compound_stmt() #void : { token_source.compound = true; }
-{if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()}
+void compound_stmt() #void : {}
+{
+    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()
+}
 
 
 $IF

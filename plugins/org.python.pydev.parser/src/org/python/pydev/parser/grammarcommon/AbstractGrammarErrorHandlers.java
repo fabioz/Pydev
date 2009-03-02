@@ -41,7 +41,7 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
     /**
      * Adds some parse exception to the list of parse exceptions found.
      */
-    protected void addParseError(ParseException e) {
+    private void addParseError(ParseException e) {
         parseErrors.add(e);
     }
 
@@ -100,30 +100,40 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
     }
     
     /**
-     * Called when there was an error trying to dedent.
+     * Called when there was an error trying to dedent. At this point, we must try to sync it to an
+     * actual dedent.
      */
     protected final void handleErrorInDedent(ParseException e) throws ParseException{
         addAndReport(e, "Handle dedent");
-        final AbstractTokenManager tokenManager = this.getTokenManager();
+        //lot's of tokens, but we'll bail out on an indent, so, that's OK.
+        AbstractTokenManager tokenManager = getTokenManager();
+        int indentId = tokenManager.getIndentId();
+        int dedentId = tokenManager.getDedentId();
+
         
-        //go to the next dedent we were expecting...
-        while(true){
-            boolean foundNewLine = searchNewLine(tokenManager, false);
-            if(foundNewLine){
-                tokenManager.indenting(0);
-                final Token nextToken = tokenManager.getNextToken();
-                if(nextToken.kind == tokenManager.getDedentId()){
-                    setCurrentToken(nextToken);
+        int level = 0;
+
+        //lot's of tokens, but we'll bail out on an indent, so, that's OK.
+        TokensIterator iterTokens = this.getTokensIterator(getCurrentToken(), 50, false);
+        while (iterTokens.hasNext()) {
+            Token next = iterTokens.next();
+            if(level == 0){
+                //we can only do it if we're in the same level we started.
+                if(next.kind == dedentId){
+                    setCurrentToken(next);
                     break;
                 }
-            }else{
-                break;
+            }
+            if(next.kind == indentId){
+                level += 1;
+            }else if(next.kind == dedentId){
+                level -= 1;
             }
         }
     }
     
     protected final void handleErrorInStmt(ParseException e) throws ParseException{
-        
+        addAndReport(e, "Handle error in stmt");
     }
     
 
@@ -132,47 +142,6 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
      */
     protected final void handleErrorInCompountStmt(ParseException e) throws ParseException{
         addAndReport(e, "Handle error in compount stmt");
-        
-//        AbstractTokenManager tokenManager = getTokenManager();
-//        final int eofId = tokenManager.getEofId();
-//        final int defId = tokenManager.getDefId();
-//        
-//        final Token firstToken = nextTokenConsideringNewLine(tokenManager);
-//        Token nextToken = null;
-//        while(true){
-//            if(nextToken == null){
-//                nextToken = firstToken;
-//            }else{
-//                nextToken = nextTokenConsideringNewLine(tokenManager);
-//            }
-//            if(nextToken.kind == tokenManager.getDedentId()){
-//                if(DEBUG_SHOW_LOADED_TOKENS){
-//                    System.out.println("<DEDENT>");
-//                }
-////                if(nextToken.next.kind == defId){
-//                    setCurrentToken(nextToken);
-//                    break;
-////                }
-//            }else{
-//                if(DEBUG_SHOW_LOADED_TOKENS){
-//                    System.out.println(nextToken);
-//                }
-//            }
-//            
-//            if(nextToken.kind == defId){
-//                int lastIndentation = tokenManager.getLastIndentation();
-//                int currentIndentation = tokenManager.getCurrentLineIndentation();
-//                if(DEBUG_SHOW_LOADED_TOKENS){
-//                    System.out.println("Current Indentation: "+currentIndentation+" - last: "+lastIndentation);
-//                }
-//            }
-//            
-//            
-//            if(nextToken.kind == eofId){
-//                setCurrentToken(firstToken);
-//                break;
-//            }
-//        }
     }
     
     /**
@@ -196,22 +165,10 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
      * @throws EmptySuiteException if it was called when an empty suite was actually matched (and thus, we should
      * go out of the suite context).
      */
-    protected final void handleNoIndentInSuiteFound() throws EmptySuiteException{
-        Token currentToken = getCurrentToken();
-        addAndReport(new ParseException("No indent found.", currentToken), "Handle no indent in suite");
-        
-        JJTPythonGrammarState tree = (JJTPythonGrammarState) this.getJJTree();
-        if(tree.lastIsNewScope()){
-            //this is something like:
-            //class A(ueo
-            //def m1
-            //where the def is out of the suite scope
-            throw new EmptySuiteException();
-        }
+    protected final void handleNoNewlineInSuiteFound() throws EmptySuiteException{
+        addAndReport(new ParseException("No new line found.", getCurrentToken()), "Handle no new line in suite");
     }
     
-    
-
     
     protected final void handleNoSuiteMatch(ParseException e){
         addAndReport(e, "Handle no suite match");
