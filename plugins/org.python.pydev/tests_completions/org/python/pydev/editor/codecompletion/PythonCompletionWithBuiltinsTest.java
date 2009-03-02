@@ -35,7 +35,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testPreferCompiledOnBootstrap();
+            builtins.testCompleteImportBuiltin();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -160,8 +160,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         "                  keepGoing) \n";
 
         //If we improve the parser to get the error above, uncomment line below to check it...
-        //requestCompl(s, s.indexOf('#'), 1, new String[]{"__getattribute__"});
-        requestCompl(s, s.indexOf('#'), 0, new String[]{});
+        requestCompl(s, s.indexOf('#'), 1, new String[]{"__getattribute__()"});
 
 
         //check for builtins..1
