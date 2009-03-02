@@ -230,7 +230,14 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                         stmts[i] = new Expr((Yield)yield_or_stmt);
                         
                     }else{
-                        stmts[i] = (stmtType) yield_or_stmt;
+                        try{
+                            stmts[i] = (stmtType) yield_or_stmt;
+                        }catch(ClassCastException e){
+                            //something invalid happened (but let's keep it alive, just adding it as a parse error!
+                            String msg = "ClassCastException: was: "+e.getMessage()+" ("+yield_or_stmt+"). Expected: stmtType";
+                            final ParseException e2 = new ParseException(msg, yield_or_stmt);
+                            this.stack.getGrammar().addAndReport(e2, msg);
+                        }
                     }
                 }
                 return new Suite(stmts);
@@ -343,6 +350,9 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTAND_BOOLEAN:
                 return new BoolOp(BoolOp.And, makeExprs());
             case JJTCOMPARISION:
+                if(arity <= 2){
+                    throw new ParseException("Internal error: To make a compare, at least 3 nodes are needed.", n);
+                }
                 int l = arity / 2;
                 exprType[] comparators = new exprType[l];
                 int[] ops = new int[l];

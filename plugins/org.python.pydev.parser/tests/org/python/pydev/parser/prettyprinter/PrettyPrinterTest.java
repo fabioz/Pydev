@@ -3,6 +3,7 @@
  */
 package org.python.pydev.parser.prettyprinter;
 
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -26,101 +27,134 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     
     
     public void testNewIf() throws Exception {
-        String s = "" +
+        final String s = "" +
         "j = stop if (arg in gets) else start\n"+
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
-            checkPrettyPrintEqual(s);
-        }
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+            }
+        });
     }
     
     
     public void testMethodDef() throws Exception {
-        String s = "" +
+        final String s = "" +
         "def _dump_registry(cls,file=None):\n" +
         "    pass\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
-            //try with all the grammars
-            setDefaultVersion(i);
-            checkPrettyPrintEqual(s);
-        }
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+
     }
     
     public void testExec2() throws Exception {
-        String s = ""+
+        final String s = ""+
         "exec ('a=1')\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
-            //try with all the grammars
-            setDefaultVersion(i);
-            checkPrettyPrintEqual(s);
-        }
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                    checkPrettyPrintEqual(s, "exec('a=1')\n");
+                    
+                }else{
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+            }
+        });
+
     }
 
     
 
     public void testMethodDef4() throws Exception {
-        String s = "" +
+        final String s = "" +
         "def _set_stopinfo(stoplineno=-1):\n" +
         "    pass\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
-            //try with all the grammars
-            setDefaultVersion(i);
-            checkPrettyPrintEqual(s);
-        }
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
     }
     
     
     public void testMethodDef2() throws Exception {
-        String s = "" +
+        final String s = "" +
         "def _set_stopinfo(self,stopframe,returnframe,stoplineno=-1):\n" +
         "    if not sys.args[:1]:\n" +
         "        pass\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
-            //try with all the grammars
-            setDefaultVersion(i);
-            checkPrettyPrintEqual(s);
-        }
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
     }
     
     
     public void testMethodDef5() throws Exception {
-        String s = "" +
+        final String s = "" +
         "def _set_stopinfo(stoplineno=not x[-1]):\n" +
         "    if not sys.args[:1]:\n" +
         "        pass\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
-            //try with all the grammars
-            setDefaultVersion(i);
-            checkPrettyPrintEqual(s);
-        }
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
     }
     
     public void testMethodDef3() throws Exception {
-        String s = "" +
+        final String s = "" +
         "def Bastion(object,filter=lambda name:name[:1] != '_',name=None,bastionclass=BastionClass):\n" +
         "    pass\n" +
         "";
-        for(int i=IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4;i<=IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;i++){
-            //try with all the grammars
-            setDefaultVersion(i);
-            checkPrettyPrintEqual(s);
-        }
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
     }
 
     public void testListComp5() throws Exception {
-        String s = 
+        final String s = 
             "data = [[1,2,3],[4,5,6]]\n" +
             "newdata = [[val * 2 for val in lst] for lst in data]\n";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
     }
     
     public void testStrings() throws Exception {
-        String s = "" +
+        final String s = "" +
         "\"test\"\n" +
         "'test'\n" +
         "'''test'''\n" +
@@ -128,62 +162,118 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "b'''test'''\n" +
         "r'''test'''\n" +
         "";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6){
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+            }
+        });
     }
     
     public void testNums() throws Exception {
-        String s = "" +
+        final String s = "" +
         "0o700\n" +
         "0O700\n" +
         "0700\n" +
         "0x700\n" +
         "0X700\n" +
         "";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6){
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+                    
+            }
+        });
     }
     
     public void testClassDecorator() throws Exception {
-        String s = "" +
+        final String s = "" +
         "@classdec\n" +
         "@classdec2\n" +
         "class A:\n" +
         "    pass\n" +
         "";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+            }
+        });
     }
     
     public void testFuncCallWithListComp() throws Exception {
-        String str = "" +
+        final String s = "" +
         "any(cls.__subclasscheck__(c) for c in [subclass,subtype])\n" +
         "";
-        checkPrettyPrintEqual(str);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+            }
+        });
     }
     
     public void testNewFuncCall() throws Exception {
-        String s = "Call(1,2,3,*(4,5,6),keyword=13,**kwargs)\n";
-        checkPrettyPrintEqual(s);
+        final String s = "Call(1,2,3,*(4,5,6),keyword=13,**kwargs)\n";
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+            }
+        });
     }
     
     public void testExceptAs() throws Exception {
-        String s = "" +
+        final String s = "" +
         "try:\n" +
         "    a = 10\n" +
         "except RuntimeError as x:\n" +
-        "    print x\n" +
+        "    pass\n" +
         "";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6){
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+            }
+        });
     }
     
     public void testIfs() throws Exception {
-        String s = "" +
+        final String s = "" +
                 "def method1():\n" +
                 "    if idx > 2:\n" +
-                "        print ''\n" +
+                "        pass\n" +
                 "    else:\n" +
-                "        print ''\n" +
+                "        pass\n" +
                 "    if idx == 5:\n" +
-                "        print 'nothing!'\n";
-        checkPrettyPrintEqual(s);
+                "        pass\n";
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+
     }
     
     public void testTryFinallyBeginNode() throws Exception {

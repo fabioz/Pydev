@@ -20,7 +20,6 @@ import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
-import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -379,14 +378,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
             }
             return new List(makeExprs(), List.Load);
         case JJTDICTIONARY:
-            l = arity / 2;
-            exprType[] keys = new exprType[l];
-            exprType[] vals = new exprType[l];
-            for (int i = l - 1; i >= 0; i--) {
-                vals[i] = (exprType) stack.popNode();
-                keys[i] = (exprType) stack.popNode();
-            }
-            return new Dict(keys, vals);
+            return defaultCreateDictionary(arity);
         case JJTSTR_1OP:
             return new Repr(((exprType) stack.popNode()));
         case JJTSTRJOIN:

@@ -51,11 +51,19 @@ import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 public class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
 {
 	
+
     /**
      * @return the current token found.
      */
     protected final Token getCurrentToken() {
         return this.token;
+    }
+    
+    /**
+     * Sets the current token.
+     */
+    protected final void setCurrentToken(Token t) {
+        this.token = t;
     }
     
     
@@ -82,7 +90,8 @@ public class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
     protected final Token getJJLastPos(){
         return jj_lastpos;
     }
-    
+
+
     
     private boolean acceptWithStmt = false;
     
@@ -115,18 +124,38 @@ PARSER_END(PythonGrammar25)
 
 TOKEN_MGR_DECLS:
 {
-    protected Class getConstantsClass(){
+    protected Class<?> getConstantsClass(){
         return PythonGrammar25Constants.class;
     }
     
 
-    private final void indenting(int ind) {
+    
+    
+    /**
+     * @return The current level of the indentation in the current line.
+     */
+    public int getCurrentLineIndentation(){
+        return indent;
+    }
+    
+    /**
+     * @return The current level of the indentation.
+     */
+    public int getLastIndentation(){
+        return indentation[level];
+    }
+
+    
+    public final void indenting(int ind) {
         indent = ind;
         if (indent == indentation[level])
             SwitchTo(INDENTATION_UNCHANGED);
         else
             SwitchTo(INDENTING);
     }
+
+
+
 }
 
 
@@ -463,12 +492,14 @@ comming back to this approach later).
 }
 
 
+
 //file_input: (NEWLINE | stmt)* ENDMARKER
 modType file_input(): {}
 {
-    (<NEWLINE> | stmt())* <EOF>
+    (try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} | stmt())* try{<EOF>}catch(ParseException e){handleNoEof(e);}
     { return (modType) jjtree.popNode(); }
 }
+
 
 
 //funcdef: 'def' NAME parameters ':' suite
@@ -481,7 +512,7 @@ void funcdef(): {}
 //@ call, name, attr ... <nl>
 void decorators(): {}
 {
-    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() {this.findTokenAndAdd(")");}<RPAREN> ] <NEWLINE> )* 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() try{{this.findTokenAndAdd(")");}<RPAREN>}catch(ParseException e){handleRParensNearButNotCurrent(e);} ] try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} )* 
 }
 void begin_decorator(): {}
 { <AT> dotted_name()
@@ -491,17 +522,17 @@ void begin_decorator(): {}
 void parameters() #void: {}
 { <LPAREN>{this.findTokenAndAdd("(");}
   [varargslist()] 
-  {this.findTokenAndAdd(")");}<RPAREN> 
+  try{{this.findTokenAndAdd(")");}<RPAREN>}catch(ParseException e){handleRParensNearButNotCurrent(e);}
   }
 
 //varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
 void varargslist() #void: {}
 {
-    defaultarg() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> defaultarg())*
-        [LOOKAHEAD(3) {this.addSpecialToken(",");} <COMMA> ExtraArgList()]
-        [LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]
-        [{this.addSpecialToken(",");} <COMMA>]
-    |   ( LOOKAHEAD(2) ExtraArgList() [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]
+    defaultarg() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> defaultarg())*
+        [LOOKAHEAD(3) {this.findTokenAndAdd(",");} <COMMA> ExtraArgList()]
+        [LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> ExtraKeywordList()]
+        [{this.findTokenAndAdd(",");} <COMMA>]
+    |   ( LOOKAHEAD(2) ExtraArgList() [{this.findTokenAndAdd(",");} <COMMA> ExtraKeywordList()]
     | ExtraKeywordList()
     )
 }
@@ -517,17 +548,17 @@ void defaultarg(): {}
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() {this.findTokenAndAdd(")");}<RPAREN>  }
+{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() try{{this.findTokenAndAdd(")");}<RPAREN>}catch(ParseException e){handleRParensNearButNotCurrent(e);}  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
-{ fpdef() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> fpdef())* [{this.addSpecialToken(",");} <COMMA>] }
+{ fpdef() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> fpdef())* [{this.findTokenAndAdd(",");} <COMMA>] }
 
 
 
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
-{ simple_stmt() | compound_stmt() }
+{ simple_stmt() | try{compound_stmt()}catch(ParseException e){handleErrorInCompountStmt(e);} }
 
 
 
@@ -537,15 +568,13 @@ void simple_stmt() #void: {}
 { 
     small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* 
     [<SEMICOLON>] 
-    try{<NEWLINE>}catch(ParseException e){
-        handleNoNewline(e);
-    }
+    try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}
 }
 
 
 
 //small_stmt: expr_stmt | print_stmt  | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | exec_stmt | assert_stmt
-void small_stmt() #void: {SimpleNode simpleNode;}
+void small_stmt() #void: {SimpleNode simpleNode;Object spStr;}
 {
     expr_stmt()
 |   print_stmt()
@@ -555,7 +584,8 @@ void small_stmt() #void: {SimpleNode simpleNode;}
 |   import_stmt()
 |   global_stmt()
 |   exec_stmt()
-|   assert_stmt() {addToPeek("assert ", false); }
+|   <ASSERT>{spStr  = createSpecialStr("assert", "assert ", false);} assert_stmt() {addToPeek(spStr, false); }
+
 }
 
 //expr_stmt: testlist (augassign (yield_expr|testlist) |
@@ -583,10 +613,10 @@ void expr_stmt() #void: {}
 void print_stmt() #void: {}
 {
     LOOKAHEAD(2) <PRINT> <RSHIFT>  
-    (test() [ (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())+ [Comma()] ] )#printext_stmt
+    (test() [ (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> test())+ [Comma()] ] )#printext_stmt
     
 |   LOOKAHEAD(2) <PRINT> 
-    (test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()])#print_stmt
+    (test() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> test())* [Comma()])#print_stmt
 
 |   <PRINT>  #print_stmt
 
@@ -636,7 +666,7 @@ void yield_expr(): {Object spStr;}
 
 //raise_stmt: 'raise' [test [',' test [',' test]]]
 void raise_stmt(): {}
-{ <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken(",");} <COMMA> test() [{this.addSpecialToken(",");} <COMMA> test()]]] }
+{ <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [{this.findTokenAndAdd(",");} <COMMA> test() [{this.findTokenAndAdd(",");} <COMMA> test()]]] }
 
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
 void import_stmt() #void: {Import imp;}
@@ -646,7 +676,7 @@ void import_stmt() #void: {Import imp;}
 
 
 Import Import(): {}
-{ dotted_as_name() ({this.addSpecialToken(",");} <COMMA> dotted_as_name())* 
+{ dotted_as_name() ({this.findTokenAndAdd(",");} <COMMA> dotted_as_name())* 
   {return (Import)jjtree.peekNode();}
 }
 
@@ -665,7 +695,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
         
         //from xxx import a,b,c
         | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
-        	({this.addSpecialToken(",");} <COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
+        	({this.findTokenAndAdd(",");} <COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
           ) 
         
         //from xxx import (a,b,c)
@@ -680,7 +710,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
              this.addSpecialToken(",");
              } 
              <COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
-           {this.findTokenAndAdd(")");}<RPAREN> 
+           try{{this.findTokenAndAdd(")");}<RPAREN>}catch(ParseException e){handleRParensNearButNotCurrent(e);} 
           )
     )
     //now, let's set the correct level for the module
@@ -704,19 +734,25 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() ({this.addSpecialToken(",");} <COMMA> Name())* }
+{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() ({this.findTokenAndAdd(",");} <COMMA> Name())* }
 
 //exec_stmt: 'exec' expr ['in' test [',' test]]
 void exec_stmt(): {}
-{ <EXEC>{this.addSpecialTokenToLastOpened("exec ");} expr() [<IN>{this.addSpecialToken(" in ");} test() [{this.addSpecialToken(",");} <COMMA> test()]] }
+{ <EXEC>{this.addSpecialTokenToLastOpened("exec ");} expr() [<IN>{this.addSpecialToken(" in ");} test() [{this.findTokenAndAdd(",");} <COMMA> test()]] }
+
+
 
 //assert_stmt: 'assert' test [',' test]
 void assert_stmt(): {}
-{ <ASSERT> test() [{this.addSpecialToken(",");} <COMMA> test()] }
+{ test() [{this.findTokenAndAdd(",");} <COMMA> test()] }
+
+
 
 //compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
 void compound_stmt() #void : { token_source.compound = true; }
 {if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef()}
+
+
 
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {Object spStr;}
@@ -724,8 +760,9 @@ void if_stmt(): {Object spStr;}
     {spStr = createSpecialStr("if","if ", false);}
     <IF> {this.addSpecialTokenToLastOpened(spStr);} test() {this.findTokenAndAdd(":");} <COLON> suite()
          (begin_elif_stmt() test() {this.findTokenAndAdd(":");} <COLON> suite())* 
-             [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:",true);} suite()]
+             [ <ELSE> {this.findTokenAndAdd("else","else:",false);} <COLON> suite()]
 }
+
 
 
 void begin_elif_stmt(): {}
@@ -790,7 +827,7 @@ void begin_finally_stmt(): {}
 
 //except_clause: 'except' [test [',' test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(",");} <COMMA> test()]] {this.findTokenAndAdd(":");} <COLON> suite() }
+{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.findTokenAndAdd(",");} <COMMA> test()]] {this.findTokenAndAdd(":");} <COLON> suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
@@ -820,23 +857,34 @@ try{
         simple_stmt() 
     |  
     
-        try{<NEWLINE><INDENT>}catch(ParseException e){handleErrorInIndent(e);}
+        try{try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}<INDENT>}catch(ParseException e){handleErrorInIndent(e);}
         
         (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
         
         try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
     
     |
-    try{
-        {handleNoIndentInSuiteFound();}
-        
-        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-        
-        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-    }catch(EmptySuiteException emptySuiteE){} //just close it 'gracefully'
+        try{
+            <INDENT>
+            {handleNoIndentInSuiteFound();}
+            
+            (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
+            
+            try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
+        }catch(EmptySuiteException emptySuiteE){} //just close it 'gracefully'
+    |
+        try{
+            {handleNoIndentInSuiteFound();}
+            
+            (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
+            
+            try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
+        }catch(EmptySuiteException emptySuiteE){} //just close it 'gracefully'
+    
         
 
 }catch(ParseException e){handleNoSuiteMatch(e);}
+
 
 }
 
@@ -883,7 +931,7 @@ void not_test() #void: {}
 
 //comparison: expr (comp_op expr)*
 void comparison() #void: {}
-{ (expr() (comp_op() expr())*) #comparision(>1) }
+{ (expr() (comp_op() expr())*) #comparision(>2) }
 
 
 //comp_op: '<'|'>'|'=='|'>='|'<='|'<>'|'!='|'in'|'not' 'in'|'is'|'is' 'not'
@@ -992,7 +1040,7 @@ void atom() #void: {Object spStr;Object spStr2;}
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
-|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] {this.findTokenAndAdd(")");}<RPAREN>  )
+|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] try{{this.findTokenAndAdd(")");}<RPAREN>}catch(ParseException e){handleRParensNearButNotCurrent(e);}  )
 
 |   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
       [listmaker()] 
@@ -1024,7 +1072,7 @@ void lambdef():{boolean hasArgs=false;}
 
 //subscriptlist: subscript (',' subscript)* [',']
 void subscriptlist() #void: {}
-{ (subscript() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> subscript())* [Comma()]) #subscriptlist(>1) }
+{ (subscript() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> subscript())* [Comma()]) #subscriptlist(>1) }
 
 //subscript: '.' '.' '.' | test | [test] ':' [test] [sliceop]
 void subscript() #void: {}
@@ -1039,27 +1087,42 @@ void slice() #void: {}
 { Colon() [test()] (Colon() [test()])? }
 
 void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
-void Comma(): {} {{this.addSpecialToken(",");} <COMMA>}
+void Comma(): {} {{this.findTokenAndAdd(",");} <COMMA>}
 
 //exprlist: expr (',' expr)* [',']
 void exprlist() #void: {}
-{ (expr() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> expr())* [Comma()]) #tuple(>1) }
+{ (expr() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> expr())* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void SmartTestList() #void: {}
-{ (test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()]) #tuple(>1) }
+{ (test() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> test())* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void testlist() #void: {}
-{ test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [{this.addSpecialToken(",");} <COMMA>]}
+{ test() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> test())* [{this.findTokenAndAdd(",");} <COMMA>]}
+
+
 
 //dictmaker: test ':' test (',' test ':' test)* [',']
 void dictmaker() #void: {}
-{test() {this.findTokenAndAdd(":");} <COLON> test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test() {this.findTokenAndAdd(":");} <COLON> test())* [{this.addSpecialToken(",");} <COMMA>]}
+{
+    test() {this.findTokenAndAdd(":");} <COLON> 
+    
+    try{
+        test()
+    }catch(ParseException e){
+        handleNoValInDict(e);
+    } 
+    
+    (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> test() {this.findTokenAndAdd(":");} <COLON> test())* 
+    
+    [{this.findTokenAndAdd(",");} <COMMA>]}
+
+
 
 //listmaker: test ( list_for | (',' test)* [','] )
 void listmaker() #void: {}
-{ test() ( LOOKAHEAD(2)(list_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
+{ test() ( LOOKAHEAD(2)(list_for())+ | (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
 
 //list_iter: [list_for | list_if]
 void list_iter() #void: {}
@@ -1075,21 +1138,21 @@ void list_if()#void:{}
 
 //classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] {this.findTokenAndAdd(")");}<RPAREN> ] {this.findTokenAndAdd(":");} <COLON> suite()}
+{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] try{{this.findTokenAndAdd(")");}<RPAREN>}catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {this.findTokenAndAdd(":");} <COLON> suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
 void arglist() #void: {}
 {
-    normalargs() [{this.addSpecialToken(",");} <COMMA>
+    normalargs() [{this.findTokenAndAdd(",");} <COMMA>
     [LOOKAHEAD(2) ExtraArgValueList()
-    [ {this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]]
+    [ {this.findTokenAndAdd(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]]
 |   [LOOKAHEAD(2) ExtraArgValueList()
-    [ {this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]
+    [ {this.findTokenAndAdd(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]
 }
 
 void normalargs() #void: {}
-{ argument() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> argument())* }
+{ argument() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> argument())* }
 
 void ExtraArgValueList(): {}
 { {this.addSpecialToken(createSpecialStr("*", false));} <MULTIPLY> test() }

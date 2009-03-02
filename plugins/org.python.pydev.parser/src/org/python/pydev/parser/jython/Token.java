@@ -12,7 +12,7 @@ public class Token {
    * system is determined by JavaCCParser, and a table of these numbers is
    * stored in the file ...Constants.java.
    */
-  public int kind;
+  public int kind = -999; //When it's the 1st, let's set it to a value that's not valid to any token!
 
   /**
    * beginLine and beginColumn describe the position of the first character

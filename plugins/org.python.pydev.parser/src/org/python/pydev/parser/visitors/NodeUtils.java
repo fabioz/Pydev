@@ -152,6 +152,14 @@ public class NodeUtils {
             return val;
         }
         
+        if (node instanceof org.python.pydev.parser.jython.ast.Dict){
+            String val = "{}";
+            if(useTypeRepr){
+                val = getBuiltinType(val);
+            }
+            return val;
+        }
+        
         if (node instanceof Str){
             String val;
             if(useTypeRepr){

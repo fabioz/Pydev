@@ -3,6 +3,7 @@ package org.python.pydev.parser.grammarcommon;
 import java.lang.reflect.Constructor;
 
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -19,8 +20,10 @@ public class JJTPythonGrammarState implements IJJTPythonGrammarState{
     protected boolean node_created;
 
     public ITreeBuilder builder;
+    private AbstractPythonGrammar grammar;
 
-    public JJTPythonGrammarState(Class<?> treeBuilderClass) {
+    public JJTPythonGrammarState(Class<?> treeBuilderClass, AbstractPythonGrammar grammar) {
+        this.grammar = grammar;
         nodes = new FastStack<SimpleNode>();
         marks = new IntStack();
         lines = new IntStack();
@@ -34,6 +37,10 @@ public class JJTPythonGrammarState implements IJJTPythonGrammarState{
         } catch (Exception e) {
             throw new RuntimeException(e);
         } 
+    }
+    
+    public AbstractPythonGrammar getGrammar() {
+        return grammar;
     }
     
     public final SimpleNode getLastOpened() {
@@ -72,7 +79,7 @@ public class JJTPythonGrammarState implements IJJTPythonGrammarState{
        stack.  */
     public SimpleNode popNode() {
         if (--sp < mk) {
-            mk = marks.pop();
+            clearMark();
         }
         return nodes.pop();
     }
@@ -118,7 +125,7 @@ public class JJTPythonGrammarState implements IJJTPythonGrammarState{
         while (sp > mk) {
             popNode();
         }
-        mk = marks.pop();
+        clearMark();
     }
 
 
@@ -136,7 +143,7 @@ public class JJTPythonGrammarState implements IJJTPythonGrammarState{
        is pushed on to the stack. */
     public void closeNodeScope(Node n, int num) throws ParseException {
         SimpleNode sn = (SimpleNode) n;
-        mk = marks.pop();
+        clearMark();
         SimpleNode newNode = null;
         try {
             newNode = builder.closeNode(sn, num);
@@ -172,26 +179,36 @@ public class JJTPythonGrammarState implements IJJTPythonGrammarState{
                 }
             } catch (ParseException exc) {
                 throw exc;
+                
             } catch (ClassCastException exc) {
-                exc.printStackTrace();
-                throw new ParseException("Internal error:" + exc);
+                if(PyParser.DEBUG_SHOW_PARSE_ERRORS){
+                    exc.printStackTrace();
+                }
+                throw new ParseException("Internal error:" + exc, sn);
+                
             } catch (Exception exc) {
-                exc.printStackTrace();
-                throw new ParseException("Internal error:" + exc);
+                if(PyParser.DEBUG_SHOW_PARSE_ERRORS){
+                    exc.printStackTrace();
+                }
+                throw new ParseException("Internal error:" + exc, sn);
             }
             if (newNode == null) {
                 throw new ParseException("Internal AST builder error when closing node:" + sn);
             }
-            if (marks.size() > 0) {
-                mk = marks.pop();
-            } else {
-                mk = 0;
-            }
+            clearMark();
             pushNode(newNode);
             node_created = true;
         } else {
-            mk = marks.pop();
+            clearMark();
             node_created = false;
+        }
+    }
+
+    private void clearMark() {
+        if (marks.size() > 0) {
+            mk = marks.pop();
+        } else {
+            mk = 0;
         }
     }
 

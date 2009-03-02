@@ -1,8 +1,9 @@
 package org.python.pydev.parser.grammarcommon;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.FastCharStream;
@@ -12,40 +13,12 @@ import org.python.pydev.parser.jython.Token;
  * 
  * Note that this class actually has a tight coupling with subclasses, searching directly for some attributes
  * (e.g.: curLexState so that we don't need to override a get for each token manager class)
- * 
- * Some lexer states:
- 
-  int DEFAULT = 0;
-  int FORCE_NEWLINE1 = 1;
-  int FORCE_NEWLINE2 = 2;
-  int INDENTING = 3;
-  int INDENTATION_UNCHANGED = 4;
-  int UNREACHABLE = 5;
-  int IN_STRING11 = 6;
-  int IN_STRING21 = 7;
-  int IN_STRING13 = 8;
-  int IN_STRING23 = 9;
-  int IN_BSTRING11 = 10;
-  int IN_BSTRING21 = 11;
-  int IN_BSTRING13 = 12;
-  int IN_BSTRING23 = 13;
-  int IN_USTRING11 = 14;
-  int IN_USTRING21 = 15;
-  int IN_USTRING13 = 16;
-  int IN_USTRING23 = 17;
-  int IN_STRING1NLC = 18;
-  int IN_STRING2NLC = 19;
-  int IN_USTRING1NLC = 20;
-  int IN_USTRING2NLC = 21;
-  int IN_BSTRING1NLC = 22;
-  int IN_BSTRING2NLC = 23;
-  
  *
  *
  * @author Fabio
  *
  */
-public abstract class AbstractTokenManager implements ITreeConstants{
+public abstract class AbstractTokenManager extends AbstractTokenManagerWithConstants implements ITreeConstants, ITokenManager{
     
     protected final int indentation[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     protected int level = 0;
@@ -57,49 +30,12 @@ public abstract class AbstractTokenManager implements ITreeConstants{
     public boolean compound = false;
 
     public final List<Object> specialTokens = new ArrayList<Object>();
-    private final int passId;
-    private final int dedentId;
-    private final int indentId;
-    private final int defaultId;
-    private final int newlineId;
-    private final int eofId;
-    private final int rparenId;
-    private final int lparenId;
-    private final int singleLineCommentId;
-    private final int nameId;
-    private final int colonId;
     
     private FastCharStream inputStream;
 
-    @SuppressWarnings("unchecked")
-    protected abstract Class getConstantsClass();
+
     
-    @SuppressWarnings("unchecked")
-    protected int getFromConstants(String constant){
-        try {
-            Class c = getConstantsClass();
-            Field declaredField = c.getDeclaredField(constant);
-            return declaredField.getInt(this);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        
-    }
-    
-    //constants
-    protected final int getPassId(){return passId;}
-    protected final int getDedentId(){return dedentId;}
-    protected final int getIndentId(){return indentId;}
-    protected final int getDefaultId(){return defaultId;}
-    protected final int getNewlineId(){return newlineId;}
-    protected final int getEofId(){return eofId;}
-    protected final int getRParenId(){return rparenId;}
-    protected final int getLParenId(){return lparenId;}
-    protected final int getColonId(){return colonId;}
-    protected final int getNameId(){return nameId;}
-    protected final int getSingleLineCommentId(){return singleLineCommentId;}
-    
-    protected final FastCharStream getInputStream(){
+    public final FastCharStream getInputStream(){
         if(this.inputStream == null){
             this.inputStream =  (FastCharStream) REF.getAttrObj(this, "input_stream", true);
         }
@@ -115,17 +51,6 @@ public abstract class AbstractTokenManager implements ITreeConstants{
     public abstract Token getNextToken();
     
     protected AbstractTokenManager(){
-        passId = getFromConstants("PASS");
-        dedentId = getFromConstants("DEDENT");
-        indentId = getFromConstants("INDENT");
-        defaultId = getFromConstants("DEFAULT");
-        newlineId =  getFromConstants("NEWLINE");
-        rparenId =  getFromConstants("RPAREN");
-        lparenId =  getFromConstants("LPAREN");
-        nameId =  getFromConstants("NAME");
-        eofId =  getFromConstants("EOF");
-        colonId =  getFromConstants("COLON");
-        singleLineCommentId =  getFromConstants("SINGLE_LINE_COMMENT");
     }
 
     protected final Token createFrom(Token previous, int kind, String image) {
@@ -167,17 +92,25 @@ public abstract class AbstractTokenManager implements ITreeConstants{
         return null;
     }
     
+    
+    private Map<String, Integer> tokenToId;
+    private Map<String, Integer> getTokenToId() {
+        if(tokenToId == null){
+            tokenToId = new HashMap<String, Integer>();
+            tokenToId.put(")", getRparenId());
+            tokenToId.put("]", getRbracketId());
+            tokenToId.put("}", getRbraceId());
+            tokenToId.put(":", getColonId());
+            tokenToId.put("(", getLparenId());
+            tokenToId.put(",", getCommaId());
+        }
+        return tokenToId;
+    }
+    
     public boolean addCustom(Token curr, String token) {
-        if(")".equals(token)){
-            createFromAndSetAsNext(curr, getRParenId(), ")");
-            return true;
-        }
-        if(":".equals(token)){
-            createFromAndSetAsNext(curr, getColonId(), ":");
-            return true;
-        }
-        if("(".equals(token)){
-            createFromAndSetAsNext(curr, getLParenId(), "(");
+        Integer id = getTokenToId().get(token);
+        if(id != null){
+            createFromAndSetAsNext(curr, id, token);
             return true;
         }
         return false;
@@ -207,7 +140,7 @@ public abstract class AbstractTokenManager implements ITreeConstants{
         //This is the place we check if we have to add dedents so that the parsing ends 'gracefully' when
         //we find and EOF.
         if (t.kind == getEofId()) {
-            if (getCurLexState() == getDefaultId()) {
+            if (getCurLexState() == getLexerDefaultId()) {
                 t.kind = getNewlineId();
             } else {
                 t.kind = getDedentId();
@@ -223,5 +156,21 @@ public abstract class AbstractTokenManager implements ITreeConstants{
         }
         
     }
+
+    /**
+     * Must be called right after a new line with 0 as a parameter. Identifies the number of whitespaces in the current line.
+     */
+    public abstract void indenting(int i);
+    
+    
+    /**
+     * @return The current level of the indentation in the current line.
+     */
+    public abstract int getCurrentLineIndentation();
+    
+    /**
+     * @return The current level of the indentation.
+     */
+    public abstract int getLastIndentation();
 
 }

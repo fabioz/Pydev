@@ -22,11 +22,11 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
         prefs = new PrettyPrinterPrefs("\n");
     }
 
-    public SimpleNode checkPrettyPrintEqual(String s, String expected) throws Exception, IOException {
+    public SimpleNode checkPrettyPrintEqual(String s, String expected) throws Error {
         return checkPrettyPrintEqual(s, prefs, expected);
         
     }
-    public SimpleNode checkPrettyPrintEqual(String s) throws Exception, IOException {
+    public SimpleNode checkPrettyPrintEqual(String s) throws Error {
         return checkPrettyPrintEqual(s, s);
     }
     
@@ -36,7 +36,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
      * @throws Exception
      * @throws IOException
      */
-    public static SimpleNode checkPrettyPrintEqual(String s, PrettyPrinterPrefs prefs, String expected) throws Exception, IOException {
+    public static SimpleNode checkPrettyPrintEqual(String s, PrettyPrinterPrefs prefs, String expected) throws Error {
         SimpleNode node = parseLegalDocStr(s);
         final WriterEraser stringWriter = makePrint(prefs, node);
 
@@ -50,12 +50,16 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
      * @return
      * @throws Exception
      */
-    public static WriterEraser makePrint(PrettyPrinterPrefs prefs, SimpleNode node) throws Exception {
+    public static WriterEraser makePrint(PrettyPrinterPrefs prefs, SimpleNode node) throws Error {
         Module m = (Module) node;
         
         final WriterEraser stringWriter = new WriterEraser();
         PrettyPrinter printer = new PrettyPrinter(prefs, stringWriter);
-        m.accept(printer);
+        try {
+            m.accept(printer);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
         if(DEBUG){
             System.out.println("\n\nResult:\n");
             System.out.println("'"+stringWriter.getBuffer().toString().replace(' ', '.').replace('\t', '^')+"'");

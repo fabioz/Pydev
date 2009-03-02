@@ -27,38 +27,7 @@ $IMPORTS
 public class PythonGrammar30 extends AbstractPythonGrammar implements IGrammar
 {
 
-    /**
-     * @return the current token found.
-     */
-    protected final Token getCurrentToken() {
-        return this.token;
-    }
-    
-    
-    /**
-     * @return the jjtree from this grammar
-     */
-    protected final IJJTPythonGrammarState getJJTree(){
-        return jjtree;
-    }
-
-
-    /**
-     * @return the special tokens in the token source
-     */
-    @SuppressWarnings("unchecked")
-    protected final List<Object> getTokenSourceSpecialTokensList(){
-        return token_source.specialTokens;
-    }
-
-
-    /**
-     * @return the jj_lastpos
-     */
-    protected final Token getJJLastPos(){
-        return jj_lastpos;
-    }
-    
+$COMMOM_METHODS
     
     private void handleFutureImports(String importName){
         
@@ -102,18 +71,13 @@ PARSER_END(PythonGrammar30)
 
 TOKEN_MGR_DECLS:
 {
-    protected Class getConstantsClass(){
+    protected Class<?> getConstantsClass(){
         return PythonGrammar30Constants.class;
     }
 
 
-    private final void indenting(int ind) {
-        indent = ind;
-        if (indent == indentation[level])
-            SwitchTo(INDENTATION_UNCHANGED);
-        else
-            SwitchTo(INDENTING);
-    }
+$TOKEN_MGR_COMMOM_METHODS
+
 }
 
 
@@ -237,6 +201,7 @@ TOKEN : /* OPERATORS */
 {
     < PLUS: "+" >
 |   < MINUS: "-" >
+|   < MINUS_GREATER: "->" >
 |   < MULTIPLY: "*" >
 |   < DIVIDE: "/" >
 |   < FLOORDIVIDE: "//" >
@@ -451,18 +416,13 @@ comming back to this approach later).
 }
 
 
-//file_input: (NEWLINE | stmt)* ENDMARKER
-modType file_input(): {}
-{
-    (<NEWLINE> | stmt())* <EOF>
-    { return (modType) jjtree.popNode(); }
-}
+$FILE_INPUT
 
 
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 { 
-    <DEF> Name() parameters() [<MINUS><GREATER>{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);} test()#funcdef_return_annottation] $COLON 
+    <DEF> Name() parameters() [{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON 
         suite() 
 }
 
@@ -472,7 +432,7 @@ void funcdef(): {}
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] $RPAREN ] <NEWLINE> )+ 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] $RPAREN ] $NEWLINE )+ 
 }
 
 
@@ -499,9 +459,9 @@ void typedargslist() #void: {}
 //        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
 
 
-       ((defaultarg2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg2())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg2())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [{this.addSpecialToken(",");} <COMMA>]
-    |  (ExtraArgList2() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg2())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordList2()]) [{this.addSpecialToken(",");} <COMMA>]   
-    |   ExtraKeywordList2() [{this.addSpecialToken(",");} <COMMA>]
+       ((defaultarg2() (LOOKAHEAD(2)$COMMA defaultarg2())*) [LOOKAHEAD(2)$COMMA ((ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [$COMMA ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [$COMMA]
+    |  (ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [LOOKAHEAD(2)$COMMA ExtraKeywordList2()]) [$COMMA]   
+    |   ExtraKeywordList2() [$COMMA]
 }
 
 void ExtraArgList2(): {}
@@ -534,9 +494,9 @@ void tfpdef(): {}
 //              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
 void varargslist() #void: {}
 {
-       ((defaultarg() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> defaultarg())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]) | (ExtraKeywordList()) )]) [{this.addSpecialToken(",");} <COMMA>]
-    |  (ExtraArgList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> onlykeywordarg())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordList()]) [{this.addSpecialToken(",");} <COMMA>]   
-    |   ExtraKeywordList() [{this.addSpecialToken(",");} <COMMA>]
+       ((defaultarg() (LOOKAHEAD(2)$COMMA defaultarg())*) [LOOKAHEAD(2)$COMMA ((ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [$COMMA ExtraKeywordList()]) | (ExtraKeywordList()) )]) [$COMMA]
+    |  (ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [LOOKAHEAD(2)$COMMA ExtraKeywordList()]) [$COMMA]   
+    |   ExtraKeywordList() [$COMMA]
 }
 
 void ExtraArgList(): {}
@@ -557,7 +517,7 @@ void fpdef() #void: {}
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
-{ fpdef() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> fpdef())* [{this.addSpecialToken(",");} <COMMA>] }
+{ fpdef() (LOOKAHEAD(2) $COMMA fpdef())* [$COMMA] }
 
 
 $STMT
@@ -567,7 +527,7 @@ $SIMPLE_STMT
 
 
 //small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt 
-void small_stmt() #void: {SimpleNode simpleNode;}
+void small_stmt() #void: {SimpleNode simpleNode;Object spStr;}
 {
     expr_stmt()
 |   del_stmt()
@@ -576,7 +536,7 @@ void small_stmt() #void: {SimpleNode simpleNode;}
 |   import_stmt()
 |   global_stmt()
 |   nonlocal_stmt()
-|   assert_stmt() {addToPeek("assert ", false); }
+|   $CALL_ASSERT
 }
 
 //expr_stmt: testlist (augassign (yield_expr|testlist) |
@@ -650,7 +610,7 @@ void import_stmt() #void: {Import imp;}
 
 
 Import Import(): {}
-{ dotted_as_name() ({this.addSpecialToken(",");} <COMMA> dotted_as_name())* 
+{ dotted_as_name() ($COMMA dotted_as_name())* 
   {return (Import)jjtree.peekNode();}
 }
 
@@ -669,7 +629,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
         
         //from xxx import a,b,c
         | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
-            ({this.addSpecialToken(",");} <COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
+            ($COMMA (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
           ) 
         
         //from xxx import (a,b,c)
@@ -708,30 +668,23 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()] }
+{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()] }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
 void nonlocal_stmt(): {}
-{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> Name())* [{this.addSpecialToken(",");} <COMMA>] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()]}
+{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()]}
 
 
-//assert_stmt: 'assert' test [',' test]
-void assert_stmt(): {}
-{ <ASSERT> test() [{this.addSpecialToken(",");} <COMMA> test()] }
+$ASSERT
+
 
 //compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
 void compound_stmt() #void : { token_source.compound = true; }
 {if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()}
 
-//if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
-void if_stmt(): {Object spStr;}
-{
-	{spStr = createSpecialStr("if","if ", false);}
-    <IF> {this.addSpecialTokenToLastOpened(spStr);} test() $COLON suite()
-         (begin_elif_stmt() test() $COLON suite())* 
-             [ <ELSE> <COLON> {this.findTokenAndAdd("else","else:",true);} suite()]
-}
+
+$IF
 
 
 void begin_elif_stmt(): {}
@@ -845,7 +798,7 @@ void not_test() #void: {}
 
 //comparison: expr (comp_op expr)*
 void comparison() #void: {}
-{ (expr() (comp_op() expr())*) #comparision(>1) }
+{ (expr() (comp_op() expr())*) #comparision(>2) }
 
 
 //comp_op: '<'|'>'|'=='|'>='|'<='|'!='|'in'|'not' 'in'|'is'|'is' 'not'
@@ -980,7 +933,7 @@ void lambdef_nocond():{boolean hasArgs=false;}
 
 //subscriptlist: subscript (',' subscript)* [',']
 void subscriptlist() #void: {}
-{ (subscript() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> subscript())* [Comma()]) #subscriptlist(>1) }
+{ (subscript() (LOOKAHEAD(2) $COMMA subscript())* [Comma()]) #subscriptlist(>1) }
 
 //subscript: '.' '.' '.' | test | [test] ':' [test] [sliceop]
 void subscript() #void: {}
@@ -995,19 +948,19 @@ void slice() #void: {}
 { Colon() [test()] (Colon() [test()])? }
 
 void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
-void Comma(): {} {{this.addSpecialToken(",");} <COMMA>}
+void Comma(): {} {$COMMA}
 
 //exprlist: expr (',' expr)* [',']
 void exprlist() #void: {}
-{ (expr() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> expr())* [Comma()]) #tuple(>1) }
+{ (expr() (LOOKAHEAD(2) $COMMA expr())* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void SmartTestList() #void: {}
-{ (test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()]) #tuple(>1) }
+{ (test() (LOOKAHEAD(2) $COMMA test())* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void testlist() #void: {}
-{ test() (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [{this.addSpecialToken(",");} <COMMA>]}
+{ test() (LOOKAHEAD(2) $COMMA test())* [$COMMA]}
 
 //dictorsetmaker: ( 
 //                   (test ':' test (comp_for | (',' test ':' test)* [','])) 
@@ -1018,16 +971,18 @@ void dictorsetmaker() #void: {}
 	test()
 	
 	(
-	    ( $COLON test() 
+	    ( $COLON     try{test()}catch(ParseException e){handleNoValInDict(e);
+    } 
+	     
 	        (
 	            comp_for()|
-	            (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test()$COLON test())*
-	            [{this.addSpecialToken(",");} <COMMA>]
+	            (LOOKAHEAD(2) $COMMA test()$COLON test())*
+	            [$COMMA]
 	        )
 	    )
         |
 	    (
-	      (LOOKAHEAD(2) comp_for() | ({this.addSpecialToken(",");} <COMMA> test())*#set [{this.addSpecialToken(",");} <COMMA>] )
+	      (LOOKAHEAD(2) comp_for() | ($COMMA test())*#set [$COMMA] )
 	    )
     )
 }
@@ -1035,7 +990,7 @@ void dictorsetmaker() #void: {}
 
 //testlist_comp: test ( comp_for | (',' test)* [','] )
 void testlist_comp() #void: {}
-{ test() ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) {this.addSpecialToken(",");} <COMMA> test())* [Comma()] #tuple(>1)) }
+{ test() ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) $COMMA test())* [Comma()] #tuple(>1)) }
 
 
 //comp_iter: [comp_for | comp_if]
@@ -1069,9 +1024,9 @@ void classdef(): {Object spStr;Object spStr2;}
 //                         |'**' test)
 void arglist() #void: {}
 {
-       ((argument() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> argument())*) [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ((ExtraArgValueList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> argument())* [{this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [{this.addSpecialToken(",");} <COMMA>]
-    |  (ExtraArgValueList() (LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> argument())* [LOOKAHEAD(2){this.addSpecialToken(",");} <COMMA> ExtraKeywordValueList()]) [{this.addSpecialToken(",");} <COMMA>]   
-    |   ExtraKeywordValueList() [{this.addSpecialToken(",");} <COMMA>]
+       ((argument() (LOOKAHEAD(2)$COMMA argument())*) [LOOKAHEAD(2)$COMMA ((ExtraArgValueList() (LOOKAHEAD(2)$COMMA argument())* [$COMMA ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [$COMMA]
+    |  (ExtraArgValueList() (LOOKAHEAD(2)$COMMA argument())* [LOOKAHEAD(2)$COMMA ExtraKeywordValueList()]) [$COMMA]   
+    |   ExtraKeywordValueList() [$COMMA]
 }
 
 

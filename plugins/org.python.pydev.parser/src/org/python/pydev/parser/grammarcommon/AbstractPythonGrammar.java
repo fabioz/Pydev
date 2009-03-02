@@ -1,14 +1,9 @@
 package org.python.pydev.parser.grammarcommon;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.core.REF;
 import org.python.pydev.parser.IGrammar;
-import org.python.pydev.parser.PyParser;
-import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
@@ -19,32 +14,12 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 
-public abstract class AbstractPythonGrammar implements ITreeConstants, IGrammar{
+public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers implements ITreeConstants, IGrammar{
 
-    public static boolean DEBUG = false;
-    public final static boolean DEBUG_SHOW_PARSE_ERRORS = PyParser.DEBUG_SHOW_PARSE_ERRORS;
-    
-    
     public IParserHost hostLiteralMkr;
     public SimpleNode prev;
-    private AbstractTokenManager tokenManager;
     public final static boolean DEFAULT_SEARCH_ON_LAST = false;
     
-    
-    /**
-     * @return The token manager.
-     */
-    protected final AbstractTokenManager getTokenManager() {
-        if(this.tokenManager == null){
-            this.tokenManager =  (AbstractTokenManager) REF.getAttrObj(this, "token_source", true);
-        }
-        return this.tokenManager;
-    }
-
-    /**
-     * @return the actual jjtree used to build the nodes (tree)
-     */
-    protected abstract IJJTPythonGrammarState getJJTree();
 
     /**
      * @return the token at the given location in the stack.
@@ -62,40 +37,9 @@ public abstract class AbstractPythonGrammar implements ITreeConstants, IGrammar{
      */
     protected abstract Token getJJLastPos();
 
-    /**
-     * @return the current token
-     */
-    protected abstract Token getCurrentToken();
-    
-    /**
-     * List with the errors we handled during the parsing
-     */
-    private List<ParseException> parseErrors = new ArrayList<ParseException>();
-    
-    /**
-     * @return a list with the parse errors. Note that the returned value is not a copy, but the actual
-     * internal list used to store the errors.
-     */
-    public List<ParseException> getParseErrors(){
-        return parseErrors;
-    }
 
-    /**
-     * Adds some parse exception to the list of parse exceptions found.
-     */
-    private void addParseError(ParseException e) {
-        parseErrors.add(e);
-    }
+    
 
-    /**
-     * @return the 1st error that happened while parsing (or null if no error happened)
-     */
-    public Throwable getErrorOnParsing() {
-        if(this.parseErrors != null && this.parseErrors.size() > 0){
-            return this.parseErrors.get(0);
-        }
-        return null;
-    }
     
     
     
@@ -149,95 +93,6 @@ public abstract class AbstractPythonGrammar implements ITreeConstants, IGrammar{
     
     
     
-    
-    //---------------------------- Helpers to handle errors in the grammar.
-
-    protected final void addAndReport(ParseException e, String msg){
-        if(DEBUG_SHOW_PARSE_ERRORS){
-            System.out.println(msg);
-            e.printStackTrace();
-        }
-        addParseError(e);
-    }
-    
-    /**
-     * Called when there was an error trying to indent.
-     */
-    protected final void handleErrorInIndent(ParseException e) throws ParseException{
-        addAndReport(e, "Handle indent");
-    }
-    
-    /**
-     * Called when there was an error trying to dedent.
-     */
-    protected final void handleErrorInDedent(ParseException e) throws ParseException{
-        addAndReport(e, "Handle dedent");
-    }
-    
-    /**
-     * Called when there was an error while resolving a statement.
-     */
-    protected final void handleErrorInStmt(ParseException e) throws ParseException{
-        addAndReport(e, "Handle stmt");
-    }
-    
-    /**
-     * Called when there was an error while resolving a statement.
-     */
-    protected final void handleNoNewline(ParseException e) throws ParseException{
-        addAndReport(e, "Handle no newline");
-    }
-    
-    
-    /**
-     * This is called when recognized a suite without finding its indent.
-     * 
-     * @throws EmptySuiteException if it was called when an empty suite was actually matched (and thus, we should
-     * go out of the suite context).
-     */
-    protected final void handleNoIndentInSuiteFound() throws EmptySuiteException{
-        Token currentToken = getCurrentToken();
-        addAndReport(new ParseException("No indent found.", currentToken), "Handle no indent in suite");
-        
-        JJTPythonGrammarState tree = (JJTPythonGrammarState) this.getJJTree();
-        if(tree.lastIsNewScope()){
-            //this is something like:
-            //class A(ueo
-            //def m1
-            //where the def is out of the suite scope
-            throw new EmptySuiteException();
-        }
-    }
-    
-    
-
-    
-    protected final void handleNoSuiteMatch(ParseException e){
-        addAndReport(e, "Handle no suite match");
-        
-//      Should we try to find a dedent to keep on going?
-//        Token token = getCurrentToken();
-//        int dedentId = getTokenManager().getDedentId();
-//        int eofId = getTokenManager().getEofId();
-//        
-//        //go until the next dedent.
-//        while(token != null && token.kind != dedentId && token.kind != eofId){
-//            token = getTokenManager().getNextToken();
-//        }
-    }
-
-    
-    /**
-     * Called when there was an error trying to indent.
-     * 
-     * Actually creates a name so that the parsing can continue.
-     */
-    protected final Token handleErrorInName(ParseException e) throws ParseException{
-        addAndReport(e, "Handle name");
-        Token currentToken = getCurrentToken();
-        
-        return this.getTokenManager().createFrom(currentToken, this.getTokenManager().getNameId(), "!<MissingName>!");
-    }
     
 
     
@@ -374,56 +229,63 @@ public abstract class AbstractPythonGrammar implements ITreeConstants, IGrammar{
         return createSpecialStr(token, put, searchOnLast, true);
     }
     
+    /**
+     * This is where we do a lookahead to see if we find some token and if we do find it, but not on the correct
+     * position, we skip some tokens to go to it.
+     */
     public final Object createSpecialStr(String token, String put, boolean searchOnLast, boolean throwException) throws ParseException {
-        Token t;
         final Token currentToken = getCurrentToken();
         
+        Token firstTokenToIterate;
         if (searchOnLast) {
-            t = getJJLastPos();
+            firstTokenToIterate = getJJLastPos();
         } else {
-            t = currentToken;
+            firstTokenToIterate = currentToken;
         }
+        Token foundToken = null;
+        
         
         AbstractTokenManager tokenManager = getTokenManager();
-        Token nextLoaded = null;
-        boolean loadedOneMore = false;
-        while (t != null && t.image != null && t.image.equals(token) == false) {
-            if(!loadedOneMore && t.next == null){
-                
-                int curLexState = tokenManager.getCurLexState();
-                if(curLexState == 0){
-                    boolean foundNewLine = searchNewLine(tokenManager);
-                    if(foundNewLine){
-                        nextLoaded = tokenManager.createCustom(t, "\n");
-                        t.next = nextLoaded;
-                    }
-                }
-                if(nextLoaded == null){
-                    nextLoaded = tokenManager.getNextToken();
-                    t.next = nextLoaded;
-                    loadedOneMore = true;
-                }
+        int foundAtPos = 0;
+        
+        //lot's of tokens, but we'll bail out on an indent, so, that's OK.
+        TokensIterator iterTokens = this.getTokensIterator(firstTokenToIterate, 50, true);
+        while(iterTokens.hasNext()){
+            foundAtPos += 1;
+            Token next = iterTokens.next();
+            if(next.image != null && next.image.equals(token)){
+                //Found what we were looking for!
+                foundToken = next;
+                break;
             }
-            t = t.next;
         }
         
-        if (t != null) {
-            return new SpecialStr(put, t.beginLine, t.beginColumn);
+        
+        if (foundToken != null) {
+            if(foundAtPos <= 2 //found at correct position. 
+                || searchOnLast //we already matched it... right now we're just adding it to the stack!
+                ){
+                return new SpecialStr(put, foundToken.beginLine, foundToken.beginColumn);
+                
+            }
         }
         
         if(throwException){
-            ParseException e;
-            //return put;
-            if (currentToken != null) {
-                e = new ParseException("Expected:" + token, currentToken);
-                
-            } else if (getJJLastPos() != null) {
-                e = new ParseException("Expected:" + token, getJJLastPos());
-                
-            } else {
-                e = new ParseException("Expected:" + token);
+            ParseException e = createException(token, currentToken);
+            
+            //we found it at the wrong position!
+            if(foundToken != null){
+                //we found it, but not on the position we were expecting, so, we must skip some tokens to get to it --
+                //and report the needed exception)
+                if(DEBUG_SHOW_LOADED_TOKENS){
+                    System.out.println("Found at wrong position: "+token);
+                }
+                Token beforeLastReturned = iterTokens.getBeforeLastReturned();
+                setCurrentToken(beforeLastReturned);
+                return new SpecialStr(put, foundToken.beginLine, foundToken.beginColumn);
             }
             
+            //create a 'synthetic token' in the place we were expecting it.
             if(currentToken != null){
                 if(tokenManager.addCustom(currentToken, token)){
                     addParseError(e);
@@ -435,34 +297,22 @@ public abstract class AbstractPythonGrammar implements ITreeConstants, IGrammar{
         return null;
     }
 
-    private boolean searchNewLine(AbstractTokenManager tokenManager) {
-        boolean foundNewLine = false;
-        FastCharStream inputStream = tokenManager.getInputStream();
-        int currentPos = inputStream.getCurrentPos();
-
-        try {
-            while(true){
-                try {
-                    char c = inputStream.readChar();
-                    if(c == '\r' || c == '\n'){
-                        foundNewLine = true;
-                        break;
-                    }
-                    if(!Character.isWhitespace(c)){
-                        break;
-                    }
-                } catch (IOException e) {
-                    break;
-                }
-            }
-        } finally {
-            if(!foundNewLine){
-                inputStream.restorePos(currentPos);
-            }
+    private ParseException createException(String token, final Token currentToken) {
+        ParseException e;
+        //return put;
+        if (currentToken != null) {
+            e = new ParseException("Expected:" + token, currentToken);
+            
+        } else if (getJJLastPos() != null) {
+            e = new ParseException("Expected:" + token, getJJLastPos());
+            
+        } else {
+            e = new ParseException("Expected:" + token);
         }
-        return foundNewLine;
+        return e;
     }
 
+    
 
     public final boolean findTokenAndAdd(String token) throws ParseException {
         return findTokenAndAdd(token, token, DEFAULT_SEARCH_ON_LAST);

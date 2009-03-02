@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
+import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Name;
@@ -221,5 +222,30 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
     protected final boolean isArg(SimpleNode n) {
         return n instanceof ExtraArg || n instanceof DefaultArg || n instanceof keywordType;
     }
+    
+    
+    protected final SimpleNode defaultCreateDictionary(int arity) {
+        boolean isDictComplete = arity % 2 == 0;
+        
+        int l = arity / 2;
+        exprType[] keys;
+        if(isDictComplete){
+            keys = new exprType[l];
+        }else{
+            keys = new exprType[l+1]; //we have 1 additional entry in the keys (parse error actually, but let's recover at this point!)
+        }
+        exprType[] vals = new exprType[l];
+        for (int i = l - 1; i >= 0; i--) {
+            vals[i] = (exprType) stack.popNode();
+            keys[i] = (exprType) stack.popNode();
+        }
+        if(!isDictComplete){
+            keys[keys.length-1] = (exprType) stack.popNode();
+        }
+        return new Dict(keys, vals);
+    }
+
+
+
 
 }

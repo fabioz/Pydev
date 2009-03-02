@@ -24,14 +24,31 @@ import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 
 /** Token Manager. */
-public class PythonGrammar25TokenManager extends AbstractTokenManager implements PythonGrammar25Constants
+@SuppressWarnings("unused") public class PythonGrammar25TokenManager extends AbstractTokenManager implements PythonGrammar25Constants
 {
-    protected Class getConstantsClass(){
+    protected Class<?> getConstantsClass(){
         return PythonGrammar25Constants.class;
     }
 
 
-    private final void indenting(int ind) {
+
+
+    /**
+     * @return The current level of the indentation in the current line.
+     */
+    public int getCurrentLineIndentation(){
+        return indent;
+    }
+
+    /**
+     * @return The current level of the indentation.
+     */
+    public int getLastIndentation(){
+        return indentation[level];
+    }
+
+
+    public final void indenting(int ind) {
         indent = ind;
         if (indent == indentation[level])
             SwitchTo(INDENTATION_UNCHANGED);

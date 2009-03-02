@@ -55,167 +55,169 @@ public interface PythonGrammar30Constants {
   /** RegularExpression Id. */
   int MINUS = 28;
   /** RegularExpression Id. */
-  int MULTIPLY = 29;
+  int MINUS_GREATER = 29;
   /** RegularExpression Id. */
-  int DIVIDE = 30;
+  int MULTIPLY = 30;
   /** RegularExpression Id. */
-  int FLOORDIVIDE = 31;
+  int DIVIDE = 31;
   /** RegularExpression Id. */
-  int POWER = 32;
+  int FLOORDIVIDE = 32;
   /** RegularExpression Id. */
-  int LSHIFT = 33;
+  int POWER = 33;
   /** RegularExpression Id. */
-  int RSHIFT = 34;
+  int LSHIFT = 34;
   /** RegularExpression Id. */
-  int MODULO = 35;
+  int RSHIFT = 35;
   /** RegularExpression Id. */
-  int NOT = 36;
+  int MODULO = 36;
   /** RegularExpression Id. */
-  int XOR = 37;
+  int NOT = 37;
   /** RegularExpression Id. */
-  int OR = 38;
+  int XOR = 38;
   /** RegularExpression Id. */
-  int AND = 39;
+  int OR = 39;
   /** RegularExpression Id. */
-  int EQUAL = 40;
+  int AND = 40;
   /** RegularExpression Id. */
-  int GREATER = 41;
+  int EQUAL = 41;
   /** RegularExpression Id. */
-  int LESS = 42;
+  int GREATER = 42;
   /** RegularExpression Id. */
-  int EQEQUAL = 43;
+  int LESS = 43;
   /** RegularExpression Id. */
-  int EQLESS = 44;
+  int EQEQUAL = 44;
   /** RegularExpression Id. */
-  int EQGREATER = 45;
+  int EQLESS = 45;
   /** RegularExpression Id. */
-  int NOTEQUAL = 46;
+  int EQGREATER = 46;
   /** RegularExpression Id. */
-  int PLUSEQ = 47;
+  int NOTEQUAL = 47;
   /** RegularExpression Id. */
-  int MINUSEQ = 48;
+  int PLUSEQ = 48;
   /** RegularExpression Id. */
-  int MULTIPLYEQ = 49;
+  int MINUSEQ = 49;
   /** RegularExpression Id. */
-  int DIVIDEEQ = 50;
+  int MULTIPLYEQ = 50;
   /** RegularExpression Id. */
-  int FLOORDIVIDEEQ = 51;
+  int DIVIDEEQ = 51;
   /** RegularExpression Id. */
-  int MODULOEQ = 52;
+  int FLOORDIVIDEEQ = 52;
   /** RegularExpression Id. */
-  int ANDEQ = 53;
+  int MODULOEQ = 53;
   /** RegularExpression Id. */
-  int OREQ = 54;
+  int ANDEQ = 54;
   /** RegularExpression Id. */
-  int XOREQ = 55;
+  int OREQ = 55;
   /** RegularExpression Id. */
-  int LSHIFTEQ = 56;
+  int XOREQ = 56;
   /** RegularExpression Id. */
-  int RSHIFTEQ = 57;
+  int LSHIFTEQ = 57;
   /** RegularExpression Id. */
-  int POWEREQ = 58;
+  int RSHIFTEQ = 58;
   /** RegularExpression Id. */
-  int OR_BOOL = 59;
+  int POWEREQ = 59;
   /** RegularExpression Id. */
-  int AND_BOOL = 60;
+  int OR_BOOL = 60;
   /** RegularExpression Id. */
-  int NOT_BOOL = 61;
+  int AND_BOOL = 61;
   /** RegularExpression Id. */
-  int IS = 62;
+  int NOT_BOOL = 62;
   /** RegularExpression Id. */
-  int IN = 63;
+  int IS = 63;
   /** RegularExpression Id. */
-  int LAMBDA = 64;
+  int IN = 64;
   /** RegularExpression Id. */
-  int IF = 65;
+  int LAMBDA = 65;
   /** RegularExpression Id. */
-  int ELSE = 66;
+  int IF = 66;
   /** RegularExpression Id. */
-  int ELIF = 67;
+  int ELSE = 67;
   /** RegularExpression Id. */
-  int WHILE = 68;
+  int ELIF = 68;
   /** RegularExpression Id. */
-  int FOR = 69;
+  int WHILE = 69;
   /** RegularExpression Id. */
-  int TRY = 70;
+  int FOR = 70;
   /** RegularExpression Id. */
-  int EXCEPT = 71;
+  int TRY = 71;
   /** RegularExpression Id. */
-  int DEF = 72;
+  int EXCEPT = 72;
   /** RegularExpression Id. */
-  int CLASS = 73;
+  int DEF = 73;
   /** RegularExpression Id. */
-  int FINALLY = 74;
+  int CLASS = 74;
   /** RegularExpression Id. */
-  int PASS = 75;
+  int FINALLY = 75;
   /** RegularExpression Id. */
-  int BREAK = 76;
+  int PASS = 76;
   /** RegularExpression Id. */
-  int CONTINUE = 77;
+  int BREAK = 77;
   /** RegularExpression Id. */
-  int RETURN = 78;
+  int CONTINUE = 78;
   /** RegularExpression Id. */
-  int YIELD = 79;
+  int RETURN = 79;
   /** RegularExpression Id. */
-  int IMPORT = 80;
+  int YIELD = 80;
   /** RegularExpression Id. */
-  int FROM = 81;
+  int IMPORT = 81;
   /** RegularExpression Id. */
-  int DEL = 82;
+  int FROM = 82;
   /** RegularExpression Id. */
-  int RAISE = 83;
+  int DEL = 83;
   /** RegularExpression Id. */
-  int GLOBAL = 84;
+  int RAISE = 84;
   /** RegularExpression Id. */
-  int NONLOCAL = 85;
+  int GLOBAL = 85;
   /** RegularExpression Id. */
-  int ASSERT = 86;
+  int NONLOCAL = 86;
   /** RegularExpression Id. */
-  int AS = 87;
+  int ASSERT = 87;
   /** RegularExpression Id. */
-  int WITH = 88;
+  int AS = 88;
   /** RegularExpression Id. */
-  int FALSE = 89;
+  int WITH = 89;
   /** RegularExpression Id. */
-  int TRUE = 90;
+  int FALSE = 90;
   /** RegularExpression Id. */
-  int NONE = 91;
+  int TRUE = 91;
   /** RegularExpression Id. */
-  int AT = 92;
+  int NONE = 92;
   /** RegularExpression Id. */
-  int NAME = 93;
+  int AT = 93;
   /** RegularExpression Id. */
-  int LETTER = 94;
+  int NAME = 94;
   /** RegularExpression Id. */
-  int DECNUMBER = 95;
+  int LETTER = 95;
   /** RegularExpression Id. */
-  int HEXNUMBER = 96;
+  int DECNUMBER = 96;
   /** RegularExpression Id. */
-  int OCTNUMBER = 97;
+  int HEXNUMBER = 97;
   /** RegularExpression Id. */
-  int FLOAT = 98;
+  int OCTNUMBER = 98;
   /** RegularExpression Id. */
-  int COMPLEX = 99;
+  int FLOAT = 99;
   /** RegularExpression Id. */
-  int EXPONENT = 100;
+  int COMPLEX = 100;
   /** RegularExpression Id. */
-  int DIGIT = 101;
+  int EXPONENT = 101;
   /** RegularExpression Id. */
-  int SINGLE_STRING = 110;
+  int DIGIT = 102;
   /** RegularExpression Id. */
-  int SINGLE_STRING2 = 111;
+  int SINGLE_STRING = 111;
   /** RegularExpression Id. */
-  int TRIPLE_STRING = 112;
+  int SINGLE_STRING2 = 112;
   /** RegularExpression Id. */
-  int TRIPLE_STRING2 = 113;
+  int TRIPLE_STRING = 113;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING = 114;
+  int TRIPLE_STRING2 = 114;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING2 = 115;
+  int SINGLE_BSTRING = 115;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING = 116;
+  int SINGLE_BSTRING2 = 116;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING2 = 117;
+  int TRIPLE_BSTRING = 117;
+  /** RegularExpression Id. */
+  int TRIPLE_BSTRING2 = 118;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -285,6 +287,7 @@ public interface PythonGrammar30Constants {
     "\":\"",
     "\"+\"",
     "\"-\"",
+    "\"->\"",
     "\"*\"",
     "\"/\"",
     "\"//\"",
@@ -358,7 +361,6 @@ public interface PythonGrammar30Constants {
     "<COMPLEX>",
     "<EXPONENT>",
     "<DIGIT>",
-    "<token of kind 102>",
     "<token of kind 103>",
     "<token of kind 104>",
     "<token of kind 105>",
@@ -366,6 +368,7 @@ public interface PythonGrammar30Constants {
     "<token of kind 107>",
     "<token of kind 108>",
     "<token of kind 109>",
+    "<token of kind 110>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
@@ -375,24 +378,24 @@ public interface PythonGrammar30Constants {
     "\"\\\'\\\'\\\'\"",
     "\"\\\"\\\"\\\"\"",
     "\"\\\\\\r\\n\"",
-    "<token of kind 119>",
+    "<token of kind 120>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 121>",
+    "<token of kind 122>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 123>",
+    "<token of kind 124>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 125>",
+    "<token of kind 126>",
     "\"\"",
     "\"\"",
     "\"\"",
     "\"\"",
-    "<token of kind 130>",
     "<token of kind 131>",
+    "<token of kind 132>",
     "\"\\r\\n\"",
     "\"\\n\"",
     "\"\\r\"",
-    "<token of kind 135>",
     "<token of kind 136>",
+    "<token of kind 137>",
   };
 
 }

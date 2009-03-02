@@ -481,32 +481,49 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 return set;
             }
             
-            SimpleNode dictNode1 = stack.popNode();
             
             if(dictNode0 instanceof ComprehensionCollection){
                 if(arity == 2){
                     ComprehensionCollection comp = (ComprehensionCollection) dictNode0;
-                    return new SetComp((exprType)dictNode1, comp.getGenerators());
+                    return new SetComp((exprType)stack.popNode(), comp.getGenerators());
                     
                 }else if(arity == 3){
+                    SimpleNode dictNode1 = stack.popNode(); //we must inverse things here...
                     ComprehensionCollection comp = (ComprehensionCollection) dictNode0;
                     return new DictComp((exprType) stack.popNode(), (exprType)dictNode1, comp.getGenerators());
                 }
             }
             
+            boolean isDictComplete = arity % 2 == 0;
+            
             l = arity / 2;
-            exprType[] keys = new exprType[l];
+            exprType[] keys;
+            if(isDictComplete){
+                keys = new exprType[l];
+            }else{
+                keys = new exprType[l+1]; //we have 1 additional entry in the keys (parse error actually, but let's recover at this point!)
+            }
+            boolean node0Used = false;
             exprType[] vals = new exprType[l];
             for (int i = l - 1; i >= 0; i--) {
-                if(i == l-1){
+                if(!node0Used){
+                    node0Used = true;
                     vals[i] = (exprType) dictNode0;
-                    keys[i] = (exprType) dictNode1;
+                    keys[i] = (exprType) stack.popNode();
                     
                 }else{
                     vals[i] = (exprType) stack.popNode();
                     keys[i] = (exprType) stack.popNode();
                 }
             }
+            if(!isDictComplete){
+                if(node0Used){
+                    keys[keys.length-1] = (exprType) stack.popNode();
+                }else{
+                    keys[keys.length-1] = (exprType) dictNode0;
+                }
+            }
+
             return new Dict(keys, vals);
 //        case JJTSTR_1OP: #No more backticks in python 3.0
 //            return new Repr(((exprType) stack.popNode()));

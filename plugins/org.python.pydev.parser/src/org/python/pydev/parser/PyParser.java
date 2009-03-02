@@ -74,7 +74,7 @@ public class PyParser implements IPyParser {
     /**
      * Just for tests: show whenever we're not able to parse some file.
      */
-    public final static boolean DEBUG_SHOW_PARSE_ERRORS = false;
+    public static boolean DEBUG_SHOW_PARSE_ERRORS = false;
     
     /**
      * just for tests, when we don't have any editor
@@ -86,11 +86,6 @@ public class PyParser implements IPyParser {
      */
     public static boolean USE_FAST_STREAM = true;
     
-    /**
-     * To know whether we should try to do some reparse changing the input
-     */
-    public static boolean TRY_REPARSE = true; 
-
     /**
      * this is the document we should parse 
      */

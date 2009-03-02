@@ -1,14 +1,8 @@
 package org.python.pydev.parser;
 
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.Assign;
-import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.Expr;
-import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.visitors.NodeUtils;
 
@@ -18,7 +12,6 @@ public class PyParser26Test extends PyParserTestBase{
         try {
             PyParser26Test test = new PyParser26Test();
             test.setUp();
-            test.testErrorHandled5();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser26Test.class);
@@ -100,117 +93,4 @@ public class PyParser26Test extends PyParserTestBase{
     }
     
     
-    public void testSuccessWithError() {
-        String s = 
-            "class A:\n" +
-            "    def method1(self, *args, **kwargs):\n" +
-            "        "; 
-
-            
-        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-        Module m = (Module) tup.o1;
-        ClassDef c = (ClassDef) m.body[0];
-        FunctionDef func = (FunctionDef) c.body[0];
-        assertEquals("method1", NodeUtils.getRepresentationString(func));
-    }
-    
-    
-    public void testCommonForCodeCompletion() {
-        String s = 
-            "a = 10\n" +
-            "a."; 
-        
-        
-        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-        Module m = (Module) tup.o1;
-        Assign assign = (Assign) m.body[0];
-        assertNotNull(assign);
-        Expr expr = (Expr) m.body[1];
-        Attribute attr = (Attribute)expr.value;
-        assertEquals("a.!<MissingName>!", NodeUtils.getFullRepresentationString(attr));
-    }
-    
-    public void testErrorHandled() {
-        String s = ""+
-            "class C:             \n" +  
-            "                     \n" +    
-            "    def makeit(self):\n" +     
-            "        pass         \n" +     
-            "                     \n" +       
-            "class D(C.:          \n" +  
-            "                     \n" +    
-            "    def a(self):     \n" +   
-            "        pass         \n";        
-        
-        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-        Module m = (Module) tup.o1;
-        ClassDef d = (ClassDef) m.body[1];
-        assertEquals("D", NodeUtils.getRepresentationString(d));
-    }
-    
-    
-    public void testErrorHandled2() {
-        String s = ""+
-        "class Test(unit \n" +
-        "                \n" +
-        "    def meth1():\n" +
-        "        pass    \n";
-        
-        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-        Module m = (Module) tup.o1;
-        assertEquals(1, m.body.length);
-        ClassDef c = (ClassDef) m.body[0];
-        assertEquals(1, c.body.length);
-        FunctionDef f = (FunctionDef) c.body[0];
-        assertEquals("meth1", NodeUtils.getRepresentationString(f));
-    }
-    
-    
-    public void testErrorHandled3() {
-        String s = ""+
-        "class Test(unit \n" +
-        "                \n" +
-        "def meth1():\n" +
-        "    pass    \n";
-        
-        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-        Module m = (Module) tup.o1;
-        assertEquals(2, m.body.length);
-        ClassDef c = (ClassDef) m.body[0];
-        assertEquals("Test", NodeUtils.getRepresentationString(c));
-        FunctionDef f = (FunctionDef) m.body[1];
-        assertEquals("meth1", NodeUtils.getRepresentationString(f));
-    }
-    
-    
-    public void testErrorHandled4() {
-        String s = 
-            "class A:\n" +
-            "    def method1(self, *args, **kwargs):\n" +
-            "        "; 
-        
-        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-        Module m = (Module) tup.o1;
-        assertEquals(1, m.body.length);
-        ClassDef c = (ClassDef) m.body[0];
-        assertEquals("A", NodeUtils.getRepresentationString(c));
-        FunctionDef f = (FunctionDef) c.body[0];
-        assertEquals("method1", NodeUtils.getRepresentationString(f));
-    }
-    
-    public void testErrorHandled5() {
-        String s = 
-            "import Imp\n" +
-            "\n" +
-            "eu s\n" +
-            ""; 
-        
-        Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-        Module m = (Module) tup.o1;
-        assertTrue(m.body.length > 0);
-        Import c = (Import) m.body[0];
-        assertEquals("Imp", NodeUtils.getRepresentationString(c.names[0]));
-    }
-    
-
 }

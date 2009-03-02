@@ -1,11 +1,13 @@
 package org.python.pydev.parser;
 
 import java.io.File;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
@@ -152,6 +154,32 @@ public class PyParserTestBase extends TestCase {
                 
             }else if(recursive && f.isDirectory()){
                 parseFilesInDir(f, recursive);
+            }
+        }
+    }
+    
+    
+    /**
+     * The parameter passed in the callback is an integer with the version of the grammar.
+     * @param iCallback
+     */
+    public void checkWithAllGrammars(ICallback<Boolean, Integer> iCallback) {
+        for(Iterator<Integer> it = IGrammarVersionProvider.grammarVersions.iterator();it.hasNext();){
+            //try with all the grammars
+            final Integer i = it.next();
+//            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+//            if(i != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
+//                continue;
+//            }
+            setDefaultVersion(i);
+            try {
+                iCallback.call(i);
+            } catch (Throwable e) {
+                final AssertionError assertionError = new AssertionError("\nFound error while parsing with version: "+
+                        IGrammarVersionProvider.grammarVersionToRep.get(i)+"\n\n"+e.getMessage());
+                
+                assertionError.setStackTrace(e.getStackTrace());
+                throw assertionError;
             }
         }
     }

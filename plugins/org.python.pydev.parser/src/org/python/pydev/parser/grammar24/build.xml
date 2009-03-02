@@ -87,12 +87,13 @@ Current setting is: ${javaccHome}
     	
         <echo>Updating jjFillToken in file PythonGrammar24TokenManager.java</echo>
     	<replace file="${parser.dir}/PythonGrammar24TokenManager.java" token="public class PythonGrammar24TokenManager implements PythonGrammar24Constants" 
-    		value="public class PythonGrammar24TokenManager extends AbstractTokenManager implements PythonGrammar24Constants"/>
+    		value="@SuppressWarnings(&quot;unused&quot;) public class PythonGrammar24TokenManager extends AbstractTokenManager implements PythonGrammar24Constants"/>
     	
         <echo>Updating jjtree.builder.openNode</echo>
     	<replace file="${parser.dir}/PythonGrammar24.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
     	<replace file="${parser.dir}/PythonGrammar24.java" token="PythonGrammar24TreeConstants," value=""/>
-    	<replace file="${parser.dir}/PythonGrammar24.java" token="protected JJTPythonGrammar24State jjtree = new JJTPythonGrammar24State();" value="protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder24.class);"/>    	
+    	<replace file="${parser.dir}/PythonGrammar24.java" token="protected JJTPythonGrammar24State jjtree = new JJTPythonGrammar24State();" 
+    		value="protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder24.class, this);"/>    	
     	<fixcrlf srcdir="${parser.dir}"></fixcrlf>
     </target>
 
