@@ -8,7 +8,8 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.Token;
 
 /**
- * A helper iterator class that can look ahead x tokens.
+ * A helper iterator class that can look ahead x tokens breaking when some new 
+ * compound context starts (if wanted)
  */
 final class TokensIterator implements Iterator<Token> {
     

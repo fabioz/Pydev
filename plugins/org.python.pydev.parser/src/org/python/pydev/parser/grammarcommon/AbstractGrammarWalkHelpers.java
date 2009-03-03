@@ -15,6 +15,10 @@ public abstract class AbstractGrammarWalkHelpers {
 
 
     private AbstractTokenManager tokenManager;
+    
+    /**
+     * An iterator that can pass through the next tokens considering indentation.
+     */
     private TokensIterator tokensIterator;
 
     /**
@@ -92,8 +96,11 @@ public abstract class AbstractGrammarWalkHelpers {
 
     /**
      * @see TokensIterator#TokensIterator(AbstractTokenManager, Token, int, boolean)
+     * 
+     * Note that if one request is done, another cannot be done and use the iterator, because
+     * the same instance is used over and over!
      */
-    protected TokensIterator getTokensIterator(Token firstIterationToken, int tokensToIterate, 
+    protected final TokensIterator getTokensIterator(Token firstIterationToken, int tokensToIterate, 
             boolean breakOnIndentsDedentsAndNewCompounds){
         if(this.tokensIterator == null){
             this.tokensIterator = new TokensIterator(getTokenManager(), firstIterationToken, tokensToIterate, 

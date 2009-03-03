@@ -27,7 +27,7 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
     /**
      * List with the errors we handled during the parsing
      */
-    private List<ParseException> parseErrors = new ArrayList<ParseException>();
+    private final List<ParseException> parseErrors = new ArrayList<ParseException>();
     
     /**
      * @return a list with the parse errors. Note that the returned value is not a copy, but the actual
@@ -158,14 +158,10 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
         addAndReport(e, "No value for dict key");
     }
     
-    
     /**
-     * This is called when recognized a suite without finding its indent.
-     * 
-     * @throws EmptySuiteException if it was called when an empty suite was actually matched (and thus, we should
-     * go out of the suite context).
+     * This is called when recognized an indent but the new line was not recognized.
      */
-    protected final void handleNoNewlineInSuiteFound() throws EmptySuiteException{
+    protected final void handleNoNewlineInSuiteFound() {
         addAndReport(new ParseException("No new line found.", getCurrentToken()), "Handle no new line in suite");
     }
     

@@ -79,7 +79,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
      * in {@link #closeNode(SimpleNode, int)} to have its scope closed (and at that time it may be changed
      * for a new node that represents the scope more accurately.
      */
-    public final SimpleNode openNode(int id) {
+    public final SimpleNode openNode(final int id) {
         SimpleNode ret;
 
         switch (id) {
@@ -175,7 +175,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
      * @return a new node representing the node that's having it's context closed.
      * @throws Exception
      */
-    public SimpleNode closeNode(SimpleNode n, int arity) throws Exception {
+    public SimpleNode closeNode(final SimpleNode n, final int arity) throws Exception {
         exprType value;
         suiteType orelseSuite;
         stmtType[] body;
@@ -487,7 +487,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
      * @param arity the current number of nodes in the stack.
      * @return the If node that should close this context.
      */
-    private final SimpleNode handleIfConstruct(SimpleNode n, int arity) {
+    private final SimpleNode handleIfConstruct(final SimpleNode n, int arity) {
         stmtType[] body;
         exprType test;
         

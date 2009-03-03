@@ -2,13 +2,17 @@ package org.python.pydev.parser.grammarcommon;
 
 import java.lang.reflect.Field;
 
+/**
+ * With this class we're able to get constants from a class (note, to
+ * recreate this code, the make_replace.py must be run, as it's COG-generated)
+ */
 public abstract class AbstractTokenManagerWithConstants {
 
     @SuppressWarnings("unchecked")
     protected abstract Class getConstantsClass();
     
     @SuppressWarnings("unchecked")
-    protected int getFromConstants(String constant){
+    protected final int getFromConstants(String constant){
         try {
             Class c = getConstantsClass();
             Field declaredField = c.getDeclaredField(constant);

@@ -89,14 +89,12 @@ try{
         try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
     
     |
-        try{
-            <INDENT>
-            {handleNoNewlineInSuiteFound();}
-            
-            (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
-            
-            try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
-        }catch(EmptySuiteException emptySuiteE){} //just close it 'gracefully'
+        <INDENT>
+        {handleNoNewlineInSuiteFound();} //this only happens when we already had some error!
+        
+        (try{stmt()}catch(ParseException e){handleErrorInStmt(e);})+ 
+        
+        try{<DEDENT>}catch(ParseException e){handleErrorInDedent(e);} 
     
         
 
@@ -247,7 +245,6 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
-import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 '''
 
