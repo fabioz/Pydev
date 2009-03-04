@@ -23,3 +23,14 @@ def log(*args, **kwargs):
 def runonly(*args, **kwargs):
     pass
     
+def background(*args, **kwargs):
+    pass
+
+def cannotcompile(*args, **kwargs):
+    pass
+
+def profile(*args, **kwargs):
+    pass
+
+def stop(*args, **kwargs):
+    pass
