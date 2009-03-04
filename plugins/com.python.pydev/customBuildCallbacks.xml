@@ -79,6 +79,10 @@
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.libraries/trialkey.jar" destPath="lib/trialkey.jar" />
 			<export srcUrl="${aptana.svn.pro.url}/plugins/com.aptana.ide.professional.licensing/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" destPath="src/com/aptana/ide/professional/licensing/LicensingUtilities.java" />
 		</svn>
+		
+		<!-- We cannot compile with that dependency!! -->
+		<replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="String SWITCH_TO_APTANA_PRESPECTIVE" value="//String SWITCH_TO_APTANA_PRESPECTIVE"/>
+		
 	</target>
 
 	<!-- ===================================================================== -->
