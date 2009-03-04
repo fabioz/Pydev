@@ -25,8 +25,10 @@ This script gathers the dependencies that Pydev has on Aptana, so that we can pr
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.libraries/trialkey.jar" destPath="${basedir}/lib/trialkey.jar" />
 		</svn>
 		
-       <!-- We cannot compile with that dependency!! -->
-        <replace file="${basedir}src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="String SWITCH_TO_APTANA_PRESPECTIVE" value="//String SWITCH_TO_APTANA_PRESPECTIVE"/>
+        <!-- We cannot compile with that dependency!! -->
+        <replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="String SWITCH_TO_APTANA_PRESPECTIVE" value="//String SWITCH_TO_APTANA_PRESPECTIVE"/>
+        <replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="import com.aptana.ide.core.ui.PerspectiveManager" value="//import com.aptana.ide.core.ui.PerspectiveManager"/>
+        <replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="import com.aptana.ide.core.ui.WebPerspectiveFactory" value="//import com.aptana.ide.core.ui.WebPerspectiveFactory"/>
 
 	</target>
 </project>

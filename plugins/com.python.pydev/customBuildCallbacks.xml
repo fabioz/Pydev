@@ -82,6 +82,8 @@
 		
 		<!-- We cannot compile with that dependency!! -->
 		<replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="String SWITCH_TO_APTANA_PRESPECTIVE" value="//String SWITCH_TO_APTANA_PRESPECTIVE"/>
+		<replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="import com.aptana.ide.core.ui.PerspectiveManager" value="//import com.aptana.ide.core.ui.PerspectiveManager"/>
+		<replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="import com.aptana.ide.core.ui.WebPerspectiveFactory" value="//import com.aptana.ide.core.ui.WebPerspectiveFactory"/>
 		
 	</target>
 
