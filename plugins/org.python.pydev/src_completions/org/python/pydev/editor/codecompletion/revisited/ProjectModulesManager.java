@@ -207,7 +207,16 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         }
         InterpreterInfo info = (InterpreterInfo) iMan.getInterpreterInfo(interpreter, new NullProgressMonitor());
         if(info == null){
-            PydevPlugin.log("Info still not set");
+            final IProject p = nature.getProject();
+            final String projectName;
+            if(p != null){
+                projectName = p.getName();
+            }else{
+                projectName = "null";
+            }
+            PydevPlugin.log("Unable to get information on the interpreter: "+interpreter+".\n" +
+            		"Configured for the project: "+projectName+".\n" +
+    				"Is it a valid interpreter configured in the preferences?");
             return null; //may happen during initialization
         }
         return info.getModulesManager();
