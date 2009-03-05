@@ -22,6 +22,7 @@ final class TokensIterator implements Iterator<Token> {
     private final HashSet<Integer> contextsToBreak = new HashSet<Integer>();
     private boolean calculatedNext;
     private boolean isFirst;
+//    private int parensLevel=0;
     
     /**
      * @param firstIterationToken this will be the 1st token returned in the iteration, and the next token can be the
@@ -63,6 +64,7 @@ final class TokensIterator implements Iterator<Token> {
         this.prevAndReturned = new Tuple<Token, Token>(null, null);
         this.calculatedNext = false;
         this.isFirst = true;
+//        this.parensLevel = 0;
     }
 
     
@@ -123,9 +125,24 @@ final class TokensIterator implements Iterator<Token> {
             currentToken = null;
             return;
         }
+        
+        
         if(currentToken.next == null){
             currentToken.next = AbstractGrammarWalkHelpers.nextTokenConsideringNewLine(tokenManager);
+//            if(currentToken.next != null){
+//                int id = currentToken.next.kind;
+//                if(id == tokenManager.getIndentId()){
+//                    
+//                } else if(id == tokenManager.getRparenId() || id == tokenManager.getRbracketId() || id == tokenManager.getRbraceId()){
+//                    parensLevel--;
+//                    
+//                }else if(id == tokenManager.getLparenId() || id == tokenManager.getLbracketId() || id == tokenManager.getLbraceId()){
+//                    parensLevel++;
+//                }
+//            }
         }
+        
+        
     }
 
     public void remove() {

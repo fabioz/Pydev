@@ -98,7 +98,12 @@ try{
     
         
 
-}catch(ParseException e){handleNoSuiteMatch(e);}
+}catch(ParseException e){
+    handleNoSuiteMatch(e);
+    
+}catch(EmptySuiteException e){
+    /*Just ignore: This was thrown in the handleErrorInIndent*/
+}
 
 
 }
@@ -246,6 +251,7 @@ import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
+import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 '''
 
 
@@ -288,7 +294,7 @@ def CreateIfWithDeps(definitions):
 void if_stmt(): {Object spStr;}
 {
     {spStr = createSpecialStr("if","if ", false);}
-    <IF> {this.addSpecialTokenToLastOpened(spStr);} test() $COLON suite()
+    <IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(spStr);} test() $COLON suite()
          (begin_elif_stmt() test() $COLON suite())* 
              [ <ELSE> {this.findTokenAndAdd("else","else:",false);} <COLON> suite()]
 }
@@ -315,10 +321,61 @@ void assert_stmt(): {}
 
     
 #=======================================================================================================================
-# CreateAssert
+# CreateImportStmt
+#=======================================================================================================================
+def CreateImportStmt():
+    return '''
+//import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
+void import_stmt() #void: {Import imp;}
+{  
+    try{
+        <IMPORT> imp = Import() {imp.addSpecial("import ",false);} 
+        |
+        <FROM> {this.addSpecialToken("from ",STRATEGY_BEFORE_NEXT);} ImportFrom()
+    }catch(ParseException e){handleErrorInImport(e);}
+}
+'''
+
+    
+    
+#=======================================================================================================================
+# CreateCallAssert
 #=======================================================================================================================
 def CreateCallAssert():
     return '''<ASSERT>{spStr  = createSpecialStr("assert", "assert ", false);} assert_stmt() {addToPeek(spStr, false); }
+'''
+
+    
+#=======================================================================================================================
+# CreateIndenting
+#=======================================================================================================================
+def CreateIndenting():
+    return '''
+<INDENTING> TOKEN :
+{
+    <DEDENT: "">
+        {
+            if (indent > indentation[level]) {
+                level++;
+                indentation[level] = indent;
+                matchedToken.kind=INDENT;
+                matchedToken.image = "<INDENT>";
+            }
+            else if (level > 0) {
+                Token t = matchedToken;
+                level -= 1;
+                while (level > 0 && indent < indentation[level]) {
+                    level--;
+                    t = addDedent(t);
+                }
+                if (indent != indentation[level]) {
+                    throw new TokenMgrError("inconsistent dedent",
+                                            t.endLine, t.endColumn);
+                }
+                t.next = null;
+            }
+        } : DEFAULT
+}
 '''
 
     
@@ -364,6 +421,10 @@ def CreateGrammarFiles():
         CALL_ASSERT = CreateCallAssert(),
         
         TOKEN_MGR_COMMOM_METHODS = CreateCommomMethodsForTokenManager(),
+        
+        IMPORT_STMT=CreateImportStmt(),
+        
+        INDENTING=CreateIndenting(),
     )
     
     definitions['DICTMAKER'] = CreateDictMakerWithDeps(definitions)

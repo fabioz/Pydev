@@ -20,6 +20,22 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
 
 
     /**
+     * This marks the column where the last suite started.
+     */
+    protected int lastSuiteStartCol = -1;
+
+
+    /**
+     * This method should be called when the current token marks a compound statement start
+     * E.g.: right after an if, for, while, etc. 
+     */
+    protected final void markLastAsSuiteStart(){
+        Token currentToken = this.getCurrentToken();
+        this.lastSuiteStartCol = currentToken.beginColumn;
+    }
+    
+    
+    /**
      * @return the actual jjtree used to build the nodes (tree)
      */
     protected abstract IJJTPythonGrammarState getJJTree();
@@ -70,7 +86,17 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
      * Called when there was an error trying to indent.
      */
     protected final void handleErrorInIndent(ParseException e) throws ParseException{
-        addAndReport(e, "Handle indent");
+        addAndReport(e, "Handle no indent");
+        
+        TokensIterator iterTokens = this.getTokensIterator(getCurrentToken(), 3, false);
+        iterTokens.next(); //discard the curr
+        if(!iterTokens.hasNext()){
+            throw new EmptySuiteException();
+        }
+        Token nextToken = iterTokens.next();
+        if(nextToken.beginColumn <= lastSuiteStartCol){
+            throw new EmptySuiteException();
+        }
     }
     
     /**
@@ -78,6 +104,13 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
      */
     protected final void handleNoEof(ParseException e) throws ParseException{
         addAndReport(e, "Handle no EOF");
+    }
+    
+    /**
+     * Called when there was an error trying to resolve an import
+     */
+    protected final void handleErrorInImport(ParseException e) throws ParseException{
+        addAndReport(e, "Handle error in import");
     }
     
     /**

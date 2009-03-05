@@ -9,6 +9,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.visitors.NodeUtils;
 
@@ -18,7 +19,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         try {
             PyParserErrorsTest test = new PyParserErrorsTest();
             test.setUp();
-            test.testErrorHandled13();
+            test.testErrorHandled15();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserErrorsTest.class);
@@ -400,6 +401,66 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 assertEquals(1, cdef.body.length);
                 assertEquals("m1", NodeUtils.getRepresentationString((FunctionDef) cdef.body[0]));
                 assertEquals("B", NodeUtils.getRepresentationString(m.body[1]));
+                return true;
+            }
+        });
+        
+    }
+    
+    
+    public void testErrorHandled14() {
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer arg) {
+                String s = 
+                    "from a import AAA\n"+
+                    "from b import\n"+
+                    "BBB\n"+
+                    "\n"+
+                    "\n";
+                
+                Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+                Module m = (Module) tup.o1;
+                assertEquals("AAA", NodeUtils.getRepresentationString(((ImportFrom)m.body[0]).names[0]));
+                return true;
+            }
+        });
+        
+    }
+    
+    
+    public void testErrorHandled15() {
+//        PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer arg) {
+                String s = 
+                    "class Bar(object):\n"+
+                    "    TYPE = 10\n"+
+                    "\n"+
+                    "class Foo:\n"+
+                    "\n"+
+                    "    def Meth0(self):\n"+
+                    "        if xxx.GetType() & Bar.\n"+
+                    "        return 'x' % (1,\n"+
+                    "           2)\n"+
+                    "\n"+
+                    "    def Meth1(self):\n"+
+                    "        if target == 'topology':\n"+
+                    "            if 1:\n"+
+                    "                pass\n"+
+                    "            else:\n"+
+                    "                pass\n"+
+                    "        else:\n"+
+                    "            pass\n"+
+                    "        return ret\n"+
+                    "\n";
+                
+                Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+                Module m = (Module) tup.o1;
+//                assertEquals(2, m.body.length);
+                assertEquals("Bar", NodeUtils.getRepresentationString(m.body[0]));
+                assertEquals("Foo", NodeUtils.getRepresentationString(m.body[1]));
                 return true;
             }
         });

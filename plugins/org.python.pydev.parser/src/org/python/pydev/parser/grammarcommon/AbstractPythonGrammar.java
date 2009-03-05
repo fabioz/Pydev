@@ -20,7 +20,6 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     public IParserHost hostLiteralMkr;
     public SimpleNode prev;
     public final static boolean DEFAULT_SEARCH_ON_LAST = false;
-    
 
     /**
      * @return the token at the given location in the stack.
@@ -243,7 +242,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
         
         int foundAtPos = 0;
         
-        //lot's of tokens, but we'll bail out on an indent, so, that's OK.
+        //lot's of tokens, but we'll bail out on an indent, or dedent, so, that's OK.
         TokensIterator iterTokens = this.getTokensIterator(firstTokenToIterate, 50, true);
         while(iterTokens.hasNext()){
             foundAtPos += 1;

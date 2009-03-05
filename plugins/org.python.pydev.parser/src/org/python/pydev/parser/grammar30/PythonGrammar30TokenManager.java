@@ -21,6 +21,7 @@ import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
+import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 
 /** Token Manager. */
 @SuppressWarnings("unused") public class PythonGrammar30TokenManager extends AbstractTokenManager implements PythonGrammar30Constants

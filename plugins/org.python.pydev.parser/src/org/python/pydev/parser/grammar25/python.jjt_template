@@ -122,31 +122,8 @@ SKIP :
 }
 
 
-<INDENTING> TOKEN :
-{
-    <DEDENT: "">
-        {
-            if (indent > indentation[level]) {
-                level++;
-                indentation[level] = indent;
-                matchedToken.kind=INDENT;
-                matchedToken.image = "<INDENT>";
-            }
-            else if (level > 0) {
-                Token t = matchedToken;
-                level -= 1;
-                while (level > 0 && indent < indentation[level]) {
-                    level--;
-                    t = addDedent(t);
-                }
-                if (indent != indentation[level]) {
-                    throw new TokenMgrError("inconsistent dedent",
-                                            t.endLine, t.endColumn);
-                }
-                t.next = null;
-            }
-        } : DEFAULT
-}
+$INDENTING
+
 
 
 <UNREACHABLE> TOKEN :
@@ -412,7 +389,7 @@ $FILE_INPUT
 void funcdef(): {}
 { 
     decorators()
-    <DEF> Name() parameters() $COLON suite() 
+    <DEF> {this.markLastAsSuiteStart();} Name() parameters() $COLON suite() 
 }
 
 //@ call, name, attr ... <nl>
@@ -557,11 +534,8 @@ $YIELD
 void raise_stmt(): {}
 { <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [$COMMA test() [$COMMA test()]]] }
 
-//import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
-void import_stmt() #void: {Import imp;}
-{  <IMPORT> imp = Import() {imp.addSpecial("import ",false);} 
-  |<FROM> {this.addSpecialToken("from ",STRATEGY_BEFORE_NEXT);} ImportFrom() 
-}
+
+$IMPORT_STMT
 
 
 Import Import(): {}
@@ -654,7 +628,7 @@ void while_stmt(): {}
   [ begin_else_stmt()  suite()] }
 
 void begin_while_stmt(): {}
-{ {this.addSpecialToken("while ",STRATEGY_BEFORE_NEXT);} <WHILE> 
+{ {this.addSpecialToken("while ",STRATEGY_BEFORE_NEXT);} <WHILE> {this.markLastAsSuiteStart();}
 }
 void begin_else_stmt(): {}
 { <ELSE> {this.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>  
@@ -662,7 +636,7 @@ void begin_else_stmt(): {}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() $COLON suite()
+{   <FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() $COLON suite()
     [begin_for_else_stmt() suite()]
     
 } 
@@ -693,7 +667,7 @@ void try_stmt() #void: {SimpleNode tryNode;int i=0;}
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
 void begin_try_stmt(): {}
-{ <TRY> {this.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
+{ <TRY> {this.markLastAsSuiteStart();} {this.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 void begin_try_else_stmt(): {}
 { <ELSE> {this.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
@@ -962,7 +936,7 @@ void list_if()#void:{}
 
 //classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
 void classdef(): {}
-{<CLASS> Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] $RPAREN ] $COLON suite()}
+{<CLASS> {this.markLastAsSuiteStart();} Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] $RPAREN ] $COLON suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
