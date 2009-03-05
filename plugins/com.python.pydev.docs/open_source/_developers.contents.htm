@@ -6,37 +6,48 @@ This page shows how to effectively get up and running with the pydev code. <br/>
 <h2>Getting the code</h2>
 
 The first thing you probably want to do in order to code in pydev is <strong>getting its code</strong>. As pydev is an Eclipse plugin, 
-the whole process will be explained based on the Eclipse infrastructure (this was written for the sdk version 3.3 with Subversive 0.7.1).<br/><br/>
+the whole process will be explained based on the Eclipse infrastructure (this was written for the sdk version 3.4.1 with Subversive 0.7.6).<br/><br/>
 
-<strong>Pre-requisites:</strong> Eclipse SDK 3.3, Subversive 0.7.1 and Java 5.0 (note that latest versions of those should work too but details may differ a bit)<br/><br/>
+<strong>Pre-requisites:</strong> Eclipse SDK 3.4.1, Subversive 0.7.6 and Java 5.0 (note that other versions of those should work too but details may differ a bit)<br/><br/>
 
 Before getting the code, there's an important step you need to make: Change your java 'compiler compliance-level' to 5.0.
 To do this, go to <strong>window > preferences > Java > compiler</strong> and change that setting from <strong>1.4 to 5.0</strong>.<br/><br/>
 
 <h3>Getting the code</h3>
 
-1. Go to the menu: <strong> File &gt; New &gt; Other </strong> and choose <strong>Projects from SVN</strong><br/><br/>
+Go to the menu: <strong> File &gt; New &gt; Other </strong> and choose <strong>Projects from SVN</strong><br/><br/>
 
 <br/><br/><center><img src="images/developers/pic1.png" border=1/></center><br/><br/>
 
-<strong>2. Fill the needed info with </strong><br/>
+<center>
+<strong>Fill the needed info with </strong><br/>
 <ul>
-	<li>repo: <strong>http://svn.aptana.com/svn/pydev/</strong></li>
-	<li>user: <strong>anonymous</strong></li>
-	<li>password: <strong>aptana</strong></li>
+	repo: <strong>http://svn.aptana.com/svn/pydev/</strong><br>
+	user: <strong>anonymous</strong><br>
+	password: <strong>aptana</strong><br>
 </ul>
+</center>
 
 <br/><br/><center><img src="images/developers/pic2.png" border=1/></center><br/><br/>
 
-<strong>3. Choose the projects to download (or you can just point to trunk and let it find the projects -- note that Mylyn is optional)</strong>
+<center><strong>Append trunk to the path (to get the trunk) and press 'Finish'  </strong></center>
+
+<br/><br/><center><img src="images/developers/pic2a.png" border=1/></center><br/><br/>
+
+<center><strong>Select 'Find projects in the children of the selected resource'</strong></center>
 
 <br/><br/><center><img src="images/developers/pic3.png" border=1/></center><br/><br/>
 
-<strong>4. Choose to download those resources as projects</strong>
+<center><strong>Check "Respect projects hierarchy" and choose the projects to download (only Mylyn is optional) and press 'Next'</strong></center><br>
+<center>Note that it's important that when downloaded the internal hierarchy is kept -- with 3 top-folders:<br> 
+plugins, builders and features (so that the build script can be used later)</center>
 
 <br/><br/><center><img src="images/developers/pic4.png" border=1/></center><br/><br/>
 
-<strong>5. Finish</strong>
+<center><strong>Choose where to download it and press 'Finish'</strong></center><br>
+
+<br/><br/><center><img src="images/developers/pic5.png" border=1/></center><br/><br/>
+
 
 <h3>Configuring the environment after getting the code</h3>
 
@@ -45,7 +56,7 @@ To do this, go to <strong>window > preferences > Java > compiler</strong> and ch
 After you do that, you'll probably note that the tests did <strong>not compile successfully</strong>. This is because there are some settings
 that will depend on your installation, and this settings are stored in a class that holds that info (which you'll have to create). 
 There is a 'template' for that file in the svn at: 
-<strong>org.python.pydev.core/TestDependent.template</strong>. You should create a copy of that file in that same dir named 
+<strong>org.python.pydev.core/tests/org.python.pydev.core/TestDependent.OS.template</strong>. You should create a copy of that file in that same dir named 
 <strong>TestDependent.java</strong> and set the needed things according to your installation. If there is still something that does
 not compile, it may mean that: <br/>
 <ul>
@@ -73,6 +84,10 @@ If you want to take the Jython approach, check out this article on how to do
 
 And that's it. If you have further doubts about how to code in pydev, direct your questions to 
 the <a href="http://lists.sourceforge.net/lists/listinfo/pydev-code">pydev-code list</a> at sourceforge.<br/><br/>
+
+
+<h2>Creating a distribution locally</h2>
+
 
 <h2>Contributing back</h2>
 
