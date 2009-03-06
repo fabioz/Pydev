@@ -3,6 +3,17 @@
 
 This page shows how to effectively get up and running with the pydev code. <br/>
 
+<h2>Summary</h2>
+
+<a href="#getting_the_code">Getting the code</a><br>
+<a href="#config_after_getting_the_code">Configuring the environment after getting the code</a><br>
+<a href="#where_to_start">Where to start?</a><br>
+<a href="#creating_distribution_locally">Creating a distribution locally</a><br>
+<a href="#contributing_back">Contributing back</a><br>
+<br>
+
+
+<a name="getting_the_code"></a>
 <h2>Getting the code</h2>
 
 The first thing you probably want to do in order to code in pydev is <strong>getting its code</strong>. As pydev is an Eclipse plugin, 
@@ -49,7 +60,8 @@ plugins, builders and features (so that the build script can be used later)</cen
 <br/><br/><center><img src="images/developers/pic5.png" border=1/></center><br/><br/>
 
 
-<h3>Configuring the environment after getting the code</h3>
+<a name="config_after_getting_the_code"></a>
+<h2>Configuring the environment after getting the code</h2>
 
 <br/>
 
@@ -66,6 +78,7 @@ not compile, it may mean that: <br/>
 <br/>
 
 
+<a name="where_to_start"></a>
 <h2>Where to start?</h2>
 
 Ok, this may be the most difficult thing... especially because answers may change a lot depending on what you want to do, so, below are 
@@ -86,9 +99,71 @@ And that's it. If you have further doubts about how to code in pydev, direct you
 the <a href="http://lists.sourceforge.net/lists/listinfo/pydev-code">pydev-code list</a> at sourceforge.<br/><br/>
 
 
+<a name="creating_distribution_locally"></a>
 <h2>Creating a distribution locally</h2>
+<br/>
+Provided that the steps were followed, Pydev should have the following structure:<br/>
+<br/>
+/builders<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;    /org.python.pydev.build<br/>
+/features<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;    /org.python.pydev.feature<br/>
+/plugins<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;    /org.python.pydev<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;    ... (other plugins)<br/>
+<br/>
+Now, on to the build: start a shell and make sure ant is in your <strong>PATH</strong> and the <strong>JAVA_HOME</strong> 
+is properly set.<br/>
+<br/>
+In windows (update paths accordingly):<br/> 
+<br/>
+<strong>
+set PATH=%%PATH%%;W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin<br/>
+set JAVA_HOME=D:\bin\jdk_1_5_09<br/>
+</strong>
+<br/>
+For the other instructions, we'll supose that pydev was downloaded to c:/pydev and the structure we have is: <br/>
+c:/pydev/builders<br/>
+c:/pydev/features<br/>
+c:/pydev/plugins<br/>
+<br/>
+Go to the folder:<br/>
+c:/pydev/builders/org.python.pydev.build<br/>
+<br/>
+And type the following command (customizing the variables as explained below)<br/>
+<br/>
+<strong>ant -DbuildDirectory=c:/pydev -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -Ddeploy.dir=c:/pydev/pydev_deploy -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_341_clean<br/></strong>
+<br/>
+
+<strong>-DbuildDirectory=c:/pydev</strong> <br>&nbsp;&nbsp;&nbsp;&nbsp;  
+The folder that has /builders, /features and /plugins<br/><br/>
+
+<strong>-Dbaseos=win32</strong>  <br>&nbsp;&nbsp;&nbsp;&nbsp;  
+The platform (e.g.: linux, macosx, solaris, etc) <br/><br/>
+
+<strong>-Dbasews=win32</strong>  <br>&nbsp;&nbsp;&nbsp;&nbsp;  
+The windows system (e.g.: gtk, motif, carbon)<br/><br/>
+
+<strong>-Dbasearch=x86</strong>  <br>&nbsp;&nbsp;&nbsp;&nbsp;  
+The architechure (e.g.: ppc, sparc)<br/><br/>
+
+<strong>-Ddeploy.dir=c:/pydev/pydev_deploy</strong> <br>&nbsp;&nbsp;&nbsp;&nbsp;   
+Directory where the update site and zips will be added.<br/><br/>
+
+<strong>-DcleanAfter=false</strong>  <br>&nbsp;&nbsp;&nbsp;&nbsp;  
+Whether it should clean things up after doing the build (reverts the sources to the svn version and deletes eclipse)<br/><br/>
+
+<strong>-Dvanilla.eclipse=W:/eclipse_341_clean</strong> <br>&nbsp;&nbsp;&nbsp;&nbsp; 
+A location of a clean eclipse folder to be copied to do the build<br/><br/>
+<br/>
+And that's it, if everything went OK, you should have created an update site at the deploy dir specified (and the zip distribution
+should be there too).
+<br>
+<br>
+<br>
 
 
+<a name="contributing_back"></a>
 <h2>Contributing back</h2>
 
 If you do some change at pydev that you want to contribute back to the main trunk, you should create a patch and attach it to a bug
@@ -107,4 +182,6 @@ image itself, pointing the complete location to the image when attaching it to t
 to create a patch. Just attach the script itself to the bug.<br/><br/>
 
 
-
+<br>
+<br>
+<br>
