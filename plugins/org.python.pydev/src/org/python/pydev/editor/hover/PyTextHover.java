@@ -204,8 +204,14 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
     public IInformationControlCreator getHoverControlCreator() {
         return new IInformationControlCreator() {
             public IInformationControl createInformationControl(Shell parent) {
+                String tooltipAffordanceString = null;
+                try {
+                    tooltipAffordanceString = EditorsUI.getTooltipAffordanceString();
+                } catch (Throwable e) {
+                    //Not available on Eclipse 3.2
+                }
                 return new DefaultInformationControl(parent, SWT.NONE, new PyInformationPresenter(), 
-                        EditorsUI.getTooltipAffordanceString());
+                        tooltipAffordanceString);
             }
         };
     }
