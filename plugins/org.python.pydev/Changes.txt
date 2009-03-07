@@ -4,6 +4,7 @@ After 1.4.4
 <li>Error handling in the grammar.</li>
 <li>Fixed problems in the code formatting (unary operators and exponencial)</li>
 Source-formatting can be applied from context menu (so that it's recursively applied for folders)
+Python 3.0 parser supporting unicode identifiers
 
 After 1.4.3
 
