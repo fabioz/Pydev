@@ -235,15 +235,28 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         
                         //handle exponentials correctly: e.g.: 1e-6 cannot have a space
                         FastStringBuffer localBufToCheckNumber = new FastStringBuffer();
-                        for(int j=buf.length()-1;j>=0;j--){
+                        boolean started = false;
+                        
+                        for(int j=buf.length()-1;;j--){
+                            if(j<0){
+                                break;
+                            }
                             char localC = buf.charAt(j);
+                            if(localC == ' ' || localC == '\t'){
+                                if(!started){
+                                    continue;
+                                }else{
+                                    break;
+                                }
+                            }
+                            started = true;
                             if(Character.isJavaIdentifierPart(localC)){
                                 localBufToCheckNumber.append(localC);
                             }else{
                                 break;//break for
                             }
                         }
-                        boolean isExponential = true;;
+                        boolean isExponential = true;
                         String partialNumber = localBufToCheckNumber.reverse().toString();
                         int partialLen = partialNumber.length();
                         if(partialLen < 2 || !Character.isDigit(partialNumber.charAt(0))){
@@ -256,7 +269,16 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             }
                         }
                         if(isExponential){
+                            buf.rightTrim();
                             buf.append(c);
+                            //skip the next whitespaces from the buffer
+                            int initial = i;
+                            do{
+                                i++;
+                            }while(i<cs.length && (c=cs[i]) == ' ' || c == '\t');
+                            if(i > initial){
+                                i--;//backup 1 because we walked 1 too much.
+                            }
                             break;//break switch
                         }
                         //Otherwise, FALLTHROUGH
@@ -340,11 +362,25 @@ public class PyFormatStd extends PyAction implements IFormatter {
      */
     private int handleOperator(FormatStd std, char[] cs, FastStringBuffer buf, ParsingUtils parsingUtils, int i, char c) {
         //let's discover if it's an unary operator (~ + -)
+        boolean isUnaryWithContents = true;
         
         boolean isUnary = false;
         if(c == '~' || c == '+' || c == '-'){
             //could be an unary operator...
             isUnary = buf.length() == 0;
+            if(!isUnary){
+                for(char itChar:buf.reverseIterator()){
+                    if(itChar == ' ' || itChar == '\t'){
+                        continue;
+                    }
+                    if(itChar == '=' || itChar == ','){
+                        isUnary = true;
+                    }
+                    break;
+                }
+            }else{
+                isUnaryWithContents = buf.length() > 0;
+            }
         }
         
         boolean changeWhitespacesBefore = true;
@@ -362,7 +398,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
         
         if(changeWhitespacesBefore){
-            while(buf.length() > 0 && buf.lastChar() == ' '){
+            while(buf.length() > 0 && (buf.lastChar() == ' ' || buf.lastChar() == ' ')){
                 buf.deleteLast();
             }
         }
@@ -371,7 +407,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         
         if(changeWhitespacesBefore){
             //add spaces before
-            if(!isUnary && surroundWithSpaces){
+            if(isUnaryWithContents && surroundWithSpaces){
                 buf.append(' ');
             }
         }

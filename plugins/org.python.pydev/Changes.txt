@@ -1,3 +1,9 @@
+After 1.4.4
+
+<li>Hover on Eclipse 3.2.</li>
+<li>Error handling in the grammar.</li>
+<li>Fixed problems in the code formatting (unary operators and exponencial)</li>
+
 After 1.4.3
 
 

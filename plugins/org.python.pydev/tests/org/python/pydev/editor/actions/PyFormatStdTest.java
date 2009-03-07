@@ -24,7 +24,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testSpacesOnCall();
+            n.testSimpleOperator4();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -513,9 +513,9 @@ public class PyFormatStdTest extends TestCase {
         "a == 10\n" +
         "b == 20\n" +
         "c = 30\n" +
-        "d == + 1\n" +
-        "e != + 1\n" +
-        "e //= + 1\n" +
+        "d == +1\n" +
+        "e != +1\n" +
+        "e //= +1\n" +
         "";
         
         checkFormatResults(s, s1);
@@ -610,6 +610,50 @@ public class PyFormatStdTest extends TestCase {
         
         checkFormatResults(s, s1);
     }
+    
+    public void testUnaryOpWithSpace(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        
+        String s, s1;
+        
+        s = "" +
+        "def test_formatter_unary():\n" +
+        "   c = +1\n" +
+        "   d = - 1\n" +
+        "   e = (a, +2)\n" +
+        "   e = (a, + 2)\n" +
+        "   e = 1e - 3\n" +
+        "   pass\n" +
+        "";
+        
+        s1 = "" +
+        "def test_formatter_unary():\n" +
+        "   c = +1\n" +
+        "   d = -1\n" +
+        "   e = (a, +2)\n" +
+        "   e = (a, +2)\n" +
+        "   e = 1e-3\n" +
+        "   pass\n" +
+        "";
+        checkFormatResults(s, s1);
+        
+        s1 = "" +
+        "def test_formatter_unary():\n" +
+        "   e = 1e-3\n" +
+        "";
+        
+        s = "" +
+        "def test_formatter_unary():\n" +
+        "   e = 1e - 3\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+        
+    }
+    
+    
     
     public void testEqualsWithSpace(){
         std.spaceAfterComma = true;
