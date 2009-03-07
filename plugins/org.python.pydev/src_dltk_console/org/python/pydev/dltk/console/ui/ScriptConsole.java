@@ -177,6 +177,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
 
         //sets the new mode
         prompt.setMode(!response.more);
+        prompt.setNeedInput(response.need_input);
 
         //notify about the console answer
         for (Object listener : listeners) {

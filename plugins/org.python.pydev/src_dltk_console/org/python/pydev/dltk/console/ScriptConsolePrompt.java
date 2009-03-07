@@ -29,6 +29,8 @@ public class ScriptConsolePrompt {
 
     private boolean mode;
 
+    private boolean needInput;
+
     public ScriptConsolePrompt(String newCommand, String appendCommand) {
         this.newCommand = newCommand;
         this.continueCommand = appendCommand;
@@ -45,6 +47,16 @@ public class ScriptConsolePrompt {
     }
 
     public String toString() {
+        if(needInput){
+            return "";
+        }
         return mode ? newCommand : continueCommand;
+    }
+
+    /**
+     * Sets whether the user is waiting for input. If it's, don't show the prompt.
+     */
+    public void setNeedInput(boolean needInput) {
+        this.needInput = needInput;
     }
 }
