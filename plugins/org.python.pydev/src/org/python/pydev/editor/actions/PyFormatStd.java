@@ -53,21 +53,21 @@ public class PyFormatStd extends PyAction implements IFormatter {
          */
         public boolean operatorsWithSpace;
     }
+    
+    
 
     /**
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
     public void run(IAction action) {
         try {
-            IFormatter participant = (IFormatter) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_FORMATTER);
-            if (participant == null) {
-                participant = this;
-            }
+            final IFormatter participant = getFormatter();
             PySelection ps = new PySelection(getTextEditor());
-            IDocument doc = ps.getDoc();
-
             int startLine = ps.getStartLineIndex();
             PyEdit pyEdit = getPyEdit();
+            
+            IDocument doc = ps.getDoc();
+
             if (ps.getTextSelection().getLength() == 0) {
                 participant.formatAll(doc, pyEdit);
             } else {
@@ -83,6 +83,17 @@ public class PyFormatStd extends PyAction implements IFormatter {
         } catch (Exception e) {
             beep(e);
         }
+    }
+
+    /**
+     * @return the source code formatter to be used.
+     */
+    public IFormatter getFormatter() {
+        IFormatter participant = (IFormatter) ExtensionHelper.getParticipant(ExtensionHelper.PYDEV_FORMATTER);
+        if (participant == null) {
+            participant = this;
+        }
+        return participant;
     }
     
 

@@ -5,7 +5,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.python.pydev.core.docutils.StringUtils;
@@ -26,22 +25,25 @@ public class PyDeletePycAndClassFiles extends PyContainerAction implements IObje
      * @param container the folder from where we want to remove the files
      * @return the number of files deleted
      */
-    protected int doActionOnContainer(IContainer container) {
-        IProgressMonitor nullProgressMonitor = new NullProgressMonitor();
-        
+    protected int doActionOnContainer(IContainer container, IProgressMonitor monitor) {
         int deleted = 0;
         try{
             IResource[] members = container.members();
             
             for (IResource c:members) {
+                if(monitor.isCanceled()){
+                    break;
+                }
+
+                monitor.worked(1);
                 if(c instanceof IContainer){
-                    deleted += this.doActionOnContainer((IContainer) c);
+                    deleted += this.doActionOnContainer((IContainer) c, monitor);
                     
                 }else if(c instanceof IFile){
                     String name = c.getName();
                     if(name != null){
                         if(name.endsWith(".pyc") || name.endsWith(".pyo") || name.endsWith("$py.class")){
-                            c.delete(true, nullProgressMonitor);
+                            c.delete(true, monitor);
                             deleted += 1;
                         }
                     }
@@ -61,7 +63,10 @@ public class PyDeletePycAndClassFiles extends PyContainerAction implements IObje
 
     @Override
     protected boolean confirmRun() {
-        return MessageDialog.openConfirm(null, "Confirm deletion", "Are you sure that you want to delete the *.pyc and *$py.class files from the selected folder(s)?");
+        return MessageDialog.openConfirm(null, "Confirm deletion", 
+                "Are you sure that you want to recursively delete the *.pyc and *$py.class files from the selected folder(s)?\n" +
+                "\n" +
+                "This action cannot be undone.");
     }
 
 

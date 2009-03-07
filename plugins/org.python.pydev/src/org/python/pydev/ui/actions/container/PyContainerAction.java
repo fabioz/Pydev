@@ -1,5 +1,6 @@
 package org.python.pydev.ui.actions.container;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -7,11 +8,14 @@ import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchPart;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -70,21 +74,43 @@ public abstract class PyContainerAction {
             return;
         }
         
-        int nDeleted = 0;
-        IProgressMonitor nullProgressMonitor = new NullProgressMonitor();
+        beforeRun();
         
-        for (Iterator<IContainer> iter = this.selectedContainers.iterator(); iter.hasNext();) {
-            IContainer next = iter.next();
-            //as files are generated externally, if we don't refresh, it's very likely that we won't delete a bunch of files.
-            try {
-                next.refreshLocal(IResource.DEPTH_INFINITE, nullProgressMonitor);
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-            }
-            nDeleted += this.doActionOnContainer(next);
+        final Integer[] nChanged = new Integer[]{0};
+        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(PyAction.getShell());
+        try {
+            IRunnableWithProgress operation = new IRunnableWithProgress(){
+
+                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                    for (Iterator<IContainer> iter = selectedContainers.iterator(); iter.hasNext();) {
+                        IContainer next = iter.next();
+                        //as files are generated externally, if we don't refresh, it's very likely that we won't delete a bunch of files.
+                        try {
+                            next.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+                        } catch (Exception e) {
+                            PydevPlugin.log(e);
+                        }
+                        nChanged[0] += doActionOnContainer(next, monitor);
+                    }
+                }
+            };
+            boolean fork = !needsUIThread();
+            monitorDialog.run(fork, true, operation);
+        } catch (Throwable e) {
+            Log.log(e);
         }
         
-        afterRun(nDeleted);
+        
+        
+        afterRun(nChanged[0]);
+    }
+
+
+    /**
+     * Called before actually running the action.
+     */
+    protected void beforeRun(){
+        //do nothing by default.
     }
 
 
@@ -92,6 +118,17 @@ public abstract class PyContainerAction {
      * @return true if the action should be run and false otherwise
      */
     protected abstract boolean confirmRun() ;
+    
+    /**
+     * If it needs UI access, 
+     * @return true if UI access is needed (and false -- which is the default -- otherwise).
+     * 
+     * @note If it needs the UI access, it needs to call Display.readAndDispatch() to assure that 
+     * the interface remains responsive.
+     */
+    protected boolean needsUIThread(){
+        return false;
+    }
 
     
     /**
@@ -106,8 +143,9 @@ public abstract class PyContainerAction {
      * Executes the action on the container passed
      * 
      * @param next the container where the action should be executed
+     * @param monitor The monitor that should be used to report the progress.
      * @return the number of resources affected in the action
      */
-    protected abstract int doActionOnContainer(IContainer next);
+    protected abstract int doActionOnContainer(IContainer next, IProgressMonitor monitor);
 
 }

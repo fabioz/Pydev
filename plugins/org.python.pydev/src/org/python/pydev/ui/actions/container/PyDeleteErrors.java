@@ -4,6 +4,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.python.pydev.plugin.PydevPlugin;
@@ -23,13 +24,16 @@ public class PyDeleteErrors extends PyContainerAction implements IObjectActionDe
      * @param container the folder from where we want to remove the markers
      * @return the number of markers deleted
      */
-    protected int doActionOnContainer(IContainer container) {
+    protected int doActionOnContainer(IContainer container, IProgressMonitor monitor) {
         try {
-            container.refreshLocal(IResource.DEPTH_INFINITE, null);
+            container.refreshLocal(IResource.DEPTH_INFINITE, monitor);
         } catch (CoreException e) {
             PydevPlugin.log(e);
         }
         
+        if(monitor.isCanceled()){
+            return -1;
+        }
         try{
             container.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
         } catch (CoreException e) {
