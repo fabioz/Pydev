@@ -57,7 +57,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
         /**
          * Returns the tree path for the given item.
          * 
-         * It's overriden because when using mylar, the paths may be expanded but not shown, so segment is null
+         * It's overridden because when using mylyn, the paths may be expanded but not shown, so segment is null
          * -- that's why we return null if a given segment is null (instead of the assert that it contains in the superclass) 
          * @since 3.2
          */

@@ -110,6 +110,7 @@ public class PyPackageStateSaver {
         while(true){
             i++;
             if(i > max){
+                PydevPlugin.log("Could not get the structure for: "+resource);
                 return new ArrayList<Object>();//something strange happened...
                 
             }else if(resource instanceof IProject || resource instanceof IWorkspaceRoot || resource instanceof IWorkingSet){
