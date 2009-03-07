@@ -86,7 +86,7 @@ public final class FastStringBuffer{
     /**
      * Appends an int to the buffer.
      */
-    public final FastStringBuffer append(int n) {
+    public FastStringBuffer append(int n) {
         append(String.valueOf(n));
         return this;
     }
@@ -94,7 +94,7 @@ public final class FastStringBuffer{
     /**
      * Appends a char to the buffer.
      */
-    public final FastStringBuffer append(char n) {
+    public FastStringBuffer append(char n) {
         if (count + 1 > value.length) {
             resizeForMinimum(count + 1);
         }
@@ -106,7 +106,7 @@ public final class FastStringBuffer{
     /**
      * Appends a long to the buffer.
      */
-    public final FastStringBuffer append(long n) {
+    public FastStringBuffer append(long n) {
         append(String.valueOf(n));
         return this;
     }
@@ -114,7 +114,7 @@ public final class FastStringBuffer{
     /**
      * Appends a boolean to the buffer.
      */
-    public final FastStringBuffer append(boolean b) {
+    public FastStringBuffer append(boolean b) {
         append(String.valueOf(b));
         return this;
     }
@@ -324,7 +324,7 @@ public final class FastStringBuffer{
     }
 
 
-    public static class BackwardCharIterator implements Iterable<Character>{
+    public final static class BackwardCharIterator implements Iterable<Character>{
 
         private int i;
         private FastStringBuffer fastStringBuffer;
@@ -354,6 +354,13 @@ public final class FastStringBuffer{
     
     public BackwardCharIterator reverseIterator() {
         return new BackwardCharIterator(this);
+    }
+
+    public void rightTrim() {
+        char c;
+        while(((c=this.lastChar()) == ' ' || c == '\t' )){
+            this.deleteLast();
+        }
     }
     
 }
