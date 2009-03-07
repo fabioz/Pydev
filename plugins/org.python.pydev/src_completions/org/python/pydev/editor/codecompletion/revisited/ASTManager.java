@@ -32,9 +32,11 @@ import org.python.pydev.plugin.PydevPlugin;
  * 
  * The ast manager is a part of the python nature (as a field).
  * 
+ * It's not meant to be subclassed!
+ * 
  * @author Fabio Zadrozny
  */
-public class ASTManager extends AbstractASTManager implements ICodeCompletionASTManager, Serializable{
+public final class ASTManager extends AbstractASTManager implements ICodeCompletionASTManager, Serializable{
 
     
     /**
