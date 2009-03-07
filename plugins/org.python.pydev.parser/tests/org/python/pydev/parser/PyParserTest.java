@@ -171,7 +171,12 @@ public class PyParserTest extends PyParserTestBase{
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
-                parseLegalDocStr(s);
+                if(arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                    //yeap, invalid in python 3.0
+                    parseILegalDocStr(s);
+                }else{
+                    parseLegalDocStr(s);
+                }
                 return true;
             }
         });

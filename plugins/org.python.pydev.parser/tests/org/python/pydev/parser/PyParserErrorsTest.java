@@ -19,7 +19,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         try {
             PyParserErrorsTest test = new PyParserErrorsTest();
             test.setUp();
-            test.testErrorHandled15();
+            test.testErrorHandled16();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserErrorsTest.class);
@@ -429,6 +429,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
+    
     public void testErrorHandled15() {
 //        PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
@@ -467,6 +468,25 @@ public class PyParserErrorsTest extends PyParserTestBase {
         
     }
 
+    
+
+    public void testErrorHandled16() {
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer arg) {
+                String s = 
+                    "a = (1e-)\n"+
+                    "\n";
+                
+                Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+                Module m = (Module) tup.o1;
+                assertTrue(m.body[0] instanceof Assign);
+                return true;
+            }
+        });
+        
+    }
+    
     
 
 }
