@@ -83,7 +83,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
         List<exprType> argsList = new ArrayList<exprType>();
         if (this.scopeAdapter instanceof FunctionDefAdapter) {
             IASTNodeAdapter<? extends SimpleNode> parentScopeAdapter = scopeAdapter.getParent();
-            while (parentScopeAdapter instanceof FunctionDef) {
+            while (parentScopeAdapter instanceof FunctionDefAdapter) {
                 parentScopeAdapter = scopeAdapter.getParent();
             }
             if (parentScopeAdapter instanceof IClassDefAdapter) {
