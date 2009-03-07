@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class IfExp extends exprType {
+public final class IfExp extends exprType {
     public exprType test;
     public exprType body;
     public exprType orelse;

@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Delete extends stmtType {
+public final class Delete extends stmtType {
     public exprType[] targets;
 
     public Delete(exprType[] targets) {

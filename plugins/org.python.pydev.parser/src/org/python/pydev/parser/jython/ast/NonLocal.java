@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class NonLocal extends stmtType {
+public final class NonLocal extends stmtType {
     public NameTokType[] names;
     public exprType value;
 

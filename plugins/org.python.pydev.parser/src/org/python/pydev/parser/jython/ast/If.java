@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class If extends stmtType {
+public final class If extends stmtType {
     public exprType test;
     public stmtType[] body;
     public stmtType[] orelse;

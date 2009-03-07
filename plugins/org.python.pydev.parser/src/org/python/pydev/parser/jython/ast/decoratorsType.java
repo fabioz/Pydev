@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class decoratorsType extends SimpleNode {
+public final class decoratorsType extends SimpleNode {
     public exprType func;
     public exprType[] args;
     public keywordType[] keywords;

@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class GeneratorExp extends exprType {
+public final class GeneratorExp extends exprType {
     public exprType elt;
     public comprehensionType[] generators;
 

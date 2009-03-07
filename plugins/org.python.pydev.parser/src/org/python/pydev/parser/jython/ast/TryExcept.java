@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class TryExcept extends stmtType {
+public final class TryExcept extends stmtType {
     public stmtType[] body;
     public excepthandlerType[] handlers;
     public suiteType orelse;

@@ -24,7 +24,7 @@ PARSER_BEGIN(PythonGrammar26)
 package org.python.pydev.parser.grammar26;
 $IMPORTS
 
-public class PythonGrammar26 extends AbstractPythonGrammar implements IGrammar
+public final class PythonGrammar26 extends AbstractPythonGrammar implements IGrammar
 {
 
 $COMMOM_METHODS

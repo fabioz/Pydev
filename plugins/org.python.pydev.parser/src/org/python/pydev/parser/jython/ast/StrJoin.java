@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class StrJoin extends exprType {
+public final class StrJoin extends exprType {
     public exprType[] strs;
 
     public StrJoin(exprType[] strs) {

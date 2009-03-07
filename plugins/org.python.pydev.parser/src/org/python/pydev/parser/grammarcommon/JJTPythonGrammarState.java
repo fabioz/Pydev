@@ -8,19 +8,19 @@ import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class JJTPythonGrammarState implements IJJTPythonGrammarState{
+public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
 
-    protected FastStack<SimpleNode> nodes;
-    protected IntStack marks;
-    protected IntStack lines;
-    protected IntStack columns;
+    protected final FastStack<SimpleNode> nodes;
+    protected final IntStack marks;
+    protected final IntStack lines;
+    protected final IntStack columns;
 
     protected int sp; // number of nodes on stack
     protected int mk; // current mark
     protected boolean node_created;
 
-    public ITreeBuilder builder;
-    private AbstractPythonGrammar grammar;
+    public final ITreeBuilder builder;
+    private final AbstractPythonGrammar grammar;
 
     public JJTPythonGrammarState(Class<?> treeBuilderClass, AbstractPythonGrammar grammar) {
         this.grammar = grammar;

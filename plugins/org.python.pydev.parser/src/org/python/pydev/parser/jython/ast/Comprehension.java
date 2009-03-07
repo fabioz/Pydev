@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Comprehension extends comprehensionType {
+public final class Comprehension extends comprehensionType {
     public exprType target;
     public exprType iter;
     public exprType[] ifs;

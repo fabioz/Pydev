@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class BinOp extends exprType implements operatorType {
+public final class BinOp extends exprType implements operatorType {
     public exprType left;
     public int op;
     public exprType right;

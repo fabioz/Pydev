@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Lambda extends exprType {
+public final class Lambda extends exprType {
     public argumentsType args;
     public exprType body;
 

@@ -47,7 +47,7 @@ import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 
 
-public class PythonGrammar26 extends AbstractPythonGrammar implements IGrammar
+public final class PythonGrammar26 extends AbstractPythonGrammar implements IGrammar
 {
 
 

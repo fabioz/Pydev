@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class excepthandlerType extends SimpleNode {
+public final class excepthandlerType extends SimpleNode {
     public exprType type;
     public exprType name;
     public stmtType[] body;

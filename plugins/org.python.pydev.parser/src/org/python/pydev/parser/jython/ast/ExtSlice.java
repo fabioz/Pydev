@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class ExtSlice extends sliceType {
+public final class ExtSlice extends sliceType {
     public sliceType[] dims;
 
     public ExtSlice(sliceType[] dims) {

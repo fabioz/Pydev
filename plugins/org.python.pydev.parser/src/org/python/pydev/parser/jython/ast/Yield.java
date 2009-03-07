@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Yield extends exprType {
+public final class Yield extends exprType {
     public exprType value;
 
     public Yield(exprType value) {

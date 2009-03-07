@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class SetComp extends exprType {
+public final class SetComp extends exprType {
     public exprType elt;
     public comprehensionType[] generators;
 

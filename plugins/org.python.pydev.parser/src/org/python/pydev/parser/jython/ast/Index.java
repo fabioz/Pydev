@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Index extends sliceType {
+public final class Index extends sliceType {
     public exprType value;
 
     public Index(exprType value) {

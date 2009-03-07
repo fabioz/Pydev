@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Suite extends modType {
+public final class Suite extends modType {
     public stmtType[] body;
 
     public Suite(stmtType[] body) {

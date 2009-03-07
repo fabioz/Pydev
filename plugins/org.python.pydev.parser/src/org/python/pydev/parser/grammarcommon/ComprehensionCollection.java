@@ -7,7 +7,8 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 
-public class ComprehensionCollection extends SimpleNode{
+public final class ComprehensionCollection extends SimpleNode{
+    
     public ArrayList<Comprehension> added = new ArrayList<Comprehension>();
 
     public comprehensionType[] getGenerators() {

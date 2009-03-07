@@ -26,7 +26,7 @@ import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 
 
 
-public class PythonGrammar25 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ IGrammar, PythonGrammar25Constants {/*@bgen(jjtree)*/
+public final class PythonGrammar25 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ IGrammar, PythonGrammar25Constants {/*@bgen(jjtree)*/
   protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder25.class, this);
 
     /**

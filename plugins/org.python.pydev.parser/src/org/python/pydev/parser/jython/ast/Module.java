@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Module extends modType {
+public final class Module extends modType {
     public stmtType[] body;
 
     public Module(stmtType[] body) {

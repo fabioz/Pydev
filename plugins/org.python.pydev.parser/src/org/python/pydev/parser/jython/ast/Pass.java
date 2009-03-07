@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Pass extends stmtType {
+public final class Pass extends stmtType {
 
     public Pass() {
     }

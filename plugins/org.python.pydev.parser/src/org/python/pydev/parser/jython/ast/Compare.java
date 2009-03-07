@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Compare extends exprType implements cmpopType {
+public final class Compare extends exprType implements cmpopType {
     public exprType left;
     public int[] ops;
     public exprType[] comparators;

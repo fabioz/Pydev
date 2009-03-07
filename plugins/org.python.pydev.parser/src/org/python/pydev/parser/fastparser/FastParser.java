@@ -24,7 +24,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
  *
  * @author Fabio
  */
-public class FastParser {
+public final class FastParser {
 
     private static final exprType[] EMTPY_EXPR_TYPE = new exprType[0];
 

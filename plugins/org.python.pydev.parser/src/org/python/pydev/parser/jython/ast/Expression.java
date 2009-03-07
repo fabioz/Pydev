@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Expression extends modType {
+public final class Expression extends modType {
     public exprType body;
 
     public Expression(exprType body) {

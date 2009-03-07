@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Num extends exprType implements num_typeType {
+public final class Num extends exprType implements num_typeType {
     public Object n;
     public int type;
     public String num;

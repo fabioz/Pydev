@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class aliasType extends SimpleNode {
+public final class aliasType extends SimpleNode {
     public NameTokType name;
     public NameTokType asname;
 

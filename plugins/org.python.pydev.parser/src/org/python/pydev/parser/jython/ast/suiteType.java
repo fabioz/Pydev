@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class suiteType extends SimpleNode {
+public final class suiteType extends SimpleNode {
     public stmtType[] body;
 
     public suiteType(stmtType[] body) {

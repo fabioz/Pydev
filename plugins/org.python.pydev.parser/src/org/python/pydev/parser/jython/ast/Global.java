@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Global extends stmtType {
+public final class Global extends stmtType {
     public NameTokType[] names;
     public exprType value;
 

@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class With extends stmtType {
+public final class With extends stmtType {
     public exprType context_expr;
     public exprType optional_vars;
     public suiteType body;

@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Str extends exprType implements str_typeType {
+public final class Str extends exprType implements str_typeType {
     public String s;
     public int type;
     public boolean unicode;

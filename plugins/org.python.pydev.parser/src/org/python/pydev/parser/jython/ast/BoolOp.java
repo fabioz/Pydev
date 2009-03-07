@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class BoolOp extends exprType implements boolopType {
+public final class BoolOp extends exprType implements boolopType {
     public int op;
     public exprType[] values;
 

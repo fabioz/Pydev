@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Break extends stmtType {
+public final class Break extends stmtType {
 
     public Break() {
     }

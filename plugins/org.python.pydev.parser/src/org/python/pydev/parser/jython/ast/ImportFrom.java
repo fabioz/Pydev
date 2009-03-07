@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class ImportFrom extends stmtType {
+public final class ImportFrom extends stmtType {
     public NameTokType module;
     public aliasType[] names;
     public int level;

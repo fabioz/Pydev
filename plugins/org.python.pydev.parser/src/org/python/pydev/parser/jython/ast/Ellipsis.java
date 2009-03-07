@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Ellipsis extends sliceType {
+public final class Ellipsis extends sliceType {
 
     public Ellipsis() {
     }

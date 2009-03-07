@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class DictComp extends exprType {
+public final class DictComp extends exprType {
     public exprType key;
     public exprType value;
     public comprehensionType[] generators;

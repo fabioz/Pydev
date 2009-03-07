@@ -87,7 +87,7 @@ Current setting is: ${javaccHome}
         
         <echo>Updating jjFillToken in file PythonGrammar25TokenManager.java</echo>
         <replace file="${parser.dir}/PythonGrammar25TokenManager.java" token="public class PythonGrammar25TokenManager implements PythonGrammar25Constants" 
-            value="@SuppressWarnings(&quot;unused&quot;) public class PythonGrammar25TokenManager extends AbstractTokenManager implements PythonGrammar25Constants"/>
+            value="@SuppressWarnings(&quot;unused&quot;) public final class PythonGrammar25TokenManager extends AbstractTokenManager implements PythonGrammar25Constants"/>
         
         <echo>Updating jjtree.builder.openNode</echo>
         <replace file="${parser.dir}/PythonGrammar25.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>

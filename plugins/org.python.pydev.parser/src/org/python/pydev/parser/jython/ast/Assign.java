@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Assign extends stmtType {
+public final class Assign extends stmtType {
     public exprType[] targets;
     public exprType value;
 

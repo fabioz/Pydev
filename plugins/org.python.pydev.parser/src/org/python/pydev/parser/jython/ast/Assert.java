@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Assert extends stmtType {
+public final class Assert extends stmtType {
     public exprType test;
     public exprType msg;
 

@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Subscript extends exprType implements expr_contextType {
+public final class Subscript extends exprType implements expr_contextType {
     public exprType value;
     public sliceType slice;
     public int ctx;

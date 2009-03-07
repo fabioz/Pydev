@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Interactive extends modType {
+public final class Interactive extends modType {
     public stmtType[] body;
 
     public Interactive(stmtType[] body) {

@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class FunctionDef extends stmtType {
+public final class FunctionDef extends stmtType {
     public NameTokType name;
     public argumentsType args;
     public stmtType[] body;

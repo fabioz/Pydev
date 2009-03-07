@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class keywordType extends SimpleNode {
+public final class keywordType extends SimpleNode {
     public NameTokType arg;
     public exprType value;
 

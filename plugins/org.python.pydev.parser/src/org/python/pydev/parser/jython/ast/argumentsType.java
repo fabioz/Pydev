@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class argumentsType extends SimpleNode {
+public final class argumentsType extends SimpleNode {
     public exprType[] args;
     public NameTokType vararg;
     public NameTokType kwarg;

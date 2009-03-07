@@ -162,7 +162,7 @@ class JavaVisitor(EmitVisitor):
 
     def visitProduct(self, product, name, depth):
         self.open("%sType" % name, useDataOutput=1)
-        self.emit("public class %(name)sType extends SimpleNode {" % locals(), depth)
+        self.emit("public final class %(name)sType extends SimpleNode {" % locals(), depth)
         for f in product.fields:
             self.visit(f, depth + 1)
         self.emit("", depth)
@@ -183,7 +183,7 @@ class JavaVisitor(EmitVisitor):
             s = "implements %s " % ", ".join(enums)
         else:
             s = ""
-        self.emit("public class %s extends %sType %s{" %
+        self.emit("public final class %s extends %sType %s{" %
                     (cons.name, name, s), depth)
         for f in cons.fields:
             self.visit(f, depth + 1)

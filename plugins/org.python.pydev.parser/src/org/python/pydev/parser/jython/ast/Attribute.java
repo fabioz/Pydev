@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Attribute extends exprType implements expr_contextType {
+public final class Attribute extends exprType implements expr_contextType {
     public exprType value;
     public NameTokType attr;
     public int ctx;

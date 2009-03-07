@@ -271,9 +271,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
             if(foundToken != null){
                 //we found it, but not on the position we were expecting, so, we must skip some tokens to get to it --
                 //and report the needed exception)
-                if(DEBUG_SHOW_LOADED_TOKENS){
-                    System.out.println("Found at wrong position: "+token);
-                }
+                addAndReport(e, "Found at wrong position: "+foundToken);
                 Token beforeLastReturned = iterTokens.getBeforeLastReturned();
                 setCurrentToken(beforeLastReturned);
                 return new SpecialStr(put, foundToken.beginLine, foundToken.beginColumn);

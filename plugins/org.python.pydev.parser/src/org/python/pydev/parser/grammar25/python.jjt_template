@@ -25,7 +25,7 @@ package org.python.pydev.parser.grammar25;
 $IMPORTS
 
 
-public class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
+public final class PythonGrammar25 extends AbstractPythonGrammar implements IGrammar
 {
 	
 $COMMOM_METHODS

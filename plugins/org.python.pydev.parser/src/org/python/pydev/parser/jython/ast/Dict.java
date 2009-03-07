@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Dict extends exprType {
+public final class Dict extends exprType {
     public exprType[] keys;
     public exprType[] values;
 

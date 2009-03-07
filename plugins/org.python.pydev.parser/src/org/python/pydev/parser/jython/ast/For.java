@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class For extends stmtType {
+public final class For extends stmtType {
     public exprType target;
     public exprType iter;
     public stmtType[] body;

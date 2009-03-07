@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Call extends exprType {
+public final class Call extends exprType {
     public exprType func;
     public exprType[] args;
     public keywordType[] keywords;

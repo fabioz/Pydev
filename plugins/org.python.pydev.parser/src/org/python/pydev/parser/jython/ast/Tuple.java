@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Tuple extends exprType implements expr_contextType {
+public final class Tuple extends exprType implements expr_contextType {
     public exprType[] elts;
     public int ctx;
 

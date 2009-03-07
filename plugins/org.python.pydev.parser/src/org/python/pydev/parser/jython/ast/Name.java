@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Name extends exprType implements expr_contextType {
+public final class Name extends exprType implements expr_contextType {
     public String id;
     public int ctx;
     public boolean reserved;

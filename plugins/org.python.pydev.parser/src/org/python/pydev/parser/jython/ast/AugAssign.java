@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class AugAssign extends stmtType implements operatorType {
+public final class AugAssign extends stmtType implements operatorType {
     public exprType target;
     public int op;
     public exprType value;

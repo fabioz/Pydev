@@ -12,7 +12,7 @@ import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.expr_contextType;
 
-public class CtxVisitor extends Visitor {
+public final class CtxVisitor extends Visitor {
     
     private int ctx;
 

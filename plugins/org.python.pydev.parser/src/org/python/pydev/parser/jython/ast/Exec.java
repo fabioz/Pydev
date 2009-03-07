@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Exec extends stmtType {
+public final class Exec extends stmtType {
     public exprType body;
     public exprType globals;
     public exprType locals;

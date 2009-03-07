@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Raise extends stmtType {
+public final class Raise extends stmtType {
     public exprType type;
     public exprType inst;
     public exprType tback;

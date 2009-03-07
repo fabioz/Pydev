@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class commentType extends SimpleNode {
+public final class commentType extends SimpleNode {
     public String id;
 
     public commentType(String id) {

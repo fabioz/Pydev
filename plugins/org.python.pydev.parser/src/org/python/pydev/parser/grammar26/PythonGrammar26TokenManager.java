@@ -24,7 +24,7 @@ import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 
 /** Token Manager. */
-@SuppressWarnings("unused") public class PythonGrammar26TokenManager extends AbstractTokenManager implements PythonGrammar26Constants
+@SuppressWarnings("unused") public final class PythonGrammar26TokenManager extends AbstractTokenManager implements PythonGrammar26Constants
 {
     protected Class<?> getConstantsClass(){
         return PythonGrammar26Constants.class;

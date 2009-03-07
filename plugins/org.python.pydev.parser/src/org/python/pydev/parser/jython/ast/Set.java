@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Set extends exprType {
+public final class Set extends exprType {
     public exprType[] elts;
 
     public Set(exprType[] elts) {

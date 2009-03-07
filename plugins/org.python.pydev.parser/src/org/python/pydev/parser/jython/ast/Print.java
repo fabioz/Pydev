@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class Print extends stmtType {
+public final class Print extends stmtType {
     public exprType dest;
     public exprType[] values;
     public boolean nl;

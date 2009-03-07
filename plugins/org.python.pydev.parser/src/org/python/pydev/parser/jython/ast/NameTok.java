@@ -2,7 +2,7 @@
 package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 
-public class NameTok extends NameTokType implements name_contextType {
+public final class NameTok extends NameTokType implements name_contextType {
     public String id;
     public int ctx;
 
