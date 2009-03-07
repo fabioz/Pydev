@@ -363,10 +363,20 @@ TOKEN : /* KEYWORDS */
 }
 
 
+//Python 3.0 can use unicode identifiers. So, the letter construct deals with that...
 TOKEN : /* Python identifiers */
 {
     < NAME: <LETTER> ( <LETTER> | <DIGIT>)* >
-|   < #LETTER: ["_","a"-"z","A"-"Z"] >
+|
+    < #LETTER: 
+    [
+       "a"-"z",
+       "A"-"Z",
+       "_",
+       "\u0080"-"\uffff" //Anything more than 128 is considered valid (unicode range)
+    
+    ] 
+>
 }
 
 

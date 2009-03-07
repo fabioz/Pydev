@@ -2335,6 +2335,35 @@ private int jjMoveNfa_0(int startState, int curPos)
          {
             switch(jjstateSet[--i])
             {
+               case 45:
+               case 10:
+                  if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                     break;
+                  if (kind > 94)
+                     kind = 94;
+                  jjCheckNAdd(10);
+                  break;
+               case 81:
+                  if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                     break;
+                  if (kind > 94)
+                     kind = 94;
+                  jjCheckNAdd(10);
+                  break;
+               case 79:
+                  if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                     break;
+                  if (kind > 94)
+                     kind = 94;
+                  jjCheckNAdd(10);
+                  break;
+               case 0:
+                  if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                     break;
+                  if (kind > 94)
+                     kind = 94;
+                  jjCheckNAdd(10);
+                  break;
                case 8:
                   if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
                      break;
