@@ -36,9 +36,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE,\
                          StartClient,\
                          StartServer
 
-import os
 import pydevd_file_utils
-import threading 
 import traceback 
 import pydevd_vm_type 
 import pydevd_tracing 
@@ -507,7 +505,7 @@ class PyDB:
             except Exception:
                 traceback.print_exc()
                 cmd = self.cmdFactory.makeErrorMessage(seq, 
-                    "Unexpected exception in processNetCommand: %s\nInitial params: %s" % (str(e), (cmd_id, seq, text)))
+                    "Unexpected exception in processNetCommand.\nInitial params: %s" % ((cmd_id, seq, text),))
                     
                 self.writer.addCommand(cmd)
         finally:

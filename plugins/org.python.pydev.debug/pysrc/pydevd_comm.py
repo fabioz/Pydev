@@ -222,7 +222,11 @@ class ReaderThread(PyDBDaemonThread):
         try:
             
             while not self.killReceived:
-                r = self.sock.recv(1024)
+                try:
+                    r = self.sock.recv(1024)
+                except:
+                    GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
+                    break #Finished communication.
                 if IS_PY3K:
                     r = r.decode('utf-8')
                     

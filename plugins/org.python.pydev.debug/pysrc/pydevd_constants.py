@@ -52,7 +52,7 @@ except AttributeError:
 # Jython?
 #=======================================================================================================================
 try:
-    import org.python.core.PyDictionary
+    import org.python.core.PyDictionary #@UnresolvedImport @UnusedImport -- just to check if it could be valid
     def DictContains(d, key):
         return d.has_key(key)
 except:
@@ -93,8 +93,9 @@ def GetThreadId(thread):
                 except AttributeError:
                     try:
                         #Jython does not have it!
-                        from java.lang.management import ManagementFactory
+                        import java.lang.management.ManagementFactory #@UnresolvedImport -- just for jython
                         pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
+                        pid = pid.replace('@', '_')
                     except:
                         #ok, no pid available (will be unable to debug multiple processes)
                         pid = '000001'
