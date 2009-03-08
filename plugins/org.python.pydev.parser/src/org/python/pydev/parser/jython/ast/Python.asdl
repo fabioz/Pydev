@@ -98,6 +98,7 @@ module Python
 	     -- the following expression can appear in assignment context
 	     | Attribute(expr value, NameTok attr, expr_context ctx)
 	     | Subscript(expr value, slice slice, expr_context ctx)
+	     | Starred(expr value, expr_context ctx)
 	     --reserved in the name means that it's a keyword (cannot be assigned to)
 	     | Name(identifier id, expr_context ctx, bool reserved)
 	     | List(expr* elts, expr_context ctx) 

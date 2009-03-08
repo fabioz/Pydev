@@ -81,32 +81,36 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
         File[] files = file.listFiles();
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
-            if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
-                SimpleNode original = parseLegalDocStr(REF.getFileContents(f), f);
-                if(original == null){
-                    fail("Error\nUnable to generate the AST for the file:"+f);
-                }
-                WriterEraser writer = PrettyPrinterTest.makePrint(prefs, original);
-                SimpleNode node = null;
-                try {
-                    node = parseLegalDocStr(writer.getBuffer().toString());
-                } catch (Throwable e) {
-                    System.out.println("\n\n\n----------------- Initial contents:-------------------------\n");
-                    System.out.println(original);
-                    System.out.println("\n\n--------------Pretty-printed contents:------------------\n");
-                    System.out.println(writer.getBuffer().toString());
-                    System.out.println("\n\n\n");
-                    System.out.println("File: "+f);
-                    e.printStackTrace();
-                    
-                    fail("Error\nUnable to pretty-print regenerated file:"+f);
-                }
-                SimpleNodeComparator comparator = new SimpleNodeComparator();
-                try {
-                    comparator.compare(original, node);
-                } catch (DifferException e) {
-                    System.out.println("Compare did not suceed:"+f);
-                }
+            parseAndPrettyPrintFile(f);
+        }
+    }
+
+    protected void parseAndPrettyPrintFile(File f) throws Error, Exception {
+        if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
+            SimpleNode original = parseLegalDocStr(REF.getFileContents(f), f);
+            if(original == null){
+                fail("Error\nUnable to generate the AST for the file:"+f);
+            }
+            WriterEraser writer = PrettyPrinterTest.makePrint(prefs, original);
+            SimpleNode node = null;
+            try {
+                node = parseLegalDocStr(writer.getBuffer().toString());
+            } catch (Throwable e) {
+                System.out.println("\n\n\n----------------- Initial contents:-------------------------\n");
+                System.out.println(original);
+                System.out.println("\n\n--------------Pretty-printed contents:------------------\n");
+                System.out.println(writer.getBuffer().toString());
+                System.out.println("\n\n\n");
+                System.out.println("File: "+f);
+                e.printStackTrace();
+                
+                fail("Error\nUnable to pretty-print regenerated file:"+f);
+            }
+            SimpleNodeComparator comparator = new SimpleNodeComparator();
+            try {
+                comparator.compare(original, node);
+            } catch (DifferException e) {
+                System.out.println("Compare did not suceed:"+f);
             }
         }
     }

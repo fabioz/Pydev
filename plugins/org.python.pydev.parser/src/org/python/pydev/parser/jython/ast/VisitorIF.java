@@ -51,6 +51,7 @@ public interface VisitorIF {
     public Object visitStrJoin(StrJoin node) throws Exception;
     public Object visitAttribute(Attribute node) throws Exception;
     public Object visitSubscript(Subscript node) throws Exception;
+    public Object visitStarred(Starred node) throws Exception;
     public Object visitName(Name node) throws Exception;
     public Object visitList(List node) throws Exception;
     public Object visitTuple(Tuple node) throws Exception;

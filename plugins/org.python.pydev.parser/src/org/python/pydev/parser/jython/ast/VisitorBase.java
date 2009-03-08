@@ -297,6 +297,12 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
+    public Object visitStarred(Starred node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
     public Object visitName(Name node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);

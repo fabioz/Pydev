@@ -22,7 +22,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testUnicodeIdentifiers2();
+            test.testMetaClass();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -502,6 +502,13 @@ public class PyParser30Test extends PyParserTestBase{
             TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC+"/tests/org/python/pydev/parser/pep3131test.py"));
         
         parseLegalDocStr(contents);
+    }
+    
+    
+    public void testUnpacking() {
+        String s = "a, *b, c = range(5)";
+        
+        parseLegalDocStr(s);
     }
     
     

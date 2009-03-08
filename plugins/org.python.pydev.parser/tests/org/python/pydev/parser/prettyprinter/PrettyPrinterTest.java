@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testIfElse3();
+            test.testStarred();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -66,7 +66,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                if(version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
                     checkPrettyPrintEqual(s, "exec('a=1')\n");
                     
                 }else{
@@ -76,6 +76,25 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             }
         });
 
+    }
+    
+    public void testStarred() throws Exception {
+        final String s = ""+
+        "a,*b,c = range(5)\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                    checkPrettyPrintEqual(s, s);
+                    
+                }
+                return true;
+            }
+        });
+        
     }
 
     
@@ -231,7 +250,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                if(version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
                     checkPrettyPrintEqual(s);
                 }
                 return true;
