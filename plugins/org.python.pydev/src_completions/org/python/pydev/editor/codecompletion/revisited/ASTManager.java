@@ -49,6 +49,7 @@ public final class ASTManager extends AbstractASTManager implements ICodeComplet
     /**
      * Set the project this ast manager works with.
      */
+    @SuppressWarnings("unchecked")
     public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas){
         getProjectModulesManager().setProject(project, nature, restoreDeltas);
         List<IASTManagerObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MANAGER_OBSERVER);

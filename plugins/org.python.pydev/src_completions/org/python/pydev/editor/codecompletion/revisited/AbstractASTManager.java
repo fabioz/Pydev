@@ -482,6 +482,16 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         }
     }
 
+    private void log(String message, IModule module, ICompletionState state){
+        String name;
+        if(module == null){
+            name = "null module";
+        }else{
+            name = module.getName();
+        }
+        Log.toLogFile(this, message+": "+name+ " -- "+state.getActivationToken());
+    }
+    
     /**
      * This method should only be accessed from the public getCompletionsForModule (which caches the result).
      */
@@ -489,8 +499,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             boolean searchSameLevelMods, boolean lookForArgumentCompletion) throws CompletionRecursionException{
         
         if(DebugSettings.DEBUG_CODE_COMPLETION){
-            Log.toLogFile(this, "getCompletionsForModule");
+            log("internalGenerateGetCompletionsForModule", module, state);
         }
+        
         ArrayList<IToken> importedModules = new ArrayList<IToken>();
         
         ILocalScope localScope = null;
@@ -792,7 +803,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     public List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules, IToken[] wildImportedModules, 
             ICompletionState state, IModule current) {
         if(DebugSettings.DEBUG_CODE_COMPLETION){
-            Log.toLogFile(this, "getGlobalCompletions");
+            log("getGlobalCompletions", current, state);
         }
         List<IToken> completions = new ArrayList<IToken>();
 
