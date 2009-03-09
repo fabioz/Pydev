@@ -8,6 +8,7 @@ Python 3.0 parser supporting unicode identifiers
 Console initial commands compatible with Python 3.0
 When waiting for user input, the prompt is not shown
 Star expr recognized in Python 3.0 grammar
+Fix getting args from docstring
 
 After 1.4.3
 

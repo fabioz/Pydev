@@ -184,9 +184,11 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                                 if len(doc) > 0:
                                     i = doc.find('->')
                                     if i < 0:
-                                        i = doc.find('\n')
+                                        i = doc.find('--')
                                         if i < 0:
-                                            i = doc.find('\r')
+                                            i = doc.find('\n')
+                                            if i < 0:
+                                                i = doc.find('\r')
                                             
                                             
                                     if i > 0:
@@ -199,7 +201,9 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                                             if start >= 0:
                                                 end = s.find('[')
                                                 if end <= 0:
-                                                    end = len(s)
+                                                    end = s.find(')')
+                                                    if end <= 0:
+                                                        end = len(s)
                                                 
                                                 args = s[start:end]
                                                 if not args[-1] == ')':

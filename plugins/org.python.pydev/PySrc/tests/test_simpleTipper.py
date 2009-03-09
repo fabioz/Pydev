@@ -52,6 +52,11 @@ if sys.platform.find('java') == -1:
                 self.assertIn('now', tip)
             except ImportError:
                 pass
+    
+        def testImports5(self):
+            tip = importsTipper.GenerateTip('__builtin__.list')
+            s = self.assertIn('sort', tip)
+            self.assertEqual('(cmp=None, key=None, reverse=False)', s[2])
             
         def testImports2a(self):
             tips = importsTipper.GenerateTip('%s.RuntimeError' % BUILTIN_MOD)
@@ -147,7 +152,7 @@ if sys.platform.find('java') == -1:
             
     def suite():
         s = unittest.TestSuite()
-        s.addTest(Test("testImports2"))
+        s.addTest(Test("testImports5"))
         unittest.TextTestRunner(verbosity=2).run(s)
 
 if __name__ == '__main__':

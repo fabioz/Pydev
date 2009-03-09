@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
@@ -35,7 +36,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testCompleteImportBuiltin();
+            builtins.testSortParamsCorrect();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -407,7 +408,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
             "    a = A()\n" +
             "    a.list1.";
         
-        requestCompl(s, -1, new String[] {"pop()", "remove()"});
+        requestCompl(s, -1, new String[] {"pop()", "remove(value)"});
     }
     
     
@@ -418,6 +419,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         
         //should keep the variables from the __builtins__ in this module
         requestCompl(s, -1, new String[] {"ThisGoes", "RuntimeError"});
+    }
+    
+    
+    public void testSortParamsCorrect() throws Exception {
+        String s = 
+            "[].sort" +
+            "";
+        
+        //should keep the variables from the __builtins__ in this module
+        requestCompl(s, -1, new String[] {"sort(cmp=None, key=None, reverse=False)"});
     }
 
     
