@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testComments3();
+            test.testStarred();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -81,6 +81,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     public void testStarred() throws Exception {
         final String s = ""+
         "a,*b,c = range(5)\n" +
+        "a,*b.c,c = range(5)\n" +
         "";
         
         

@@ -50,6 +50,7 @@ import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Slice;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.StrJoin;
 import org.python.pydev.parser.jython.ast.Subscript;
@@ -596,6 +597,11 @@ public class PrettyPrinter extends PrettyPrinterUtils{
     @Override
     public Object visitPrint(Print node) throws Exception {
         return visitGeneric(node, "visitPrint", true, null, false, false);
+    }
+    
+    @Override
+    public Object visitStarred(Starred node) throws Exception {
+        return visitGeneric(node, "visitStarred", false, null, false, false);
     }
 
     @Override

@@ -135,4 +135,5 @@ public interface ITreeConstants {
     public static final int JJTSET = 632;
     public static final int JJTLAMBDEF_NOCOND = 633;
     public static final int JJTCOMP_FOR = 634;
+    public static final int JJTSTAR_EXPR = 635;
 }

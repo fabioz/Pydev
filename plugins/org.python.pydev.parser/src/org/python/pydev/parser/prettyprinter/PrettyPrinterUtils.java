@@ -33,6 +33,7 @@ import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Slice;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.StrJoin;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
@@ -202,6 +203,7 @@ public class PrettyPrinterUtils extends VisitorBase{
         addMethod("visitGlobal" , "superGlobal");
         addMethod("visitWith" , "superWith");
         addMethod("visitExpr" , "superExpr");
+        addMethod("visitStarred" , "superStarred");
     }
     
     /**
@@ -358,6 +360,10 @@ public class PrettyPrinterUtils extends VisitorBase{
     
     public Object superPrint(Print node) throws Exception {
         return super.visitPrint(node);
+    }
+    
+    public Object superStarred(Starred node) throws Exception {
+        return super.visitStarred(node);
     }
     
     public Object superSubscript(Subscript node) throws Exception {

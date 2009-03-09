@@ -670,7 +670,7 @@ void small_stmt() #void: {SimpleNode simpleNode;Object spStr;}
 //                     ('=' (yield_expr|testlist))*)
 void expr_stmt() #void: {}
 {
-    SmartTestList() (
+    testlist_star_expr() (
     <PLUSEQ>        (yield_expr()|SmartTestList())   #aug_plus(2)
 |   <MINUSEQ>       (yield_expr()|SmartTestList())   #aug_minus(2)
 |   <MULTIPLYEQ>    (yield_expr()|SmartTestList())   #aug_multiply(2)
@@ -683,7 +683,7 @@ void expr_stmt() #void: {}
 |   <LSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_lshift(2)
 |   <RSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_rshift(2)
 |   <POWEREQ>       (yield_expr()|SmartTestList())   #aug_power(2)
-|  (<EQUAL>         (yield_expr()|SmartTestList()))* #expr_stmt(jjtree.nodeArity()+1))
+|  (<EQUAL>         (yield_expr()|testlist_star_expr()))* #expr_stmt(jjtree.nodeArity()+1))
 
 }
 
@@ -1148,6 +1148,13 @@ void SmartTestList() #void: {}
 //testlist: test (',' test)* [',']
 void testlist() #void: {}
 { test() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> test())* [{this.findTokenAndAdd(",");} <COMMA>]}
+
+//testlist_star_expr: test (',' test)* [',']
+void testlist_star_expr() #void: {}
+{ ( (test()|star_expr()) (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA>  (test()|star_expr()))* [{this.findTokenAndAdd(",");} <COMMA>]) #tuple(>1) }
+
+void star_expr(): {}
+{<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
 
 //dictorsetmaker: ( 
 //                   (test ':' test (comp_for | (',' test ':' test)* [','])) 

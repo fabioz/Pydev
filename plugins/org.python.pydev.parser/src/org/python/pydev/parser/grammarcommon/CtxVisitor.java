@@ -8,6 +8,7 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.expr_contextType;
@@ -63,6 +64,11 @@ public final class CtxVisitor extends Visitor {
         return null;
     }
 
+    public Object visitStarred(Starred node) throws Exception {
+        node.ctx = ctx;
+        return null;
+    }
+    
     public Object visitAttribute(Attribute node) throws Exception {
         node.ctx = ctx;
         return null;

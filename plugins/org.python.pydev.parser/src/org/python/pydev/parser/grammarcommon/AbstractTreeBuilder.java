@@ -23,6 +23,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.UnaryOp;
@@ -158,6 +159,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             
             case JJTIMPORT: ret = new Import(null);break;
             case JJTDOT_OP: ret = new Attribute(null, null, Attribute.Load);break;
+            case JJTSTAR_EXPR: ret = new Starred(null, Starred.Load);break;
 
 
             default:ret = new IdentityNode(id);break;
@@ -473,6 +475,10 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 }
                 return new aliasType(makeName(NameTok.ImportName), asname);
 
+            case JJTSTAR_EXPR:
+                Starred s = (Starred) n;
+                s.value = (exprType) this.stack.popNode();
+                return s;
         }
 
         //if we found a node not expected in the base, let's give subclasses an opportunity for dealing with it.
