@@ -28,6 +28,14 @@ public class WriteState implements IWriterEraser {
         this.writer = writer;
         this.prefs = prefs;
     }
+    
+    public int getIndentLen(){
+        return indentation.length();
+    }
+    
+    public String getIndentChars(int numberOfChars){
+        return indentation.toString().substring(indentation.length()-numberOfChars);
+    }
 
     public void indent() {
         indentation.append(prefs.getIndent());

@@ -18,6 +18,8 @@ public class AuxSpecials {
     
     private WriteState state;
     private PrettyPrinterPrefs prefs;
+    private int writeSpecialsUntilLine=-1;
+    private int writeSpecialsFromLine=-1;
 
     public AuxSpecials(WriteState state, PrettyPrinterPrefs prefs) {
         this.state = state;
@@ -93,6 +95,20 @@ public class AuxSpecials {
         for (Object o : node.specialsAfter){
             if(o instanceof commentType){
                 commentType c = (commentType)o;
+                
+                //Let's see if we can actually write it...
+                if(this.writeSpecialsUntilLine != -1){
+                    if(c.beginLine > this.writeSpecialsUntilLine){
+                        continue;
+                    }
+                }
+                if(this.writeSpecialsFromLine != -1){
+                    if(c.beginLine < this.writeSpecialsFromLine){
+                        continue;
+                    }
+                }
+                
+                
                 if(c.beginLine > line){
                     if(state.writeNewLine(false)){
                         if(isNewScope){
@@ -104,19 +120,32 @@ public class AuxSpecials {
                 }else{
                     state.writeSpacesBeforeComment();
                 }
+                
+                int indentLen = state.getIndentLen(); //0-based
+                int beginColForComment = c.beginColumn; //1-based
+                if(beginColForComment-1 < indentLen){
+                    //leave the comment in the old indent.
+                    state.erase(state.getIndentChars(indentLen - (beginColForComment-1)));
+                }
+                
+                
                 state.write(c.id);
+                
                 state.writeNewLine();
                 line = c.beginLine + 1;
                 
                 state.writeIndent();
+                
                 
             }else if(o instanceof SpecialStr){
                 SpecialStr s = (SpecialStr) o;
                 state.write(prefs.getReplacement(s.str));
                 line = s.beginLine;
                 
+                
             }else if(o instanceof String){
                 state.write(prefs.getReplacement((String)o));
+                
             }else{
                 throw new RuntimeException("Unexpected special: "+node);
             }
@@ -207,7 +236,16 @@ public class AuxSpecials {
         }
     }
 
+    public void setWriteSpecialsUntilLine(int line) {
+        this.writeSpecialsUntilLine = line;
+    }
 
+
+    public void setWriteSpecialsFromLine(int line) {
+        this.writeSpecialsFromLine = line;
+    }
+    
+    
 
     
 }

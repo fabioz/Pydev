@@ -62,7 +62,6 @@ import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
-import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
@@ -131,14 +130,9 @@ public class PrettyPrinter extends PrettyPrinterUtils{
 
     @Override
     public Object visitModule(Module node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
         super.visitModule(node);
-        if(node.specialsAfter != null){
-            for(Object o :node.specialsAfter){
-                commentType t = (commentType) o;
-                String c = t.id.trim();
-                state.write(c);
-            }
-        }
+        auxComment.writeSpecialsAfter(node);
         return null;
     }
     
@@ -424,11 +418,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         dedent();
         
         if(node.orelse != null){
-            state.indent();
-            auxComment.writeSpecialsBefore(node.orelse);
-            afterNode(node.orelse);
-            node.orelse.accept(this);
-            dedent();
+            visitOrElsePart(node.orelse);
         }
         return null;
     }
@@ -520,11 +510,29 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         if(orelse != null){
             auxComment.writeSpecialsBefore(orelse);
             state.indent();
-            afterNode(orelse);
+            
+            int startAt = -1;
+            if(orelse.body != null && orelse.body.length > 0){
+                stmtType first = orelse.body[0];
+                startAt = first.beginLine;
+                auxComment.setWriteSpecialsUntilLine(startAt);
+            }
+            
+            
+            afterNode(orelse, true);
+            auxComment.setWriteSpecialsUntilLine(-1);
+            
+            
             for (stmtType st : orelse.body){
                 st.accept(this);
             }
+            
+            
+            auxComment.setWriteSpecialsFromLine(startAt);
             auxComment.writeSpecialsAfter(orelse);
+            auxComment.setWriteSpecialsFromLine(-1);
+            
+            
             dedent();
         }
     }

@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testStarred();
+            test.testComments3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -487,7 +487,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "        pass\n" +
         "#--- barrr\n" +
         "a = 10\n" +
-        "#--- fooo" +
+        "#--- fooo\n" +
         "";
         checkPrettyPrintEqual(s);
         
@@ -498,7 +498,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    pass\n" +
         "#--- barrr\n" +
         "a = 10\n" +
-        "#--- fooo" +
+        "#--- fooo\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -717,7 +717,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     public void testEndComments() throws Exception {
         String s = ""+
         "import foo\n" +
-        "#end" +
+        "#end\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -1607,8 +1607,10 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    i += 1# augmented assignment on-line\n" +
         "    # this comment disappears\n" +
         "else:# else on-line\n" +
+        "    # comment inside else\n" +
         "    print 'bigger'# print on-line\n" +
-        "# after the second body (but actually in the module node)!" +
+        "    # comment on else end\n" +
+        "# after the second body (but actually in the module node)!\n" +
         "";
         checkPrettyPrintEqual(s);
     }

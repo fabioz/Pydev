@@ -15,7 +15,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testCall();
+            test.testOnlyComment();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -294,7 +294,6 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
     public void testOnlyComment() {
         String s = 
             "#end\n" +
-            "\n" +
             "";
         Module ast = (Module) parseLegalDocStr(s);
         assertEquals(1, ast.specialsBefore.size());
@@ -307,8 +306,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
     
     public void testCall() {
         String s = 
-            "save_reduce(obj=obj, *rv)\n" +
-            "\n" +
+            "save_reduce(obj=obj,*rv)\n" +
             "";
         checkPrettyPrintEqual(s);
     }
