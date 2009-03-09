@@ -62,6 +62,7 @@ import org.eclipse.ui.wizards.datatransfer.ImportOperation;
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
  */
+@SuppressWarnings("restriction")
 public class CopyFilesAndFoldersOperation {
 
     /**
@@ -326,6 +327,7 @@ public class CopyFilesAndFoldersOperation {
      * @param existing
      *            holds the collected existing files
      */
+    @SuppressWarnings("unchecked")
     private void collectExistingReadonlyFiles(IPath destinationPath,
             IResource[] copyResources, ArrayList existing) {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -1427,6 +1429,7 @@ public class CopyFilesAndFoldersOperation {
      *         files to validate. <code>false</code> one or more files did not
      *         pass validation.
      */
+    @SuppressWarnings("unchecked")
     private boolean validateEdit(IContainer destination,
             IResource[] sourceResources) {
         ArrayList copyFiles = new ArrayList();
@@ -1595,6 +1598,7 @@ public class CopyFilesAndFoldersOperation {
      * @return <code>true</code> if there would be no name collisions, and
      *         <code>false</code> if there would
      */
+    @SuppressWarnings("unchecked")
     private IResource[] validateNoNameCollisions(IContainer destination,
             IResource[] sourceResources) {
         List copyItems = new ArrayList();

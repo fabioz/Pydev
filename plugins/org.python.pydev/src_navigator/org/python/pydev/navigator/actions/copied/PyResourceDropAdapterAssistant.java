@@ -36,6 +36,7 @@ import org.python.pydev.navigator.elements.IWrappedResource;
  * 
  * @author Fabio
  */
+@SuppressWarnings("restriction")
 public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant {
 
     /**
@@ -272,6 +273,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
      * 
      * @return the resource selection from the LocalSelectionTransfer
      */
+    @SuppressWarnings("unchecked")
     private IResource[] getSelectedResources(IStructuredSelection selection) {
         ArrayList selectedResources = new ArrayList();
 

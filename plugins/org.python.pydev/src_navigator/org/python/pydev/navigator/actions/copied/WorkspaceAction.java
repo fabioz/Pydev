@@ -57,6 +57,7 @@ import org.eclipse.ui.internal.progress.ProgressMonitorJobsDialog;
  * </ul>
  * </p>
  */
+@SuppressWarnings("restriction")
 public abstract class WorkspaceAction extends SelectionListenerAction {
     /**
      * The shell in which to show the progress and problems dialog.
@@ -104,6 +105,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * @param monitor a progress monitor
      * @return The result of the execution
      */
+    @SuppressWarnings("unchecked")
     final IStatus execute(List resources, IProgressMonitor monitor) {
         MultiStatus errors = null;
         //1FTIMQN: ITPCORE:WIN - clients required to do too much iteration work
@@ -224,6 +226,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * @return <code>true</code> if <code>child</code> is a descendent of any of the
      *   elements of <code>resources</code>
      */
+    @SuppressWarnings("unchecked")
     boolean isDescendent(List resources, IResource child) {
         IResource parent = child.getParent();
         return parent != null
@@ -241,6 +244,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      *      after pruning. 
      * @see #shouldPerformResourcePruning
      */
+    @SuppressWarnings("unchecked")
     List pruneResources(List resourceCollection) {
         List prunedList = new ArrayList(resourceCollection);
         Iterator elementsEnum = prunedList.iterator();
@@ -331,6 +335,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * extend to react to selection changes; however, if the super method returns
      * <code>false</code>, the overriding method should also return <code>false</code>.
      */
+    @SuppressWarnings("unchecked")
     protected boolean updateSelection(IStructuredSelection selection) {
         if (!super.updateSelection(selection) || selection.isEmpty()) {
             return false;
@@ -352,6 +357,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      *
      * @return list of resource elements (element type: <code>IResource</code>)
      */
+    @SuppressWarnings("unchecked")
     protected List getActionResources() {
         return getSelectedResources();
     }
@@ -394,6 +400,7 @@ public abstract class WorkspaceAction extends SelectionListenerAction {
      * 
      * @since 3.1
      */
+    @SuppressWarnings("unchecked")
     public void runInBackground(ISchedulingRule rule, final Object [] jobFamilies) {
         //obtain a copy of the selected resources before the job is forked
         final List resources = new ArrayList(getActionResources());
