@@ -96,7 +96,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     
     public void testRefreshAnalyzesFiles() throws Exception {
         editor.close(false);
-        goToIdleLoopUntilCondition(getInitialParsesCondition()); //just to have any parse events consumed
+        goToIdleLoopUntilCondition(getInitialParsesCondition(), getParsesDone(), false); //just to have any parse events consumed
         goToManual(TIME_FOR_ANALYSIS); //give it a bit more time...
         
         PythonNature nature = PythonNature.getPythonNature(mod1);
@@ -142,6 +142,7 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         
         CheckRefreshAnalyzesFilesOnlyOnActiveEditor();
     }
+
 
     private void checkSetValidContentsWithFooToken(AbstractAdditionalInterpreterInfo info) throws CoreException {
         print("-------- Setting valid contents with some token -------------");
@@ -447,7 +448,19 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             
     }
 
-    
+    private ICallback<String, Object> getParsesDone() {
+        return new ICallback<String, Object>(){
+            
+            public String call(Object arg) {
+                HashSet<String> hashSet = new HashSet<String>();
+                for(Tuple3<SimpleNode, Throwable, ParserInfo> tup:parsesDone){
+                    hashSet.add(tup.o3.moduleName);
+                }
+                
+                return hashSet.toString();
+            }};
+    }
+
     /**
      * @return a condition that'll check if all the needed modules were already checked 
      */
