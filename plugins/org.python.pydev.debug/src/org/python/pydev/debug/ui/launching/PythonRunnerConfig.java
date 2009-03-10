@@ -223,7 +223,18 @@ public class PythonRunnerConfig {
         String location = conf.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         
         if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
-            location = interpreterManager.getDefaultInterpreter();
+            if(nature != null && nature.isPython() == interpreterManager.isPython()){
+                
+                //When both, the interpreter for the launch and the nature have the same type, let's get the
+                //launch location from the project
+                location = nature.getProjectInterpreter();
+                
+            }else{
+                
+                //When it doesn't have the same type it means that we're trying to run as jython a python
+                //project (or vice-versa), so, we must get the interpreter from the interpreter manager!
+                location = interpreterManager.getDefaultInterpreter();
+            }
             
         }else if(interpreterManager.hasInfoOnInterpreter(location) == false){
             File file = new File(location);
@@ -231,7 +242,11 @@ public class PythonRunnerConfig {
                 throw new InvalidRunException("Error. The interprer: "+location+" does not exist");
                 
             }else{
-                throw new InvalidRunException("Error. The interprer: "+location+" is not configured in the pydev preferences as a valid '"+nature.getVersion()+"' interpreter.");
+                if(nature == null){
+                    throw new InvalidRunException("Error. The interprer: "+location+" is not configured in the pydev preferences as a valid interpreter (null nature).");
+                }else{
+                    throw new InvalidRunException("Error. The interprer: "+location+" is not configured in the pydev preferences as a valid '"+nature.getVersion()+"' interpreter.");
+                }
             }
         }
         return location;
@@ -239,8 +254,8 @@ public class PythonRunnerConfig {
     
     
     /**
-     * Expands and returns the python interprter attribute of the given launch
-     * configuration. The intepreter path is verified to point to an existing
+     * Expands and returns the python interpreter attribute of the given launch
+     * configuration. The interpreter path is verified to point to an existing
      * file in the local file system.
      * 
      * @param configuration launch configuration

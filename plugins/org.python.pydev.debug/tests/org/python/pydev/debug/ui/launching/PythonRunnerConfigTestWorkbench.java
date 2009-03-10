@@ -6,15 +6,18 @@ package org.python.pydev.debug.ui.launching;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -70,14 +73,15 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
 
     
     public void testPythonCommandLine() throws Exception {
+        PythonNature nature = PythonNature.getPythonNature(mod1);
+        
         try{
             IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager(true);
             InterpreterInfo info = (InterpreterInfo) manager.getInterpreterInfo(manager.getDefaultInterpreter(), new NullProgressMonitor());
             info.setEnvVariables(new String[]{"MY_CUSTOM_VAR_FOR_TEST=FOO", "MY_CUSTOM_VAR_FOR_TEST2=FOO2"});
             
             
-            ILaunchConfiguration config = new LaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
-            PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_REGULAR);
+            PythonRunnerConfig runnerConfig = createConfig();
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST=FOO"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST2=FOO2"));
             
@@ -85,6 +89,21 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             assertFalse(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
             assertTrue(arrayContains(argv, mod1.getLocation().toOSString()));
             
+            
+            nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
+            assertEquals(manager.getDefaultInterpreter(), nature.getProjectInterpreter());
+            runnerConfig = createConfig();
+            argv = runnerConfig.getCommandLine(true); 
+            assertEquals(manager.getDefaultInterpreter(), argv[0]);
+            
+            nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, "c:\\interpreter\\py25.exe");
+            assertEquals("c:\\interpreter\\py25.exe", nature.getProjectInterpreter());
+            runnerConfig = createConfig();
+            argv = runnerConfig.getCommandLine(true); 
+            assertEquals("c:\\interpreter\\py25.exe", argv[0]);
+            nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
+
+            ILaunchConfiguration config;
             
             config = new LaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
             ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
@@ -101,7 +120,16 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
         }catch (Throwable e) {
             e.printStackTrace();
             throw new RuntimeException(e);
+        }finally{
+            //restore the default!
+            nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
         }
+    }
+
+    private PythonRunnerConfig createConfig() throws CoreException, InvalidRunException {
+        ILaunchConfiguration config = new LaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
+        PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_REGULAR);
+        return runnerConfig;
     }
 
 }
