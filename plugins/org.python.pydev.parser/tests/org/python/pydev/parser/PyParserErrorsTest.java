@@ -1,6 +1,7 @@
 package org.python.pydev.parser;
 
 import org.python.pydev.core.ICallback;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -19,7 +20,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         try {
             PyParserErrorsTest test = new PyParserErrorsTest();
             test.setUp();
-            test.testErrorHandled16();
+            test.testErrorHandled17();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserErrorsTest.class);
@@ -481,6 +482,28 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                 Module m = (Module) tup.o1;
                 assertTrue(m.body[0] instanceof Assign);
+                return true;
+            }
+        });
+        
+    }
+    
+    public void testErrorHandled17() {
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer arg) {
+                String s = "" +
+                "print(('btt'), file=f)\n" +
+                "";
+                
+                if(arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                    parseLegalDocStr(s);
+                    
+                }else{
+                    Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+                    Module m = (Module) tup.o1;
+                    assertNotNull(m);
+                }
                 return true;
             }
         });

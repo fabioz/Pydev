@@ -43,7 +43,6 @@ import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
-import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
@@ -359,18 +358,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
                     return new ListComp(((exprType) stack.popNode()), col.getGenerators());
                 }
             }
-            try {
-                exprType[] exp = makeExprs();
-                Tuple t = new Tuple(exp, Tuple.Load);
-                addSpecialsAndClearOriginal(n, t);
-                return t;
-            } catch (ClassCastException e) {
-                if(e.getMessage().equals(ExtraArgValue.class.getName())){
-                    throw new ParseException("Token: '*' is not expected inside tuples.", lastPop);
-                }
-                e.printStackTrace();
-                throw new ParseException("Syntax error while detecting tuple.", lastPop);
-            }
+            return makeTuple(n);
         case JJTLIST:
             if (stack.nodeArity() > 0 && stack.peekNode() instanceof ComprehensionCollection) {
                 ComprehensionCollection col = (ComprehensionCollection) stack.popNode();

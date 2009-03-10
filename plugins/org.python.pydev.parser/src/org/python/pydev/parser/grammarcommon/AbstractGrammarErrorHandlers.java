@@ -73,7 +73,7 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
     
     //---------------------------- Helpers to handle errors in the grammar.
 
-    protected final void addAndReport(ParseException e, String msg){
+    public final void addAndReport(ParseException e, String msg){
         if(DEBUG_SHOW_PARSE_ERRORS){
             
             System.err.println("\n\n\n\n\n---------------------------------\n"+msg);

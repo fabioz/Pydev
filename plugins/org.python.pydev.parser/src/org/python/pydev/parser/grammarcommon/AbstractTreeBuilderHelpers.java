@@ -3,6 +3,7 @@ package org.python.pydev.parser.grammarcommon;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
@@ -12,6 +13,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Suite;
+import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
@@ -52,6 +54,34 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA)
             stack.popNode();
         return makeExprs(stack.nodeArity());
+    }
+    
+    
+    protected final SimpleNode makeTuple(SimpleNode n) {
+        try {
+            final exprType[] exp = makeExprs();
+            Tuple t = new Tuple(exp, Tuple.Load);
+            addSpecialsAndClearOriginal(n, t);
+            return t;
+        } catch (ClassCastException e) {
+            if(e.getMessage().equals(ExtraArgValue.class.getName())){
+                this.stack.getGrammar().addAndReport(
+                        new ParseException("Token: '*' is not expected inside tuples.", lastPop), 
+                        "Treated class cast exception on tuple");
+            }
+            this.stack.getGrammar().addAndReport(
+                    new ParseException("Syntax error while detecting tuple.", lastPop), 
+                    "Treated class cast exception on tuple");
+            
+            while(stack.nodeArity() > 0){
+                //clear whatever we had in this construct...
+                stack.popNode();
+            }
+            
+            //recover properly!
+            return new Tuple(new exprType[0], Tuple.Load);
+
+        }
     }
 
     protected final exprType[] makeExprs(int l) {
@@ -143,12 +173,15 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         Suite suite = (Suite) stack.popNode();
         stmtType[] body;
         body = suite.body;
-        if (suite.specialsBefore != null && suite.specialsBefore.size() > 0) {
-            body[0].getSpecialsBefore().addAll(suite.specialsBefore);
-        }
-
-        if (suite.specialsAfter != null && suite.specialsAfter.size() > 0) {
-            body[body.length - 1].getSpecialsAfter().addAll(suite.specialsAfter);
+        if(body.length > 0){
+            //Check size (this can happen when parsing wrong grammar files)
+            if (suite.specialsBefore != null && suite.specialsBefore.size() > 0) {
+                body[0].getSpecialsBefore().addAll(suite.specialsBefore);
+            }
+    
+            if (suite.specialsAfter != null && suite.specialsAfter.size() > 0) {
+                body[body.length - 1].getSpecialsAfter().addAll(suite.specialsAfter);
+            }
         }
         return body;
     }
