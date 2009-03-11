@@ -705,11 +705,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      */
     public Object visitListComp(ListComp node) throws Exception {
         unhandled_node(node);
-        Comprehension type = (Comprehension) node.generators[0];
+        Comprehension type = null;
+        if(node.generators != null && node.generators.length > 0){
+            type = (Comprehension) node.generators[0];
+        }
         List<exprType> eltsToVisit = new ArrayList<exprType>();
         
         //we need to take care of 'nested list comprehensions'
-        if(type.iter instanceof ListComp){
+        if(type != null && type.iter instanceof ListComp){
             //print dict((day, index) for index, daysRep in (day for day in enumeratedDays))
             ListComp listComp = (ListComp)type.iter;
             
