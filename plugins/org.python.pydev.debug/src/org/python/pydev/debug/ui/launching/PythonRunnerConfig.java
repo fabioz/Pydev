@@ -380,39 +380,11 @@ public class PythonRunnerConfig {
             //current env (if he still didn't do so)
             Map envMap = conf.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map)null);
 
-            //it's not specified in the launch dialog (the launch dialog has priority over any other place)
-            if(!specifiedPythonpath(envMap)){
-                
-                boolean addPythonpath = true;
-                String pythonpath = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation, manager);
-                //override it if it was the ambient pythonpath
-                for (int i = 0; i < envp.length; i++) {
-                    if(win32){
-                        //case insensitive
-                        if(envp[i].toUpperCase().startsWith("PYTHONPATH=")){
-                            //OK, finish it.
-                            envp[i] = "PYTHONPATH="+pythonpath;
-                            addPythonpath = false;
-                            break;
-                        }
-                    }else{
-                        if(envp[i].startsWith("PYTHONPATH=")){
-                            //OK, finish it.
-                            envp[i] = "PYTHONPATH="+pythonpath;
-                            addPythonpath = false;
-                            break;
-                        }
-                    }
-                    
-                }
-
-                if(addPythonpath){
-                    //there was no pythonpath, let's set it
-                    String[] s = new String[envp.length+1];
-                    System.arraycopy(envp, 0, s, 0, envp.length);
-                    s[s.length-1] = "PYTHONPATH="+pythonpath;
-                    envp = s;
-                }
+            String pythonpath = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation, manager);
+            updateVar(pythonNature, manager, win32, envMap, "PYTHONPATH", pythonpath);
+            if(isJython()){
+                //Also update the classpath env variable.
+                updateVar(pythonNature, manager, win32, envMap, "CLASSPATH", pythonpath);
             }
             
             //And we also must get the environment variables specified in the interpreter manager.
@@ -441,31 +413,72 @@ public class PythonRunnerConfig {
         this.pythonpathUsed = p;
     }
     
+
+    @SuppressWarnings("unchecked")
+    private void updateVar(IPythonNature pythonNature, IInterpreterManager manager, boolean win32, Map envMap, String var, String pythonpath) {
+        
+        if(!specifiedEnvVar(envMap, var)){
+            boolean addPythonpath = true;
+            //override it if it was the ambient pythonpath
+            for (int i = 0; i < envp.length; i++) {
+                if(win32){
+                    //case insensitive
+                    if(envp[i].toUpperCase().startsWith(var+"=")){
+                        //OK, finish it.
+                        envp[i] = var+"="+pythonpath;
+                        addPythonpath = false;
+                        break;
+                    }
+                }else{
+                    if(envp[i].startsWith(var+"=")){
+                        //OK, finish it.
+                        envp[i] = var+"="+pythonpath;
+                        addPythonpath = false;
+                        break;
+                    }
+                }
+                
+            }
+
+            if(addPythonpath){
+                //there was no pythonpath, let's set it
+                String[] s = new String[envp.length+1];
+                System.arraycopy(envp, 0, s, 0, envp.length);
+                s[s.length-1] = var+"="+pythonpath;
+                envp = s;
+            }
+        }
+    }
+    
     /**
-     * Check if map contains PYTHONPATH key.
+     * Check if map the passed env var key.
      * 
      * Variables names are considered not case sensitive on Windows.
      * 
      * @param envMap mapping of env variables and their values
      * @return {@code true} if passed map contain PYTHONPATH key.
      */
-    private boolean specifiedPythonpath(Map<String, String> envMap) {
+    private boolean specifiedEnvVar(Map<String, String> envMap, String var) {
         if (envMap == null) {
             return false;
         }
         boolean win32 = Platform.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32);
+        
         if (!win32) {
-            return envMap.containsKey("PYTHONPATH");
+            return envMap.containsKey(var);
         }
-
+        
+        //it is windows (consider all uppercase)
+        var = var.toUpperCase();
         for (Iterator<String> iter = envMap.keySet().iterator(); iter.hasNext();) {
             String s = iter.next();
-            if (s.toUpperCase().equals("PYTHONPATH")) {
+            if (s.toUpperCase().equals(var)) {
                 return true;
             }
         }
         return false;
     }
+    
 
     public int getDebugPort() throws CoreException {
         if (debugPort == 0) {
@@ -567,7 +580,7 @@ public class PythonRunnerConfig {
             cmdArgs.add(cpath);
             cmdArgs.add("-Dpython.path="+pythonpathUsed); //will be added to the env variables in the run (check if this works on all platforms...)
             
-               addVmArgs(cmdArgs);
+            addVmArgs(cmdArgs);
                 
             if (isDebug) {
                 cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); //TODO: the user should configure this -- we use it so that 
