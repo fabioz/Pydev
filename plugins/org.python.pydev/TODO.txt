@@ -1,4 +1,4 @@
-- Check: Context insensitive info being created twice??? (create a test case for that)
+- Tutorial for mod_python
 - Add shortcut for running unit-test
 
 - Context insensitive completions:
