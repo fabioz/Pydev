@@ -173,6 +173,10 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         Suite suite = (Suite) stack.popNode();
         stmtType[] body;
         body = suite.body;
+        if(body == null){
+            //This can happen when we have errors in the grammar.
+            body = new stmtType[0];
+        }
         if(body.length > 0){
             //Check size (this can happen when parsing wrong grammar files)
             if (suite.specialsBefore != null && suite.specialsBefore.size() > 0) {
