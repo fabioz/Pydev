@@ -736,14 +736,14 @@ public class PyParser implements IPyParser {
     
             }else{
                 Token errorToken = parseErr.currentToken.next != null ? parseErr.currentToken.next : parseErr.currentToken;
-                IRegion startLine = doc.getLineInformation(errorToken.beginLine - 1);
+                IRegion startLine = doc.getLineInformation(getDocPosFromAstPos(errorToken.beginLine));
                 IRegion endLine;
                 if (errorToken.endLine == 0){
                     endLine = startLine;
                 }else{
-                    endLine = doc.getLineInformation(errorToken.endLine - 1);
+                    endLine = doc.getLineInformation(getDocPosFromAstPos(errorToken.endLine));
                 }
-                errorStart = startLine.getOffset() + errorToken.beginColumn - 1;
+                errorStart = startLine.getOffset() + getDocPosFromAstPos(errorToken.beginColumn);
                 errorEnd = endLine.getOffset() + errorToken.endColumn;
             }
             message = parseErr.getMessage();
@@ -770,6 +770,17 @@ public class PyParser implements IPyParser {
         
         
         return new ErrorDescription(message, errorLine, errorStart, errorEnd);
+    }
+
+    /**
+     * The ast position starts at 1 and the document starts at 0 (but it could be that we had nothing valid
+     * and received an invalid position, so, we must treat that).
+     */
+    private static int getDocPosFromAstPos(int astPos) {
+        if(astPos > 0){
+            astPos--;
+        }
+        return astPos;
     }
 
 

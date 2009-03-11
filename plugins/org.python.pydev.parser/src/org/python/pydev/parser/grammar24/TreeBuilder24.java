@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.parser.grammarcommon.AbstractTreeBuilder;
 import org.python.pydev.parser.grammarcommon.Decorators;
 import org.python.pydev.parser.grammarcommon.DefaultArg;
@@ -312,7 +313,17 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             if (stack.nodeArity() > 0 && stack.peekNode() instanceof comprehensionType) {
                 comprehensionType[] generators = new comprehensionType[arity-1];
                 for (int i = arity-2; i >= 0; i--) {
-                    generators[i] = (comprehensionType) stack.popNode();
+                    SimpleNode compNode = stack.popNode();
+                    if(!(compNode instanceof comprehensionType)){
+                        stack.getGrammar().addAndReport(
+                            new ParseException(
+                                "Expecting comprehensionType. Found: "+
+                                FullRepIterable.getLastPart(compNode.getClass().toString()), 
+                                compNode), 
+                            "Comprehension not found (treated)");
+                    }else{
+                        generators[i] = (comprehensionType) compNode;
+                    }
                 }
                 return new ListComp(((exprType) stack.popNode()), generators);
             }

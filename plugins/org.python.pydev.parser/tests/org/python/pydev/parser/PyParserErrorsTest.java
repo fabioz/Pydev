@@ -20,7 +20,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         try {
             PyParserErrorsTest test = new PyParserErrorsTest();
             test.setUp();
-            test.testErrorHandled17();
+            test.testErrorHandled18();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserErrorsTest.class);
@@ -503,6 +503,33 @@ public class PyParserErrorsTest extends PyParserTestBase {
                     Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                     Module m = (Module) tup.o1;
                     assertNotNull(m);
+                }
+                return true;
+            }
+        });
+        
+    }
+    
+    
+    public void testErrorHandled18() {
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer arg) {
+                String s = "" +
+                "def m2():\n" +
+                "    ret.SetName('Eval of: %s where: %s' % (expression, '%s=%s' %(key, val.GetName()) for (key, val) in variable_to_gf.iteritems()))\n" +
+                "\n" +
+                "";
+                
+                if(arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5 || arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6){
+                    parseLegalDocStr(s);
+                    
+                }else{
+                    Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+                    Module m = (Module) tup.o1;
+                    assertNotNull(m);
+                    tup.o2.printStackTrace();
+                    assertTrue(tup.o2.getMessage().indexOf("Internal error:java.lang.ClassCastException") == -1);
                 }
                 return true;
             }
