@@ -679,14 +679,15 @@ public class InterpreterInfo implements IInterpreterInfo{
         if(win32){
             key = key.toUpperCase();
         }
-        if(key.equals("PYTHONPATH")){
-            final String msg = "Ignoring PYTHONPATH specified in the interpreter info.\n" +
+        final String keyPlatformDependent = key;
+        if(keyPlatformDependent.equals("PYTHONPATH") || keyPlatformDependent.equals("CLASSPATH")){
+            final String msg = "Ignoring "+keyPlatformDependent+" specified in the interpreter info.\n" +
             "It's managed depending on the project and other configurations and cannot be directly specified in the interpreter.";
             try {
                 RunInUiThread.async(new Runnable(){
                     public void run() {
                         MessageBox message = new MessageBox(PyAction.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-                        message.setText("Ignoring PYTHONPATH");
+                        message.setText("Ignoring "+keyPlatformDependent);
                         message.setMessage(msg);
                         message.open();
                     }

@@ -5,6 +5,8 @@
  */
 package org.python.pydev.ui.editors;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -21,6 +23,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -146,10 +149,10 @@ public class TreeWithAddRemove extends Composite{
                     dialog.setFilterPath(lastFileDialogPath);
                     dialog.open();
                     String[] fileNames = dialog.getFileNames();
+                    String parent = dialog.getFilterPath();
                     if(fileNames != null && fileNames.length > 0){
-                        lastFileDialogPath = fileNames[0];
                         for(String s:fileNames){
-                            addTreeItem(s);
+                            addTreeItem(REF.getFileAbsolutePath(new File(parent, s)));
                         }
                     }
                     

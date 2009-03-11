@@ -117,6 +117,7 @@ public abstract class SimpleRunner {
             Map<String,String> env = getDefaultSystemEnv(defaultPlugin);        
     
             env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
+            env.put("CLASSPATH", pythonPathEnvStr); //put the environment
             return getMapEnvAsArray(env);
         }else{
             //should only happen in tests.
