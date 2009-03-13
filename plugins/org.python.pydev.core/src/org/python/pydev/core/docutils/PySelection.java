@@ -25,7 +25,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -916,22 +915,49 @@ public class PySelection {
         return null;
     }
     
-    public Tuple3<String, String, String> getPreviousLineThatStartsScope() {
+    public LineStartingScope getPreviousLineThatStartsScope() {
         return getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, true);
     }
     
+    public LineStartingScope getPreviousLineThatStartsScope(String [] indentTokens, boolean considerCurrentLine) {
+        int lineToStart=-1;
+        if(!considerCurrentLine){
+            lineToStart = getCursorLine()-1;
+        }
+        return getPreviousLineThatStartsScope(indentTokens, lineToStart);
+    }
+    
+    public static class LineStartingScope{
+        
+        public final String lineStartingScope;
+        public final String lineWithDedentWhileLookingScope;
+        public final String lineWithLowestIndent;
+        public final int iLineStartingScope;
+        
+        public LineStartingScope(String lineStartingScope, String lineWithDedentWhileLookingScope,
+                String lineWithLowestIndent, int iLineStartingScope) {
+            this.lineStartingScope = lineStartingScope;
+            this.lineWithDedentWhileLookingScope = lineWithDedentWhileLookingScope;
+            this.lineWithLowestIndent = lineWithLowestIndent;
+            this.iLineStartingScope = iLineStartingScope;
+        }
+    }
+    
     /**
+     * @param lineToStart: if -1, it'll start at the current line.
+     * 
      * @return a tuple with:
      * - the line that starts the new scope 
      * - a String with the line where some dedent token was found while looking for that scope.
      * - a string with the lowest indent (null if none was found)
      */
-    public Tuple3<String, String, String> getPreviousLineThatStartsScope(String [] indentTokens, boolean considerCurrentLine) {
-        DocIterator iterator = new DocIterator(false, this);
-        if(considerCurrentLine){
+    public LineStartingScope getPreviousLineThatStartsScope(
+            String [] indentTokens, int lineToStart) {
+        final DocIterator iterator;
+        if(lineToStart == -1){
             iterator = new DocIterator(false, this);
         }else{
-            iterator = new DocIterator(false, this, getCursorLine()-1, false);
+            iterator = new DocIterator(false, this, lineToStart, false);
         }
         
         String foundDedent = null;
@@ -945,7 +971,7 @@ public class PySelection {
             for (String dedent : indentTokens) {
                 if(trimmed.startsWith(dedent)){
                     if(isCompleteToken(trimmed, dedent)){
-                        return new Tuple3<String, String, String>(line, foundDedent, lowestStr);
+                        return new LineStartingScope(line, foundDedent, lowestStr, iterator.getLastReturnedLine());
                     }
                 }
             }
