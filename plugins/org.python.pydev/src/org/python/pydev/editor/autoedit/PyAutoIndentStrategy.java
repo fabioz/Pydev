@@ -13,13 +13,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.NoPeerAvailableException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyAction;
 
@@ -139,16 +139,16 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @return the text for the indent 
      */
     private String indentBasedOnStartingScope(String text, PySelection selection, boolean checkForLowestBeforeNewScope) {
-        Tuple3<String,String, String> previousIfLine = selection.getPreviousLineThatStartsScope();
+        LineStartingScope previousIfLine = selection.getPreviousLineThatStartsScope();
         if(previousIfLine != null){
             String initial = getCharsBeforeNewLine(text);
             
-            if(previousIfLine.o2 == null){ //no dedent was found
-                String indent = PySelection.getIndentationFromLine(previousIfLine.o1);
+            if(previousIfLine.lineWithDedentWhileLookingScope == null){ //no dedent was found
+                String indent = PySelection.getIndentationFromLine(previousIfLine.lineStartingScope);
 
-                if(checkForLowestBeforeNewScope && previousIfLine.o3 != null){
+                if(checkForLowestBeforeNewScope && previousIfLine.lineWithLowestIndent != null){
                     
-                    indent = PySelection.getIndentationFromLine(previousIfLine.o3);
+                    indent = PySelection.getIndentationFromLine(previousIfLine.lineWithLowestIndent);
                     text = initial + indent;
                     
                 }else{
@@ -158,7 +158,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                 }
                 
             }else{ //some dedent was found
-                String indent = PySelection.getIndentationFromLine(previousIfLine.o2);
+                String indent = PySelection.getIndentationFromLine(previousIfLine.lineWithDedentWhileLookingScope);
                 String indentationString = prefs.getIndentationString();
                 
                 final int i = indent.length() - indentationString.length();
@@ -391,7 +391,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                  */
                 autoDedentElif(document, command);
 
-                customizeParenthesis(document, command);
+                customizeParenthesis(document, command, false);
 
             }
                 
@@ -431,6 +431,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                         StringUtils.leftTrim(completeLine).startsWith("from ")&& 
                        !completeLine.startsWith("import ")&& 
                        !completeLine.endsWith(" import") &&
+                       !lineToCursor.endsWith(" import") &&
                        !lineContentsFromCursor.startsWith("import")){
                         
                         String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor, false).importsTipperStr;
@@ -484,7 +485,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         }
     }
 
-    public void customizeParenthesis(IDocument document, DocumentCommand command) throws BadLocationException {
+    public void customizeParenthesis(IDocument document, DocumentCommand command, boolean considerOnlyCurrentLine) throws BadLocationException {
         if(prefs.getAutoParentesis()){
             PySelection ps = new PySelection(document, command.offset);
             String line = ps.getLine();
@@ -517,14 +518,42 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                         }else{
                             
                             boolean addRegular = true;
-                            Tuple3<String, String, String> scopeStart = ps.getPreviousLineThatStartsScope(PySelection.CLASS_AND_FUNC_TOKENS, false);
-                            if(scopeStart != null){
-                                if(scopeStart.o1 != null && scopeStart.o1.indexOf("def ") != -1){
-                                    int iCurrDef = PySelection.getFirstCharPosition(line);
-                                    int iPrevDef = PySelection.getFirstCharPosition(scopeStart.o1);
-                                    if(iCurrDef > iPrevDef){
-                                        addRegular = false;
-                                        
+                            if(!considerOnlyCurrentLine){
+                                //ok, also analyze the scope we're in (otherwise, if we only have the current line
+                                //that's the best guess we can give).
+                                LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(
+                                        PySelection.CLASS_AND_FUNC_TOKENS, false);
+                                
+                                if(scopeStart != null){
+                                    if(scopeStart.lineStartingScope != null && scopeStart.lineStartingScope.indexOf("def ") != -1){
+                                        int iCurrDef = PySelection.getFirstCharPosition(line);
+                                        int iPrevDef = PySelection.getFirstCharPosition(scopeStart.lineStartingScope);
+                                        if(iCurrDef > iPrevDef){
+                                            addRegular = false;
+                                            
+                                        }else if(iCurrDef == iPrevDef){
+                                            if(scopeStart.lineStartingScope.indexOf("self") == -1){
+                                                //only add self if the one in the same level also has it.
+                                                //with a 'gotcha': if it's a classmethod or staticmethod, we
+                                                //should still add it.
+                                                if(scopeStart.iLineStartingScope <= 0){
+                                                    addRegular = false;
+                                                }else{
+                                                    addRegular = false;
+                                                    int i = scopeStart.iLineStartingScope-1;
+                                                    String line2;
+                                                    do{
+                                                        line2 = ps.getLine(i).trim();
+                                                        i--;
+                                                        if(line2.startsWith("@classmethod") || line2.startsWith("@staticmethod")){
+                                                            addRegular = true;
+                                                            break;
+                                                        }
+                                                    }while(line2.startsWith("@")); //check all the available decorators...
+                                                    
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

@@ -25,7 +25,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testTab3();
+            s.testAutoSelf2();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1177,6 +1177,38 @@ public class PyAutoIndentStrategyTest extends TestCase {
         
     }
     
+    public void testAutoSelf1() {
+        strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+        String doc = "" +
+                "def m1():\n" +
+                "    def m2():\n" +
+                "        pass\n" +
+                "    def m2" +
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "():";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    
+    public void testAutoSelf2() {
+        strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+        String doc = "" +
+        "class A:\n" +
+        "\n" +
+        "    @staticmethod\n" +
+        "    def m2():\n" +
+        "        pass\n" +
+        "    def m2" +
+        "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "(self):";
+        assertEquals(expected, docCmd.text);
+    }
+
+    
     public void testAutoCls() {
         TestIndentPrefs testIndentPrefs = new TestIndentPrefs(false, 4, true);
         strategy.setIndentPrefs(testIndentPrefs);
@@ -1665,6 +1697,16 @@ public class PyAutoIndentStrategyTest extends TestCase {
         String expected = " ";
         assertEquals(expected, docCmd.text);
     }
+    
+    public void testAutoImportStr3() {
+        strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+        String doc = "from oooo importFooo";
+        DocCmd docCmd = new DocCmd(doc.length()-"Fooo".length(), 0, " ");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = " ";
+        assertEquals(expected, docCmd.text);
+    }
+    
     
     public void testAutoImportStr() {
         strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
