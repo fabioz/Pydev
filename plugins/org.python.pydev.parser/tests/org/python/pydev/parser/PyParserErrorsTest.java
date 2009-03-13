@@ -528,7 +528,6 @@ public class PyParserErrorsTest extends PyParserTestBase {
                     Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
                     Module m = (Module) tup.o1;
                     assertNotNull(m);
-                    tup.o2.printStackTrace();
                     assertTrue(tup.o2.getMessage().indexOf("Internal error:java.lang.ClassCastException") == -1);
                 }
                 return true;
