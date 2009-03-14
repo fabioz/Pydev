@@ -17,6 +17,8 @@ import org.python.pydev.core.structure.FastStringBuffer;
 
 public class StringUtils {
 
+    public static final Object EMPTY = "";
+
     /**
      * Formats a string, replacing %s with the arguments passed.
      * 
