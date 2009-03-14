@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -11,10 +12,11 @@ import junit.framework.TestCase;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.navigator.PipelinedViewerUpdate;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFolder;
@@ -22,6 +24,7 @@ import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
 
+@SuppressWarnings("unchecked")
 public class PythonModelProviderTest extends TestCase {
 
 
@@ -29,11 +32,11 @@ public class PythonModelProviderTest extends TestCase {
         try {
             PythonModelProviderTest test = new PythonModelProviderTest();
             test.setUp();
-            test.testFolderToSourceFolder2();
+            test.testWorkingSetsTopLevel();
             test.tearDown();
             System.out.println("OK");
             
-//            junit.textui.TestRunner.run(PythonModelProviderTest.class);
+            junit.textui.TestRunner.run(PythonModelProviderTest.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -517,6 +520,71 @@ public class PythonModelProviderTest extends TestCase {
             f2.delete();
             f1.delete();
             f.delete();
+        }
+    }
+    
+    
+    public void testWorkingSetsTopLevel() throws Exception {
+        final HashSet<String> pythonPathSet = new HashSet<String>();
+        pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"); //root is the source
+        PythonNature nature = createNature(pythonPathSet);
+        
+        
+        WorkspaceRootStub workspaceRootStub = new WorkspaceRootStub();
+        project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot"), nature);
+        workspaceRootStub.addChild(project);
+        project.setParent(workspaceRootStub);
+        
+        ICallback<List<IWorkingSet>, IWorkspaceRoot> original = PythonModelProvider.getWorkingSetsCallback;
+        try{
+            final WorkingSetStub workingSetStub = new WorkingSetStub();
+            PythonModelProvider.getWorkingSetsCallback = new ICallback<List<IWorkingSet>, IWorkspaceRoot>(){
+            
+                public List<IWorkingSet> call(IWorkspaceRoot arg) {
+                    ArrayList<IWorkingSet> ret = new ArrayList<IWorkingSet>();
+                    ret.add(workingSetStub);
+                    return ret;
+                }
+            };
+            
+            provider = new PythonModelProvider();
+            provider.topLevelChoice.rootMode = TopLevelProjectsOrWorkingSetChoice.WORKING_SETS;
+            
+            
+            //--- check children for the workspace (projects changed for working sets)
+            HashSet<Object> currentChildren = new HashSet<Object>();
+            currentChildren.add(project); //the project is changed for the workspace.
+            provider.getPipelinedChildren(workspaceRootStub, currentChildren);
+            
+            HashSet<Object> expectedChildren = new HashSet<Object>();
+            expectedChildren.add(workingSetStub);
+            assertEquals(expectedChildren, currentChildren);
+            
+            
+            
+            //--- now, check if we're able to get the children of the working set.
+            workingSetStub.addElement(project);
+            
+            currentChildren = new HashSet<Object>();
+            provider.getPipelinedChildren(workingSetStub, currentChildren);
+            
+            expectedChildren = new HashSet<Object>();
+            expectedChildren.add(project);
+            assertEquals(expectedChildren, currentChildren);
+            
+            //--- and at last, do it the other way around: from the children of a working set we must be able to
+            //get the working set
+            currentChildren = new HashSet<Object>();
+            //the project has the workspace root as its 'default' parent. Let's change it for the working set
+            //just a note: working sets can have many elements as their direct children (such as folders and files)
+            //so, it's not just a matter of getting the parent if it's a project)!!!
+            assertEquals(workingSetStub, provider.getPipelinedParent(project, workspaceRootStub));
+            
+            assertEquals(workingSetStub, provider.getParent(project));
+            
+            
+        }finally{
+            PythonModelProvider.getWorkingSetsCallback = original;
         }
     }
     

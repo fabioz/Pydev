@@ -1,5 +1,7 @@
 package org.python.pydev.navigator;
 
+import static org.python.pydev.navigator.PythonModelProvider.DEBUG;
+
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IProject;
@@ -24,8 +26,6 @@ import org.python.pydev.plugin.PydevPlugin;
  * This class saves and restores the expanded and selected items in the tree.
  */
 public class PyPackageStateSaver {
-    
-    private static final boolean DEBUG = false;
     
     private PythonModelProvider provider;
     private Viewer viewer;

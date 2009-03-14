@@ -15,10 +15,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.ui.IMemento;
-import org.eclipse.ui.navigator.ICommonContentExtensionSite;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.navigator.IPipelinedTreeContentProvider;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.navigator.PipelinedViewerUpdate;
@@ -46,8 +47,6 @@ import org.python.pydev.plugin.nature.PythonNature;
  */
 public class PythonModelProvider extends PythonBaseModelProvider implements IPipelinedTreeContentProvider {
 
-    private static final boolean DEBUG = false;
-
     
     /**
      * This method basically replaces all the elements for other resource elements
@@ -58,18 +57,40 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     @SuppressWarnings("unchecked")
     public void getPipelinedChildren(Object parent, Set currentElements) {
         if(DEBUG){
-            System.out.println("getPipelinedChildren");
+            System.out.println("getPipelinedChildren for: "+parent);
         }
         
         if(parent instanceof IWrappedResource){
             Object[] children = getChildren(parent);
             currentElements.clear();
             currentElements.addAll(Arrays.asList(children));
+            if(DEBUG){
+                System.out.println("getPipelinedChildren RETURN: "+currentElements);
+            }
             return;
-        }
-        
+            
+        } else if(parent instanceof IWorkspaceRoot){
+            switch (topLevelChoice.getRootMode()) {
+                case TopLevelProjectsOrWorkingSetChoice.WORKING_SETS :
+                    currentElements.clear();
+                    currentElements.addAll(getWorkingSetsCallback.call((IWorkspaceRoot) parent));
+                case TopLevelProjectsOrWorkingSetChoice.PROJECTS :
+                    //Just go on...
+            }
+            
+            
+        } else if(parent instanceof IWorkingSet){
+            if (parent instanceof IWorkingSet) {
+                IWorkingSet workingSet = (IWorkingSet) parent;
+                currentElements.clear();
+                currentElements.addAll(Arrays.asList(workingSet.getElements()));
+            }
+        }        
         PipelinedShapeModification modification = new PipelinedShapeModification(parent, currentElements);
         convertToPythonElementsAddOrRemove(modification, true);
+        if(DEBUG){
+            System.out.println("getPipelinedChildren RETURN: "+modification.getChildren());
+        }
     }
 
     /**
@@ -81,7 +102,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
     @SuppressWarnings("unchecked")
     public void getPipelinedElements(Object input, Set currentElements) {
         if(DEBUG){
-            System.out.println("getPipelinedElements");
+            System.out.println("getPipelinedElements for: "+input);
         }
         getPipelinedChildren(input, currentElements);
     }
@@ -94,14 +115,24 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      */
     public Object getPipelinedParent(Object object, Object aSuggestedParent) {
         if(DEBUG){
-            System.out.println("getPipelinedParent");
+            System.out.println("getPipelinedParent for: "+object);
         }
-        if (object instanceof IWrappedResource){
+        //Now, we got the parent for the resources correctly at this point, but there's one last thing we may need to
+        //do: the actual parent may be a working set!
+        Object p = this.topLevelChoice.getWorkingSetParentIfAvailable(object, getWorkingSetsCallback);
+        if(p != null){
+            aSuggestedParent = p;
+            
+        } else if (object instanceof IWrappedResource){
             IWrappedResource resource = (IWrappedResource) object;
             Object parentElement = resource.getParentElement();
             if(parentElement != null){
-                return parentElement;
+                aSuggestedParent = parentElement;
             }
+        }
+        
+        if(DEBUG){
+            System.out.println("getPipelinedParent RETURN: "+aSuggestedParent);
         }
         return aSuggestedParent;
     }
@@ -170,9 +201,6 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         for(Object o:modification.getChildren()){
             System.out.println(o);
         }
-    }
-
-    public void init(ICommonContentExtensionSite aConfig) {
     }
 
     
@@ -407,7 +435,6 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      * @param child the object that should be wrapped
      * @return the object as an object from the python model
      */
-    @SuppressWarnings("unchecked")
     protected IWrappedResource doWrap(Object parent, PythonSourceFolder pythonSourceFolder, Object child) {
         if (child instanceof IProject){
             //ok, let's see if the child is a source folder (as the default project can be the actual source folder)

@@ -16,6 +16,7 @@ import org.python.pydev.navigator.elements.IWrappedResource;
  * 
  * @author Fabio
  */
+@SuppressWarnings("unchecked")
 public class ModelAdapter implements IAdapterFactory{
 
     public Object getAdapter(Object adaptableObject, Class adapterType) {

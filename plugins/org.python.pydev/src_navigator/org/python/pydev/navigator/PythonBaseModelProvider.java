@@ -7,6 +7,7 @@ package org.python.pydev.navigator;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,6 +25,8 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
@@ -33,7 +36,10 @@ import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
+import org.eclipse.ui.navigator.ICommonContentExtensionSite;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -48,6 +54,7 @@ import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonResource;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
+import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
@@ -84,16 +91,49 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     /**
      * This is the viewer that we're using to see the contents of this file provider.
      */
-    protected Viewer viewer;
+    protected PydevCommonViewer viewer;
     
+    /**
+     * This is the helper we have to know if the top-level elements shoud be working sets or only projects.
+     */
+    protected final TopLevelProjectsOrWorkingSetChoice topLevelChoice;
+
+    private ICommonContentExtensionSite aConfig;
+    
+    
+    public static final boolean DEBUG = false;
+    
+    /**
+     * This callback should return the working sets available.
+     * 
+     * It's done this way (and not final) because we want to mock it on tests.
+     */
+    protected static ICallback<List<IWorkingSet>, IWorkspaceRoot> getWorkingSetsCallback = 
+        new ICallback<List<IWorkingSet>, IWorkspaceRoot>(){
+            public List<IWorkingSet> call(IWorkspaceRoot arg) {
+                return Arrays.asList(PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSets());
+            }
+        };
+
+    
+
     /**
      * Constructor... registers itself as a python nature listener
      */
     public PythonBaseModelProvider(){
         PythonNatureListenersManager.addPythonNatureListener(this);
+        //just leave it created
+        topLevelChoice = new TopLevelProjectsOrWorkingSetChoice();
     }
     
-    public static final boolean DEBUG = false;
+    
+    /**
+     * Initializes the viewer and the choice for top-level elements.
+     */
+    public void init(ICommonContentExtensionSite aConfig) {
+        this.aConfig = aConfig;
+    }
+    
     
     /**
      * Notification received when the pythonpath has been changed or rebuilt.
@@ -226,6 +266,42 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         return new HashSet<PythonSourceFolder>();
     }
     
+    
+
+    /**
+     * @return the parent for some element.
+     */
+    public Object getParent(Object element) {
+        if(DEBUG){
+            System.out.println("getParent for: "+element);
+        }
+
+        Object parent = null;
+        //Now, we got the parent for the resources correctly at this point, but there's one last thing we may need to
+        //do: the actual parent may be a working set!
+        Object p = this.topLevelChoice.getWorkingSetParentIfAvailable(element, getWorkingSetsCallback);
+        if(p != null){
+            parent = p;
+            
+        }else if(element instanceof IWrappedResource) {
+            // just return the parent
+            IWrappedResource resource = (IWrappedResource) element;
+            parent = resource.getParentElement();
+            
+        }else if(element instanceof IWorkingSet){
+            parent = ResourcesPlugin.getWorkspace().getRoot();
+        }
+
+        if(parent == null){
+            parent = super.getParent(element);
+        }
+        if(DEBUG){
+            System.out.println("getParent RETURN: "+parent);
+        }
+        return parent;
+    }
+
+    
     /**
      * @return whether there are children for the given element. Note that there is 
      * an optimization in this method, so that it works correctly for elements that 
@@ -269,7 +345,11 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * 
      * @return the children for some element (IWrappedResource or IResource)
      */
+    @Override
     public Object[] getChildren(Object parentElement) {
+        if(DEBUG){
+            System.out.println("getChildren for: "+parentElement);
+        }
         Object[] childrenToReturn = null;
         
         if(parentElement instanceof IWrappedResource){
@@ -277,13 +357,31 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             childrenToReturn = getChildrenForIWrappedResource((IWrappedResource) parentElement);
             
             
-        } else if(parentElement instanceof IResource || parentElement instanceof IWorkingSet){
+        } else if(parentElement instanceof IResource){
             // now, this happens if we're not below a python model(so, we may only find a source folder here)
             childrenToReturn = getChildrenForIResourceOrWorkingSet(parentElement);
+            
+        } else if(parentElement instanceof IWorkspaceRoot){
+            switch (topLevelChoice.getRootMode()) {
+                case TopLevelProjectsOrWorkingSetChoice.WORKING_SETS :
+                    return PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSets();
+                case TopLevelProjectsOrWorkingSetChoice.PROJECTS :
+                    //Just go on...
+            }
+            
+            
+        } else if(parentElement instanceof IWorkingSet){
+            if (parentElement instanceof IWorkingSet) {
+                IWorkingSet workingSet = (IWorkingSet) parentElement;
+                childrenToReturn = workingSet.getElements();
+            }
         }
         
         if(childrenToReturn == null){
-            return EMPTY;
+            childrenToReturn = EMPTY;
+        }
+        if(DEBUG){
+            System.out.println("getChildren RETURN: "+childrenToReturn);
         }
         return childrenToReturn;
     }
@@ -511,18 +609,6 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         return ret.toArray();
     }
     
-    /**
-     * @return the parent for some element.
-     */
-    public Object getParent(Object element) {
-        if (element instanceof IWrappedResource) {
-            // just return the parent
-            IWrappedResource resource = (IWrappedResource) element;
-            return resource.getParentElement();
-        }
-        return super.getParent(element);
-    }
-
 
     /**
      * @param parentElement this is the elements returned
@@ -568,10 +654,22 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                 }
             }
             
-            PythonNatureListenersManager.removePythonNatureListener(this);
         }catch (Exception e) {
             PydevPlugin.log(e);
         }
+        
+        try {
+            PythonNatureListenersManager.removePythonNatureListener(this);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+        
+        try {
+            this.topLevelChoice.dispose();
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+
         
         try{
             super.dispose();
@@ -587,7 +685,12 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         super.inputChanged(viewer, oldInput, newInput);
 
-        this.viewer = viewer;
+        this.viewer = (PydevCommonViewer) viewer;
+       
+        //whenever the input changes, we must reconfigure the top level choice
+        topLevelChoice.init(aConfig, this.viewer.getPydevPackageExplorer());
+
+        
         IWorkspace[] oldWorkspace = null;
         IWorkspace[] newWorkspace = null;
 
@@ -844,7 +947,6 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         final boolean hasRename = numMovedFrom > 0 && numMovedTo > 0;
 
         Runnable addAndRemove = new Runnable() {
-            @SuppressWarnings("unchecked")
             public void run() {
                 if (viewer instanceof AbstractTreeViewer) {
                     AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;

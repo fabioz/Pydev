@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -38,6 +39,7 @@ import org.python.pydev.plugin.PydevPlugin;
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
  * the resources as python elements.
  */
+@SuppressWarnings("restriction")
 public class PydevPackageExplorer extends CommonNavigator implements IShowInTarget {
 
     /**
@@ -50,9 +52,56 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
          */
         public boolean availableToRestoreMemento = false;
         
-        public PydevCommonViewer(String id, Composite parent, int style) {
-            super(id, parent, style);
+        /**
+         * This is the pydev package explorer
+         */
+        private PydevPackageExplorer pydevPackageExplorer;
+        
+        public PydevPackageExplorer getPydevPackageExplorer() {
+            return pydevPackageExplorer;
         }
+        
+        public PydevCommonViewer(String id, Composite parent, int style, PydevPackageExplorer pydevPackageExplorer) {
+            super(id, parent, style);
+            this.pydevPackageExplorer = pydevPackageExplorer;
+            
+            //We need to be able to compare actual resources and IWrappedResources
+            //as if they were the same thing.
+            setComparer(new IElementComparer(){
+            
+                public int hashCode(Object element) {
+                    if(element instanceof IWrappedResource){
+                        IWrappedResource wrappedResource = (IWrappedResource) element;
+                        return wrappedResource.getActualObject().hashCode();
+                    }
+                    return element.hashCode();
+                }
+            
+                public boolean equals(Object a, Object b) {
+                    if(a instanceof IWrappedResource){
+                        IWrappedResource wrappedResource = (IWrappedResource) a;
+                        a = wrappedResource.getActualObject();
+                    }
+                    if(b instanceof IWrappedResource){
+                        IWrappedResource wrappedResource = (IWrappedResource) b;
+                        b = wrappedResource.getActualObject();
+                    }
+                    if(a == null){
+                        if(b == null){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    }
+                    if(b == null){
+                        return false;
+                    }
+                    
+                    return a.equals(b);
+                }
+            });
+        }
+        
         
         /**
          * Returns the tree path for the given item.
@@ -98,7 +147,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     @Override
     protected CommonViewer createCommonViewer(Composite aParent) {
         //super.createCommonViewer(aParent); -- don't even call the super class
-        CommonViewer aViewer = new PydevCommonViewer(getViewSite().getId(), aParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+        CommonViewer aViewer = new PydevCommonViewer(getViewSite().getId(), aParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, this);
         initListeners(aViewer);
         
         //commented: we do that only after the part is completely created (because otherwise the state is reverted later)
@@ -190,6 +239,7 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      * @param element the element that should be gotten as an element from the pydev model
      * @return a pydev element or the same element passed as a parameter.
      */
+    @SuppressWarnings("unchecked")
     private Object getPythonModelElement(Object element) {
         if(element instanceof IWrappedResource){
             return element;

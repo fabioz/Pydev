@@ -3,6 +3,9 @@ package org.python.pydev.navigator.elements;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IContributorResourceAdapter;
+import org.python.pydev.core.FullRepIterable;
+
+import com.sun.org.apache.xml.internal.utils.FastStringBuffer;
 
 /**
  * This class represents a resource that is wrapped for the python model.
@@ -81,4 +84,12 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
     }
 
 
+    public String toString() {
+        FastStringBuffer buf = new FastStringBuffer();
+        buf.append(FullRepIterable.getLastPart(super.toString())); //something as org.eclipse.ui.internal.WorkingSet@2813 will become WorkingSet@2813
+        buf.append(" (");
+        buf.append(this.getActualObject().toString());
+        buf.append(")");
+        return buf.toString();
+    }
 }

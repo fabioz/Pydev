@@ -1203,6 +1203,7 @@
          <triggerPoints>
              <or>
                 <instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
+                <instanceof value="org.eclipse.ui.IWorkingSet"/>
                 <and>
                    <instanceof value="org.eclipse.core.resources.IProject"/>
                    <test
@@ -1215,12 +1216,12 @@
                 <instanceof value="org.eclipse.core.resources.IFile"/>
                 <instanceof value="org.eclipse.core.resources.IResource"/>
                 <instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
-                <instanceof value="org.eclipse.ui.IWorkingSet"/>
             </or>
          </triggerPoints>
          <possibleChildren>
             <or>
                 <adapt type="org.eclipse.core.resources.IProject" />
+                <adapt type="org.eclipse.ui.IWorkingSet" />
                 <instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
                 <instanceof value="org.eclipse.core.resources.IFolder" />
                 <instanceof value="org.eclipse.core.resources.IStorage"/>

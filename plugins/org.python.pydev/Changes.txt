@@ -9,6 +9,11 @@ Console initial commands compatible with Python 3.0
 When waiting for user input, the prompt is not shown
 Star expr recognized in Python 3.0 grammar
 Fix getting args from docstring
+Better heuristic for automatic insertion of "self" and "import"
+Fixed problem configuring external jars
+Launch getting interpreter from project on default config
+Pydev package explorer can show working sets as top-level elements
+
 
 After 1.4.3
 
