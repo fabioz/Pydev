@@ -21,14 +21,18 @@ This script gathers the dependencies that Pydev has on Aptana, so that we can pr
 			<export srcUrl="${aptana.svn.pro.url}/plugins/com.aptana.ide.professional.licensing/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" destPath="${basedir}/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" />
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core/src/com/aptana/ide/core/URLEncoder.java" destPath="${basedir}/src/com/aptana/ide/core/URLEncoder.java" />
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" destPath="${basedir}/src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" />
+			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/Messages.java" destPath="${basedir}/src/com/aptana/ide/core/ui/preferences/Messages.java" />
+			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/messages.properties" destPath="${basedir}/src/com/aptana/ide/core/ui/preferences/messages.properties" />
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" destPath="${basedir}/src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" />
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.libraries/trialkey.jar" destPath="${basedir}/lib/trialkey.jar" />
 		</svn>
 		
-        <!-- We cannot compile with that dependency!! -->
-        <replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="String SWITCH_TO_APTANA_PRESPECTIVE" value="//String SWITCH_TO_APTANA_PRESPECTIVE"/>
-        <replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="import com.aptana.ide.core.ui.PerspectiveManager" value="//import com.aptana.ide.core.ui.PerspectiveManager"/>
-        <replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="import com.aptana.ide.core.ui.WebPerspectiveFactory" value="//import com.aptana.ide.core.ui.WebPerspectiveFactory"/>
+        <!-- Replace needed things to compile -->
+        <replace file="${basedir}/src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="String SWITCH_TO_APTANA_PRESPECTIVE" value="//String SWITCH_TO_APTANA_PRESPECTIVE"/>
+        <replace file="${basedir}/src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="import com.aptana.ide.core.ui.PerspectiveManager" value="//import com.aptana.ide.core.ui.PerspectiveManager"/>
+        <replace file="${basedir}/src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="import com.aptana.ide.core.ui.WebPerspectiveFactory" value="//import com.aptana.ide.core.ui.WebPerspectiveFactory"/>
+        <replace file="${basedir}/src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" token="import com.aptana.ide.core.StringUtils" value="import org.python.pydev.core.docutils.StringUtils"/>
+        <replace file="${basedir}/src/com/aptana/ide/core/URLEncoder.java" token="logError(Messages.URLEncoder_Cannot_Encode_URL + url, e);" value="logError(&quot;URLEncoder Cannot Encode URL&quot; + url, e);"/>
 
 	</target>
 </project>
