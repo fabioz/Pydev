@@ -76,8 +76,6 @@
             <export srcUrl="${aptana.svn.pro.url}/plugins/com.aptana.ide.professional.licensing/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" destPath="src/com/aptana/ide/professional/licensing/LicensingUtilities.java" />
             <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core/src/com/aptana/ide/core/URLEncoder.java" destPath="src/com/aptana/ide/core/URLEncoder.java" />
             <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" destPath="src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" />
-            <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/Messages.java" destPath="src/com/aptana/ide/core/ui/preferences/Messages.java" />
-            <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/messages.properties" destPath="src/com/aptana/ide/core/ui/preferences/messages.properties" />
             <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" destPath="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" />
             <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.libraries/trialkey.jar" destPath="lib/trialkey.jar" />
 		</svn>
@@ -88,6 +86,15 @@
         <replace file="src/com/aptana/ide/core/ui/preferences/IPreferenceConstants.java" token="import com.aptana.ide.core.ui.WebPerspectiveFactory" value="//import com.aptana.ide.core.ui.WebPerspectiveFactory"/>
         <replace file="src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" token="import com.aptana.ide.core.StringUtils" value="import org.python.pydev.core.docutils.StringUtils"/>
         <replace file="src/com/aptana/ide/core/URLEncoder.java" token="logError(Messages.URLEncoder_Cannot_Encode_URL + url, e);" value="logError(&quot;URLEncoder Cannot Encode URL&quot; + url, e);"/>
+		
+		<!-- Debugging: why is this failing? -->
+		<svn username="${svn.username}" password="${svn.password}" svnkit="true">
+            <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/Messages.java" destPath="src/com/aptana/ide/core/ui/preferences/Messages.java" />
+		</svn>
+		<svn username="${svn.username}" password="${svn.password}" svnkit="true">
+            <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/messages.properties" destPath="src/com/aptana/ide/core/ui/preferences/messages.properties" />
+		</svn>
+
 		
 	</target>
 
