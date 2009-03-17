@@ -49,6 +49,7 @@ import com.python.pydev.ui.search.FileMatch;
 import com.python.pydev.ui.search.LineElement;
 import com.python.pydev.ui.search.SearchMessages;
 
+@SuppressWarnings("restriction")
 public class ReplaceRefactoring extends Refactoring {
 	
 	private static class MatchGroup {
@@ -97,7 +98,8 @@ public class ReplaceRefactoring extends Refactoring {
 			return new RefactoringStatus();
 		}
 		
-		private Match[] getMatches() {
+        @SuppressWarnings("unchecked")
+        private Match[] getMatches() {
 			if (fMatches == null) {
 				ArrayList matches= new ArrayList();
 				for (int i= 0; i < fMatchGroups.length; i++) {
@@ -130,13 +132,15 @@ public class ReplaceRefactoring extends Refactoring {
 	private final Object[] fSelection;
 	private final boolean fSkipFiltered;
 	
-	private HashMap/*<IFile,Set<Match>*/ fMatches;
+	@SuppressWarnings("unchecked")
+    private HashMap/*<IFile,Set<Match>*/ fMatches;
 	
 	private String fReplaceString;
 	
 	private Change fChange;
 	
-	public ReplaceRefactoring(PythonFileSearchResult result, Object[] selection, boolean skipFiltered) {
+	@SuppressWarnings("unchecked")
+    public ReplaceRefactoring(PythonFileSearchResult result, Object[] selection, boolean skipFiltered) {
 		Assert.isNotNull(result);
 		
 		fResult= result;
@@ -185,7 +189,8 @@ public class ReplaceRefactoring extends Refactoring {
 		return new RefactoringStatus();
 	}
 	
-	private void collectMatches(Object object) throws CoreException {
+	@SuppressWarnings("unchecked")
+    private void collectMatches(Object object) throws CoreException {
 		if (object instanceof LineElement) {
 			LineElement lineElement= (LineElement) object;
 			FileMatch[] matches= lineElement.getMatches(fResult);
@@ -222,7 +227,8 @@ public class ReplaceRefactoring extends Refactoring {
 		return fMatches.keySet().size();
 	}
 	
-	public int getNumberOfMatches() {
+	@SuppressWarnings("unchecked")
+    public int getNumberOfMatches() {
 		int count= 0;
 		for (Iterator iterator= fMatches.values().iterator(); iterator.hasNext();) {
 			Collection bucket= (Collection) iterator.next();
@@ -239,7 +245,8 @@ public class ReplaceRefactoring extends Refactoring {
 		return !fSkipFiltered && match.isFiltered();
 	}
 	
-	private Collection getBucket(IFile file) {
+	@SuppressWarnings("unchecked")
+    private Collection getBucket(IFile file) {
 		Collection col= (Collection) fMatches.get(file);
 		if (col == null) {
 			col= new HashSet();
@@ -251,7 +258,8 @@ public class ReplaceRefactoring extends Refactoring {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ltk.core.refactoring.Refactoring#checkFinalConditions(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+	@SuppressWarnings("unchecked")
+    public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		if (fReplaceString == null) {
 			return RefactoringStatus.createFatalErrorStatus(SearchMessages.ReplaceRefactoring_error_no_replace_string);
 		}
@@ -307,7 +315,8 @@ public class ReplaceRefactoring extends Refactoring {
 		return resultingStatus;
 	}
 	
-	private void checkFilesToBeChanged(IFile[] filesToBeChanged, RefactoringStatus resultingStatus) throws CoreException {
+	@SuppressWarnings("unchecked")
+    private void checkFilesToBeChanged(IFile[] filesToBeChanged, RefactoringStatus resultingStatus) throws CoreException {
 		ArrayList readOnly= new ArrayList();
 		for (int i= 0; i < filesToBeChanged.length; i++) {
 			IFile file= filesToBeChanged[i];
@@ -327,7 +336,8 @@ public class ReplaceRefactoring extends Refactoring {
 		resultingStatus.merge(ResourceChangeChecker.checkFilesToBeChanged(filesToBeChanged, null));
 	}
 
-	private TextChange createFileChange(IFile file, Pattern pattern, Collection/*FileMatch*/ matches, RefactoringStatus resultingStatus, Collection matchGroups) throws PatternSyntaxException, CoreException {
+	@SuppressWarnings("unchecked")
+    private TextChange createFileChange(IFile file, Pattern pattern, Collection/*FileMatch*/ matches, RefactoringStatus resultingStatus, Collection matchGroups) throws PatternSyntaxException, CoreException {
 		PositionTracker tracker= InternalSearchUI.getInstance().getPositionTracker();
 		
 		TextFileChange change= new TextFileChange(Messages.format(SearchMessages.ReplaceRefactoring_group_label_change_for_file, file.getName()), file);
