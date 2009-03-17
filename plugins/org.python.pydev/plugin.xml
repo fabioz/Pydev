@@ -1080,6 +1080,21 @@
             name="Pydev Project"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>
+            
+      <!--
+      <wizard
+            canFinishEarly="false"
+            category="org.python.pydev.PythonCategory"
+            class="org.python.pydev.ui.wizards.gettingstarted.PythonGettingStartedWizard"
+            descriptionImage="icons/python_logo.png"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/mainfunction.gif"
+            id="org.python.pydev.ui.wizards.gettingstarted.PythonGettingStartedWizard"
+            name="Pydev Getting Started"
+            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            project="true"/>
+      -->
       <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"

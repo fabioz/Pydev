@@ -1,11 +1,12 @@
 package org.python.pydev.ui.wizards.project;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -13,24 +14,21 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
+import org.python.pydev.core.ICallback;
+import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.perspective.PythonPerspectiveFactory;
+import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
 
 /**
  * Python Project creation wizard
@@ -44,7 +42,7 @@ import org.python.pydev.ui.perspective.PythonPerspectiveFactory;
  * 
  * @author Mikko Ohtamaa
  */
-public class PythonProjectWizard extends Wizard implements INewWizard {
+public class PythonProjectWizard extends AbstractNewProjectWizard {
 
     /**
      * The workbench.
@@ -59,8 +57,6 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
     public static final String WIZARD_ID = "org.python.pydev.ui.wizards.project.PythonProjectWizard";
 
     IWizardNewProjectNameAndLocationPage projectPage;
-
-    WizardNewProjectReferencePage referencePage;
 
     Shell shell;
 
@@ -94,60 +90,6 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
         addProjectReferencePage();
     }
 
-    /**
-     * Adds the project references page to the wizard.
-     */
-    protected void addProjectReferencePage(){
-        // only add page if there are already projects in the workspace
-        if (ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0) {
-            referencePage = new WizardNewProjectReferencePage("Reference Page");
-            referencePage.setTitle("Reference page");
-            referencePage.setDescription("Select referenced projects");
-            this.addPage(referencePage);
-        }
-    }
-
-    /**
-     * Creates a project resource given the project handle and description.
-     * 
-     * @param description the project description to create a project resource for
-     * @param projectHandle the project handle to create a project resource for
-     * @param monitor the progress monitor to show visual progress with
-     * @param projectType
-     * @param projectInterpreter 
-     * 
-     * @exception CoreException if the operation fails
-     * @exception OperationCanceledException if the operation is canceled
-     */
-    private void createProject(IProjectDescription description, IProject projectHandle, IProgressMonitor monitor, 
-            String projectType, String projectInterpreter) throws CoreException, OperationCanceledException {
-        
-        try {
-            monitor.beginTask("", 2000); //$NON-NLS-1$
-
-            projectHandle.create(description, new SubProgressMonitor(monitor, 1000));
-
-            if (monitor.isCanceled()){
-                throw new OperationCanceledException();
-            }
-
-            projectHandle.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1000));
-
-            String projectPythonpath = null;
-            //also, after creating the project, create a default source folder and add it to the pythonpath.
-            if(projectPage.shouldCreatSourceFolder()){
-                IFolder folder = projectHandle.getFolder("src");
-                folder.create(true, true, monitor);
-            
-                projectPythonpath = folder.getFullPath().toString();
-            }
-            
-            //we should rebuild the path even if there's no source-folder (this way we will re-create the astmanager)
-            PythonNature.addNature(projectHandle, null, projectType, projectPythonpath, projectInterpreter);
-        } finally {
-            monitor.done();
-        }
-    }
 
     /**
      * Creates a new project resource with the entered name.
@@ -172,8 +114,9 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
         // update the referenced project if provided
         if (referencePage != null) {
             IProject[] refProjects = referencePage.getReferencedProjects();
-            if (refProjects.length > 0)
+            if (refProjects.length > 0){
                 description.setReferencedProjects(refProjects);
+            }
         }
 
         final String projectType = projectPage.getProjectType();
@@ -181,7 +124,20 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
         // define the operation to create a new project
         WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
             protected void execute(IProgressMonitor monitor) throws CoreException {
-                createProject(description, newProjectHandle, monitor, projectType, projectInterpreter);
+                
+                ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IFolder>, IProject>(){
+                
+                    public List<IFolder> call(IProject projectHandle) {
+                        if(projectPage.shouldCreatSourceFolder()){
+                            IFolder folder = projectHandle.getFolder("src");
+                            List<IFolder> ret = new ArrayList<IFolder>();
+                            ret.add(folder);
+                            return ret;
+                        }
+                        return null;
+                    }
+                };
+                PyStructureConfigHelpers.createPydevProject(description, newProjectHandle, monitor, projectType, projectInterpreter, getSourceFolderHandlesCallback, null);
             }
         };
 
@@ -223,7 +179,7 @@ public class PythonProjectWizard extends Wizard implements INewWizard {
         try {
             workbench.showPerspective(PythonPerspectiveFactory.PERSPECTIVE_ID, window);
         } catch (WorkbenchException we) {
-            we.printStackTrace();
+            PydevPlugin.log(we);
         }
 
         // TODO: If initial program skeleton is generated, open default file

@@ -443,7 +443,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
         }
         if(addNature){
             PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, 
-                    "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar", null);
+                    "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar", null, null);
         }
         return sourceFolder;
     }

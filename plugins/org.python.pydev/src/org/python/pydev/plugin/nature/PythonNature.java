@@ -279,7 +279,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                             if(monitor.isCanceled()){
                                 return Status.OK_STATUS;
                             }
-                            init(null, null, monitor, null);
+                            init(null, null, null, monitor, null);
                             synchronized (jobs) {
                                 if(jobs.get(project) == this){
                                     jobs.remove(project);
@@ -304,7 +304,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             IFile file = (IFile)((FileEditorInput)element).getAdapter(IFile.class);
             if (file != null){
                 try {
-                    return PythonNature.addNature(file.getProject(), null, null, null, null);
+                    return PythonNature.addNature(file.getProject(), null, null, null, null, null);
                 } catch (CoreException e) {
                     PydevPlugin.log(e);
                 }
@@ -371,8 +371,15 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * 
      * @param projectPythonpath: @see {@link IPythonPathNature#setProjectSourcePath(String)}
      */
-    public static synchronized IPythonNature addNature(IProject project, IProgressMonitor monitor, String version, 
-            String projectPythonpath, String projectInterpreter) throws CoreException {
+    public static synchronized IPythonNature addNature(
+            IProject project, 
+            IProgressMonitor monitor, 
+            String version, 
+            String projectPythonpath, 
+            String externalProjectPythonpath, 
+            String projectInterpreter
+        ) throws CoreException {
+        
         if (project == null || !project.isOpen()) {
             return null;
         }
@@ -416,7 +423,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         if (n instanceof PythonNature) {
             PythonNature nature = (PythonNature) n;
             //call initialize always - let it do the control.
-            nature.init(version, projectPythonpath, monitor, projectInterpreter);
+            nature.init(version, projectPythonpath, externalProjectPythonpath, monitor, projectInterpreter);
             return nature;
         }
         return null;
@@ -446,7 +453,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @param interpreter 
      */
     @SuppressWarnings("unchecked")
-    private void init(String version, String projectPythonpath, IProgressMonitor monitor, String interpreter) {
+    private void init(
+            String version, 
+            String projectPythonpath, 
+            String externalProjectPythonpath, 
+            IProgressMonitor monitor, 
+            String interpreter
+        ) {
+        
         if(version != null || projectPythonpath != null){
             this.getStore().startInit();
             try {

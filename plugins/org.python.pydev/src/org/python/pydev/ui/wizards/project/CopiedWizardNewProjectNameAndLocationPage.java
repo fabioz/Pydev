@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -39,7 +38,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.ui.PyProjectPythonDetails;
+import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectPage;
 import org.python.pydev.utils.ICallback;
 
 /**
@@ -58,9 +59,8 @@ import org.python.pydev.utils.ICallback;
  * Changed to add the details for the python project type 
  */
 
-public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implements SelectionListener,
-        IWizardNewProjectNameAndLocationPage
-{
+public class CopiedWizardNewProjectNameAndLocationPage extends AbstractNewProjectPage implements IWizardNewProjectNameAndLocationPage{
+    
     // Whether to use default or custom project location
     private boolean useDefaults = true;
 
@@ -141,7 +141,17 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         checkSrcFolder = new Button(composite , SWT.CHECK);
         checkSrcFolder.setText("Cr&eate default 'src' folder and add it to the pythonpath?");
         checkSrcFolder.setSelection(true);
-        checkSrcFolder.addSelectionListener(this);
+        checkSrcFolder.addSelectionListener(new SelectionListener(){
+        
+            public void widgetSelected(SelectionEvent e) {
+                if(e.widget == checkSrcFolder){
+                    checkSrcFolderSelected = checkSrcFolder.getSelection();
+                }
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
         
         validatePage();
 
@@ -338,8 +348,7 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
      * @return the new project resource handle
      */
     public IProject getProjectHandle() {
-        return ResourcesPlugin.getWorkspace().getRoot().getProject(
-                getProjectName());
+        return PyStructureConfigHelpers.getProjectHandle(getProjectName());
     }
 
     /**
@@ -518,13 +527,5 @@ public class CopiedWizardNewProjectNameAndLocationPage extends WizardPage implem
         return checkSrcFolderSelected;
     }
 
-    public void widgetSelected(SelectionEvent e) {
-        if(e.widget == checkSrcFolder){
-            checkSrcFolderSelected = checkSrcFolder.getSelection();
-        }
-    }
-
-    public void widgetDefaultSelected(SelectionEvent e) {
-    }
 
 }
