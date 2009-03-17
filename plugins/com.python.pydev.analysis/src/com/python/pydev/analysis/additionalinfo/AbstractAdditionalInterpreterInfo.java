@@ -271,11 +271,11 @@ public abstract class AbstractAdditionalInterpreterInfo {
     private void addAssignTargets(ASTEntry entry, String moduleName, boolean generateDelta, int doOn, String path, boolean lastIsMethod ) {
         String rep = NodeUtils.getFullRepresentationString(entry.node);
         if(lastIsMethod){
-            String[] parts = StringUtils.dotSplit(rep);
-            if(parts.length >= 2){
+            List<String> parts = StringUtils.dotSplit(rep);
+            if(parts.size() >= 2){
                 //at least 2 parts are required
-                if(parts[0].equals("self")){
-                    rep = parts[1];
+                if(parts.get(0).equals("self")){
+                    rep = parts.get(1);
                     addAttribute(rep, moduleName, generateDelta, doOn, path);
                 }
             }

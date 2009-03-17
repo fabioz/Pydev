@@ -1,5 +1,7 @@
 package com.python.pydev.analysis.ui;
 
+import java.util.List;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -49,12 +51,12 @@ public class AutoImportsPreferencesPage extends FieldEditorPreferencePage implem
     
     public static String removeImportsStartingWithUnderIfNeeded(String declPackageWithoutInit, FastStringBuffer buf) {
         if(doIgnoreImportsStartingWithUnder()){
-            String[] splitted = StringUtils.dotSplit(declPackageWithoutInit);
+            List<String> splitted = StringUtils.dotSplit(declPackageWithoutInit);
             
             boolean foundStartingWithoutUnder=false;
             buf.clear();
-            for (int i=splitted.length-1;i>=0;i--) {
-                String s=splitted[i];
+            for (int i=splitted.size()-1;i>=0;i--) {
+                String s=splitted.get(i);
                 if(!foundStartingWithoutUnder){
                     if(s.charAt(0) == '_'){
                         continue;
