@@ -167,21 +167,12 @@ class KeepAliveThread( Thread ):
         if sent == 0:
             sys.exit(0) #connection broken
         
-class T( Thread ):
+class Processor(object):
 
-    def __init__( self, thisP, serverP ):
-        Thread.__init__( self )
-        self.thisPort   = thisP
-        self.serverPort = serverP
-        self.socket = None #socket to send messages.
+    def __init__( self):
+      # nothing to do
+      return
         
-
-    def connectToServer( self ):
-        import socket
-        
-        self.socket = s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-        s.connect( ( HOST, self.serverPort ) )
-
     def removeInvalidChars( self, msg ):
         msg = str(msg)
         if msg:
@@ -219,11 +210,28 @@ class T( Thread ):
         
         return '%s(%s)%s'%( MSG_COMPLETIONS, ''.join( compMsg ), MSG_END )
     
+
+class T( Thread ):
+
+    def __init__( self, thisP, serverP ):
+        Thread.__init__( self )
+        self.thisPort   = thisP
+        self.serverPort = serverP
+        self.socket = None #socket to send messages.
+        self.processor = Processor()
+
+
+    def connectToServer( self ):
+        import socket
+
+        self.socket = s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+        s.connect( ( HOST, self.serverPort ) )
+
     def getCompletionsMessage( self, defFile, completionsList ):
         '''
         get message with completions.
         '''
-        return self.formatCompletionMessage( defFile, completionsList )
+        return self.processor.formatCompletionMessage( defFile, completionsList )
     
     def getTokenAndData( self, data ):
         '''

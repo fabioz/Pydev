@@ -49,7 +49,7 @@ public class CompiledModule extends AbstractModule{
     /**
      * These are the tokens the compiled module has.
      */
-    private Map<String, CompiledToken> tokens = null;
+    private Map<String, IToken> tokens = null;
     
     /**
      * A map with the definitions that have already been found for this compiled module.
@@ -99,20 +99,18 @@ public class CompiledModule extends AbstractModule{
                     }
                     setTokens(name, manager);
                 } catch (Exception e2) {
-                    tokens = new HashMap<String, CompiledToken>();
+                    tokens = new HashMap<String, IToken>();
                     e2.printStackTrace();
                     PydevPlugin.log(e2);
                 }
             }
-            if(tokens != null && tokens.size() > 0){
-                List<IModulesObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MODULES_OBSERVER);
-                for (IModulesObserver observer : participants) {
-                    observer.notifyCompiledModuleCreated(this, manager);
-                }
-            }
         }else{
             //not used if not enabled.
-            tokens = new HashMap<String, CompiledToken>();
+            tokens = new HashMap<String, IToken>();
+        }
+        List<IModulesObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MODULES_OBSERVER);
+        for (IModulesObserver observer : participants) {
+            observer.notifyCompiledModuleCreated(this, manager);
         }
 
     }
@@ -143,8 +141,7 @@ public class CompiledModule extends AbstractModule{
             }
             ArrayList<IToken> array = new ArrayList<IToken>();
             
-            for (Iterator<String[]> iter = completions.o2.iterator(); iter.hasNext();) {
-                String[] element = iter.next();
+            for (String[] element : completions.o2) {
                 //let's make this less error-prone.
                 try {
                     String o1 = element[0]; //this one is really, really needed
@@ -184,12 +181,26 @@ public class CompiledModule extends AbstractModule{
                 array.add(new CompiledToken("__builtins__","","",name,IToken.TYPE_BUILTIN));
             }
             
-            this.tokens = new HashMap<String, CompiledToken>();
-            for (IToken token : array) {
-                this.tokens.put(token.getRepresentation(), (CompiledToken) token);
-            } 
+            addTokens(array);
         }
     }
+
+    /**
+     * Adds tokens to the internal HashMap
+     * 
+     * @param array The array of tokens to be added (maps representation -> token), so, existing tokens with the
+     * same representation will be replaced.
+     */
+    public synchronized void addTokens(List<IToken> array) {
+        if (tokens == null) {
+            tokens = new HashMap<String, IToken>();
+        }
+
+        for (IToken token : array) {
+            this.tokens.put(token.getRepresentation(), token);
+        }
+    }
+    
     
     /**
      * Compiled modules do not have imports to be seen
@@ -215,7 +226,7 @@ public class CompiledModule extends AbstractModule{
             return new IToken[0];
         }
         
-        Collection<CompiledToken> values = tokens.values();
+        Collection<IToken> values = tokens.values();
         return values.toArray(new IToken[values.size()]);
     }
 
