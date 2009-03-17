@@ -521,8 +521,11 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                             if(!considerOnlyCurrentLine){
                                 //ok, also analyze the scope we're in (otherwise, if we only have the current line
                                 //that's the best guess we can give).
+                                int firstCharPosition = PySelection.getFirstCharPosition(line);
+                                
+                                
                                 LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(
-                                        PySelection.CLASS_AND_FUNC_TOKENS, false);
+                                        PySelection.CLASS_AND_FUNC_TOKENS, false, firstCharPosition);
                                 
                                 if(scopeStart != null){
                                     if(scopeStart.lineStartingScope != null && scopeStart.lineStartingScope.indexOf("def ") != -1){

@@ -916,15 +916,15 @@ public class PySelection {
     }
     
     public LineStartingScope getPreviousLineThatStartsScope() {
-        return getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, true);
+        return getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, true, Integer.MAX_VALUE);
     }
     
-    public LineStartingScope getPreviousLineThatStartsScope(String [] indentTokens, boolean considerCurrentLine) {
+    public LineStartingScope getPreviousLineThatStartsScope(String [] indentTokens, boolean considerCurrentLine, int mustHaveIndentLowerThan) {
         int lineToStart=-1;
         if(!considerCurrentLine){
             lineToStart = getCursorLine()-1;
         }
-        return getPreviousLineThatStartsScope(indentTokens, lineToStart);
+        return getPreviousLineThatStartsScope(indentTokens, lineToStart, mustHaveIndentLowerThan);
     }
     
     public static class LineStartingScope{
@@ -952,7 +952,7 @@ public class PySelection {
      * - a string with the lowest indent (null if none was found)
      */
     public LineStartingScope getPreviousLineThatStartsScope(
-            String [] indentTokens, int lineToStart) {
+            String [] indentTokens, int lineToStart, int mustHaveIndentLowerThan) {
         final DocIterator iterator;
         if(lineToStart == -1){
             iterator = new DocIterator(false, this);
@@ -971,7 +971,11 @@ public class PySelection {
             for (String dedent : indentTokens) {
                 if(trimmed.startsWith(dedent)){
                     if(isCompleteToken(trimmed, dedent)){
-                        return new LineStartingScope(line, foundDedent, lowestStr, iterator.getLastReturnedLine());
+                        if(PySelection.getFirstCharPosition(line) < mustHaveIndentLowerThan){
+                            return new LineStartingScope(line, foundDedent, lowestStr, iterator.getLastReturnedLine());
+                        }else{
+                            break; //we won't find any other because the indent is already wrong.
+                        }
                     }
                 }
             }
