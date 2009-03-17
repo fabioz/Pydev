@@ -48,8 +48,7 @@ public class PythonPackageWizard  extends AbstractPythonWizard {
         }
         IContainer parent = validatedSourceFolder;
         String validatedName = filePage.getValidatedName();
-        String[] packageParts = StringUtils.dotSplit(validatedName);
-        for (String packagePart : packageParts) {
+        for (String packagePart : StringUtils.dotSplit(validatedName)) {
             IFolder folder = parent.getFolder(new Path(packagePart));
             if(!folder.exists()){
                 folder.create(true, true, monitor);

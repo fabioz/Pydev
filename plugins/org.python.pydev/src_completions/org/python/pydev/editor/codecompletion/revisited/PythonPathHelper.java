@@ -273,10 +273,11 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
                         continue;
                     }
 
+                    final List<String> temp = StringUtils.dotSplit(s);
+                    String[] modulesParts = temp.toArray(new String[temp.size()]);
+
                     //this means that more than 1 module is specified, so, in order to get it,
                     //we have to go and see if all the folders to that module have __init__.py in it...
-                    String[] modulesParts = StringUtils.dotSplit(s);
-
                     if (modulesParts.length > 1 && isFile) {
                         String[] t = new String[modulesParts.length - 1];
 

@@ -125,8 +125,8 @@ public class PythonRunnerConfig {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get location for run", null));
         }
 
-        String[] locations = StringUtils.split(locationsStr, '|');
-        Path[] ret = new Path[locations.length];
+        List<String> locations = StringUtils.split(locationsStr, '|');
+        Path[] ret = new Path[locations.size()];
         int i = 0;
         for (String location : locations) {
             String expandedLocation = getStringVariableManager().performStringSubstitution(location);

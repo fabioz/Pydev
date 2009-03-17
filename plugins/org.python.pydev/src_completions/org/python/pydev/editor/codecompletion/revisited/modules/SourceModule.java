@@ -369,12 +369,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      */
     public IToken[] getGlobalTokens(ICompletionState initialState, ICodeCompletionASTManager manager) {
         String activationToken = initialState.getActivationToken();
-        int activationTokenLen = activationToken.length();
-        String[] actToks = StringUtils.dotSplit(activationToken);
+        final int activationTokenLen = activationToken.length();
+        final List<String> actToks = StringUtils.dotSplit(activationToken);
+        final int actToksLen = actToks.size();
         
         String goFor = null;
-        if(actToks.length > 0){
-            goFor = actToks[0];
+        if(actToksLen > 0){
+            goFor = actToks.get(0);
         }
         IToken[] t = getTokens(GlobalModelVisitor.GLOBAL_TOKENS, null, goFor);
         
@@ -389,7 +390,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 //some tests are available at: PythonCompletionTestWithoutBuiltins.testDeepNestedXXX
                 
                 int iActTok = 0;
-                if(actToks[iActTok].equals(rep)){
+                if(actToks.get(iActTok).equals(rep)){
                     //System.out.println("Now we have to find act..."+activationToken+"(which is a definition of:"+rep+")");
                     try {
                         Definition[] definitions;
@@ -400,7 +401,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                 break;
                             }
                             initialValue = value;
-                            if(iActTok > actToks.length){
+                            if(iActTok > actToksLen){
                                 break; //unable to find it
                             }
                             definitions = findDefinition(initialState.getCopyWithActTok(value), token.getLineDefinition(), token.getColDefinition()+1, manager.getNature());
@@ -412,7 +413,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col, manager.getNature());
                                 }else if(d.ast instanceof ClassDef){
                                     IToken[] toks = (IToken[]) ((SourceModule)d.module).getClassToks(initialState, manager, d.ast).toArray(EMPTY_ITOKEN_ARRAY);
-                                    if(iActTok == actToks.length-1){
+                                    if(iActTok == actToksLen-1){
                                         return toks;
                                     }
                                     value = d.value;
@@ -420,7 +421,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                 }else if (d.ast instanceof Name){
                                     ClassDef classDef = (ClassDef) d.scope.getClassDef();
                                     if(classDef != null){
-                                        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks[actToks.length-1], d.line, d.col, d.module);
+                                        FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(actToks.get(actToksLen-1), d.line, d.col, d.module);
                                         try {
                                             classDef.accept(visitor);
                                         } catch (StopVisitingException e) {
@@ -443,7 +444,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                                 return EMPTY_ITOKEN_ARRAY;
                                             }
                                             d = definitions2[0];
-                                            value = d.value+"."+actToks[actToks.length-1];
+                                            value = d.value+"."+actToks.get(actToksLen-1);
                                             if(d instanceof AssignDefinition){
                                                 return ((SourceModule)d.module).getValueCompletions(initialState, manager, value, d.module);
                                             }

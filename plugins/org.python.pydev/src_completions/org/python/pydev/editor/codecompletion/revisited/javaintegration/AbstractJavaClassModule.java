@@ -266,13 +266,12 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
         //try to see if that's a java class from a package... to do that, we must go iterating through the name found
         //to check if we're able to find modules with that name. If a module with that name is found, that means that 
         //we actually have a java class. 
-        String[] splitted = StringUtils.dotSplit(state.getActivationToken());
+        List<String> splitted = StringUtils.dotSplit(state.getActivationToken());
         FastStringBuffer modNameBuf = new FastStringBuffer(this.getName(), 128);
         IModule validModule = null;
         IModule module = null;
         int i = 0; //so that we know what will result in the tok
-        for (; i < splitted.length; i++) {
-            String s = splitted[i];
+        for (String s:splitted) {
             modNameBuf.append(".");
             modNameBuf.append(s);
             module = nature.getAstManager().getModule(modNameBuf.toString(), nature, true, false);
@@ -296,11 +295,11 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
             if (!(validModule instanceof AbstractJavaClassModule)) {
                 throw new RuntimeException("The module found from a java class module was found as another kind: " + validModule.getClass());
             }
-            for (int j = i; j < splitted.length; j++) {
+            for (int j = i; j < splitted.size(); j++) {
                 if (j != i) {
                     pathInJavaClass.append('.');
                 }
-                pathInJavaClass.append(splitted[j]);
+                pathInJavaClass.append(splitted.get(j));
             }
         }
 

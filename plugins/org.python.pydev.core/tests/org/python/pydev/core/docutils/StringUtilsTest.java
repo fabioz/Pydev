@@ -3,6 +3,8 @@
  */
 package org.python.pydev.core.docutils;
 
+import java.util.Arrays;
+
 import org.python.pydev.core.Tuple;
 
 import junit.framework.TestCase;
@@ -10,7 +12,15 @@ import junit.framework.TestCase;
 public class StringUtilsTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(StringUtilsTest.class);
+        try {
+            StringUtilsTest test = new StringUtilsTest();
+            test.setUp();
+            test.testSplitOnString();
+            test.tearDown();
+            junit.textui.TestRunner.run(StringUtilsTest.class);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     public void testFormat() {
@@ -74,6 +84,53 @@ public class StringUtilsTest extends TestCase {
         assertEquals(new Tuple<String, String>("aa", "bb.cc"), StringUtils.splitOnFirst("aa.bb.cc", '.'));
         assertEquals(new Tuple<String, String>("aa_bb_cc", ""), StringUtils.splitOnFirst("aa_bb_cc", '.'));
         
+    }
+    
+    public void testSplitOnString() throws Exception {
+        String[] split = StringUtils.split("aaa bb ccc bb kkk bb ", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "ccc", "kkk"}, split));
+        
+        split = StringUtils.split("aaa bb ccc bb kkk bb", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "ccc", "kkk bb"}, split));
+        
+        split = StringUtils.split("aaa bb ccc bb ", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "ccc"}, split));
+        
+        split = StringUtils.split(" bb aaa bb ccc bb ", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "ccc"}, split));
+        
+        split = StringUtils.split(" bb  bb ccc bb ", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"ccc"}, split));
+        
+        split = StringUtils.split("ccc", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"ccc"}, split));
+        
+        split = StringUtils.split("", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{}, split));
+        
+        split = StringUtils.split("a", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"a"}, split));
+        
+        split = StringUtils.split(" bb ", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{}, split));
+        
+        split = StringUtils.split(" bb b", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"b"}, split));
+        
+        split = StringUtils.split(" bb b bb", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"b bb"}, split));
+        
+        split = StringUtils.split(" bb b  bb ", " bb ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"b "}, split));
+        
+        split = StringUtils.split(" bb b  bb ", " bb2 ").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{" bb b  bb "}, split));
+        
+        split = StringUtils.split(" bb b  bb ", "b").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{" ", " ", "  ", " "}, split));
+        
+        split = StringUtils.split(" bb bb  bb ", "bb").toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{" ", " ", "  ", " "}, split));
     }
 }
 

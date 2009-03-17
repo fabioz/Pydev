@@ -91,12 +91,13 @@ public class PySourceLocatorPrefs {
             
             String existent = getPathTranslation(pathAsked);
             if(existent != null){
-                String[] splitted = StringUtils.split(available, '\n');
-                for(int i=0;i<splitted.length;i++){
-                    String s = splitted[i];
-                    String initialPart = StringUtils.split(s, ',')[0].trim();
+                List<String> splitted = StringUtils.split(available, '\n');
+                final int size = splitted.size();
+                for(int i=0;i<size;i++){
+                    String s = splitted.get(i);
+                    String initialPart = StringUtils.split(s, ',').get(0).trim();
                     if(initialPart.equals(pathAsked)){
-                        splitted[i] = StringUtils.join(",", translation);
+                        splitted.set(i, StringUtils.join(",", translation));
                         break;
                     }
                 }
@@ -131,12 +132,11 @@ public class PySourceLocatorPrefs {
         if(available == null || available.trim().length() == 0){
             return null; //nothing available
         }else{
-            String[] splitted = StringUtils.split(available, '\n');
-            for (String string : splitted) {
-                String[] translation = StringUtils.split(string, ',');
-                if(translation.length == 2){
-                    if(translation[0].trim().equals(pathToTranslate)){
-                        return translation[1].trim();
+            for (String string : StringUtils.split(available, '\n')) {
+                List<String> translation = StringUtils.split(string, ',');
+                if(translation.size() == 2){
+                    if(translation.get(0).trim().equals(pathToTranslate)){
+                        return translation.get(1).trim();
                     }
                 }
             }
@@ -168,7 +168,8 @@ public class PySourceLocatorPrefs {
     public static List<String[]> stringAsWords(String string){
         ArrayList<String[]> strs = new ArrayList<String[]>();
         for(String str: StringUtils.split(string, '\n')){
-            strs.add(StringUtils.split(str, ','));
+            final List<String> temp = StringUtils.split(str, ',');
+            strs.add(temp.toArray(new String[temp.size()]));
         }
         return strs;
     }

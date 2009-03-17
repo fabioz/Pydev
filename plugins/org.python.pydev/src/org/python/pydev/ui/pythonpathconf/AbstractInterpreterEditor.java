@@ -685,26 +685,35 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     
     /** Overridden
      */
-    protected String getNewInputObject() {
+    protected String getNewInputObject(boolean autoConfig) {
         CharArrayWriter charWriter = new CharArrayWriter();
         PrintWriter logger = new PrintWriter(charWriter);
         logger.println("Information about process of adding new interpreter:");
         try {
+            String file = null;
+            if(autoConfig){
+                file = getAutoNewInput();
+                if(file == null){
+                    reportAutoConfigProblem(null);
+                    return null;
+                }
+            }else{
+                FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+    
+                String[] filterExtensions = getInterpreterFilterExtensions();
+                if (filterExtensions != null) {
+                    dialog.setFilterExtensions(filterExtensions);
+                }
+    
+                if (lastPath != null) {
+                    if (new File(lastPath).exists())
+                        dialog.setFilterPath(lastPath);
+                }
+    
+                logger.println("- Opening dialog to request executable (or jar).");
+                file = dialog.open();
+            }
             
-            FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
-
-            String[] filterExtensions = getInterpreterFilterExtensions();
-            if (filterExtensions != null) {
-                dialog.setFilterExtensions(filterExtensions);
-            }
-
-            if (lastPath != null) {
-                if (new File(lastPath).exists())
-                    dialog.setFilterPath(lastPath);
-            }
-
-            logger.println("- Opening dialog to request executable (or jar).");
-            String file = dialog.open();
             if (file != null) {
                 logger.println("- Chosen interpreter file:'"+file);
                 file = file.trim();
@@ -744,17 +753,22 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
                         
                     }else{
-                        String errorMsg = "Some error happened while getting info on the interpreter.\n\n" +
-                                    "Common reasons include:\n\n" +
-                                    "- Specifying an invalid interpreter" +
-                                    "(usually a link to the actual interpreter on Mac or Linux)\n" +
-                                    "- Having spaces in your Eclipse installation path.";
-                        //show the user a message (so that it does not fail silently)...
-                        ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
-                                errorMsg, 
-                                PydevPlugin.makeStatus(IStatus.ERROR, "Check your error log for more details.\n\n" +
-                                    "More info can also be found at the bug report: http://sourceforge.net/tracker/index.php?func=detail&aid=1523582&group_id=85796&atid=577329", 
-                                operation.e));
+                        if(autoConfig){
+                            reportAutoConfigProblem(operation.e);
+                            
+                        }else{
+                            String errorMsg = "Some error happened while getting info on the interpreter.\n\n" +
+                                        "Common reasons include:\n\n" +
+                                        "- Specifying an invalid interpreter" +
+                                        "(usually a link to the actual interpreter on Mac or Linux)\n" +
+                                        "- Having spaces in your Eclipse installation path.";
+                            //show the user a message (so that it does not fail silently)...
+                            ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
+                                    errorMsg, 
+                                    PydevPlugin.makeStatus(IStatus.ERROR, "Check your error log for more details.\n\n" +
+                                        "More info can also be found at the bug report: http://sourceforge.net/tracker/index.php?func=detail&aid=1523582&group_id=85796&atid=577329", 
+                                    operation.e));
+                        }
                     }
                     
                     throw operation.e;
@@ -780,6 +794,25 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         
         return null;
     }
+
+    private void reportAutoConfigProblem(Exception e) {
+        String errorMsg = 
+            "Unable to auto-configure the interpreter.\n" +
+        	"Please create a new interpreter using the 'New' button.";
+        ErrorDialog.openError(this.getShell(), "Unable to auto-configure.", 
+                errorMsg, 
+                PydevPlugin.makeStatus(IStatus.ERROR, "Unable to gather the needed info from the system.", 
+                        e));
+    }
+
+    /**
+     * @return the string with the file to be executed (for python could be just python.exe) and for
+     * jython the jython.jar location.
+     * 
+     * This is also be platform-dependent (so, it could be python.exe or just python)
+     */
+    protected abstract String getAutoNewInput();
+    
 
     @Override
     protected void doStore() {

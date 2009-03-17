@@ -286,7 +286,7 @@ public class PyProjectPythonDetails extends PropertyPage{
             
             //We must set the grammar version too (that's from a string in the format "Python 2.4" and we only want
             //the version).
-            String v = StringUtils.split(version, ' ')[1];
+            String v = StringUtils.split(version, ' ').get(1);
             projectConfig.comboGrammarVersion.setText(v);
             
             //Update interpreter

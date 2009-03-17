@@ -199,11 +199,12 @@ public final class FastDefinitionsParser {
                         String equalsLine = lineBuffer.toString().trim();
                         lineBuffer.clear();
                         
-                        String[] splitted = StringUtils.split(equalsLine, '=');
+                        final List<String> splitted = StringUtils.split(equalsLine, '=');
+                        final int splittedLen = splitted.size();
                         ArrayList<exprType> targets = new ArrayList<exprType>();
                         
-                        for(int j=0; j< splitted.length-1||(splitted.length==1 && j==0); j++){ //we don't want to get the last one.
-                            String lineContents = splitted[j].trim(); 
+                        for(int j=0; j< splittedLen-1||(splittedLen==1 && j==0); j++){ //we don't want to get the last one.
+                            String lineContents = splitted.get(j).trim(); 
                             if(lineContents.length() == 0){
                                 continue;
                             }
@@ -219,9 +220,9 @@ public final class FastDefinitionsParser {
                             if(add){
                                 //only add if it was something valid
                                 if(lineContents.indexOf('.') != -1){
-                                    String[] dotSplit = StringUtils.dotSplit(lineContents);
-                                    if(dotSplit.length == 2 && dotSplit[0].equals("self")){
-                                        Attribute attribute = new Attribute(new Name("self", Name.Load, false), new NameTok(dotSplit[1], NameTok.Attrib), Attribute.Load);
+                                    List<String> dotSplit = StringUtils.dotSplit(lineContents);
+                                    if(dotSplit.size() == 2 && dotSplit.get(0).equals("self")){
+                                        Attribute attribute = new Attribute(new Name("self", Name.Load, false), new NameTok(dotSplit.get(1), NameTok.Attrib), Attribute.Load);
                                         targets.add(attribute);
                                     }
                                     

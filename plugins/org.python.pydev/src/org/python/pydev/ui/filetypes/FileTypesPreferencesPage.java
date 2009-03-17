@@ -1,5 +1,7 @@
 package org.python.pydev.ui.filetypes;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -137,7 +139,8 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
             String[] ret = pythondValidSourceFiles;
             if(ret == null){
                 String validStr = PydevPrefs.getPreferences().getString(FileTypesPreferencesPage.VALID_SOURCE_FILES);
-                String[] s = StringUtils.split(validStr, ',');
+                final List<String> temp = StringUtils.split(validStr, ',');
+                String[] s = temp.toArray(new String[temp.size()]);
                 for(int i=0;i<s.length;i++){
                     s[i] = s[i].trim();
                 }

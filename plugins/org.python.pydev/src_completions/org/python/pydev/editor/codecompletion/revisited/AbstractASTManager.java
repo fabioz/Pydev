@@ -138,9 +138,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 
                 if(level > 0){
                     //ok, it is the import added on python 2.5 (from .. import xxx)
-                    String[] moduleParts = StringUtils.dotSplit(moduleName);
-                    if(moduleParts.length > level){
-                        relative = FullRepIterable.joinParts(moduleParts, moduleParts.length-level);
+                    List<String> moduleParts = StringUtils.dotSplit(moduleName);
+                    if(moduleParts.size() > level){
+                        relative = FullRepIterable.joinParts(moduleParts, moduleParts.size()-level);
                     }
                     
                     if(!onlyDots){
@@ -242,10 +242,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 }
 
                 if (element.length() > 0 && goForIt) {
-                    String[] splitted = StringUtils.dotSplit(element);
-                    if (splitted.length > 0) {
+                    List<String> splitted = StringUtils.dotSplit(element);
+                    if (splitted.size() > 0) {
                         //this is the completion
-                        set.add(new ConcreteToken(splitted[0], "", "", moduleToGetTokensFrom, type));
+                        set.add(new ConcreteToken(splitted.get(0), "", "", moduleToGetTokensFrom, type));
                     }
                 }
 //            }
@@ -1129,10 +1129,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     //ok, it is the import added on python 2.5 (from .. import xxx)
                     
                     String parentPackage = token.getParentPackage();
-                    String[] moduleParts = StringUtils.dotSplit(parentPackage);
+                    List<String> moduleParts = StringUtils.dotSplit(parentPackage);
                     String relative = null;
-                    if(moduleParts.length > level){
-                        relative = FullRepIterable.joinParts(moduleParts, moduleParts.length-level);
+                    if(moduleParts.size() > level){
+                        relative = FullRepIterable.joinParts(moduleParts, moduleParts.size()-level);
                     }
                     
                     String modName = ((NameTok)importFrom.module).id;

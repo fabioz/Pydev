@@ -108,34 +108,34 @@ public class FullRepIterableTest extends TestCase {
     
     
     public void testDotSplit() throws Exception {
-        String[] strings = StringUtils.dotSplit("foo.bar.f");
+        String[] strings = StringUtils.dotSplit("foo.bar.f").toArray(new String[0]);
         assertEquals(3, strings.length);
         assertEquals("foo", strings[0]);
         assertEquals("bar", strings[1]);
         assertEquals("f", strings[2]);
         
-        strings = StringUtils.dotSplit("foo.bar.");
+        strings = StringUtils.dotSplit("foo.bar.").toArray(new String[0]);
         assertEquals(2, strings.length);
         assertEquals("foo", strings[0]);
         assertEquals("bar", strings[1]);
         
         assertEquals(0, "...".split("\\.").length);
-        strings = StringUtils.dotSplit("...");
+        strings = StringUtils.dotSplit("...").toArray(new String[0]);
         assertEquals(0, strings.length);
         
-        strings = StringUtils.dotSplit("");
+        strings = StringUtils.dotSplit("").toArray(new String[0]);
         assertEquals(0, strings.length);
         
-        strings = StringUtils.dotSplit("foo");
+        strings = StringUtils.dotSplit("foo").toArray(new String[0]);
         assertEquals(1, strings.length);
         assertEquals("foo", strings[0]);
         
-        strings = StringUtils.dotSplit("f.bu");
+        strings = StringUtils.dotSplit("f.bu").toArray(new String[0]);
         assertEquals(2, strings.length);
         assertEquals("f", strings[0]);
         assertEquals("bu", strings[1]);
         
-        strings = StringUtils.dotSplit("..f.b...u..");
+        strings = StringUtils.dotSplit("..f.b...u..").toArray(new String[0]);
         assertEquals(3, strings.length);
         assertEquals("f", strings[0]);
         assertEquals("b", strings[1]);

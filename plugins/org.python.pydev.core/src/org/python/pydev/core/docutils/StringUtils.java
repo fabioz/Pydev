@@ -319,9 +319,58 @@ public class StringUtils {
     }
 
     /**
+     * Splits the passed string based on the toSplit string.
+     */
+    public static List<String> split(final String string, final String toSplit) {
+        if(toSplit.length() == 1){
+            return split(string, toSplit.charAt(0));
+        }
+        ArrayList<String> ret = new ArrayList<String>();
+        if(toSplit.length() == 0){
+            ret.add(string);
+            return ret;
+        }
+        
+        int len = string.length();
+        
+        int last = 0;
+        
+        char c = 0;
+        
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if(c == toSplit.charAt(0) && matches(string, toSplit, i)){
+                if(last != i){
+                    ret.add(string.substring(last, i));
+                }
+                last = i+toSplit.length();
+                i+= toSplit.length() -1;
+            }
+        }
+        
+        if(last < len){
+            ret.add(string.substring(last, len));
+        }
+        
+        return ret;
+    }
+    
+    private static boolean matches(String string, String toSplit, int i) {
+        if(string.length()-i >= toSplit.length()){
+            for(int j=0;j<toSplit.length();j++){
+                if(string.charAt(i+j) != toSplit.charAt(j)){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Splits some string given some char
      */
-    public static String[] split(String string, char toSplit) {
+    public static List<String> split(String string, char toSplit) {
         ArrayList<String> ret = new ArrayList<String>();
         int len = string.length();
         
@@ -351,7 +400,7 @@ public class StringUtils {
                 
             }
         }
-        return ret.toArray(new String[ret.size()]);
+        return ret;
     }
     
     /**
@@ -373,7 +422,7 @@ public class StringUtils {
     /**
      * Splits the string as would string.split("\\."), but without yielding empty strings
      */
-    public static String[] dotSplit(String string) {
+    public static List<String> dotSplit(String string) {
         return split(string, '.');
     }
 
@@ -382,6 +431,20 @@ public class StringUtils {
      */
     public static String join(String delimiter, String[] splitted) {
         FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
+        for (String string : splitted) {
+            if(buf.length() > 0){
+                buf.append(delimiter);
+            }
+            buf.append(string);
+        }
+        return buf.toString();
+    }
+    
+    /**
+     * Same as Python join: Go through all the paths in the string and join them with the passed delimiter.
+     */
+    public static String join(String delimiter, List<String> splitted) {
+        FastStringBuffer buf = new FastStringBuffer(splitted.size()*100);
         for (String string : splitted) {
             if(buf.length() > 0){
                 buf.append(delimiter);

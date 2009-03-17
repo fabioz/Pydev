@@ -334,8 +334,8 @@ public class ParsedItem implements Comparable<Object>{
         }else if (astThis.node instanceof commentType) {
             commentType type = (commentType) astThis.node;
             String rep = type.id.trim();
-            rep = StringUtils.split(rep, '\n')[0];
-            rep = StringUtils.split(rep, '\r')[0];
+            rep = StringUtils.split(rep, '\n').get(0);
+            rep = StringUtils.split(rep, '\r').get(0);
             rep = rep.substring(1);
             rep = StringUtils.rightTrim(rep, '-');
             return StringUtils.leftTrim(rep, '-');

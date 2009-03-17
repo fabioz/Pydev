@@ -21,4 +21,14 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor{
         return null;
     }
 
+    
+    protected String getAutoNewInput() {
+        return "python"; //This should be enough to find it from the PATH or any other way it's defined.
+    }
+    
+    
+    protected void doFillIntoGrid(Composite parent, int numColumns) {
+        super.doFillIntoGrid(parent, numColumns);
+        this.autoConfigButton.setToolTipText("Will try to find Python on the PATH (will fail if not available)");
+    }
 }

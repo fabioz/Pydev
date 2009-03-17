@@ -1,6 +1,7 @@
 package org.python.pydev.navigator.filters;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
@@ -93,10 +94,10 @@ public class CustomFilters extends ViewerFilter{
     
     
     public void update(String customFilters) {
-        String[] splittedCustomFilters = StringUtils.split(customFilters, ',');
-        StringMatcherSimple[] temp = new StringMatcherSimple[splittedCustomFilters.length];
+        List<String> splittedCustomFilters = StringUtils.split(customFilters, ',');
+        StringMatcherSimple[] temp = new StringMatcherSimple[splittedCustomFilters.size()];
         for (int i = 0; i < temp.length; i++) {
-            temp[i] = new StringMatcherSimple(splittedCustomFilters[i].trim());
+            temp[i] = new StringMatcherSimple(splittedCustomFilters.get(i).trim());
         }
         filters = temp;
     }

@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
+import java.util.List;
 import java.util.Stack;
 
 import org.python.pydev.core.ICompletionState;
@@ -102,17 +103,18 @@ public class HeuristicFindAttrs extends AbstractVisitor {
     public Object visitCall(Call node) throws Exception {
         if(entryPointCorrect == false && methodCall.length() > 0){
             entryPointCorrect = true;
-            String[] c = StringUtils.dotSplit(methodCall);
             
             
             
             if (node.func instanceof Attribute){
+                List<String> c = StringUtils.dotSplit(methodCall);
+                
                 Attribute func = (Attribute)node.func;
-                if(((NameTok)func.attr).id.equals(c[1])){
+                if(((NameTok)func.attr).id.equals(c.get(1))){
                 
                     if(func.value instanceof Name){
                         Name name = (Name) func.value;
-                        if(name.id.equals(c[0])){
+                        if(name.id.equals(c.get(0))){
                             for (int i=0; i<node.keywords.length; i++){
                                 addToken(node.keywords[i]);
                             }

@@ -57,7 +57,7 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
                     "Add the entry in the format path_to_replace,new_path or path,DONTASK.", "", 
                     new IInputValidator(){
                         public String isValid(String newText) {
-                            String[] splitted = StringUtils.split(newText, ',');
+                            String[] splitted = StringUtils.split(newText, ',').toArray(new String[0]);
                             if(splitted.length != 2){
                                 return "Input must have 2 paths separated by a comma.";
                             }
@@ -68,7 +68,7 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
 
                 int retCode = d.open();
                 if (retCode == InputDialog.OK) {
-                    return StringUtils.split(d.getValue(), ',');
+                    return StringUtils.split(d.getValue(), ',').toArray(new String[0]);
                 }
                 return null;
             }

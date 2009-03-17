@@ -885,8 +885,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 return LATEST_GRAMMAR_VERSION;
             }
             
-            String[] splitted = StringUtils.split(version, ' ');
-            if(splitted == null || splitted.length != 2){
+            List<String> splitted = StringUtils.split(version, ' ');
+            if(splitted.size() != 2){
                 String storeVersion;
                 try {
                     storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
@@ -903,7 +903,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 return LATEST_GRAMMAR_VERSION;
             }
             
-            String grammarVersion = splitted[1];
+            String grammarVersion = splitted.get(1);
             return getGrammarVersionFromStr(grammarVersion);
 
         } catch (CoreException e) {

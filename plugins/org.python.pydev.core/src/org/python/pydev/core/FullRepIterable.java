@@ -4,6 +4,7 @@
 package org.python.pydev.core;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.python.pydev.core.docutils.StringUtils;
 
@@ -212,27 +213,26 @@ public class FullRepIterable implements Iterable<String>{
     }
 
     
-    public static String joinParts(String[] actToks, int parts) {
+    public static String joinParts(List<String> actToks, int parts) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < parts; i++) {
             if(i > 0){
                 buffer.append('.');
             }
-            buffer.append(actToks[i]);
+            buffer.append(actToks.get(i));
         }
         return buffer.toString();
     }
     
-    public static String joinFirstParts(String[] actToks) {
-        return joinParts(actToks, actToks.length-1);
+    public static String joinFirstParts(List<String> actToks) {
+        return joinParts(actToks, actToks.size()-1);
     }
 
     /**
      * @return whether the foundRep contains some part with the nameToFind
      */
     public static boolean containsPart(String foundRep, String nameToFind) {
-        String[] strings = StringUtils.dotSplit(foundRep);
-        for (String string : strings) {
+        for (String string : StringUtils.dotSplit(foundRep)) {
             if(string.equals(nameToFind)){
                 return true;
             }

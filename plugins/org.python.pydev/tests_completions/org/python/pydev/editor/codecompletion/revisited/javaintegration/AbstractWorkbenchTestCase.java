@@ -288,8 +288,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
             return null;
         }
         IContainer parent = sourceFolder;
-        String[] packageParts = StringUtils.dotSplit(packageName);
-        for (String packagePart : packageParts) {
+        for (String packagePart : StringUtils.dotSplit(packageName)) {
             IFolder folder = parent.getFolder(new Path(packagePart));
             if(!folder.exists()){
                 folder.create(true, true, monitor);

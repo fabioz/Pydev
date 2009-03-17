@@ -50,6 +50,11 @@ public abstract class PythonListEditor extends FieldEditor {
      * The Add button.
      */
     private Button addButton;
+    
+    /**
+     * The Auto-config button.
+     */
+    protected Button autoConfigButton;
 
     /**
      * The Remove button.
@@ -92,11 +97,23 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * Notifies that the Add button has been pressed.
      */
+    protected void autoConfigPressed() {
+        String input = getNewInputObject(true);
+        addNewInput(input);
+    }
+    
+    /**
+     * Notifies that the Add button has been pressed.
+     */
     protected void addPressed() {
-        setPresentsDefaultValue(false);
-        String input = getNewInputObject();
+        String input = getNewInputObject(false);
+        addNewInput(input);
+    }
 
+    
+    private void addNewInput(String input) {
         if (input != null) {
+            setPresentsDefaultValue(false);
             int index = list.getSelectionIndex();
             if (index >= 0)
                 list.add(input, index + 1);
@@ -122,6 +139,7 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     private void createButtons(Composite box) {
         addButton = createPushButton(box, "ListEditor.add");//$NON-NLS-1$
+        autoConfigButton = createPushButton(box, "Auto Config");//$NON-NLS-1$
         removeButton = createPushButton(box, "ListEditor.remove");//$NON-NLS-1$
         upButton = createPushButton(box, "ListEditor.up");//$NON-NLS-1$
         downButton = createPushButton(box, "ListEditor.down");//$NON-NLS-1$
@@ -168,6 +186,8 @@ public abstract class PythonListEditor extends FieldEditor {
                 Widget widget = event.widget;
                 if (widget == addButton) {
                     addPressed();
+                } else if (widget == autoConfigButton) {
+                    autoConfigPressed();
                 } else if (widget == removeButton) {
                     removePressed();
                 } else if (widget == upButton) {
@@ -262,6 +282,7 @@ public abstract class PythonListEditor extends FieldEditor {
             buttonBox.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
                     addButton = null;
+                    autoConfigButton = null;
                     removeButton = null;
                     upButton = null;
                     downButton = null;
@@ -307,7 +328,7 @@ public abstract class PythonListEditor extends FieldEditor {
      * 
      * @return a new item
      */
-    protected abstract String getNewInputObject();
+    protected abstract String getNewInputObject(boolean autoConfig);
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
@@ -421,6 +442,7 @@ public abstract class PythonListEditor extends FieldEditor {
         super.setEnabled(enabled, parent);
         getListControl(parent).setEnabled(enabled);
         addButton.setEnabled(enabled);
+        autoConfigButton.setEnabled(enabled);
         removeButton.setEnabled(enabled);
         upButton.setEnabled(enabled);
         downButton.setEnabled(enabled);
