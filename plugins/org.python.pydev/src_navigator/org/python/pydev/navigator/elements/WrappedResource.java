@@ -4,8 +4,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IContributorResourceAdapter;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.structure.FastStringBuffer;
 
-import com.sun.org.apache.xml.internal.utils.FastStringBuffer;
 
 /**
  * This class represents a resource that is wrapped for the python model.
