@@ -10,7 +10,7 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
+import org.python.pydev.builder.pycremover.PycHandlerBuilderVisitor;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -110,26 +110,40 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
                         PyDevBuilder.communicateProgress(monitor, totalResources, currentResourcesVisited, resource, this, bufferToCreateString);
                     }
                 }else if(ext.equals("pyc")){
-                    try {
-                        //we do that because we may have an added .pyc without a correspondent .py file
-                        PycRemoverBuilderVisitor pycVisitor = new PycRemoverBuilderVisitor();
-                        pycVisitor.visitingWillStart(monitor, false, nature);
-						try {
-							pycVisitor.visitAddedResource(resource, null, monitor); //doc is not used in pyc remover
-						} finally {
-							pycVisitor.visitingEnded(monitor);
-						}
-                    } catch (Exception e) {
-                        Log.log(e);
+                    if(delta.getKind() == IResourceDelta.ADDED){
+                        handleAddedPycFiles(resource, nature);
                     }
                 }
-
             }
         }
         
         return true;
     }
     
+    /**
+     * When handling pyc files, we do a simpler handling and go directly to the pyc builder visitor to check
+     * if the pyc should be removed.
+     */
+    protected void handleAddedPycFiles(IResource resource, PythonNature nature) {
+        try {
+            //we do that because we may have an added .pyc without a correspondent .py file
+            PycHandlerBuilderVisitor pycVisitor = new PycHandlerBuilderVisitor();
+            pycVisitor.visitingWillStart(monitor, false, nature);
+            try {
+                pycVisitor.visitAddedResource(resource, null, monitor); //doc is not used in pyc remover
+            } finally {
+                pycVisitor.visitingEnded(monitor);
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+    }
+    
+
+    /**
+     * This will use the internal builders to traverse the delta. Note that the resource is always a valid
+     * python file and is also always located in the pythonpath.
+     */
     protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
         switch (delta.getKind()) {
             case IResourceDelta.ADDED :

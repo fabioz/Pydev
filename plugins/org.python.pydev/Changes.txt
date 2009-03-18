@@ -1,5 +1,10 @@
 After 1.4.4
 
+Pydev Extensions
+
+Derived resources are no longer analyzed
+
+Pydev
 <li>Hover on Eclipse 3.2.</li>
 <li>Error handling in the grammar.</li>
 <li>Fixed problems in the code formatting (unary operators and exponencial)</li>
@@ -13,6 +18,8 @@ Better heuristic for automatic insertion of "self" and "import"
 Fixed problem configuring external jars
 Launch getting interpreter from project on default config
 Pydev package explorer can show working sets as top-level elements
+Applied patch to add 'n' indentation levels after parenthesis (Radim Kubacki)
+.pyc files are now marked as derived
 
 
 After 1.4.3

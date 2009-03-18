@@ -19,7 +19,7 @@ import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
-public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
+public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
     
     PySourceLocatorBase locator;
 
@@ -37,15 +37,26 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
     
     @Override
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
+        //Ignore: for pyc files we only care about their addition.
+    }
+    
+    
+    /**
+     * When a .pyc file is found, we remove it if it doesn't have the correspondent .py or .pyw class.
+     */
+    @Override
+    public void visitAddedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         String loc = resource.getLocation().toOSString();
-        if(loc != null && loc.length() > 3){
+        if(loc != null && loc.endsWith(".pyc")){
             String dotPy = loc.substring(0, loc.length()-1);
             File file = new File(dotPy); //.py file
             if(file.exists()){
+                markAsDerived(resource);
                 return;
             }
             file = new File(dotPy+"w"); //.pyw file
             if(file.exists()){
+                markAsDerived(resource);
                 return;
             }
             
@@ -56,6 +67,7 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
             //case in the visit removed resource)
             IPythonNature nature = PythonNature.getPythonNature(resource);
             if(nature == null){
+                markAsDerived(resource);
                 return;
             }
             if(!nature.isResourceInPythonpath(dotPy)){
@@ -67,11 +79,29 @@ public class PycRemoverBuilderVisitor extends PyDevBuilderVisitor{
         }
     }
 
+    
+    /**
+     * We must mark .pyc files as derived.
+     * @param resource the resource to be marked as derived.
+     */
+    private void markAsDerived(IResource resource) {
+        try {
+            resource.setDerived(true);
+        } catch (CoreException e) {
+            PydevPlugin.log(e);
+        }
+    }
+
+    
+    /**
+     * When a .py file is removed (which is what we check for), we go on and remove the .pyc file too.
+     */
     @Override
     public void visitRemovedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         String loc = resource.getLocation().toOSString()+"c"; //.py+c = .pyc
         treatPycFile(loc);
     }
+    
 
     /**
      * @param loc

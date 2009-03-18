@@ -326,7 +326,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                         contents.close();
                     }
                 } catch (Exception e) {
-                    PydevPlugin.log(e);
+                    PydevPlugin.log("Handled error getting contents.", e);
                     return false;
                 }
             }

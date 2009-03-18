@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
@@ -21,9 +22,15 @@ public class PyDevDeltaCounter extends PydevInternalResourceDeltaVisitor{
         super(null, 0);
     }
     
+    @Override
+    protected void handleAddedPycFiles(IResource resource, PythonNature nature){
+        //don't do anything special on pyc files!
+    }
+    
     /**
-     * Overriden so that we don't load the document on this visitor (there is no need for that).
+     * Overridden so that we don't load the document on this visitor (there is no need for that).
      */
+    @Override
     protected boolean chooseVisit(IResourceDelta delta, IResource resource, boolean isAddOrChange) {
         switch (delta.getKind()) {
             case IResourceDelta.ADDED :

@@ -21,7 +21,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.builder.pycremover.PycRemoverBuilderVisitor;
+import org.python.pydev.builder.pycremover.PycHandlerBuilderVisitor;
 import org.python.pydev.builder.pylint.PyLintVisitor;
 import org.python.pydev.builder.syntaxchecker.PySyntaxChecker;
 import org.python.pydev.builder.todo.PyTodoVisitor;
@@ -55,7 +55,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         list.add(new PyTodoVisitor());
         list.add(new PyLintVisitor());
         list.add(new PyCodeCompletionVisitor());
-        list.add(new PycRemoverBuilderVisitor());
+        list.add(new PycHandlerBuilderVisitor());
         list.add(new PySyntaxChecker());
 
         list.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_BUILDER));
