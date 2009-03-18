@@ -960,6 +960,21 @@ public class PyAutoIndentStrategyTest extends TestCase {
         
     }
     
+    public void testAfterCloseParOnlyMultiIndent() {
+      final TestIndentPrefs prefs = new TestIndentPrefs(true, 3);
+      strategy.setIndentPrefs(prefs);
+      prefs.indentToParLevel = false;
+      prefs.indentAfterParWidth = 2;
+      String doc = "" +
+              "__author__ = [";
+      DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+      strategy.customizeDocumentCommand(new Document(doc), docCmd);
+      String expected = "\n" +
+      "      ";
+      assertEquals(expected, docCmd.text);
+      
+  }
+  
     public void testAfterClosePar2() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String doc = "m = [a,\n" +

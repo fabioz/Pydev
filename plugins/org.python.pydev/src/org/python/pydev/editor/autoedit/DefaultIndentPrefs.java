@@ -144,5 +144,9 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         return getCache().getBoolean(PydevEditorPrefs.AUTO_DEDENT_ELSE);
     }
 
+    public int getIndentAfterParWidth() {
+        return getCache().getInt(PydevEditorPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, 1);
+    }
+
 
 }

@@ -90,6 +90,11 @@ public interface IIndentPrefs {
     public boolean getIndentToParLevel();
 
     /**
+     * @return indentation width after parenthesis if not indenting to a parenthesis (in number of tabs).
+     */
+    public int getIndentAfterParWidth();
+    
+    /**
      * Should be called to regenerate the indent string that's in the cache.
      */
     public void regenerateIndentString();

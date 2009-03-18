@@ -32,6 +32,7 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(PydevEditorPrefs.AUTO_PAR, PydevEditorPrefs.DEFAULT_AUTO_PAR);
         node.putBoolean(PydevEditorPrefs.AUTO_INDENT_TO_PAR_LEVEL, PydevEditorPrefs.DEFAULT_AUTO_INDENT_TO_PAR_LEVEL);
         node.putBoolean(PydevEditorPrefs.AUTO_DEDENT_ELSE, PydevEditorPrefs.DEFAULT_AUTO_DEDENT_ELSE);
+        node.putInt(PydevEditorPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, PydevEditorPrefs.DEFAULT_AUTO_INDENT_AFTER_PAR_WIDTH);
         node.putBoolean(PydevEditorPrefs.AUTO_COLON, PydevEditorPrefs.DEFAULT_AUTO_COLON);
         node.putBoolean(PydevEditorPrefs.AUTO_BRACES, PydevEditorPrefs.DEFAULT_AUTO_BRACES);
         node.putBoolean(PydevEditorPrefs.AUTO_WRITE_IMPORT_STR, PydevEditorPrefs.DEFAULT_AUTO_WRITE_IMPORT_STR);

@@ -45,7 +45,10 @@ public class PydevTypingPrefs  extends AbstractPydevPrefs {
                 "and your cursor will be placed between the two braces.", TOOLTIP_WIDTH));
         
         //auto par
-        b = addCheckBox(appearanceComposite, "After '(' indent to its level (false will indent a single tab)", AUTO_INDENT_TO_PAR_LEVEL, 0);
+        b = addCheckBox(appearanceComposite, "After '(' indent to its level (indents by tabs if unchecked)", AUTO_INDENT_TO_PAR_LEVEL, 0);
+        Control c = addTextField(appearanceComposite, "Number of indentation levels to add:", AUTO_INDENT_AFTER_PAR_WIDTH, 3, 20, true);
+        createInverseDependency(b, AUTO_INDENT_AFTER_PAR_WIDTH, c);
+
         
         //auto dedent 'else:'
         b = addCheckBox(appearanceComposite, "Automatic dedent of 'else:' and 'elif:'", AUTO_DEDENT_ELSE, 0);
@@ -76,5 +79,4 @@ public class PydevTypingPrefs  extends AbstractPydevPrefs {
 
         return appearanceComposite;
     }
-
 }

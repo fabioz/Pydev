@@ -62,6 +62,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String AUTO_INDENT_TO_PAR_LEVEL = "AUTO_INDENT_TO_PAR_LEVEL";
     public static final boolean DEFAULT_AUTO_INDENT_TO_PAR_LEVEL = true;
     
+    public static final String AUTO_INDENT_AFTER_PAR_WIDTH = "AUTO_INDENT_AFTER_PAR_WIDTH";
+    public static final int DEFAULT_AUTO_INDENT_AFTER_PAR_WIDTH = 1;
+    
     public static final String AUTO_DEDENT_ELSE = "AUTO_DEDENT_ELSE";
     public static final boolean DEFAULT_AUTO_DEDENT_ELSE = true;
     
@@ -292,6 +295,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, TAB_WIDTH));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_PAR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_INDENT_TO_PAR_LEVEL));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, AUTO_INDENT_AFTER_PAR_WIDTH));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_DEDENT_ELSE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SMART_INDENT_PAR));
         
@@ -520,15 +524,22 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         return textControl;
     }
     
+    protected void createInverseDependency(final Button master, String masterKey, final Control slave) {
+      doCreateDependency(master, masterKey, slave, false);
+    }
     protected void createDependency(final Button master, String masterKey, final Control slave) {
+      doCreateDependency(master, masterKey, slave, true);
+    }
+    
+    private void doCreateDependency(final Button master, String masterKey, final Control slave, final boolean enableIf) {
         indent(slave);
         
         boolean masterState= fOverlayStore.getBoolean(masterKey);
-        slave.setEnabled(masterState);
+        slave.setEnabled(masterState == enableIf);
         
         SelectionListener listener= new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
-                slave.setEnabled(master.getSelection());
+                slave.setEnabled(master.getSelection() == enableIf);
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {}

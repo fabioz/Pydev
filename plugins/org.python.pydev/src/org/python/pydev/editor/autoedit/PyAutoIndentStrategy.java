@@ -902,12 +902,18 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             len = openingPeerOffset - openingPeerLineOffset;
             contents = document.get(openingPeerLineOffset, len);
         }else{
-            //ok, we have to get the 
+            //ok, don't indent to parenthesis level: Just add the regular indent level
             int line = document.getLineOfOffset(openingPeerOffset);
             final String indent = prefs.getIndentationString();
             contents = PySelection.getLine(document, line);
             contents = PySelection.getIndentationFromLine(contents);
-            contents += indent.substring(0, indent.length()-1); //we have to make it -1 (that's what the smartindent expects)
+            StringBuffer sb = new StringBuffer();
+            
+            //Create the string for the indent level we want.
+            for (int i = 0; i < prefs.getIndentAfterParWidth(); i++) {
+                sb.append(indent);
+            }
+            contents += sb.substring(0, sb.length() - 1); //we have to make it -1 (that's what the smartindent expects)
             len = contents.length();
         }
         //add more spaces for each tab
