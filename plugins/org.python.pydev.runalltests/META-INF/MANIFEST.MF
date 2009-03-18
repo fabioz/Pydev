@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Runalltests Plug-in
-Bundle-SymbolicName: com.python.pydev.runalltests
+Bundle-SymbolicName: org.python.pydev.runalltests
 Bundle-Version: 1.0.0
-Bundle-Activator: com.python.pydev.runalltests.RunalltestsPlugin
+Bundle-Activator: org.python.pydev.runalltests.RunalltestsPlugin
 Bundle-Vendor: PYTHON
 Bundle-Localization: plugin
 Require-Bundle: org.junit,

@@ -49,6 +49,6 @@ public class RunalltestsPlugin extends AbstractUIPlugin {
      * @return the image descriptor
      */
     public static ImageDescriptor getImageDescriptor(String path) {
-        return AbstractUIPlugin.imageDescriptorFromPlugin("com.python.pydev.runalltests", path);
+        return AbstractUIPlugin.imageDescriptorFromPlugin("org.python.pydev.runalltests", path);
     }
 }
