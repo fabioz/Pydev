@@ -51,6 +51,34 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
     
 
+    /**
+     * Versions before eclipse 3.4 don't have an isDerived(IResource.CHECK_ANCESTORS)
+     */
+    private static boolean useEclipse32DerivedVersion = false;
+    
+    /**
+     * Checks if some resource is hierarchically derived (if any parent is derived, it's also derived).
+     */
+    private static boolean isHierarchicallyDerived(IResource curr) {
+        if(useEclipse32DerivedVersion){
+            do {
+                if (curr.isDerived()) {
+                    return true;
+                }
+                curr = curr.getParent();
+            } while (curr != null);
+            return false;
+        }else{
+            try {
+                return curr.isDerived(IResource.CHECK_ANCESTORS);
+            } catch (Throwable e) {
+                useEclipse32DerivedVersion = true;
+                return isHierarchicallyDerived(curr);
+            }
+        }
+    }
+
+
     
     /**
      * @param oldAnalysisBuilderThread This is an existing runnable that was already analyzing things... we must wait for it
@@ -175,9 +203,22 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             }
             
             checkStop();
-            OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
 
+            if(isHierarchicallyDerived(r)){
+                if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                    Log.toLogFile(this, "Resource marked as derived not analyzed: "+r+ " -- " + moduleName);
+                }
+                //We don't want to check derived resources (but we want to remove any analysis messages that
+                //might be already there)
+                if(r != null){
+                    runner.setMarkers(r, document, new IMessage[0], this.internalCancelMonitor);
+                }
+                return;
+            }
+            
+            
             //ok, let's do it
+            OccurrencesAnalyzer analyzer = new OccurrencesAnalyzer();
             checkStop();
             IMessage[] messages = analyzer.analyzeDocument(nature, module, analysisPreferences, 
                     document, this.internalCancelMonitor);
