@@ -20,6 +20,7 @@ Launch getting interpreter from project on default config
 Pydev package explorer can show working sets as top-level elements
 Applied patch to add 'n' indentation levels after parenthesis (Radim Kubacki)
 .pyc files are now marked as derived
+Option to automatically apply code-formatting on save
 
 
 After 1.4.3
