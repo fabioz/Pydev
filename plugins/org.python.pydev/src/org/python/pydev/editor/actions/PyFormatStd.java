@@ -9,7 +9,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.TextSelection;
+import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.ParsingUtils;
@@ -61,30 +61,43 @@ public class PyFormatStd extends PyAction implements IFormatter {
      */
     public void run(IAction action) {
         try {
-            final IFormatter participant = getFormatter();
-            PySelection ps = new PySelection(getTextEditor());
-            int startLine = ps.getStartLineIndex();
             PyEdit pyEdit = getPyEdit();
+            PySelection ps = new PySelection(pyEdit);
             
-            IDocument doc = ps.getDoc();
-
-            if (ps.getTextSelection().getLength() == 0) {
-                participant.formatAll(doc, pyEdit);
-            } else {
-                participant.formatSelection(doc, startLine, ps.getEndLineIndex(), pyEdit, ps);
-            }
-
-            if (startLine >= doc.getNumberOfLines()) {
-                startLine = doc.getNumberOfLines() - 1;
-            }
-            TextSelection sel = new TextSelection(doc, doc.getLineOffset(startLine), 0);
-            getTextEditor().getSelectionProvider().setSelection(sel);
+            
+            applyFormatAction(pyEdit, ps, false);
 
         } catch (Exception e) {
             beep(e);
         }
     }
 
+    
+    /**
+     * This method applies the code-formatting to the document in the PySelection
+     * 
+     * @param pyEdit used to restore the selection
+     * @param ps the selection used (contains the document that'll be changed)
+     * @param forceFormatAll whether the full formatting (and not the selection formatting) should be applied.
+     */
+    public void applyFormatAction(PyEdit pyEdit, PySelection ps, boolean forceFormatAll) throws BadLocationException {
+        final IFormatter participant = getFormatter();
+        final IDocument doc = ps.getDoc();
+        final ITextSelection selection = ps.getTextSelection();
+        final int startLine = ps.getStartLineIndex();
+        final SelectionKeeper selectionKeeper = new SelectionKeeper(ps);
+        
+        if (selection.getLength() == 0 || forceFormatAll) {
+            participant.formatAll(doc, pyEdit);
+        } else {
+            participant.formatSelection(doc, startLine, ps.getEndLineIndex(), pyEdit, ps);
+        }
+
+        
+        selectionKeeper.restoreSelection(pyEdit.getSelectionProvider(), doc);
+    }
+
+    
     /**
      * @return the source code formatter to be used.
      */

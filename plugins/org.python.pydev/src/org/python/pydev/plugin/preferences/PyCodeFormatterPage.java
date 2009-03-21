@@ -17,9 +17,13 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+    public static final String FORMAT_BEFORE_SAVING = "FORMAT_BEFORE_SAVING";
+
+    public static final boolean DEFAULT_FORMAT_BEFORE_SAVING = false;
+    
     //a, b, c
     public static final String USE_SPACE_AFTER_COMMA = "USE_SPACE_AFTER_COMMA";
-
+    
     public static final boolean DEFAULT_USE_SPACE_AFTER_COMMA = true;
 
     
@@ -52,6 +56,8 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
+        addField(new BooleanFieldEditor(FORMAT_BEFORE_SAVING, "Auto-Format editor contents before saving?", p));
+        
         addField(new BooleanFieldEditor(USE_SPACE_AFTER_COMMA, "Use space after commas?", p));
 
         addField(new BooleanFieldEditor(USE_SPACE_FOR_PARENTESIS, "Use space before and after parenthesis?", p));
@@ -67,6 +73,10 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     public void init(IWorkbench workbench) {
     }
 
+    public static boolean getFormatBeforeSaving() {
+        return PydevPrefs.getPreferences().getBoolean(FORMAT_BEFORE_SAVING);
+    }
+    
     public static boolean useSpaceAfterComma() {
         return PydevPrefs.getPreferences().getBoolean(USE_SPACE_AFTER_COMMA);
     }

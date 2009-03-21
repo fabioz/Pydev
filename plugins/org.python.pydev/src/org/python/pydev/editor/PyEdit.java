@@ -75,6 +75,7 @@ import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
+import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
@@ -108,6 +109,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
@@ -664,10 +666,35 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * @see org.eclipse.ui.texteditor.AbstractTextEditor#performSave(boolean, org.eclipse.core.runtime.IProgressMonitor)
      */
     protected void performSave(boolean overwrite, IProgressMonitor progressMonitor) {
-        fixEncoding(getEditorInput(), getDocument());
+        final IDocument document = getDocument();
+        
+        //Before saving, let's see if the auto-code formatting is turned on.
+        try {
+            if(PyCodeFormatterPage.getFormatBeforeSaving()){
+                PyFormatStd std = new PyFormatStd();
+                PySelection ps = new PySelection(document, (ITextSelection) this.getSelectionProvider().getSelection());
+                std.applyFormatAction(this, ps, true);
+            }
+        } catch (Throwable e) {
+            //can never fail
+            PydevPlugin.log(e);
+        }
+        
+        try{
+            fixEncoding(getEditorInput(), document);
+        } catch (Throwable e) {
+            //can never fail
+            PydevPlugin.log(e);
+        }
+        
         super.performSave(overwrite, progressMonitor);
-        PyParserManager.getPyParserManager(null).notifySaved(this);
-        notifier.notifyOnSave();
+        try{
+            PyParserManager.getPyParserManager(null).notifySaved(this);
+            notifier.notifyOnSave();
+        } catch (Throwable e) {
+            //can never fail
+            PydevPlugin.log(e);
+        }
     }
     
 
