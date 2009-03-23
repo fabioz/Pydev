@@ -20,9 +20,11 @@ Launch getting interpreter from project on default config
 Pydev package explorer can show working sets as top-level elements
 Applied patch to add 'n' indentation levels after parenthesis (Radim Kubacki)
 .pyc files are now marked as derived
-Option to automatically apply code-formatting on save
 Timeout for starting console communication (was attempting to connect many times at once)
 Giving more info if connection fails.
+Option to automatically apply code-formatting on save
+Code-formatter: Added option to trim whitespaces from the end of the line
+Code-formatter: Adedd option to add new line to the end of the file
 
 
 After 1.4.3

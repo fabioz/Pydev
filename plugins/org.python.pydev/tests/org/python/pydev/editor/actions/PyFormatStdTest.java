@@ -7,6 +7,7 @@ package org.python.pydev.editor.actions;
 
 import junit.framework.TestCase;
 
+import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 
@@ -24,7 +25,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testSimpleOperator4();
+            n.testTrimAndNewLineEOL3();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -654,6 +655,76 @@ public class PyFormatStdTest extends TestCase {
     }
     
     
+    public void testTrimAndNewLineEOL(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        std.addNewLineAtEndOfFile = true;
+        std.trimLines = true;
+        
+        String s = "" +
+        "a=10  \n" +
+        "b= 20  \n" +
+        "c    =  30  ";
+        
+        String s1 = "" +
+        "a = 10\n" +
+        "b = 20\n" +
+        "c = 30\n";
+        
+        checkFormatResults(s, s1);
+    }
+    
+    
+    public void testTrimAndNewLineEOL2(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        std.addNewLineAtEndOfFile = true;
+        std.trimLines = true;
+        
+        String s = "" +
+        "#a=10  \n" +
+        "#b= 20  \n" +
+        "'''c    =  30 \n" +
+        "   \n" +
+        "''' \n" +
+        "c =   30   ";
+        
+        String s1 = "" +
+        "#a=10  \n" +
+        "#b= 20  \n" +
+        "'''c    =  30 \n" +
+        "   \n" +
+        "'''\n" +
+        "c = 30\n";
+        
+        
+        checkFormatResults(s, s1);
+    }
+    
+    public void testTrimAndNewLineEOL3(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        std.addNewLineAtEndOfFile = true;
+        std.trimLines = true;
+        
+        checkFormatResults("c =  30", "c = 30\n");
+        checkFormatResults("c =  30\n", "c = 30\n");
+        checkFormatResults("c =  30 ", "c = 30\n");
+        checkFormatResults("c =  30  ", "c = 30\n");
+        checkFormatResults("c =  30\n ", "c = 30\n");
+        checkFormatResults("c =  30\n\n ", "c = 30\n\n");
+        checkFormatResults("c =  30\n\n \t ", "c = 30\n\n");
+        checkFormatResults("c =  30 \t\n\n \t ", "c = 30\n\n");
+        
+        checkFormatResults("c = 30\n", "c = 30\n");
+        checkFormatResults("c = 30", "c = 30\n");
+        checkFormatResults("", "\n");
+        checkFormatResults("  \t  ", "\n");
+    }
+    
     
     public void testEqualsWithSpace(){
         std.spaceAfterComma = true;
@@ -738,7 +809,8 @@ public class PyFormatStdTest extends TestCase {
      */
     private void checkFormatResults(String s, String expected) {
         //default check (defined with \n)
-        String formatStr = new PyFormatStd().formatStr(s, std);
+        final PyFormatStd pyFormatStd = new PyFormatStd();
+        String formatStr = pyFormatStd.formatStr(s, std, "\n");
         
         if(DEBUG){
             System.out.println(">>"+s.replace(' ', '.')+"<<");
@@ -750,16 +822,23 @@ public class PyFormatStdTest extends TestCase {
         s = s.replace('\n', '\r');
         expected = expected.replace('\n', '\r');
         
-        formatStr = new PyFormatStd().formatStr(s, std);
+        formatStr = pyFormatStd.formatStr(s, std, "\r");
         assertEquals(expected, formatStr);
         
         //third check (defined with \r\n)
         s = StringUtils.replaceAll(s, "\r", "\r\n");
         expected = StringUtils.replaceAll(expected, "\r", "\r\n");
         
-        formatStr = new PyFormatStd().formatStr(s, std);
+        formatStr = pyFormatStd.formatStr(s, std, "\r\n");
         assertEquals(expected, formatStr);
         
+        
+        
+        //now, same thing with different API
+        Document doc = new Document();
+        doc.set(s);
+        pyFormatStd.formatAll(doc, null, true, std);
+        assertEquals(expected, doc.get());
     }
 
     

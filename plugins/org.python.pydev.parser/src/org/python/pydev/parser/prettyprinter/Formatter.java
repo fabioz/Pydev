@@ -13,7 +13,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 
 public class Formatter implements IFormatter{
 
-    public void formatAll(IDocument doc, IPyEdit edit) {
+    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile) {
         try {
             Tuple<SimpleNode, Throwable> objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, true, edit.getPythonNature()));
             if(objects.o2!= null){

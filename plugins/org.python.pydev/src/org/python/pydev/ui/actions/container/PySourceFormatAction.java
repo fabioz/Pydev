@@ -111,9 +111,11 @@ public class PySourceFormatAction extends PyContainerAction implements IObjectAc
                         if(PythonPathHelper.isValidSourceFile(name)){
                             IFile file = (IFile) c;
                             IDocument doc = REF.getDocFromResource(c);
-                            formatter.formatAll(doc, null);
+                            
+                            boolean isOpenedFile = openFiles.contains(file);
+                            formatter.formatAll(doc, null, isOpenedFile);
                             formatted += 1;
-                            if(openFiles.contains(file)){
+                            if(isOpenedFile){
                                 //This means that it's an open buffer (let the user save it when he wants).
                                 continue;
                             }

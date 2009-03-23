@@ -18,30 +18,34 @@ import org.python.pydev.plugin.PydevPlugin;
 public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public static final String FORMAT_BEFORE_SAVING = "FORMAT_BEFORE_SAVING";
-
     public static final boolean DEFAULT_FORMAT_BEFORE_SAVING = false;
+    
+    
+    public static final String TRIM_LINES = "TRIM_EMPTY_LINES";
+    public static final boolean DEFAULT_TRIM_LINES = true;
+    
+    
+    public static final String ADD_NEW_LINE_AT_END_OF_FILE = "ADD_NEW_LINE_AT_END_OF_FILE";
+    public static final boolean DEFAULT_ADD_NEW_LINE_AT_END_OF_FILE = true;
+    
     
     //a, b, c
     public static final String USE_SPACE_AFTER_COMMA = "USE_SPACE_AFTER_COMMA";
-    
     public static final boolean DEFAULT_USE_SPACE_AFTER_COMMA = true;
 
     
     //call( a )
     public static final String USE_SPACE_FOR_PARENTESIS = "USE_SPACE_FOR_PARENTESIS";
-
     public static final boolean DEFAULT_USE_SPACE_FOR_PARENTESIS = false;
     
     
     //call(a = 1)
     public static final String USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS = "USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS";
-    
     public static final boolean DEFAULT_USE_ASSIGN_WITH_PACES_INSIDE_PARENTESIS = false;
     
     
     //operators =, !=, <, >, //, etc.
     public static final String USE_OPERATORS_WITH_SPACE = "USE_OPERATORS_WITH_SPACE";
-    
     public static final boolean DEFAULT_USE_OPERATORS_WITH_SPACE = true;
     
 
@@ -65,6 +69,8 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         addField(new BooleanFieldEditor(USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS, "Use space before and after assign for keyword arguments?", p));
         
         addField(new BooleanFieldEditor(USE_OPERATORS_WITH_SPACE, "Use space before and after operators? (+, -, /, *, //, **, etc.)", p));
+        
+        addField(new BooleanFieldEditor(TRIM_LINES, "Right trim lines?", p));
     }
 
     /**
@@ -75,6 +81,14 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
 
     public static boolean getFormatBeforeSaving() {
         return PydevPrefs.getPreferences().getBoolean(FORMAT_BEFORE_SAVING);
+    }
+    
+    public static boolean getAddNewLineAtEndOfFile() {
+        return PydevPrefs.getPreferences().getBoolean(ADD_NEW_LINE_AT_END_OF_FILE);
+    }
+    
+    public static boolean getTrimLines() {
+        return PydevPrefs.getPreferences().getBoolean(TRIM_LINES);
     }
     
     public static boolean useSpaceAfterComma() {

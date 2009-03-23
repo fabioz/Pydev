@@ -17,6 +17,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.prettyprinter.IFormatter;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 
 /**
@@ -52,6 +53,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
          * + - * / // ** | & ^ ~ =
          */
         public boolean operatorsWithSpace;
+
+        public boolean addNewLineAtEndOfFile;
+
+        public boolean trimLines;
     }
     
     
@@ -88,7 +93,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         final SelectionKeeper selectionKeeper = new SelectionKeeper(ps);
         
         if (selection.getLength() == 0 || forceFormatAll) {
-            participant.formatAll(doc, pyEdit);
+            participant.formatAll(doc, pyEdit, true);
         } else {
             participant.formatSelection(doc, startLine, ps.getEndLineIndex(), pyEdit, ps);
         }
@@ -127,7 +132,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         
             String d = doc.get(iStart, iEnd - iStart);
             FormatStd formatStd = getFormat();
-            String formatted = formatStr(d, formatStd);
+            String formatted = formatStr(d, formatStd, ps.getDelimiter(doc));
         
             doc.replace(iStart, iEnd - iStart, formatted);
         
@@ -140,14 +145,50 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * Formats the whole document
      * @see IFormatter
      */
-    public void formatAll(IDocument doc, IPyEdit edit) {
+    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile) {
 //        Formatter formatter = new Formatter();
 //        formatter.formatAll(doc, edit);
         
-        String d = doc.get();
         FormatStd formatStd = getFormat();
-        String formatted = formatStr(d, formatStd);
-        doc.set(formatted);
+        formatAll(doc, edit, isOpenedFile, formatStd);
+    }
+    
+    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, FormatStd formatStd) {
+        String d = doc.get();
+        String delimiter = PySelection.getDelimiter(doc);
+        String formatted = formatStr(d, formatStd, delimiter);
+        
+        String contents = doc.get();
+        if(contents.equals(formatted)){
+            return; //it's the same: nothing to do.
+        }
+        if(!isOpenedFile){
+            doc.set(formatted);
+        }else{
+            //let's try to apply only the differences
+            int minorLen;
+            int contentsLen = contents.length();
+            if(contentsLen > formatted.length()){
+                minorLen = formatted.length();
+            }else{
+                minorLen = contentsLen;
+            }
+            int applyFrom=0;
+            for(;applyFrom<minorLen;applyFrom++){
+                if(contents.charAt(applyFrom) == formatted.charAt(applyFrom)){
+                    continue;
+                }else{
+                    //different
+                    break;
+                }
+            }
+            
+            try {
+                doc.replace(applyFrom, contentsLen-applyFrom, formatted.substring(applyFrom));
+            } catch (BadLocationException e) {
+                PydevPlugin.log(e);
+            }
+        }
     }
 
     
@@ -160,6 +201,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
         formatStd.operatorsWithSpace = PyCodeFormatterPage.useOperatorsWithSpace();
         formatStd.parametersWithSpace = PyCodeFormatterPage.useSpaceForParentesis();
         formatStd.spaceAfterComma = PyCodeFormatterPage.useSpaceAfterComma();
+        formatStd.addNewLineAtEndOfFile = PyCodeFormatterPage.getAddNewLineAtEndOfFile();
+        formatStd.trimLines = PyCodeFormatterPage.getTrimLines();
         return formatStd;
     }
 
@@ -170,8 +213,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param std the standard to be used
      * @return a new (formatted) string
      */
-    public String formatStr(String str, FormatStd std) {
-        return formatStr(str, std, 0);
+    public String formatStr(String str, FormatStd std, String delimiter) {
+        return formatStr(str, std, 0, delimiter);
     }
     
     /**
@@ -182,7 +225,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param parensLevel the level of the parenthesis available.
      * @return a new (formatted) string
      */
-    private String formatStr(String str, FormatStd std, int parensLevel) {
+    private String formatStr(String str, FormatStd std, int parensLevel, String delimiter) {
         char[] cs = str.toCharArray();
         FastStringBuffer buf = new FastStringBuffer();
         ParsingUtils parsingUtils = ParsingUtils.create(cs);
@@ -207,7 +250,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     break;
 
                 case '(':
-                    i = formatForPar(parsingUtils, cs, i, std, buf, parensLevel+1);
+                    i = formatForPar(parsingUtils, cs, i, std, buf, parensLevel+1, delimiter);
                     break;
                     
                     
@@ -362,6 +405,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                         if (lastChar == ',' && std.spaceAfterComma && buf.lastChar() == ' ') {
                             buf.deleteLast();
                         }
+                        rightTrimIfNeeded(std, buf);
                     }
                     buf.append(c);
                     
@@ -369,7 +413,27 @@ public class PyFormatStd extends PyAction implements IFormatter {
             lastChar = c;
 
         }
+        if(parensLevel == 0){
+            rightTrimIfNeeded(std, buf);
+            
+            if(std.addNewLineAtEndOfFile){
+                char tempC;
+                if(buf.length() == 0 || ((tempC = buf.lastChar()) != '\r' && tempC != '\n')){
+                    buf.append(delimiter);
+                }
+            }
+        }
         return buf.toString();
+    }
+
+
+    private void rightTrimIfNeeded(FormatStd std, FastStringBuffer buf) {
+        if(std.trimLines){
+            char tempC;
+            while(buf.length() > 0 && ((tempC=buf.lastChar()) ==' ' || tempC == '\t')){
+                buf.deleteLast();
+            }
+        }
     }
 
 
@@ -497,7 +561,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param i
      * @param parensLevel 
      */
-    private int formatForPar(ParsingUtils parsingUtils, char[] cs, int i, FormatStd std, FastStringBuffer buf, int parensLevel) {
+    private int formatForPar(ParsingUtils parsingUtils, char[] cs, int i, FormatStd std, FastStringBuffer buf, int parensLevel, String delimiter) {
         char c = ' ';
         FastStringBuffer locBuf = new FastStringBuffer();
 
@@ -513,7 +577,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 j = parsingUtils.eatComments(locBuf, j - 1) + 1;
 
             } else if (c == '(') { //open another par.
-                j = formatForPar(parsingUtils, cs, j - 1, std, locBuf, parensLevel+1) + 1;
+                j = formatForPar(parsingUtils, cs, j - 1, std, locBuf, parensLevel+1, delimiter) + 1;
 
             } else {
                 locBuf.append(c);
@@ -536,7 +600,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 }
             }
 
-            String formatStr = formatStr(trim(locBuf).toString(), std, parensLevel);
+            String formatStr = formatStr(trim(locBuf).toString(), std, parensLevel, delimiter);
             FastStringBuffer formatStrBuf = trim(new FastStringBuffer(formatStr, 10));
 
             String closing = ")";

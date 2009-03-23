@@ -15,7 +15,7 @@ public interface IFormatter {
     /**
      * Formats the whole doc
      */
-    void formatAll(IDocument doc, IPyEdit edit);
+    void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile);
 
     /**
      * Formats the selection.
