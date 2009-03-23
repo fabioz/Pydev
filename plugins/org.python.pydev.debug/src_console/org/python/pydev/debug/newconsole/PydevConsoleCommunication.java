@@ -84,7 +84,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         
         this.webServer.start();
 
-        IPydevXmlRpcClient client = new PydevXmlRpcClient(process, stdErrReader);
+        IPydevXmlRpcClient client = new PydevXmlRpcClient(process, stdErrReader, stdOutReader);
         client.setPort(port);
         
         this.client = client;
@@ -256,6 +256,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                                 }else{
                                     if(commAttempts < maximumAttempts){
                                         commAttempts += 1;
+                                        Thread.sleep(50);
                                         executed.o1 = stdErrReader.getAndClearContents();
                                         continue;
                                     }else{
@@ -310,7 +311,6 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * @return completions from the client
      */
-    @SuppressWarnings("unchecked")
     public ICompletionProposal[] getCompletions(String text, int offset) throws Exception {
         if(waitingForInput){
             return new ICompletionProposal[0];

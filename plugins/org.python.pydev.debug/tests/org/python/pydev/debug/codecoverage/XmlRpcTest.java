@@ -162,8 +162,11 @@ public class XmlRpcTest extends TestCase{
         
         try {
             ThreadStreamReader stdErr = new ThreadStreamReader(process.getErrorStream());
+            ThreadStreamReader stdOut = new ThreadStreamReader(process.getInputStream());
             stdErr.start();
-            IPydevXmlRpcClient client = new PydevXmlRpcClient(process, stdErr);
+            stdOut.start();
+            
+            IPydevXmlRpcClient client = new PydevXmlRpcClient(process, stdErr, stdOut);
             client.setPort(port);
             
             printArr(client.execute("addExec", new Object[]{"abc = 10"}));

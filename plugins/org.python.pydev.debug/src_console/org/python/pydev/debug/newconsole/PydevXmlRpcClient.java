@@ -35,14 +35,20 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
      */
     private ThreadStreamReader stdErrReader;
 
+    /**
+     * This is the thread that's reading the output stream from the process.
+     */
+    private ThreadStreamReader stdOutReader;
+
 
     /**
      * Constructor (see fields description)
      */
-    public PydevXmlRpcClient(Process process, ThreadStreamReader stdErrReader) {
+    public PydevXmlRpcClient(Process process, ThreadStreamReader stdErrReader, ThreadStreamReader stdOutReader) {
         this.impl = new XmlRpcClient();
         this.process = process;
         this.stdErrReader = stdErrReader;
+        this.stdOutReader = stdOutReader;
     }
 
     /**
@@ -85,15 +91,17 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
         while(result[0] == null){
             try {
                 if(process != null){
-                    String string = stdErrReader.contents.toString();
-                    if(string.indexOf("sys.exit called. Interactive console finishing.") != -1){
-                        result[0] = new Object[]{string};
+                    final String errStream = stdErrReader.contents.toString();
+                    if(errStream.indexOf("sys.exit called. Interactive console finishing.") != -1){
+                        result[0] = new Object[]{errStream};
                         break;
                     }
                     
                     int exitValue = process.exitValue();
                     result[0] = new Object[]{
-                            StringUtils.format("Console already exited with value: %s while waiting for an answer.\n", exitValue)};
+                            StringUtils.format("Console already exited with value: %s while waiting for an answer.\n" +
+                            		"Error stream: "+errStream+"\n" +
+                    				"Output stream: "+stdOutReader.contents.toString(), exitValue)};
                     
                     //ok, we have an exit value!
                     break;
