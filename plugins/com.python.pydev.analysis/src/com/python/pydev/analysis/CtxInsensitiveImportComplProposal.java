@@ -100,16 +100,8 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         }
         
         
-        if(trigger == '.'){
-            //do not apply completion when it's triggered by '.', because that's usually not what's wanted
-            //e.g.: if the user writes sys and the current completion is SystemError, pressing '.' will apply
-            //the completion, but what the user usually wants is just having sys.xxx and not SystemError.xxx
-            try {
-                document.replace(offset, 0, ".");
-                newForcedOffset = offset+1;
-            } catch (BadLocationException e) {
-                PydevPlugin.log(e);
-            }
+        if(!triggerCharAppliesCurrentCompletion(trigger, document, offset)){
+            newForcedOffset = offset+1; //+1 because that's the len of the trigger
             return;
         }
 
@@ -264,32 +256,4 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         }
     }
 
-    
-    //-------------------- methods from interface: ICompletionProposalExtension
-    
-    public void apply(IDocument document, char trigger, int offset) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    public int getContextInformationPosition() {
-        return this.fCursorPosition;
-    }
-
-    protected final static char[] VAR_TRIGGER= new char[] { '.' };
-
-    /**
-     * We want to apply it on \n or on '.'
-     * 
-     * When . is entered, the user will finish (and apply) the current completion
-     * and request a new one with '.'
-     * 
-     * If not added, it won't request the new one (and will just stop the current)
-     */
-    public char[] getTriggerCharacters() {
-        return VAR_TRIGGER;
-    }
-
-    public boolean isValidFor(IDocument document, int offset) {
-        return validate(document, offset, null);
-    }
 }
