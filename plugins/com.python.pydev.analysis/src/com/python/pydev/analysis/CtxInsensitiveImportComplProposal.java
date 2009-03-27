@@ -55,6 +55,12 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
      * Offset forced to be returned (only valid if >= 0)
      */
     private int newForcedOffset = -1;
+    
+    /**
+     * Indicates if the completion was applied with a trigger char that should be considered
+     * (meaning that the resulting position should be summed with 1)
+     */
+    private boolean appliedWithTrigger = false;
 
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength, 
@@ -153,12 +159,22 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             }
             String delimiter = PyAction.getDelimiter(document);
             
-            
+            appliedWithTrigger = trigger == '.' || trigger == '(';
+            String appendForTrigger = "";
+            if(appliedWithTrigger){
+                if(trigger == '('){
+                    appendForTrigger = "()";
+                    
+                } else if(trigger == '.'){
+                    appendForTrigger = ".";
+                }
+            }
+            //if the trigger is ')', just let it apply regularly -- so, ')' will only be added if it's already in the completion.
             
             //first do the completion
             if(fReplacementString.length() > 0){
                 int dif = offset - fReplacementOffset;
-                document.replace(offset-dif, dif+this.fLen, fReplacementString);
+                document.replace(offset-dif, dif+this.fLen, fReplacementString+appendForTrigger);
             }
             
 
@@ -231,7 +247,12 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             return new Point(newForcedOffset, 0); 
         }
         
-        return new Point(fReplacementOffset+fReplacementString.length()+importLen, 0 );
+        int pos = fReplacementOffset+fReplacementString.length()+importLen;
+        if(appliedWithTrigger){
+            pos += 1;
+        }
+        
+        return new Point(pos, 0 );
     }
     
     public String getInternalDisplayStringRepresentation() {

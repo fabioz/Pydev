@@ -10,13 +10,16 @@ import java.io.File;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -33,7 +36,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         CompletionParticipantTest test = new CompletionParticipantTest();
         try {
             test.setUp();
-            test.testImportCompletionFromZip();
+            test.testImportCompletion();
             test.tearDown();
             
             junit.textui.TestRunner.run(CompletionParticipantTest.class);
@@ -73,7 +76,30 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         ((CtxInsensitiveImportComplProposal)proposals[1]).indentString = "    ";
         ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, ' ', 0, 8);
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest", document.get());
+        
+        document = new Document("unittest");
+        final Preferences prefs = new Preferences();
+        PyCodeCompletionPreferencesPage.getPreferencesForTests = new ICallback<Preferences, Object>(){
 
+            public Preferences call(Object arg) {
+                return prefs;
+            }
+        };
+        
+        document = new Document("unittest");
+        prefs.setValue(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT, false);
+        ((CtxInsensitiveImportComplProposal)proposals[1]).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, '.', 0, 8);
+        PySelectionTest.checkStrEquals("unittest.", document.get());
+
+        
+        document = new Document("unittest");
+        prefs.setValue(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT, true);
+        ((CtxInsensitiveImportComplProposal)proposals[1]).indentString = "    ";
+        ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, '.', 0, 8);
+        System.out.println(document.get());
+        PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest.", document.get());
+        
         
         //for imports, the behavior never changes
         AutoImportsPreferencesPage.TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = true;
