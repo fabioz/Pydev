@@ -138,16 +138,8 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
         boolean eat = (stateMask & SWT.MOD1) != 0;
         IDocument doc = viewer.getDocument();
         
-        if(trigger == '.'){
-            //do not apply completion when it's triggered by '.', because that's usually not what's wanted
-            //e.g.: if the user writes sys and the current completion is SystemError, pressing '.' will apply
-            //the completion, but what the user usually wants is just having sys.xxx and not SystemError.xxx
-            try {
-                doc.replace(offset, 0, ".");
-                newForcedOffset = offset+1;
-            } catch (BadLocationException e) {
-                PydevPlugin.log(e);
-            }
+        if(!triggerCharAppliesCurrentCompletion(trigger, doc, offset)){
+            newForcedOffset = offset+1; //+1 because that's the len of the trigger
             return;
         }
         
@@ -330,8 +322,6 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
     
     //-------------------------------------------- ICompletionProposalExtension
 
-    protected final static char[] VAR_TRIGGER= new char[] { '.' };
-    
     /**
      * We want to apply it on \n or on '.'
      * 
@@ -341,24 +331,13 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
      * If not added, it won't request the new one (and will just stop the current)
      */
     public char[] getTriggerCharacters(){
-        if(onApplyAction == ON_APPLY_DEFAULT){
-            return VAR_TRIGGER;
+        if(onApplyAction != ON_APPLY_DEFAULT){
+            return null;
         }
-        return null;
+        return super.getTriggerCharacters();
     }
     
-    public void apply(IDocument document, char trigger, int offset) {
-        throw new RuntimeException("Not implemented");
-    }
 
-    public int getContextInformationPosition() {
-        return this.fCursorPosition;
-    }
-
-    public boolean isValidFor(IDocument document, int offset) {
-        return validate(document, offset, null);
-    }
-    
     
 
 }

@@ -8,6 +8,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.custom.StyledText;
@@ -15,7 +16,7 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.plugin.PydevPlugin;
 
-public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2 {
+public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2, ICompletionProposalExtension {
     
 
     protected PyCompletionPresentationUpdater presentationUpdater;
@@ -109,4 +110,56 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
         return false;
     }
 
+    
+    
+  //-------------------- ICompletionProposalExtension
+    protected final static char[] VAR_TRIGGER= new char[] { '.' };
+
+    /**
+     * We want to apply it on \n or on '.'
+     * 
+     * When . is entered, the user will finish (and apply) the current completion
+     * and request a new one with '.'
+     * 
+     * If not added, it won't request the new one (and will just stop the current)
+     */
+    public char[] getTriggerCharacters() {
+        return VAR_TRIGGER;
+    }
+    
+    public void apply(IDocument document, char trigger, int offset) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public int getContextInformationPosition() {
+        return this.fCursorPosition;
+    }
+
+    public boolean isValidFor(IDocument document, int offset) {
+        return validate(document, offset, null);
+    }
+    
+    
+    /**
+     * Checks if the trigger character should actually a
+     * @param trigger
+     * @param doc
+     * @param offset
+     * @return
+     */
+    protected boolean triggerCharAppliesCurrentCompletion(char trigger, IDocument doc, int offset){
+        if(trigger == '.'){
+            //do not apply completion when it's triggered by '.', because that's usually not what's wanted
+            //e.g.: if the user writes sys and the current completion is SystemError, pressing '.' will apply
+            //the completion, but what the user usually wants is just having sys.xxx and not SystemError.xxx
+            try {
+                doc.replace(offset, 0, ".");
+            } catch (BadLocationException e) {
+                PydevPlugin.log(e);
+            }
+            return false;
+        }
+        
+        return true;
+    }
 }
