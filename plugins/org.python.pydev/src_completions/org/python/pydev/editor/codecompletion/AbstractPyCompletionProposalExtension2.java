@@ -14,13 +14,19 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletionProposal implements ICompletionProposalExtension2, ICompletionProposalExtension {
     
 
     protected PyCompletionPresentationUpdater presentationUpdater;
+    
+    /**
+     * Only available when Ctrl is pressed when selecting the completion.
+     */
     public int fLen;
+    
     public boolean fLastIsPar;
 
     public AbstractPyCompletionProposalExtension2(String replacementString, int replacementOffset, int replacementLength,
@@ -113,6 +119,8 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
     
     
   //-------------------- ICompletionProposalExtension
+    
+    //Note that '.' is always there!!
     protected final static char[] VAR_TRIGGER= new char[] { '.' };
 
     /**
@@ -124,7 +132,14 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
      * If not added, it won't request the new one (and will just stop the current)
      */
     public char[] getTriggerCharacters() {
-        return VAR_TRIGGER;
+        char[] chars = VAR_TRIGGER;
+        if(PyCodeCompletionPreferencesPage.applyCompletionOnLParen()){
+            chars = StringUtils.addChar(chars, '(');
+        }
+        if(PyCodeCompletionPreferencesPage.applyCompletionOnRParen()){
+            chars = StringUtils.addChar(chars, ')');
+        }
+        return chars;
     }
     
     public void apply(IDocument document, char trigger, int offset) {
@@ -148,7 +163,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends PyCompletio
      * @return
      */
     protected boolean triggerCharAppliesCurrentCompletion(char trigger, IDocument doc, int offset){
-        if(trigger == '.'){
+        if(trigger == '.' && !PyCodeCompletionPreferencesPage.applyCompletionOnDot()){
             //do not apply completion when it's triggered by '.', because that's usually not what's wanted
             //e.g.: if the user writes sys and the current completion is SystemError, pressing '.' will apply
             //the completion, but what the user usually wants is just having sys.xxx and not SystemError.xxx

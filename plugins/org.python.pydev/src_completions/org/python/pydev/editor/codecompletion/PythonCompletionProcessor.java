@@ -22,6 +22,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -285,31 +286,15 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             }else{
                 char[] c = new char[0];
                 if (PyCodeCompletionPreferencesPage.isToAutocompleteOnDot()) {
-                    c = addChar(c, '.');
+                    c = StringUtils.addChar(c, '.');
                 }
                 if (PyCodeCompletionPreferencesPage.isToAutocompleteOnPar()) {
-                    c = addChar(c, '(');
+                    c = StringUtils.addChar(c, '(');
                 }
                 activationChars = c;
             }
         }
         return activationChars;
-    }
-
-    /**
-     * Adds a char to an array of chars and returns the new array. 
-     * 
-     * @param c
-     * @param toAdd
-     * @return
-     */
-    public static char[] addChar(char[] c, char toAdd) {
-        char[] c1 = new char[c.length + 1];
-
-        System.arraycopy(c, 0, c1, 0, c.length);
-        c1[c.length] = toAdd;
-        return c1;
-
     }
 
     /**

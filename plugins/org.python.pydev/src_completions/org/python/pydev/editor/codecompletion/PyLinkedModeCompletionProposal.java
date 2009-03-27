@@ -231,7 +231,7 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
                 doc.replace(offset-dif, dif+this.fLen, rep);
             }
         }else{
-            if(trigger == '.'){
+            if(trigger == '.' || trigger == '('){
                 if(iPar != -1){
                     //if we had a completion with parameters, we should just remove everything that would appear after
                     //the parenthesis -- and we don't need to raise nTriggerCharsAdded because the cursor position would
@@ -242,9 +242,15 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
                 }
                 rep = rep+trigger;
                 
+                if(trigger == '('){
+                    rep += ')';
+                }
+                
                 //linking should not happen when applying '.'
                 doReturn = true;
             }
+            
+            //if the trigger is ')', just let it apply regularly -- so, ')' will only be added if it's already in the completion.
             doc.replace(offset-dif, dif, rep);
         }
         return doReturn;

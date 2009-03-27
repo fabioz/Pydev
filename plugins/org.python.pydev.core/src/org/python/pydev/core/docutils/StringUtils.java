@@ -454,4 +454,20 @@ public class StringUtils {
         return buf.toString();
     }
 
+    /**
+     * Adds a char to an array of chars and returns the new array. 
+     * 
+     * @param c The chars to where the new char should be appended
+     * @param toAdd the char to be added
+     * @return a new array with the passed char appended.
+     */
+    public static char[] addChar(char[] c, char toAdd) {
+        char[] c1 = new char[c.length + 1];
+    
+        System.arraycopy(c, 0, c1, 0, c.length);
+        c1[c.length] = toAdd;
+        return c1;
+    
+    }
+
 }
