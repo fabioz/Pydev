@@ -1,37 +1,40 @@
 package org.python.pydev.navigator.properties;
 
 import org.eclipse.core.expressions.PropertyTester;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.navigator.elements.PythonNode;
+import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 
+/**
+ * 
+ * @author Fabio
+ * @see org.eclipse.core.internal.propertytester#ProjectPropertyTester
+ * 
+ * If not done, we get:
+ * 
+ * No property tester contributes a property org.eclipse.core.resources.open to 
+ * type class org.python.pydev.navigator.elements.PythonProjectSourceFolder
+ */
 public class PyPropertyTester extends PropertyTester{
 
-    /**
-     * Converts the given expected value to a <code>String</code>.
-     * 
-     * @param expectedValue
-     *            the expected value (may be <code>null</code>).
-     * @return the empty string if the expected value is <code>null</code>,
-     *         otherwise the <code>toString()</code> representation of the
-     *         expected value
-     */
-    protected String toString(Object expectedValue) {
-        return expectedValue == null ? "" : expectedValue.toString(); //$NON-NLS-1$
+    
+    protected boolean toBoolean(Object expectedValue) {
+        if (expectedValue instanceof Boolean) {
+            return ((Boolean) expectedValue).booleanValue();
+        }
+        return true;
     }
-
+    
+    
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
-        if(receiver instanceof IWrappedResource){
-            if(receiver instanceof PythonNode){
-                return false;//do not filter python nodes.
-            }
-            IWrappedResource resource = (IWrappedResource) receiver;
-            IResource res = (IResource) resource.getAdapter(IResource.class);
-            if(res != null){
-                if (property.equals("name")) {
-                    return new StringMatcherSimple(toString(expectedValue)).match(res.getName());
+        if(receiver instanceof PythonProjectSourceFolder){
+            if("open".equals(property)){
+                PythonProjectSourceFolder pythonProjectSourceFolder = (PythonProjectSourceFolder) receiver;
+                IResource actualObject = pythonProjectSourceFolder.getActualObject();
+                if(actualObject instanceof IProject){
+                    return ((IProject) actualObject).isOpen() == toBoolean(expectedValue);
                 }
-            }            
+            }
         }
         return false;
     }

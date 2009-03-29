@@ -1408,7 +1408,21 @@
        
    </extension>
 
-
+   <!--
+   If not done we get:
+   
+   No property tester contributes a property org.eclipse.core.resources.open to 
+   type class org.python.pydev.navigator.elements.PythonProjectSourceFolder
+   -->
+   <extension point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            namespace="org.eclipse.core.resources"
+            properties="open"
+            type="org.python.pydev.navigator.elements.PythonProjectSourceFolder"
+            class="org.python.pydev.navigator.properties.PyPropertyTester"
+            id="org.python.pydev.navigator.elements.PythonProjectSourceFolder">
+      </propertyTester>
+   </extension>
 
 	<!-- the adapter factory must be registered (otherwise the CNF cannot 'get it' - even if the objects themselves are
 	adaptable).
