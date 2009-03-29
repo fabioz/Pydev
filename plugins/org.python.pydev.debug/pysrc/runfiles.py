@@ -20,7 +20,7 @@ try:
 except:
     #Python 3k does not have it
     xrange = range
-    
+
 #=======================================================================================================================
 # parse_cmdline
 #=======================================================================================================================
@@ -31,19 +31,19 @@ def parse_cmdline():
     """
     verbosity = 2
     test_filter = None
-    
+
     optlist, dirs = getopt.getopt(sys.argv[1:], "v:f:", ["verbosity=", "filter="])
-    for opt,value in optlist:
-        if opt in ("-v","--verbosity"):
+    for opt, value in optlist:
+        if opt in ("-v", "--verbosity"):
             verbosity = value
-        elif opt in ("-f","--filter"):
+        elif opt in ("-f", "--filter"):
             if "," in value:
                 test_filter = value.split(',')
             else:
                 test_filter = [value]
     if type([]) != type(dirs):
         dirs = [dirs]
-        
+
     ret_dirs = []
     for d in dirs:
         if '|' in d:
@@ -51,8 +51,8 @@ def parse_cmdline():
             ret_dirs.extend(d.split('|'))
         else:
             ret_dirs.append(d)
-            
-    return ret_dirs, int(verbosity), test_filter    
+
+    return ret_dirs, int(verbosity), test_filter
 
 
 #=======================================================================================================================
@@ -60,10 +60,10 @@ def parse_cmdline():
 #=======================================================================================================================
 class PydevTestRunner:
     """ finds and runs a file or directory of files as a unit test """
-    
+
     __py_extensions = ["*.py", "*.pyw"]
     __exclude_files = ["__init__.*"]
-    
+
     def __init__(self, test_dir, test_filter=None, verbosity=2):
         self.test_dir = test_dir
         self.__adjust_path()
@@ -82,7 +82,7 @@ class PydevTestRunner:
             elif os.path.isfile(dir_name):
                 path_to_append = os.path.dirname(dir_name)
             else:
-                msg = ("unknown type. \n%s\nshould be file or a directory.\n" % (dir_name) )
+                msg = ("unknown type. \n%s\nshould be file or a directory.\n" % (dir_name))
                 raise RuntimeError(msg)
         if path_to_append is not None:
             sys.path.insert(0, path_to_append)
@@ -92,7 +92,7 @@ class PydevTestRunner:
         """ turn a filter string into a list of filter regexes """
         if test_filter is None or len(test_filter) == 0:
             return None
-        return [re.compile("test%s"%f) for f in test_filter]
+        return [re.compile("test%s" % f) for f in test_filter]
 
     def __is_valid_py_file(self, fname):
         """ tests that a particular file contains the proper file extension 
@@ -107,57 +107,61 @@ class PydevTestRunner:
 
     def __unixify(self, s):
         """ stupid windows. converts the backslash to forwardslash for consistency """
-        return os.path.normpath(s).replace( os.sep, "/" )
+        return os.path.normpath(s).replace(os.sep, "/")
 
     def __importify(self, s, dir=False):
         """ turns directory separators into dots and removes the ".py*" extension 
             so the string can be used as import statement """
         if not dir:
             dirname, fname = os.path.split(s)
-        
+
             if fname.count('.') > 1:
                 #if there's a file named xxx.xx.py, it is not a valid module, so, let's not load it...
-                return 
-            
-            imp_stmt_pieces = [dirname.replace("\\","/").replace("/", "."), os.path.splitext(fname)[0]]
-            
+                return
+
+            imp_stmt_pieces = [dirname.replace("\\", "/").replace("/", "."), os.path.splitext(fname)[0]]
+
             if len(imp_stmt_pieces[0]) == 0:
                 imp_stmt_pieces = imp_stmt_pieces[1:]
-                
+
             return ".".join(imp_stmt_pieces)
-        
+
         else: #handle dir
-            return s.replace("\\","/").replace("/", ".")
+            return s.replace("\\", "/").replace("/", ".")
 
     def __add_files(self, pyfiles, root, files):
         """ if files match, appends them to pyfiles. used by os.path.walk fcn """
         for fname in files:
             if self.__is_valid_py_file(fname):
-                name_without_base_dir = self.__unixify(os.path.join(root, fname)) 
-                pyfiles.append( name_without_base_dir )
+                name_without_base_dir = self.__unixify(os.path.join(root, fname))
+                pyfiles.append(name_without_base_dir)
         return
 
-    
+
     def find_import_files(self):
         """ return a list of files to import """
         pyfiles = []
-        
+
         for base_dir in self.test_dir:
             if os.path.isdir(base_dir):
-                # argh, it would be nice to use os.walk, but jython2.1 is too old
-                os.path.walk(base_dir, self.__add_files, pyfiles)
-                
+                if hasattr(os, 'walk'):
+                    for root, dirs, files in os.walk(base_dir):
+                        self.__add_files(pyfiles, root, files)
+                else:
+                    # jython2.1 is too old for os.walk!
+                    os.path.walk(base_dir, self.__add_files, pyfiles)
+
             elif os.path.isfile(base_dir):
-                pyfiles.append(base_dir) 
-                
+                pyfiles.append(base_dir)
+
         return pyfiles
-    
+
     def __get_module_from_str(self, modname):
         """ Import the module in the given import path.
             * Returns the "final" module, so importing "coilib40.subject.visu" 
             returns the "visu" module, not the "coilib40" as returned by __import__ """
         try:
-            mod = __import__( modname )
+            mod = __import__(modname)
             for part in modname.split('.')[1:]:
                 mod = getattr(mod, part)
             return mod
@@ -165,32 +169,32 @@ class PydevTestRunner:
             import traceback;traceback.print_exc()
             sys.stderr.write('ERROR: Module: %s could not be imported (alternative reason: the dir does not have __init__.py folders for all the packages?)' % (modname,))
             return None
-    
+
     def find_modules_from_files(self, pyfiles):
         """ returns a lisst of modules given a list of files """
         #let's make sure that the paths we want are in the pythonpath...
         imports = [self.__importify(s) for s in pyfiles]
-        
+
         system_paths = []
         for s in sys.path:
             system_paths.append(self.__importify(s, True))
-        
-        
+
+
         new_imports = []
         for imp in imports:
             if imp is None:
                 continue #can happen if a file is not a valid module
             for s in system_paths:
                 if imp.startswith(s):
-                    new_imports.append(imp[len(s)+1:])
+                    new_imports.append(imp[len(s) + 1:])
                     break
             else:
                 sys.stdout.write('PYTHONPATH not found for file: %s\n' % imp)
-                
+
         imports = new_imports
         ret = [self.__get_module_from_str(import_str) for import_str in imports if import_str is not None]
         return ret
-    
+
     def find_tests_from_modules(self, modules):
         """ returns the unittests given a list of modules """
         return [unittest.defaultTestLoader.loadTestsFromModule(m) for m in modules]
@@ -202,7 +206,7 @@ class PydevTestRunner:
         for test_obj in test_objs:
             if isinstance(test_obj, unittest.TestSuite):
                 test_obj._tests = self.filter_tests(test_obj._tests)
-                test_suite.append( test_obj )
+                test_suite.append(test_obj)
             elif isinstance(test_obj, unittest.TestCase):
                 test_cases = []
                 for tc in test_objs:
@@ -211,13 +215,13 @@ class PydevTestRunner:
                     except AttributeError:
                         #changed in python 2.5
                         testMethodName = tc._testMethodName
-                        
+
                     if self.__match(self.test_filter, testMethodName):
-                        test_cases.append( tc )
+                        test_cases.append(tc)
                 return test_cases
         return test_suite
-    
-    
+
+
     def __match(self, filter_list, name):
         """ returns whether a test name matches the test filter """
         if filter_list is None:
@@ -226,8 +230,8 @@ class PydevTestRunner:
             if re.match(f, name):
                 return 1
         return 0
-        
-    
+
+
     def run_tests(self):
         """ runs all tests """
         sys.stdout.write("Finding files...\n")
