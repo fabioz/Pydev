@@ -130,7 +130,22 @@ public class JavaZipModule extends AbstractJavaClassModule {
             contents = StringUtils.format(contents, completeClassDesc);
         }
         
-        return getJavaCompletionProposals(contents, contents.length() - 2, filterCompletionName);
+        List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents, contents.length() - 2, filterCompletionName);
+        if(javaCompletionProposals.size() == 0){
+            //Handle static access (notice that we don't create an instance.)
+            if(filterCompletionName != null){
+                //pre-filter it a bit if we already know the completion name
+                contents = "class CompletionClass {void main(){%s.%s}}";
+                contents = StringUtils.format(contents, completeClassDesc, filterCompletionName);
+                
+            }else{
+                contents = "class CompletionClass {void main(){%s.}}";
+                contents = StringUtils.format(contents, completeClassDesc);
+            }
+            javaCompletionProposals = getJavaCompletionProposals(contents, contents.length() - 2, filterCompletionName);
+            
+        }
+        return javaCompletionProposals;
     }
     
     /**

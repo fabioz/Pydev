@@ -26,6 +26,7 @@ Option to automatically apply code-formatting on save
 Code-formatter: Added option to trim whitespaces from the end of the line
 Code-formatter: Adedd option to add new line to the end of the file
 Fixed debugger issue with Jython 2.5b3
+Jython: completions working for static members access.
 
 
 After 1.4.3
