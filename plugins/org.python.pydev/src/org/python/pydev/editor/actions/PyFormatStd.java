@@ -464,6 +464,31 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     if(itChar == '=' || itChar == ','){
                         isUnary = true;
                     }
+                    
+                    switch(itChar){
+                        case '[':
+                        case '(':
+                        case '{':
+                        case ':':
+                            isUnaryWithContents = false;
+                            
+                        case '>':
+                        case '<':
+                            
+                        case '-':
+                        case '+':
+                        case '~':
+                            
+                        case '*':
+                        case '/':
+                        case '%':
+                        case '!':
+                        case '&':
+                        case '^':
+                        case '|':
+                        case '=':
+                            isUnary = true;
+                    }
                     break;
                 }
             }else{
@@ -501,9 +526,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
         }
         
         char localC = c;
+        char prev = '\0';
         boolean backOne = true;
-        while(isOperatorPart(localC)){
+        while(isOperatorPart(localC, prev)){
             buf.append(localC);
+            prev = localC;
             i++;
             if(i == cs.length){
                 break;
@@ -532,24 +559,34 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * @param c the char to be checked
+     * @param prev 
      * @return true if the passed char is part of an operator
      */
-    private boolean isOperatorPart(char c) {
+    private boolean isOperatorPart(char c, char prev) {
         switch(c){
-        case '+':
-        case '-':
-        case '*':
-        case '/':
-        case '%':
-        case '<':
-        case '>':
-        case '!':
-        case '&':
-        case '^':
-        case '~':
-        case '|':
-        case '=':
-            return true;
+            case '+':
+            case '-':
+            case '~':
+                if(prev == '\0'){
+                    return true;
+                }
+                return false;
+            
+        }
+        
+        switch(c){
+            case '*':
+            case '/':
+            case '%':
+            case '<':
+            case '>':
+            case '!':
+            case '&':
+            case '^':
+            case '~':
+            case '|':
+            case '=':
+                return true;
         }
         return false;
     }

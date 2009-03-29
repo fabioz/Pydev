@@ -25,7 +25,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testTrimAndNewLineEOL3();
+            n.testSimpleOperator7();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -581,6 +581,66 @@ public class PyFormatStdTest extends TestCase {
         
         String s1 = "" +
         "call(1 + 1 + 2 + (-1 + (-1 + 1)))\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
+    
+    
+    public void testSimpleOperator5(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "expected_id = int(key.split('(')[ - 1][: - 1])\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        "";
+        
+        String s1 = "" +
+        "expected_id = int(key.split('(')[-1][:-1])\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
+    
+    public void testSimpleOperator6(){
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "if a>-10:print a\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        "";
+        
+        String s1 = "" +
+        "if a > -10:print a\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
+    
+    public void testSimpleOperator7(){
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "if a>--10:print a\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        "";
+        
+        String s1 = "" +
+        "if a > - -10:print a\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
+    
+    
+    public void testSimpleOperator8(){
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "if a-10:print a *-10\n" + //don't change if it's not summing anything (it's a sign for the number: unary operator)
+        "";
+        
+        String s1 = "" +
+        "if a - 10:print a * -10\n" +
         "";
         
         checkFormatResults(s, s1);
