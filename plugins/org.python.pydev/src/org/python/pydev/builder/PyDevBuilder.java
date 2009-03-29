@@ -89,9 +89,13 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 performFullBuild(monitor);
                 
             } else {
+                HashMap<String, Object> memo = new HashMap<String, Object>();
+                memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as delta build
+                
                 // ok, we have a delta
                 // first step is just counting them
                 PyDevDeltaCounter counterVisitor = new PyDevDeltaCounter();
+                counterVisitor.memo = memo;
                 delta.accept(counterVisitor);
                 
                 List<PyDevBuilderVisitor> visitors = getVisitors();
@@ -99,8 +103,6 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 //sort by priority
                 Collections.sort(visitors); 
                 
-                HashMap<String, Object> memo = new HashMap<String, Object>();
-                memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false); //mark it as delta build
 
                 PydevGrouperVisitor grouperVisitor = new PydevGrouperVisitor(visitors, monitor, counterVisitor.getNVisited());
                 grouperVisitor.memo = memo;
