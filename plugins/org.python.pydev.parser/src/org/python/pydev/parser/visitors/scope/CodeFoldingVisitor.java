@@ -87,7 +87,7 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
         if(entryIf.orelse != null && entryIf.orelse.length > 0){
             stmtType firstOrElseStmt = entryIf.orelse[0];
             
-            if(!(firstOrElseStmt instanceof If)){
+            if(!(firstOrElseStmt instanceof If) && firstOrElseStmt != null){
                 If generatedIf = new If(new BoolOp(BoolOp.And, new exprType[0]), new stmtType[0], new stmtType[0]);
                 
                 generatedIf.beginLine = firstOrElseStmt.beginLine-1;
