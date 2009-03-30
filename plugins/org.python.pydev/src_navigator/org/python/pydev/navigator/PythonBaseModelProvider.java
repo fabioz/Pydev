@@ -62,6 +62,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.IPythonNatureListener;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * A good part of the refresh for the model was gotten from org.eclipse.ui.model.WorkbenchContentProvider
@@ -821,11 +822,14 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             runnable.run();
         }
     }
+    
+    
+    private final IResource[] EMPTY_RESOURCE_ARRAY = new IResource[0];
 
     /**
      * Process a resource delta. Add any runnables
      */
-    private void processDelta(IResourceDelta delta, Collection<Runnable> runnables) {
+    private void processDelta(final IResourceDelta delta, final Collection<Runnable> runnables) {
         // he widget may have been destroyed
         // by the time this is run. Check for this and do nothing if so.
         Control ctrl = viewer.getControl();
@@ -911,8 +915,8 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             return;
         }
 
-        final Object[] addedObjects;
-        final Object[] removedObjects;
+        final IResource[] addedObjects;
+        final IResource[] removedObjects;
 
         // Process additions before removals as to not cause selection
         // preservation prior to new objects being added
@@ -920,28 +924,36 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         int numMovedFrom = 0;
         int numMovedTo = 0;
         if (addedChildren.length > 0) {
-            addedObjects = new Object[addedChildren.length];
+            addedObjects = new IResource[addedChildren.length];
             for (int i = 0; i < addedChildren.length; i++) {
-                addedObjects[i] = addedChildren[i].getResource();
-                if ((addedChildren[i].getFlags() & IResourceDelta.MOVED_FROM) != 0) {
+                final IResourceDelta addedChild = addedChildren[i];
+                addedObjects[i] = addedChild.getResource();
+                if(checkInit(addedObjects[i], runnables)){
+                    return; // If true, it means a refresh for the parent was issued!
+                }
+                if ((addedChild.getFlags() & IResourceDelta.MOVED_FROM) != 0) {
                     ++numMovedFrom;
                 }
             }
         } else {
-            addedObjects = new Object[0];
+            addedObjects = EMPTY_RESOURCE_ARRAY;
         }
 
         // Handle removed children. Issue one update for all removals.
         if (removedChildren.length > 0) {
-            removedObjects = new Object[removedChildren.length];
+            removedObjects = new IResource[removedChildren.length];
             for (int i = 0; i < removedChildren.length; i++) {
-                removedObjects[i] = removedChildren[i].getResource();
-                if ((removedChildren[i].getFlags() & IResourceDelta.MOVED_TO) != 0) {
+                final IResourceDelta removedChild = removedChildren[i];
+                removedObjects[i] = removedChild.getResource();
+                if(checkInit(removedObjects[i], runnables)){
+                    return; // If true, it means a refresh for the parent was issued!
+                }
+                if ((removedChild.getFlags() & IResourceDelta.MOVED_TO) != 0) {
                     ++numMovedTo;
                 }
             }
         } else {
-            removedObjects = new Object[0];
+            removedObjects = EMPTY_RESOURCE_ARRAY;
         }
         // heuristic test for items moving within same folder (i.e. renames)
         final boolean hasRename = numMovedFrom > 0 && numMovedTo > 0;
@@ -994,6 +1006,27 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         };
         runnables.add(addAndRemove);
     }
+
+    /**
+     * Checks if a given resource is an __init__ file and if it is, updates its parent (because its icon may have changed)
+     * @return 
+     */
+    private boolean checkInit(final IResource resource, final Collection<Runnable> runnables) {
+        if(resource != null){
+            String name = resource.getName();
+            if(name != null){
+                for(String init:FileTypesPreferencesPage.getValidInitFiles()){
+                    if(name.equals(init)){
+                        //we must make an actual refresh (and not only update) because it'll affect all the children too.
+                        runnables.add(getRefreshRunnable(resource.getParent()));
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Return a runnable for refreshing a resource.

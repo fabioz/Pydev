@@ -46,12 +46,12 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     /**
      * Responsible for getting the stdout of the process.
      */
-    private ThreadStreamReader stdOutReader;
+    private final ThreadStreamReader stdOutReader;
     
     /**
      * Responsible for getting the stderr of the process.
      */
-    private ThreadStreamReader stdErrReader;
+    private final ThreadStreamReader stdErrReader;
 
     /**
      * This is the server responsible for giving input to a raw_input() requested.

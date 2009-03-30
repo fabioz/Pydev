@@ -161,12 +161,7 @@ public class XmlRpcTest extends TestCase{
         }
         
         try {
-            ThreadStreamReader stdErr = new ThreadStreamReader(process.getErrorStream());
-            ThreadStreamReader stdOut = new ThreadStreamReader(process.getInputStream());
-            stdErr.start();
-            stdOut.start();
-            
-            IPydevXmlRpcClient client = new PydevXmlRpcClient(process, stdErr, stdOut);
+            IPydevXmlRpcClient client = new PydevXmlRpcClient(process, err, out);
             client.setPort(port);
             
             printArr(client.execute("addExec", new Object[]{"abc = 10"}));
@@ -222,7 +217,6 @@ public class XmlRpcTest extends TestCase{
                 print(o);
             }
         }else{
-//            System.out.println(execute);
             String s = ""+execute;
             if(s.length() > 0){
                 String expected = EXPECTED[nextExpected()].trim();
@@ -240,9 +234,9 @@ public class XmlRpcTest extends TestCase{
                         }
                     }
                     if(expected.equals("Console already exited with value: 0 while waiting for an answer.|exceptions.SystemExit:0")){
-                        if(found.equals("Console already exited with value: 0 while waiting for an answer.") || 
-                                found.equals("exceptions.SystemExit:0") ||
-                                found.equals("Failed to create input stream: Connection refused")){
+                        if((found.indexOf("Console already exited with value: 0 while waiting for an answer.") != -1) || 
+                                (found.indexOf("exceptions.SystemExit:0") != -1) ||
+                                (found.indexOf("Failed to create input stream: Connection refused") != -1)){
                             return;
                         }
                     }

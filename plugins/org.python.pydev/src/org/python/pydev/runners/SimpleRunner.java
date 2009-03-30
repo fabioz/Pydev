@@ -402,7 +402,7 @@ public abstract class SimpleRunner {
             } catch (Exception e) {
                 //ignore
             }
-            return new Tuple<String, String>(std.contents.toString(), err.contents.toString());
+            return new Tuple<String, String>(std.getContents(), err.getContents());
             
         } else {
             try {

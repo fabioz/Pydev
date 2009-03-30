@@ -91,7 +91,7 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
         while(result[0] == null){
             try {
                 if(process != null){
-                    final String errStream = stdErrReader.contents.toString();
+                    final String errStream = stdErrReader.getContents();
                     if(errStream.indexOf("sys.exit called. Interactive console finishing.") != -1){
                         result[0] = new Object[]{errStream};
                         break;
@@ -101,7 +101,7 @@ public class PydevXmlRpcClient implements IPydevXmlRpcClient{
                     result[0] = new Object[]{
                             StringUtils.format("Console already exited with value: %s while waiting for an answer.\n" +
                             		"Error stream: "+errStream+"\n" +
-                    				"Output stream: "+stdOutReader.contents.toString(), exitValue)};
+                    				"Output stream: "+stdOutReader.getContents(), exitValue)};
                     
                     //ok, we have an exit value!
                     break;

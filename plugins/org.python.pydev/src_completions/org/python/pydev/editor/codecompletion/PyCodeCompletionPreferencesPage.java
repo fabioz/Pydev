@@ -157,7 +157,11 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static int getNumberOfConnectionAttempts() {
         try{
             Preferences preferences = getPreferences();
-            return preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
+            int ret = preferences.getInt(PyCodeCompletionPreferencesPage.ATTEMPTS_CODECOMPLETION);
+            if(ret < 5){
+                ret = 5; // at least 5 attempts!
+            }
+            return ret;
         }catch (NullPointerException e) {
             return 20;
         }

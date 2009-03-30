@@ -382,6 +382,11 @@ public abstract class AbstractShell {
                 socketToWrite = null;
                 serverSocket = new ServerSocket(pRead); //read in this port
                 int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
+                
+                dbg("attempts: "+attempts,1);
+                dbg("maxAttempts: "+maxAttempts,1);
+                dbg("finishedForGood: "+finishedForGood,1);
+                
                 while (!connected && attempts < maxAttempts && !finishedForGood) {
                     attempts += 1;
                     dbg("connecting attept..."+attempts,1);
@@ -393,7 +398,9 @@ public abstract class AbstractShell {
                         if (socketToWrite != null || socketToWrite.isConnected()) {
                             serverSocket.setSoTimeout(milisSleep * 2); //let's give it a higher timeout, as we're already half - connected
                             try {
+                                dbg("serverSocket.accept()! ",1);
                                 socketToRead = serverSocket.accept();
+                                dbg("socketToRead.setSoTimeout(5000) ",1);
                                 socketToRead.setSoTimeout(5000);
                                 connected = true;
                                 dbg("connected! ",1);
@@ -491,8 +498,8 @@ public abstract class AbstractShell {
     protected synchronized String getProcessOutput(){
         try {
             String output = "";
-            output += "Std output:\n" + stdReader.contents.toString();
-            output += "\n\nErr output:\n" + errReader.contents.toString();
+            output += "Std output:\n" + stdReader.getContents();
+            output += "\n\nErr output:\n" + errReader.getContents();
             return output;
         } catch (Exception e) {
             return "Unable to get output";

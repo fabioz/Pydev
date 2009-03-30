@@ -33,7 +33,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         return actualObject;
     }
 
-    public Object getParentElement() {
+    public IWrappedResource getParentElement() {
         return parentElement;
     }
 

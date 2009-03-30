@@ -109,8 +109,10 @@ public class CompiledModule extends AbstractModule{
             tokens = new HashMap<String, IToken>();
         }
         List<IModulesObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_MODULES_OBSERVER);
-        for (IModulesObserver observer : participants) {
-            observer.notifyCompiledModuleCreated(this, manager);
+        if(participants != null){
+            for (IModulesObserver observer : participants) {
+                observer.notifyCompiledModuleCreated(this, manager);
+            }
         }
 
     }

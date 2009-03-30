@@ -9,11 +9,37 @@ import java.io.InputStreamReader;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 public class ThreadStreamReader extends Thread {
-    InputStream is;
-    public FastStringBuffer contents;
+    
+    /**
+     * Input stream read.
+     */
+    private final InputStream is;
+    
+    /**
+     * Buffer with the contents gotten.
+     */
+    private final FastStringBuffer contents;
+    
+    /**
+     * Access to the buffer should be synchronized.
+     */
+    private final Object lock = new Object();
+    
+    /**
+     * Keeps the next unique identifier.
+     */
+    private static int next=0;
+    
+    /**
+     * Get a unique identifier for this thread. 
+     */
+    private static synchronized int next(){
+        next ++;
+        return next;
+    }
 
     public ThreadStreamReader(InputStream is) {
-        this.setName("ThreadStreamReader");
+        this.setName("ThreadStreamReader: "+next());
         this.setDaemon(true);
         contents = new FastStringBuffer();
         this.is = is;
@@ -24,7 +50,9 @@ public class ThreadStreamReader extends Thread {
             InputStreamReader in = new InputStreamReader(is);
             int c;
             while ((c = in.read()) != -1) {
-                contents.append((char) c);
+                synchronized(lock){
+                    contents.append((char) c);
+                }
             }
         } catch (Exception e) {
             //that's ok
@@ -37,8 +65,16 @@ public class ThreadStreamReader extends Thread {
      * the last call to this method.
      */
     public String getAndClearContents() {
-        FastStringBuffer oldContents = contents;
-        contents = new FastStringBuffer();
-        return oldContents.toString();
+        synchronized(lock){
+            String string = contents.toString();
+            contents.clear();
+            return string;
+        }
+    }
+
+    public String getContents() {
+        synchronized(lock){
+            return contents.toString();
+        }
     }
 }

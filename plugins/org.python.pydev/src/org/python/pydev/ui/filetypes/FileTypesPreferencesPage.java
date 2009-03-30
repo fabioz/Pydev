@@ -98,6 +98,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
             this.wildcaldValidSourceFiles = null;
             this.dottedValidSourceFiles = null;
             this.pythondValidSourceFiles = null;
+            this.pythonValidInitFiles = null;
         }
         
 
@@ -135,6 +136,24 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
 
         //return new String[] { "py", "pyw" };
         private String[] pythondValidSourceFiles;
+        
+        /**
+         * __init__.py, __init__.pyw, etc...
+         */
+        private String[] pythonValidInitFiles;
+        
+        public String[] getCacheValidInitFiles() {
+            String[] ret = pythonValidInitFiles;
+            if(ret == null){
+                String[] cacheValidSourceFiles = getCacheValidSourceFiles();
+                ret = new String[cacheValidSourceFiles.length];
+                for(int i=0;i<ret.length;i++){
+                    ret[i] = "__init__."+cacheValidSourceFiles[i];
+                }
+            }
+            return ret;
+        }
+        
         public String[] getCacheValidSourceFiles() {
             String[] ret = pythondValidSourceFiles;
             if(ret == null){
@@ -229,6 +248,14 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
             return PreferencesCacheHelper.get().getCacheValidSourceFiles();
         } catch (NullPointerException e) {
             return new String[]{"py", "pyw"}; // in tests
+        }
+    }
+    
+    public final static String[] getValidInitFiles() {
+        try {
+            return PreferencesCacheHelper.get().getCacheValidInitFiles();
+        } catch (NullPointerException e) {
+            return new String[]{"__init__.py", "__init__.pyw"}; // in tests
         }
     }
 
