@@ -53,6 +53,11 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         codeCompletion = new PyCodeCompletion();
     }
 
+    public void tearDown() throws Exception {
+        super.tearDown();
+        PyCodeCompletionPreferencesPage.getPreferencesForTests = null;
+    }
+    
     @Override
     protected String getSystemPythonpathPaths() {
         return TestDependent.GetCompletePythonLib(true)+"|"+
@@ -97,7 +102,6 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         prefs.setValue(PyCodeCompletionPreferencesPage.APPLY_COMPLETION_ON_DOT, true);
         ((CtxInsensitiveImportComplProposal)proposals[1]).indentString = "    ";
         ((CtxInsensitiveImportComplProposal)proposals[1]).apply(document, '.', 0, 8);
-        System.out.println(document.get());
         PySelectionTest.checkStrEquals("from testlib import unittest\r\nunittest.", document.get());
         
         
