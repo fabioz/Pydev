@@ -1,39 +1,49 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 
-
 <ul>
-<li><strong>Interactive console</strong> The interpreter to be used can be chosen</li>
-<li><strong>New modules</strong> can be created from <strong>templates</strong></li>
+<li>Better <strong>error handling</strong> in the grammar</li>
 
-<li><strong>Interpreter configuration</strong> improved!</li>
+<li><strong>Code Formatter</strong></li>
 <ul>
-    <li>Environment variables can be specified for a given interpreter</li>
-    <li>Canceling operation now works correctly</li>
-</ul><br>
-
-
-<li><strong>Debugger</strong></li>
-<ul>
-    <li>Variables correctly gotten on Jython 2.1 / 2.2</li>
-    <li>Using globals as an union of original globals+locals so that generator expressions can be evaluated</li>
-    <li>Breakpoints only opened on double-click (no longer on select)</li>
-</ul><br>
-
-<li>The project preferences are now applied even if the page to configure the project is not visible.</li>
-<li>Jython 2.5b1 working (problem with sitecustomize)</li>
-<li>Wrap paragraph fixed</li>
-<li>Set comprehension working on Python 3.0 parsing</li>
-<li>Find definition working when a module outside of the known pythonpath is found</li>
-<li>Source folders were not properly found sometimes -- when workspace was not properly refreshed</li>
-<li>Invalid modules could get in the memory</li>
-<li>Getting the grammar version for a project could be wrong (and could loose its indexing at that time)</li>
-<li>Multiple external zip files can be added at once to the pythonpath</li>
-<li>nonlocal added to keywords</li>
-<li>Fixed annoying problem where cursor was jumping when it shouldn't (outline)</li>
-<li>Fixed problem where the breakpoint could be lost (now, playing safe and matching anything in the file if the context cannot be gotten)</li>
-<li>Ctrl + 2 + --reindex can be used to reindex all the opened projects if the indexing becomes corrupt</li>
-<li>Changing nothing on project config and pressing OK no longer reanalyzes the modules</li>
+    <li>Can be applied from context menu (recursively applied for folders)</li>
+    <li>Can trim whitespaces from the end of the lines</li>
+    <li>Can add new a line to the end of the file</li>
+    <li>Can automatically apply code-formatting on save</li>
+    <li>Fixed issues with unary operators and exponencial</li>
 </ul>
+
+
+<li><strong>Python 3.0</strong></li>
+<ul>
+    <li>Parser supporting unicode identifiers</li>
+    <li>Star expr recognized</li>
+</ul>
+
+<li><strong>Pydev package explorer</strong></li>
+<ul>
+<li>Can show working sets as top-level elements</li>
+<li>Folders without __init__.py are no longer shown as packages</li>
+</ul>
+
+<li><strong>Interactive console</strong></li>
+<ul>
+    <li>When waiting for user input, the prompt is not shown</li>
+    <li>Console initial commands compatible with Python 3.0</li>
+    <li>Timeout for starting console communication while the shell is not fully initilized</li>
+    <li>More info is available if connection fails</li>
+</ul>
+
+<li>Code completion: Can get args from docstring when '*' is present.</li>
+<li>Better heuristics for automatic insertion of "self" and "import"</li>
+<li>Fixed problem configuring external jars and zip files</li>
+<li>Launch getting interpreter from project on default config</li>
+<li>After a parenthesis, 'n' indentation levels may be applied (patch by Radim Kubacki)</li>
+<li>.pyc files are now marked as derived (note that this will only happen when they're changed)</li>
+<li>Fixed debugger issue with Jython 2.5b3</li>
+<li>Jython: completions working for static members access</li>
+<li>Hover works on Eclipse 3.2</li>
+</ul>
+
 
 
 
@@ -138,6 +148,53 @@
 
 <hr/>
 <h2>Features History</h2>
+
+
+<h3>New Release: 1.4.4</h3>
+
+<ul>
+This release fixes a critical bug when configuring the interpreter (if no 
+environment variables were specified, it was not possible to configure an interpreter)
+</ul>
+
+
+<h3>New Release: 1.4.3</h3>
+
+<ul>
+<li><strong>Interactive console</strong> The interpreter to be used can be chosen</li>
+<li><strong>New modules</strong> can be created from <strong>templates</strong></li>
+
+<li><strong>Interpreter configuration</strong> improved!</li>
+<ul>
+    <li>Environment variables can be specified for a given interpreter</li>
+    <li>Canceling operation now works correctly</li>
+</ul><br>
+
+
+<li><strong>Debugger</strong></li>
+<ul>
+    <li>Variables correctly gotten on Jython 2.1 / 2.2</li>
+    <li>Using globals as an union of original globals+locals so that generator expressions can be evaluated</li>
+    <li>Breakpoints only opened on double-click (no longer on select)</li>
+</ul><br>
+
+<li>The project preferences are now applied even if the page to configure the project is not visible.</li>
+<li>Jython 2.5b1 working (problem with sitecustomize)</li>
+<li>Wrap paragraph fixed</li>
+<li>Set comprehension working on Python 3.0 parsing</li>
+<li>Find definition working when a module outside of the known pythonpath is found</li>
+<li>Source folders were not properly found sometimes -- when workspace was not properly refreshed</li>
+<li>Invalid modules could get in the memory</li>
+<li>Getting the grammar version for a project could be wrong (and could loose its indexing at that time)</li>
+<li>Multiple external zip files can be added at once to the pythonpath</li>
+<li>nonlocal added to keywords</li>
+<li>Fixed annoying problem where cursor was jumping when it shouldn't (outline)</li>
+<li>Fixed problem where the breakpoint could be lost (now, playing safe and matching anything in the file if the context cannot be gotten)</li>
+<li>Ctrl + 2 + --reindex can be used to reindex all the opened projects if the indexing becomes corrupt</li>
+<li>Changing nothing on project config and pressing OK no longer reanalyzes the modules</li>
+</ul>
+
+
 
 <h3>New Release: 1.4.1</h3>
 <ul>

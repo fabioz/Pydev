@@ -25,7 +25,16 @@ remote debugging, 'quick-fixes', mark-occurrences</strong>, among others.<br/><b
 If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev Extensions homepage</a><br/>
 <br/>
 <br/>
+
+<hr/>
+
+<p><strong><a href="http://showmedo.com/videos/series?name=PydevEclipseList">Screencasts at ShowMeDo.com</a></strong></p>
+<p><strong><a href="http://sourceforge.net/export/rss2_projnews.php?group_id=85796&rss_fulltext=1">Releases at Sourceforge news <img src="images/general/xml.png" alt="XML" border="0" /></a></strong></p>
+
+<p></strong> <a href="http://pydev.blogspot.com/">Development info on blog</a></strong></p>
+<p><strong><a href="http://www.fabioz.com/pydev/manual_101_root.html">Getting started tutorial</a></strong></p>
 <br/>
+
 
 <hr/>
 <h2>News: </h2>
@@ -33,6 +42,55 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 
 
 <h3>New Release: LAST_VERSION_TAG</h3>
+
+<ul>
+<li>Better <strong>error handling</strong> in the grammar</li>
+
+<li><strong>Code Formatter</strong></li>
+<ul>
+    <li>Can be applied from context menu (recursively applied for folders)</li>
+    <li>Can trim whitespaces from the end of the lines</li>
+    <li>Can add new a line to the end of the file</li>
+    <li>Can automatically apply code-formatting on save</li>
+    <li>Fixed issues with unary operators and exponencial</li>
+</ul>
+
+
+<li><strong>Python 3.0</strong></li>
+<ul>
+	<li>Parser supporting unicode identifiers</li>
+	<li>Star expr recognized</li>
+</ul>
+
+<li><strong>Pydev package explorer</strong></li>
+<ul>
+<li>Can show working sets as top-level elements</li>
+<li>Folders without __init__.py are no longer shown as packages</li>
+</ul>
+
+<li><strong>Interactive console</strong></li>
+<ul>
+    <li>When waiting for user input, the prompt is not shown</li>
+    <li>Console initial commands compatible with Python 3.0</li>
+    <li>Timeout for starting console communication while the shell is not fully initilized</li>
+    <li>More info is available if connection fails</li>
+</ul>
+
+<li>Code completion: Can get args from docstring when '*' is present.</li>
+<li>Better heuristics for automatic insertion of "self" and "import"</li>
+<li>Fixed problem configuring external jars and zip files</li>
+<li>Launch getting interpreter from project on default config</li>
+<li>After a parenthesis, 'n' indentation levels may be applied (patch by Radim Kubacki)</li>
+<li>.pyc files are now marked as derived (note that this will only happen when they're changed)</li>
+<li>Fixed debugger issue with Jython 2.5b3</li>
+<li>Jython: completions working for static members access</li>
+<li>Hover works on Eclipse 3.2</li>
+</ul>
+
+
+
+
+<h3>New Release: 1.4.4</h3>
 
 <ul>
 This release fixes a critical bug when configuring the interpreter (if no 
@@ -80,59 +138,8 @@ environment variables were specified, it was not possible to configure an interp
 
 <br/>
 
-<h3>News</h3>
-
-<p>Two <strong>screencasts</strong> demonstrating pydev and pydev extensions have been created. They are hosted at <a href="http://showmedo.com/videos/series?name=PydevEclipseList">ShowMeDo.com</a>.
-</p>
 
 <br/><br/>
-<!--
-<h4>Others that are new and noteworthy:</h4>
-
-<ul>
-<li>Some bugfixes
-</li><li>Added option so that the user can choose whether to automatically add 'self' or not in method definitions
-</li>
-</ul>
--->
-
-<!--
-<hr/>
-<h4>Special thanks to:</h4>
-<strong>Vitor Oba</strong>, for patches in the debugger.<br/><br/>
-<hr/>
-
-<h4>OctetString</h4>
-<a href="http://www.octetstring.com/"><IMG src="images/sponsors/os_logo_small.gif" border="1" ></a>
-<br/>
-<br/>
-Pydev received a grant from <a href="http://www.octetstring.com/">OctetString</a> to 
-add Jython support to Pydev.<br/><br/>
-
-<p class="italic">"OctetString, Inc uses Pydev in its management system to enable
-customers to develop data integration (mapping) scripts as part of
-its LDAP virtual directory server (a J2SE based application). As a
-user of Pydev, OctetString is pleased to be able to contribute back
-to the project and its success!"   -Phil Hunt, Director of Engineering</p>
-
--->
-<hr/>
-<br/>
-<h3>More...</h3>
-
-Keep up-to-date with releases: 
-<a href="http://sourceforge.net/export/rss2_projnews.php?group_id=85796&rss_fulltext=1">
-<img src="images/general/xml.png" alt="XML" border="0" />
-</a>
-<br/>
 <br/>
 
-
-
-
-<a href="http://pydev.blogspot.com/">Get development info here</a> (Blog). 
-<br/>
-<br/>
-
-<a href="download.html">Download it here</a>.
 
