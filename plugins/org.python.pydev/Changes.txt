@@ -2,32 +2,54 @@ After 1.4.4
 
 Pydev Extensions
 
-Derived resources are no longer analyzed
+<li>Derived resources are no longer analyzed</li>
 
 Pydev
-<li>Hover on Eclipse 3.2.</li>
-<li>Error handling in the grammar.</li>
-<li>Fixed problems in the code formatting (unary operators and exponencial)</li>
-Source-formatting can be applied from context menu (so that it's recursively applied for folders)
-Python 3.0 parser supporting unicode identifiers
-Console initial commands compatible with Python 3.0
-When waiting for user input, the prompt is not shown
-Star expr recognized in Python 3.0 grammar
-Fix getting args from docstring
-Better heuristic for automatic insertion of "self" and "import"
-Fixed problem configuring external jars
-Launch getting interpreter from project on default config
-Pydev package explorer can show working sets as top-level elements
-Applied patch to add 'n' indentation levels after parenthesis (Radim Kubacki)
-.pyc files are now marked as derived
-Timeout for starting console communication (was attempting to connect many times at once)
-Giving more info if connection fails.
-Option to automatically apply code-formatting on save
-Code-formatter: Added option to trim whitespaces from the end of the line
-Code-formatter: Adedd option to add new line to the end of the file
-Fixed debugger issue with Jython 2.5b3
-Jython: completions working for static members access.
-Package Explorer: folders without __init__.py not shown as packages
+<ul>
+<li>Better <strong>error handling</strong> in the grammar</li>
+
+<li><strong>Code Formatter</strong></li>
+<ul>
+    <li>Can be applied from context menu (recursively applied for folders)</li>
+    <li>Can trim whitespaces from the end of the lines</li>
+    <li>Can add new a line to the end of the file</li>
+    <li>Can automatically apply code-formatting on save</li>
+    <li>Fixed issues with unary operators and exponencial</li>
+</ul>
+
+
+<li><strong>Python 3.0</strong></li>
+<ul>
+    <li>Parser supporting unicode identifiers</li>
+    <li>Star expr recognized</li>
+</ul>
+
+<li><strong>Pydev package explorer</strong></li>
+<ul>
+<li>Can show working sets as top-level elements</li>
+<li>Folders without __init__.py are no longer shown as packages</li>
+</ul>
+
+<li><strong>Interactive console</strong></li>
+<ul>
+    <li>When waiting for user input, the prompt is not shown</li>
+    <li>Console initial commands compatible with Python 3.0</li>
+    <li>Timeout for starting console communication while the shell is not fully initilized</li>
+    <li>More info is available if connection fails</li>
+</ul>
+
+<li>Code completion: Can get args from docstring when '*' is present.</li>
+<li>Better heuristics for automatic insertion of "self" and "import"</li>
+<li>Fixed problem configuring external jars and zip files</li>
+<li>Launch getting interpreter from project on default config</li>
+<li>After a parenthesis, 'n' indentation levels may be applied (patch by Radim Kubacki)</li>
+<li>.pyc files are now marked as derived (note that this will only happen when they're changed)</li>
+<li>Fixed debugger issue with Jython 2.5b3</li>
+<li>Jython: completions working for static members access</li>
+<li>Hover works on Eclipse 3.2</li>
+</ul>
+
+
 
 After 1.4.3
 

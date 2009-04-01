@@ -22,7 +22,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     
     
     public static final String TRIM_LINES = "TRIM_EMPTY_LINES";
-    public static final boolean DEFAULT_TRIM_LINES = true;
+    public static final boolean DEFAULT_TRIM_LINES = false;
     
     
     public static final String ADD_NEW_LINE_AT_END_OF_FILE = "ADD_NEW_LINE_AT_END_OF_FILE";
