@@ -75,10 +75,11 @@ def Make(make):
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-    if '--make-open' in kwargs:
+    args = sys.argv[:1]
+    if '--make-open' in args:
         Make(MAKE_OPEN)
         
-    if '--make-pro' in kwargs:
+    if '--make-pro' in args:
         Make(MAKE_PRO)
         
         
