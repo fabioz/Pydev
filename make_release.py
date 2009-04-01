@@ -100,7 +100,7 @@ def Make(make, revert_and_update_svn=REVERT_SVN):
             Execute(['svn', 'up', '--non-interactive', '--force', d])
 
 
-        if revert_and_update_svn == REVERT_SVN_NO:
+        if revert_and_update_svn == REVERT_SVN_ONLY:
             return
             
         env = {}
