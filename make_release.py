@@ -1,3 +1,7 @@
+'''
+svn commit pydev_pro\make_release.py -m "Making release"&svn up temp_buildDir\pydev_pro\make_release.py&d:\bin\Python261\python.exe temp_buildDir\pydev_pro\make_release.py
+'''
+
 import subprocess
 import remove_unversioned_files
 import sys
@@ -32,7 +36,6 @@ def Make():
             env = {}
             env.update(os.environ)
             
-            env['PATH'] = env['PATH']+os.pathsep+r'W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin'
             env['JAVA_HOME'] = r'D:\bin\jdk_1_5_09'
             
             if d.endswith('pro'):
@@ -41,7 +44,7 @@ def Make():
                 os.chdir(d+r'\builders\org.python.pydev.build')
             
             cmds = [
-                'ant',
+                'W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin\ant.bat',
                  '-DbuildDirectory=W:/temp_buildDir/pydev',
                  '-Dbaseos=win32',
                  '-Dbasews=win32',
