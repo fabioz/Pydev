@@ -36,9 +36,9 @@ def Make():
             env['JAVA_HOME'] = r'D:\bin\jdk_1_5_09'
             
             if d.endswith('pro'):
-                os.chdir(pydev_pro_dir+r'\builders\com.python.pydev.build')
+                os.chdir(d+r'\builders\com.python.pydev.build')
             else:
-                os.chdir(pydev_pro_dir+r'\builders\org.python.pydev.build')
+                os.chdir(d+r'\builders\org.python.pydev.build')
             
             cmds = [
                 'ant',
