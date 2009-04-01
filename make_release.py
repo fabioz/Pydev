@@ -23,8 +23,8 @@ import sys
 import os
 
 BASE_DIR = r'W:\temp_buildDir'
-PYDEV_PRO_DIR = BASE_DIR+r'\pydev_pro'
-PYDEV_OPEN_DIR = BASE_DIR+r'\pydev'
+PYDEV_PRO_DIR = BASE_DIR + r'\pydev_pro'
+PYDEV_OPEN_DIR = BASE_DIR + r'\pydev'
 
 global VERSION
 VERSION = None
@@ -55,16 +55,20 @@ def UpdateDocs():
     '''
     Will just build the docs
     '''
-    ExecutePython([PYDEV_PRO_DIR+'/plugins/com.python.pydev.docs/build_both.py', '--version='+str(VERSION)])
+    ExecutePython([PYDEV_PRO_DIR + '/plugins/com.python.pydev.docs/build_both.py', '--version=' + str(VERSION)])
     
 
 MAKE_OPEN = 1
 MAKE_PRO = 2
 
+REVERT_SVN = 1
+REVERT_SVN_NO = 2
+REVERT_SVN_ONLY = 3
+
 #=======================================================================================================================
 # Make
 #=======================================================================================================================
-def Make(make, revert_and_update_svn=False):
+def Make(make, revert_and_update_svn=REVERT_SVN):
     '''
     Actually builds the open source or the pro plugin.
     
@@ -76,25 +80,29 @@ def Make(make, revert_and_update_svn=False):
         os.chdir(PYDEV_PRO_DIR)
         
         if make == MAKE_OPEN:
-            d  = PYDEV_OPEN_DIR
-            os.chdir(d+r'\builders\org.python.pydev.build')
+            d = PYDEV_OPEN_DIR
+            os.chdir(d + r'\builders\org.python.pydev.build')
             build_dir = 'w:/temp_buildDir/pydev'
             deploy_dir = 'w:/temp_deployDir/pydev'
             
         elif make == MAKE_PRO:
             d = PYDEV_PRO_DIR
-            os.chdir(d+r'\builders\com.python.pydev.build')
+            os.chdir(d + r'\builders\com.python.pydev.build')
             build_dir = 'w:/temp_buildDir/pydev_pro'
             deploy_dir = 'w:/temp_deployDir/pydev_pro'
             
         else:
             raise AssertionError('Wrong target!')  
     
-        if revert_and_update_svn:
+        if revert_and_update_svn in (REVERT_SVN, REVERT_SVN_ONLY):
             Execute(['svn', 'revert', '-R', d])
             remove_unversioned_files.RemoveFilesFrom(d)
             Execute(['svn', 'up', '--non-interactive', '--force', d])
 
+
+        if revert_and_update_svn in REVERT_SVN_NO:
+            return
+            
         env = {}
         env.update(os.environ)
         
@@ -129,10 +137,13 @@ if __name__ == '__main__':
             version = arg[len('--version='):]
             VERSION = version
     
-    revert_and_update_svn = True
+    revert_and_update_svn = REVERT_SVN
     
     if '--no-revert' in args:
-        revert_and_update_svn = False
+        revert_and_update_svn = REVERT_SVN_NO
+    
+    elif '--only-revert' in args:
+        revert_and_update_svn = REVERT_SVN_ONLY
     
     if '--make-open' in args:
         Make(MAKE_OPEN, revert_and_update_svn)
