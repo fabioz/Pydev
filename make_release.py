@@ -44,7 +44,7 @@ def Make():
                 os.chdir(d+r'\builders\org.python.pydev.build')
             
             cmds = [
-                'W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin\ant.bat',
+                 r'W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin\ant.bat',
                  '-DbuildDirectory=W:/temp_buildDir/pydev',
                  '-Dbaseos=win32',
                  '-Dbasews=win32',
