@@ -1,5 +1,9 @@
 '''
 svn commit pydev_pro\make_release.py -m "Making release"&svn up temp_buildDir\pydev_pro\make_release.py&d:\bin\Python261\python.exe temp_buildDir\pydev_pro\make_release.py
+
+The options available are:
+
+--make
 '''
 
 import subprocess
@@ -21,7 +25,7 @@ MAKE_PRO = 2
 #=======================================================================================================================
 # Make
 #=======================================================================================================================
-def Make(make):
+def Make(make, revert_and_update_svn=False):
     base_dir = r'W:\temp_buildDir'
     pydev_pro_dir = base_dir+r'\pydev_pro'
     pydev_dir = base_dir+r'\pydev'
@@ -39,15 +43,16 @@ def Make(make):
         elif make == MAKE_PRO:
             d = pydev_pro_dir
             os.chdir(d+r'\builders\com.python.pydev.build')
-            build_dir = 'w:/temp_buildDir/pydev'
+            build_dir = 'w:/temp_buildDir/pydev_pro'
             deploy_dir = 'w:/temp_deployDir/pydev_pro'
             
         else:
             raise AssertionError('Wrong target!')  
     
-        Execute(['svn', 'revert', '-R', d])
-        remove_unversioned_files.RemoveFilesFrom(d)
-        Execute(['svn', 'up', '--non-interactive', '--force', d])
+        if revert_and_update_svn:
+            Execute(['svn', 'revert', '-R', d])
+            remove_unversioned_files.RemoveFilesFrom(d)
+            Execute(['svn', 'up', '--non-interactive', '--force', d])
 
         env = {}
         env.update(os.environ)
@@ -62,7 +67,8 @@ def Make(make):
              '-Dbasearch=x86',
              '-Ddeploy.dir=%s' % (deploy_dir,),
              '-DcleanAfter=false',
-             '-Dvanilla.eclipse=W:/eclipse_341_clean'
+             '-Dvanilla.eclipse=W:/eclipse_341_clean',
+             '-Dpydev.p2.repo=file:W:/temp_deployDir/pydev', #Only really used when building the pro version
         ]
         Execute(cmds, env=env, shell=True)
     finally:
@@ -75,12 +81,18 @@ def Make(make):
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-    args = sys.argv[:1]
+    
+    
+    args = sys.argv[1:]
+    revert_and_update_svn = True
+    if '--no-revert' in args:
+        revert_and_update_svn = False
+    
     if '--make-open' in args:
-        Make(MAKE_OPEN)
+        Make(MAKE_OPEN, revert_and_update_svn)
         
     if '--make-pro' in args:
-        Make(MAKE_PRO)
+        Make(MAKE_PRO, revert_and_update_svn)
         
         
     
