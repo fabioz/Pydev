@@ -1,6 +1,16 @@
 import os
 import sys
-LAST_VERSION_TAG = '1.4.5'
+
+
+
+
+for arg in args:
+    if arg.startswith('--version='):
+        version = arg[len('--version='):]
+        LAST_VERSION_TAG = version
+else:
+    LAST_VERSION_TAG = '1.4.5' #Not specified (let's leave one there)
+
 
 if __name__ == '__main__':
     d1 = 'open_source/scripts/'
