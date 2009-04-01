@@ -21,7 +21,7 @@ def Make():
     
     os.chdir(pydev_pro_dir)
     
-    for d n (pydev_dir, pydev_pro_dir):
+    for d in (pydev_dir, pydev_pro_dir):
     
         Execute(['svn', 'revert', '-R', d])
         remove_unversioned_files.RemoveFilesFrom(d)
