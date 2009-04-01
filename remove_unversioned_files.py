@@ -14,7 +14,10 @@ def removeall(path):
             removeall(fullpath)
     os.rmdir(path)
 
-unversionedRex = re.compile('^ ?[\?ID] *[1-9 ]*[a-zA-Z]* +(.*)')
-for l in  os.popen('svn status --no-ignore -v').readlines():
-    match = unversionedRex.match(l)
-    if match: removeall(match.group(1))
+
+def RemoveFilesFrom(path):
+    unversionedRex = re.compile('^ ?[\?ID] *[1-9 ]*[a-zA-Z]* +(.*)')
+    for l in  os.popen('svn status --no-ignore -v %s' % path).readlines():
+        match = unversionedRex.match(l)
+        if match: removeall(match.group(1))
+        
