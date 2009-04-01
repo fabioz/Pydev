@@ -98,6 +98,7 @@ def Make(make, revert_and_update_svn=REVERT_SVN):
             Execute(['svn', 'revert', '-R', d])
             remove_unversioned_files.RemoveFilesFrom(d)
             Execute(['svn', 'up', '--non-interactive', '--force', d])
+            remove_unversioned_files.RemoveFilesFrom(d)
 
 
         if revert_and_update_svn == REVERT_SVN_ONLY:
