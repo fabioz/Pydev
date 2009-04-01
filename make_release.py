@@ -11,8 +11,8 @@ import os
 #=======================================================================================================================
 # Execute
 #=======================================================================================================================
-def Execute(cmds, env=None):
-    print 'Executing', ' '.join(cmds), ':', subprocess.call(cmds, env=env)
+def Execute(cmds, **kwargs):
+    print 'Executing', ' '.join(cmds), ':', subprocess.call(cmds, **kwargs)
 
 
 #=======================================================================================================================
@@ -53,7 +53,7 @@ def Make():
                  '-DcleanAfter=false',
                  '-Dvanilla.eclipse=W:/eclipse_341_clean'
             ]
-            Execute(cmds, env)
+            Execute(cmds, env=env, shell=True)
     finally:
         os.chdir(initial_dir)
 
