@@ -15,6 +15,7 @@ import java.util.HashSet;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.TestIndentPrefs;
@@ -30,7 +31,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testUndefinedVariableFromSourceModule();
+            analyzer2.testStarExp();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -1209,7 +1210,11 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     private IMessage[] analyzeDoc() {
-        return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), 
+        final SourceModule mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0);
+        if(mod.parseError != null){
+            throw new RuntimeException(mod.parseError);
+        }
+        return analyzer.analyzeDocument(nature, mod, 
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
     }
     
@@ -2584,6 +2589,23 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzeDoc();
         
         printMessages(msgs, 0);
+    }
+    
+    
+    public void testStarExp() throws Throwable {
+        doc = new Document("" +
+        "a, *b = [1, 2, 3]\n" +
+        "a, b");
+        
+        int original = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+        try {
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+            printMessages(msgs, 0);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = original;
+        }
     }
     
     
