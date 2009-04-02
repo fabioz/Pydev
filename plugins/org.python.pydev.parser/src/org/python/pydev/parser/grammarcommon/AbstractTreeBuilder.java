@@ -159,7 +159,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             
             case JJTIMPORT: ret = new Import(null);break;
             case JJTDOT_OP: ret = new Attribute(null, null, Attribute.Load);break;
-            case JJTSTAR_EXPR: ret = new Starred(null, Starred.Load);break;
+            case JJTSTAR_EXPR: ret = new Starred(null, Starred.Store);break;
 
 
             default:ret = new IdentityNode(id);break;
@@ -478,6 +478,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTSTAR_EXPR:
                 Starred s = (Starred) n;
                 s.value = (exprType) this.stack.popNode();
+                ctx.setStore(s);
                 return s;
         }
 

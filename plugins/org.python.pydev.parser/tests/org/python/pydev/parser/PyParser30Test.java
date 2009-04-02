@@ -14,6 +14,8 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
+import org.python.pydev.parser.jython.ast.Starred;
+import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public class PyParser30Test extends PyParserTestBase{
@@ -508,7 +510,13 @@ public class PyParser30Test extends PyParserTestBase{
     public void testUnpacking() {
         String s = "a, *b, c = range(5)";
         
-        parseLegalDocStr(s);
+        Module ast = (Module) parseLegalDocStr(s);
+        Assign assign = (Assign) ast.body[0];
+        Tuple tup = (Tuple) assign.targets[0];
+        Starred starred = (Starred) tup.elts[1];
+        Name name = (Name) starred.value;
+        assertEquals("b", name.id);
+        assertEquals(Name.Store, name.ctx);
     }
     
     public void testUnpacking2() {

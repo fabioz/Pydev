@@ -217,6 +217,8 @@ public class CodeCompletionTestsBase extends TestCase {
     protected IInterpreterManager getInterpreterManager() {
         return PydevPlugin.getPythonInterpreterManager();
     }
+    
+    protected static int GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_VERSION;
 
     /**
      * @return a PythonNature that is regarded as a python nature with the latest grammar.
@@ -233,7 +235,7 @@ public class CodeCompletionTestsBase extends TestCase {
             }
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.LATEST_GRAMMAR_VERSION;
+                return GRAMMAR_TO_USE_FOR_PARSING;
             }
         };
     }

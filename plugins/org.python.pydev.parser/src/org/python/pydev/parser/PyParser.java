@@ -486,13 +486,13 @@ public class PyParser implements IPyParser {
         /**
          * A set with the lines that were changed when trying to make the document parseable
          */
-        public Set<Integer> linesChanged = new HashSet<Integer>();
+        public final Set<Integer> linesChanged = new HashSet<Integer>();
         
         /**
          * This is the version of the grammar to be used 
          * @see IPythonNature.GRAMMAR_XXX constants
          */
-        public int grammarVersion;
+        public final int grammarVersion;
         
         /**
          * The module name of the contents parsed (may be null)

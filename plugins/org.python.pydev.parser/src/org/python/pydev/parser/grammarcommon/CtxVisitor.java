@@ -66,6 +66,7 @@ public final class CtxVisitor extends Visitor {
 
     public Object visitStarred(Starred node) throws Exception {
         node.ctx = ctx;
+        traverse(node);
         return null;
     }
     
