@@ -25,7 +25,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testSimpleOperator7();
+            n.testDontLooseComma();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -902,6 +902,21 @@ public class PyFormatStdTest extends TestCase {
     }
 
     
+    public void testDontLooseComma(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "call(aa, (1, 2)\n" +
+        "";
+        
+        String s1 = "" +
+        "call(aa, (1, 2)\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
     
 
 }

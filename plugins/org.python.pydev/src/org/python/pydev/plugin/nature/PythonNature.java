@@ -940,6 +940,16 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             return GRAMMAR_PYTHON_VERSION_3_0;
         }
         
+        if(grammarVersion != null){
+            if(grammarVersion.startsWith("3")){
+                return GRAMMAR_PYTHON_VERSION_3_0;
+                
+            }else if(grammarVersion.startsWith("2")){
+                //latest in the 2.x series
+                return LATEST_GRAMMAR_VERSION;
+            }
+        }
+        
         PydevPlugin.log("Unable to recognize version: "+grammarVersion+" returning default.");
         return LATEST_GRAMMAR_VERSION;
     }

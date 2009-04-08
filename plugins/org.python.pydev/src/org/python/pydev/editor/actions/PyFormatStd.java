@@ -594,11 +594,15 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * Formats the contents for when a parenthesis is found (so, go until the closing parens and format it accordingly)
-     * @param cs
-     * @param i
-     * @param parensLevel 
      */
-    private int formatForPar(ParsingUtils parsingUtils, char[] cs, int i, FormatStd std, FastStringBuffer buf, int parensLevel, String delimiter) {
+    private int formatForPar(
+            final ParsingUtils parsingUtils, 
+            final char[] cs, 
+            final int i, 
+            final FormatStd std, 
+            final FastStringBuffer buf, 
+            final int parensLevel, 
+            final String delimiter) {
         char c = ' ';
         FastStringBuffer locBuf = new FastStringBuffer();
 
@@ -664,6 +668,9 @@ public class PyFormatStd extends PyAction implements IFormatter {
             }
             return j;
         } else {
+            //we found no closing parens but we finished looking already, so, let's just add
+            //the '(' regularly and return as we only walked that char.
+            buf.append('(');
             return i;
         }
     }

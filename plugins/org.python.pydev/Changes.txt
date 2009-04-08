@@ -15,6 +15,7 @@ Pydev
     <li>Can add new a line to the end of the file</li>
     <li>Can automatically apply code-formatting on save</li>
     <li>Fixed issues with unary operators and exponencial</li>
+    <li>Fixed issues where parens was lost if no closing parens was available</li>
 </ul>
 
 
@@ -24,6 +25,8 @@ Pydev
     <li>Star expr recognized</li>
 </ul>
 
+
+<li>Python 3.1 version acknowledged (and proper grammar used)</li>
 <li><strong>Pydev package explorer</strong></li>
 <ul>
 <li>Can show working sets as top-level elements</li>
