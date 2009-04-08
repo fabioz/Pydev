@@ -1,8 +1,11 @@
-Revert W:\temp_deployDir to its initial state
+Update homepage
+Commit everything
+Remove everything from W:\temp_deployDir except pydev\eclipse.
 
-Update the home page and run its script
+w:
+d:\bin\python261\python.exe make_release.py --make-open --make-pro --no-revert
+d:\bin\python261\python.exe make_release.py --up-docs --version=1.4.5
 
-Run the build script
 
 Change site.xml in org.python.pydev.site
 
