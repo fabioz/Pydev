@@ -1,29 +1,17 @@
+W:\temp_buildDir\pydev_pro
+copy W:\pydev_pro\make_release.py W:\temp_buildDir\pydev_pro
+d:\bin\python261\python.exe make_release.py --up-site --version=1.4.5
+
 Update homepage
 Commit everything
 Remove everything from W:\temp_deployDir except pydev\eclipse.
 
-w:
+
+W:\temp_buildDir\pydev_pro
+d:\bin\python261\python.exe make_release.py --make-open --make-pro --only-revert
 d:\bin\python261\python.exe make_release.py --make-open --make-pro --no-revert
 d:\bin\python261\python.exe make_release.py --up-docs --version=1.4.5
-
-
-Change site.xml in org.python.pydev.site
-
-Download the current artifacts.jar and content.jar and properly update it with the current site.
-
-
-
-Commands below (note: this must be more automatic)
-
-d:\bin\eclipse341\eclipse.exe   -application  org.eclipse.equinox.p2.metadata.generator.EclipseGenerator  -updateSite W:/temp_deployDir/pydev -site file:W:/temp_deployDir/pydev/site.xml   -metadataRepository file:W:/temp_deployDir/metadata   -metadataRepositoryName "Pydev Update Site"   -artifactRepository file:W:/temp_deployDir/metadata   -artifactRepositoryName "Pydev Artifacts"   -compress   -append   -reusePack200Files   -noDefaultIUs   -vmargs -Xmx256m
-
-copy W:\temp_deployDir\pydev\artifacts.jar W:\temp_deployDir\pydev_pro\artifacts.jar
-
-copy W:\temp_deployDir\pydev\content.jar W:\temp_deployDir\pydev_pro\content.jar
-
-d:\bin\eclipse341\eclipse.exe   -application  org.eclipse.equinox.p2.metadata.generator.EclipseGenerator  -updateSite W:/temp_deployDir/pydev_pro -site file:W:/temp_deployDir/pydev_pro/site.xml   -metadataRepository file:W:/temp_deployDir/metadata   -metadataRepositoryName "Pydev Update Site"   -artifactRepository file:W:/temp_deployDir/metadata   -artifactRepositoryName "Pydev Artifacts"   -compress   -append   -reusePack200Files   -noDefaultIUs   -vmargs -Xmx256m
-
-
+d:\bin\python261\python.exe make_release.py --up-site --version=1.4.5
 
 
 
