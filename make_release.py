@@ -13,13 +13,24 @@ To build both without reverting the svn:
 d:\bin\python261\python.exe make_release.py --make-open --make-pro --no-revert
 
 To build the docs:
-d:\bin\python261\python.exe --up-docs --version=1.4.5
+d:\bin\python261\python.exe --up-docs
 
 To update the site:
-d:\bin\python261\python.exe --up-site --version=1.4.5
+d:\bin\python261\python.exe --up-site
 
 
 '''
+
+#We have to update the versions on each release!
+VERSION = "1.4.5"
+VERSION_WITH_SVN = "1.4.5.2725"
+
+ALL_VERSIONS_TO_CHECK = [
+    VERSION_WITH_SVN,
+    "1.4.4.2636"
+]
+
+
 from zipfile import ZipFile
 import shutil
 import urllib
@@ -30,18 +41,22 @@ import sys
 import os
 
 BASE_DIR = r'W:\temp_buildDir'
+BASE_DEPLOY_DIR = 'w:/temp_deployDir'
+BASE_LOCAL_UPDATE_SITE_DIR = 'w:/temp_deployDir/updateSite'
+
 PYDEV_PRO_DIR = BASE_DIR + r'\pydev_pro'
 PYDEV_OPEN_DIR = BASE_DIR + r'\pydev'
-BASE_DEPLOY_DIR = 'w:/temp_deployDir'
+
 PYDEV_OPEN_DEPLOY_DIR = BASE_DEPLOY_DIR + '/pydev'
 PYDEV_PRO_DEPLOY_DIR = BASE_DEPLOY_DIR + '/pydev_pro'
 
+PYDEV_LOCAL_UPDATE_SITE = BASE_LOCAL_UPDATE_SITE_DIR + '/pydev'
+PYDEV_PRO_LOCAL_UPDATE_SITE = BASE_LOCAL_UPDATE_SITE_DIR + '/pydevPro'
+
+PYDEV_REMOTE_UPDATE_SITE = 'http://pydev.sourceforge.net/updates/'
+PYDEV_PRO_REMOTE_UPDATE_SITE = 'http://www.fabioz.com/pydev/updates/'
 
 
-
-
-global VERSION
-VERSION = None
 
 #=======================================================================================================================
 # Execute
@@ -69,7 +84,7 @@ def UpdateDocs():
     '''
     Will just build the docs (in place)
     '''
-    ExecutePython([PYDEV_PRO_DIR + '/plugins/com.python.pydev.docs/build_both.py', '--version=' + str(VERSION)])
+    ExecutePython([PYDEV_PRO_DIR + '/plugins/com.python.pydev.docs/build_both.py', '--version=' + VERSION])
     
     
     
@@ -112,7 +127,7 @@ def GetProSiteContents():
    </feature>
 
    '''
-    return TEMPLATE_FOR_PRO % {'version_with_svn':"1.4.5.2724"}
+    return TEMPLATE_FOR_PRO % {'version_with_svn':VERSION_WITH_SVN}
 
 
 #=======================================================================================================================
@@ -124,7 +139,7 @@ def GetOpenSiteContents():
    </feature>
 
    '''
-    return TEMPLATE_FOR_PRO % {'version_with_svn':"1.4.5.2724"}
+    return TEMPLATE_FOR_PRO % {'version_with_svn':VERSION_WITH_SVN}
 
 
 #=======================================================================================================================
@@ -179,9 +194,9 @@ def BuildP2(deploy_dir, update_site):
          ])
 
 #=======================================================================================================================
-# UpdateSite
+# UpdateSiteCreateP2
 #=======================================================================================================================
-def UpdateSite():
+def UpdateSiteCreateP2():
     '''
     Ok, this will update the update site. For that, it'll download the contents from both update sites,
     add them to
@@ -190,14 +205,8 @@ def UpdateSite():
     
     and will update the correspondent site.xml, artifacts.jar and content.jar
     '''
-    pydev_update_site = BASE_DEPLOY_DIR + '/updateSite/pydev'
-    pydev_pro_update_site = BASE_DEPLOY_DIR + '/updateSite/pydevPro'
-    
-    pydev_remote_site = 'http://pydev.sourceforge.net/updates/'
-    pydev_pro_remote_site = 'http://www.fabioz.com/pydev/updates/'
-    
-    open_parameters = (pydev_update_site, pydev_remote_site, GetOpenSiteContents(), PYDEV_OPEN_DEPLOY_DIR)
-    pro_parameters = (pydev_pro_update_site, pydev_pro_remote_site, GetProSiteContents(), PYDEV_PRO_DEPLOY_DIR)
+    open_parameters = (PYDEV_LOCAL_UPDATE_SITE, PYDEV_REMOTE_UPDATE_SITE, GetOpenSiteContents(), PYDEV_OPEN_DEPLOY_DIR)
+    pro_parameters = (PYDEV_PRO_LOCAL_UPDATE_SITE, PYDEV_PRO_REMOTE_UPDATE_SITE, GetProSiteContents(), PYDEV_PRO_DEPLOY_DIR)
     
     for update_site, remote, contents, deploy_dir in (
         open_parameters,
@@ -268,8 +277,8 @@ def UpdateSite():
             sys.stdout.write('Checking contents of resulting ' + file_to_check + ' ... ')
             for contents in Unzip(deploy_dir + '/' + file_to_check, only_to_memory=True).itervalues():
                 #Check if it has all the versions we deployed!
-                assert '1.4.4' in contents
-                assert '1.4.5' in contents
+                for v in ALL_VERSIONS_TO_CHECK:
+                    assert v in contents
                 
                 found = contents.count(open_occurrences)
                 expected = 2
@@ -286,6 +295,119 @@ def UpdateSite():
             print 'Copying to', update_site + '/' + file_to_check
             shutil.copyfile(deploy_dir + '/' + file_to_check, update_site + '/' + file_to_check)
             
+    
+    
+#=======================================================================================================================
+# UpdateSiteCopyZips
+#=======================================================================================================================
+def UpdateSiteCopyZips():
+    PYDEV_ZIPS = BASE_LOCAL_UPDATE_SITE_DIR + '/zipsPydev'
+    PYDEV_PRO_ZIPS = BASE_LOCAL_UPDATE_SITE_DIR + '/zipsPydevPro'
+    
+    create_dirs = [PYDEV_ZIPS, PYDEV_PRO_ZIPS]
+
+    for dir in create_dirs:
+        try:
+            print 'Making', dir
+            os.makedirs(dir)
+        except:
+            pass
+    
+    #Copy the sources zip to the pydev zips
+    for f in os.listdir(PYDEV_OPEN_DEPLOY_DIR):
+        if f.endswith('-sources.zip'):
+            print 'Copying', f
+            shutil.copyfile(PYDEV_OPEN_DEPLOY_DIR + '/' + f, PYDEV_ZIPS + '/' + f)
+    
+    #Copy things to the update site
+    def CopyDirContents(src, dst):
+        try:
+            os.makedirs(dst)
+        except:
+            pass
+        for f in os.listdir(src):
+            shutil.copy(src + '/' + f, dst + '/' + f)
+    
+    print 'Copying features and plugins to open source update site'
+    CopyDirContents(PYDEV_OPEN_DEPLOY_DIR + '/features', PYDEV_LOCAL_UPDATE_SITE + '/features')
+    CopyDirContents(PYDEV_OPEN_DEPLOY_DIR + '/plugins', PYDEV_LOCAL_UPDATE_SITE + '/plugins')
+    
+    print 'Copying features and plugins to pydev extensions update site'
+    CopyDirContents(PYDEV_OPEN_DEPLOY_DIR + '/features', PYDEV_PRO_LOCAL_UPDATE_SITE + '/features')
+    CopyDirContents(PYDEV_OPEN_DEPLOY_DIR + '/plugins', PYDEV_PRO_LOCAL_UPDATE_SITE + '/plugins')
+    CopyDirContents(PYDEV_PRO_DEPLOY_DIR + '/features', PYDEV_PRO_LOCAL_UPDATE_SITE + '/features')
+    CopyDirContents(PYDEV_PRO_DEPLOY_DIR + '/plugins', PYDEV_PRO_LOCAL_UPDATE_SITE + '/plugins')
+    
+    
+    #Pass all the .jars in the features and plugins, uncompress all but the templates jar and recompress them 
+    #(that's needed because that's what's expected to just extract in the dropins)
+    dirs = (
+        PYDEV_OPEN_DEPLOY_DIR + '/features',
+        PYDEV_OPEN_DEPLOY_DIR + '/plugins',
+        PYDEV_PRO_DEPLOY_DIR + '/features',
+        PYDEV_PRO_DEPLOY_DIR + '/plugins',
+    )
+    
+    
+    file_to_zip_contents = {}
+    for d in dirs:
+        
+        is_feature = d.endswith('features')
+        
+        for f in os.listdir(d):
+            
+            if f.endswith('.jar'):
+                filename = d + '/' + f
+                if f.startswith('org.python.pydev.templates'):
+                    file_to_zip_contents[f] = open(filename, 'rb').read(), is_feature
+                else:
+                    features = Unzip(filename, only_to_memory=True)
+                    file_to_zip_contents[f] = features, is_feature
+    
+    zip_file_open = ZipFile(PYDEV_ZIPS + '/org.python.pydev.feature-%s.zip' % VERSION_WITH_SVN, mode='w', compression=zipfile.ZIP_DEFLATED)            
+    zip_file_open_in_pro = ZipFile(PYDEV_PRO_ZIPS + '/org.python.pydev.feature-%s.zip' % VERSION_WITH_SVN, mode='w', compression=zipfile.ZIP_DEFLATED)            
+    zip_file_pro = ZipFile(PYDEV_PRO_ZIPS + '/com.python.pydev.extensions-%s.zip' % VERSION_WITH_SVN, mode='w', compression=zipfile.ZIP_DEFLATED)            
+    
+    for filename, path_to_contents in file_to_zip_contents.iteritems():
+        path_to_contents, is_feature = path_to_contents
+        
+        print 'Writing to zip:', filename
+        def Write(arcname, contents):
+            if arcname.startswith('com.'):
+                if is_feature:
+                    arcname = 'features/' + arcname
+                else:
+                    arcname = 'plugins/' + arcname
+                zip_file_pro.writestr(arcname, contents)
+            else:
+                if is_feature:
+                    arcname = 'features/' + arcname
+                else:
+                    arcname = 'plugins/' + arcname
+                zip_file_open.writestr(arcname, contents)
+                zip_file_open_in_pro.writestr(arcname, contents)
+                
+        if isinstance(path_to_contents, str):
+            #Handle the ones we should not zip. i.e. templates
+            Write(filename, path_to_contents)
+        else:
+            for path, contents in path_to_contents.iteritems():
+                Write(filename[:-4] + '/' + path, contents)
+                
+            
+    zip_file_open.close()
+    zip_file_pro.close()
+    
+    
+        
+    
+
+#=======================================================================================================================
+# UpdateSite
+#=======================================================================================================================
+def UpdateSite():
+    UpdateSiteCreateP2()
+    UpdateSiteCopyZips()
             
 
 MAKE_OPEN = 1
@@ -362,11 +484,6 @@ def Make(make, revert_and_update_svn=REVERT_SVN):
 #=======================================================================================================================
 if __name__ == '__main__':
     args = sys.argv[1:]
-    
-    for arg in args:
-        if arg.startswith('--version='):
-            version = arg[len('--version='):]
-            VERSION = version
     
     revert_and_update_svn = REVERT_SVN
     
