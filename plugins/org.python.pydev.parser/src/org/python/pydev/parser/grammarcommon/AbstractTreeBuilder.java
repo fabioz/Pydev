@@ -239,6 +239,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                             String msg = "ClassCastException: was: "+e.getMessage()+" ("+yield_or_stmt+"). Expected: stmtType";
                             final ParseException e2 = new ParseException(msg, yield_or_stmt);
                             this.stack.getGrammar().addAndReport(e2, msg);
+                            stmts[i] = new Pass(); //recover from it with a valid node!
                         }
                     }
                 }

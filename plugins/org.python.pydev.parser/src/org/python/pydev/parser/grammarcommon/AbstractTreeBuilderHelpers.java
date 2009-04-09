@@ -170,9 +170,8 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
      * @return
      */
     protected final stmtType[] getBodyAndSpecials() {
-        Suite suite = (Suite) stack.popNode();
-        stmtType[] body;
-        body = suite.body;
+        final Suite suite = (Suite) stack.popNode();
+        stmtType[] body = suite.body;
         if(body == null){
             //This can happen when we have errors in the grammar.
             body = new stmtType[0];
