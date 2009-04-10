@@ -53,6 +53,10 @@ PYDEV_PRO_DEPLOY_DIR = BASE_DEPLOY_DIR + '/pydev_pro'
 PYDEV_LOCAL_UPDATE_SITE = BASE_LOCAL_UPDATE_SITE_DIR + '/pydev'
 PYDEV_PRO_LOCAL_UPDATE_SITE = BASE_LOCAL_UPDATE_SITE_DIR + '/pydevPro'
 
+PYDEV_ZIPS = BASE_LOCAL_UPDATE_SITE_DIR + '/zipsPydev'
+PYDEV_PRO_ZIPS = BASE_LOCAL_UPDATE_SITE_DIR + '/zipsPydevPro'
+
+
 PYDEV_REMOTE_UPDATE_SITE = 'http://pydev.sourceforge.net/updates/'
 PYDEV_PRO_REMOTE_UPDATE_SITE = 'http://www.fabioz.com/pydev/updates/'
 
@@ -193,6 +197,17 @@ def BuildP2(deploy_dir, update_site):
             '-Xmx256m',
          ])
 
+
+#=======================================================================================================================
+# DownloadTo
+#=======================================================================================================================
+def DownloadTo(url, filename):
+    print 'Getting...', url
+    contents = ReadFromURL(url)
+    print 'Writing'
+    WriteToFile(filename, contents)
+    return contents
+
 #=======================================================================================================================
 # UpdateSiteCreateP2
 #=======================================================================================================================
@@ -220,12 +235,9 @@ def UpdateSiteCreateP2():
         
         file_to_contents = {}
         for f in ('site.xml', 'artifacts.jar', 'content.jar'):
-            print 'Getting...', remote + f
-            contents = ReadFromURL(remote + f)
-            file_to_contents[f] = contents
             filename = update_site + '/' + f
-            print 'Writing'
-            WriteToFile(filename, contents)
+            file_to_contents[f] = DownloadTo(remote + f, filename)
+            
                 
         IS_PRO = update_site == pro_parameters[0]
         #At this point we should have:
@@ -298,12 +310,39 @@ def UpdateSiteCreateP2():
     
     
 #=======================================================================================================================
+# UpdateDescriptIon
+#=======================================================================================================================
+def UpdateDescriptIon():
+    target = PYDEV_PRO_ZIPS + '/descript.ion'
+    contents = DownloadTo("http://fabioz.com/pydev/zips/descript.ion", target).strip()
+    
+    #Try to keep delimiter...
+    if '\r\n' in contents:
+        delim = '\r\n'
+        
+    elif '\r' in contents:
+        delim = '\r'
+        
+    elif '\n' in contents:
+        delim = '\n'
+    
+    else:
+        delim = '\r\n' #default
+        
+    NEW_CONTENTS = delim + "com.python.pydev.extensions-%(version_with_svn)s.zip    Pydev Extensions %(version_with_svn)s" + delim + \
+    "org.python.pydev.feature-%(version_with_svn)s.zip    Pydev 'Open Source' %(version_with_svn)s" + delim
+
+    NEW_CONTENTS = NEW_CONTENTS % {'version_with_svn':VERSION_WITH_SVN}
+
+    contents += NEW_CONTENTS
+    print 'Updating descript.ion'
+    open(target, 'wb').write(contents)
+    
+    
+#=======================================================================================================================
 # UpdateSiteCopyZips
 #=======================================================================================================================
 def UpdateSiteCopyZips():
-    PYDEV_ZIPS = BASE_LOCAL_UPDATE_SITE_DIR + '/zipsPydev'
-    PYDEV_PRO_ZIPS = BASE_LOCAL_UPDATE_SITE_DIR + '/zipsPydevPro'
-    
     create_dirs = [PYDEV_ZIPS, PYDEV_PRO_ZIPS]
 
     for dir in create_dirs:
@@ -400,7 +439,37 @@ def UpdateSiteCopyZips():
     
     
         
+#=======================================================================================================================
+# UploadToFtp
+#=======================================================================================================================
+def UploadToFtp():
+    '''
+    Depends on paramiko: http://pypi.python.org/pypi/paramiko/1.7.2
+    and PyCrypto: http://www.voidspace.org.uk/python/modules.shtml#pycrypto
     
+    Examples from http://commandline.org.uk/python/sftp-python/
+    '''
+    import paramiko
+    paramiko.util.log_to_file('/tmp/paramiko.log')
+    host = "example.com"
+    port = 22
+    transport = paramiko.Transport((host, port))
+    password = "example101"
+    username = "warrior"
+    transport.connect(username=username, password=password)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+    try:
+        filepath = '/home/zeth/lenna.jpg'
+        localpath = '/home/zeth/lenna.jpg'
+        sftp.get(filepath, localpath)
+        filepath = '/home/zeth/lenna.jpg'
+        localpath = '/home/zeth/lenna.jpg'
+        sftp.put(filepath, localpath)
+    finally:
+        sftp.close()
+        transport.close()
+
+
 
 #=======================================================================================================================
 # UpdateSite
@@ -408,6 +477,7 @@ def UpdateSiteCopyZips():
 def UpdateSite():
     UpdateSiteCreateP2()
     UpdateSiteCopyZips()
+    UpdateDescriptIon() #the directory structure must already be created for this function.
             
 
 MAKE_OPEN = 1

@@ -1,6 +1,6 @@
-W:\temp_buildDir\pydev_pro
-copy W:\pydev_pro\make_release.py W:\temp_buildDir\pydev_pro
-d:\bin\python261\python.exe make_release.py --up-site --version=1.4.5
+W:\temp_buildDir\pydev_pro&copy W:\pydev_pro\make_release.py .&d:\bin\python261\python.exe make_release.py --make-open --make-pro --only-revert
+W:\temp_buildDir\pydev_pro&copy W:\pydev_pro\make_release.py .&W:\temp_buildDir\pydev_pro&d:\bin\python261\python.exe make_release.py --up-site
+W:\temp_buildDir\pydev_pro&copy W:\pydev_pro\make_release.py .&d:\bin\python261\python.exe make_release.py --make-open --make-pro --no-revert
 
 Update homepage
 Commit everything
@@ -10,16 +10,11 @@ Remove everything from W:\temp_deployDir except pydev\eclipse.
 W:\temp_buildDir\pydev_pro
 d:\bin\python261\python.exe make_release.py --make-open --make-pro --only-revert
 d:\bin\python261\python.exe make_release.py --make-open --make-pro --no-revert
-d:\bin\python261\python.exe make_release.py --up-docs --version=1.4.5
-d:\bin\python261\python.exe make_release.py --up-site --version=1.4.5
-
+d:\bin\python261\python.exe make_release.py --up-docs
+d:\bin\python261\python.exe make_release.py --up-site
 
 
 run scripts: cmd_rsync*.bat (server: fabioz,pydev@web.sourceforge.net)
-
-Change site.xml in fabioz.com
-
-Change descript.ion in fabioz.com
 
 add zips to sf (sftp: frs.sourceforge.net /incoming/f/fa/fabioz/uploads) and do release: E.g.: Pydev 1.3.7 -- details at http://alexandria.wiki.sourceforge.net/File+Release+System+-+Offering+Files+for+Download#upload
 
