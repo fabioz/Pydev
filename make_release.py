@@ -1,4 +1,18 @@
 '''
+
+Things it doesn't do: 
+- Uploading with ftp:
+    - Homepage (sourceforge and fabioz.com) 
+    - Zips (fabioz.com and to sourceforge release system) 
+    - Update site (sourceforge and fabioz.com)
+    
+- Sending e-mail with news
+- Adding news to sourceforge news
+- Creating release in sourceforge
+- Creating tag in svn
+- Updating EPIC
+- Add blog post
+
 The options available are:
 
 --no-revert: The svn is not reverted to its initial state
