@@ -28,7 +28,7 @@
         visible="false"
         id="com.python.pydev.debug.actionSet">
      <menu
-           label="Pydev"
+           label="P&amp;ydev"
            id="pyGeneralMenu">
         <separator name="pyDebugGroup"/>
      </menu>

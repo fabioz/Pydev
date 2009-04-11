@@ -75,7 +75,7 @@
         visible="false"
         id="com.python.pydev.navigate.actionSet">
      <menu
-           label="Pydev"
+           label="P&amp;ydev"
            id="pyGeneralMenu">
         <separator name="pyNavigateGroup"/>
      </menu>
