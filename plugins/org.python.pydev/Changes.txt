@@ -2,9 +2,13 @@ After 1.4.4
 
 Pydev Extensions
 
+
 <li>Derived resources are no longer analyzed</li>
 
 Pydev
+- Ctrl+2 binding with caps
+- Alt+R working (mnemonics set for pydev contributed menus)
+
 <ul>
 <li>Better <strong>error handling</strong> in the grammar</li>
 

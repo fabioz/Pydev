@@ -323,7 +323,7 @@
             targetID="org.python.pydev.editor.PythonEditor"
             id="org.python.pydev.editor.editorContribution">
          <menu
-               label="Source"
+               label="&amp;Source"
                path="edit"
                id="org.python.pydev.editor.actions.sourceMenu">
             <separator name="editGroup"/>
@@ -333,7 +333,7 @@
          </menu>
          <menu
                id="org.python.pydev.refactoring.refactoringMenu"
-               label="Refactoring"
+               label="Refac&amp;toring"
                path="org.python.pydev.editor.actions.sourceMenu">
             <separator name="brmGroup"/>
          </menu>

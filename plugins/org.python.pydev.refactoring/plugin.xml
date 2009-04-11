@@ -50,7 +50,7 @@
             targetID="org.python.pydev.editor.PythonEditor">
          <menu
                id="org.python.pydev.refactoring.refactoringMenu"
-               label="Refactoring"
+               label="Refac&amp;toring"
                path="org.python.pydev.editor.actions.sourceMenu">
             <separator name="pepticRefactoringGroup"/>
             <separator name="pepticSourceGroup"/>

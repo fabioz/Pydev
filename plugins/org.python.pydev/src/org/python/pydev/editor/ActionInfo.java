@@ -6,15 +6,15 @@ package org.python.pydev.editor;
 import org.eclipse.jface.action.IAction;
 
 public class ActionInfo{
-    public IAction action;
-    public String description;
-    public String binding;
-    public boolean needsEnter;
+    public final IAction action;
+    public final String description;
+    public final String binding;
+    public final boolean needsEnter;
     
     public ActionInfo(IAction action, String description, String binding, boolean needsEnter){
         this.action = action;
         this.description = description;
-        this.binding = binding;
+        this.binding = binding.toLowerCase();
         this.needsEnter = needsEnter;
     }
 }

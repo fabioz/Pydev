@@ -20,15 +20,15 @@ public class OfflineActionsManager {
     }
     
     public void addOfflineActionListener(String key, IAction action) {
-        onOfflineActionListeners.put(key, new ActionInfo(action, "not described", key, true));
+        onOfflineActionListeners.put(key.toLowerCase(), new ActionInfo(action, "not described", key.toLowerCase(), true));
     }
     
     public void addOfflineActionListener(String key, IAction action, String description, boolean needsEnter) {
-        onOfflineActionListeners.put(key, new ActionInfo(action, description, key, needsEnter));
+        onOfflineActionListeners.put(key.toLowerCase(), new ActionInfo(action, description, key.toLowerCase(), needsEnter));
     }
     
     public boolean activatesAutomaticallyOn(String key){
-        ActionInfo info = onOfflineActionListeners.get(key);
+        ActionInfo info = onOfflineActionListeners.get(key.toLowerCase());
         if(info != null){
             if(!info.needsEnter){
                 return true;
@@ -40,7 +40,7 @@ public class OfflineActionsManager {
      * @return if an action was binded and was successfully executed
      */
     public boolean onOfflineAction(String requestedStr, OfflineActionTarget target) {
-        ActionInfo actionInfo = onOfflineActionListeners.get(requestedStr);
+        ActionInfo actionInfo = onOfflineActionListeners.get(requestedStr.toLowerCase());
         if(actionInfo == null){
             target.statusError("No action was found binded to:"+requestedStr);
             return false;
