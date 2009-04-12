@@ -6,8 +6,6 @@ Pydev Extensions
 <li>Derived resources are no longer analyzed</li>
 
 Pydev
-- Ctrl+2 binding with caps
-- Alt+R working (mnemonics set for pydev contributed menus)
 
 <ul>
 <li>Better <strong>error handling</strong> in the grammar</li>
@@ -45,6 +43,8 @@ Pydev
     <li>More info is available if connection fails</li>
 </ul>
 
+<li>Alt+R working (mnemonics set for pydev contributed menus)</li>
+<li>With Ctrl+2, matches will no longer take into acount the case</li>
 <li>Code completion: Can get args from docstring when '*' is present.</li>
 <li>Better heuristics for automatic insertion of "self" and "import"</li>
 <li>Fixed problem configuring external jars and zip files</li>
