@@ -66,7 +66,7 @@ public class AnalysisPreferencesPage extends FieldEditorPreferencePage implement
         addField(new StringFieldEditor(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_IMPORT, "Don't report unused imports in modules named: (comma separated)",p ));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_PARAMETER, "Unused parameter", 3,values,p, true));
         addField(new RadioGroupFieldEditor(AnalysisPreferenceInitializer.SEVERITY_UNUSED_VARIABLE, "Unused variable", 3,values,p, true));
-        addField(new StringFieldEditor(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_VARIABLE, "Don't report unused variable if name stars with: (comma separated)",p ){
+        addField(new StringFieldEditor(AnalysisPreferenceInitializer.NAMES_TO_IGNORE_UNUSED_VARIABLE, "Don't report unused variable if name starts with: (comma separated)",p ){
             @Override
             public int getNumberOfControls() {
                 return 1;
