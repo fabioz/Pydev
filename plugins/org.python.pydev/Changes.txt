@@ -1,3 +1,6 @@
+After 1.4.45
+The interpreter can be referred from a user-editable name.
+
 After 1.4.4
 
 Pydev Extensions
