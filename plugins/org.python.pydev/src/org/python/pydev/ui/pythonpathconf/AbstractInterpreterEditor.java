@@ -66,8 +66,6 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
-    public static boolean USE_ICONS = true;
-    
     /**
      * The last path, or <code>null</code> if none.
      * It is used so that we can open the editor in the specified place.
@@ -87,7 +85,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     /**
      * This is the control where the interpreters are shown
      */
-    private List listControl;
+    private Tree listControl;
 
     /**
      * Images
@@ -124,10 +122,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private Map<String, IInterpreterInfo> exeToInfo = new HashMap<String, IInterpreterInfo>();
 
     public IInterpreterInfo[] getExesList(){
-        String[] items = list.getItems();
+        TreeItem[] items = list.getItems();
         ArrayList<IInterpreterInfo> infos = new ArrayList<IInterpreterInfo>();
-        for (String exe : items) {
-            IInterpreterInfo info = this.exeToInfo.get(exe);
+        for (TreeItem exe : items) {
+            IInterpreterInfo info = this.exeToInfo.get(getExecutableFromTreeItem(exe));
             if(info == null){
                 PydevPlugin.log("Didn't expect interpreter info to be null in the memory: "+exe);
             }else{
@@ -135,6 +133,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             }
         }
         return infos.toArray(new IInterpreterInfo[infos.size()]);
+    }
+
+    protected String getExecutableFromTreeItem(TreeItem treeItem) {
+        return treeItem.getText(1);
     }
     
     /**
@@ -155,7 +157,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 exeToInfo.put(executable, interpreterInfo.makeCopy());
             }
         }
-        
         
         
         if(USE_ICONS){
@@ -501,7 +502,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             selectionListenerSystem = new SelectionAdapter() {
                 public void widgetSelected(SelectionEvent event) {
                     if (listControl.getSelectionCount() == 1) {
-                        String executable = listControl.getSelection()[0];
+                        TreeItem[] selection = listControl.getSelection();
+                        String executable = getExecutableFromTreeItem(selection[0]);
                         InterpreterInfo info = (InterpreterInfo) exeToInfo.get(executable);
 
                     
@@ -543,7 +545,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             }
                                 
                         } else if (widget == removeBtSystemFolder) {
-                            TreeItem[] selection = tree.getSelection();
                             for (int i = 0; i < selection.length; i++) {
                                 TreeItem s = selection[i];
                                 String text = s.getText();
@@ -564,7 +565,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     protected void addOthers() {
         if (listControl.getSelectionCount() == 1) {
-            String executable = listControl.getSelection()[0];
+            TreeItem[] selection = listControl.getSelection();
+            String executable = getExecutableFromTreeItem(selection[0]);
             InterpreterInfo info = (InterpreterInfo) this.exeToInfo.get(executable);
             
             InputDialog d = new InputDialog(this.getShell(), "Builtin to add", "Builtin to add", "", null);
@@ -584,7 +586,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     protected void removeOthers() {
         if (listControl.getSelectionCount() == 1 && listBuiltins.getSelectionCount() == 1) {
-            String executable = listControl.getSelection()[0];
+            TreeItem[] selection = listControl.getSelection();
+            String executable = getExecutableFromTreeItem(selection[0]);
             String builtin = listBuiltins.getSelection()[0];
             
             InterpreterInfo info = (InterpreterInfo) this.exeToInfo.get(executable);
@@ -616,19 +619,21 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
 
 
+
     /**
      * @param listControl
      */
     private void updateTree() {
-        if (listControl.getSelectionCount() == 1) {
-            String s = listControl.getSelection()[0];
-            fillPathItems(s);
+        int index = this.getSelectionIndex();
+        if (index >= 0) {
+            TreeItem item = listControl.getItem(index);
+            fillPathItems(getExecutableFromTreeItem(item));
         }else{
             fillPathItems(null);
             if (listControl.getItemCount() > 0){
-                listControl.select(0);
+                listControl.select(listControl.getItem(0));
                 selectionChanged();
-                String s = listControl.getSelection()[0];
+                String s = getExecutableFromTreeItem(listControl.getItem(0));
                 fillPathItems(s);
             }
         }
@@ -841,7 +846,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             this.exeToInfo.clear();
             for (int i = 0; i < array.length; i++) {
                 IInterpreterInfo interpreterInfo = array[i];
-                list.add(interpreterInfo.getExecutableOrJar());
+                createInterpreterItem(interpreterInfo.getName(), interpreterInfo.getExecutableOrJar());
                 this.exeToInfo.put(interpreterInfo.getExecutableOrJar(), interpreterInfo.makeCopy());
             }
         }
@@ -852,12 +857,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         throw new RuntimeException("The preferences should be stored/gotten from the IInterpreterManager, and not directly.");
     }
     
-    /** Overridden
-     */
-    protected String createList(String[] executables) {
-        throw new RuntimeException("Not implemented (doLoad overridden so that we don't need it)");
-    }
-    
     
     /** Overridden
      */
@@ -865,9 +864,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return interpreterManager.getStringToPersist(executables);
     }
     
-    protected String[] parseString(String stringList) {
-        throw new RuntimeException("Not implemented (doLoad overridden so that we don't need it)");
-    }
     
     /** Overridden
      */

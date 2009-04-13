@@ -56,5 +56,13 @@ public interface IInterpreterInfo {
      */
     IInterpreterInfo makeCopy();
 
+    /**
+     * @return the executable or jar that this interpreter has (must be the jython.jar or python.exe)
+     */
     public String getExecutableOrJar();
+
+    /**
+     * @return The name to be shown for the user for this interpreter info.
+     */
+    public String getName();
 }

@@ -66,6 +66,14 @@ public class InterpreterInfoTest extends TestCase {
         s = "Version2.5EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| c:\\bin\\python24OUT_PATH\n@\n$\n| __builtin__| __main__\n| _bisect\n";
         assertEquals("Version2.5Executable:C:\\bin\\Python24\\python.exe|c:\\bin\\python24\\lib\\lib-tk@$|__builtin__|__main__|_bisect", 
                 InterpreterInfo.fromString(s, false).toString());
+        
+        assertEquals("Version2.5Executable:C:\\bin\\Python24\\python.exe|c:\\bin\\python24\\lib\\lib-tk@$|__builtin__|__main__|_bisect", 
+                InterpreterInfo.fromString(s, false).toString());
+        
+        s = "Name:MyInterpreter:EndName:Version2.4EXECUTABLE:C:\\bin\\Python24\\python.exe|| c:\\bin\\python24\\lib\\lib-tkINS_PATH\n| c:\\bin\\python24OUT_PATH\n@\n$\n| __builtin__| __main__\n| _bisect\n";
+        info8.setName("MyInterpreter");
+        assertEquals(info8, InterpreterInfo.fromString(s, false));
+        assertTrue(info8.toString().startsWith("Name:MyInterpreter:EndName:"));
     }
     
     /**

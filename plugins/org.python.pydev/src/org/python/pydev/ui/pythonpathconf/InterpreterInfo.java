@@ -120,6 +120,11 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     private String[] envVariables;
     
+    /**
+     * This is the way that the interpreter should be referred. Can be null (in which case the executable is
+     * used as the name)
+     */
+    private String name;
 
     /**
      * Sets the modules manager that should be used in this interpreter info.
@@ -232,6 +237,10 @@ public class InterpreterInfo implements IInterpreterInfo{
      * Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2
      * (added only when version 2.5 was added, so, if the string does not have it, it is regarded as 2.4)
      * 
+     * or
+     * 
+     * Name:MyInterpreter:EndName:Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2
+     * 
      * Symbols ': @ $'
      */
     public static InterpreterInfo fromString(String received, boolean askUserInOutPath) {
@@ -239,6 +248,16 @@ public class InterpreterInfo implements IInterpreterInfo{
             throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"+received);
         }
         received = received.replaceAll("\n", "").replaceAll("\r", "");
+        String name=null;
+        if(received.startsWith("Name:")){
+            int endNameIndex = received.indexOf(":EndName:");
+            if(endNameIndex != -1){
+                name = received.substring("Name:".length(), endNameIndex);
+                received = received.substring(endNameIndex+":EndName:".length());
+            }
+            
+        }
+        
         Tuple<String, String> envVarsSplit = StringUtils.splitOnFirst(received, '^');
         Tuple<String, String> forcedSplit = StringUtils.splitOnFirst(envVarsSplit.o1, '$');
         Tuple<String, String> libsSplit = StringUtils.splitOnFirst(forcedSplit.o1, '@');
@@ -386,7 +405,9 @@ public class InterpreterInfo implements IInterpreterInfo{
         if(envVarsSplit.o2.length() > 1){
             fillList(envVarsSplit, l3);
         }
-        return new InterpreterInfo(version, executable, l, l1, l2, l3);
+        InterpreterInfo info = new InterpreterInfo(version, executable, l, l1, l2, l3);
+        info.setName(name);
+        return info;
     }
 
     
@@ -405,6 +426,11 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     public String toString() {
         FastStringBuffer buffer = new FastStringBuffer();
+        if(this.name != null){
+            buffer.append("Name:");
+            buffer.append(this.name);
+            buffer.append(":EndName:");
+        }
         buffer.append("Version");
         buffer.append(version);
         buffer.append("Executable:");
@@ -708,6 +734,17 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     public InterpreterInfo makeCopy() {
         return fromString(toString());
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public String getName() {
+        if(this.name != null){
+            return this.name;
+        }
+        return this.executableOrJar;
     }
     
 }

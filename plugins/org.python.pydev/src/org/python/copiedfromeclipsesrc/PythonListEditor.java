@@ -8,21 +8,25 @@ package org.python.copiedfromeclipsesrc;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * An abstract field editor that manages a list of input values. The editor displays a list containing the values, buttons for adding and
@@ -36,10 +40,12 @@ import org.eclipse.swt.widgets.Widget;
  */
 public abstract class PythonListEditor extends FieldEditor {
 
+    public static boolean USE_ICONS = true;
+
     /**
      * The list widget; <code>null</code> if none (before creation or after disposal).
      */
-    protected List list;
+    protected Tree list;
 
     /**
      * The button box containing the Add, Remove, Up, and Down buttons; <code>null</code> if none (before creation or after disposal).
@@ -77,9 +83,17 @@ public abstract class PythonListEditor extends FieldEditor {
     private SelectionListener selectionListener;
 
     /**
+     * The image to be shown in each interpreter.
+     */
+    private Image imageInterpreter;
+
+    /**
      * Creates a new list field editor
      */
     protected PythonListEditor() {
+        if(USE_ICONS){
+            imageInterpreter = PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+        }
     }
 
     /**
@@ -90,6 +104,7 @@ public abstract class PythonListEditor extends FieldEditor {
      * @param parent the parent of the field editor's control
      */
     protected PythonListEditor(String name, String labelText, Composite parent) {
+        this();
         init(name, labelText);
         createControl(parent);
     }
@@ -114,13 +129,18 @@ public abstract class PythonListEditor extends FieldEditor {
     private void addNewInput(String input) {
         if (input != null) {
             setPresentsDefaultValue(false);
-            int index = list.getSelectionIndex();
-            if (index >= 0)
-                list.add(input, index + 1);
-            else
-                list.add(input, 0);
+            createInterpreterItem(input, input);
             selectionChanged();
         }
+    }
+
+    /**
+     * Adds a new tree item to the interpreter tree.
+     */
+    protected void createInterpreterItem(String name, String executable) {
+        TreeItem item = new TreeItem(list, SWT.NULL);
+        item.setText(new String[]{name, executable});
+        item.setImage(this.imageInterpreter);
     }
 
     /*
@@ -146,16 +166,11 @@ public abstract class PythonListEditor extends FieldEditor {
     }
 
     /**
-     * Combines the given list of items into a single string. This method is the converse of <code>parseString</code>.
-     * <p>
-     * Subclasses must implement this method.
-     * </p>
-     * 
-     * @param items the list of items
-     * @return the combined string
-     * @see #parseString
+     * This method is not longer used!
      */
-    protected abstract String createList(String[] items);
+    protected String createList(String[] items){
+        throw new RuntimeException("doLoad/doStore should be overridden (so that it's not needed)"); 
+    }
 
     /**
      * Helper method to create a push button.
@@ -226,38 +241,17 @@ public abstract class PythonListEditor extends FieldEditor {
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
-    protected void doLoad() {
-        if (list != null) {
-            String s = getPreferenceStore().getString(getPreferenceName());
-            String[] array = parseString(s);
-            for (int i = 0; i < array.length; i++) {
-                list.add(array[i]);
-            }
-        }
-    }
+    protected abstract void doLoad();
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
-    protected void doLoadDefault() {
-        if (list != null) {
-            list.removeAll();
-            String s = getPreferenceStore().getDefaultString(getPreferenceName());
-            String[] array = parseString(s);
-            for (int i = 0; i < array.length; i++) {
-                list.add(array[i]);
-            }
-        }
-    }
+    protected abstract void doLoadDefault();
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
      */
-    protected void doStore() {
-        String s = createList(list.getItems());
-        if (s != null)
-            getPreferenceStore().setValue(getPreferenceName(), s);
-    }
+    protected abstract void doStore();
 
     /**
      * Notifies that the Down button has been pressed.
@@ -304,9 +298,19 @@ public abstract class PythonListEditor extends FieldEditor {
      * @param parent the parent control
      * @return the list control
      */
-    public List getListControl(Composite parent) {
+    public Tree getListControl(Composite parent) {
         if (list == null) {
-            list = new List(parent, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
+            list = new Tree(parent, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
+            
+            list.setHeaderVisible(true);
+            TreeColumn column1 = new TreeColumn(list, SWT.LEFT);
+            column1.setText("Name");
+            column1.setWidth(200);
+            TreeColumn column2 = new TreeColumn(list, SWT.LEFT);
+            column2.setText("Location");
+            column2.setWidth(200);
+            
+            
             list.setFont(parent.getFont());
             list.addSelectionListener(getSelectionListener());
             list.addDisposeListener(new DisposeListener() {
@@ -363,25 +367,22 @@ public abstract class PythonListEditor extends FieldEditor {
     }
 
     /**
-     * Splits the given string into a list of strings. This method is the converse of <code>createList</code>.
-     * <p>
-     * Subclasses must implement this method.
-     * </p>
-     * 
-     * @param stringList the string
-     * @return an array of <code>String</code>
-     * @see #createList
+     * This method is no longer used.
      */
-    protected abstract String[] parseString(String stringList);
+    protected String[] parseString(String stringList){
+        throw new RuntimeException("doLoad/doStore should be overridden (so that it's not needed)");
+    }
 
     /**
      * Notifies that the Remove button has been pressed.
      */
     protected void removePressed() {
         setPresentsDefaultValue(false);
-        int index = list.getSelectionIndex();
-        if (index >= 0) {
-            list.remove(index);
+        TreeItem[] selection = list.getSelection();
+        if (selection != null && selection.length > 0) {
+            for(TreeItem t:selection){
+                t.dispose(); //dispose of those items!
+            }
             selectionChanged();
         }
     }
@@ -390,14 +391,14 @@ public abstract class PythonListEditor extends FieldEditor {
      * Notifies that the list selection has changed.
      */
     protected void selectionChanged() {
-
-        int index = list.getSelectionIndex();
+        int index = getSelectionIndex();
         int size = list.getItemCount();
 
         removeButton.setEnabled(index >= 0);
         upButton.setEnabled(size > 1 && index > 0);
         downButton.setEnabled(size > 1 && index >= 0 && index < size - 1);
     }
+
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
@@ -408,6 +409,21 @@ public abstract class PythonListEditor extends FieldEditor {
         }
     }
 
+
+    protected int getSelectionIndex() {
+        if(this.list.getSelectionCount() != 1){
+            return -1;
+        }
+        
+        TreeItem[] selection = list.getSelection();
+        int index = -1;
+        if(selection != null && selection.length > 0){
+            index = list.indexOf(selection[0]);
+        }
+        return index;
+    }
+    
+    
     /**
      * Moves the currently selected item up or down.
      * 
@@ -415,15 +431,20 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     private void swap(boolean up) {
         setPresentsDefaultValue(false);
-        int index = list.getSelectionIndex();
+        int index = getSelectionIndex();
         int target = up ? index - 1 : index + 1;
 
-        if (index >= 0) {
-            String[] selection = list.getSelection();
-            Assert.isTrue(selection.length == 1);
-            list.remove(index);
-            list.add(selection[0], target);
-            list.setSelection(target);
+        if (index >= 0 && this.list.getSelectionCount() == 1) {
+            TreeItem curr = list.getItem(index);
+            TreeItem replace = list.getItem(target);
+            
+            //Just update the text!
+            String col0 = replace.getText(0);
+            String col1 = replace.getText(1);
+            replace.setText(new String[]{curr.getText(0), curr.getText(1)});
+            curr.setText(new String[]{col0, col1});
+            
+            list.setSelection(list.getItem(target));
         }
         selectionChanged();
     }
