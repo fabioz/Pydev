@@ -103,7 +103,11 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences{
      */
     public boolean makeCodeAnalysis() {
         synchronized(lock){
-            Preferences pluginPreferences = AnalysisPlugin.getDefault().getPluginPreferences();
+            AnalysisPlugin plugin = AnalysisPlugin.getDefault();
+            if(plugin == null){
+                return false;//in shutdown
+            }
+            Preferences pluginPreferences = plugin.getPluginPreferences();
             return pluginPreferences.getBoolean(AnalysisPreferenceInitializer.DO_CODE_ANALYSIS);
         }
     }
