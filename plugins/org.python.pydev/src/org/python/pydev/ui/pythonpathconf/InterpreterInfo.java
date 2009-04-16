@@ -466,7 +466,14 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     public void restoreCompiledLibs(IProgressMonitor monitor) {
         //the compiled with the interpreter should be already gotten.
-        forcedLibs.add("os"); //we have it in source, but want to interpret it, source info (ast) does not give us much
+        
+        //we have it in source, but want to interpret it, source info (ast) does not give us much
+        forcedLibs.add("os"); 
+        
+        
+        //we also need to add this submodule (because even though it's documented as such, it's not really 
+        //implemented that way with a separate file -- there's black magic to put it there)
+        forcedLibs.add("os.path"); 
         
         //as it is a set, there is no problem to add it twice
         if(this.version.startsWith("2") || this.version.startsWith("1")){

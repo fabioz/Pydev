@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.docutils.ImportsSelection;
 
 /**
@@ -24,10 +25,15 @@ public class PyCodeCompletionTest extends TestCase {
     public void doTest(String s, String expected){
         Document doc = new Document(s);
         int length = s.length();
-        String tipperStr = ImportsSelection.getImportsTipperStr(doc, length).importsTipperStr;
+        ImportInfo importsTipperStr = ImportsSelection.getImportsTipperStr(doc, length);
+        String tipperStr = importsTipperStr.importsTipperStr;
         assertEquals(expected, tipperStr);
-        
+        if(tipperStr.length() > 0){
+            assertEquals(s.indexOf("from") != -1, importsTipperStr.hasFromSubstring); 
+            assertEquals(s.indexOf("import") != -1, importsTipperStr.hasImportSubstring);
+        }
     }
+    
     public void testIt(){
         completion = new PyCodeCompletion();
         

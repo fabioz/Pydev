@@ -99,7 +99,14 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         //considering we're at: testlib.unittest.testcase
         String doc = "from ."; //just show the modules
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/testlib/unittest/testcase.py");
-        String[] toks = new String[]{"anothertest","guitestcase","__init__","relative"};
+        String[] toks = new String[]{
+                "__init__",
+                "anothertest",
+                "guitestcase",
+                "relative",
+                "relative.testrelative",
+                "relative.toimport",
+        };
         requestCompl(file,doc, doc.length(), toks.length, toks);
     }
     

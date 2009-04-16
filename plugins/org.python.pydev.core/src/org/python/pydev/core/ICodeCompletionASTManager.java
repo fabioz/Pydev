@@ -70,10 +70,13 @@ public interface ICodeCompletionASTManager {
 
     public static class ImportInfo{
         public String importsTipperStr;
-        public boolean hasImportSubstring;
-        public ImportInfo(String importsTipperStr, boolean hasImportSubstring){
+        public final boolean hasImportSubstring;
+        public final boolean hasFromSubstring;
+        
+        public ImportInfo(String importsTipperStr, boolean hasImportSubstring, boolean hasFromSubstring){
             this.importsTipperStr = importsTipperStr;
             this.hasImportSubstring = hasImportSubstring;
+            this.hasFromSubstring = hasFromSubstring;
         }
     }
 

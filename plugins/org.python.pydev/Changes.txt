@@ -1,5 +1,7 @@
 After 1.4.45
-The interpreter can be referred from a user-editable name.
+The interpreter can be referred from a user-editable name (not finished)
+Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)
+os.path added to default forced builtins
 
 After 1.4.4
 

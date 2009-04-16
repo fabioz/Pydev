@@ -15,12 +15,13 @@ public class ImportsSelection {
     
         if (!trimmedLine.startsWith("from") && !trimmedLine.startsWith("import")) {
             
-            return new ImportInfo("", false); // it is not an import
+            return new ImportInfo("", false, false); // it is not an import
         }
     
         int fromIndex = trimmedLine.indexOf("from");
         int importIndex = trimmedLine.indexOf("import");
         boolean foundImportOnArray = false;
+        boolean foundFromOnArray = false;
     
         // check if we have a from or an import.
         if (fromIndex != -1 || importIndex != -1) {
@@ -30,13 +31,16 @@ public class ImportsSelection {
             if (fromIndex != -1 && importIndex == -1) {
                 if (strings.length > 2) {
                     // user has spaces as in 'from xxx uuu'
-                    return new ImportInfo("", foundImportOnArray);
+                    return new ImportInfo("", foundImportOnArray, foundFromOnArray);
                 }
             }
     
             for (int i = 0; i < strings.length; i++) {
                 if (strings[i].equals("import")) {
                     foundImportOnArray = true;
+                }
+                if (strings[i].equals("from")) {
+                    foundFromOnArray = true;
                 }
     
                 if (strings[i].equals("from") == false && strings[i].equals("import") == false) {
@@ -49,15 +53,15 @@ public class ImportsSelection {
                 // want to return only the xxx
                 if (fromIndex != -1 && importIndex == -1 && (foundImportOnArray || i == strings.length - 1)) {
                     if (importMsg.length() == 0) {
-                        return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
+                        return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray, foundFromOnArray);
                     }
                     if (importMsg.startsWith(".")) {
-                        return new ImportInfo(importMsg, foundImportOnArray);
+                        return new ImportInfo(importMsg, foundImportOnArray, foundFromOnArray);
                     }
                     if (importMsg.indexOf(".") == -1) {
-                        return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
+                        return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray, foundFromOnArray);
                     }
-                    return new ImportInfo(importMsg.substring(0, importMsg.lastIndexOf(".") + 1), foundImportOnArray);
+                    return new ImportInfo(importMsg.substring(0, importMsg.lastIndexOf(".") + 1), foundImportOnArray, foundFromOnArray);
     
                 }
             }
@@ -68,12 +72,12 @@ public class ImportsSelection {
                 }
             }
         } else {
-            return new ImportInfo("", foundImportOnArray);
+            return new ImportInfo("", foundImportOnArray, foundFromOnArray);
         }
         if (importMsg.indexOf(".") == -1) {
             // we have only import fff or from iii (so, we're going for all
             // imports).
-            return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
+            return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray, foundFromOnArray);
         }
     
         if (fromIndex == -1 && importMsg.indexOf(',') != -1) {
@@ -86,9 +90,9 @@ public class ImportsSelection {
             int j = importMsg.lastIndexOf('.');
             if (j != -1) {
                 importMsg = importMsg.substring(0, j);
-                return new ImportInfo(importMsg, foundImportOnArray);
+                return new ImportInfo(importMsg, foundImportOnArray, foundFromOnArray);
             } else {
-                return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray);
+                return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray, foundFromOnArray);
             }
     
         } else {
@@ -115,7 +119,7 @@ public class ImportsSelection {
                 importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
             }
     
-            return new ImportInfo(importMsg, foundImportOnArray);
+            return new ImportInfo(importMsg, foundImportOnArray, foundFromOnArray);
         }
     }
 
@@ -180,17 +184,18 @@ public class ImportsSelection {
         }
         
         if(!found){
-            return new ImportInfo("", false); // it is not an import
+            return new ImportInfo("", false, false); // it is not an import
         }
         
         return getImportsTipperStr(buffer.toString(), true);
     }
 
-    private static ImportInfo doExistingOrEmptyReturn(boolean returnEvenEmpty, String importMsg, boolean foundImportOnArray) {
+    private static ImportInfo doExistingOrEmptyReturn(final boolean returnEvenEmpty, final String importMsg, 
+            final boolean foundImportOnArray, final boolean foundFromOnArray) {
         if (returnEvenEmpty || importMsg.trim().length() > 0) {
-            return new ImportInfo(" ", foundImportOnArray);
+            return new ImportInfo(" ", foundImportOnArray, foundFromOnArray);
         } else {
-            return new ImportInfo("", foundImportOnArray);
+            return new ImportInfo("", foundImportOnArray, foundFromOnArray);
         }
     }
 

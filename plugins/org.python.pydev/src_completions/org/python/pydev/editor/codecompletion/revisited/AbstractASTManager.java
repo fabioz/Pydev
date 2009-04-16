@@ -101,7 +101,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     
 
     /**
-     * Returns the imports that start with a given string. The comparisson is not case dependent. Passes all the modules in the cache.
+     * Returns the imports that start with a given string. The comparison is not case dependent. Passes all the modules in the cache.
      * 
      * @param original is the name of the import module eg. 'from toimport import ' would mean that the original is 'toimport'
      * or something like 'foo.bar' or an empty string (if only 'import').
@@ -170,7 +170,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
         if(level == 0){
             //first we get the imports... that complete for the token.
-            getAbsoluteImportTokens(absoluteModule, set, IToken.TYPE_IMPORT, false);
+            getAbsoluteImportTokens(absoluteModule, set, IToken.TYPE_IMPORT, false, importInfo);
     
             //Now, if we have an initial module, we have to get the completions
             //for it.
@@ -178,7 +178,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         }
 
         if(relative != null && relative.equals(absoluteModule) == false){
-            getAbsoluteImportTokens(relative, set, IToken.TYPE_RELATIVE_IMPORT, false);
+            getAbsoluteImportTokens(relative, set, IToken.TYPE_RELATIVE_IMPORT, false, importInfo);
             if(importInfo.hasImportSubstring){
                 getTokensForModule(relative, nature, relative, set);
             }
@@ -203,8 +203,24 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     /**
      * @param moduleToGetTokensFrom the string that represents the token from where we are getting the imports
      * @param set the set where the tokens should be added
+     * @param importInfo if null, only the 1st element of the module will be added, otherwise, it'll check the info
+     * to see if it should add only the 1st element of the module or the complete module (e.g.: add only xml or 
+     * xml.dom and other submodules too)
      */
-    protected void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> set, int type, boolean onlyFilesOnSameLevel) {
+    protected void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> set, int type, boolean onlyFilesOnSameLevel, ImportInfo importInfo) {
+        boolean getSubModules = false;
+        if(importInfo != null){
+            //we only want to get submodules if we're in:
+            //from xxx
+            //import xxx
+            //
+            //We do NOT want to get it on: 
+            //from xxx import yyy
+            if(importInfo.hasFromSubstring != importInfo.hasImportSubstring){
+                getSubModules = true;
+            }
+        }
+        
         SortedMap<ModulesKey,ModulesKey> modulesStartingWith = modulesManager.getAllModulesStartingWith(moduleToGetTokensFrom);
         Iterator<ModulesKey> itModules = modulesStartingWith.keySet().iterator();
         while(itModules.hasNext()){
@@ -244,8 +260,19 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 if (element.length() > 0 && goForIt) {
                     List<String> splitted = StringUtils.dotSplit(element);
                     if (splitted.size() > 0) {
+                        String strToAdd;
+                        
+                        if(!getSubModules){
+                            strToAdd = splitted.get(0);
+                        }else{
+                            if(element.endsWith(".__init__")){
+                                strToAdd = element.substring(0, element.length()-9);
+                            }else{
+                                strToAdd = element;
+                            }
+                        }
                         //this is the completion
-                        set.add(new ConcreteToken(splitted.get(0), "", "", moduleToGetTokensFrom, type));
+                        set.add(new ConcreteToken(strToAdd, "", "", moduleToGetTokensFrom, type));
                     }
                 }
 //            }
@@ -552,7 +579,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 if(module.isPackage()){
                     HashSet<IToken> gotten = new HashSet<IToken>();
                     //the module also decides how to get its submodules
-                    getAbsoluteImportTokens(module.getPackageFolderName(), gotten, IToken.TYPE_IMPORT, true);
+                    getAbsoluteImportTokens(module.getPackageFolderName(), gotten, IToken.TYPE_IMPORT, true, null);
                     for (IToken token : gotten) {
                         if(token.getRepresentation().equals("__init__") == false){
                             initial.add(token);

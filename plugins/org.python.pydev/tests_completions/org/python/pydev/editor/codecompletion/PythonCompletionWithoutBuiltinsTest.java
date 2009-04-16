@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testVarargsAndKwargsFound();
+          test.testMultilineImportCompletion();
           test.tearDown();
           System.out.println("Finished");
 
@@ -82,8 +82,20 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     
     public void testCompleteImportCompletion() throws CoreException, BadLocationException{
-        requestCompl("from testl"                          , "testlib");
-        requestCompl("import testl"                        , "testlib");
+        String[] testLibAndSubmodules = new String[]{
+                "testlib",
+                "testlib.unittest",
+                "testlib.unittest.anothertest",
+                "testlib.unittest.guitestcase",
+                "testlib.unittest.relative",
+                "testlib.unittest.relative.testrelative",
+                "testlib.unittest.relative.toimport",
+                "testlib.unittest.testcase",
+        };
+        
+        
+        requestCompl("from testl"                          , testLibAndSubmodules);
+        requestCompl("import testl"                        , testLibAndSubmodules);
         requestCompl("from testlib import "                , new String[]{"__file__", "__name__", "__init__", "unittest", "__path__"});
         requestCompl("from testlib import unittest, __in"  , new String[]{"__init__"});
         requestCompl("from testlib import unittest,__in"   , new String[]{"__init__"});
@@ -95,6 +107,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
         requestCompl("from testlib.unittest.testcase.TestCase import  assertImagesNotE", new String[]{"assertImagesNotEqual"});
         requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
+    }
+    
+    public void testFullModulesOnFromImport() throws CoreException, BadLocationException{
+        requestCompl("from ", -1, new String[]{"testlib", "testlib.unittest"});
     }
     
     /**
