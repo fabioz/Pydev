@@ -6,6 +6,7 @@ package org.python.pydev.ui.pythonpathconf;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 
 public class PythonInterpreterEditor extends AbstractInterpreterEditor{
 
@@ -22,8 +23,8 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor{
     }
 
     
-    protected String getAutoNewInput() {
-        return "python"; //This should be enough to find it from the PATH or any other way it's defined.
+    protected Tuple<String, String> getAutoNewInput() {
+        return new Tuple<String, String>(getUniqueInterpreterName("python"), "python"); //This should be enough to find it from the PATH or any other way it's defined.
     }
     
     

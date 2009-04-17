@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleRunner;
@@ -31,7 +32,7 @@ public class JythonInterpreterEditor extends AbstractInterpreterEditor{
     }
 
     
-    protected String getAutoNewInput() {
+    protected Tuple<String, String> getAutoNewInput() {
         
         try {
             Map<String, String> env = SimpleRunner.getDefaultSystemEnv();
@@ -62,7 +63,9 @@ public class JythonInterpreterEditor extends AbstractInterpreterEditor{
                         String[] available = file.list();
                         for(String jar:available){
                             if(jar.toLowerCase().equals("jython.jar")){
-                                return REF.getFileAbsolutePath(new File(file, jar));
+                                return new Tuple<String, String>(
+                                        getUniqueInterpreterName("jython"), 
+                                        REF.getFileAbsolutePath(new File(file, jar)));
                             }
                         }
                     }

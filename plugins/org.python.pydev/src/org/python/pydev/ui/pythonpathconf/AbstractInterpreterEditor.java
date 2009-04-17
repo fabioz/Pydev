@@ -14,13 +14,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -47,9 +47,11 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.dialogs.InterpreterInputDialog;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 
@@ -65,12 +67,6 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  */
 
 public abstract class AbstractInterpreterEditor extends PythonListEditor {
-
-    /**
-     * The last path, or <code>null</code> if none.
-     * It is used so that we can open the editor in the specified place.
-     */
-    private String lastPath;
 
     /**
      * Interpreter manager we are using (given at init)
@@ -119,13 +115,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     private SelectionListener selectionListenerSystem;
     
-    private Map<String, IInterpreterInfo> exeToInfo = new HashMap<String, IInterpreterInfo>();
+    private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
 
     public IInterpreterInfo[] getExesList(){
         TreeItem[] items = list.getItems();
         ArrayList<IInterpreterInfo> infos = new ArrayList<IInterpreterInfo>();
         for (TreeItem exe : items) {
-            IInterpreterInfo info = this.exeToInfo.get(getExecutableFromTreeItem(exe));
+            IInterpreterInfo info = this.nameToInfo.get(getNameFromTreeItem(exe));
             if(info == null){
                 PydevPlugin.log("Didn't expect interpreter info to be null in the memory: "+exe);
             }else{
@@ -135,8 +131,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return infos.toArray(new IInterpreterInfo[infos.size()]);
     }
 
-    protected String getExecutableFromTreeItem(TreeItem treeItem) {
-        return treeItem.getText(1);
+    protected String getNameFromTreeItem(TreeItem treeItem) {
+        return treeItem.getText(0);
     }
     
     /**
@@ -149,15 +145,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         init(preferenceName, labelText);
         this.interpreterManager = interpreterManager;
         
-        String[] interpreters = this.interpreterManager.getInterpreters();
-        this.exeToInfo.clear();
-        for (String executable : interpreters) {
-            IInterpreterInfo interpreterInfo = this.interpreterManager.getInterpreterInfo(executable, new NullProgressMonitor());
+        IInterpreterInfo[] interpreters = this.interpreterManager.getInterpreterInfos();
+        this.nameToInfo.clear();
+        for (IInterpreterInfo interpreterInfo: interpreters) {
             if(interpreterInfo != null){
-                exeToInfo.put(executable, interpreterInfo.makeCopy());
+                nameToInfo.put(interpreterInfo.getName(), interpreterInfo.makeCopy());
             }
         }
-        
         
         if(USE_ICONS){
             imageSystemLibRoot = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM_ROOT);
@@ -213,6 +207,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         super.removePressed();
         updateTree();
 //        changed = true;
+    }
+    
+    @Override
+    protected void disposeOfTreeItem(TreeItem t) {
+        String nameFromTreeItem = this.getNameFromTreeItem(t);
+        this.nameToInfo.remove(nameFromTreeItem);
+        super.disposeOfTreeItem(t);
     }
 
     protected void addPressed() {
@@ -503,8 +504,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 public void widgetSelected(SelectionEvent event) {
                     if (listControl.getSelectionCount() == 1) {
                         TreeItem[] selection = listControl.getSelection();
-                        String executable = getExecutableFromTreeItem(selection[0]);
-                        InterpreterInfo info = (InterpreterInfo) exeToInfo.get(executable);
+                        InterpreterInfo info = (InterpreterInfo) nameToInfo.get(getNameFromTreeItem(selection[0]));
 
                     
                         Widget widget = event.widget;
@@ -566,8 +566,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected void addOthers() {
         if (listControl.getSelectionCount() == 1) {
             TreeItem[] selection = listControl.getSelection();
-            String executable = getExecutableFromTreeItem(selection[0]);
-            InterpreterInfo info = (InterpreterInfo) this.exeToInfo.get(executable);
+            InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(selection[0]));
             
             InputDialog d = new InputDialog(this.getShell(), "Builtin to add", "Builtin to add", "", null);
             
@@ -587,10 +586,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     protected void removeOthers() {
         if (listControl.getSelectionCount() == 1 && listBuiltins.getSelectionCount() == 1) {
             TreeItem[] selection = listControl.getSelection();
-            String executable = getExecutableFromTreeItem(selection[0]);
             String builtin = listBuiltins.getSelection()[0];
             
-            InterpreterInfo info = (InterpreterInfo) this.exeToInfo.get(executable);
+            InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(selection[0]));
             info.removeForcedLib(builtin);
 //            changed = true;
         }
@@ -627,14 +625,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         int index = this.getSelectionIndex();
         if (index >= 0) {
             TreeItem item = listControl.getItem(index);
-            fillPathItems(getExecutableFromTreeItem(item));
+            fillPathItemsFromName(getNameFromTreeItem(item));
         }else{
-            fillPathItems(null);
+            fillPathItemsFromName(null);
             if (listControl.getItemCount() > 0){
                 listControl.select(listControl.getItem(0));
                 selectionChanged();
-                String s = getExecutableFromTreeItem(listControl.getItem(0));
-                fillPathItems(s);
+                fillPathItemsFromName(getNameFromTreeItem(listControl.getItem(0)));
             }
         }
     }
@@ -644,7 +641,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * @param s
      * 
      */
-    private void fillPathItems(String executable) {
+    private void fillPathItemsFromName(String name) {
         tree.removeAll();
         listBuiltins.removeAll();
         
@@ -653,14 +650,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             environmentTab.performApply(workingCopy);
         }
         
-        if(executable != null){
+        if(name != null){
             TreeItem item = new TreeItem(tree, SWT.NONE);
             item.setText("System libs");
             item.setImage(imageSystemLibRoot);
 
-            InterpreterInfo info = (InterpreterInfo) this.exeToInfo.get(executable);
+            InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(name);
             if(info == null){
-                PydevPlugin.log("Didn't expect interpreter info to be null in the memory: "+executable);
+                PydevPlugin.log("Didn't expect interpreter info to be null in the memory: "+name);
             }else{
                 for (Iterator<String> iter = info.libs.iterator(); iter.hasNext();) {
                     TreeItem subItem = new TreeItem(item, SWT.NONE);
@@ -690,54 +687,62 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     
     /** Overridden
      */
-    protected String getNewInputObject(boolean autoConfig) {
+    protected Tuple<String, String> getNewInputObject(boolean autoConfig) {
         CharArrayWriter charWriter = new CharArrayWriter();
         PrintWriter logger = new PrintWriter(charWriter);
         logger.println("Information about process of adding new interpreter:");
         try {
-            String file = null;
+            Tuple<String, String> interpreterNameAndExecutable = null;
             if(autoConfig){
-                file = getAutoNewInput();
-                if(file == null){
+                interpreterNameAndExecutable = getAutoNewInput();
+                if(interpreterNameAndExecutable == null){
                     reportAutoConfigProblem(null);
                     return null;
                 }
             }else{
-                FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
-    
-                String[] filterExtensions = getInterpreterFilterExtensions();
-                if (filterExtensions != null) {
-                    dialog.setFilterExtensions(filterExtensions);
-                }
-    
-                if (lastPath != null) {
-                    if (new File(lastPath).exists())
-                        dialog.setFilterPath(lastPath);
-                }
-    
+                
+                InterpreterInputDialog dialog = new InterpreterInputDialog(getShell(),"Select interpreter","Enter the name and executable of your interpreter",this);
                 logger.println("- Opening dialog to request executable (or jar).");
-                file = dialog.open();
+                int result = dialog.open();
+                
+                if (result == Window.OK){
+                    interpreterNameAndExecutable = dialog.getInterpreterNameAndExecutable();
+                    if(interpreterNameAndExecutable == null){
+                        ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
+                                "interpreterNameAndExecutable == null", 
+                                PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null", new RuntimeException()));
+                        return null;
+                    }
+                    String error = getDuplicatedMessageError(interpreterNameAndExecutable.o1);
+                    if(error != null){
+                        ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
+                                error, 
+                                PydevPlugin.makeStatus(IStatus.ERROR, "Duplicated interpreter information", new RuntimeException()));
+                        return null;
+                    }
+                }else{
+                    return null;
+                }
             }
             
-            if (file != null) {
-                logger.println("- Chosen interpreter file:'"+file);
-                file = file.trim();
-                if (file.length() == 0){
+            
+            if (interpreterNameAndExecutable != null) {
+                logger.println("- Chosen interpreter (name and file):'"+interpreterNameAndExecutable);
+                if (interpreterNameAndExecutable.o2.trim().length() == 0){
                     logger.println("- When trimmed, the chosen file was empty (returning null).");
                     return null;
                 }
-                lastPath = file;
             }else{
                 logger.println("- The file chosen was null (returning null).");
                 return null;
             }
             
-            if (file != null) {
+            if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
                 //ok, now that we got the file, let's see if it is valid and get the library info.
-                logger.println("- Ok, file is non-null. Getting info on:"+file);
+                logger.println("- Ok, file is non-null. Getting info on:"+interpreterNameAndExecutable.o2);
                 ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
                 monitorDialog.setBlockOnOpen(false);
-                ObtainInterpreterInfoOperation operation = new ObtainInterpreterInfoOperation(file, logger, interpreterManager);
+                ObtainInterpreterInfoOperation operation = new ObtainInterpreterInfoOperation(interpreterNameAndExecutable.o2, logger, interpreterManager);
                 monitorDialog.run(true, false, operation);
 
                 if (operation.e != null) {
@@ -780,11 +785,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 }
 
                 if(operation.result != null){
+                    operation.result.setName(interpreterNameAndExecutable.o1);
                     logger.println("- Success getting the info. Result:"+operation.result);
                     
-                    this.exeToInfo.put(operation.result.executableOrJar, operation.result.makeCopy());
+                    this.nameToInfo.put(operation.result.getName(), operation.result.makeCopy());
     
-                    return operation.result.executableOrJar;
+                    return new Tuple<String, String>(operation.result.getName(), operation.result.executableOrJar);
                 }else{
                     return null;
                 }
@@ -800,6 +806,32 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return null;
     }
 
+    /**
+     * Gets a unique name for the interpreter based on an initial expected name.
+     */
+    public String getUniqueInterpreterName(final String expectedName) {
+        String additional = "";
+        int i = 0;
+        while(getDuplicatedMessageError(expectedName+additional) != null){
+            i++;
+            additional = String.valueOf(i);
+        }
+        return expectedName+additional;
+    }
+    
+    /**
+     * Uses the passed name and executable to see if it'll match against one of the existing 
+     * @param interpreterNameAndExecutable
+     * @return
+     */
+    public String getDuplicatedMessageError(String interpreterName) {
+        String error = null;
+        if(this.nameToInfo.containsKey(interpreterName)){
+            error = "An interpreter is already configured with the name: "+interpreterName;
+        }
+        return error;
+    }
+
     private void reportAutoConfigProblem(Exception e) {
         String errorMsg = 
             "Unable to auto-configure the interpreter.\n" +
@@ -811,12 +843,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
 
     /**
-     * @return the string with the file to be executed (for python could be just python.exe) and for
-     * jython the jython.jar location.
+     * @return a tuple with the name of the interpreter and the string with the file to be executed 
+     * (for python could be just python.exe) and for jython the jython.jar location.
      * 
      * This is also be platform-dependent (so, it could be python.exe or just python)
+     * 
+     * If it cannot be determined, the return should be null (and not a tuple with empty values)
      */
-    protected abstract String getAutoNewInput();
+    protected abstract Tuple<String, String> getAutoNewInput();
     
 
     @Override
@@ -843,11 +877,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         if (list != null) {
             String s = interpreterManager.getPersistedString();
             IInterpreterInfo[] array = parseStringToInfo(s);
-            this.exeToInfo.clear();
+            this.nameToInfo.clear();
             for (int i = 0; i < array.length; i++) {
                 IInterpreterInfo interpreterInfo = array[i];
                 createInterpreterItem(interpreterInfo.getName(), interpreterInfo.getExecutableOrJar());
-                this.exeToInfo.put(interpreterInfo.getExecutableOrJar(), interpreterInfo.makeCopy());
+                this.nameToInfo.put(interpreterInfo.getName(), interpreterInfo.makeCopy());
             }
         }
         updateTree();

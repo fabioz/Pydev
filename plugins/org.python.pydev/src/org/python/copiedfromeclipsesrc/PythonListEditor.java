@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -113,23 +114,27 @@ public abstract class PythonListEditor extends FieldEditor {
      * Notifies that the Add button has been pressed.
      */
     protected void autoConfigPressed() {
-        String input = getNewInputObject(true);
-        addNewInput(input);
+        Tuple<String, String> input = getNewInputObject(true);
+        if(input != null){
+            addNewInput(input.o1, input.o2);
+        }
     }
     
     /**
      * Notifies that the Add button has been pressed.
      */
     protected void addPressed() {
-        String input = getNewInputObject(false);
-        addNewInput(input);
+        Tuple<String, String> input = getNewInputObject(false);
+        if(input != null){
+            addNewInput(input.o1, input.o2);
+        }
     }
 
     
-    private void addNewInput(String input) {
-        if (input != null) {
+    private void addNewInput(String name, String executable) {
+        if (name != null && executable != null) {
             setPresentsDefaultValue(false);
-            createInterpreterItem(input, input);
+            createInterpreterItem(name, executable);
             selectionChanged();
         }
     }
@@ -330,9 +335,9 @@ public abstract class PythonListEditor extends FieldEditor {
      * Subclasses must implement this method.
      * </p>
      * 
-     * @return a new item
+     * @return the name and executable of the new item
      */
-    protected abstract String getNewInputObject(boolean autoConfig);
+    protected abstract Tuple<String, String> getNewInputObject(boolean autoConfig);
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
@@ -381,10 +386,14 @@ public abstract class PythonListEditor extends FieldEditor {
         TreeItem[] selection = list.getSelection();
         if (selection != null && selection.length > 0) {
             for(TreeItem t:selection){
-                t.dispose(); //dispose of those items!
+                disposeOfTreeItem(t);
             }
             selectionChanged();
         }
+    }
+    
+    protected void disposeOfTreeItem(TreeItem t){
+        t.dispose();
     }
 
     /**
