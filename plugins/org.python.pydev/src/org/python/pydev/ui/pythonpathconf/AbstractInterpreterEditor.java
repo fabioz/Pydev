@@ -232,7 +232,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             if(newText.equals(initialName)){
                                 return null;
                             }
-                            return getDuplicatedMessageError(newText);
+                            return getDuplicatedMessageError(newText, null);
                         }
                     });
             
@@ -784,7 +784,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null", new RuntimeException()));
                         return null;
                     }
-                    String error = getDuplicatedMessageError(interpreterNameAndExecutable.o1);
+                    String error = getDuplicatedMessageError(interpreterNameAndExecutable.o1, interpreterNameAndExecutable.o2);
                     if(error != null){
                         ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
                                 error, 
@@ -883,7 +883,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     public String getUniqueInterpreterName(final String expectedName) {
         String additional = "";
         int i = 0;
-        while(getDuplicatedMessageError(expectedName+additional) != null){
+        while(getDuplicatedMessageError(expectedName+additional, null) != null){
             i++;
             additional = String.valueOf(i);
         }
@@ -892,17 +892,24 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     
     /**
      * Uses the passed name and executable to see if it'll match against one of the existing 
-     * @param interpreterNameAndExecutable
-     * @return
+     * 
+     * The null parameters are ignored.
      */
-    public String getDuplicatedMessageError(String interpreterName) {
-        if(interpreterName == null){
-            return null; //not duplicated (nor accepted)
-        }
-        interpreterName = interpreterName.trim();
+    public String getDuplicatedMessageError(String interpreterName, String executableOrJar) {
         String error = null;
-        if(this.nameToInfo.containsKey(interpreterName)){
-            error = "An interpreter is already configured with the name: "+interpreterName;
+        if(interpreterName != null){
+            interpreterName = interpreterName.trim();
+            if(this.nameToInfo.containsKey(interpreterName)){
+                error = "An interpreter is already configured with the name: "+interpreterName;
+            }
+        }
+        if(executableOrJar != null){
+            executableOrJar = executableOrJar.trim();
+            for(IInterpreterInfo info:this.nameToInfo.values()){
+                if(info.getExecutableOrJar().trim().equals(executableOrJar)){
+                    error = "An interpreter is already configured with the path: "+executableOrJar;
+                }
+            }
         }
         return error;
     }

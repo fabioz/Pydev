@@ -206,17 +206,18 @@ public class InterpreterInputDialog extends Dialog {
 					errorMessage = "The interpreter name must be specified";
 				}
 				
-				if (errorMessage == null && interpreterExecutableField.getText().trim().equals("")){
+				String executableOrJar = interpreterExecutableField.getText().trim();
+                if (errorMessage == null && executableOrJar.equals("")){
 					errorMessage = "The interpreter location must be specified";
 				}
 				if(errorMessage == null){
-    				File file = new File(interpreterExecutableField.getText().trim());
+    				File file = new File(executableOrJar);
     				if (!file.exists() || file.isDirectory()){
     					errorMessage = "Invalid interpreter";
     				}
 				}
 				if(errorMessage == null){
-				    errorMessage = editor.getDuplicatedMessageError(interpreterName);
+				    errorMessage = editor.getDuplicatedMessageError(interpreterName, executableOrJar);
 				}
 				setErrorMessage(errorMessage);
 			}
