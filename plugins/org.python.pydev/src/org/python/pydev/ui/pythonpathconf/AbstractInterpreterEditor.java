@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.resource.JFaceResources;
@@ -24,6 +25,10 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -76,12 +81,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     /**
      * Tree to add libs.
      */
-    private Tree tree;
+    private Tree treeWithLibs;
 
     /**
      * This is the control where the interpreters are shown
      */
-    private Tree listControl;
+    private Tree treeWithInterpreters;
 
     /**
      * Images
@@ -118,7 +123,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
 
     public IInterpreterInfo[] getExesList(){
-        TreeItem[] items = list.getItems();
+        TreeItem[] items = treeWithInterpreters.getItems();
         ArrayList<IInterpreterInfo> infos = new ArrayList<IInterpreterInfo>();
         for (TreeItem exe : items) {
             IInterpreterInfo info = this.nameToInfo.get(getNameFromTreeItem(exe));
@@ -168,8 +173,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     protected void createControl(Composite parent) {
         super.createControl(parent);
-        listControl = getListControl(parent);
-        listControl.addSelectionListener(new SelectionListener() {
+        treeWithInterpreters = getListControl(parent);
+        treeWithInterpreters.addSelectionListener(new SelectionListener() {
 
             public void widgetSelected(SelectionEvent e) {
                 updateTree();
@@ -180,6 +185,69 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             }
 
         });
+        
+        treeWithInterpreters.addKeyListener(new KeyListener(){
+        
+            public void keyReleased(KeyEvent e) {
+            }
+        
+            public void keyPressed(KeyEvent e) {
+                if(e.keyCode == SWT.F2){
+                    renameSelection();
+                }
+            }
+        });
+        
+        treeWithInterpreters.addMouseListener(new MouseListener(){
+        
+            public void mouseUp(MouseEvent e) {
+            }
+        
+            public void mouseDown(MouseEvent e) {
+            }
+        
+            public void mouseDoubleClick(MouseEvent e) {
+                renameSelection();
+            }
+        });
+    }
+    
+    
+    private void renameSelection(){
+        int index = getSelectionIndex();
+        if(index >= 0){
+            TreeItem curr = treeWithInterpreters.getItem(index);
+            
+            final String initialName = getNameFromTreeItem(curr);
+            InputDialog d = new InputDialog(
+                    this.getShell(), 
+                    "New name", "Please specify the new name of the interpreter.", 
+                    initialName, 
+                    new IInputValidator(){
+                        public String isValid(String newText) {
+                            if(newText == null || newText.trim().equals("")){
+                                return "Please specify a non-empty name.";
+                            }
+                            newText = newText.trim();
+                            if(newText.equals(initialName)){
+                                return null;
+                            }
+                            return getDuplicatedMessageError(newText);
+                        }
+                    });
+            
+            int retCode = d.open();
+            if (retCode == InputDialog.OK) {
+                String newName = d.getValue().trim();
+                if(!newName.equals(initialName)){
+                    IInterpreterInfo info = this.nameToInfo.get(initialName);
+                    info.setName(newName);
+                    curr.setText(0, newName);
+                    this.nameToInfo.remove(initialName);
+                    this.nameToInfo.put(newName, info);
+                }
+            }
+        }
     }
 
     
@@ -188,16 +256,16 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * @return
      */
     private Tree getTreeLibsControl(Composite parent) {
-        if (tree == null){
-            tree = new Tree(parent, SWT.BORDER|SWT.MULTI);
-            tree.setFont(parent.getFont());
-            tree.addDisposeListener(new DisposeListener() {
+        if (treeWithLibs == null){
+            treeWithLibs = new Tree(parent, SWT.BORDER|SWT.MULTI);
+            treeWithLibs.setFont(parent.getFont());
+            treeWithLibs.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
-                    tree = null;
+                    treeWithLibs = null;
                 }
             });
         }
-        return tree;
+        return treeWithLibs;
     }
 
     /**
@@ -315,14 +383,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         l1.setLayoutData(gd);
 
         //the tree
-        tree = getTreeLibsControl(parent);
+        treeWithLibs = getTreeLibsControl(parent);
         gd = new GridData();
         gd.horizontalAlignment = SWT.FILL;
         gd.verticalAlignment = SWT.FILL;
         gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = true;
         gd.heightHint = 200;
-        tree.setLayoutData(gd);
+        treeWithLibs.setLayoutData(gd);
 
         //buttons at the side of the tree
         Composite control = getButtonBoxControlSystem(parent);
@@ -502,8 +570,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         if (selectionListenerSystem == null){
             selectionListenerSystem = new SelectionAdapter() {
                 public void widgetSelected(SelectionEvent event) {
-                    if (listControl.getSelectionCount() == 1) {
-                        TreeItem[] selection = listControl.getSelection();
+                    if (treeWithInterpreters.getSelectionCount() == 1) {
+                        TreeItem[] selection = treeWithInterpreters.getSelection();
                         InterpreterInfo info = (InterpreterInfo) nameToInfo.get(getNameFromTreeItem(selection[0]));
 
                     
@@ -564,8 +632,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * 
      */
     protected void addOthers() {
-        if (listControl.getSelectionCount() == 1) {
-            TreeItem[] selection = listControl.getSelection();
+        if (treeWithInterpreters.getSelectionCount() == 1) {
+            TreeItem[] selection = treeWithInterpreters.getSelection();
             InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(selection[0]));
             
             InputDialog d = new InputDialog(this.getShell(), "Builtin to add", "Builtin to add", "", null);
@@ -584,8 +652,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * 
      */
     protected void removeOthers() {
-        if (listControl.getSelectionCount() == 1 && listBuiltins.getSelectionCount() == 1) {
-            TreeItem[] selection = listControl.getSelection();
+        if (treeWithInterpreters.getSelectionCount() == 1 && listBuiltins.getSelectionCount() == 1) {
+            TreeItem[] selection = treeWithInterpreters.getSelection();
             String builtin = listBuiltins.getSelection()[0];
             
             InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(selection[0]));
@@ -624,14 +692,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private void updateTree() {
         int index = this.getSelectionIndex();
         if (index >= 0) {
-            TreeItem item = listControl.getItem(index);
+            TreeItem item = treeWithInterpreters.getItem(index);
             fillPathItemsFromName(getNameFromTreeItem(item));
         }else{
             fillPathItemsFromName(null);
-            if (listControl.getItemCount() > 0){
-                listControl.select(listControl.getItem(0));
+            if (treeWithInterpreters.getItemCount() > 0){
+                treeWithInterpreters.select(treeWithInterpreters.getItem(0));
                 selectionChanged();
-                fillPathItemsFromName(getNameFromTreeItem(listControl.getItem(0)));
+                fillPathItemsFromName(getNameFromTreeItem(treeWithInterpreters.getItem(0)));
             }
         }
     }
@@ -642,7 +710,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * 
      */
     private void fillPathItemsFromName(String name) {
-        tree.removeAll();
+        treeWithLibs.removeAll();
         listBuiltins.removeAll();
         
         //before any change, apply the changes in the previous info (if not set, that's ok)
@@ -651,7 +719,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         }
         
         if(name != null){
-            TreeItem item = new TreeItem(tree, SWT.NONE);
+            TreeItem item = new TreeItem(treeWithLibs, SWT.NONE);
             item.setText("System libs");
             item.setImage(imageSystemLibRoot);
 
@@ -701,7 +769,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 }
             }else{
                 
-                InterpreterInputDialog dialog = new InterpreterInputDialog(getShell(),"Select interpreter","Enter the name and executable of your interpreter",this);
+                InterpreterInputDialog dialog = new InterpreterInputDialog(getShell(),
+                        "Select interpreter",
+                        "Enter the name and executable of your interpreter",this);
+                
                 logger.println("- Opening dialog to request executable (or jar).");
                 int result = dialog.open();
                 
@@ -825,6 +896,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * @return
      */
     public String getDuplicatedMessageError(String interpreterName) {
+        if(interpreterName == null){
+            return null; //not duplicated (nor accepted)
+        }
+        interpreterName = interpreterName.trim();
         String error = null;
         if(this.nameToInfo.containsKey(interpreterName)){
             error = "An interpreter is already configured with the name: "+interpreterName;
@@ -874,7 +949,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     
     @Override
     protected void doLoad() {
-        if (list != null) {
+        if (treeWithInterpreters != null) {
             String s = interpreterManager.getPersistedString();
             IInterpreterInfo[] array = parseStringToInfo(s);
             this.nameToInfo.clear();

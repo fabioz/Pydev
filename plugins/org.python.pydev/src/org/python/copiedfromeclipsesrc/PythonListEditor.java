@@ -46,7 +46,7 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * The list widget; <code>null</code> if none (before creation or after disposal).
      */
-    protected Tree list;
+    private Tree treeWithInterpreters;
 
     /**
      * The button box containing the Add, Remove, Up, and Down buttons; <code>null</code> if none (before creation or after disposal).
@@ -143,7 +143,7 @@ public abstract class PythonListEditor extends FieldEditor {
      * Adds a new tree item to the interpreter tree.
      */
     protected void createInterpreterItem(String name, String executable) {
-        TreeItem item = new TreeItem(list, SWT.NULL);
+        TreeItem item = new TreeItem(treeWithInterpreters, SWT.NULL);
         item.setText(new String[]{name, executable});
         item.setImage(this.imageInterpreter);
     }
@@ -154,7 +154,7 @@ public abstract class PythonListEditor extends FieldEditor {
     protected void adjustForNumColumns(int numColumns) {
         Control control = getLabelControl();
         ((GridData) control.getLayoutData()).horizontalSpan = numColumns;
-        ((GridData) list.getLayoutData()).horizontalSpan = numColumns - 1;
+        ((GridData) treeWithInterpreters.getLayoutData()).horizontalSpan = numColumns - 1;
     }
 
     /**
@@ -214,7 +214,7 @@ public abstract class PythonListEditor extends FieldEditor {
                     upPressed();
                 } else if (widget == downButton) {
                     downPressed();
-                } else if (widget == list) {
+                } else if (widget == treeWithInterpreters) {
                     selectionChanged();
                 }
             }
@@ -230,12 +230,12 @@ public abstract class PythonListEditor extends FieldEditor {
         gd.horizontalSpan = numColumns;
         control.setLayoutData(gd);
 
-        list = getListControl(parent);
+        treeWithInterpreters = getListControl(parent);
         gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.verticalAlignment = GridData.FILL;
         gd.horizontalSpan = numColumns - 1;
         gd.grabExcessHorizontalSpace = true;
-        list.setLayoutData(gd);
+        treeWithInterpreters.setLayoutData(gd);
 
         buttonBox = getButtonBoxControl(parent);
         gd = new GridData();
@@ -304,29 +304,29 @@ public abstract class PythonListEditor extends FieldEditor {
      * @return the list control
      */
     public Tree getListControl(Composite parent) {
-        if (list == null) {
-            list = new Tree(parent, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
+        if (treeWithInterpreters == null) {
+            treeWithInterpreters = new Tree(parent, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
             
-            list.setHeaderVisible(true);
-            TreeColumn column1 = new TreeColumn(list, SWT.LEFT);
+            treeWithInterpreters.setHeaderVisible(true);
+            TreeColumn column1 = new TreeColumn(treeWithInterpreters, SWT.LEFT);
             column1.setText("Name");
             column1.setWidth(200);
-            TreeColumn column2 = new TreeColumn(list, SWT.LEFT);
+            TreeColumn column2 = new TreeColumn(treeWithInterpreters, SWT.LEFT);
             column2.setText("Location");
             column2.setWidth(200);
             
             
-            list.setFont(parent.getFont());
-            list.addSelectionListener(getSelectionListener());
-            list.addDisposeListener(new DisposeListener() {
+            treeWithInterpreters.setFont(parent.getFont());
+            treeWithInterpreters.addSelectionListener(getSelectionListener());
+            treeWithInterpreters.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
-                    list = null;
+                    treeWithInterpreters = null;
                 }
             });
         } else {
-            checkParent(list, parent);
+            checkParent(treeWithInterpreters, parent);
         }
-        return list;
+        return treeWithInterpreters;
     }
 
     /**
@@ -383,7 +383,7 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     protected void removePressed() {
         setPresentsDefaultValue(false);
-        TreeItem[] selection = list.getSelection();
+        TreeItem[] selection = treeWithInterpreters.getSelection();
         if (selection != null && selection.length > 0) {
             for(TreeItem t:selection){
                 disposeOfTreeItem(t);
@@ -401,7 +401,7 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     protected void selectionChanged() {
         int index = getSelectionIndex();
-        int size = list.getItemCount();
+        int size = treeWithInterpreters.getItemCount();
 
         removeButton.setEnabled(index >= 0);
         upButton.setEnabled(size > 1 && index > 0);
@@ -413,21 +413,21 @@ public abstract class PythonListEditor extends FieldEditor {
      * (non-Javadoc) Method declared on FieldEditor.
      */
     public void setFocus() {
-        if (list != null) {
-            list.setFocus();
+        if (treeWithInterpreters != null) {
+            treeWithInterpreters.setFocus();
         }
     }
 
 
     protected int getSelectionIndex() {
-        if(this.list.getSelectionCount() != 1){
+        if(this.treeWithInterpreters.getSelectionCount() != 1){
             return -1;
         }
         
-        TreeItem[] selection = list.getSelection();
+        TreeItem[] selection = treeWithInterpreters.getSelection();
         int index = -1;
         if(selection != null && selection.length > 0){
-            index = list.indexOf(selection[0]);
+            index = treeWithInterpreters.indexOf(selection[0]);
         }
         return index;
     }
@@ -443,9 +443,9 @@ public abstract class PythonListEditor extends FieldEditor {
         int index = getSelectionIndex();
         int target = up ? index - 1 : index + 1;
 
-        if (index >= 0 && this.list.getSelectionCount() == 1) {
-            TreeItem curr = list.getItem(index);
-            TreeItem replace = list.getItem(target);
+        if (index >= 0) {
+            TreeItem curr = treeWithInterpreters.getItem(index);
+            TreeItem replace = treeWithInterpreters.getItem(target);
             
             //Just update the text!
             String col0 = replace.getText(0);
@@ -453,7 +453,7 @@ public abstract class PythonListEditor extends FieldEditor {
             replace.setText(new String[]{curr.getText(0), curr.getText(1)});
             curr.setText(new String[]{col0, col1});
             
-            list.setSelection(list.getItem(target));
+            treeWithInterpreters.setSelection(treeWithInterpreters.getItem(target));
         }
         selectionChanged();
     }

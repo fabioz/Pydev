@@ -65,4 +65,9 @@ public interface IInterpreterInfo {
      * @return The name to be shown for the user for this interpreter info.
      */
     public String getName();
+
+    /**
+     * Sets the name to be shown for the user for this interpreter info.
+     */
+    public void setName(String name);
 }
