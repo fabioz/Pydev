@@ -70,4 +70,9 @@ public interface IInterpreterInfo {
      * Sets the name to be shown for the user for this interpreter info.
      */
     public void setName(String name);
+
+    /**
+     * @return a suitable name to be shown in the UI (e.g: name + executable or jar)
+     */
+    public String getNameForUI();
 }

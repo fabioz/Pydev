@@ -19,6 +19,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple3;
@@ -96,14 +97,21 @@ public class IProcessFactory {
         
                 File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
                 String[] commandLine;
-                ListDialog listDialog = createChoiceDialog(workbenchWindow, interpreterManager);
+                IInterpreterInfo[] interpreters = interpreterManager.getInterpreterInfos();
+                ListDialog listDialog = createChoiceDialog(workbenchWindow, interpreterManager, interpreters);
                 int open = listDialog.open();
-                if(open != ListDialog.OK || listDialog.getResult().length != 1){
+                if(open != ListDialog.OK || listDialog.getResult().length > 1){
                     return null;
                 }
+                Object[] result = (Object[]) listDialog.getResult();
+                String interpreter = null;
+                if(result == null || result.length == 0){
+                    interpreter = interpreters[0].getExecutableOrJar();
+                    
+                }else{
+                    interpreter = ((IInterpreterInfo)result[0]).getExecutableOrJar();
+                }
                 
-                //TODO: Instead of opening 2 dialogs, open only 1 which asks everything.
-                String interpreter = (String) listDialog.getResult()[0];
                 if(interpreter == null){
                     return null;
                 }
@@ -144,13 +152,14 @@ public class IProcessFactory {
         return null;
     }
 
-    private ListDialog createChoiceDialog(IWorkbenchWindow workbenchWindow, IInterpreterManager pythonInterpreterManager) {
+    private ListDialog createChoiceDialog(
+            IWorkbenchWindow workbenchWindow, IInterpreterManager pythonInterpreterManager, IInterpreterInfo[] interpreters) {
         ListDialog listDialog = new ListDialog(workbenchWindow.getShell());
         listDialog.setContentProvider(new IStructuredContentProvider(){
 
             public Object[] getElements(Object inputElement) {
-                if(inputElement instanceof String[]){
-                    return (String[]) inputElement;
+                if(inputElement instanceof IInterpreterInfo[]){
+                    return (IInterpreterInfo[]) inputElement;
                 }
                 return new Object[0];
             }
@@ -166,8 +175,14 @@ public class IProcessFactory {
             public Image getImage(Object element) {
                 return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
             }
+            public String getText(Object element) {
+                if(element != null && element instanceof IInterpreterInfo){
+                    IInterpreterInfo info = (IInterpreterInfo) element;
+                    return info.getNameForUI();
+                }
+                return super.getText(element);
+            }
         });
-        String[] interpreters = pythonInterpreterManager.getInterpreters();
         listDialog.setInput(interpreters);
         listDialog.setMessage("Select interpreter to be used.");
         return listDialog;

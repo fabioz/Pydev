@@ -753,5 +753,12 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
         return this.executableOrJar;
     }
-    
+ 
+    public String getNameForUI() {
+        if(this.name != null){
+            return this.name+"  ("+this.executableOrJar+")";
+        }else{
+            return this.executableOrJar;
+        }
+    }
 }
