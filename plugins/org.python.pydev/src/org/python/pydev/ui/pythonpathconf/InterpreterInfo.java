@@ -761,4 +761,16 @@ public class InterpreterInfo implements IInterpreterInfo{
             return this.executableOrJar;
         }
     }
+    
+    public boolean matchNameBackwardCompatible(String interpreter) {
+        if(this.name != null){
+            if(interpreter.equals(this.name)){
+                return true;
+            }
+        }
+        if(REF.isWindowsPlatform()){
+            return interpreter.equalsIgnoreCase(executableOrJar);
+        }
+        return interpreter.equals(executableOrJar);
+    }
 }

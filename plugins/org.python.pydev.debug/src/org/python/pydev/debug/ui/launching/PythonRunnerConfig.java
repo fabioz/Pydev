@@ -236,16 +236,22 @@ public class PythonRunnerConfig {
                 location = interpreterManager.getDefaultInterpreter();
             }
             
-        }else if(interpreterManager.hasInfoOnInterpreter(location) == false){
-            File file = new File(location);
-            if(!file.exists()){
-                throw new InvalidRunException("Error. The interprer: "+location+" does not exist");
-                
+        }else{
+            IInterpreterInfo interpreterInfo = interpreterManager.getInterpreterInfo(location, null);
+            if(interpreterInfo != null){
+                return interpreterInfo.getExecutableOrJar();
             }else{
-                if(nature == null){
-                    throw new InvalidRunException("Error. The interprer: "+location+" is not configured in the pydev preferences as a valid interpreter (null nature).");
+                File file = new File(location);
+                if(!file.exists()){
+                    throw new InvalidRunException("Error. The interprer: "+location+" does not exist");
+                    
                 }else{
-                    throw new InvalidRunException("Error. The interprer: "+location+" is not configured in the pydev preferences as a valid '"+nature.getVersion()+"' interpreter.");
+                    //it does not have information on the given interpreter!!
+                    if(nature == null){
+                        throw new InvalidRunException("Error. The interpreter: >>"+location+"<< is not configured in the pydev preferences as a valid interpreter (null nature).");
+                    }else{
+                        throw new InvalidRunException("Error. The interpreter: >>"+location+"<< is not configured in the pydev preferences as a valid '"+nature.getVersion()+"' interpreter.");
+                    }
                 }
             }
         }

@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.debug.core.Constants;
@@ -130,18 +131,18 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         label6.setLayoutData (data);
 
         fInterpreterComboField = new Combo (comp, SWT.DROP_DOWN);
-        String[] interpreters = this.fInterpreterManager.getInterpreters();
-        if (interpreters.length > 0){
+        IInterpreterInfo[] interpreterInfos = this.fInterpreterManager.getInterpreterInfos();
+        String[] interpreterNames = new String[0];
+        if (interpreterInfos.length > 0){
             // There is at least one interpreter defined, add the default interpreter option at the beginning.
-            String[] interpreterNames = interpreters;
-            interpreters = new String[interpreterNames.length+1];
-            interpreters[0] = InterpreterTab.DEFAULT_INTERPRETER_NAME;
+            interpreterNames = new String[interpreterInfos.length+1];
+            interpreterNames[0] = InterpreterTab.DEFAULT_INTERPRETER_NAME;
             
-            for (int i = 0; i < interpreterNames.length; i ++){
-                interpreters[i+1] = interpreterNames[i];
+            for (int i = 0; i < interpreterInfos.length; i ++){
+                interpreterNames[i+1] = interpreterInfos[i].getName();
             }
         }
-        fInterpreterComboField.setItems (interpreters);
+        fInterpreterComboField.setItems (interpreterNames);
         fInterpreterComboField.select(0);
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
@@ -245,10 +246,10 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         catch (CoreException e) {
         }
 
-        String[] interpreters = fInterpreterComboField.getItems();
         
-        if(interpreters.length == 0){
+        if(fInterpreterComboField.getItems().length == 0){
             setErrorMessage("No interpreter is configured, please, go to window > preferences > interpreters and add the interpreter you want to use.");
+            
         }else{
         
             int selectThis = -1;
@@ -258,9 +259,10 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
                 selectThis = 0;
             }
             else {
-                for (int i=1; i< interpreters.length; i++){
-                    if (interpreter.equals(interpreters[i])){
-                        selectThis = i;
+                IInterpreterInfo[] interpreterInfos = this.fInterpreterManager.getInterpreterInfos();
+                for (int i=0; i< interpreterInfos.length; i++){
+                    if (interpreterInfos[i].matchNameBackwardCompatible(interpreter)){
+                        selectThis = i+1; //Internally, it's the index+1 (because the one at 0 is the default)
                         break;
                     }
                 }
@@ -309,9 +311,9 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
             return false;
         }
         
-        String[] interpreters = this.fInterpreterManager.getInterpreters();
+        IInterpreterInfo[] interpreters = this.fInterpreterManager.getInterpreterInfos();
         for (int i = 0; i < interpreters.length; i++) {
-            if (interpreters[i] != null && interpreters[i].equals(interpreter)) {
+            if (interpreters[i] != null && interpreters[i].matchNameBackwardCompatible(interpreter)) {
                 return true;
             }
         }

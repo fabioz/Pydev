@@ -75,4 +75,9 @@ public interface IInterpreterInfo {
      * @return a suitable name to be shown in the UI (e.g: name + executable or jar)
      */
     public String getNameForUI();
+
+    /**
+     * @return true if the passed name matches the name or the executable or jar specified.
+     */
+    public boolean matchNameBackwardCompatible(String interpreter);
 }

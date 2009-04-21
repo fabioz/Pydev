@@ -55,7 +55,7 @@ public interface IInterpreterManager {
      * @param executable this is the executable from where we want to get the info
      * @return information on the executable
      */
-    public IInterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor);
+    public IInterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor);
 
     /**
      * @param monitor monitor to report the progress.

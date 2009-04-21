@@ -176,14 +176,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             InterpreterInfo info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
             return info != null;
         }
-        interpreter = interpreter.toLowerCase();
-        String[] interpreters = getInterpreters();
-        for (String str : interpreters) {
-            if(str.toLowerCase().equals(interpreter)){
-                return true;
-            }
-        }
-        return false;
+        return getInterpreterInfo(interpreter, null) != null;
     }
     
     /**
@@ -274,11 +267,15 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
-    public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
+    public InterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) {
         synchronized(lock){
-            InterpreterInfo info = (InterpreterInfo) exeToInfo.get(executable);
-            return info;
+            for(IInterpreterInfo info:this.exeToInfo.values()){
+                if(info.matchNameBackwardCompatible(nameOrExecutableOrJar)){
+                    return (InterpreterInfo) info;
+                }
+            }
         }
+        return null;
     }
 
     /**
