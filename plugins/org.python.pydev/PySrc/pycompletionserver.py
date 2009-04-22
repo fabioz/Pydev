@@ -167,7 +167,7 @@ class KeepAliveThread( Thread ):
         if sent == 0:
             sys.exit(0) #connection broken
         
-class Processor(object):
+class Processor:
 
     def __init__( self):
       # nothing to do
