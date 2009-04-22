@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
@@ -84,8 +85,12 @@ public class PythonShellTest extends CodeCompletionTestsBase{
      * @return
      */
     private List<String> getPythonpath() {
-        return nature.getAstManager().getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
-                nature.getRelatedInterpreterManager()); 
+        try {
+            return nature.getAstManager().getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
+                    nature.getRelatedInterpreterManager());
+        } catch (ProjectMisconfiguredException e) {
+            throw new RuntimeException(e);
+        } 
     }
     
 

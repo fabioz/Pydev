@@ -42,6 +42,16 @@ public class PythonModelProviderTest extends TestCase {
         }
         
     }
+    
+    protected void setUp() throws Exception {
+        super.setUp();
+        PythonNature.IN_TESTS = true;
+    }
+    
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        PythonNature.IN_TESTS = false;
+    }
 
     private ProjectStub project;
     private FileStub file;
@@ -237,7 +247,7 @@ public class PythonModelProviderTest extends TestCase {
         assertTrue(children1[0] instanceof PythonSourceFolder);
         
         //no changes in the pythonpath
-        provider.notifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));//still the same
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));//still the same
         
         Object[] children2 = provider.getChildren(project);
         assertEquals(1, children1.length);
@@ -247,7 +257,7 @@ public class PythonModelProviderTest extends TestCase {
         //changed pythonpath (source folders should be removed)
         pythonPathSet.clear();
         pythonPathSet.add(TestDependent.TEST_PYSRC_NAVIGATOR_LOC+"projroot/source/python");
-        provider.notifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
         Object[] children3 = provider.getChildren(project);
         assertFalse(children3[0] instanceof PythonSourceFolder);
         

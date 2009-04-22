@@ -21,6 +21,7 @@ import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -102,17 +103,25 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
                 throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected IO Exception in Pydev debugger", null));
             }
         }catch(final InvalidRunException e){
-            Display.getDefault().asyncExec(new Runnable(){
-
-                public void run() {
-                    ErrorDialog.openError(PyAction.getShell(), "Invalid launch configuration", 
-                            "Unable to make launch because launch configuration is not valid", 
-                            PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
-                }
-            });
-            finishLaunchWithError(launch);
+            handleError(launch, e);
+        }catch(final ProjectMisconfiguredException e){
+            handleError(launch, e);
         }
     }
+    
+
+    private void handleError(ILaunch launch, final Exception e) {
+        Display.getDefault().asyncExec(new Runnable(){
+
+            public void run() {
+                ErrorDialog.openError(PyAction.getShell(), "Invalid launch configuration", 
+                        "Unable to make launch because launch configuration is not valid", 
+                        PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
+            }
+        });
+        finishLaunchWithError(launch);
+    }
+    
 
     private void finishLaunchWithError(ILaunch launch) {
         try{

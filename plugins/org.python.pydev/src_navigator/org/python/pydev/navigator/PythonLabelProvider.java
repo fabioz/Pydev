@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
@@ -59,6 +60,9 @@ public class PythonLabelProvider implements ILabelProvider{
                 }
             }
             return provider.getImage(actualObject);
+        }
+        if(element instanceof ProjectConfigError){
+            return PydevPlugin.getImageCache().get(UIConstants.ERROR);
         }
         if(element instanceof PythonNode){
             PythonNode node = (PythonNode) element;
@@ -127,10 +131,15 @@ public class PythonLabelProvider implements ILabelProvider{
             PythonSourceFolder sourceFolder = (PythonSourceFolder) element;
             return provider.getText(sourceFolder.container);
         }
+        
         if(element instanceof IWrappedResource){
             IWrappedResource resource = (IWrappedResource) element;
             return provider.getText(resource.getActualObject());
         }
+        if(element instanceof ProjectConfigError){
+            return ((ProjectConfigError)element).getLabel();
+        }
+        
         return provider.getText(element);
     }
 

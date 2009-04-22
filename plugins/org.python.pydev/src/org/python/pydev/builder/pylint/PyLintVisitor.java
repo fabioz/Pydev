@@ -32,6 +32,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -132,7 +133,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                     }.schedule();
                 }
                 
-            } catch (final CoreException e) {
+            } catch (final Exception e) {
                 new Job("Error reporting"){
                     protected IStatus run(IProgressMonitor monitor) {
                         PydevPlugin.log(e);
@@ -178,8 +179,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @param document
          * @param location
          * @throws CoreException
+         * @throws ProjectMisconfiguredException 
          */
-        private void passPyLint(IResource resource, IOConsoleOutputStream out) throws CoreException {
+        private void passPyLint(IResource resource, IOConsoleOutputStream out) throws CoreException, ProjectMisconfiguredException {
             File script = new File(PyLintPrefPage.getPyLintLocation());
             File arg = new File(location.toOSString());
 

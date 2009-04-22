@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -25,6 +26,7 @@ import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.navigator.PipelinedViewerUpdate;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
@@ -80,12 +82,19 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             
             
         } else if(parent instanceof IWorkingSet){
-            if (parent instanceof IWorkingSet) {
-                IWorkingSet workingSet = (IWorkingSet) parent;
-                currentElements.clear();
-                currentElements.addAll(Arrays.asList(workingSet.getElements()));
+            IWorkingSet workingSet = (IWorkingSet) parent;
+            currentElements.clear();
+            currentElements.addAll(Arrays.asList(workingSet.getElements()));
+            
+        } else if(parent instanceof IProject){
+            IProject project = (IProject) parent;
+            PythonNature nature = PythonNature.getPythonNature(project);
+            if(nature != null){
+                List<ProjectConfigError> configErrors = nature.getConfigErrors(project);
+                currentElements.addAll(configErrors);
             }
         }        
+        
         PipelinedShapeModification modification = new PipelinedShapeModification(parent, currentElements);
         convertToPythonElementsAddOrRemove(modification, true);
         if(DEBUG){
@@ -129,6 +138,11 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             if(parentElement != null){
                 aSuggestedParent = parentElement;
             }
+            
+        } else if (object instanceof ProjectConfigError){
+            ProjectConfigError configError = (ProjectConfigError) object;
+            return configError.getParent();
+            
         }
         
         if(DEBUG){

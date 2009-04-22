@@ -195,5 +195,5 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      * 
      * Note: the return can never be null (an exception is thrown if none can be determined) 
      */
-    IInterpreterInfo getProjectInterpreter();
+    IInterpreterInfo getProjectInterpreter() throws ProjectMisconfiguredException;
 }

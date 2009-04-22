@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -39,9 +40,9 @@ public class PythonNatureListenersManager {
      * Notification that the pythonpath has been rebuilt.
      * 
      * @param project is the project that had the pythonpath rebuilt
-     * @param projectPythonpath the project pythonpath used when rebuilding
+     * @param nature the nature related to the project (can be null if the nature has actually been removed)
      */
-    public static void notifyPythonPathRebuilt(IProject project, List<String> projectPythonpath){
+    public static void notifyPythonPathRebuilt(IProject project, IPythonNature nature){
         for(Iterator<WeakReference<IPythonNatureListener>> it = pythonNatureListeners.iterator();it.hasNext();){
             WeakReference<IPythonNatureListener> ref = it.next();
             try{
@@ -49,7 +50,7 @@ public class PythonNatureListenersManager {
                 if(listener == null){
                     it.remove();
                 }else{
-                    listener.notifyPythonPathRebuilt(project, projectPythonpath);
+                    listener.notifyPythonPathRebuilt(project, nature);
                 }
             }catch(Throwable e){
                 PydevPlugin.log(e);

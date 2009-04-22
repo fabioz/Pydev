@@ -4,9 +4,8 @@
  */
 package org.python.pydev.plugin.nature;
 
-import java.util.List;
-
 import org.eclipse.core.resources.IProject;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 
 /**
@@ -22,9 +21,9 @@ public interface IPythonNatureListener {
      * Notification that the pythonpath has been rebuilt.
      * 
      * @param project is the project that had the pythonpath rebuilt
-     * @param projectPythonpath the project pythonpath used when rebuilding {@link IPythonPathNature#getCompleteProjectPythonPath()}
+     * @param nature the project pythonpath used when rebuilding {@link IPythonPathNature#getCompleteProjectPythonPath()}
      */
-    void notifyPythonPathRebuilt(IProject project, List<String> projectPythonpath);
+    void notifyPythonPathRebuilt(IProject project, IPythonNature nature);
     
     
 }

@@ -44,7 +44,9 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.navigator.elements.IWrappedResource;
@@ -139,9 +141,23 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     /**
      * Notification received when the pythonpath has been changed or rebuilt.
      */
-    public void notifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
+    public void notifyPythonPathRebuilt(IProject project, IPythonNature nature) {
         if(project == null){
             return;
+        }
+        
+        List<String> projectPythonpath;
+        if(nature == null){
+            //the nature has just been removed.
+            projectPythonpath = new ArrayList<String>();
+        }else{
+            try {
+                projectPythonpath = nature.getPythonPathNature().getCompleteProjectPythonPath(
+                        nature.getProjectInterpreter(), 
+                        nature.getRelatedInterpreterManager());
+            } catch (ProjectMisconfiguredException e) {
+                projectPythonpath = new ArrayList<String>();
+            }
         }
         internalDoNotifyPythonPathRebuilt(project, projectPythonpath);
     }
@@ -153,10 +169,13 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      */
     public IResource internalDoNotifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
         IResource refreshObject = project;
+        
         if(DEBUG){
             System.out.println("\n\nRebuilding pythonpath: "+project+" - "+projectPythonpath);
         }
         HashSet<Path> projectPythonpathSet = new HashSet<Path>();
+        
+        
         for (String string : projectPythonpath) {
             Path newPath = new Path(string);
             if(project.getLocation().equals(newPath)){

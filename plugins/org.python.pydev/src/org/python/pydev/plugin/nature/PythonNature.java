@@ -43,10 +43,12 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -151,10 +153,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
 
                 initializationFinished = true;
-                PythonNatureListenersManager.notifyPythonPathRebuilt(project, 
-                        nature.pythonPathNature.getCompleteProjectPythonPath(
-                                nature.getProjectInterpreter(), 
-                                nature.getRelatedInterpreterManager())); 
+                PythonNatureListenersManager.notifyPythonPathRebuilt(project, nature); 
                 //end task
                 jobProgressComunicator.done();
             }catch (Exception e) {
@@ -345,7 +344,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         
         //notify listeners that the pythonpath nature is now empty for this project
         try {
-            PythonNatureListenersManager.notifyPythonPathRebuilt(project, new ArrayList<String>()); 
+            PythonNatureListenersManager.notifyPythonPathRebuilt(project, null); 
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
@@ -960,19 +959,35 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     protected IPythonNatureStore getStore(){
         return pythonNatureStore;
     }
+    
+    /**
+     * This flag identifies that we're in tests (when that happens, some verifications are more relaxed).
+     */
+    public static boolean IN_TESTS = false;
 
     /**
      * @return info on the interpreter configured for this nature.
+     * @throws ProjectMisconfiguredException 
+     * 
+     * @note that an exception will be raised if the 
      */
-    public IInterpreterInfo getProjectInterpreter(){
+    public IInterpreterInfo getProjectInterpreter() throws ProjectMisconfiguredException{
         try {
             String projectInterpreterName = getProjectInterpreterName();
             IInterpreterInfo ret;
+            IInterpreterManager relatedInterpreterManager = getRelatedInterpreterManager();
+            if(relatedInterpreterManager == null){
+                if(IN_TESTS){
+                    return null;
+                }
+                throw new ProjectMisconfiguredException("Did not expect the interpreter manager to be null.");
+            }
+            
             if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
                 //if it's the default, let's translate it to the outside world 
-                ret = getRelatedInterpreterManager().getDefaultInterpreterInfo(null);
+                ret = relatedInterpreterManager.getDefaultInterpreterInfo(null);
             }else{
-                ret = getRelatedInterpreterManager().getInterpreterInfo(projectInterpreterName, null);
+                ret = relatedInterpreterManager.getInterpreterInfo(projectInterpreterName, null);
             }
             if(ret == null){
                 final IProject p = this.getProject();
@@ -983,11 +998,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     projectName = "null";
                 }
 
-                String msg = "Unable to get information on the interpreter: "+projectInterpreterName+".\n" +
-                    "Configured for the project: "+projectName+".\n" +
-                    "Is it a valid interpreter configured in the preferences?";
-
-                RuntimeException e = new RuntimeException(msg);
+                String msg = "Invalid interpreter: "+projectInterpreterName+" configured for project: "+projectName+".";
+                ProjectMisconfiguredException e = new ProjectMisconfiguredException(msg);
                 PydevPlugin.log(e);
                 throw e;
                 
@@ -995,7 +1007,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 return ret;
             }
         } catch (CoreException e) {
-            throw new RuntimeException(e);
+            throw new ProjectMisconfiguredException(e);
         }
     }
 
@@ -1017,6 +1029,27 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             } 
         }
         return interpreterPropertyCache;
+    }
+
+    /**
+     * @return a list of configuration errors.
+     */
+    public List<ProjectConfigError> getConfigErrors(final IProject relatedToProject) {
+        if(IN_TESTS){
+            return new ArrayList<ProjectConfigError>();
+        }
+        ArrayList<ProjectConfigError> lst = new ArrayList<ProjectConfigError>();
+        if(this.project == null){
+            lst.add(new ProjectConfigError(
+                relatedToProject, "The configured nature has no associated project."));
+        }
+        try {
+            IInterpreterInfo info = this.getProjectInterpreter();
+        } catch (ProjectMisconfiguredException e) {
+            lst.add(new ProjectConfigError(
+                    relatedToProject, StringUtils.replaceNewLines(e.getMessage(), " ")));
+        }
+        return lst;
     }
 
 }
