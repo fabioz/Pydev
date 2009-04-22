@@ -74,5 +74,10 @@ public interface IPythonPathNature {
      */
     public Set<String> getProjectSourcePathSet() throws CoreException;
 
+    /**
+     * Can be called to force the cleaning of the caches (needed when the nature is rebuilt)
+     */
+    public void clearCaches();
+
     
 }

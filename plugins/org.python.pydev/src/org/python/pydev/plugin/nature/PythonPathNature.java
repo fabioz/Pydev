@@ -6,7 +6,6 @@
  */
 package org.python.pydev.plugin.nature;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -109,7 +108,7 @@ public class PythonPathNature implements IPythonPathNature {
     /**
      * @return the project pythonpath with complete paths in the filesystem.
      */
-    public String getOnlyProjectPythonPathStr() throws CoreException {
+    public String getOnlyProjectPythonPathStr() throws CoreException  {
         if(project == null){
             return "";
         }
@@ -123,7 +122,7 @@ public class PythonPathNature implements IPythonPathNature {
         }
         //we have to work on this one to resolve to full files, as what is stored is the position
         //relative to the project location
-        String[] strings = source.split("\\|");
+        List<String> strings = StringUtils.split(source, '|');
         FastStringBuffer buf = new FastStringBuffer();
         
         IWorkspaceRoot root = null;
@@ -131,13 +130,13 @@ public class PythonPathNature implements IPythonPathNature {
         boolean checkedFullSynch = false;
         Set<String> directMembersChecked = new HashSet<String>();
         
-        for (int i = 0; i < strings.length; i++) {
-            if(strings[i].trim().length()>0){
-                IPath p = new Path(strings[i]);
+        for (String currentPath:strings) {
+            if(currentPath.trim().length()>0){
+                IPath p = new Path(currentPath);
                 
                 if(ResourcesPlugin.getPlugin() == null){
                     //in tests
-                    buf.append(strings[i]);
+                    buf.append(currentPath);
                     buf.append("|");
                     continue;
                 }
@@ -147,7 +146,7 @@ public class PythonPathNature implements IPythonPathNature {
                 }
                 
                 if(p.segmentCount() < 1){
-                    Log.log("Found no segment in: "+strings[i]+" for: "+this.project);
+                    Log.log("Found no segment in: "+currentPath+" for: "+this.project);
                     continue; //No segment? Really weird!
                 }
                 
@@ -170,13 +169,21 @@ public class PythonPathNature implements IPythonPathNature {
                         //we cannot even get the 1st part... let's do a full sync
                         if(!checkedFullSynch){
                             checkedFullSynch = true;
-                            root.refreshLocal(IResource.DEPTH_INFINITE, null); 
+                            try {
+                                root.refreshLocal(IResource.DEPTH_INFINITE, null);
+                            } catch (CoreException e) {
+                                //ignore
+                            } 
                         }
                         
                     }else if(!directMembersChecked.contains(firstSegment)){
                         directMembersChecked.add(firstSegment);
                         //OK, we can get to the 1st segment, so, let's do a refresh just from that point on, not in the whole workspace...
-                        firstSegmentResource.refreshLocal(IResource.DEPTH_INFINITE, null);
+                        try {
+                            firstSegmentResource.refreshLocal(IResource.DEPTH_INFINITE, null);
+                        } catch (CoreException e) {
+                            //ignore
+                        }
                         
                     } 
                     
@@ -196,7 +203,7 @@ public class PythonPathNature implements IPythonPathNature {
                 }else if(r instanceof IFile){ //zip/jar/egg file
                     String extension = r.getFileExtension();
                     if(extension == null || FileTypesPreferencesPage.isValidZipFile("."+extension) == false){
-                        PydevPlugin.log("Error: the path "+strings[i]+" is a file but is not a recognized zip file.");
+                        PydevPlugin.log("Error: the path "+currentPath+" is a file but is not a recognized zip file.");
                         
                     }else{
                         buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
@@ -207,11 +214,11 @@ public class PythonPathNature implements IPythonPathNature {
                     //We're now always making sure that it's all synchronized, so, if we got here, it really doesn't exist (let's warn about it)
                     
                     //Not in workspace?... maybe it was removed, so, let the user know about it (and still add it to the pythonpath as is)
-                    Log.log(IStatus.WARNING, "Unable to find the path "+strings[i]+" in the project were it's \n" +
+                    Log.log(IStatus.WARNING, "Unable to find the path "+currentPath+" in the project were it's \n" +
                             "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
                     
                     //No good: try to get it relative to the project
-                    String curr = strings[i];
+                    String curr = currentPath;
                     IPath path = new Path(curr.trim());
                     if(project.getFullPath().isPrefixOf(path)){
                         path = path.removeFirstSegments(1);
@@ -233,7 +240,7 @@ public class PythonPathNature implements IPythonPathNature {
                     IPath rootLocation = root.getRawLocation();
                     
                     //Note that this'll be cached for later use.
-                    buf.append(REF.getFileAbsolutePath(rootLocation.append(strings[i].trim()).toFile()));
+                    buf.append(REF.getFileAbsolutePath(rootLocation.append(currentPath.trim()).toFile()));
                     buf.append("|");
                 }
             }
@@ -290,14 +297,18 @@ public class PythonPathNature implements IPythonPathNature {
      */
     private Set<String> projectSourcePathSet;
     
+    public void clearCaches() {
+        projectSourcePathSet = null;
+    }
+
+    
     public Set<String> getProjectSourcePathSet() throws CoreException {
         if(project == null){
             return new HashSet<String>();
         }
         if(projectSourcePathSet == null){
             String projectSourcePath = getProjectSourcePath();
-            String[] paths = projectSourcePath.split("\\|");
-            projectSourcePathSet = new HashSet<String>(Arrays.asList(paths));
+            projectSourcePathSet = new HashSet<String>(StringUtils.split(projectSourcePath, '|'));
         }
         return projectSourcePathSet;
     }
@@ -316,14 +327,14 @@ public class PythonPathNature implements IPythonPathNature {
             //we have to validate it, because as we store the values relative to the workspace, and not to the 
             //project, the path may become invalid (in which case we have to make it compatible again).
             StringBuffer buffer = new StringBuffer();
-            String[] paths = projectSourcePath.split("\\|");
+            List<String> paths = StringUtils.split(projectSourcePath, '|');
+            IPath projectPath = project.getFullPath();
             for (String path : paths) {
                 if(path.trim().length() > 0){
                     IPath p = new Path(path);
                     if(p.isEmpty()){
                         continue; //go to the next...
                     }
-                    IPath projectPath = project.getFullPath();
                     if(projectPath != null && !projectPath.isPrefixOf(p)){
                         p = p.removeFirstSegments(1);
                         p = projectPath.append(p);
@@ -362,5 +373,7 @@ public class PythonPathNature implements IPythonPathNature {
             return StringUtils.leftAndRightTrim(extPath, '|');
         }
     }
+
+
 
 }

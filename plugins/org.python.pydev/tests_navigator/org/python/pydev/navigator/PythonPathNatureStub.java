@@ -58,4 +58,7 @@ public class PythonPathNatureStub implements IPythonPathNature{
         
     }
 
+    public void clearCaches() {
+    }
+
 }

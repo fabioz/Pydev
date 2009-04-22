@@ -11,6 +11,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -45,6 +47,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
@@ -66,7 +69,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     /**
      * Contains a list with the natures created.
      */
-    private static List<WeakReference<PythonNature>> createdNatures = new ArrayList<WeakReference<PythonNature>>();
+    private final static List<WeakReference<PythonNature>> createdNatures = new ArrayList<WeakReference<PythonNature>>();
     
     /**
      * @return the natures that were created.
@@ -201,12 +204,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     /**
      * Manages pythonpath things
      */
-    private IPythonPathNature pythonPathNature = new PythonPathNature();
+    private final IPythonPathNature pythonPathNature = new PythonPathNature();
     
     /**
      * Used to actually store settings for the pythonpath
      */
-    private IPythonNatureStore pythonNatureStore = new PythonNatureStore();
+    private final IPythonNatureStore pythonNatureStore = new PythonNatureStore();
     
     
     /**
@@ -563,15 +566,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * Can be called to refresh internal info (or after changing the path in the preferences).
+     * @throws CoreException 
      */
-    public void rebuildPath() {
-        try {
-            clearCaches();
-            String paths = this.pythonPathNature.getOnlyProjectPythonPathStr();
-            this.rebuildPath(paths);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public void rebuildPath() throws CoreException {
+        clearCaches();
+        String paths = this.pythonPathNature.getOnlyProjectPythonPathStr();
+        this.rebuildPath(paths);
     }
 
 
@@ -687,6 +687,10 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @throws CoreException 
      */
     public String getVersion() throws CoreException {
+        return getVersionAndError().o1;
+    }
+    
+    private Tuple<String, String> getVersionAndError() throws CoreException {
         if(project != null){
             if (versionPropertyCache == null) {
                 String storeVersion = getStore().getPropertyFromXml(getPythonProjectVersionQualifiedName());
@@ -704,19 +708,22 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             } 
         }else{
-            Log.log("Trying to get version without project set. Returning default.");
-            return getDefaultVersion();
+            String msg = "Trying to get version without project set. Returning default.";
+            Log.log(msg);
+            return new Tuple<String, String>(getDefaultVersion(), msg);
         }
         
         if(versionPropertyCache == null){
-            Log.log("The cached version is null. Returning default.");
-            return getDefaultVersion();
+            String msg = "The cached version is null. Returning default.";
+            Log.log(msg);
+            return new Tuple<String, String>(getDefaultVersion(), msg);
             
         }else if(!IPythonNature.Versions.ALL_VERSIONS_ANY_FLAVOR.contains(versionPropertyCache)){
-            Log.log("The cached version ("+versionPropertyCache+") is invalid. Returning default.");
-            return getDefaultVersion();
+            String msg = "The cached version ("+versionPropertyCache+") is invalid. Returning default.";
+            Log.log(msg);
+            return new Tuple<String, String>(getDefaultVersion(), msg);
         }
-        return versionPropertyCache;
+        return new Tuple<String, String>(versionPropertyCache, null);
     }
     
     /**
@@ -836,6 +843,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         this.isJython = null;
         this.versionPropertyCache = null;
         this.interpreterPropertyCache = null;
+        this.pythonPathNature.clearCaches();
     }
     
     Boolean isJython = null; //cache
@@ -1045,9 +1053,48 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
         try {
             IInterpreterInfo info = this.getProjectInterpreter();
+            
+            List<String> projectSourcePathSet = new ArrayList<String>(this.getPythonPathNature().getProjectSourcePathSet());
+            Collections.sort(projectSourcePathSet);
+            IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+            
+            for (String path : projectSourcePathSet) {
+                if(path.trim().length() > 0){
+                    IPath p = new Path(path);
+                    IResource resource = root.findMember(p);
+                    if(resource == null){
+                        relatedToProject.refreshLocal(p.segmentCount(), null);
+                        resource = root.findMember(p); //2nd attempt (after refresh)
+                    }
+                    if(resource == null || !resource.exists()){
+                        lst.add(new ProjectConfigError(
+                                relatedToProject, "Invalid source folder specified: "+path));
+                    }
+                }
+            }
+            
+            List<String> externalPaths = StringUtils.split(this.getPythonPathNature().getProjectExternalSourcePath(), '|');
+            Collections.sort(externalPaths);
+            for (String path : externalPaths) {
+                if(!new File(path).exists()){
+                    lst.add(new ProjectConfigError(
+                            relatedToProject, "Invalid external source folder specified: "+path));
+                }
+            }
+            
+            Tuple<String, String> versionAndError = getVersionAndError();
+            if(versionAndError.o2 != null){
+                lst.add(new ProjectConfigError(
+                        relatedToProject, StringUtils.replaceNewLines(versionAndError.o2, " ")));
+            }
+            
         } catch (ProjectMisconfiguredException e) {
             lst.add(new ProjectConfigError(
                     relatedToProject, StringUtils.replaceNewLines(e.getMessage(), " ")));
+            
+        } catch (CoreException e) {
+            lst.add(new ProjectConfigError(
+                    relatedToProject, StringUtils.replaceNewLines("Unexpected error:"+e.getMessage(), " ")));
         }
         return lst;
     }
