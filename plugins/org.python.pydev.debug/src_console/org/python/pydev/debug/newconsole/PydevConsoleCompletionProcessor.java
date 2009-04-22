@@ -10,11 +10,11 @@ import org.python.pydev.dltk.console.IScriptConsoleShell;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.editor.codecompletion.CompletionError;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Gathers completions for the pydev console.
@@ -78,6 +78,9 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
         IScriptConsoleViewer viewer = (IScriptConsoleViewer) v;
 
         try {
+            if(!PyCodeCompletionPreferencesPage.useCodeCompletion()){
+                return new ICompletionProposal[0];
+            }
             String commandLine = viewer.getCommandLine();
             int cursorPosition = offset - viewer.getCommandLineOffset();
 
