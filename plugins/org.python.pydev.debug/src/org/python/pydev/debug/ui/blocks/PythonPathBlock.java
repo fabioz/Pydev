@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
@@ -63,14 +64,18 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
             for (String p:paths) {
                 fPythonPathList.add(p);
             }
+            setErrorMessage(null);
         } catch (Exception e) {
             // Exceptions here may have several reasons
             // - The interpreter is incorrectly configured
             // - The arguments use an unresolved variable.
             // In each case, the exception contains a meaningful message, that is displayed
+            String errorMsg = StringUtils.replaceNewLines(e.getMessage(), " ");
+            
             fPythonPathList.removeAll();
-            fPythonPathList.add(e.getMessage());
+            fPythonPathList.add(errorMsg);
             PydevPlugin.log(e);
+            setErrorMessage(errorMsg);
         }
     }
 

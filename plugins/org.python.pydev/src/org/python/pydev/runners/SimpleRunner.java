@@ -66,7 +66,7 @@ public abstract class SimpleRunner {
      * @return the system environment with the PYTHONPATH env variable added for a given project (if it is null, return it with the
      * default PYTHONPATH added).
      */
-    public String[] getEnvironment(IPythonNature pythonNature, String interpreter, IInterpreterManager manager) throws CoreException {
+    public String[] getEnvironment(IPythonNature pythonNature, IInterpreterInfo interpreter, IInterpreterManager manager) throws CoreException {
         String[] env;
         
         if(pythonNature == null){ //no associated nature in the project... just get the default env
@@ -75,7 +75,7 @@ public abstract class SimpleRunner {
             String pythonPathEnvStr = "";
             try {
                 
-                if (manager.hasInfoOnInterpreter(interpreter)){ //check if we have a default interpreter.
+                if (interpreter != null){ //check if we have a default interpreter.
                     pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter, manager);
                 }
                 env = createEnvWithPythonpath(pythonPathEnvStr);
@@ -87,16 +87,8 @@ public abstract class SimpleRunner {
             }
         }
         
-        IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
-        if(info == null){
-            StringBuffer interpretersStr = new StringBuffer("Unable to get interpreter info for: "+interpreter+"\nAvailable:\n");
-            for(String s:manager.getInterpreters()){
-                interpretersStr.append(s);
-                interpretersStr.append("\n");
-            }
-            Log.log(interpretersStr.toString());
-        }else{
-            env = info.updateEnv(env);
+        if(interpreter != null){
+            env = interpreter.updateEnv(env);
         }
         return env;
     }
@@ -236,7 +228,7 @@ public abstract class SimpleRunner {
      * @param interpreter this is the interpreter to be used to create the env.
      * @return a string that can be used as the PYTHONPATH env variable
      */
-    public static String makePythonPathEnvString(IPythonNature pythonNature, String interpreter, IInterpreterManager manager) {
+    public static String makePythonPathEnvString(IPythonNature pythonNature, IInterpreterInfo interpreter, IInterpreterManager manager) {
         if(pythonNature == null){
             return makePythonPathEnvFromPaths(new ArrayList<String>()); //no pythonpath can be gotten (set to empty, so that the default is gotten)
         }

@@ -156,8 +156,8 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         }
     }
 
-    public String getProjectInterpreter() {
-        return this.manager.getDefaultInterpreter();
+    public IInterpreterInfo getProjectInterpreter() {
+        return this.manager.getDefaultInterpreterInfo(null);
     }
 
 }

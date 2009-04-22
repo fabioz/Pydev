@@ -6,7 +6,6 @@
 package org.python.pydev.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -26,6 +25,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.StringUtils;
@@ -149,11 +149,13 @@ public class PyProjectPythonDetails extends PropertyPage{
                         interpreterManager = PydevPlugin.getJythonInterpreterManager();
                     }
                     
-                    String[] interpreters = interpreterManager.getInterpreters();
-                    if(interpreters.length > 0){
+                    IInterpreterInfo[] interpretersInfo = interpreterManager.getInterpreterInfos();
+                    if(interpretersInfo.length > 0){
                         ArrayList<String> interpretersWithDefault = new ArrayList<String>();
                         interpretersWithDefault.add(IPythonNature.DEFAULT_INTERPRETER);
-                        interpretersWithDefault.addAll(Arrays.asList(interpreters));
+                        for(IInterpreterInfo info: interpretersInfo){
+                            interpretersWithDefault.add(info.getName());
+                        }
                         interpretersChoice.setItems(interpretersWithDefault.toArray(new String[0]));
                         
                         interpretersChoice.setVisible(true);
@@ -291,7 +293,7 @@ public class PyProjectPythonDetails extends PropertyPage{
             
             //Update interpreter
             projectConfig.selectionListener.widgetSelected(null);
-            String configuredInterpreter = pythonNature.getProjectInterpreter(false);
+            String configuredInterpreter = pythonNature.getProjectInterpreterName();
             if(configuredInterpreter != null){
                 projectConfig.interpretersChoice.setText(configuredInterpreter);
             }

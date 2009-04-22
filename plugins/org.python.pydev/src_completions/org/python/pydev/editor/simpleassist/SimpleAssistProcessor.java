@@ -24,6 +24,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.CompletionError;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
@@ -129,6 +130,12 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      */
     private volatile static char [] autoActivationCharsCache;
     
+    /**
+     * The last error that occurred while requesting a completion.
+     */
+    private String lastError = null;
+    
+    
     @SuppressWarnings("unchecked")
     public SimpleAssistProcessor(PyEdit edit, PythonCompletionProcessor defaultPythonProcessor, final PyContentAssistant assistant){
         this.edit = edit;
@@ -161,37 +168,44 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      *  
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#computeCompletionProposals(org.eclipse.jface.text.ITextViewer, int)
      */
-    @SuppressWarnings("unchecked")
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
-        if(showDefault()){
-            return defaultPythonProcessor.computeCompletionProposals(viewer, offset);
-            
-        }else{
-            updateStatus();
-            IDocument doc = viewer.getDocument();
-            String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false); 
-    
-            String activationToken = strs[0];
-            String qualifier = strs[1];
-    
-            PySelection ps = new PySelection(edit);
-            List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
-    
-            for (ISimpleAssistParticipant participant : participants) {
-                results.addAll(participant.computeCompletionProposals(activationToken, qualifier, ps, edit, offset));
-            }
-            
-            //don't matter the result... next time we won't ask for simple stuff
-            doCycle();
-            if(results.size() == 0){
-                if(!lastCompletionAutoActivated || defaultAutoActivated(viewer, offset) || useAutocompleteOnAllAsciiCharsCache){
-                    return defaultPythonProcessor.computeCompletionProposals(viewer, offset);
-                }
-                return new ICompletionProposal[0];
+        try {
+            if(showDefault()){
+                return defaultPythonProcessor.computeCompletionProposals(viewer, offset);
+                
             }else{
-                Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
-                return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
+                updateStatus();
+                IDocument doc = viewer.getDocument();
+                String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false); 
+   
+                String activationToken = strs[0];
+                String qualifier = strs[1];
+   
+                PySelection ps = new PySelection(edit);
+                List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+   
+                for (ISimpleAssistParticipant participant : participants) {
+                    results.addAll(participant.computeCompletionProposals(activationToken, qualifier, ps, edit, offset));
+                }
+                
+                //don't matter the result... next time we won't ask for simple stuff
+                doCycle();
+                if(results.size() == 0){
+                    if(!lastCompletionAutoActivated || defaultAutoActivated(viewer, offset) || useAutocompleteOnAllAsciiCharsCache){
+                        return defaultPythonProcessor.computeCompletionProposals(viewer, offset);
+                    }
+                    return new ICompletionProposal[0];
+                }else{
+                    Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+                    return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
+                }
             }
+        } catch (Exception e) {
+            CompletionError completionError = new CompletionError(e);
+            this.lastError = completionError.getErrorMessage();
+            PydevPlugin.log(e);
+            //Make the error visible to the user!
+            return new ICompletionProposal[]{completionError};
         }
     }
 
@@ -292,10 +306,12 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
      * @return some error that might have happened in the completion
      */
     public String getErrorMessage() {
-        if(showDefault()){
-            return defaultPythonProcessor.getErrorMessage();
+        String ret = this.lastError;
+        if(ret == null && showDefault()){
+            ret = defaultPythonProcessor.getErrorMessage();
         }
-        return null;
+        this.lastError = null;
+        return ret;
     }
 
     /**

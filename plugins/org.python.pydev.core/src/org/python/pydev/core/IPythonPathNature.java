@@ -32,7 +32,7 @@ public interface IPythonPathNature {
      *   
      * @return the pythonpath (source and externals) for the project as a list of strings
      */
-    public List<String> getCompleteProjectPythonPath(String interpreter, IInterpreterManager info);
+    public List<String> getCompleteProjectPythonPath(IInterpreterInfo interpreter, IInterpreterManager info);
 
     /**
      * @return the pythonpath (source and externals) as a string (paths separated by | )

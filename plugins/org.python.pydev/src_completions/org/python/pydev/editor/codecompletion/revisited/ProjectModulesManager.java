@@ -20,11 +20,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDeltaProcessor;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -41,8 +41,6 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesK
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.NotConfiguredInterpreterException;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
  * @author Fabio Zadrozny
@@ -189,37 +187,11 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
             PydevPlugin.log("Nature still not set");
             return null; //still not set (initialization)
         }
-        String interpreter = null;
         try {
-            interpreter = nature.getProjectInterpreter();
+            return nature.getProjectInterpreter().getModulesManager();
         } catch (Exception e1) {
-            PydevPlugin.log(e1);
             return null;
         }
-        
-        IInterpreterManager iMan = PydevPlugin.getInterpreterManager(nature);
-        if(interpreter == null){
-            try {
-                interpreter = iMan.getDefaultInterpreter();
-            } catch (NotConfiguredInterpreterException e) {
-                return null; //not configured
-            }
-        }
-        InterpreterInfo info = (InterpreterInfo) iMan.getInterpreterInfo(interpreter, new NullProgressMonitor());
-        if(info == null){
-            final IProject p = nature.getProject();
-            final String projectName;
-            if(p != null){
-                projectName = p.getName();
-            }else{
-                projectName = "null";
-            }
-            PydevPlugin.log("Unable to get information on the interpreter: "+interpreter+".\n" +
-            		"Configured for the project: "+projectName+".\n" +
-    				"Is it a valid interpreter configured in the preferences?");
-            return null; //may happen during initialization
-        }
-        return info.getModulesManager();
     }
     
     /** 
@@ -535,7 +507,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#getCompletePythonPath()
      */
-    public List<String> getCompletePythonPath(String interpreter, IInterpreterManager manager){
+    public List<String> getCompletePythonPath(IInterpreterInfo interpreter, IInterpreterManager manager){
         List<String> l = new ArrayList<String>();
         IModulesManager[] managersInvolved = getManagersInvolved(true);
         for (IModulesManager m:managersInvolved) {

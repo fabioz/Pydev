@@ -7,6 +7,7 @@ package org.python.pydev.debug.model.remote;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 
@@ -31,7 +32,7 @@ public class EvaluateExpressionCommand extends AbstractDebuggerCommand {
         super(debugger);
         this.doExec = doExec;
         this.locator = locator;
-        this.expression = expression.replaceAll("\r","").replaceAll("\n","");
+        this.expression = StringUtils.removeNewLineChars(expression);
     }
 
     public String getOutgoing() {

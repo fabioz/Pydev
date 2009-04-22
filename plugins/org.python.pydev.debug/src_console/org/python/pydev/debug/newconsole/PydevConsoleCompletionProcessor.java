@@ -9,6 +9,7 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.python.pydev.dltk.console.IScriptConsoleShell;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
+import org.python.pydev.editor.codecompletion.CompletionError;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.codecompletion.PyContextInformationValidator;
 import org.python.pydev.editor.codecompletion.PythonCompletionProcessor;
@@ -82,12 +83,11 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
 
             return interpreterShell.getCompletions(viewer, commandLine, cursorPosition, offset, this.whatToShow);
         } catch (Exception e) {
-            this.errorMessage = e.getMessage();
-            PydevPlugin.log(e);
-            
+            CompletionError completionError = new CompletionError(e);
+            this.errorMessage = completionError.getErrorMessage();
+            //Make the error visible to the user!
+            return new ICompletionProposal[]{completionError};
         }
-
-        return new ICompletionProposal[] {};
     }
 
     public IContextInformation[] computeContextInformation(ITextViewer v, int offset) {

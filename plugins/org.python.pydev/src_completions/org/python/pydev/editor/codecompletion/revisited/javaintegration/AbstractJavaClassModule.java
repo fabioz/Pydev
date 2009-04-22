@@ -318,6 +318,12 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
             List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(javaClassModule.getName(), foundAs);
             if(javaCompletionProposals.size() > 0){
                 elementFound = javaCompletionProposals.get(0).o1;
+                
+            }else if(javaClassModule.getName().endsWith("."+foundAs)){
+                //This is the following case: we have a reference to the constructor (e.g.: javax.swing.JFrame.JFrame)
+                //So, we have to ignore the last JFrame part.
+                foundAs = "";
+                elementFound = findJavaElement(javaClassModule.getName());
             }
 
         }

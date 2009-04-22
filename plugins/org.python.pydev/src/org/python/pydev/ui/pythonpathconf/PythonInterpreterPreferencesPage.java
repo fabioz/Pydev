@@ -6,7 +6,6 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -33,14 +32,6 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
     }
     
 
-    /**
-     * @param defaultSelectedInterpreter this is the path to the default selected file (interpreter)
-     * @param monitor a monitor to display the progress to the user.
-     */
-    protected void doRestore(IProgressMonitor monitor) {
-        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
-        iMan.restorePythopathForAllInterpreters(monitor);
-    }
     
     @Override
     protected IInterpreterManager getInterpreterManager() {

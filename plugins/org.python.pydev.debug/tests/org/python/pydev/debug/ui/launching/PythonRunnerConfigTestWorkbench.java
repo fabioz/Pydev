@@ -3,6 +3,7 @@
  */
 package org.python.pydev.debug.ui.launching;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IResource;
@@ -91,13 +92,18 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             
             
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
-            assertEquals(manager.getDefaultInterpreter(), nature.getProjectInterpreter());
+            assertEquals(manager.getDefaultInterpreter(), nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
             argv = runnerConfig.getCommandLine(true); 
             assertEquals(manager.getDefaultInterpreter(), argv[0]);
             
+            IInterpreterManager interpreterManager = nature.getRelatedInterpreterManager();
+            
+            InterpreterInfo info2 = new InterpreterInfo(IPythonNature.PYTHON_VERSION_2_6, "c:\\interpreter\\py25.exe", new ArrayList<String>());
+            interpreterManager.addInterpreterInfo(info2);
+            
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, "c:\\interpreter\\py25.exe");
-            assertEquals("c:\\interpreter\\py25.exe", nature.getProjectInterpreter());
+            assertEquals("c:\\interpreter\\py25.exe", nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
             argv = runnerConfig.getCommandLine(true); 
             assertEquals("c:\\interpreter\\py25.exe", argv[0]);

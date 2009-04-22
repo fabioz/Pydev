@@ -15,6 +15,7 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
@@ -96,7 +97,9 @@ public class PyCoverage {
             //python coverage.py -r -m files....
 
             String[] cmdLine = new String[4];
-            cmdLine[0] = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
+            IInterpreterManager pythonInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+            IInterpreterInfo info = pythonInterpreterManager.getDefaultInterpreterInfo(null);
+            cmdLine[0] = info.getExecutableOrJar();
             cmdLine[1] = profileScript;
             cmdLine[2] = getCoverageFileLocation();
             cmdLine[3] = "-waitfor";
@@ -107,7 +110,7 @@ public class PyCoverage {
 
             try {
 
-                p = execute(cmdLine);
+                p = execute(cmdLine, info);
                 try {
                     p.exitValue();
                     throw new RuntimeException("Some error happened... the process could not be created.");
@@ -242,11 +245,13 @@ public class PyCoverage {
             String profileScript;
             profileScript = PythonRunnerConfig.getCoverageScript();
             String[] cmdLine = new String[4];
-            cmdLine[0] = PydevPlugin.getPythonInterpreterManager().getDefaultInterpreter();
+            IInterpreterManager pythonInterpreterManager = PydevPlugin.getPythonInterpreterManager();
+            IInterpreterInfo defaultInterpreterInfo = pythonInterpreterManager.getDefaultInterpreterInfo(null);
+            cmdLine[0] = defaultInterpreterInfo.getExecutableOrJar();
             cmdLine[1] = profileScript;
             cmdLine[2] = getCoverageFileLocation();
             cmdLine[3] = "-e";
-            Process p = execute(cmdLine);
+            Process p = execute(cmdLine, defaultInterpreterInfo);
             p.waitFor();
         } catch (Exception e) {
             e.printStackTrace();
@@ -257,17 +262,18 @@ public class PyCoverage {
 
     /**
      * @param cmdLine
+     * @param iInterpreterInfo 
      * @return
      * @throws IOException
      */
-    private Process execute(String[] cmdLine) throws IOException {
+    private Process execute(String[] cmdLine, IInterpreterInfo iInterpreterInfo) throws IOException {
         
         IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager();
         
         String[] envp = null;
         try {
             //position 0 is the interpreter
-            envp = new SimplePythonRunner().getEnvironment(null, cmdLine[0], manager);
+            envp = new SimplePythonRunner().getEnvironment(null, iInterpreterInfo, manager);
         } catch (CoreException e) {
             Log.log(e);
         }

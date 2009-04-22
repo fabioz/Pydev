@@ -132,5 +132,10 @@ public class StringUtilsTest extends TestCase {
         split = StringUtils.split(" bb bb  bb ", "bb").toArray(new String[0]);
         assertTrue(Arrays.equals(new String[]{" ", " ", "  ", " "}, split));
     }
+    
+    public void testReplaceChars() throws Exception {
+        assertEquals("aaaXeeeXcccX", StringUtils.replaceNewLines("aaa\neee\r\nccc\r", "X"));
+        assertEquals("aaabbbccc", StringUtils.removeNewLineChars("aaa\r\nbbb\rccc\n"));
+    }
 }
 

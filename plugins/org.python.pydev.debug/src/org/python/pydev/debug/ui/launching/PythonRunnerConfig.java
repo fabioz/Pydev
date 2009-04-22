@@ -18,7 +18,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.variables.IStringVariableManager;
@@ -65,7 +64,7 @@ public class PythonRunnerConfig {
     public final IProject project;
     public final IPath[] resource;
     public final IPath interpreter;
-    public final String interpreterLocation;
+    public final IInterpreterInfo interpreterLocation;
     private final String arguments;
     public final File workingDirectory;
     public final String pythonpathUsed;
@@ -219,7 +218,7 @@ public class PythonRunnerConfig {
      * @throws CoreException if unable to retrieve the launch configuration attribute or if unable to 
      * resolve the default interpreter.
      */
-    public static String getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature, IInterpreterManager interpreterManager) throws InvalidRunException, CoreException {
+    public static IInterpreterInfo getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature, IInterpreterManager interpreterManager) throws InvalidRunException, CoreException {
         String location = conf.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         
         if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
@@ -227,19 +226,19 @@ public class PythonRunnerConfig {
                 
                 //When both, the interpreter for the launch and the nature have the same type, let's get the
                 //launch location from the project
-                location = nature.getProjectInterpreter();
+                return nature.getProjectInterpreter();
                 
             }else{
                 
                 //When it doesn't have the same type it means that we're trying to run as jython a python
                 //project (or vice-versa), so, we must get the interpreter from the interpreter manager!
-                location = interpreterManager.getDefaultInterpreter();
+                return interpreterManager.getDefaultInterpreterInfo(null);
             }
             
         }else{
             IInterpreterInfo interpreterInfo = interpreterManager.getInterpreterInfo(location, null);
             if(interpreterInfo != null){
-                return interpreterInfo.getExecutableOrJar();
+                return interpreterInfo;
             }else{
                 File file = new File(location);
                 if(!file.exists()){
@@ -255,7 +254,6 @@ public class PythonRunnerConfig {
                 }
             }
         }
-        return location;
     }
     
     
@@ -272,11 +270,11 @@ public class PythonRunnerConfig {
      * file system
      * @throws InvalidRunException 
      */
-    private IPath getInterpreter(String location, ILaunchConfiguration configuration, IPythonNature nature) throws CoreException, InvalidRunException {
+    private IPath getInterpreter(IInterpreterInfo location, ILaunchConfiguration configuration, IPythonNature nature) throws CoreException, InvalidRunException {
         if (location == null) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get python interpreter for run", null));
         } else {
-            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
+            String expandedLocation = getStringVariableManager().performStringSubstitution(location.getExecutableOrJar());
             if (expandedLocation == null || expandedLocation.length() == 0) {
                 throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get expanded interpreter for run", null));
             } else {
@@ -319,7 +317,7 @@ public class PythonRunnerConfig {
         if (pythonNature == null) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Project should have a python nature: " + p.getName(), null));
         }
-        String l = getInterpreterLocation(conf, pythonNature, manager);
+        IInterpreterInfo l = getInterpreterLocation(conf, pythonNature, manager);
         return SimpleRunner.makePythonPathEnvString(pythonNature, l, manager);
     }
     
@@ -394,8 +392,7 @@ public class PythonRunnerConfig {
             }
             
             //And we also must get the environment variables specified in the interpreter manager.
-            IInterpreterInfo info = manager.getInterpreterInfo(interpreterLocation, new NullProgressMonitor());
-            envp = info.updateEnv(envp, envMap.keySet());
+            envp = interpreterLocation.updateEnv(envp, envMap.keySet());
         }
         
         

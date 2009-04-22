@@ -24,7 +24,7 @@ public interface IInterpreterInfo {
     public List<String> getPythonPath();
 
 
-    public IModulesManager getModulesManager();
+    public ISystemModulesManager getModulesManager();
 
     /**
      * @return a valid path for the interpreter (may not be human readable)

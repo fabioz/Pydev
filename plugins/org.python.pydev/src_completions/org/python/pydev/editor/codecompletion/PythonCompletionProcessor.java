@@ -56,7 +56,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     /**
      * Some error...
      */
-    private Throwable error;
+    private String error;
 
     /**
      * These are the activation chars (cache)
@@ -148,7 +148,10 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
                         try {
                             pythonAndTemplateProposals.addAll(getPythonProposals(viewer, documentOffset, doc, request));
                         } catch (Throwable e) {
-                            setError(e);
+                            CompletionError completionError = new CompletionError(e);
+                            setError(e, completionError.getErrorMessage());
+                            //Make the error visible to the user!
+                            return new ICompletionProposal[]{completionError};
                         }
                     }
     
@@ -174,8 +177,10 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
                 nature.endRequests();
             }
         } catch (RuntimeException e) {
-            proposals = new ICompletionProposal[0];
-            setError(e);
+            CompletionError completionError = new CompletionError(e);
+            setError(e, completionError.getErrorMessage());
+            //Make the error visible to the user!
+            return new ICompletionProposal[]{completionError};
         }
     
         doCycle();
@@ -190,10 +195,10 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
 
     /**
-     * @param e
+     * @param string
      */
-    private void setError(Throwable e) {
-        this.error = e;
+    private void setError(Throwable e, String error) {
+        this.error = error;
         PydevPlugin.log(e);
     }
 
@@ -311,12 +316,9 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * @see org.eclipse.jface.text.contentassist.IContentAssistProcessor#getErrorMessage()
      */
     public java.lang.String getErrorMessage() {
-        String msg = null;
-        if(this.error != null){
-            msg = this.error.getMessage();
-            this.error = null;
-        }
-        return msg;
+        String ret = this.error;
+        this.error = null;
+        return ret;
     }
 
     /**

@@ -30,9 +30,6 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
         return TestDependent.PYTHON_EXE;
     }
 
-    public String[] getInterpreters() {
-        return new String[]{TestDependent.PYTHON_EXE};
-    }
 
     @Override
     public IInterpreterInfo[] getInterpreterInfos() {

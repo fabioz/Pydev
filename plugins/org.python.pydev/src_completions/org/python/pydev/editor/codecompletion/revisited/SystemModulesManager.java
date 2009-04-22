@@ -104,11 +104,10 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     }
 
     
-    public List<String> getCompletePythonPath(String interpreter, IInterpreterManager manager) {
+    public List<String> getCompletePythonPath(IInterpreterInfo interpreter, IInterpreterManager manager) {
         if(interpreter == null){
             throw new RuntimeException("The interpreter must be specified (received null)");
         }else{
-            IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
             return info.getPythonPath();
         }
     }

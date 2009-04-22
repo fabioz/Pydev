@@ -24,9 +24,6 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
         return TestDependent.JYTHON_JAR_LOCATION;
     }
 
-    public String[] getInterpreters() {
-        return new String[]{TestDependent.JYTHON_JAR_LOCATION};
-    }
 
     public String addInterpreter(String executable, IProgressMonitor monitor) {
         throw new RuntimeException("not impl");

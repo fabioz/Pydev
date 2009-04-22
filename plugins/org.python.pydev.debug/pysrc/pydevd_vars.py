@@ -11,7 +11,7 @@ import sys #@Reimport
 try:
     from urllib import quote
 except:
-    from urllib.parse import quote
+    from urllib.parse import quote #@UnresolvedImport
 import threading
 import pydevd_resolver
 import traceback

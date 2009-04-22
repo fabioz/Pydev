@@ -192,6 +192,8 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      * 
      * Must always be a valid path (e.g.: if the interpreter is internally configured as "Default", it should
      * return the actual path, not the internal representation).
+     * 
+     * Note: the return can never be null (an exception is thrown if none can be determined) 
      */
-    String getProjectInterpreter();
+    IInterpreterInfo getProjectInterpreter();
 }

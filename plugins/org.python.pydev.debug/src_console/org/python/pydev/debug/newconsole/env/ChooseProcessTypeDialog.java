@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.PyEdit;
@@ -142,7 +143,7 @@ final class ChooseProcessTypeDialog extends Dialog {
     /**
      * @return the pythonpath to be used or null if not configured.
      */
-    public Collection<String> getPythonpath(String interpreter) {
+    public Collection<String> getPythonpath(IInterpreterInfo interpreter) {
         
         if(this.interpreterManager != null){
             if(this.natures.size() == 1){

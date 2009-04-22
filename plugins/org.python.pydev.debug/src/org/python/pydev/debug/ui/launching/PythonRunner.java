@@ -24,8 +24,6 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
@@ -68,27 +66,7 @@ public class PythonRunner {
      * The code is modeled after Ant launching example.
      */
     public static void run(final PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
-        //let's check if the interpreter is valid.
-        final IInterpreterManager interpreterManager = config.getRelatedInterpreterManager();
-        if(!interpreterManager.hasInfoOnInterpreter(config.interpreterLocation)){
-            final Display display = Display.getDefault();
-            display.syncExec(new Runnable(){
 
-                public void run() {
-                    String msg = "The interpreter '%s' is not correctly configured as a '%s' interpreter.\n\n" +
-                            "Reasons: If it is an old interpreter, you can open the run dialog (Menu: run > run) " +
-                            "and choose a new interpreter in the arguments tab.\n\n" +
-                            "Another reason could be that you're running some file from a jython project with a " +
-                            "python interpreter (or vice-versa), so, you have to change the project type in the " +
-                            "project properties.";
-                    MessageDialog.openError(display.getActiveShell(), "Invalid Interpreter", 
-                            StringUtils.format(msg, config.interpreterLocation, interpreterManager.getManagerRelatedName()));
-                }
-                
-            });
-            return;
-        }
-        
         try{
             if (config.isDebug) {
                 runDebug(config, launch, monitor);

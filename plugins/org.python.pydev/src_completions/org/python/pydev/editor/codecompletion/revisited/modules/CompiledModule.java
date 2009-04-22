@@ -264,7 +264,8 @@ public class CompiledModule extends AbstractModule{
                 synchronized(shell){
                     String act = name+"."+state.getActivationToken();
                     List<String[]> completions = shell.getImportCompletions(act, 
-                            manager.getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
+                            manager.getModulesManager().getCompletePythonPath(
+                                    nature.getProjectInterpreter(), 
                                     nature.getRelatedInterpreterManager())).o2;
                     
                     ArrayList<IToken> array = new ArrayList<IToken>();
@@ -344,7 +345,8 @@ public class CompiledModule extends AbstractModule{
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
             Tuple<String[],int[]> def = shell.getLineCol(this.name, token, 
-                    nature.getAstManager().getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
+                    nature.getAstManager().getModulesManager().getCompletePythonPath(
+                            nature.getProjectInterpreter(), 
                             nature.getRelatedInterpreterManager())); //default
             if(def == null){
                 if(TRACE_COMPILED_MODULES){

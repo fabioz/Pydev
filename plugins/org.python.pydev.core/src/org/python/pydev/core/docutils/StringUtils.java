@@ -470,4 +470,16 @@ public class StringUtils {
     
     }
 
+    public static String replaceNewLines(String message, String string) {
+        message = message.replaceAll("\r\n", string);
+        message = message.replaceAll("\r", string);
+        message = message.replaceAll("\n", string);
+
+        return message;
+    }
+
+    public static String removeNewLineChars(String message) {
+        return message.replaceAll("\r","").replaceAll("\n","");
+    }
+
 }

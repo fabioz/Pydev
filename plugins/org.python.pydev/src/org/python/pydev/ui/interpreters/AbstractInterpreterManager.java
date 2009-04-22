@@ -120,9 +120,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreter()
      */
     public String getDefaultInterpreter() throws NotConfiguredInterpreterException {
-        String[] interpreters = getInterpreters();
+        IInterpreterInfo[] interpreters = getInterpreterInfos();
         if(interpreters.length > 0){
-            String interpreter = interpreters[0];
+            String interpreter = interpreters[0].getExecutableOrJar();
             if(interpreter == null){
                 throw new NotConfiguredInterpreterException("The configured interpreter is null, some error happened getting it.\n" +getNotConfiguredInterpreterMsg());
             }
@@ -153,20 +153,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         return interpreterInfosFromPersistedString;
         
     }
-    /**
-     * @see org.python.pydev.core.IInterpreterManager#getInterpreters()
-     */
-    public String[] getInterpreters() {
-        if(interpretersFromPersistedString == null){
-            IInterpreterInfo[] interpretersFromPersistedString2 = getInterpreterInfos();
-            List<String> lst = new ArrayList<String>();
-            for (IInterpreterInfo interpreterInfo : interpretersFromPersistedString2) {
-                lst.add(((InterpreterInfo)interpreterInfo).executableOrJar);
-            }
-            interpretersFromPersistedString = lst.toArray(new String[lst.size()]);
-        }
-        return interpretersFromPersistedString;
-    }
+    
     
     /**
      * @see org.python.pydev.core.IInterpreterManager#hasInfoOnInterpreter(java.lang.String)

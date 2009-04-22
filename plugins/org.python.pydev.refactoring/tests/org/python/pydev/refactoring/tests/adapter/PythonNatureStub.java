@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -135,7 +136,7 @@ public class PythonNatureStub implements IPythonNature{
         throw new RuntimeException("Not implemented");
     }
 
-    public String getProjectInterpreter() {
+    public IInterpreterInfo getProjectInterpreter() {
         throw new RuntimeException("Not implemented");
     }
 

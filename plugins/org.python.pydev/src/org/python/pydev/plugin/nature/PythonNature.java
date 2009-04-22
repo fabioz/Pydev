@@ -37,6 +37,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -151,7 +152,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
                 initializationFinished = true;
                 PythonNatureListenersManager.notifyPythonPathRebuilt(project, 
-                        nature.pythonPathNature.getCompleteProjectPythonPath(nature.getProjectInterpreter(), nature.getRelatedInterpreterManager())); 
+                        nature.pythonPathNature.getCompleteProjectPythonPath(
+                                nature.getProjectInterpreter(), 
+                                nature.getRelatedInterpreterManager())); 
                 //end task
                 jobProgressComunicator.done();
             }catch (Exception e) {
@@ -958,15 +961,51 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return pythonNatureStore;
     }
 
-    public String getProjectInterpreter(){
+    /**
+     * @return info on the interpreter configured for this nature.
+     */
+    public IInterpreterInfo getProjectInterpreter(){
         try {
-            return getProjectInterpreter(true);
+            String projectInterpreterName = getProjectInterpreterName();
+            IInterpreterInfo ret;
+            if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
+                //if it's the default, let's translate it to the outside world 
+                ret = getRelatedInterpreterManager().getDefaultInterpreterInfo(null);
+            }else{
+                ret = getRelatedInterpreterManager().getInterpreterInfo(projectInterpreterName, null);
+            }
+            if(ret == null){
+                final IProject p = this.getProject();
+                final String projectName;
+                if(p != null){
+                    projectName = p.getName();
+                }else{
+                    projectName = "null";
+                }
+
+                String msg = "Unable to get information on the interpreter: "+projectInterpreterName+".\n" +
+                    "Configured for the project: "+projectName+".\n" +
+                    "Is it a valid interpreter configured in the preferences?";
+
+                RuntimeException e = new RuntimeException(msg);
+                PydevPlugin.log(e);
+                throw e;
+                
+            }else{
+                return ret;
+            }
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
     }
+
     
-    public String getProjectInterpreter(boolean ifDefaultChangeToActualInterpreter) throws CoreException{
+    /**
+     * @return The name of the interpreter that should be used for the nature this project is associated to.
+     * 
+     * Note that this is the name that's visible to the user (and not the actual path of the executable).
+     */
+    public String getProjectInterpreterName() throws CoreException{
         if(project != null){
             if (interpreterPropertyCache == null) {
                 String storeInterpreter = getStore().getPropertyFromXml(getPythonProjectInterpreterQualifiedName());
@@ -977,15 +1016,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             } 
         }
-        if(ifDefaultChangeToActualInterpreter){
-            if(IPythonNature.DEFAULT_INTERPRETER.equals(interpreterPropertyCache)){
-                //if it's the default, let's translate it to the outside world 
-                return getRelatedInterpreterManager().getDefaultInterpreter();
-            }
-        }
         return interpreterPropertyCache;
     }
-
 
 }
 

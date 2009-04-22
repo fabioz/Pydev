@@ -104,12 +104,12 @@ public class IProcessFactory {
                     return null;
                 }
                 Object[] result = (Object[]) listDialog.getResult();
-                String interpreter = null;
+                IInterpreterInfo interpreter = null;
                 if(result == null || result.length == 0){
-                    interpreter = interpreters[0].getExecutableOrJar();
+                    interpreter = interpreters[0];
                     
                 }else{
-                    interpreter = ((IInterpreterInfo)result[0]).getExecutableOrJar();
+                    interpreter = ((IInterpreterInfo)result[0]);
                 }
                 
                 if(interpreter == null){
@@ -121,17 +121,17 @@ public class IProcessFactory {
                     return null;
                 }
                 String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
-                String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter, interpreterManager);
+                String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter.getExecutableOrJar(), interpreterManager);
                 
                 if(interpreterManager.isPython()){
-                    commandLine = SimplePythonRunner.makeExecutableCommandStr(interpreter, scriptWithinPySrc.getAbsolutePath(), 
+                    commandLine = SimplePythonRunner.makeExecutableCommandStr(interpreter.getExecutableOrJar(), scriptWithinPySrc.getAbsolutePath(), 
                             new String[]{String.valueOf(port), String.valueOf(clientPort)});
                     
                 }else if(interpreterManager.isJython()){
                     String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
                         getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS);
                     
-                    commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(interpreter, scriptWithinPySrc.getAbsolutePath(), 
+                    commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(interpreter.getExecutableOrJar(), scriptWithinPySrc.getAbsolutePath(), 
                             pythonpathEnv, vmArgs, new String[]{String.valueOf(port), String.valueOf(clientPort)});
                     
                 }else{

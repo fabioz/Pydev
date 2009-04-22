@@ -114,7 +114,7 @@ public interface IModulesManager {
      *    
      * @return the paths that constitute the pythonpath as a list of strings
      */
-    public abstract List<String> getCompletePythonPath(String interpreter, IInterpreterManager manager);
+    public abstract List<String> getCompletePythonPath(IInterpreterInfo interpreter, IInterpreterManager manager);
 
     public abstract SortedMap<ModulesKey,ModulesKey> getAllModulesStartingWith(String moduleToGetTokensFrom);
     public abstract SortedMap<ModulesKey,ModulesKey> getAllDirectModulesStartingWith(String moduleToGetTokensFrom);

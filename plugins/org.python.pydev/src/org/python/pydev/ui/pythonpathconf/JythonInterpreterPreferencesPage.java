@@ -7,11 +7,9 @@
 package org.python.pydev.ui.pythonpathconf;
 
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class JythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage{
@@ -40,17 +38,6 @@ public class JythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
         addField(new DirectoryFieldEditor(IInterpreterManager.JYTHON_CACHE_DIR, "-Dpython.cachedir", getFieldEditorParent()));
     }
 
-    @Override
-    protected void doRestore(IProgressMonitor monitor) {
-        IInterpreterManager iMan = getInterpreterManager();
-        iMan.restorePythopathForAllInterpreters(monitor);
-        
-        //we also need to restart our code-completion shell after doing that, as we may have a new classpath,
-        //and because of some jython bugs, just adding info to the sys.path later on as in python, is not enough.
-        for(String interpreter:iMan.getInterpreters()){
-            AbstractShell.stopServerShell(interpreter, AbstractShell.COMPLETION_SHELL);
-        }
-    }
 
     @Override
     protected IInterpreterManager getInterpreterManager() {

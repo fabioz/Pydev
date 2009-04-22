@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
@@ -65,7 +66,7 @@ public abstract class AbstractShell {
     private boolean isInRead = false;
     private boolean isInWrite = false;
     private boolean isInRestart = false;
-    private String shellInterpreter;
+    private IInterpreterInfo shellInterpreter;
     private int shellMillis;
     
     /**
@@ -109,16 +110,19 @@ public abstract class AbstractShell {
     /**
      * simple stop of a shell (it may be later restarted)
      */
-    public synchronized static void stopServerShell(String interpreter, int id) {
-        Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
-        AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
-        
-        if(pythonShell != null){
-            try {
-                pythonShell.endIt();
-            } catch (Exception e) {
-                // ignore... we are ending it anyway...
+    public synchronized static void stopServerShell(IInterpreterInfo interpreter, int id) {
+        synchronized(shells){
+            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
+            AbstractShell pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
+            
+            if(pythonShell != null){
+                try {
+                    pythonShell.endIt();
+                } catch (Exception e) {
+                    // ignore... we are ending it anyway...
+                }
             }
+            typeToShell.remove(id); //there's no exception if it was not there in the 1st place...
         }
     }
 
@@ -154,13 +158,13 @@ public abstract class AbstractShell {
      * @param interpreter the interpreter whose shell we want.
      * @return a map with the type of the shell mapping to the shell itself
      */
-    private synchronized static Map<Integer, AbstractShell> getTypeToShellFromId(String interpreter) {
+    private synchronized static Map<Integer, AbstractShell> getTypeToShellFromId(IInterpreterInfo interpreter) {
         synchronized(shells){
-            Map<Integer, AbstractShell> typeToShell = shells.get(interpreter);
+            Map<Integer, AbstractShell> typeToShell = shells.get(interpreter.getExecutableOrJar());
             
             if (typeToShell == null) {
                 typeToShell = new HashMap<Integer, AbstractShell>();
-                shells.put(interpreter, typeToShell);
+                shells.put(interpreter.getExecutableOrJar(), typeToShell);
             }
             return typeToShell;
         }
@@ -177,11 +181,13 @@ public abstract class AbstractShell {
      * @param shell the shell to register
      */
     public synchronized static void putServerShell(IPythonNature nature, int id, AbstractShell shell) {
-        try {
-            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(nature.getProjectInterpreter());
-            typeToShell.put(new Integer(id), shell);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        synchronized(shells){
+            try {
+                Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(nature.getProjectInterpreter());
+                typeToShell.put(new Integer(id), shell);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -206,7 +212,7 @@ public abstract class AbstractShell {
      * @throws CoreException
      * @throws IOException
      */
-    public synchronized static AbstractShell getServerShell(String interpreter, int relatedTo, int id) throws IOException, JDTNotAvailableException, CoreException {
+    private synchronized static AbstractShell getServerShell(IInterpreterInfo interpreter, int relatedTo, int id) throws IOException, JDTNotAvailableException, CoreException {
         AbstractShell pythonShell = null;
         synchronized(shells){
             if(DebugSettings.DEBUG_CODE_COMPLETION){
@@ -327,7 +333,7 @@ public abstract class AbstractShell {
      * @throws CoreException 
      * @throws CoreException
      */
-    protected synchronized void startIt(String interpreter, int milisSleep) throws IOException, JDTNotAvailableException, CoreException {
+    protected synchronized void startIt(IInterpreterInfo interpreter, int milisSleep) throws IOException, JDTNotAvailableException, CoreException {
         this.shellMillis = milisSleep;
         this.shellInterpreter = interpreter;
         if(inStart || isConnected){
@@ -515,7 +521,7 @@ public abstract class AbstractShell {
      * @throws IOException
      * @throws JDTNotAvailableException 
      */
-    protected abstract String createServerProcess(String interpreter, int pWrite, int pRead) throws IOException, JDTNotAvailableException;
+    protected abstract String createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead) throws IOException, JDTNotAvailableException;
 
     protected synchronized void communicateWork(String desc, IProgressMonitor monitor) {
         if(monitor != null){

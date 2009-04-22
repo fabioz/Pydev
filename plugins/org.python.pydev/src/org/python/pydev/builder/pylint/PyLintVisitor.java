@@ -34,6 +34,7 @@ import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimplePythonRunner;
@@ -186,7 +187,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             list.add("--include-ids=y");
             
             //user args
-            String userArgs = PyLintPrefPage.getPylintArgs().replaceAll("\r\n"," ").replaceAll("\r"," ").replaceAll("\n"," ");
+            String userArgs = StringUtils.replaceNewLines(PyLintPrefPage.getPylintArgs(), " ");
             StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
             while(tokenizer2.hasMoreTokens()){
                 list.add(tokenizer2.nextToken());
@@ -207,7 +208,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             }
             
             Tuple<String, String> outTup = new SimplePythonRunner().runAndGetOutputFromPythonScript(
-                    nature.getProjectInterpreter(), scriptToExe, paramsToExe, arg.getParentFile(), project);
+                    nature.getProjectInterpreter().getExecutableOrJar(), scriptToExe, paramsToExe, arg.getParentFile(), project);
             
             write("Pylint: The stdout of the command line is: "+outTup.o1, out);
             write("Pylint: The stderr of the command line is: "+outTup.o2, out);

@@ -1,7 +1,9 @@
-After 1.4.45
+After 1.4.5
 The interpreter can be referred from a user-editable name (not finished)
 Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)
 os.path added to default forced builtins
+Showing error better when code-completion fails (not only on error log)
+Fixed problem finding definition for java class when the constructor was referenced.
 
 After 1.4.4
 

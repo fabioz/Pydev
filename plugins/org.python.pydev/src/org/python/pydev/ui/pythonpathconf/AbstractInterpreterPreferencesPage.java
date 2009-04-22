@@ -20,6 +20,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -109,7 +110,17 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @param defaultSelectedInterpreter this is the path to the default selected file (interpreter)
      * @param monitor a monitor to display the progress to the user.
      */
-    protected abstract void doRestore(IProgressMonitor monitor);
+    protected void doRestore(IProgressMonitor monitor) {
+        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
+        iMan.restorePythopathForAllInterpreters(monitor);
+        
+        //We also need to restart our code-completion shell after doing that, as we may have new environment variables!
+        //And in jython, changing the classpath also needs to restore it.
+        for(IInterpreterInfo interpreter:iMan.getInterpreterInfos()){
+            AbstractShell.stopServerShell(interpreter, AbstractShell.COMPLETION_SHELL);
+        }
+    }
+
     
     /**
      * all the information should be cleared but the related to the interpreters passed
