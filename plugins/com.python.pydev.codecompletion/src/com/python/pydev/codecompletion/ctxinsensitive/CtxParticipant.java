@@ -80,7 +80,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         
         if(getSystem){
             additionalInfoForProject = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                    PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter());
+                    PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
         }else{
             additionalInfoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         }

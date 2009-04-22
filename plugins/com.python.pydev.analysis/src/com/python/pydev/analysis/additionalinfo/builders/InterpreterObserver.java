@@ -84,8 +84,8 @@ public class InterpreterObserver implements IInterpreterObserver {
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyInterpreterManagerRecreated(org.python.pydev.ui.interpreters.AbstractInterpreterManager)
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
-        for(final String interpreter:iManager.getInterpreters()){
-            if (!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, interpreter)) {
+        for(final IInterpreterInfo interpreterInfo:iManager.getInterpreterInfos()){
+            if (!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, interpreterInfo.getExecutableOrJar())) {
                 //not successfully loaded
                 Job j = new Job("Pydev... Restoring additional info") {
 
@@ -93,7 +93,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                     protected IStatus run(IProgressMonitor monitorArg) {
                         try {
                             JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", IProgressMonitor.UNKNOWN, this);
-                            notifyDefaultPythonpathRestored(iManager, interpreter, jobProgressComunicator);
+                            notifyDefaultPythonpathRestored(iManager, interpreterInfo.getExecutableOrJar(), jobProgressComunicator);
                             jobProgressComunicator.done();
                         } catch (Exception e) {
                             PydevPlugin.log(e);

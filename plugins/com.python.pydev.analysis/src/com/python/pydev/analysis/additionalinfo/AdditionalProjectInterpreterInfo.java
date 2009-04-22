@@ -227,7 +227,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         //get for the system info
         if(addSystemInfo){
             AbstractAdditionalInterpreterInfo systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                    PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter());
+                    PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
             ret.add(systemInfo);
         }
     
