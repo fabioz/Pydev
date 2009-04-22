@@ -16,11 +16,11 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
@@ -77,18 +77,20 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
         
         IModulesManager modulesManager = astManager.getModulesManager();
-        if(modulesManager == null){
-            IInterpreterInfo info = nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
-            throw new RuntimeException("Unable to get the project modules manager for the project: "+nature.getProject()+ " info: "+info.getName());
-        }
-        
-        if(getSystem){
-            modulesManager = modulesManager.getSystemModulesManager();
+        try{
             if(modulesManager == null){
-                IInterpreterInfo info = nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
-                throw new RuntimeException("Unable to get the system modules manager for the project: "+nature.getProject()+ " info: "+info.getName());
+                nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
             }
-        }
+            
+            if(getSystem){
+                modulesManager = modulesManager.getSystemModulesManager();
+                if(modulesManager == null){
+                    nature.getProjectInterpreter(); //Just getting it here is likely to raise an error if it's not well configured.
+                }
+            }
+        } catch (ProjectMisconfiguredException e) {
+            throw new RuntimeException(e);
+        } 
         
         String lowerQual = qual.toLowerCase();
         Set<String> allModuleNames = modulesManager.getAllModuleNames(false, lowerQual);

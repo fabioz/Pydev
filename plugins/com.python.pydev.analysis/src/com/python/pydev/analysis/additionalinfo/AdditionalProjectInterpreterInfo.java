@@ -21,6 +21,7 @@ import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
@@ -226,8 +227,13 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         
         //get for the system info
         if(addSystemInfo){
-            AbstractAdditionalInterpreterInfo systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                    PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
+            AbstractAdditionalInterpreterInfo systemInfo;
+            try {
+                systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+                        PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
+            } catch (ProjectMisconfiguredException e) {
+                throw new RuntimeException(e);
+            }
             ret.add(systemInfo);
         }
     

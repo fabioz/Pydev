@@ -14,6 +14,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
@@ -79,8 +80,12 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         AbstractAdditionalInterpreterInfo additionalInfoForProject;
         
         if(getSystem){
-            additionalInfoForProject = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                    PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
+            try {
+                additionalInfoForProject = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+                        PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
+            } catch (ProjectMisconfiguredException e) {
+                throw new RuntimeException(e);
+            }
         }else{
             additionalInfoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         }
