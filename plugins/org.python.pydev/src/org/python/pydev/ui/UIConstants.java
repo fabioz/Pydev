@@ -85,6 +85,7 @@ public class UIConstants {
 //general
     public static final String PY_ICON = "icons/python.gif";
     public static final String ERROR = "icons/showerr_tsk.gif";
+    public static final String ERROR_SMALL = "icons/error_small.gif";
     public static final String PY_INTERPRETER_ICON = "icons/python_16x16.png";
     
 //browser

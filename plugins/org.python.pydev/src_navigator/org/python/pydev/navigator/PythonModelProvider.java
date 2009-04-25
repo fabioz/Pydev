@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -88,10 +87,9 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             
         } else if(parent instanceof IProject){
             IProject project = (IProject) parent;
-            PythonNature nature = PythonNature.getPythonNature(project);
-            if(nature != null){
-                List<ProjectConfigError> configErrors = nature.getConfigErrors(project);
-                currentElements.addAll(configErrors);
+            ProjectInfo projectInfo = getProjectInfo(project);
+            if(projectInfo != null){
+                currentElements.addAll(projectInfo.configErrors);
             }
         }        
         

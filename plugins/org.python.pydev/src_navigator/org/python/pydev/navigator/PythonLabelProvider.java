@@ -6,6 +6,10 @@ package org.python.pydev.navigator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.DecorationOverlayIcon;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
@@ -28,6 +32,10 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 public class PythonLabelProvider implements ILabelProvider{
 
     private WorkbenchLabelProvider provider;
+    
+    private Image projectWithError = null;
+    
+    private Object lock = new Object();
 
     public PythonLabelProvider() {
         provider = new WorkbenchLabelProvider();
@@ -61,9 +69,6 @@ public class PythonLabelProvider implements ILabelProvider{
             }
             return provider.getImage(actualObject);
         }
-        if(element instanceof ProjectConfigError){
-            return PydevPlugin.getImageCache().get(UIConstants.ERROR);
-        }
         if(element instanceof PythonNode){
             PythonNode node = (PythonNode) element;
             return node.entry.getImage();
@@ -71,6 +76,43 @@ public class PythonLabelProvider implements ILabelProvider{
         if(element instanceof IWrappedResource){
             IWrappedResource resource = (IWrappedResource) element;
             return provider.getImage(resource.getActualObject());
+        }
+        if(element instanceof ProjectConfigError){
+            return PydevPlugin.getImageCache().get(UIConstants.ERROR);
+        }
+        if(element instanceof IProject){
+            IProject project = (IProject) element;
+            try {
+                IMarker[] markers = project.findMarkers(PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER, true, 0);
+                Image image = provider.getImage(element);
+                if(markers == null || markers.length == 0){
+                    return image;
+                }
+                
+                //We have errors: make them explicit.
+                if(projectWithError == null){
+                    synchronized(lock){
+                        //we must recheck again (if 2 got here and 1 got the lock while the other was waiting, when
+                        //the other enters the lock, it does not need to recalculated).
+                        if(projectWithError == null){
+                            try {
+                                DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(
+                                        image, 
+                                        PydevPlugin.getImageCache().getDescriptor(UIConstants.ERROR_SMALL), 
+                                        IDecoration.BOTTOM_LEFT);
+                                projectWithError = decorationOverlayIcon.createImage();
+                            } catch (Exception e) {
+                                PydevPlugin.log("Unable to create error decoration for project icon.", e);
+                                projectWithError = image;
+                            }
+                        }
+                    }
+                }
+                
+            } catch (Exception e1) {
+                PydevPlugin.log(e1);
+            }
+            return projectWithError;
         }
         return provider.getImage(element);
     }

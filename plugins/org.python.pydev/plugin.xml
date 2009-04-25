@@ -1030,6 +1030,14 @@
        <super type="org.eclipse.core.resources.problemmarker"/>
        <persistent value="true"/>
     </extension>
+<!-- Markers for the pydev package explorer -->
+    <extension 
+        point="org.eclipse.core.resources.markers"
+        name="Pydev Project Error"
+        id="PydevProjectErrorMarkers">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <persistent value="false"/>
+    </extension>
 <!-- templates -->
     <extension point="org.eclipse.ui.editors.templates">
          <contextType
