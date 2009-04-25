@@ -750,7 +750,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 getStore().setPropertyToXml(getPythonProjectVersionQualifiedName(), version, true);
             }
             if(interpreter != null){
-                getStore().setPropertyToXml(getPythonProjectInterpreterQualifiedName(), interpreter, true);
+                IPythonNatureStore store = getStore();
+                String current = store.getPropertyFromXml(getPythonProjectInterpreterQualifiedName());
+                if(current == null || !current.equals(interpreter)){
+                    getStore().setPropertyToXml(getPythonProjectInterpreterQualifiedName(), interpreter, true);
+                    PythonNatureListenersManager.notifyPythonPathRebuilt(project, this);
+                }
             }
         }
     }

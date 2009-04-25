@@ -30,7 +30,11 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -137,6 +141,63 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         this.aConfig = aConfig;
     }
     
+    /**
+     * Helper to provide a single update with multiple notifications.
+     */
+    private class Updater extends Job{
+
+        /**
+         * The pythonpath set for the project
+         */
+        private List<String> projectPythonpath;
+        
+        /**
+         * The project which had the pythonpath rebuilt
+         */
+        private IProject project;
+        
+        /**
+         * Lock for accessing project and projectPythonpath
+         */
+        private Object lock = new Object();
+
+        public Updater() {
+            super("Model provider updating pythonpath");
+        }
+
+        protected IStatus run(IProgressMonitor monitor) {
+            IProject projectToUse;
+            List<String> projectPythonpathToUse;
+            synchronized(lock){
+                projectToUse = project;
+                projectPythonpathToUse = projectPythonpath;
+                
+                //Clear the fields (we already have the locals with the values we need.)
+                project = null;
+                projectPythonpath = null;
+            }
+            if(projectToUse != null && projectPythonpathToUse != null){
+                internalDoNotifyPythonPathRebuilt(projectToUse, projectPythonpathToUse);
+            }
+            return Status.OK_STATUS;
+        }
+
+        /**
+         * Sets the needed parameters to rebuild the pythonpath.
+         */
+        public void setNeededParameters(IProject project, List<String> projectPythonpath) {
+            synchronized(lock){
+                this.project = project;
+                this.projectPythonpath = projectPythonpath;
+            }
+        }
+        
+    }
+    
+    /**
+     * Helper so that we can have many notifications and create a single request.
+     */
+    Updater updater = new Updater();
     
     /**
      * Notification received when the pythonpath has been changed or rebuilt.
@@ -159,7 +220,9 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                 projectPythonpath = new ArrayList<String>();
             }
         }
-        internalDoNotifyPythonPathRebuilt(project, projectPythonpath);
+        
+        updater.setNeededParameters(project, projectPythonpath);
+        updater.schedule(200);
     }
 
     /**
@@ -167,7 +230,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * 
      * @return the element that should be refreshed.
      */
-    public IResource internalDoNotifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
+    /*default*/ IResource internalDoNotifyPythonPathRebuilt(IProject project, List<String> projectPythonpath) {
         IResource refreshObject = project;
         
         if(DEBUG){
