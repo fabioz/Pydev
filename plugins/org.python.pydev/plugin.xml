@@ -1239,6 +1239,8 @@
                 <instanceof value="org.eclipse.core.resources.IFile"/>
                 <instanceof value="org.eclipse.core.resources.IResource"/>
                 <instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
+                <instanceof value="org.python.pydev.core.structure.TreeNode"/>
+                <instanceof value="org.python.pydev.navigator.elements.PythonNode"/>
             </or>
          </triggerPoints>
          <possibleChildren>
@@ -1251,6 +1253,8 @@
                 <instanceof value="org.eclipse.core.resources.IFile" />
                 <instanceof value="org.eclipse.core.resources.IResource"/>
                 <instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
+                <instanceof value="org.python.pydev.core.structure.TreeNode"/>
+                <instanceof value="org.python.pydev.navigator.elements.PythonNode"/>
             </or>
          </possibleChildren>
          <commonSorter

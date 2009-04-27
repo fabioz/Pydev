@@ -7,8 +7,10 @@ package org.python.pydev.navigator.sorter;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.navigator.elements.IWrappedResource;
+import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonNode;
 
 public class PythonModelSorter extends ViewerSorter{
@@ -27,6 +29,8 @@ public class PythonModelSorter extends ViewerSorter{
                     return super.compare(viewer, 
                             ((IWrappedResource)e1).getActualObject(), 
                             ((IWrappedResource)e2).getActualObject());
+                }else{
+                    return 0;
                 }
             }else if(r1 < r2){
                 return -1;
@@ -34,13 +38,12 @@ public class PythonModelSorter extends ViewerSorter{
                 return 1;
             }
         }
-        //Sorted elements always have priority over non-sorted resources
-        if(e1 instanceof ISortedElement){
+        //Wrapped resource/config error elements always have priority over non-sorted resources
+        if(e1 instanceof IWrappedResource || e1 instanceof ProjectConfigError){
             return -1;
         }
-        if(e2 instanceof ISortedElement){
+        if(e2 instanceof IWrappedResource || e2 instanceof ProjectConfigError){
             return 1;
-            
         }
         
         if(e1 instanceof IContainer && e2 instanceof IContainer){
@@ -50,6 +53,14 @@ public class PythonModelSorter extends ViewerSorter{
             return -1;
         }
         if(e2 instanceof IContainer){
+            return 1;
+        }
+        
+        //Tree nodes coe right after containers.
+        if(e1 instanceof TreeNode<?>){
+            return -1;
+        }
+        if(e2 instanceof TreeNode<?>){
             return 1;
         }
         return super.compare(viewer, e1, e2);

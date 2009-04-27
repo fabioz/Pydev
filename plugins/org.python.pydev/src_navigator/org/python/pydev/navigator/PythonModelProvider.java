@@ -24,6 +24,7 @@ import org.eclipse.ui.navigator.IPipelinedTreeContentProvider;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.navigator.PipelinedViewerUpdate;
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonFile;
@@ -68,6 +69,11 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             if(DEBUG){
                 System.out.println("getPipelinedChildren RETURN: "+currentElements);
             }
+            if(parent instanceof PythonProjectSourceFolder){
+                PythonProjectSourceFolder projectSourceFolder = (PythonProjectSourceFolder) parent;
+                IProject project = (IProject) projectSourceFolder.getActualObject();
+                fillChildrenForProject(currentElements, project);
+            }
             return;
             
         } else if(parent instanceof IWorkspaceRoot){
@@ -85,18 +91,30 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             currentElements.clear();
             currentElements.addAll(Arrays.asList(workingSet.getElements()));
             
+        } else if(parent instanceof TreeNode){
+            TreeNode treeNode = (TreeNode) parent;
+            currentElements.addAll(treeNode.getChildren());
+            
         } else if(parent instanceof IProject){
             IProject project = (IProject) parent;
-            ProjectInfo projectInfo = getProjectInfo(project);
-            if(projectInfo != null){
-                currentElements.addAll(projectInfo.configErrors);
-            }
+            fillChildrenForProject(currentElements, project);
         }        
         
         PipelinedShapeModification modification = new PipelinedShapeModification(parent, currentElements);
         convertToPythonElementsAddOrRemove(modification, true);
         if(DEBUG){
             System.out.println("getPipelinedChildren RETURN: "+modification.getChildren());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void fillChildrenForProject(Set currentElements, IProject project) {
+        ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
+        if(projectInfo != null){
+            currentElements.addAll(projectInfo.configErrors);
+            if(projectInfo.interpreterInfo != null){
+                currentElements.add(ProjectInfoToTreeStructure.createFrom(projectInfo.interpreterInfo));
+            }
         }
     }
 
@@ -136,6 +154,10 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             if(parentElement != null){
                 aSuggestedParent = parentElement;
             }
+            
+        } else if (object instanceof TreeNode<?>){
+            TreeNode<?> treeNode = (TreeNode<?>) object;
+            return treeNode.getParent();
             
         } else if (object instanceof ProjectConfigError){
             ProjectConfigError configError = (ProjectConfigError) object;

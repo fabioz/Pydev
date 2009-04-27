@@ -3,6 +3,7 @@
  */
 package org.python.pydev.core;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -80,4 +81,9 @@ public interface IInterpreterInfo {
      * @return true if the passed name matches the name or the executable or jar specified.
      */
     public boolean matchNameBackwardCompatible(String interpreter);
+    
+    /**
+     * @return an iterator that can traverse the forced builtins;
+     */
+    public Iterator<String> forcedLibsIterator();
 }

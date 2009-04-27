@@ -19,7 +19,6 @@ import java.util.Set;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -28,7 +27,6 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
@@ -45,7 +43,6 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.navigator.ICommonContentExtensionSite;
-import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
@@ -54,10 +51,10 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ProjectMisconfiguredException;
+import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.navigator.elements.PythonFolder;
 import org.python.pydev.navigator.elements.PythonNode;
@@ -92,78 +89,17 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      */
     private static final Object[] EMPTY = new Object[0];
     
-    
+    /**
+     * Type of the error markers to show in the pydev package explorer.
+     */
     public static final String PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER = "org.python.pydev.PydevProjectErrorMarkers";
     
-    /**
-     * This class contains information about the project (info we need to show in the tree).
-     */
-    protected static class ProjectInfo{
-        
-        /**
-         * Never null
-         */
-        final Set<PythonSourceFolder> sourceFolders;
-        
-        /**
-         * Never null
-         */
-        final List<ProjectConfigError> configErrors;
-        
-        private ProjectInfo(Set<PythonSourceFolder> sourceFolders, List<ProjectConfigError> configErrors) {
-            Assert.isNotNull(sourceFolders);
-            Assert.isNotNull(configErrors);
-            this.sourceFolders = sourceFolders;
-            this.configErrors = configErrors;
-        }
-
-        public ProjectInfo(IProject project) {
-            this(new HashSet<PythonSourceFolder>(), getConfigErrors(project));
-        }
-
-        /**
-         * Never returns null
-         */
-        @SuppressWarnings("unchecked")
-        private static List<ProjectConfigError> getConfigErrors(IProject project) {
-            PythonNature nature = PythonNature.getPythonNature(project);
-            ArrayList<ProjectConfigError> ret = new ArrayList<ProjectConfigError>();
-            if(nature != null){
-                try {
-                    project.deleteMarkers(PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER, true, 0);
-                } catch (Exception e) {
-                    PydevPlugin.log(e);
-                }
-                
-                List<ProjectConfigError> errors = nature.getConfigErrors(project);
-                if(errors != null){
-                    ret.addAll(errors);
-                    for(ProjectConfigError error:errors){
-                        try {
-                            Map attributes = new HashMap();
-                            attributes.put(IMarker.MESSAGE, error.getLabel());
-                            attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-                            MarkerUtilities.createMarker(project, attributes, PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER);
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
-                        }
-                    }
-                }
-            }
-            
-
-            return ret;
-        }
-        
-    }
-    
-
     /**
      * These are the source folders that can be found in this file provider. The way we
      * see things in this provider, the python model starts only after some source folder
      * is found.
      */
-    private Map<IProject, ProjectInfo> projectToSourceFolders = new HashMap<IProject, ProjectInfo>();
+    private Map<IProject, ProjectInfoForPackageExplorer> projectToSourceFolders = new HashMap<IProject, ProjectInfoForPackageExplorer>();
     
     /**
      * This is the viewer that we're using to see the contents of this file provider.
@@ -317,10 +253,9 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             projectPythonpathSet.add(newPath);
         }
         
-        ProjectInfo projectInfo = getProjectInfo(project);
+        ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
         if(projectInfo != null){
-            projectInfo.configErrors.clear();
-            projectInfo.configErrors.addAll(ProjectInfo.getConfigErrors(project));
+            projectInfo.recreateInfo(project);
             
             Set<PythonSourceFolder> existingSourceFolders = projectInfo.sourceFolders;
             if(existingSourceFolders != null){
@@ -406,15 +341,15 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     /**
      * @return the information on a project. Can create it if it's not available.
      */
-    protected synchronized ProjectInfo getProjectInfo(IProject project) {
-        Map<IProject, ProjectInfo> p = projectToSourceFolders;
+    protected synchronized ProjectInfoForPackageExplorer getProjectInfo(IProject project) {
+        Map<IProject, ProjectInfoForPackageExplorer> p = projectToSourceFolders;
         if(p != null){
-            ProjectInfo projectInfo = p.get(project);
+            ProjectInfoForPackageExplorer projectInfo = p.get(project);
             if(projectInfo == null){
                 //No project info: create it
                 projectInfo = p.get(project);
                 if(projectInfo == null){
-                    projectInfo = new ProjectInfo(project);
+                    projectInfo = new ProjectInfoForPackageExplorer(project);
                     p.put(project, projectInfo);
                 }
             }
@@ -428,7 +363,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      * @return a set with the PythonSourceFolder that exist in the project that contains it
      */
     protected Set<PythonSourceFolder> getProjectSourceFolders(IProject project) {
-        ProjectInfo projectInfo = getProjectInfo(project);
+        ProjectInfoForPackageExplorer projectInfo = getProjectInfo(project);
         if(projectInfo != null){
             return projectInfo.sourceFolders;
         }
@@ -501,6 +436,10 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             }
             return false; 
         }
+        if(element instanceof TreeNode<?>){
+            TreeNode<?> treeNode = (TreeNode<?>) element;
+            return treeNode.getChildren().size() > 0;
+        }
         return getChildren(element).length > 0;
     }
 
@@ -544,6 +483,10 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                 IWorkingSet workingSet = (IWorkingSet) parentElement;
                 childrenToReturn = workingSet.getElements();
             }
+            
+        } else if(parentElement instanceof TreeNode<?>){
+            TreeNode<?> treeNode = (TreeNode<?>) parentElement;
+            return treeNode.getChildren().toArray();
         }
         
         if(childrenToReturn == null){
@@ -1153,9 +1096,9 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                                     IResource rem = (IResource) object;
                                     Object remInPythonModel = getResourceInPythonModel(rem, true);
                                     if(remInPythonModel instanceof PythonSourceFolder){
-                                        Map<IProject, ProjectInfo> p = projectToSourceFolders;
+                                        Map<IProject, ProjectInfoForPackageExplorer> p = projectToSourceFolders;
                                         if(p != null){
-                                            ProjectInfo projectInfo = p.get(resource.getProject());
+                                            ProjectInfoForPackageExplorer projectInfo = p.get(resource.getProject());
                                             if(projectInfo != null){
                                                 Set<PythonSourceFolder> existingSourceFolders = projectInfo.sourceFolders;
                                                 existingSourceFolders.remove(remInPythonModel);

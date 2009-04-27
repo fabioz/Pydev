@@ -746,16 +746,29 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
         
         if(project != null){
+            boolean notify = false;
             if(version != null){
-                getStore().setPropertyToXml(getPythonProjectVersionQualifiedName(), version, true);
+                IPythonNatureStore store = getStore();
+                QualifiedName pythonProjectVersionQualifiedName = getPythonProjectVersionQualifiedName();
+                String current = store.getPropertyFromXml(pythonProjectVersionQualifiedName);
+                
+                if(current == null || !current.equals(version)){
+                    store.setPropertyToXml(pythonProjectVersionQualifiedName, version, true);
+                    notify = true;
+                }
             }
             if(interpreter != null){
                 IPythonNatureStore store = getStore();
-                String current = store.getPropertyFromXml(getPythonProjectInterpreterQualifiedName());
+                QualifiedName pythonProjectInterpreterQualifiedName = getPythonProjectInterpreterQualifiedName();
+                String current = store.getPropertyFromXml(pythonProjectInterpreterQualifiedName);
+                
                 if(current == null || !current.equals(interpreter)){
-                    getStore().setPropertyToXml(getPythonProjectInterpreterQualifiedName(), interpreter, true);
-                    PythonNatureListenersManager.notifyPythonPathRebuilt(project, this);
+                    store.setPropertyToXml(pythonProjectInterpreterQualifiedName, interpreter, true);
+                    notify = true;
                 }
+            }
+            if(notify){
+                PythonNatureListenersManager.notifyPythonPathRebuilt(project, this);
             }
         }
     }
@@ -1045,19 +1058,20 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     /**
-     * @return a list of configuration errors.
+     * @return a list of configuration errors and the interpreter info for the project (the interpreter info can be null)
      */
-    public List<ProjectConfigError> getConfigErrors(final IProject relatedToProject) {
+    public Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(final IProject relatedToProject) {
         if(IN_TESTS){
-            return new ArrayList<ProjectConfigError>();
+            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList<ProjectConfigError>(), null);
         }
         ArrayList<ProjectConfigError> lst = new ArrayList<ProjectConfigError>();
         if(this.project == null){
             lst.add(new ProjectConfigError(
                 relatedToProject, "The configured nature has no associated project."));
         }
+        IInterpreterInfo info = null;
         try {
-            IInterpreterInfo info = this.getProjectInterpreter();
+            info = this.getProjectInterpreter();
             
             List<String> projectSourcePathSet = new ArrayList<String>(this.getPythonPathNature().getProjectSourcePathSet());
             Collections.sort(projectSourcePathSet);
@@ -1101,7 +1115,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             lst.add(new ProjectConfigError(
                     relatedToProject, StringUtils.replaceNewLines("Unexpected error:"+e.getMessage(), " ")));
         }
-        return lst;
+        return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(lst, info);
     }
 
 }
