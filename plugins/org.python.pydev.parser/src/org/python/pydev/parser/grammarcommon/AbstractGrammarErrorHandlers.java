@@ -23,6 +23,11 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
      * This marks the column where the last suite started.
      */
     protected int lastSuiteStartCol = -1;
+    
+    /**
+     * Keep track of the parse exceptions (to keep from recursing in any situation)
+     */
+    protected int parseExceptions = 0;
 
 
     /**
@@ -73,13 +78,17 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
     
     //---------------------------- Helpers to handle errors in the grammar.
 
-    public final void addAndReport(ParseException e, String msg){
+    public final void addAndReport(ParseException e, String msg) throws ParseException{
         if(DEBUG_SHOW_PARSE_ERRORS){
             
             System.err.println("\n\n\n\n\n---------------------------------\n"+msg);
             e.printStackTrace();
         }
         addParseError(e);
+        parseExceptions ++;
+        if(parseExceptions > 100){ //too many errors in the file... just stop trying to fix it (we could be recursing too)
+            throw e;
+        }
     }
     
     /**
@@ -117,7 +126,7 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
      * Happens when we could find a parenthesis close (so, we don't create it), but it's
      * not the current, so, we have an error making the match.
      */
-    protected final void handleRParensNearButNotCurrent(ParseException e) {
+    protected final void handleRParensNearButNotCurrent(ParseException e)  throws ParseException{
         addAndReport(e, "Handle parens near but not current");
         Token t = getCurrentToken();
         
@@ -194,12 +203,12 @@ public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHe
     /**
      * This is called when recognized an indent but the new line was not recognized.
      */
-    protected final void handleNoNewlineInSuiteFound() {
+    protected final void handleNoNewlineInSuiteFound() throws ParseException{
         addAndReport(new ParseException("No new line found.", getCurrentToken()), "Handle no new line in suite");
     }
     
     
-    protected final void handleNoSuiteMatch(ParseException e){
+    protected final void handleNoSuiteMatch(ParseException e)  throws ParseException{
         addAndReport(e, "Handle no suite match");
     }
 

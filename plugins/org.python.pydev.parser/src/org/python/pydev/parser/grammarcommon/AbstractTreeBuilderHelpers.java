@@ -57,7 +57,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
     }
     
     
-    protected final SimpleNode makeTuple(SimpleNode n) {
+    protected final SimpleNode makeTuple(SimpleNode n)  throws ParseException{
         try {
             final exprType[] exp = makeExprs();
             Tuple t = new Tuple(exp, Tuple.Load);

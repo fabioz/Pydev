@@ -40,7 +40,7 @@ public class PyParserTest extends PyParserTestBase{
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
             //timer.printDiff();
-            test.testParser14();
+            test.testParser15();
 //            test.testErr();
             test.tearDown();
             
@@ -737,6 +737,34 @@ public class PyParserTest extends PyParserTestBase{
         "for text in header_values:\n"+
         "    pass\n";
 
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer arg) {
+                parseLegalDocStr(s);
+                return true;
+            }
+        });
+    }
+    
+    public void testParser15() {
+        final String s = "" +
+        "def f():\n"+
+        "    return \"(\" + (";
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer arg) {
+                parseILegalDocStr(s);
+                return true;
+            }
+        });
+    }
+    
+    public void testParser16() {
+        final String s = "" +
+        "def f():\n"+
+        "    return \"(\" + ()";
+        
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
