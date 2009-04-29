@@ -53,6 +53,7 @@ import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.UIConstants;
@@ -100,9 +101,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     private Composite box;
 
-    private Button addBtOthers;
+    private Button addBtForcedBuiltins;
 
-    private Button removeBtOthers;
+    private Button removeBtForcedBuiltins;
 
     private SelectionListener selectionListenerOthers;
     
@@ -460,7 +461,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     private List getBuiltinsListControl(Composite parent) {
         if (listBuiltins == null) {
-            listBuiltins = new List(parent, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
+            listBuiltins = new List(parent, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
             listBuiltins.setFont(parent.getFont());
             listBuiltins.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
@@ -520,12 +521,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             GridLayout layout = new GridLayout();
             layout.marginWidth = 0;
             box.setLayout(layout);
-            addBtOthers = createBt(box, "ListEditor.add", getSelectionListenerOthers());//$NON-NLS-1$
-            removeBtOthers = createBt(box, "ListEditor.remove", getSelectionListenerOthers());//$NON-NLS-1$
+            addBtForcedBuiltins = createBt(box, "ListEditor.add", getSelectionListenerForcedBuiltins());//$NON-NLS-1$
+            removeBtForcedBuiltins = createBt(box, "ListEditor.remove", getSelectionListenerForcedBuiltins());//$NON-NLS-1$
             box.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent event) {
-                    addBtOthers = null;
-                    removeBtOthers = null;
+                    addBtForcedBuiltins = null;
+                    removeBtForcedBuiltins = null;
                     box = null;
                 }
             });
@@ -542,15 +543,15 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * 
      * @return the selection listener
      */
-    private SelectionListener getSelectionListenerOthers() {
+    private SelectionListener getSelectionListenerForcedBuiltins() {
         if (selectionListenerOthers == null){
             selectionListenerOthers = new SelectionAdapter() {
                 public void widgetSelected(SelectionEvent event) {
                     Widget widget = event.widget;
-                    if (widget == addBtOthers) {
-                        addOthers();
-                    } else if (widget == removeBtOthers) {
-                        removeOthers();
+                    if (widget == addBtForcedBuiltins) {
+                        addForcedBuiltins();
+                    } else if (widget == removeBtForcedBuiltins) {
+                        removeForcedBuiltins();
                     }
                 }
             };
@@ -613,8 +614,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             }
                                 
                         } else if (widget == removeBtSystemFolder) {
-                            for (int i = 0; i < selection.length; i++) {
-                                TreeItem s = selection[i];
+                            TreeItem[] libSelection = treeWithLibs.getSelection();
+                            for (int i = 0; i < libSelection.length; i++) {
+                                TreeItem s = libSelection[i];
                                 String text = s.getText();
                                 info.libs.remove(text);
 //                                changed = true;
@@ -631,16 +633,34 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     /**
      * 
      */
-    protected void addOthers() {
+    protected void addForcedBuiltins() {
         if (treeWithInterpreters.getSelectionCount() == 1) {
             TreeItem[] selection = treeWithInterpreters.getSelection();
             InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(selection[0]));
             
-            InputDialog d = new InputDialog(this.getShell(), "Builtin to add", "Builtin to add", "", null);
+            IInputValidator validator = new IInputValidator(){
+            
+                public String isValid(String newText) {
+                    for(char c:newText.toCharArray()){
+                        if(!Character.isJavaIdentifierPart(c) && c != ' ' && c != ',' && c != '.'){
+                            return "Can only accept valid python module names (char: '"+c+"' not accepted)";
+                        }
+                    }
+                    return null;
+                }
+            };;
+            InputDialog d = new InputDialog(this.getShell(), "Builtin to add", "Builtin to add (comma separated)", "", validator);
             
             int retCode = d.open();
             if (retCode == InputDialog.OK) {
-                info.addForcedLib(d.getValue());
+                String builtins = d.getValue();
+                java.util.List<String> split = StringUtils.split(builtins, ',');
+                for (String string : split) {
+                    String trimmed = string.trim();
+                    if(trimmed.length() > 0){
+                        info.addForcedLib(trimmed);
+                    }
+                }
 //                changed = true;
             }
 
@@ -651,13 +671,15 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     /**
      * 
      */
-    protected void removeOthers() {
-        if (treeWithInterpreters.getSelectionCount() == 1 && listBuiltins.getSelectionCount() == 1) {
-            TreeItem[] selection = treeWithInterpreters.getSelection();
-            String builtin = listBuiltins.getSelection()[0];
+    protected void removeForcedBuiltins() {
+        if (treeWithInterpreters.getSelectionCount() == 1) {
+            TreeItem[] interpreterSelection = treeWithInterpreters.getSelection();
+            String[] builtins = listBuiltins.getSelection();
             
-            InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(selection[0]));
-            info.removeForcedLib(builtin);
+            InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(interpreterSelection[0]));
+            for(String builtin : builtins){
+                info.removeForcedLib(builtin);
+            }
 //            changed = true;
         }
         updateTree();
