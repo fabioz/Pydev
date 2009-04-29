@@ -67,7 +67,11 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
     }
 
     public static String getPluginID() {
-        return getDefault().getBundle().getSymbolicName();
+        PydevDebugPlugin d = getDefault();
+        if(d == null){
+            return "Unable to get id";
+        }
+        return d.getBundle().getSymbolicName();
     }
 
     public static IWorkspace getWorkspace() {

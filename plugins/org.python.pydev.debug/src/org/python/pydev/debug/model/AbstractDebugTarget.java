@@ -1,8 +1,6 @@
 package org.python.pydev.debug.model;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -34,8 +32,10 @@ import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.IConsoleInputListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPrefs;
@@ -485,19 +485,32 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     
     
 
-    // thread_id\tresume_reason
-    static Pattern threadRunPattern = Pattern.compile("(pid-?\\d+_seq-?\\d+)\\t(\\w*)");
+    
+    /**
+     * @param payload a string in the format: thread_id\tresume_reason
+     * E.g.: pid3720_zad_seq1\t108
+     *  
+     * @return a tuple with the thread id and the reason it stopped.
+     * @throws CoreException 
+     */
+    public static Tuple<String, String> getThreadIdAndReason(String payload) throws CoreException{
+        List<String> split = StringUtils.split(payload.trim(), '\t');
+        if(split.size() != 2){
+            String msg = "Unexpected threadRun payload " + payload + "(unable to match)";
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, msg, new RuntimeException(msg)));
+        }
+        return new Tuple<String, String>(split.get(0), split.get(1));
+    }
+    
     /**
      * ThreadRun event processing
      */
     private void processThreadRun(String payload) {
-        String threadID = "";
-        int resumeReason = DebugEvent.UNSPECIFIED;
-        Matcher m = threadRunPattern.matcher(payload);
-        if (m.matches()) {
-            threadID = m.group(1);
+        try {
+            Tuple<String, String> threadIdAndReason = getThreadIdAndReason(payload);
+            int resumeReason = DebugEvent.UNSPECIFIED;
             try {
-                int raw_reason = Integer.parseInt(m.group(2));
+                int raw_reason = Integer.parseInt(threadIdAndReason.o2);
                 if (raw_reason == AbstractDebuggerCommand.CMD_STEP_OVER)
                     resumeReason = DebugEvent.STEP_OVER;
                 else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_RETURN)
@@ -515,16 +528,28 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                 // expected, when pydevd reports "None"
                 resumeReason = DebugEvent.UNSPECIFIED;
             }
+            
+            String threadID = threadIdAndReason.o1;
+            PyThread t = (PyThread)findThreadByID(threadID);
+            if (t != null) {
+                t.setSuspended(false, null);
+                fireEvent(new DebugEvent(t, DebugEvent.RESUME, resumeReason));
+                
+            }else{
+                FastStringBuffer buf = new FastStringBuffer();
+                for(PyThread thread:threads){
+                    if(buf.length() > 0){
+                        buf.append(", ");
+                    }
+                    buf.append("id: "+thread.getId());
+                }
+                String msg = "Unable to find thread: " + threadID+ " available: "+buf;
+                PydevDebugPlugin.log(IStatus.ERROR, msg, new RuntimeException(msg));
+            }
+        } catch (CoreException e1) {
+            Log.log(e1);
         }
-        else{
-            PydevDebugPlugin.log(IStatus.ERROR, "Unexpected treadRun payload " + payload, null);
-        }
-        
-        PyThread t = (PyThread)findThreadByID(threadID);
-        if (t != null) {
-            t.setSuspended(false, null);
-            fireEvent(new DebugEvent(t, DebugEvent.RESUME, resumeReason));
-        }
+
     }
     
     /**

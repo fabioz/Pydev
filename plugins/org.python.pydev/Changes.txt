@@ -5,6 +5,7 @@ os.path added to default forced builtins
 Showing error better when code-completion fails (not only on error log)
 Fixed problem finding definition for java class when the constructor was referenced.
 Fixed recursion error on Python 3.0 grammar
+Jython debugging - local variables are not updated
 
 After 1.4.4
 
