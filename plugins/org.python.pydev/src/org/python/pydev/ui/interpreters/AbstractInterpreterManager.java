@@ -32,6 +32,8 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -451,37 +453,20 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 }
             }
             
-            //Commented out: this is not really needed, as the information on the interpreter is mainly kept separated
-            //from the projects info (this was initially done on an attempt to track dependencies through different
-            //modules, but it proved too time consuming in a dynamic language such as python). 
-            
-//            final Boolean[] restoreNatures = new Boolean[]{false}; 
-//            
-//            final Display def = Display.getDefault();
-//            def.syncExec(new Runnable(){
-//
-//                public void run() {
-//                    Shell shell = def.getActiveShell();
-//                    restoreNatures[0] = MessageDialog.openQuestion(shell, "Interpreter info changed", 
-//                            "The interpreter info has been changed, do you want to make a full build?\n" +
-//                            "(the same thing can be later achieved through the menu: Project > Clean)");
-//                }
-//            });
-//            
-//            //update the natures...
-//            if(restoreNatures[0]){
-//                List<IPythonNature> pythonNatures = PythonNature.getAllPythonNatures();
-//                for (IPythonNature nature : pythonNatures) {
-//                    try {
-//                        //if they have the same type of the interpreter manager.
-//                        if (this.isPython() == nature.isPython() || this.isJython() == nature.isJython()) {
-//                            nature.rebuildPath(defaultSelectedInterpreter, monitor);
-//                        }
-//                    } catch (Throwable e) {
-//                        PydevPlugin.log(e);
-//                    }
-//                }
-//            }
+
+            //Also notify that all the natures had the pythonpath changed (it's the system pythonpath, but still, 
+            //clients need to know about it)
+            List<IPythonNature> pythonNatures = PythonNature.getAllPythonNatures();
+            for (IPythonNature nature : pythonNatures) {
+                try {
+                    //If they have the same type of the interpreter manager, notify.
+                    if (this.isPython() == nature.isPython() || this.isJython() == nature.isJython()) {
+                        PythonNatureListenersManager.notifyPythonPathRebuilt(nature.getProject(), nature);
+                    }
+                } catch (Throwable e) {
+                    PydevPlugin.log(e);
+                }
+            }
         }        
     }
 

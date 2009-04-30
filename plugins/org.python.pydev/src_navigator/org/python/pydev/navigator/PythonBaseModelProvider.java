@@ -38,11 +38,14 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.navigator.ICommonContentExtensionSite;
+import org.eclipse.ui.navigator.INavigatorContentService;
+import org.eclipse.ui.navigator.INavigatorFilterService;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
@@ -61,6 +64,7 @@ import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonResource;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
+import org.python.pydev.navigator.filters.PythonNodeFilter;
 import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
@@ -165,8 +169,8 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         /**
          * Lock for accessing project and projectPythonpath
          */
-        private Object lock = new Object();
-
+        private Object updaterLock = new Object();
+        
         public Updater() {
             super("Model provider updating pythonpath");
         }
@@ -174,7 +178,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         protected IStatus run(IProgressMonitor monitor) {
             IProject projectToUse;
             List<String> projectPythonpathToUse;
-            synchronized(lock){
+            synchronized(updaterLock){
                 projectToUse = project;
                 projectPythonpathToUse = projectPythonpath;
                 
@@ -182,9 +186,12 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                 project = null;
                 projectPythonpath = null;
             }
+            
+            //No need to be synchronized (that's the slow part)
             if(projectToUse != null && projectPythonpathToUse != null){
                 internalDoNotifyPythonPathRebuilt(projectToUse, projectPythonpathToUse);
             }
+            
             return Status.OK_STATUS;
         }
 
@@ -192,18 +199,40 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
          * Sets the needed parameters to rebuild the pythonpath.
          */
         public void setNeededParameters(IProject project, List<String> projectPythonpath) {
-            synchronized(lock){
+            synchronized(updaterLock){
                 this.project = project;
                 this.projectPythonpath = projectPythonpath;
             }
         }
-        
+    }
+    
+    /**
+     * We need to have one updater per project. After created, it'll remain always there.
+     */
+    private static Map<IProject, Updater> projectToUpdater = new HashMap<IProject, Updater>();
+    private static Object projectToUpdaterLock = new Object();
+    
+    private Updater getUpdater(IProject project){
+        synchronized(projectToUpdaterLock){
+            Updater updater = projectToUpdater.get(project);
+            if(updater == null){
+                updater = new Updater();
+                projectToUpdater.put(project, updater);
+            }
+            return updater;
+        }
     }
     
     /**
      * Helper so that we can have many notifications and create a single request.
+     * @param projectPythonpath 
+     * @param project 
      */
-    Updater updater = new Updater();
+    private void createAndStartUpdater(IProject project, List<String> projectPythonpath){
+        Updater updater = getUpdater(project);
+        updater.setNeededParameters(project, projectPythonpath);
+        updater.schedule(200);
+    }
     
     /**
      * Notification received when the pythonpath has been changed or rebuilt.
@@ -227,8 +256,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             }
         }
         
-        updater.setNeededParameters(project, projectPythonpath);
-        updater.schedule(200);
+        createAndStartUpdater(project, projectPythonpath);
     }
 
     /**
@@ -416,6 +444,16 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      */
     public boolean hasChildren(Object element) {
         if(element instanceof PythonFile){
+            //If we're not showing nodes, return false.
+            INavigatorContentService contentService = viewer.getNavigatorContentService();
+            INavigatorFilterService filterService = contentService.getFilterService();
+            ViewerFilter[] visibleFilters = filterService.getVisibleFilters(true);
+            for (ViewerFilter viewerFilter : visibleFilters) {
+                if(viewerFilter instanceof PythonNodeFilter){
+                    return false;
+                }
+            }
+            
             PythonFile f = (PythonFile) element;
             if(PythonPathHelper.isValidSourceFile(f.getActualObject())){
                 try {

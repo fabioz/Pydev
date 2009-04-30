@@ -1,5 +1,5 @@
 After 1.4.5
-The interpreter can be referred from a user-editable name (not finished)
+The interpreter can be referred from a user-editable name
 Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)
 os.path added to default forced builtins
 Showing error better when code-completion fails (not only on error log)
@@ -9,6 +9,11 @@ Jython debugging - local variables are not updated
 Multiple forced builtins can be added/removed at once
 Fixed Python 2.6 grammar error: kwarg after unpacking arg list
 Fixed Python 3.0 grammar error: star expr on for
+
+Pydev Package Explorer
+    Added filter for the python nodes
+    Showing configuration errors
+    Showing the interpreter info 
 
 After 1.4.4
 

@@ -1314,75 +1314,95 @@
 	  </commonWizard>
 	  
       <commonFilter activeByDefault="false" 
-	     name="Pydev: Hide non-Pydev Projects"
+	     name="Pydev: non-Pydev Projects"
       	 description="%HideNonPydevProjects.description" 
       	 id="org.python.pydev.navigator.filters.hideNonPydevProjects" 
       	 class="org.python.pydev.navigator.filters.PydevProjectsFilter">
       </commonFilter>
       
   	  <commonFilter activeByDefault="true" 
-	  	  name="Pydev: Hide .pyc files" 
-	  	  description="Pydev: Hides *.pyc files" 
+	  	  name="Pydev: .pyc files" 
+	  	  description="Pydev: *.pyc files" 
 	  	  id="org.python.pydev.navigator.filters.hidePycFiles"
 	  	  class="org.python.pydev.navigator.filters.PycFilter"> 
 	  </commonFilter>		 
 	  
   	  <commonFilter activeByDefault="true" 
-	  	  name="Pydev: Hide .pyo files" 
-	  	  description="Pydev: Hides *.pyo files" 
+	  	  name="Pydev: .pyo files" 
+	  	  description="Pydev: *.pyo files" 
 	  	  id="org.python.pydev.navigator.filters.hidePyoFiles" 
 	  	  class="org.python.pydev.navigator.filters.PyoFilter"> 
 	  </commonFilter>		 
 
   	  <commonFilter activeByDefault="true" 
-	  	  name="Pydev: Hide *.py~ files" 
-	  	  description="Pydev: Hides *.py~ files" 
+	  	  name="Pydev: *.py~ files" 
+	  	  description="Pydev: *.py~ files" 
 	  	  id="org.python.pydev.navigator.filters.hidePyTildaFiles" 
 	  	  class="org.python.pydev.navigator.filters.PyTildaFilter"> 
 	  </commonFilter>		 
 	  
-      <commonFilter activeByDefault="false" 
-	      name="Pydev: Comment Nodes" 
-	      description="Pydev: Hide comment nodes" 
-	      id="org.python.pydev.navigator.filters.Comments"
-	  	  class="org.python.pydev.navigator.filters.CommentsFilter"> 
-      </commonFilter> 
-	  
 	  <!-- the ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'-->
       <commonFilter activeByDefault="true" 
-	      name="Pydev: Hide .* resources" 
-	      description="Pydev: Hide .*resources"  
+	      name="Pydev: .* resources" 
+	      description="Pydev: .*resources"  
 	      id="org.python.pydev.navigator.filters.startsWithDot"
 	  	  class="org.python.pydev.navigator.filters.DotStartFilter"> 
       </commonFilter>
       
       <commonFilter activeByDefault="true" 
 	      name="Pydev: .class resources" 
-	      description="Pydev: Hide .class resources" 
+	      description="Pydev: .class resources" 
 	      id="org.python.pydev.navigator.filters.endsWithClass"
 	  	  class="org.python.pydev.navigator.filters.ClassFilter"> 
       </commonFilter> 
       
-      <commonFilter activeByDefault="true" 
-	      name="Pydev: Import Nodes" 
-	      description="Pydev: Hide import nodes" 
-	      id="org.python.pydev.navigator.filters.Imports"
-	  	  class="org.python.pydev.navigator.filters.ImportsFilter"> 
-      </commonFilter> 
       
       <commonFilter activeByDefault="false" 
-	      name="Pydev: Hide closed projects" 
-	      description="Pydev: Hide closed projects" 
+	      name="Pydev: closed projects" 
+	      description="Pydev: closed projects" 
 	      id="org.python.pydev.navigator.filters.closedProject"
 	  	  class="org.python.pydev.navigator.filters.ClosedProjectsFilter"> 
       </commonFilter>
       
       <commonFilter activeByDefault="true" 
-	      name="Pydev: Hide custom specified filters" 
-	      description="Pydev: Hide custom specified filters" 
+	      name="Pydev: custom specified filters" 
+	      description="Pydev: custom specified filters" 
 	      id="org.python.pydev.navigator.filters.customFilters"
 	  	  class="org.python.pydev.navigator.filters.CustomFilters"> 
       </commonFilter>
+      
+      
+      <commonFilter activeByDefault="false" 
+          name="Pydev: Nodes: All" 
+          description="Pydev: Nodes: (hide all)" 
+          id="org.python.pydev.navigator.filters.pythonnodefilter"
+          class="org.python.pydev.navigator.filters.PythonNodeFilter"> 
+      </commonFilter>
+      
+      <commonFilter activeByDefault="true" 
+          name="Pydev: Nodes: Imports" 
+          description="Pydev: Nodes: Imports (hide)" 
+          id="org.python.pydev.navigator.filters.Imports"
+          class="org.python.pydev.navigator.filters.ImportsFilter"> 
+      </commonFilter> 
+      
+      <commonFilter activeByDefault="false" 
+          name="Pydev: Nodes: Comments" 
+          description="Pydev: Nodes: Comments (hide)" 
+          id="org.python.pydev.navigator.filters.Comments"
+          class="org.python.pydev.navigator.filters.CommentsFilter"> 
+      </commonFilter> 
+      
+      
+      <commonFilter activeByDefault="false" 
+          name="Pydev: Interpreter Info" 
+          description="Pydev: Interpreter Info (hide)" 
+          id="org.python.pydev.navigator.filters.interpreterinfofilter"
+          class="org.python.pydev.navigator.filters.InterpreterInfoFilter"> 
+      </commonFilter> 
+      
+
+      
       	  
     </extension>
 
