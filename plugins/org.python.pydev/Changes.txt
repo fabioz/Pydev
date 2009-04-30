@@ -8,6 +8,7 @@ Fixed recursion error on Python 3.0 grammar
 Jython debugging - local variables are not updated
 Multiple forced builtins can be added/removed at once
 Fixed Python 2.6 grammar error: kwarg after unpacking arg list
+Fixed Python 3.0 grammar error: star expr on for
 
 After 1.4.4
 

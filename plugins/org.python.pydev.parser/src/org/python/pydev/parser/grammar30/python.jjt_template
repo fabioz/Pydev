@@ -938,7 +938,7 @@ void Comma(): {} {$COMMA}
 
 //exprlist: expr (',' expr)* [',']
 void exprlist() #void: {}
-{ (expr() (LOOKAHEAD(2) $COMMA expr())* [Comma()]) #tuple(>1) }
+{ ((expr()|star_expr()) (LOOKAHEAD(2) $COMMA (expr()|star_expr()))* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void SmartTestList() #void: {}
