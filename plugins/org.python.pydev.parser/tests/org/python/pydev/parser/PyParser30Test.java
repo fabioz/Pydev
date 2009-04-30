@@ -24,7 +24,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testUnpacking();
+            test.testCall();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -521,6 +521,18 @@ public class PyParser30Test extends PyParserTestBase{
     
     public void testUnpacking2() {
         String s = "a, *b.b, c = range(5)";
+        
+        parseLegalDocStr(s);
+    }
+    
+    public void testCall() {
+        String s = "fubar(*list, x=4)";
+        
+        parseLegalDocStr(s);
+    }
+    
+    public void testUnpackingIn() {
+        String s = "for a,b,*rest in list: pass";
         
         parseLegalDocStr(s);
     }

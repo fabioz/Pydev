@@ -981,11 +981,26 @@ void classdef(): {}
 //                         |'**' test)
 void arglist() #void: {}
 {
-    normalargs() [$COMMA
-    [LOOKAHEAD(2) ExtraArgValueList() (LOOKAHEAD(2) $COMMA argument())*
-    [ $COMMA ExtraKeywordValueList() ] | ExtraKeywordValueList()]]
-|   [LOOKAHEAD(2) ExtraArgValueList()
-    [ $COMMA ExtraKeywordValueList() ] | ExtraKeywordValueList()]
+    normalargs() 
+    [
+        $COMMA
+        [
+            LOOKAHEAD(2) ExtraArgValueList() (LOOKAHEAD(2) $COMMA argument())*
+            [
+                $COMMA ExtraKeywordValueList() 
+            ] | ExtraKeywordValueList()
+        ]
+    ]
+    |   
+    [
+        LOOKAHEAD(2) 
+        ExtraArgValueList() (LOOKAHEAD(2) $COMMA argument())*
+        [ 
+            $COMMA ExtraKeywordValueList() 
+        ] 
+        | 
+        ExtraKeywordValueList()
+    ]
 }
 
 void normalargs() #void: {}

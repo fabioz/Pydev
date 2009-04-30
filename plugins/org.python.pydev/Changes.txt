@@ -7,7 +7,7 @@ Fixed problem finding definition for java class when the constructor was referen
 Fixed recursion error on Python 3.0 grammar
 Jython debugging - local variables are not updated
 Multiple forced builtins can be added/removed at once
-
+Fixed Python 2.6 grammar error: kwarg after unpacking arg list
 
 After 1.4.4
 

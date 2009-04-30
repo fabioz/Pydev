@@ -12,6 +12,7 @@ public class PyParser26Test extends PyParserTestBase{
         try {
             PyParser26Test test = new PyParser26Test();
             test.setUp();
+            test.testCall();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser26Test.class);
@@ -92,5 +93,16 @@ public class PyParser26Test extends PyParserTestBase{
         assertEquals("classdec2", NodeUtils.getRepresentationString(d.decs[1].func));        
     }
     
+    public void testCall() {
+        String s = "fubar(*list, x=4)";
+        
+        parseLegalDocStr(s);
+    }
+    
+    public void testCall2() {
+        String s = "fubar(1, *list, x=4)";
+        
+        parseLegalDocStr(s);
+    }
     
 }

@@ -1197,11 +1197,26 @@ void classdef(): {}
 //                         |'**' test)
 void arglist() #void: {}
 {
-    normalargs() [{this.findTokenAndAdd(",");} <COMMA>
-    [LOOKAHEAD(2) ExtraArgValueList() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> argument())*
-    [ {this.findTokenAndAdd(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]]
-|   [LOOKAHEAD(2) ExtraArgValueList()
-    [ {this.findTokenAndAdd(",");} <COMMA> ExtraKeywordValueList() ] | ExtraKeywordValueList()]
+    normalargs() 
+    [
+        {this.findTokenAndAdd(",");} <COMMA>
+        [
+            LOOKAHEAD(2) ExtraArgValueList() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> argument())*
+            [
+                {this.findTokenAndAdd(",");} <COMMA> ExtraKeywordValueList() 
+            ] | ExtraKeywordValueList()
+        ]
+    ]
+    |   
+    [
+        LOOKAHEAD(2) 
+        ExtraArgValueList() (LOOKAHEAD(2) {this.findTokenAndAdd(",");} <COMMA> argument())*
+        [ 
+            {this.findTokenAndAdd(",");} <COMMA> ExtraKeywordValueList() 
+        ] 
+        | 
+        ExtraKeywordValueList()
+    ]
 }
 
 void normalargs() #void: {}
