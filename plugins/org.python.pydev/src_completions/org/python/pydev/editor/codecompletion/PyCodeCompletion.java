@@ -34,7 +34,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -430,7 +430,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     theList.addAll(gottenComps);
                 }else{
                     //ok, get the completions for the class, only thing we have to take care now is that we may 
-                    //not have only 'self' for completion, but somthing lile self.foo.
+                    //not have only 'self' for completion, but something like self.foo.
                     //so, let's analyze our activation token to see what should we do.
                     
                     String trimmed = request.activationToken.replace('.', ' ').trim();
@@ -469,7 +469,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         
                         IModule module = AbstractModule.createModuleFromDoc(modName, requestFile, request.doc, request.nature, line);
                       
-                        ASTManager astMan = ((ASTManager)request.nature.getAstManager());
+                        AbstractASTManager astMan = ((AbstractASTManager)request.nature.getAstManager());
                         theList.addAll(new AssignAnalysis().getAssignCompletions(astMan, module, new CompletionState(line, col, request.activationToken, request.nature, request.qualifier)));
                     }
                 }
