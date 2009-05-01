@@ -9,6 +9,7 @@ Jython debugging - local variables are not updated
 Multiple forced builtins can be added/removed at once
 Fixed Python 2.6 grammar error: kwarg after unpacking arg list
 Fixed Python 3.0 grammar error: star expr on for
+Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)
 
 Pydev Package Explorer
     Added filter for the python nodes
