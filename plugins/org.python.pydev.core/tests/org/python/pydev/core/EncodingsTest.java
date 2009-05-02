@@ -12,6 +12,7 @@ public class EncodingsTest extends TestCase {
     public void testRefEncoding() throws Exception {
         String validEncoding = REF.getValidEncoding("latin-1", null);
         assertEquals("latin1", validEncoding);
+        assertNull(REF.getValidEncoding("utf-8-*-", null));
         
         //supported
         assertTrue(Charset.isSupported("latin1"));
@@ -21,7 +22,7 @@ public class EncodingsTest extends TestCase {
         assertTrue(Charset.isSupported("utf-8"));
 
         //not supported
-        assertTrue(!Charset.isSupported("latin-1"));
-        assertTrue(!Charset.isSupported("utf_8")); //why utf_16 is supported and utf_8 is not is something that really amazes me.
+        assertFalse(Charset.isSupported("latin-1"));
+        assertFalse(Charset.isSupported("utf_8")); //why utf_16 is supported and utf_8 is not is something that really amazes me.
     }
 }

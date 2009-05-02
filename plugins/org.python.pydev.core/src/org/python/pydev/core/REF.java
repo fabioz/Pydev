@@ -280,7 +280,7 @@ public class REF {
     /**
      * This method loads the contents of an object that was serialized.
      * 
-     * @param readFromFileMethod: see {@link #getStrAsObj(String, ICallback)}
+     * @param readFromFileMethod see {@link #getStrAsObj(String, ICallback)}
      * @param input is the input stream that contains the serialized object
      * 
      * @return the object that was previously serialized in the passed input stream.
@@ -382,7 +382,7 @@ public class REF {
         //change: checks if we have a buffered output stream (if we don't, one will be provided)
         OutputStream b = null;
         if (out instanceof BufferedOutputStream || out instanceof ByteArrayOutputStream){
-            b = (BufferedOutputStream) out;
+            b = out;
         }else{
             b = new BufferedOutputStream(out);
         }
@@ -869,7 +869,7 @@ public class REF {
     /**
      * @param fileLocation may be null
      */
-    public static String getValidEncoding(String ret, String fileLocation) throws IllegalCharsetNameException{
+    /*package*/static String getValidEncoding(String ret, String fileLocation){
         if(ret == null){
             return ret;
         }
@@ -884,19 +884,27 @@ public class REF {
                 return "UTF-8"; //exact match
             }
         }
-        if(lower.equals("iso-latin-1-unix")){ 
+        if(lower.equals("iso-latin-1-unix")){
             return "latin1"; //handle case from python libraries
         }
-        if(!Charset.isSupported(ret)){
-            if(LOG_ENCODING_ERROR){
-                String msg = "The encoding found: >>"+ret+"<< on "+fileLocation+" is not a valid encoding.";
-                Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
+        try{
+            if(!Charset.isSupported(ret)){
+                if(LOG_ENCODING_ERROR){
+                    String msg = "The encoding found: >>" + ret + "<< on " + fileLocation + " is not a valid encoding.";
+                    Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
+                }
+                return null; //ok, we've been unable to make it supported (better return null than an unsupported encoding).
             }
-            return null; //ok, we've been unable to make it supported (better return null than an unsupported encoding).
+            return ret;
+        }catch(IllegalCharsetNameException ex){
+            if(LOG_ENCODING_ERROR){
+                String msg = "The encoding found: >>" + ret + "<< on " + fileLocation + " is not a valid encoding.";
+                Log.log(IStatus.ERROR, msg, ex);
+            }
         }
-        return ret;
+        return null;
     }
-    
+
     /**
      * Useful to silent it on tests
      */
