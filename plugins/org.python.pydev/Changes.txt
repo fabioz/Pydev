@@ -11,6 +11,8 @@ Fixed Python 2.6 grammar error: kwarg after unpacking arg list
 Fixed Python 3.0 grammar error: star expr on for
 Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)
 Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)
+__future__ imports are always added/reorganized as the 1st import in the module
+Auto-import for from __future__ import with_statement will add a 'with' token instead of a with_statement token
 
 Pydev Package Explorer
     Added filter for the python nodes

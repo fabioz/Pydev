@@ -404,6 +404,52 @@ public class StringUtils {
     }
     
     /**
+     * Splits some string given many chars
+     */
+    public static List<String> split(String string, char ... toSplit) {
+        ArrayList<String> ret = new ArrayList<String>();
+        int len = string.length();
+        
+        int last = 0;
+        
+        char c = 0;
+        
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+
+            if(contains(c, toSplit)){
+                if(last != i){
+                    ret.add(string.substring(last, i));
+                }
+                while(contains(c, toSplit) && i < len-1){
+                    i++;
+                    c = string.charAt(i);
+                }
+                last = i;
+            }
+        }
+        if(!contains(c, toSplit)){
+            if(last == 0 && len > 0){
+                ret.add(string); //it is equal to the original (no dots)
+                
+            }else if(last < len){
+                ret.add(string.substring(last, len));
+                
+            }
+        }
+        return ret;
+    }
+    
+    private static boolean contains(char c, char[] toSplit){
+        for(char ch:toSplit){
+            if(c == ch){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Splits some string given some char in 2 parts. If the separator is not found, 
      * everything is put in the 1st part.
      */

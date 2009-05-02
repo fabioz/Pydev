@@ -116,7 +116,6 @@ public class PyOrganizeImports extends PyAction{
      * @param doc
      * @param endLineDelim
      */
-    @SuppressWarnings("unchecked")
     public static void performArrangeImports(IDocument doc, String endLineDelim, String indentStr){
         List<Tuple3<Integer, String, ImportHandle>> list = new ArrayList<Tuple3<Integer, String, ImportHandle>>();
         //Gather imports in a structure we can work on.
@@ -156,9 +155,30 @@ public class PyOrganizeImports extends PyAction{
         Collections.sort(list, new Comparator<Tuple3<Integer, String, ImportHandle>>() {
 
             public int compare(Tuple3<Integer, String, ImportHandle> o1, Tuple3<Integer, String, ImportHandle> o2) {
+                //When it's __future__, it has to appear before the others.
+                List<ImportHandleInfo> info1 = o1.o3.getImportInfo();
+                List<ImportHandleInfo> info2 = o2.o3.getImportInfo();
+                boolean isFuture1 = getIsFuture(info1);
+                boolean isFuture2 = getIsFuture(info2);
+                if(isFuture1 && !isFuture2){
+                    return -1;
+                }
+                if(!isFuture1 && isFuture2){
+                    return 1;
+                }
                 return o1.o2.compareTo(o2.o2);
             }
+
+            private boolean getIsFuture(List<ImportHandleInfo> info1){
+                String from1 = null;
+                if(info1.size() > 0){
+                    from1 = info1.get(0).getFromImportStr();
+                }
+                boolean isFuture  = from1 != null && from1.equals("__future__");
+                return isFuture;
+            }
         });
+        
         firstImport--; //add line after the the specified
         
         //now, re-add the imports

@@ -2,10 +2,9 @@ package org.python.pydev.core.docutils;
 
 import java.util.Iterator;
 
-import org.eclipse.jface.text.Document;
-import org.python.pydev.core.Tuple3;
-
 import junit.framework.TestCase;
+
+import org.eclipse.jface.text.Document;
 
 public class PyImportsHandlingTest extends TestCase {
 

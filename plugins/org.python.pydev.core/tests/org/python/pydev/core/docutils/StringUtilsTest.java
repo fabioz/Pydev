@@ -86,6 +86,57 @@ public class StringUtilsTest extends TestCase {
         
     }
     
+    public void testSplit() throws Exception{
+        String[] split = StringUtils.split("aaa bb  ", ' ').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
+        
+        split = StringUtils.split("  aaa  bb   ", ' ').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
+        
+        split = StringUtils.split("aaa  bb", ' ').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
+        
+        split = StringUtils.split("aaa  bb  ", ' ').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
+        
+        split = StringUtils.split("aaa ", ' ').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa"}, split));
+        
+        split = StringUtils.split(" aaa", ' ').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa"}, split));
+        
+        split = StringUtils.split("aaa", ' ').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa"}, split));
+        
+        split = StringUtils.split("aaa bb\tccc\nbb ", ' ', '\t', '\n').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb", "ccc", "bb"}, split));
+        
+        split = StringUtils.split("aaa bb\t\t ccc\nbb ", ' ', '\t', '\n').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb", "ccc", "bb"}, split));
+        
+        split = StringUtils.split("aaa bb\t \n", ' ', '\t', '\n').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
+        
+        split = StringUtils.split("aaa \t\nbb\t \n", ' ', '\t', '\n').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
+        
+        split = StringUtils.split("aaa", ' ', '\t', '\n').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa"}, split));
+        
+        split = StringUtils.split("aaa\t\n ", ' ', '\t', '\n').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa"}, split));
+        
+        split = StringUtils.split("\t\n  aaa\t\n ", ' ', '\t', '\n').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa"}, split));
+        
+        split = StringUtils.split("\t\n  aaa", ' ', '\t', '\n').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa"}, split));
+        
+        split = StringUtils.split(" aaa   ", new char[]{' '}).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa"}, split));
+    }
+    
+    
     public void testSplitOnString() throws Exception {
         String[] split = StringUtils.split("aaa bb ccc bb kkk bb ", " bb ").toArray(new String[0]);
         assertTrue(Arrays.equals(new String[]{"aaa", "ccc", "kkk"}, split));

@@ -14,11 +14,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.parser.jython.ast.commentType;
 
 /**
  * @author Fabio Zadrozny
@@ -109,7 +107,7 @@ public class PySelectionTest extends TestCase {
         "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(5, selection.getLineAvailableForImport());
+        assertEquals(5, selection.getLineAvailableForImport(false));
     }
 
     public void testImportLine2() {
@@ -123,7 +121,7 @@ public class PySelectionTest extends TestCase {
         "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(2, selection.getLineAvailableForImport());
+        assertEquals(2, selection.getLineAvailableForImport(false));
     }
     
     public void testImportLine3() {
@@ -141,7 +139,7 @@ public class PySelectionTest extends TestCase {
         "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(2, selection.getLineAvailableForImport());
+        assertEquals(2, selection.getLineAvailableForImport(false));
     }
 
     
@@ -155,7 +153,7 @@ public class PySelectionTest extends TestCase {
         "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(0, selection.getLineAvailableForImport());
+        assertEquals(0, selection.getLineAvailableForImport(false));
     }
     
     public void testImportLine5() {
@@ -166,7 +164,7 @@ public class PySelectionTest extends TestCase {
         "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(2, selection.getLineAvailableForImport());
+        assertEquals(2, selection.getLineAvailableForImport(false));
     }
     
     public void testImportLine6() {
@@ -180,7 +178,7 @@ public class PySelectionTest extends TestCase {
         //must be after the last from __future__ import statement
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(5, selection.getLineAvailableForImport());
+        assertEquals(5, selection.getLineAvailableForImport(false));
     }
     
     public void testImportLine7() {
@@ -196,7 +194,7 @@ public class PySelectionTest extends TestCase {
         //must be after the last from __future__ import statement
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(7, selection.getLineAvailableForImport());
+        assertEquals(7, selection.getLineAvailableForImport(false));
     }
     
     public void testImportLine8() {
@@ -208,7 +206,7 @@ public class PySelectionTest extends TestCase {
         "#we want it to appear in this line\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(4, selection.getLineAvailableForImport());
+        assertEquals(4, selection.getLineAvailableForImport(false));
     }
     
     public void testImportLine9() {
@@ -220,7 +218,7 @@ public class PySelectionTest extends TestCase {
         "#we want it to appear in this line\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(4, selection.getLineAvailableForImport());
+        assertEquals(4, selection.getLineAvailableForImport(false));
     }
     
     public void testImportLine10() {
@@ -234,7 +232,7 @@ public class PySelectionTest extends TestCase {
         "\n";
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
-        assertEquals(3, selection.getLineAvailableForImport());
+        assertEquals(3, selection.getLineAvailableForImport(false));
     }
     
     
@@ -538,5 +536,13 @@ public class PySelectionTest extends TestCase {
 
     public static void checkStrEquals(String string, String string2) {
         assertEquals(string.replace("\r\n", "\n"), string2.replace("\r\n", "\n"));
+    }
+    
+    public void testIsFuture() throws Exception{
+        assertFalse(PySelection.isFutureImportLine("from a import b"));
+        assertTrue(PySelection.isFutureImportLine("from __future__ import b"));
+        assertFalse(PySelection.isFutureImportLine("from __future import b"));
+        assertFalse(PySelection.isFutureImportLine("__future__ from a import b"));
+        assertTrue(PySelection.isFutureImportLine("from __future__ "));
     }
 }

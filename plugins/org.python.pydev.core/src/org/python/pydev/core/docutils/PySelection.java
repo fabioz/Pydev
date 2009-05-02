@@ -161,7 +161,22 @@ public class PySelection {
         this.textSelection = new TextSelection(doc, startLine.getOffset(), endLine.getOffset() + endLine.getLength() - startLine.getOffset());
     }
 
+    
     /**
+     * @return true if the passed line has a from __future__ import.
+     */
+    public static boolean isFutureImportLine(String line){
+        List<String> split = StringUtils.split(line, ' ', '\t');
+        int fromIndex = split.indexOf("from");
+        int futureIndex = split.indexOf("__future__");
+        boolean isFuture = fromIndex != -1 && futureIndex != -1 && futureIndex == fromIndex+1;
+        return isFuture;
+    }
+
+    /**
+     * @param isFutureImport if true, that means that the location found must match a from __future__ import (which
+     * must be always put as the 1st import)
+     *  
      * @return the line where a global import would be able to happen.
      * 
      * The 'usual' structure that we take into consideration for a py file here is:
@@ -175,9 +190,8 @@ public class PySelection {
      * imports #that's what we want to find out
      * 
      * code
-     * 
      */
-    public int getLineAvailableForImport() {
+    public int getLineAvailableForImport(boolean isFutureImport) {
         FastStringBuffer multiLineBuf = new FastStringBuffer();
         int[] firstGlobalLiteral = getFirstGlobalLiteral(multiLineBuf, 0);
 
@@ -189,27 +203,23 @@ public class PySelection {
                 
                 //let's see if the multiline comment found is in the beginning of the document
                 int lineOfOffset = getLineOfOffset(firstGlobalLiteral[1]);
-                return getFirstNonCommentLineOrAfterCurrentImports(lineOfOffset + 1);
+                return getLineAvailableForImport(lineOfOffset + 1, isFutureImport);
             }else{
 
-                return getFirstNonCommentLineOrAfterCurrentImports();
+                return getLineAvailableForImport(0, isFutureImport);
             }
         } else {
             
             //ok, no multiline comment, let's get the first line that is not a comment
-            return getFirstNonCommentLineOrAfterCurrentImports();
+            return getLineAvailableForImport(0, isFutureImport);
         }
     }
 
 
-    private int getFirstNonCommentLineOrAfterCurrentImports() {
-        return getFirstNonCommentLineOrAfterCurrentImports(0);
-    }
-    
     /**
      * @return the first line found that is not a comment.
      */
-    private int getFirstNonCommentLineOrAfterCurrentImports(int startingAtLine) {
+    private int getLineAvailableForImport(int startingAtLine, boolean isFutureImport) {
         int firstNonCommentLine = -1;
         int afterFirstImports = -1;
         
@@ -257,6 +267,9 @@ public class PySelection {
                     break;
                 }
             }
+        }
+        if(isFutureImport){
+            return firstNonCommentLine;
         }
         return afterFirstImports > firstNonCommentLine?afterFirstImports:firstNonCommentLine;
     }
@@ -1724,6 +1737,8 @@ public class PySelection {
     public IRegion getRegion() {
         return new Region(this.textSelection.getOffset(), this.textSelection.getLength());
     }
+
+
 
 
 
