@@ -110,7 +110,6 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             newForcedOffset = offset+1; //+1 because that's the len of the trigger
             return;
         }
-
         
         try {
             PySelection selection = new PySelection(document);
@@ -121,6 +120,15 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             boolean groupImports = ImportsPreferencesPage.getGroupImports();
             
             if (realImportRep.length() > 0){
+                
+                //Workaround for: https://sourceforge.net/tracker/?func=detail&aid=2697165&group_id=85796&atid=577329
+                //when importing from __future__ import with_statement, we actually want to add a 'with' token, not 
+                //with_statement token.
+                boolean isWithStatement = realImportRep.equals("from __future__ import with_statement");
+                if(isWithStatement){
+                    this.fReplacementString = "with";
+                }
+                
                 if(groupImports){
                     try {
                         realImportHandleInfo = new ImportHandleInfo(realImportRep);
@@ -152,7 +160,8 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                 
                 
                 if(lineToAddImport == -1){
-                    lineToAddImport = selection.getLineAvailableForImport();
+                    boolean isFutureImport = PySelection.isFutureImportLine(this.realImportRep);
+                    lineToAddImport = selection.getLineAvailableForImport(isFutureImport);
                 }
             }else{
                 lineToAddImport = -1;

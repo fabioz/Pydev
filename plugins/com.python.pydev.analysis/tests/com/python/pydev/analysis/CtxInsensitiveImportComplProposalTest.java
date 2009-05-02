@@ -12,7 +12,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         try {
             CtxInsensitiveImportComplProposalTest analyzer2 = new CtxInsensitiveImportComplProposalTest();
             analyzer2.setUp();
-            analyzer2.testCompletionGroupFromImport5();
+            analyzer2.testCompletionFutureComesFirst();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -125,6 +125,33 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         assertEquals("from XXX import WWW,                                                                     RRR # comment\n" +
                 "from XXX import YYY,                                                                     ZZZ,\\\n\tBBB\nBBB", doc.get());
     }
+    
+    
+    public void testCompletionFutureComesFirst() throws Exception {
+        Document doc = new Document("from a import b\n");
+
+        String replacementString="with_statement";
+        int replacementOffset=doc.getLength();
+        int cursorPosition=doc.getLength();
+        int replacementLength=0;
+        String realImportRep="from __future__ import with_statement";
+        int priority=0;
+        String additionalProposalInfo=null;
+        IContextInformation contextInformation=null;
+        String displayString="Import with_statement (from __future__)";
+        Image image = null;
+        
+        CtxInsensitiveImportComplProposal prop = new CtxInsensitiveImportComplProposal(replacementString, 
+                replacementOffset, replacementLength, cursorPosition, image, displayString, contextInformation, 
+                additionalProposalInfo, priority, realImportRep);
+        
+        
+        prop.indentString="\t";
+        prop.apply(doc, '\n', 0, doc.getLength());
+        
+        assertEquals("from __future__ import with_statement\nfrom a import b\nwith", doc.get());
+    }
+    
     
     
 }
