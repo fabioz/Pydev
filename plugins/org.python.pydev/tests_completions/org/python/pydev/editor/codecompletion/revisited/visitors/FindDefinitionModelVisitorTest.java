@@ -22,7 +22,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         try{
             FindDefinitionModelVisitorTest test = new FindDefinitionModelVisitorTest();
             test.setUp();
-            test.testFind5();
+            test.testFind6();
             test.tearDown();
             junit.textui.TestRunner.run(FindDefinitionModelVisitorTest.class);
         }catch(Exception e){
@@ -186,6 +186,30 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         assertEquals(1, defs.length);
         assertEquals("C", defs[0].value);
         assertSame(module, defs[0].module);
+    }
+    
+    /**
+     * @throws Exception
+     * 
+     */
+    public void testFind6() throws Exception {
+        String d;
+        d = "class C:            \n" +
+        "    def met1(self): \n" +
+        "        pass        \n" +
+        "                    \n" +
+        "def TestIt(foo):\n" +
+        "    pass\n";
+        
+        Document doc = new Document(d);
+        IModule module = AbstractModule.createModuleFromDoc("", null, doc, nature, -1);
+        //self.c is found as an assign
+        Definition[] defs = (Definition[]) module.findDefinition(CompletionStateFactory.getEmptyCompletionState("TestIt",nature, new CompletionCache()), -1, -1, nature);
+        
+        assertEquals(1, defs.length);
+        assertEquals("TestIt", defs[0].value);
+        assertEquals(5, defs[0].line);
+        assertEquals(5, defs[0].col);
         
     }
 }

@@ -1,4 +1,6 @@
 After 1.4.5
+
+Pydev
 The interpreter can be referred from a user-editable name
 Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)
 os.path added to default forced builtins
@@ -12,13 +14,20 @@ Fixed Python 3.0 grammar error: star expr on for
 Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)
 Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)
 __future__ imports are always added/reorganized as the 1st import in the module
-Auto-import for from __future__ import with_statement will add a 'with' token instead of a with_statement token
 
 Pydev Package Explorer
     Added filter for the python nodes
     Showing configuration errors
     Showing the interpreter info 
     
+
+
+Pydev Extensions
+
+Auto-import for from __future__ import with_statement will add a 'with' token instead of a with_statement token
+Globals browser improved (only for Eclipse 3.3 onwards, older versions will have the old interface):
+    - Can filter with working sets
+    - Can match based on module names. E.g.: django.A would match all the django classes/methods/attributes starting with 'A'
 
 
 After 1.4.4
