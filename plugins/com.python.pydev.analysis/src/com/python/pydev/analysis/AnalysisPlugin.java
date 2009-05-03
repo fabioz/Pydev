@@ -190,4 +190,8 @@ public class AnalysisPlugin extends AbstractUIPlugin {
         return file;
     }
 
+    public static String getPluginID() {
+        return getDefault().getBundle().getSymbolicName();
+    }
+
 }

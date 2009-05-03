@@ -39,6 +39,14 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
         init();
     }
     
+    public IInterpreterManager getManager(){
+        return manager;
+    }
+    
+    public String getAdditionalInfoInterpreter(){
+        return additionalInfoInterpreter;
+    }
+    
     /**
      * @return the path to the folder we want to keep things on
      */

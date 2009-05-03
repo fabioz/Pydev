@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.dialogs.TwoPaneElementSelector;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -30,17 +30,13 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 public class PyGlobalsBrowser extends PyAction{
 
     public void run(IAction action) {
-        //check org.eclipse.jdt.internal.ui.dialogs.OpenTypeSelectionDialog2 (this is the class that does it for java)
-        
         IPythonNature pythonNature = getPyEdit().getPythonNature();
         PySelection ps = new PySelection(this.getPyEdit());
         String selectedText = ps.getSelectedText();
 
         if(pythonNature != null){
-            Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> tup = AdditionalProjectInterpreterInfo.getAdditionalInfoAndNature(pythonNature, true, true);
-            List<AbstractAdditionalInterpreterInfo> additionalInfo = tup.o1;
-            doSelect(tup.o2, additionalInfo, selectedText);
-            
+            IInterpreterManager manager = pythonNature.getRelatedInterpreterManager();
+            getFromManagerAndRelatedNatures(selectedText, manager);
         }else{
             getFromSystemManager(selectedText);
         }
@@ -51,27 +47,18 @@ public class PyGlobalsBrowser extends PyAction{
     /**
      * @param selectedText the text that should be selected in the beginning (may be null)
      */
-    public void getFromSystemManager(String selectedText) {
-        List<AbstractAdditionalInterpreterInfo> additionalInfo = new ArrayList<AbstractAdditionalInterpreterInfo>();
-        List<IPythonNature> pythonNatures = new ArrayList<IPythonNature>();
+    private void getFromSystemManager(String selectedText) {
         //is null
         Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getPyEdit().getEditorFile());
         if(infoForFile != null){
             IPythonNature systemPythonNature = infoForFile.o1;
             if(systemPythonNature == null){
+                getFromWorkspace(selectedText);
                 return;
             }
             
             IInterpreterManager manager = infoForFile.o1.getRelatedInterpreterManager();
-            AbstractAdditionalInterpreterInfo additionalSystemInfo = 
-                AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, manager.getDefaultInterpreter());
-            
-            if(additionalSystemInfo == null){
-                return;
-            }
-            additionalInfo.add(additionalSystemInfo);
-            pythonNatures.add(systemPythonNature);
-            doSelect(pythonNatures, additionalInfo, selectedText);
+            getFromManagerAndRelatedNatures(selectedText, manager);
             
         }else{
             getFromWorkspace(selectedText);
@@ -94,6 +81,14 @@ public class PyGlobalsBrowser extends PyAction{
             return;
         }
         
+        getFromManagerAndRelatedNatures(selectedText, useManager);
+        
+    }
+
+    /**
+     * Gets it using all the natures that match a given interpreter manager.
+     */
+    private static void getFromManagerAndRelatedNatures(String selectedText, IInterpreterManager useManager){
         AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
                 useManager, useManager.getDefaultInterpreter());
         if(additionalSystemInfo == null){
@@ -112,8 +107,8 @@ public class PyGlobalsBrowser extends PyAction{
             }
         }
         doSelect(natures, additionalInfo, selectedText);
-        
     }
+    
 
     /**
      * @param pythonNatures the natures from were we can get info
@@ -122,24 +117,18 @@ public class PyGlobalsBrowser extends PyAction{
      */
     public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalInterpreterInfo> additionalInfo, 
             String selectedText) {
-        TwoPaneElementSelector dialog = new GlobalsTwoPaneElementSelector(getShell());
-        dialog.setTitle("Pydev: Globals Browser");
-        dialog.setMessage("Filter");
-        if(selectedText != null && selectedText.length() > 0){
-            dialog.setFilter(selectedText);
-        }
         
-        List<IInfo> lst = new ArrayList<IInfo>();
-        
-        for(AbstractAdditionalInterpreterInfo info:additionalInfo){
-            lst.addAll(info.getAllTokens());
-        }
-        
-        dialog.setElements(lst.toArray());
+        SelectionDialog dialog = GlobalsDialogFactory.create(getShell(), additionalInfo, selectedText);
+
         dialog.open();
         Object[] result = dialog.getResult();
         if(result != null && result.length > 0){
-            IInfo entry = (IInfo) result[0];
+            IInfo entry;
+            if(result[0] instanceof AdditionalInfoAndIInfo){
+                entry = ((AdditionalInfoAndIInfo)result[0]).info;
+            }else{
+                entry = (IInfo) result[0];
+            }
             List<ItemPointer> pointers = new ArrayList<ItemPointer>();
             
             CompletionCache completionCache = new CompletionCache();
@@ -152,7 +141,7 @@ public class PyGlobalsBrowser extends PyAction{
                 AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry, completionCache);
                 if(pointers.size() > 0){
                     new PyOpenAction().run(pointers.get(0));
-                    return; //don't check the other natures
+                    break; //don't check the other natures
                 }
             }
         }
