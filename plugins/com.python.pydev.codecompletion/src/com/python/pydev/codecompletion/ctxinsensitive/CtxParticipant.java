@@ -14,7 +14,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.ProjectMisconfiguredException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
@@ -83,7 +83,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             try {
                 additionalInfoForProject = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
                         PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
-            } catch (ProjectMisconfiguredException e) {
+            } catch (MisconfigurationException e) {
                 throw new RuntimeException(e);
             }
         }else{
@@ -151,7 +151,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 
     
     private Collection<CtxInsensitiveImportComplProposal> getThem(CompletionRequest request, ICompletionState state, 
-            boolean addAutoImport) {
+            boolean addAutoImport) throws MisconfigurationException {
         
         ArrayList<CtxInsensitiveImportComplProposal> completions = new ArrayList<CtxInsensitiveImportComplProposal>();
         if(request.isInCalltip){
@@ -243,7 +243,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
     }
     
     @SuppressWarnings("unchecked")
-    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) {
+    public Collection getGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException {
         return getThem(request, state, AutoImportsPreferencesPage.doAutoImport());
     }
 
@@ -267,9 +267,10 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
 
     /**
      * IPyDevCompletionParticipant
+     * @throws MisconfigurationException 
      */
     @SuppressWarnings("unchecked")
-    public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state) {
+    public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException {
         return getThem(request, state, false);
     }
 

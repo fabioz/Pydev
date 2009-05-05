@@ -30,6 +30,7 @@ import org.eclipse.jface.text.link.ProposalPosition;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -154,8 +155,9 @@ public class PyRenameInFileAction extends Action{
      * @throws BadLocationException
      * @throws OperationCanceledException
      * @throws CoreException
+     * @throws MisconfigurationException 
      */
-    private boolean fillWithOccurrences(IDocument document, LinkedPositionGroup group, IProgressMonitor monitor, PySelection ps) throws BadLocationException, OperationCanceledException, CoreException {
+    private boolean fillWithOccurrences(IDocument document, LinkedPositionGroup group, IProgressMonitor monitor, PySelection ps) throws BadLocationException, OperationCanceledException, CoreException, MisconfigurationException {
         
         RefactoringRequest req = MarkOccurrencesJob.getRefactoringRequest(pyEdit, MarkOccurrencesJob.getRefactorAction(pyEdit), ps);
         if(monitor.isCanceled()){

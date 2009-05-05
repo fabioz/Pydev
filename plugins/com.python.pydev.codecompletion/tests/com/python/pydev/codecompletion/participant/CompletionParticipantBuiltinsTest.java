@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.TestDependent;
@@ -85,7 +83,7 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
 //        
 //    }
     
-    public void testImportCompletion2() throws CoreException, BadLocationException {
+    public void testImportCompletion2() throws Exception {
         if(TestDependent.HAS_WXPYTHON_INSTALLED){
             CompiledModule module = new CompiledModule("wx", this.getManager());
             

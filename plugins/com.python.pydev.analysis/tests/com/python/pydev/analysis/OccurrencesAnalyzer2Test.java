@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.TestIndentPrefs;
@@ -180,7 +181,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
     
-    public void testPathFound() throws IOException{
+    public void testPathFound() throws IOException, MisconfigurationException{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/with_path.py");
@@ -191,7 +192,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
     
-    public void testPathFound2() throws IOException{
+    public void testPathFound2() throws IOException, MisconfigurationException{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/__init__.py");

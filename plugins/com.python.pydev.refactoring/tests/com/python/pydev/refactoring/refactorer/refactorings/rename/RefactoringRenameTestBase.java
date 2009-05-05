@@ -19,6 +19,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
@@ -185,13 +186,17 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
      * (we must have more modules in the system than in the project)
      */
     protected void checkSize() {
-        IInterpreterManager iMan = getInterpreterManager();
-        InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
-        assertTrue(info.getModulesManager().getSize(true) > 0);
-        
-        int size = ((ASTManager)natureRefactoring.getAstManager()).getSize();
-        assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
-                "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
+        try{
+            IInterpreterManager iMan = getInterpreterManager();
+            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
+            assertTrue(info.getModulesManager().getSize(true) > 0);
+            
+            int size = ((ASTManager)natureRefactoring.getAstManager()).getSize();
+            assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
+                    "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
         
     }
 

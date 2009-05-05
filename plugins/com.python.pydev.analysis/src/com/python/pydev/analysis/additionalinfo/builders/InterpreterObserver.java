@@ -26,7 +26,6 @@ import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.JobProgressComunicator;
@@ -49,27 +48,22 @@ public class InterpreterObserver implements IInterpreterObserver {
             System.out.println("notifyDefaultPythonpathRestored "+ interpreter);
         }
         try {
-            try {
-                final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
-                int grammarVersion = interpreterInfo.getGrammarVersion();
-                AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
-                if(currInfo != null){
-                    currInfo.clearAllInfo();
-                }
-                InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
-                ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
-                AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
-                        "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
-                        new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
+            final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
+            int grammarVersion = interpreterInfo.getGrammarVersion();
+            AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
+            if(currInfo != null){
+                currInfo.clearAllInfo();
+            }
+            InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
+            ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
+            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
+                    "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
+                    new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
 
-                if (additionalSystemInfo != null) {
-                    //ok, set it and save it
-                    AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, interpreter, additionalSystemInfo);
-                    AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager, interpreter);
-                }
-            } catch (NotConfiguredInterpreterException e) {
-                //ok, nothing configured, nothing to do...
-                PydevPlugin.log(e);
+            if (additionalSystemInfo != null) {
+                //ok, set it and save it
+                AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, interpreter, additionalSystemInfo);
+                AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager, interpreter);
             }
         } catch (Throwable e) {
             PydevPlugin.log(e);

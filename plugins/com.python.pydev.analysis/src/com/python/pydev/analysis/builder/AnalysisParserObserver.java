@@ -13,7 +13,9 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.ChangedParserInfoForObservers;
 import org.python.pydev.core.parser.ErrorParserInfoForObservers;
 import org.python.pydev.core.parser.IParserObserver;
@@ -103,6 +105,8 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
                         AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentTime); 
                 
                 visitor.visitingEnded(new NullProgressMonitor());
+            }catch(MisconfigurationException e){
+                Log.log(e); //Not much we can do about it.
             }finally{
                 nature.endRequests();
             }

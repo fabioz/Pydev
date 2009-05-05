@@ -2,6 +2,7 @@ package com.python.pydev.analysis;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -280,8 +281,12 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     private IMessage[] analyzeDoc() {
-        return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc, 
-                new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        try{
+            return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), prefs, doc, 
+                    new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
     }
     
     public void testQt() throws Exception {

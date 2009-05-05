@@ -14,6 +14,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -131,8 +132,12 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     }
 
     private IMessage[] analyze() {
-        return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), 
-                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        try{
+            return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0), 
+                    prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
     }
     
 
@@ -145,8 +150,12 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
             
             //try to load it from previous session
             IInterpreterManager interpreterManager = getInterpreterManager();
-            if(forceAdditionalInfoRecreation || !AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager, interpreterManager.getDefaultInterpreter())){
-                observer.notifyDefaultPythonpathRestored(interpreterManager, interpreterManager.getDefaultInterpreter(), monitor);
+            try{
+                if(forceAdditionalInfoRecreation || !AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(interpreterManager, interpreterManager.getDefaultInterpreter())){
+                    observer.notifyDefaultPythonpathRestored(interpreterManager, interpreterManager.getDefaultInterpreter(), monitor);
+                }
+            }catch(MisconfigurationException e){
+                throw new RuntimeException(e);
             }
         }
         return restored;

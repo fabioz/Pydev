@@ -29,6 +29,7 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModelExtension;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -177,9 +178,10 @@ public class MarkOccurrencesJob extends Job{
 
     /**
      * @return a tuple with the refactoring request, the processor and a boolean indicating if all pre-conditions succedded.
+     * @throws MisconfigurationException 
      */
     private Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean> checkAnnotations(PyEdit pyEdit, 
-            IDocumentProvider documentProvider, IProgressMonitor monitor) throws BadLocationException, OperationCanceledException, CoreException {
+            IDocumentProvider documentProvider, IProgressMonitor monitor) throws BadLocationException, OperationCanceledException, CoreException, MisconfigurationException {
         if(!MarkOccurrencesPreferencesPage.useMarkOccurrences()){
             return new Tuple3<RefactoringRequest,PyRenameEntryPoint,Boolean>(null,null,false);
         }
@@ -314,8 +316,9 @@ public class MarkOccurrencesJob extends Job{
      * @param ps the pyselection used (if null it will be created in this method)
      * @return a refactoring request suitable for finding the locals in the file
      * @throws BadLocationException
+     * @throws MisconfigurationException 
      */
-    public static RefactoringRequest getRefactoringRequest(final PyEdit pyEdit, PyRefactorAction pyRefactorAction, PySelection ps) throws BadLocationException {
+    public static RefactoringRequest getRefactoringRequest(final PyEdit pyEdit, PyRefactorAction pyRefactorAction, PySelection ps) throws BadLocationException, MisconfigurationException {
         final RefactoringRequest req = pyRefactorAction.getRefactoringRequest();
         req.ps = ps;
         req.fillInitialNameAndOffset();

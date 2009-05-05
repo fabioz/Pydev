@@ -16,6 +16,7 @@ import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -51,7 +52,13 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
         //Put things from the memo to final variables as we might need them later on and we cannot get them from
         //the memo later.
-        final String moduleName = getModuleName(resource, nature);
+        final String moduleName;
+        try{
+            moduleName = getModuleName(resource, nature);
+        }catch(MisconfigurationException e){
+            Log.log(e);
+            return;
+        }
         final SourceModule module = (SourceModule) memo.get(MODULE_CACHE);
         
         //depending on the level of analysis we have to do, we'll decide whether we want
@@ -68,7 +75,11 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 				    if(module != null){
 				        return module;
 				    }else{
-				        return createSoureModule(resource, document, moduleName);
+				        try{
+                            return createSoureModule(resource, document, moduleName);
+                        }catch(MisconfigurationException e){
+                            throw new RuntimeException(e);
+                        }
 				    }
 					
 				}else if(arg == IAnalysisBuilderRunnable.DEFINITIONS_MODULE){
@@ -132,7 +143,13 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         	}
         }
         
-        final String moduleName = getModuleName(resource, nature);
+        String moduleName;
+        try{
+            moduleName = getModuleName(resource, nature);
+        }catch(MisconfigurationException e){
+            Log.log(e);
+            return;
+        }
         
         final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
                 document, resource, moduleCallback, isFullBuild(), moduleName, 
@@ -184,7 +201,13 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         }
         if(!isFullBuild()){
             //on a full build, it'll already remove all the info
-            String moduleName = getModuleName(resource, nature);
+            String moduleName;
+            try{
+                moduleName = getModuleName(resource, nature);
+            }catch(MisconfigurationException e){
+                Log.log(e);
+                return;
+            }
             
             long documentTime = this.getDocumentTime();
             if(documentTime == -1){

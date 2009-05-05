@@ -10,6 +10,7 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
@@ -17,10 +18,12 @@ import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.refactoring.ast.GetSelectedStmtsVisitor;
 import com.python.pydev.refactoring.ast.PyASTChanger;
@@ -81,15 +84,29 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
     @Override
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
         RefactoringStatus status = new RefactoringStatus();
+        
+        final SimpleNode ast = request.getAST();
+        PyASTChanger astChanger;
+        try{
+            astChanger = new PyASTChanger(request.getDoc(), ast, request.nature.getGrammarVersion());
+        }catch(MisconfigurationException e){
+            RefactoringStatusContext cxt = new RefactoringStatusContext(){
+            
+                @Override
+                public Object getCorrespondingElement(){
+                    return ast;
+                }
+            };;
+            status.addEntry(RefactoringStatus.ERROR, e.getMessage(), cxt, PydevPlugin.getPluginID(), 1111);
+            return status;
+        }
+        
         fChange = new CompositeChange("ExtractMethodChange: "+request.inputName);
         
         DocumentChange docChange = new DocumentChange("ExtractMethodChange: ", request.getDoc());
         MultiTextEdit rootEdit = new MultiTextEdit();
         docChange.setEdit(rootEdit);
         docChange.setKeepPreviewEdits(true);
-        
-        SimpleNode ast = request.getAST();
-        PyASTChanger astChanger = new PyASTChanger(request.getDoc(), ast, request.nature.getGrammarVersion());
         Expr expr = new Expr(PyASTFactory.makeCall(request.inputName));
         astChanger.addStmtToNode(ast, "body", 0, expr, false);
         

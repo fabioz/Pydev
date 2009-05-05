@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.ast.Module;
@@ -38,7 +39,7 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
         }
     }
 
-    public void testIntegrityInModuleHasNoFile() {
+    public void testIntegrityInModuleHasNoFile() throws MisconfigurationException {
         IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertTrue(info.desc.toString(), info.allOk);
         
@@ -51,7 +52,7 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
         fixAndCheckAllOk(info);
     }
 
-    public void testIntegrityFileHasNoMemory() throws IOException {
+    public void testIntegrityFileHasNoMemory() throws IOException, MisconfigurationException {
         File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/initially_not_existant.py");
         file.createNewFile();
         
@@ -82,7 +83,7 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
         
     }
 
-    private void fixAndCheckAllOk(IntegrityInfo info) {
+    private void fixAndCheckAllOk(IntegrityInfo info) throws MisconfigurationException {
         
         info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, true);
         assertTrue(info.desc.toString(), !info.allOk);

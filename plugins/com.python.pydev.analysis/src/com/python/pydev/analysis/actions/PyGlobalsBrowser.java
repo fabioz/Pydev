@@ -9,8 +9,10 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -30,13 +32,23 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
 public class PyGlobalsBrowser extends PyAction{
 
     public void run(IAction action) {
-        IPythonNature pythonNature = getPyEdit().getPythonNature();
+        IPythonNature pythonNature;
+        try{
+            pythonNature = getPyEdit().getPythonNature();
+        }catch(MisconfigurationException e1){
+            handle(e1);
+            return;
+        }
         PySelection ps = new PySelection(this.getPyEdit());
         String selectedText = ps.getSelectedText();
 
         if(pythonNature != null){
             IInterpreterManager manager = pythonNature.getRelatedInterpreterManager();
-            getFromManagerAndRelatedNatures(selectedText, manager);
+            try{
+                getFromManagerAndRelatedNatures(selectedText, manager);
+            }catch(MisconfigurationException e){
+                handle(e);
+            }
         }else{
             getFromSystemManager(selectedText);
         }
@@ -58,7 +70,11 @@ public class PyGlobalsBrowser extends PyAction{
             }
             
             IInterpreterManager manager = infoForFile.o1.getRelatedInterpreterManager();
-            getFromManagerAndRelatedNatures(selectedText, manager);
+            try{
+                getFromManagerAndRelatedNatures(selectedText, manager);
+            }catch(MisconfigurationException e){
+                handle(e);
+            }
             
         }else{
             getFromWorkspace(selectedText);
@@ -81,14 +97,23 @@ public class PyGlobalsBrowser extends PyAction{
             return;
         }
         
-        getFromManagerAndRelatedNatures(selectedText, useManager);
+        try{
+            getFromManagerAndRelatedNatures(selectedText, useManager);
+        }catch(MisconfigurationException e){
+            handle(e);
+        }
         
+    }
+
+    private static void handle(MisconfigurationException e){
+        Log.log(e);
     }
 
     /**
      * Gets it using all the natures that match a given interpreter manager.
+     * @throws MisconfigurationException 
      */
-    private static void getFromManagerAndRelatedNatures(String selectedText, IInterpreterManager useManager){
+    private static void getFromManagerAndRelatedNatures(String selectedText, IInterpreterManager useManager) throws MisconfigurationException{
         AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
                 useManager, useManager.getDefaultInterpreter());
         if(additionalSystemInfo == null){

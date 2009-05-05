@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -123,7 +124,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
     
     
-    public void testAddInner() {
+    public void testAddInner() throws MisconfigurationException {
         String doc = 
         "class Test:\n" +
         "    def m1(self):\n" +
@@ -143,7 +144,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         
     }
     
-    public void testAddAttrs() {
+    public void testAddAttrs() throws MisconfigurationException {
         String doc = 
 "GLOBAL_ATTR = 1\n" +
 "GLOBAL2.IGNORE_THIS = 2\n" +
@@ -187,7 +188,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     }
 
-    public void testAddInner2() {
+    public void testAddInner2() throws MisconfigurationException {
         String doc = 
             "class Test:\n" +
             "    class Test2:\n" +
@@ -214,7 +215,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
     
 
-    public void testCompleteIndex() {
+    public void testCompleteIndex() throws MisconfigurationException {
         String doc = 
             "class Test:\n" +
             "    class Test2:\n" +

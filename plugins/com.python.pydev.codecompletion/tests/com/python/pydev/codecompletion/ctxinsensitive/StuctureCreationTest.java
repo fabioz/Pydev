@@ -5,8 +5,7 @@ package com.python.pydev.codecompletion.ctxinsensitive;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
@@ -51,19 +50,24 @@ public class StuctureCreationTest extends AdditionalInfoTestsBase {
     // ------------------------------------------------------------------------------------------------- tests
     
     public void testSetup() {
-        AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                getInterpreterManager(), getInterpreterManager().getDefaultInterpreter());
+        AbstractAdditionalInterpreterInfo additionalSystemInfo;
+        try{
+            additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+                    getInterpreterManager(), getInterpreterManager().getDefaultInterpreter());
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
         assertTrue(additionalSystemInfo.getAllTokens().size() > 0);
         List<IInfo> tokensStartingWith = additionalSystemInfo.getTokensStartingWith("TestC", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertIsIn("TestCase", "unittest", tokensStartingWith);
     }
 
     
-    public void testCompletion() throws CoreException, BadLocationException {
+    public void testCompletion() throws Exception {
         requestCompl("Tes", -1, -1, new String[]{"TestCase - unittest"}); //at least 3 chars needed by default
     }
     
-    public void testSetup2() throws CoreException, BadLocationException {
+    public void testSetup2() throws Exception {
         AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
         List<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("MyInvalidClassInInvalidFil", AbstractAdditionalInterpreterInfo.TOP_LEVEL);

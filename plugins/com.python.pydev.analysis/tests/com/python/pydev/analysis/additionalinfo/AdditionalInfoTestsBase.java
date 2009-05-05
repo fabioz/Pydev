@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -43,7 +41,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 
     protected ArrayList<IToken> imports;
     
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws Exception{
         if(useOriginalRequestCompl){
             return super.requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
         }

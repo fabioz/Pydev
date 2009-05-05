@@ -31,7 +31,7 @@ public class TreeSelectionDialogTest extends SWTTest {
         return Display.getCurrent();
     }
 
-    public void testIt(){
+    public void testIt() throws Exception{
         if(display != null){
             String doc = 
             "GLOBAL_ATTR = 1\n" +

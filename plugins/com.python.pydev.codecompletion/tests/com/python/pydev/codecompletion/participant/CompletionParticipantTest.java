@@ -9,9 +9,7 @@ package com.python.pydev.codecompletion.participant;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICallback;
@@ -66,7 +64,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     }
     
 
-    public void testImportCompletion() throws CoreException, BadLocationException {
+    public void testImportCompletion() throws Exception {
         participant = new ImportsCompletionParticipant();
         
         //check simple
@@ -131,7 +129,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
     }
     
 
-    public void testImportCompletionFromZip2() throws CoreException, BadLocationException {
+    public void testImportCompletionFromZip2() throws Exception {
         participant = new ImportsCompletionParticipant();
         ICompletionProposal[] proposals = requestCompl("myzip", -1, -1, new String[]{});
         assertContains("myzipfile - myzipmodule", proposals);
@@ -142,7 +140,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         assertContains("myeggmodule", proposals);
     }
     
-    public void testImportCompletionFromZip() throws CoreException, BadLocationException {
+    public void testImportCompletionFromZip() throws Exception {
         participant = new CtxParticipant();
         ICompletionProposal[] proposals = requestCompl("myzipc", -1, -1, new String[]{});
         assertContains("MyZipClass - myzipmodule.myzipfile", proposals);
@@ -151,7 +149,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         assertContains("MyEggClass - myeggmodule.myeggfile", proposals);
     }
     
-    public void testImportCompletion2() throws CoreException, BadLocationException {
+    public void testImportCompletion2() throws Exception {
         participant = new CtxParticipant();
         ICompletionProposal[] proposals = requestCompl("xml", -1, -1, new String[]{});
         assertNotContains("xml - xmlrpclib", proposals);

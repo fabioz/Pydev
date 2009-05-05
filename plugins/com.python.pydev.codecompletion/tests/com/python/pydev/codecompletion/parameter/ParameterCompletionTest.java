@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
@@ -75,14 +73,14 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
     }
 
     
-    public void testCompletion() throws CoreException, BadLocationException {
+    public void testCompletion() throws Exception {
         String s = "" +
                 "def m1(a):\n" +
                 "    a.existingM";
         requestCompl(s, -1, -1, new String[]{"existingMethod()"}); //at least 3 chars needed by default
     }
     
-    public void testCompletion2() throws CoreException, BadLocationException {
+    public void testCompletion2() throws Exception {
         String s = "" +
         "def m1(a):\n" +
         "    a.another()\n" +

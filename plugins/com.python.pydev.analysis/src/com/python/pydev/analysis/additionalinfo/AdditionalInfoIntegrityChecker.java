@@ -18,6 +18,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
@@ -58,7 +59,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
         }
     }
     
-    public static IntegrityInfo checkIntegrity(IPythonNature nature, IProgressMonitor monitor, boolean fix){
+    public static IntegrityInfo checkIntegrity(IPythonNature nature, IProgressMonitor monitor, boolean fix) throws MisconfigurationException{
         IntegrityInfo info = new IntegrityInfo();
         StringBuffer buffer = info.desc;
         
@@ -110,8 +111,9 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
 
     /**
      * @param expectedModuleNames the modules that exist in the disk (an actual file is found and checked for the module it resolves to)
+     * @throws MisconfigurationException 
      */
-    private static void check(HashSet<ModulesKey> expectedModuleNames, IntegrityInfo info, boolean fix) {
+    private static void check(HashSet<ModulesKey> expectedModuleNames, IntegrityInfo info, boolean fix) throws MisconfigurationException {
         StringBuffer buffer = info.desc;
         ModulesKey[] onlyDirectModules = info.modulesManager.getOnlyDirectModules();
         TreeSet<ModulesKey> inModulesManager = new TreeSet<ModulesKey>(Arrays.asList(onlyDirectModules));
@@ -207,8 +209,12 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
             public void run() {
                 List<IPythonNature> allPythonNatures = PythonNature.getAllPythonNatures();
                 StringBuffer buf = new StringBuffer();
-                for (IPythonNature nature : allPythonNatures) {
-                    buf.append(checkIntegrity(nature, new NullProgressMonitor(), true));
+                try{
+                    for (IPythonNature nature : allPythonNatures) {
+                        buf.append(checkIntegrity(nature, new NullProgressMonitor(), true));
+                    }
+                }catch(MisconfigurationException e){
+                    buf.append(e.getMessage());
                 }
                 UIUtils.showString(buf.toString());
             }

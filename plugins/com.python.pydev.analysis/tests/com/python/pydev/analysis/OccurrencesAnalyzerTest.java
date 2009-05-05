@@ -9,13 +9,13 @@ import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
 import static com.python.pydev.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.TestIndentPrefs;
@@ -288,11 +288,15 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     private IMessage[] analyzeDoc2() {
-        return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc("foo", null, doc, nature, 0), 
-                prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        try{
+            return analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModuleFromDoc("foo", null, doc, nature, 0), 
+                    prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
     }
     
-    public void testWrongLine(){
+    public void testWrongLine() throws MisconfigurationException{
         doc = new Document(
                 "ExportMethodTransient(True,\n" +
                 "                      0,\n" +
@@ -758,7 +762,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         checkNoError();
     }
     
-    public void testRelImport() throws IOException{
+    public void testRelImport() throws Exception{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"relative/__init__.py");
@@ -770,7 +774,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
     
-    public void testImportNotFound8() throws IOException{
+    public void testImportNotFound8() throws Exception{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"testenc/encimport.py");
@@ -781,7 +785,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
     
-    public void testUnusedWildRelativeImport() throws IOException{
+    public void testUnusedWildRelativeImport() throws Exception{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"testOtherImports/f1.py");
@@ -840,7 +844,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(2, set.size()); //that's because we actually only have those 2 messages (but one appears 2 times)
     }
     
-    public void testRelativeNotUndefined() throws IOException{
+    public void testRelativeNotUndefined() throws Exception{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py");
@@ -851,7 +855,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
     
-    public void testRelativeNotUndefined2() throws IOException{
+    public void testRelativeNotUndefined2() throws Exception{
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"relative/mod2.py");
@@ -1209,8 +1213,13 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertContainsMsg("Unused parameter: show", msgs, 2);
     }
 
-    private IMessage[] analyzeDoc() {
-        final SourceModule mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0);
+    private IMessage[] analyzeDoc()  {
+        SourceModule mod;
+        try{
+            mod = (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, 0);
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
         if(mod.parseError != null){
             throw new RuntimeException(mod.parseError);
         }
@@ -1218,7 +1227,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
     }
     
-    public void testUnusedVariable6() {
+    public void testUnusedVariable6() throws Exception {
         doc = new Document(
                 "def m():         \n"+  
                 "    try:         \n"+       
@@ -1235,7 +1244,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         
     }
     
-    public void testUnusedVariable7() {
+    public void testUnusedVariable7() throws Exception {
         doc = new Document(
             "def m( a, b ):       \n"+  
             "    def m1( a, b ):  \n"+       
@@ -2627,7 +2636,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     
-    public void testRecursionCondition() throws IOException {
+    public void testRecursionCondition() throws Exception {
         
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/recursion_on_non_existent/unexistent_import.py");
@@ -2640,7 +2649,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
     
     
-    public void testModuleNotFoundOnRelativeAndFullMixed() throws IOException {
+    public void testModuleNotFoundOnRelativeAndFullMixed() throws Exception {
     	
     	analyzer = new OccurrencesAnalyzer();
     	File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/relative_and_full_mixed/pluginstestcaseext.py");
