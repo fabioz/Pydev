@@ -251,7 +251,11 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
      */
     private void checkDeclaration(SimpleNode node, NameTok name) {
         String rep = NodeUtils.getRepresentationString(node);
-        if(rep.equals(tokenToFind) && (line == -1 && col == -1) || (line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn+rep.length())){
+        if(rep.equals(tokenToFind) && (
+                (line == -1 && col == -1) || 
+                (line == name.beginLine && col >= name.beginColumn && col <= name.beginColumn+rep.length())
+           )
+        ){
             foundAsDefinition = true;
             // if it is found as a definition it is an 'exact' match, so, erase all the others.
             ILocalScope scope = new LocalScope(this.defsStack);
