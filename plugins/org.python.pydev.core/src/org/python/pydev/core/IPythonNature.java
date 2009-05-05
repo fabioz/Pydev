@@ -134,11 +134,11 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
 
     IPythonPathNature getPythonPathNature();
     
-    String resolveModule(File file);
+    String resolveModule(File file) throws MisconfigurationException;
     
-    String resolveModule(String fileAbsolutePath);
+    String resolveModule(String fileAbsolutePath) throws MisconfigurationException;
     
-    String resolveModule(IResource resource);
+    String resolveModule(IResource resource) throws MisconfigurationException;
 
     ICodeCompletionASTManager getAstManager();
 
@@ -177,9 +177,10 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
 
     /**
      * Checks if the given resource is in the pythonpath
+     * @throws MisconfigurationException 
      */
-    boolean isResourceInPythonpath(IResource resource);
-    boolean isResourceInPythonpath(String resource);
+    boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException;
+    boolean isResourceInPythonpath(String resource) throws MisconfigurationException;
 
     /**
      * @return true if it is ok to use the nature
@@ -196,5 +197,5 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      * 
      * Note: the return can never be null (an exception is thrown if none can be determined) 
      */
-    IInterpreterInfo getProjectInterpreter() throws ProjectMisconfiguredException;
+    IInterpreterInfo getProjectInterpreter() throws MisconfigurationException;
 }

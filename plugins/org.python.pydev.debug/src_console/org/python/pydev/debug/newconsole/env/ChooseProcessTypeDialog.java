@@ -17,10 +17,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.NotConfiguredInterpreterException;
 
 /**
  * Helper to choose which kind of jython run will it be.
@@ -77,7 +78,7 @@ final class ChooseProcessTypeDialog extends Dialog {
             }else{
                 throw new NotConfiguredInterpreterException();
             }
-        }catch(NotConfiguredInterpreterException e){
+        }catch(MisconfigurationException e){
             text = "Unable to create console for "+python+" (interpreter not configured)";
         }
         checkBox.setText(text);
@@ -86,8 +87,9 @@ final class ChooseProcessTypeDialog extends Dialog {
 
     /**
      * Configures a button related to an editor.
+     * @throws MisconfigurationException 
      */
-    private void configureEditorButton() {
+    private void configureEditorButton(){
         boolean enabled = false;
         String text;
         try{
@@ -107,7 +109,7 @@ final class ChooseProcessTypeDialog extends Dialog {
             }else{
                 text = "Unable to create console for current editor (no active editor)";
             }
-        }catch(NotConfiguredInterpreterException e){
+        }catch(MisconfigurationException e){
             //expected
             text = "Unable to create console for current editor (interpreter not configured for the editor)";
         }

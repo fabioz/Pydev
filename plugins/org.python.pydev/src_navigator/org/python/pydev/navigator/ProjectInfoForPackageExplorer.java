@@ -61,6 +61,9 @@ public class ProjectInfoForPackageExplorer{
      */
     @SuppressWarnings("unchecked")
     private Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(IProject project) {
+        if(project == null || !project.isOpen()){
+            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList(), null);
+        }
         PythonNature nature = PythonNature.getPythonNature(project);
         if(nature == null){
             return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList(), null);

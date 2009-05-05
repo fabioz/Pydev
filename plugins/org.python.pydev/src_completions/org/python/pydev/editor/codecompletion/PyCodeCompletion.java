@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -29,6 +29,7 @@ import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -50,7 +51,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.NotConfiguredInterpreterException;
 
 /**
  * @author Dmoore
@@ -68,7 +68,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
      */
     @SuppressWarnings("unchecked")
-    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
+    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException, IOException, MisconfigurationException {
         if(request.getPySelection().getCursorLineContents().trim().startsWith("#")){
             //this may happen if the context is still not correctly computed in python
             return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);
@@ -99,11 +99,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             
             //list of Object[], IToken or ICompletionProposal
             List<Object> tokensList = new ArrayList<Object>();
-            try {
-                lazyStartShell(request);
-            } catch (NotConfiguredInterpreterException e) {
-                Log.log(IStatus.WARNING, "Warning: unable to get code-completion for builtins: No interpreter configured.", null);
-            }
+            lazyStartShell(request);
             String trimmed = request.activationToken.replace('.', ' ').trim();
 
             ImportInfo importsTipper = getImportsTipperStr(request);
@@ -239,8 +235,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * Does a code-completion that will retrieve the globals in the module
+     * @throws MisconfigurationException 
      */
-    private void doGlobalsCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, ICompletionState state) throws CompletionRecursionException {
+    private void doGlobalsCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, ICompletionState state) throws CompletionRecursionException, MisconfigurationException {
         state.setActivationToken(request.activationToken);
         if(DebugSettings.DEBUG_CODE_COMPLETION){
             Log.toLogFile(this,"astManager.getCompletionsForToken");
@@ -259,8 +256,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * Does a code-completion that will retrieve the all matches for some token in the module
+     * @throws MisconfigurationException 
      */
-    private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, String trimmed, ICompletionState state) throws CompletionRecursionException {
+    private void doTokenCompletion(CompletionRequest request, ICodeCompletionASTManager astManager, List<Object> tokensList, String trimmed, ICompletionState state) throws CompletionRecursionException, MisconfigurationException {
         if (request.activationToken.endsWith(".")) {
             request.activationToken = request.activationToken.substring(0, request.activationToken.length() - 1);
         }
@@ -315,8 +313,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * Pre-initializes the shell (NOT in a thread, as we may need it shortly, so, no use in putting it into a thread)
+     * @throws MisconfigurationException 
+     * @throws CoreException 
+     * @throws IOException 
      */
-    private void lazyStartShell(CompletionRequest request) {
+    private void lazyStartShell(CompletionRequest request) throws IOException, CoreException, MisconfigurationException {
         try {
             if(DebugSettings.DEBUG_CODE_COMPLETION){
                 Log.toLogFile(this,"AbstractShell.getServerShell");
@@ -329,16 +330,15 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             }
         } catch (RuntimeException e) {
             throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
     /**
      * @return completions added from contributors
+     * @throws MisconfigurationException 
      */
     @SuppressWarnings("unchecked")
-    private Collection<Object> getGlobalsFromParticipants(CompletionRequest request, ICompletionState state) {
+    private Collection<Object> getGlobalsFromParticipants(CompletionRequest request, ICompletionState state) throws MisconfigurationException {
         ArrayList ret = new ArrayList();
         
         List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
@@ -357,10 +357,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @param checkIfInCorrectScope if true, we'll first check if we're in a scope that actually has a method with 'self' or 'cls'
      * 
      * @return true if we actually tried to get the completions for self or cls.
+     * @throws MisconfigurationException 
      */
     @SuppressWarnings("unchecked")
     public static boolean getSelfOrClsCompletions(CompletionRequest request, List theList, ICompletionState state, 
-            boolean getOnlySupers, boolean checkIfInCorrectScope, String lookForRep) {
+            boolean getOnlySupers, boolean checkIfInCorrectScope, String lookForRep) throws MisconfigurationException {
         
         SimpleNode s = PyParser.reparseDocument(new PyParser.ParserInfo(request.doc, true, request.nature, state.getLine())).o1;
         if(s != null){
@@ -404,9 +405,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
     /**
      * Get self completions when you already have a scope
+     * @throws MisconfigurationException 
      */
     @SuppressWarnings("unchecked")
-    public static void getSelfOrClsCompletions(ILocalScope scope, CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) throws BadLocationException {
+    public static void getSelfOrClsCompletions(ILocalScope scope, CompletionRequest request, List theList, ICompletionState state, boolean getOnlySupers) throws BadLocationException, MisconfigurationException {
         for(Iterator<SimpleNode> it = scope.iterator(); it.hasNext();){
             SimpleNode node = it.next();
             if(node instanceof ClassDef){

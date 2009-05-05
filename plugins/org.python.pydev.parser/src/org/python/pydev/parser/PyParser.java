@@ -34,6 +34,7 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.log.Log;
@@ -213,8 +214,9 @@ public class PyParser implements IPyParser {
     /**
      * @param editorView this is the editor that we're getting in the parser
      * @return a provider signaling the grammar to be used for the parser.
+     * @throws MisconfigurationException 
      */
-    private static IGrammarVersionProvider getGrammarProviderFromEdit(IPyEdit editorView) {
+    private static IGrammarVersionProvider getGrammarProviderFromEdit(IPyEdit editorView){
         return editorView.getGrammarVersionProvider();
     }
 
@@ -389,7 +391,14 @@ public class PyParser implements IPyParser {
     public Tuple<SimpleNode, Throwable> reparseDocument(Object ... argsToReparse) {
         
         //get the document ast and error in object
-        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, true, grammarVersionProvider.getGrammarVersion()));
+        int version;
+        try{
+            version = grammarVersionProvider.getGrammarVersion();
+        }catch(MisconfigurationException e1){
+            //Ok, we cannot get it... let's put on the default
+            version = IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+        }
+        Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, true, version));
         
         IFile original = null;
         IAdaptable adaptable = null;
@@ -511,15 +520,15 @@ public class PyParser implements IPyParser {
             this(document, stillTryToChangeCurrentLine, grammarVersion, -1, null, null);
         }
         
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature){
+        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature) throws MisconfigurationException{
             this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion());
         }
         
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature, int currentLine, String moduleName, File file){
+        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature, int currentLine, String moduleName, File file) throws MisconfigurationException{
             this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion(), currentLine, moduleName, file);
         }
         
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature, int currentLine){
+        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature, int currentLine) throws MisconfigurationException{
             this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion(), currentLine, null, null);
         }
 

@@ -20,6 +20,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
@@ -229,8 +230,9 @@ public abstract class AbstractModule implements IModule {
      * @param f
      * @return
      * @throws IOException 
+     * @throws MisconfigurationException 
      */
-    public static AbstractModule createModule(String name, File f, IPythonNature nature, int currLine) throws IOException {
+    public static AbstractModule createModule(String name, File f, IPythonNature nature, int currLine) throws IOException, MisconfigurationException {
         String path = REF.getFileAbsolutePath(f);
         if(PythonPathHelper.isValidFileMod(path)){
             if(PythonPathHelper.isValidSourceFile(path)){
@@ -247,13 +249,14 @@ public abstract class AbstractModule implements IModule {
 
     
     
-    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature, int currLine) {
+    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature, int currLine) throws MisconfigurationException {
         return createModuleFromDoc(name, f, doc, nature, currLine, true);
     }
     /** 
      * This function creates the module given that you have a document (that will be parsed)
+     * @throws MisconfigurationException 
      */
-    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature, int currLine, boolean checkForPath) {
+    public static AbstractModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature, int currLine, boolean checkForPath) throws MisconfigurationException {
         //for doc, we are only interested in python files.
         
         if(f != null){
@@ -270,8 +273,9 @@ public abstract class AbstractModule implements IModule {
     
     /**
      * This function creates a module and resolves the module name (use this function if only the file is available).
+     * @throws MisconfigurationException 
      */
-    public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature, int line, IModulesManager projModulesManager) {
+    public static IModule createModuleFromDoc(File file, IDocument doc, IPythonNature pythonNature, int line, IModulesManager projModulesManager) throws MisconfigurationException {
         String moduleName = null;
         if(file != null){
             moduleName = projModulesManager.resolveModule(REF.getFileAbsolutePath(file));

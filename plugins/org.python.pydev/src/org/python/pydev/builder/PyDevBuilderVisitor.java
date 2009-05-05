@@ -22,6 +22,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -140,8 +141,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param resource the resource we are analyzing
      * @param document the document with the resource contents
      * @return the module that is created by the given resource
+     * @throws MisconfigurationException 
      */
-    protected SourceModule getSourceModule(IResource resource, IDocument document, IPythonNature nature) {
+    protected SourceModule getSourceModule(IResource resource, IDocument document, IPythonNature nature) throws MisconfigurationException {
         SourceModule module = (SourceModule) memo.get(MODULE_CACHE);
         if(module == null){
             module = createSoureModule(resource, document, getModuleName(resource, nature));
@@ -154,8 +156,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @param resource
      * @param document
      * @return
+     * @throws MisconfigurationException 
      */
-    protected SourceModule createSoureModule(IResource resource, IDocument document, String moduleName) {
+    protected SourceModule createSoureModule(IResource resource, IDocument document, String moduleName) throws MisconfigurationException {
         SourceModule module;
         PythonNature nature = PythonNature.getPythonNature(resource.getProject());
         IFile f = (IFile) resource;
@@ -183,8 +186,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * @param resource must be the resource we are analyzing because it will go to the cache without the resource (only as MODULE_NAME_CACHE)
      * @return the name of the module we are analyzing (given tho resource)
+     * @throws MisconfigurationException 
      */
-    public String getModuleName(IResource resource, IPythonNature nature) {
+    public String getModuleName(IResource resource, IPythonNature nature) throws MisconfigurationException {
         String moduleName = (String) memo.get(MODULE_NAME_CACHE);
         if(moduleName == null){
             moduleName = nature.resolveModule(resource);

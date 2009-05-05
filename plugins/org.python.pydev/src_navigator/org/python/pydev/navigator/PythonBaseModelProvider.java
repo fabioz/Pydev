@@ -52,8 +52,8 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -251,7 +251,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                 projectPythonpath = nature.getPythonPathNature().getCompleteProjectPythonPath(
                         nature.getProjectInterpreter(), 
                         nature.getRelatedInterpreterManager());
-            } catch (ProjectMisconfiguredException e) {
+            } catch (MisconfigurationException e) {
                 projectPythonpath = new ArrayList<String>();
             }
         }

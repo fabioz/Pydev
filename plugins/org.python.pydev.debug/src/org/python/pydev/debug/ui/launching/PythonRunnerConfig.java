@@ -30,7 +30,7 @@ import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.ProjectMisconfiguredException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -218,9 +218,9 @@ public class PythonRunnerConfig {
      * @return the string location of the selected interpreter in the launch configuration
      * @throws CoreException if unable to retrieve the launch configuration attribute or if unable to 
      * resolve the default interpreter.
-     * @throws ProjectMisconfiguredException 
+     * @throws MisconfigurationException 
      */
-    public static IInterpreterInfo getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature, IInterpreterManager interpreterManager) throws InvalidRunException, CoreException, ProjectMisconfiguredException {
+    public static IInterpreterInfo getInterpreterLocation(ILaunchConfiguration conf, IPythonNature nature, IInterpreterManager interpreterManager) throws InvalidRunException, CoreException, MisconfigurationException {
         String location = conf.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         
         if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
@@ -312,9 +312,9 @@ public class PythonRunnerConfig {
      * @return a string with the pythonpath used (with | as a separator)
      * @throws CoreException
      * @throws InvalidRunException 
-     * @throws ProjectMisconfiguredException 
+     * @throws MisconfigurationException 
      */
-    public static String getPythonpathFromConfiguration(ILaunchConfiguration conf, IInterpreterManager manager) throws CoreException, InvalidRunException, ProjectMisconfiguredException{
+    public static String getPythonpathFromConfiguration(ILaunchConfiguration conf, IInterpreterManager manager) throws CoreException, InvalidRunException, MisconfigurationException{
         IProject p = getProjectFromConfiguration(conf);
         PythonNature pythonNature = PythonNature.getPythonNature(p);
         if (pythonNature == null) {
@@ -324,17 +324,17 @@ public class PythonRunnerConfig {
         return SimpleRunner.makePythonPathEnvString(pythonNature, l, manager);
     }
     
-    public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run) throws CoreException, InvalidRunException, ProjectMisconfiguredException {
+    public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run) throws CoreException, InvalidRunException, MisconfigurationException {
         this(conf, mode, run, true);
     }
     
     /**
      * Sets defaults.
      * @throws InvalidRunException 
-     * @throws ProjectMisconfiguredException 
+     * @throws MisconfigurationException 
      */
     @SuppressWarnings("unchecked")
-    public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run, boolean makeArgumentsVariableSubstitution) throws CoreException, InvalidRunException, ProjectMisconfiguredException {
+    public PythonRunnerConfig(ILaunchConfiguration conf, String mode, String run, boolean makeArgumentsVariableSubstitution) throws CoreException, InvalidRunException, MisconfigurationException {
         //1st thing, see if this is a valid run.
         project = getProjectFromConfiguration(conf);
         

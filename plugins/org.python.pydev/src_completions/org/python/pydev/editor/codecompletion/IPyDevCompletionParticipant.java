@@ -8,6 +8,7 @@ import java.util.Collection;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 
 /**
  * This interface defines the basic behavior for a class that wants to participate in the code-completion process. 
@@ -25,16 +26,18 @@ public interface IPyDevCompletionParticipant {
      * @param state the state for the completion
      * 
      * @return a list of proposals or tokens
+     * @throws MisconfigurationException 
      * 
      * @see org.eclipse.jface.text.contentassist.ICompletionProposal
      * @see org.python.pydev.core.IToken
      */
-    Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state);
+    Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException;
     
     /**
      * Called when a completion is requested within a string.
+     * @throws MisconfigurationException 
      */
-    Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state);
+    Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException;
 
     /**
      * Called when a completion is requested for some argument.

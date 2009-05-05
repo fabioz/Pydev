@@ -23,6 +23,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
@@ -278,7 +279,12 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     protected InterpreterInfo getDefaultInterpreterInfo() {
         IInterpreterManager iMan = getInterpreterManager();
-        InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
+        InterpreterInfo info;
+        try{
+            info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
         return info;
     }
 
@@ -311,7 +317,12 @@ public class CodeCompletionTestsBase extends TestCase {
 
         //and it must be registered as the pydev interpreter manager
         IInterpreterManager iMan2 = getInterpreterManager();
-        InterpreterInfo info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo(getProgressMonitor());
+        InterpreterInfo info2;
+        try{
+            info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo(getProgressMonitor());
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
         assertTrue(info2 == info);
         
         //does it have the loaded modules?
@@ -372,17 +383,21 @@ public class CodeCompletionTestsBase extends TestCase {
      * (we must have more modules in the system than in the project)
      */
     protected void checkSize() {
-        IInterpreterManager iMan = getInterpreterManager();
-        InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
-        assertTrue(info.getModulesManager().getSize(true) > 0);
-        
-        int size = ((ASTManager)nature.getAstManager()).getSize();
-        assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
-                "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
-        
-        size = ((ASTManager)nature2.getAstManager()).getSize();
-        assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
-                "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
+        try{
+            IInterpreterManager iMan = getInterpreterManager();
+            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
+            assertTrue(info.getModulesManager().getSize(true) > 0);
+            
+            int size = ((ASTManager)nature.getAstManager()).getSize();
+            assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
+                    "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
+            
+            size = ((ASTManager)nature2.getAstManager()).getSize();
+            assertTrue("Interpreter size:"+info.getModulesManager().getSize(true)+" should be smaller than project size:"+size+" " +
+                    "(because it contains system+project info)" , info.getModulesManager().getSize(true) < size );
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
     }
    
 
@@ -403,19 +418,19 @@ public class CodeCompletionTestsBase extends TestCase {
     
     public IPyCodeCompletion codeCompletion;
     
-    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl) throws Exception{
         return requestCompl(strDoc, documentOffset, returned, retCompl, nature);
     }
-    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws Exception{
         return requestCompl(null, strDoc, documentOffset, returned, retCompl, nature);
     }
     
-    public ICompletionProposal[] requestCompl(File file, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(File file, int documentOffset, int returned, String []retCompl) throws Exception{
         String strDoc = REF.getFileContents(file);
         return requestCompl(file, strDoc, documentOffset, returned, retCompl);
     }
     
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl) throws Exception{
         return requestCompl(file, strDoc, documentOffset, returned, retCompl, nature);
     }
     
@@ -432,8 +447,9 @@ public class CodeCompletionTestsBase extends TestCase {
      * 
      * @throws CoreException
      * @throws BadLocationException
+     * @throws MisconfigurationException 
      */
-    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(File file, String strDoc, int documentOffset, int returned, String []retCompl, PythonNature nature) throws Exception, MisconfigurationException{
         if(documentOffset == -1)
             documentOffset = strDoc.length();
         
@@ -513,15 +529,15 @@ public class CodeCompletionTestsBase extends TestCase {
         return buffer;
     }
 
-    public ICompletionProposal[] requestCompl(String strDoc, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(String strDoc, String []retCompl) throws Exception{
         return requestCompl(strDoc, -1, retCompl.length, retCompl);
     }
     
-    public ICompletionProposal[] requestCompl(String strDoc, int expectedCompletions, String []retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(String strDoc, int expectedCompletions, String []retCompl) throws Exception{
         return requestCompl(strDoc, -1, expectedCompletions, retCompl);
     }
     
-    public ICompletionProposal[] requestCompl(String strDoc, String retCompl) throws CoreException, BadLocationException{
+    public ICompletionProposal[] requestCompl(String strDoc, String retCompl) throws Exception{
         return requestCompl(strDoc, new String[]{retCompl});
     }
 

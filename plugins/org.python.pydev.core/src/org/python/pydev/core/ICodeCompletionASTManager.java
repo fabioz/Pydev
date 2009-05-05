@@ -109,8 +109,9 @@ public interface ICodeCompletionASTManager {
      * @param state
      * @return
      * @throws CompletionRecursionException 
+     * @throws MisconfigurationException 
      */
-    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException;
+    public abstract IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException, MisconfigurationException;
     
     /**
      * 

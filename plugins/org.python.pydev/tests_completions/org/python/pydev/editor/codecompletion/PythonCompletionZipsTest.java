@@ -60,7 +60,7 @@ public class PythonCompletionZipsTest extends CodeCompletionTestsBase {
 
     
 
-    public void testZip() throws CoreException, BadLocationException{
+    public void testZip() throws Exception{
         String s = 
             "import myzipmodule\n" +
             "myzipmodule.";
@@ -69,7 +69,7 @@ public class PythonCompletionZipsTest extends CodeCompletionTestsBase {
     }
     
     
-    public void testEgg() throws CoreException, BadLocationException{
+    public void testEgg() throws Exception{
         String s = 
             "import myeggmodule\n" +
             "myeggmodule.";

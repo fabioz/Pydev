@@ -31,8 +31,10 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
@@ -131,10 +133,10 @@ public abstract class PyRefactorAction extends PyAction {
         return AbstractPyRefactoring.getDefaultPyRefactoring();
     }
     
-    public RefactoringRequest getRefactoringRequest(){
+    public RefactoringRequest getRefactoringRequest() throws MisconfigurationException{
         return getRefactoringRequest(null, null);
     }
-    public RefactoringRequest getRefactoringRequest(IProgressMonitor monitor){
+    public RefactoringRequest getRefactoringRequest(IProgressMonitor monitor) throws MisconfigurationException{
         return getRefactoringRequest(null, monitor);
     }
     
@@ -145,8 +147,9 @@ public abstract class PyRefactorAction extends PyAction {
     
     /**
      * @return the refactoring request (it is created and cached if still not available)
+     * @throws MisconfigurationException 
      */
-    public RefactoringRequest getRefactoringRequest(String name, IProgressMonitor monitor){
+    public RefactoringRequest getRefactoringRequest(String name, IProgressMonitor monitor) throws MisconfigurationException{
         if(request == null){
             //testing first with whole lines.
             PyEdit pyEdit = getPyEdit(); //may not be available in tests, that's why it is important to be able to operate without it
@@ -160,8 +163,9 @@ public abstract class PyRefactorAction extends PyAction {
     /**
      * @param operation the operation we're doing (may be null)
      * @param pyEdit the editor from where we'll get the info
+     * @throws MisconfigurationException 
      */
-    public static RefactoringRequest createRefactoringRequest(IProgressMonitor monitor, PyEdit pyEdit, PySelection ps) {
+    public static RefactoringRequest createRefactoringRequest(IProgressMonitor monitor, PyEdit pyEdit, PySelection ps) throws MisconfigurationException {
         File file = pyEdit.getEditorFile();
         IPythonNature nature = pyEdit.getPythonNature();
         return new RefactoringRequest(file, ps, monitor, nature, pyEdit);
@@ -273,7 +277,13 @@ public abstract class PyRefactorAction extends PyAction {
         request = null; //clear the cache from previous runs
         ps = new PySelection(getTextEditor());
 
-        RefactoringRequest req = getRefactoringRequest();
+        RefactoringRequest req;
+        try{
+            req = getRefactoringRequest();
+        }catch(MisconfigurationException e2){
+            Log.log(e2);
+            return;
+        }
         IPyRefactoring pyRefactoring = getPyRefactoring();
         if (areRefactorPreconditionsOK(req, pyRefactoring) == false) {
             return;
@@ -318,15 +328,13 @@ public abstract class PyRefactorAction extends PyAction {
         try {
             monitorDialog.run(true, false, operation);
             // Perform the action
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Log.log(e);
         }
         try {
             refreshEditors(getPyEdit());
         } catch (CoreException e1) {
-            e1.printStackTrace();
+            Log.log(e1);
         }
 
         if (operation.statusOfOperation != null && operation.statusOfOperation.startsWith("ERROR:")) {

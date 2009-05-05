@@ -21,6 +21,8 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.RefactoringInfo;
 import org.python.pydev.refactoring.ui.PythonRefactoringWizard;
@@ -47,7 +49,7 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
         return IDE.saveAllEditors(new IResource[] { workspaceRoot }, true);
     }
     
-    private void setupRefactoring() {
+    private void setupRefactoring() throws MisconfigurationException {
         IPythonNature nature = null;
         if (targetEditor instanceof IPyEdit) {
             nature = ((IPyEdit) targetEditor).getPythonNature();
@@ -59,7 +61,11 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
     }
 
     private void openWizard(IAction action) {
-        this.setupRefactoring();
+        try{
+            this.setupRefactoring();
+        }catch(MisconfigurationException e){
+            Log.log(e);
+        }
         
         PythonRefactoringWizard wizard = new PythonRefactoringWizard(this.refactoring, targetEditor);
         wizard.run();

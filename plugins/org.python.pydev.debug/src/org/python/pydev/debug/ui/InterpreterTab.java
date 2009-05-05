@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.ProjectMisconfiguredException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.WordUtils;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.InvalidRunException;
@@ -91,9 +91,9 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * @return a PythonRunnerConfig configured with the given launch configuration
      * @throws CoreException
      * @throws InvalidRunException 
-     * @throws ProjectMisconfiguredException 
+     * @throws MisconfigurationException 
      */
-    private PythonRunnerConfig getConfig(ILaunchConfiguration configuration, ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException, InvalidRunException, ProjectMisconfiguredException {
+    private PythonRunnerConfig getConfig(ILaunchConfiguration configuration, ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException, InvalidRunException, MisconfigurationException {
         String run;
         if (fInterpreterManager.isJython()) {
             run = PythonRunnerConfig.RUN_JYTHON;
@@ -302,8 +302,9 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
     /**
      * @param interpreter the interpreter to validate
      * @return true if the interpreter is configured in pydev
+     * @throws MisconfigurationException 
      */
-    protected boolean checkIfInterpreterExists(String interpreter) {
+    protected boolean checkIfInterpreterExists(String interpreter) throws MisconfigurationException {
         if (interpreter.equals(Constants.ATTR_INTERPRETER_DEFAULT))    {
             if(this.fInterpreterManager.getDefaultInterpreter() != null){
                 // The default interpreter is selected, and we have a default interpreter

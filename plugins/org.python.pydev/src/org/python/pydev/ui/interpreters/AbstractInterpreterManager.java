@@ -23,18 +23,21 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
-import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -130,7 +133,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             }
             return interpreter;
         }else{
-            throw new NotConfiguredInterpreterException(this.getClass().getName()+":"+getNotConfiguredInterpreterMsg());
+            throw new NotConfiguredInterpreterException(FullRepIterable.getLastPart(this.getClass().getName())+":"+getNotConfiguredInterpreterMsg());
         }
     }
 
@@ -160,7 +163,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * @see org.python.pydev.core.IInterpreterManager#hasInfoOnInterpreter(java.lang.String)
      */
-    public boolean hasInfoOnInterpreter(String interpreter) {
+    public boolean hasInfoOnInterpreter(String interpreter)  throws MisconfigurationException{
         if(interpreter == null){
             InterpreterInfo info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
             return info != null;
@@ -171,7 +174,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreterInfo(org.eclipse.core.runtime.IProgressMonitor)
      */
-    public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor) {
+    public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor)  throws MisconfigurationException{
         String interpreter = getDefaultInterpreter();
         return getInterpreterInfo(interpreter, monitor);
     }

@@ -1,9 +1,11 @@
 package org.python.pydev.core;
 
 
-public class ProjectMisconfiguredException extends Exception{
+public class ProjectMisconfiguredException extends MisconfigurationException{
 
-    public ProjectMisconfiguredException(Exception e) {
+    private static final long serialVersionUID = -1861437669380301862L;
+
+    public ProjectMisconfiguredException(Throwable e) {
         super(e);
     }
 

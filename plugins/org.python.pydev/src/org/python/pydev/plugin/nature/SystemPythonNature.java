@@ -13,6 +13,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.revisited.SystemASTManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -27,7 +28,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     public final IInterpreterInfo info;
     private SystemASTManager systemASTManager;
 
-    public SystemPythonNature(IInterpreterManager manager){
+    public SystemPythonNature(IInterpreterManager manager) throws MisconfigurationException{
         this(manager, manager.getDefaultInterpreterInfo(new NullProgressMonitor()));
     }
     
@@ -82,7 +83,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         throw new RuntimeException("Not Implemented");
     }
 
-    public String resolveModule(String file) {
+    public String resolveModule(String file) throws MisconfigurationException {
         InterpreterInfo info = (InterpreterInfo) this.manager.getDefaultInterpreterInfo(new NullProgressMonitor());
         if(info == null){
             return null;
@@ -147,7 +148,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
 
     
-    public int getGrammarVersion() {
+    public int getGrammarVersion() throws MisconfigurationException {
         IInterpreterInfo info = manager.getDefaultInterpreterInfo(new NullProgressMonitor());
         if(info != null){
             return info.getGrammarVersion();
@@ -156,7 +157,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         }
     }
 
-    public IInterpreterInfo getProjectInterpreter() {
+    public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException {
         return this.manager.getDefaultInterpreterInfo(null);
     }
 

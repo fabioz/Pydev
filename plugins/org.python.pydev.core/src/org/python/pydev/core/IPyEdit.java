@@ -17,8 +17,10 @@ public interface IPyEdit extends IParserObserver{
 
     /**
      * @return the python nature used in this editor
+     * @throws NotConfiguredInterpreterException 
+     * @throws MisconfigurationException 
      */
-    IPythonNature getPythonNature();
+    IPythonNature getPythonNature() throws MisconfigurationException;
 
     /**
      * @return the editor input

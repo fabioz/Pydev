@@ -66,6 +66,8 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyPartitionScanner;
@@ -112,7 +114,6 @@ import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
-import org.python.pydev.ui.NotConfiguredInterpreterException;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -136,7 +137,7 @@ import org.python.pydev.ui.UIConstants;
  *  
  */
 @SuppressWarnings("deprecation")
-public class PyEdit extends PyEditProjection implements IPyEdit {
+public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersionProvider {
 
     static{
         ParseException.verboseExceptions = true;
@@ -1124,8 +1125,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
      * @param projectName
      * @param path
      * @param innerStructure
+     * @throws MisconfigurationException 
      */
-    public static void openWithPathAndInnerStructure(String projectName, IPath path, List<String> innerStructure){
+    public static void openWithPathAndInnerStructure(String projectName, IPath path, List<String> innerStructure) throws MisconfigurationException{
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         IProject project = workspace.getRoot().getProject(projectName);
         if(project != null){
@@ -1179,9 +1181,26 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         }
     }
 
-    
-    public IGrammarVersionProvider getGrammarVersionProvider() {
-        IPythonNature nature = getPythonNature();
+    /**
+     * Only used if we weren't able
+     */
+    public int getGrammarVersion() throws MisconfigurationException{
+        IPythonNature nature;
+        nature = getPythonNature();
+        if(nature != null){
+            return nature.getGrammarVersion();
+        }
+        Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(getEditorFile());
+        return infoForFile.o1.getGrammarVersion();
+    }
+
+    public IGrammarVersionProvider getGrammarVersionProvider(){
+        IPythonNature nature;
+        try{
+            nature = getPythonNature();
+        }catch(MisconfigurationException e){
+            return this;
+        }
         if(nature != null){
             return nature;
         }
@@ -1191,8 +1210,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
     
     /**
      * @return the python nature associated with this editor.
+     * @throws NotConfiguredInterpreterException 
      */
-    public IPythonNature getPythonNature() {
+    public IPythonNature getPythonNature() throws MisconfigurationException {
         IProject project = getProject();
         if(project == null || !project.isOpen()){
             return null;
@@ -1280,6 +1300,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit {
         return font;
     }
     //--------------------------------------------------------------------- END: actions that are activated after Ctrl+2
+
 
 
 

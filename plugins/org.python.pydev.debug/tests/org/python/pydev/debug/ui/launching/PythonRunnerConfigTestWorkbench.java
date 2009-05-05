@@ -15,7 +15,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.ProjectMisconfiguredException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.plugin.PydevPlugin;
@@ -133,7 +133,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
         }
     }
 
-    private PythonRunnerConfig createConfig() throws CoreException, InvalidRunException, ProjectMisconfiguredException {
+    private PythonRunnerConfig createConfig() throws CoreException, InvalidRunException, MisconfigurationException {
         ILaunchConfiguration config = new LaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_REGULAR);
         return runnerConfig;

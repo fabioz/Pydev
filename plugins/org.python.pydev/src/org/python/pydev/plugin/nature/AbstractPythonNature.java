@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IResource;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -16,20 +17,22 @@ public abstract class AbstractPythonNature implements IPythonNature{
     /**
      * @param resource the resource we want info on
      * @return whether the passed resource is in the pythonpath or not (it must be in a source folder for that).
+     * @throws MisconfigurationException 
      */
-    public boolean isResourceInPythonpath(IResource resource) {
+    public boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException {
         return resolveModule(resource) != null; 
     }
     
-    public boolean isResourceInPythonpath(String absPath) {
+    public boolean isResourceInPythonpath(String absPath) throws MisconfigurationException {
         return resolveModule(absPath) != null; 
     }
 
     /**
      * @param resource the resource we want to get the name from
      * @return the name of the module in the environment
+     * @throws MisconfigurationException 
      */
-    public String resolveModule(IResource resource) {
+    public String resolveModule(IResource resource) throws MisconfigurationException {
         String resourceOSString = PydevPlugin.getIResourceOSString(resource);
         if(resourceOSString == null){
             return null;
@@ -37,7 +40,7 @@ public abstract class AbstractPythonNature implements IPythonNature{
         return resolveModule(resourceOSString);
     }
     
-    public String resolveModule(File file) {
+    public String resolveModule(File file) throws MisconfigurationException {
         return resolveModule(REF.getFileAbsolutePath(file));
     }
     

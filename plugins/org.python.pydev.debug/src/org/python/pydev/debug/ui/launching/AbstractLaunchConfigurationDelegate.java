@@ -21,7 +21,7 @@ import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.core.ProjectMisconfiguredException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -104,7 +104,7 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
             }
         }catch(final InvalidRunException e){
             handleError(launch, e);
-        }catch(final ProjectMisconfiguredException e){
+        }catch(final MisconfigurationException e){
             handleError(launch, e);
         }
     }

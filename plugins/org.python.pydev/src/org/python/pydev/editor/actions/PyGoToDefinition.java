@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
@@ -31,6 +32,7 @@ import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefi
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -239,8 +241,10 @@ public class PyGoToDefinition extends PyRefactorAction {
 
     /**
      * @return an array of ItemPointer with the definitions found
+     * @throws MisconfigurationException 
+     * @throws TooManyMatchesException 
      */
-    public ItemPointer[] findDefinition(PyEdit pyEdit) {
+    public ItemPointer[] findDefinition(PyEdit pyEdit) throws TooManyMatchesException, MisconfigurationException {
         IPyRefactoring pyRefactoring = getPyRefactoring("canFindDefinition");
         return pyRefactoring.findDefinition(getRefactoringRequest());
     }

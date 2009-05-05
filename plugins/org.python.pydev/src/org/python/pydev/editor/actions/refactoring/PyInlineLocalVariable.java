@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 
 /**
@@ -24,8 +25,9 @@ public class PyInlineLocalVariable extends PyRefactorAction {
      * 
      * @throws BadLocationException
      * @throws CoreException
+     * @throws MisconfigurationException 
      */
-    protected String perform(IAction action, String name, IProgressMonitor monitor) throws BadLocationException, CoreException {
+    protected String perform(IAction action, String name, IProgressMonitor monitor) throws BadLocationException, CoreException, MisconfigurationException {
         return getPyRefactoring().inlineLocalVariable(getRefactoringRequest(monitor));
     }
     

@@ -59,8 +59,8 @@ public class PythonHyperlink implements IHyperlink {
             }
         }
         
-        RefactoringRequest refactoringRequest = PyRefactorAction.createRefactoringRequest(null, this.fEditor, new PySelection(this.fEditor));
         try{
+            RefactoringRequest refactoringRequest = PyRefactorAction.createRefactoringRequest(null, this.fEditor, new PySelection(this.fEditor));
             ItemPointer[] pointers = pyRefactoring.findDefinition(refactoringRequest);
             
             if (pointers.length > 0){

@@ -28,6 +28,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -151,7 +152,12 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
         
         PyEdit edit = s.getEdit();
-        RefactoringRequest request = new RefactoringRequest(edit.getEditorFile(), ps, new NullProgressMonitor(), edit.getPythonNature(), edit);
+        RefactoringRequest request;
+        try{
+            request = new RefactoringRequest(edit.getEditorFile(), ps, new NullProgressMonitor(), edit.getPythonNature(), edit);
+        }catch(MisconfigurationException e){
+            return;
+        }
         String[] tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
         
         

@@ -32,7 +32,7 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
     @Override
     protected String getNotConfiguredInterpreterMsg() {
         return "Interpreter is not properly configured!\n" +
-                "Please go to window->preferences->PyDev->Python Interpreters and configure it.\n" +
+                "Please go to window > preferences > PyDev > Python Interpreters and configure it.\n" +
                 "If this is not supposed to be a Python project, change the project type on the\n" +
                 "project properties to the project you want (e.g.: Jython project).";
     }

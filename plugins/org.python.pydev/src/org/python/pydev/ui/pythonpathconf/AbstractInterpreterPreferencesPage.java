@@ -158,11 +158,11 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     protected void restoreModules() {
     
         final IInterpreterInfo[] exesList = pathEditor.getExesList();
-        if(exesList.length <= 0){
-            setInfos(new ArrayList<IInterpreterInfo>(),new NullProgressMonitor());
-            return;
-    
-        } else{
+//        if(exesList.length <= 0){
+//            setInfos(new ArrayList<IInterpreterInfo>(),new NullProgressMonitor());
+//            return;
+//    
+//        } else{
             //this is the default interpreter
             ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
             monitorDialog.setBlockOnOpen(false);
@@ -185,7 +185,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
             }catch (Exception e) {
                 PydevPlugin.log(e);
             }            
-        }
+//        }
     }
 
     

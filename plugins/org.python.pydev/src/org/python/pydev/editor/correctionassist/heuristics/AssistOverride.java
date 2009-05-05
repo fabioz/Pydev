@@ -14,6 +14,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -32,9 +33,10 @@ import org.python.pydev.ui.UIConstants;
 public class AssistOverride implements IAssistProps {
 
     /**
+     * @throws MisconfigurationException 
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.core.bundle.ImageCache)
      */
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File file, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
+    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File file, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException, MisconfigurationException {
         ArrayList<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
         String sel = PyAction.getLineWithoutComments(ps);
         String indentation = PyAction.getStaticIndentationString(edit);

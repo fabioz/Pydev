@@ -35,7 +35,7 @@ public interface IInterpreterManager {
      * 
      * @return the default interpreter.
      */
-    public String getDefaultInterpreter();
+    public String getDefaultInterpreter() throws MisconfigurationException;
     
     
     /**
@@ -55,7 +55,7 @@ public interface IInterpreterManager {
      * @param monitor monitor to report the progress.
      * @return the default interpreter info.
      */
-    public IInterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor);
+    public IInterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor)  throws MisconfigurationException;
     
     /**
      * This function should be used to create the interpreter info of some executable.
@@ -154,7 +154,7 @@ public interface IInterpreterManager {
      * on the default interpreter
      * @return whether the interpreter has information on this manager.
      */
-    public boolean hasInfoOnInterpreter(String interpreter);
+    public boolean hasInfoOnInterpreter(String interpreter)  throws MisconfigurationException;
 
     
     //caches for the builtin tokens and module

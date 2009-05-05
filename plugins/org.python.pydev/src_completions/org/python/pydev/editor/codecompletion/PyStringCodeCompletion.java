@@ -17,6 +17,7 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocIterator;
@@ -78,9 +79,10 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion{
     
     /**
      * Needed interface for adding the completions on a request
+     * @throws MisconfigurationException 
      */
     @SuppressWarnings("unchecked")
-    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException {
+    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException, MisconfigurationException {
         ArrayList ret = new ArrayList();
         request.showTemplates = false; //don't show templates in strings
         fillWithEpydocFields(viewer, request, ret);
@@ -189,9 +191,10 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion{
     
     /**
      * @return completions added from contributors
+     * @throws MisconfigurationException 
      */
     @SuppressWarnings("unchecked")
-    private Collection<Object> getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state) {
+    private Collection<Object> getStringGlobalsFromParticipants(CompletionRequest request, ICompletionState state) throws MisconfigurationException {
         ArrayList ret = new ArrayList();
         
         List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);

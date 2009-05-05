@@ -9,11 +9,10 @@ import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.core.ProjectMisconfiguredException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.shell.PythonShell;
 
 /**
  * These tests should run, however the directory where the tests are run must be correct.
@@ -88,7 +87,7 @@ public class PythonShellTest extends CodeCompletionTestsBase{
         try {
             return nature.getAstManager().getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
                     nature.getRelatedInterpreterManager());
-        } catch (ProjectMisconfiguredException e) {
+        } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         } 
     }

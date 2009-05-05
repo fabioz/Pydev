@@ -28,6 +28,7 @@ import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -259,6 +260,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         
         FastStringBuffer bufferToCreateString = new FastStringBuffer();
 
+        boolean loggedMisconfiguration = false;
         for (Iterator<IFile> iter = resourcesToParse.iterator(); iter.hasNext() && monitor.isCanceled() == false;) {
             i += 1;
             total += inc;
@@ -271,8 +273,16 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 continue;
             }
             try{
-                if(!nature.isResourceInPythonpath(r)){
-                    continue; // we only analyze resources that are in the pythonpath
+                try{
+                    if(!nature.isResourceInPythonpath(r)){
+                        continue; // we only analyze resources that are in the pythonpath
+                    }
+                }catch(MisconfigurationException e1){
+                    if(!loggedMisconfiguration){
+                        loggedMisconfiguration = true; //No point in logging it over and over again.
+                        Log.log(e1);
+                    }
+                    continue;
                 }
                 
                 //create new memo for each resource

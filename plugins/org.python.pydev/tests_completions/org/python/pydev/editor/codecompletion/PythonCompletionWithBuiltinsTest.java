@@ -12,6 +12,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -35,7 +36,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testSortParamsCorrect();
+            builtins.testDeepNested8();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -63,7 +64,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
             }
             
             @Override
-            public String resolveModule(File file) {
+            public String resolveModule(File file) throws MisconfigurationException {
                 if(isInTestFindDefinition){
                     return null;
                 }
@@ -107,7 +108,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
     }
     
-    public void testRecursion() throws FileNotFoundException, CoreException, BadLocationException, CompletionRecursionException{
+    public void testRecursion() throws FileNotFoundException, Exception, CompletionRecursionException{
         String file = TestDependent.TEST_PYSRC_LOC+"testrec3/rec.py";
         String strDoc = "RuntimeError.";
         File f = new File(file);
@@ -215,7 +216,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         }
     }
     
-    public void testDeepNested6() throws CoreException, BadLocationException{
+    public void testDeepNested6() throws Exception{
         String s;
         s = "" +
         "from extendable.nested2 import hub\n"+
@@ -223,7 +224,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         requestCompl(s, s.length(), -1, new String[] { "curdir"});
     }
     
-    public void testDeepNested10() throws CoreException, BadLocationException{
+    public void testDeepNested10() throws Exception{
         String s;
         s = "" +
         "from extendable.nested3 import hub2\n"+
@@ -231,7 +232,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         requestCompl(s, s.length(), -1, new String[] { "fun()"});
     }
     
-    public void testRelativeOnSameProj() throws CoreException, BadLocationException{
+    public void testRelativeOnSameProj() throws Exception{
         String s;
         s = "" +
         "import prefersrc\n" +
@@ -244,7 +245,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         }
     }
     
-    public void testDeepNested7() throws CoreException, BadLocationException{
+    public void testDeepNested7() throws Exception{
         String s;
         s = "" +
         "from extendable.nested2 import hub\n"+
@@ -252,7 +253,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         requestCompl(s, s.length(), -1, new String[] { "upper()"});
     }
     
-    public void testDeepNested8() throws CoreException, BadLocationException{
+    public void testDeepNested8() throws Exception{
         String s;
         s = "" +
         "from extendable.nested2 import hub\n"+
@@ -260,7 +261,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         requestCompl(s, s.length(), -1, new String[] { "upper()"});
     }
     
-    public void testDeepNested9() throws CoreException, BadLocationException{
+    public void testDeepNested9() throws Exception{
         String s;
         s = "" +
         "from extendable.nested2 import hub\n"+
@@ -268,7 +269,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         requestCompl(s, s.length(), -1, new String[] { });
     }
     
-    public void testDictAssign() throws CoreException, BadLocationException{
+    public void testDictAssign() throws Exception{
         String s;
         s = "" +
         "a = {}\n"+
@@ -332,14 +333,14 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         }
     }
     
-    public void testGlu() throws IOException, CoreException, BadLocationException {
+    public void testGlu() throws IOException, Exception {
         if(TestDependent.HAS_GLU_INSTALLED){
             final String s = "from OpenGL import ";
             requestCompl(s, s.length(), -1, new String[]{"GLU", "GLUT"});
         }
     }
     
-    public void testGlu2() throws IOException, CoreException, BadLocationException {
+    public void testGlu2() throws IOException, Exception {
         if(TestDependent.HAS_GLU_INSTALLED){
             final String s = "from OpenGL.GL import ";
             requestCompl(s, s.length(), -1, new String[]{"glPushMatrix"});

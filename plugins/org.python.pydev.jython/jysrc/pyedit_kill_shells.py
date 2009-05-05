@@ -20,7 +20,7 @@ if cmd == 'onCreateActions':
     from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
     from org.python.pydev.plugin import PydevPlugin #@UnresolvedImport
     from org.eclipse.core.runtime import NullProgressMonitor #@UnresolvedImport
-    from org.python.pydev.ui import NotConfiguredInterpreterException #@UnresolvedImport
+    from org.python.pydev.core import MisconfigurationException #@UnresolvedImport
     
     class ListCommand(Action):
         def run(self):
@@ -37,7 +37,7 @@ if cmd == 'onCreateActions':
                         for info in manager.getInterpreterInfos():
                             info.modulesManager.clearCache()
                             manager.clearCaches()
-                    except NotConfiguredInterpreterException:
+                    except MisconfigurationException:
                         pass #that's ok -- it's not configured
             except:
                 s = StringIO.StringIO()

@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.DecoratableObject;
@@ -149,7 +150,11 @@ public class RefactoringRequest extends DecoratableObject{
     public String resolveModule(){
         if(moduleName == null){
             if (file != null && nature != null){
-                moduleName = nature.resolveModule(file);
+                try{
+                    moduleName = nature.resolveModule(file);
+                }catch(MisconfigurationException e){
+                    throw new RuntimeException(e);
+                }
             }
         }
         return moduleName;
@@ -198,9 +203,13 @@ public class RefactoringRequest extends DecoratableObject{
             }
             
             if(module == null){
-                module= AbstractModule.createModuleFromDoc(
-                       resolveModule(), file, ps.getDoc(), 
-                       nature, getBeginLine());
+                try{
+                    module= AbstractModule.createModuleFromDoc(
+                           resolveModule(), file, ps.getDoc(), 
+                           nature, getBeginLine());
+                }catch(MisconfigurationException e){
+                    throw new RuntimeException(e);
+                }
             }
         }
         return module;

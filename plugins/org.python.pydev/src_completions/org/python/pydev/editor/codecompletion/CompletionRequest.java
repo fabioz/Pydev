@@ -10,6 +10,7 @@ import java.io.File;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -180,8 +181,9 @@ public class CompletionRequest implements ICompletionRequest {
     
     /**
      * @return the module name where the completion request took place (may be null if there is no editor file associated)
+     * @throws MisconfigurationException 
      */
-    public String resolveModule() {
+    public String resolveModule() throws MisconfigurationException {
         if(initialModule == null && editorFile != null){
             initialModule = nature.resolveModule(editorFile);
         }

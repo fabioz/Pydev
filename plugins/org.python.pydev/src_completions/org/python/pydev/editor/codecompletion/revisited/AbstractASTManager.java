@@ -24,6 +24,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -326,8 +327,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @param doc
      * @param state
      * @return
+     * @throws MisconfigurationException 
      */
-    public static IModule createModule(File file, IDocument doc, ICompletionState state, ICodeCompletionASTManager manager) {
+    public static IModule createModule(File file, IDocument doc, ICompletionState state, ICodeCompletionASTManager manager) throws MisconfigurationException {
         IPythonNature pythonNature = state.getNature();
         int line = state.getLine();
         IModulesManager projModulesManager = manager.getModulesManager();
@@ -336,9 +338,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
 
     /** 
+     * @throws MisconfigurationException 
      * @see org.python.pydev.core.ICodeCompletionASTManager#getCompletionsForToken(java.io.File, org.eclipse.jface.text.IDocument, org.python.pydev.editor.codecompletion.revisited.CompletionState)
      */
-    public IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException {
+    public IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state) throws CompletionRecursionException, MisconfigurationException {
         IModule module = createModule(file, doc, state, this);
         return getCompletionsForModule(module, state, true, true);
     }
@@ -355,7 +358,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
             completionsForModule = getCompletionsForModule(module, state, true, true);
 
-        } catch (CompletionRecursionException e) {
+        } catch (Exception e) {
             completionsForModule = new IToken[]{ new ConcreteToken(e.getMessage(), e.getMessage(), "","", IToken.TYPE_UNKNOWN)};
         }
         

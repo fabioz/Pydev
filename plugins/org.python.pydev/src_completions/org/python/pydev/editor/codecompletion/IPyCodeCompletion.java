@@ -1,10 +1,12 @@
 package org.python.pydev.editor.codecompletion;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 
 public interface IPyCodeCompletion {
@@ -23,9 +25,11 @@ public interface IPyCodeCompletion {
      * 
      * (This is where we do the "REAL" work).
      * @throws BadLocationException
+     * @throws MisconfigurationException 
+     * @throws IOException 
      */
     public abstract List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
-            BadLocationException;
+            BadLocationException, IOException, MisconfigurationException;
 
     /**
      * Returns non empty string if we are in imports section 

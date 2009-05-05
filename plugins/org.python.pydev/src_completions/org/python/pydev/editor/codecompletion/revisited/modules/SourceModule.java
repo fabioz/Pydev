@@ -404,6 +404,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                             if(iActTok > actToksLen){
                                 break; //unable to find it
                             }
+                            
+                            //If we have C1.f.x
+                            //At this point we'll find the C1 definition...
+                            
                             definitions = findDefinition(initialState.getCopyWithActTok(value), token.getLineDefinition(), token.getColDefinition()+1, manager.getNature());
                             if(definitions.length == 1){
                                 Definition d = definitions[0];

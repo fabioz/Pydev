@@ -15,6 +15,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -70,8 +72,13 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor{
                 markAsDerived(resource);
                 return;
             }
-            if(!nature.isResourceInPythonpath(dotPy)){
-                return; // we only analyze resources that are in the pythonpath
+            try{
+                if(!nature.isResourceInPythonpath(dotPy)){
+                    return; // we only analyze resources that are in the pythonpath
+                }
+            }catch(MisconfigurationException e){
+                Log.log(e);
+                return;
             }
 
             //if still did not return, let's remove it

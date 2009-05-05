@@ -81,7 +81,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
 
     
-    public void testCompleteImportCompletion() throws CoreException, BadLocationException{
+    public void testCompleteImportCompletion() throws Exception{
         String[] testLibAndSubmodules = new String[]{
                 "testlib",
                 "testlib.unittest",
@@ -109,7 +109,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl("from testlib.unittest.testcase.TestCase import  assertBM", new String[]{"assertBMPsNotEqual","assertBMPsEqual"});
     }
     
-    public void testFullModulesOnFromImport() throws CoreException, BadLocationException{
+    public void testFullModulesOnFromImport() throws Exception{
         requestCompl("from ", -1, new String[]{"testlib", "testlib.unittest"});
     }
     
@@ -119,7 +119,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
      * 
      * This is done in AssignAnalysis
      */
-    public void testProtocolsAdaptation() throws CoreException, BadLocationException{
+    public void testProtocolsAdaptation() throws Exception{
         String s = 
             "import protocols\n" +
             "class InterfM1(protocols.Interface):\n" +
@@ -142,7 +142,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
      * 
      * This is done in ILocalScope#getPossibleClassesForActivationToken
      */
-    public void testAssertDeterminesClass() throws CoreException, BadLocationException{
+    public void testAssertDeterminesClass() throws Exception{
         String s = 
             "def m1(a):\n" +
             "    import xmllib\n" +
@@ -153,7 +153,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         
     }
     
-    public void testAssertDeterminesClass2() throws CoreException, BadLocationException{
+    public void testAssertDeterminesClass2() throws Exception{
         String s = 
             "def m1(a):\n" +
             "    import xmllib\n" +
@@ -164,7 +164,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         
     }
     
-    public void testAssertDeterminesClass3() throws CoreException, BadLocationException{
+    public void testAssertDeterminesClass3() throws Exception{
         String s = 
             "class InterfM1:\n" +
             "    def m1(self):\n" +
@@ -179,7 +179,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         
     }
     
-    public void testAssertDeterminesClass4() throws CoreException, BadLocationException{
+    public void testAssertDeterminesClass4() throws Exception{
         String s = 
             "class InterfM1:\n" +
             "    def m1(self):\n" +
@@ -198,7 +198,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         
     }
     
-    public void testAssertDeterminesClass5() throws CoreException, BadLocationException{
+    public void testAssertDeterminesClass5() throws Exception{
         String s = 
             "class InterfM1:\n" +
             "    def m1(self):\n" +
@@ -212,7 +212,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[]{"m1()"});
         
     }
-    public void testAssertDeterminesClass6() throws CoreException, BadLocationException{
+    public void testAssertDeterminesClass6() throws Exception{
         String s = 
             "class InterfM1:\n" +
             "    def m1(self):\n" +
@@ -227,7 +227,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         
     }
     
-    public void testMultilineImportCompletion() throws CoreException, BadLocationException{
+    public void testMultilineImportCompletion() throws Exception{
         String s = "from testlib import (\n";
         
         requestCompl(s, new String[]{"__file__", "__name__", "__init__", "unittest", "__path__"});
@@ -257,7 +257,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     
-    public void testSelfReference() throws CoreException, BadLocationException{
+    public void testSelfReference() throws Exception{
         String s;
         s = "class C:            \n" +
             "    def met1(self): \n" +
@@ -272,7 +272,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "met1()"});
     }
     
-    public void testProj2() throws CoreException, BadLocationException{
+    public void testProj2() throws Exception{
         String s;
         s = ""+
         "import proj2root\n" +
@@ -280,14 +280,14 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "Proj2Root"}, nature2);
     }
     
-    public void testProj2Global() throws CoreException, BadLocationException{
+    public void testProj2Global() throws Exception{
         String s;
         s = ""+
         "import ";
         requestCompl(s, s.length(), -1, new String[] { "proj2root", "testlib"}, nature2);
     }
     
-    public void testPIL() throws CoreException, BadLocationException{
+    public void testPIL() throws Exception{
         if(TestDependent.HAS_PIL){
             String s;
             s = ""+
@@ -298,7 +298,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         }
     }
     
-    public void testClassAttrs() throws CoreException, BadLocationException{
+    public void testClassAttrs() throws Exception{
         String s;
         s = ""+
         "class A:\n" +
@@ -309,7 +309,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "aa", "bb", "cc", "dd"});
     }
 
-    public void testFromImport() throws CoreException, BadLocationException{
+    public void testFromImport() throws Exception{
         //TODO: see AbstractASTManager.resolveImport
         String s;
         s = ""+
@@ -319,7 +319,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(p[0].getAdditionalProposalInfo(), "This is a docstring");
     }
     
-    public void testFromImportAs() throws CoreException, BadLocationException{
+    public void testFromImportAs() throws Exception{
         String s;
         s = ""+
         "from testOtherImports.f3 import test as AnotherTest\n" +
@@ -329,7 +329,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     
-    public void testFromImportAs2() throws CoreException, BadLocationException{
+    public void testFromImportAs2() throws Exception{
         String s;
         s = ""+
         "from testOtherImports.f3 import Foo\n" +
@@ -338,7 +338,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("SomeOtherTest", p[0].getAdditionalProposalInfo());
     }
     
-    public void testInnerImport() throws CoreException, BadLocationException{
+    public void testInnerImport() throws Exception{
         String s;
         s = "" +
         "def m1():\n" +
@@ -360,7 +360,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     
-    public void testSelfReferenceWithTabs() throws CoreException, BadLocationException{
+    public void testSelfReferenceWithTabs() throws Exception{
         String s;
         s = "class C:\n" +
         "    def met1(self):\n" +
@@ -377,7 +377,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     
-    public void testClassCompl() throws CoreException, BadLocationException{
+    public void testClassCompl() throws Exception{
         String s;
         s = "" +
         "class Test:\n" +
@@ -387,7 +387,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "classVar"});
     }
     
-    public void testInnerCtxt() throws CoreException, BadLocationException{
+    public void testInnerCtxt() throws Exception{
         String s;
         s = "" +
         "class Test:\n"+
@@ -401,7 +401,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     
-    public void testDeepNested() throws CoreException, BadLocationException{
+    public void testDeepNested() throws Exception{
         String s;
         s = "" +
             "from extendable.nested2 import hub\n"+
@@ -409,7 +409,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "fun()"});
     }
     
-    public void testDeepNested2() throws CoreException, BadLocationException{
+    public void testDeepNested2() throws Exception{
         String s;
         s = "" +
         "from extendable.nested2 import hub\n"+
@@ -417,7 +417,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "another()"});
     }
     
-    public void testDeepNested3() throws CoreException, BadLocationException{
+    public void testDeepNested3() throws Exception{
         String s;
         s = "" +
         "from extendable.nested2 import hub\n"+
@@ -425,7 +425,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "another()"});
     }
     
-    public void testDeepNested4() throws CoreException, BadLocationException{
+    public void testDeepNested4() throws Exception{
         String s;
         s = "" +
         "from extendable.nested2 import hub\n"+
@@ -433,7 +433,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "AnotherTest"});
     }
     
-    public void testDeepNested5() throws CoreException, BadLocationException{
+    public void testDeepNested5() throws Exception{
         String s;
         s = "" +
         "from extendable.nested2 import hub\n"+
@@ -441,7 +441,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "assertBMPsNotEqual"});
     }
     
-    public void testDeepNested6() throws CoreException, BadLocationException{
+    public void testDeepNested6() throws Exception{
         String s;
         s = "" +
         "from extendable.nested2 import mod2\n"+
@@ -450,7 +450,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     
-    public void testSelfReferenceWithTabs2() throws CoreException, BadLocationException{
+    public void testSelfReferenceWithTabs2() throws Exception{
         String s;
         s = "" +
         "class C:\n" +
@@ -466,19 +466,19 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, iComp, -1, new String[] { "met1()"});
     }
     
-    public void testRelativeImport() throws FileNotFoundException, CoreException, BadLocationException{
+    public void testRelativeImport() throws FileNotFoundException, Exception{
         String file = TestDependent.TEST_PYSRC_LOC+"testlib/unittest/relative/testrelative.py";
         String strDoc = "from toimport import ";
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"Test1", "Test2"});   
     }
 
-    public void testInModuleWithoutExtension() throws FileNotFoundException, CoreException, BadLocationException{
+    public void testInModuleWithoutExtension() throws FileNotFoundException, Exception{
         String file = TestDependent.TEST_PYSRC_LOC+"mod_without_extension";
         String strDoc = REF.getFileContents(new File(file));
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"ClassInModWithoutExtension"});   
     }
     
-    public void testRelativeImportWithSubclass() throws FileNotFoundException, CoreException, BadLocationException{
+    public void testRelativeImportWithSubclass() throws FileNotFoundException, Exception{
         String file = TestDependent.TEST_PYSRC_LOC+"extendable/relative_with_sub/bb.py";
         String strDoc = REF.getFileContents(new File(file));
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"yyy()"});   
@@ -698,7 +698,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
      * @throws CoreException
      * 
      */
-    public void testFor() throws CoreException, BadLocationException {
+    public void testFor() throws Exception {
         String s;
         s = "" +
             "for event in a:   \n" +
@@ -712,7 +712,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         }
     }
     
-    public void testCompletionAfterClassInstantiation() throws CoreException, BadLocationException {
+    public void testCompletionAfterClassInstantiation() throws Exception {
         String s;
         s = "" +
         "class Foo:\n" +
@@ -724,7 +724,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, proposals.length);
     }
     
-    public void testClassConstructorParams() throws CoreException, BadLocationException {
+    public void testClassConstructorParams() throws Exception {
         String s;
         String original = "" +
         "class Foo:\n" +

@@ -4,24 +4,18 @@
  * 
  * @author Fabio Zadrozny
  */
-package org.python.pydev.ui;
+package org.python.pydev.core;
 
 /**
  * @author Fabio Zadrozny
  */
-public class NotConfiguredInterpreterException extends RuntimeException {
+public class NotConfiguredInterpreterException extends MisconfigurationException {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -7824508734113060512L;
 
-    /**
-     * 
-     */
     public NotConfiguredInterpreterException() {
-        super("Interpreter is not properly configured!\n" +
-              "Please go to window->preferences->PyDev->Python (or Jython) Interpreters and configure it.");
+        super("Interpreter not configured.\n" +
+              "Go to window > preferences > PyDev > Python (or Jython) to configure it.");
     }
 
     /**

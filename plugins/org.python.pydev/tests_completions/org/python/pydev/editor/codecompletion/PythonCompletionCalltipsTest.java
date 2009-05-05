@@ -1,7 +1,5 @@
 package org.python.pydev.editor.codecompletion;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.StringUtils;
@@ -47,7 +45,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
     }
 
 
-    public void testCalltips1() throws CoreException, BadLocationException {
+    public void testCalltips1() throws Exception {
         String s;
         s = "" +
         "GLOBAL_VAR = 10\n" + //this variable should not show in the return
@@ -101,7 +99,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
 
 
     
-    public void testCalltips2() throws CoreException, BadLocationException {
+    public void testCalltips2() throws Exception {
         String s;
         s = "" +
         "GLOBAL_VAR = 10\n" + 
@@ -115,7 +113,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         assertEquals(1, proposals.length); 
     }
     
-    public void testCalltips3() throws CoreException, BadLocationException {
+    public void testCalltips3() throws Exception {
         String s;
         s = "" +
         "def m1(a, b):\n" +
@@ -133,7 +131,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         assertFalse(validator.isContextInformationValid(requestOffset+1));
     }
     
-    public void testCalltips4() throws CoreException, BadLocationException {
+    public void testCalltips4() throws Exception {
         String s;
         s = "" +
         "def m1(a, b):\n" +

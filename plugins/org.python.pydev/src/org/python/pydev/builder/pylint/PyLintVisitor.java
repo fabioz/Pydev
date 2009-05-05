@@ -32,7 +32,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
-import org.python.pydev.core.ProjectMisconfiguredException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -179,9 +179,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @param document
          * @param location
          * @throws CoreException
-         * @throws ProjectMisconfiguredException 
+         * @throws MisconfigurationException 
          */
-        private void passPyLint(IResource resource, IOConsoleOutputStream out) throws CoreException, ProjectMisconfiguredException {
+        private void passPyLint(IResource resource, IOConsoleOutputStream out) throws CoreException, MisconfigurationException {
             File script = new File(PyLintPrefPage.getPyLintLocation());
             File arg = new File(location.toOSString());
 

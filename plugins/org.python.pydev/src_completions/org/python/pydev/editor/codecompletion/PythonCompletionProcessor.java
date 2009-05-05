@@ -4,6 +4,7 @@
  */
 package org.python.pydev.editor.codecompletion;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
@@ -176,7 +178,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
             }finally{
                 nature.endRequests();
             }
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             CompletionError completionError = new CompletionError(e);
             setError(e, completionError.getErrorMessage());
             //Make the error visible to the user!
@@ -210,9 +212,11 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * @param viewer 
      * @throws CoreException
      * @throws BadLocationException
+     * @throws MisconfigurationException 
+     * @throws IOException 
      */
     @SuppressWarnings("unchecked")
-    private List getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc, CompletionRequest request) throws CoreException, BadLocationException {
+    private List getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc, CompletionRequest request) throws CoreException, BadLocationException, IOException, MisconfigurationException {
         //if non empty string, we're in imports section.
         String importsTipperStr = request.codeCompletion.getImportsTipperStr(request).importsTipperStr;
         

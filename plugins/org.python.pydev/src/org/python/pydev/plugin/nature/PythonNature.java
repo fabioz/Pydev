@@ -45,6 +45,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -993,11 +994,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * @return info on the interpreter configured for this nature.
-     * @throws ProjectMisconfiguredException 
+     * @throws MisconfigurationException 
      * 
      * @note that an exception will be raised if the 
      */
-    public IInterpreterInfo getProjectInterpreter() throws ProjectMisconfiguredException{
+    public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException{
         try {
             String projectInterpreterName = getProjectInterpreterName();
             IInterpreterInfo ret;
@@ -1073,6 +1074,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         try {
             info = this.getProjectInterpreter();
             
+            String executableOrJar = info.getExecutableOrJar();
+            if(!new File(executableOrJar).exists()){
+                lst.add(new ProjectConfigError(relatedToProject, "The interpreter configured does not exist in the filesystem: "+executableOrJar));
+            }
+            
             List<String> projectSourcePathSet = new ArrayList<String>(this.getPythonPathNature().getProjectSourcePathSet());
             Collections.sort(projectSourcePathSet);
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -1107,7 +1113,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                         relatedToProject, StringUtils.replaceNewLines(versionAndError.o2, " ")));
             }
             
-        } catch (ProjectMisconfiguredException e) {
+        } catch (MisconfigurationException e) {
             lst.add(new ProjectConfigError(
                     relatedToProject, StringUtils.replaceNewLines(e.getMessage(), " ")));
             

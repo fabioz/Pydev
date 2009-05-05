@@ -18,7 +18,7 @@ public class SWTTest extends TestCase{
         shell = new org.eclipse.swt.widgets.Shell();
     }
 
-    public void testIt(){
+    public void testIt() throws Exception{
         
     }
     

@@ -30,6 +30,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -407,8 +408,13 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         Set<ClassDef> alreadyTreated = new HashSet<ClassDef>();
         
         //let's create the module only once (this way the classdefs will be the same as reparses should not be needed).
-        IModule module = AbstractASTManager.createModule(file, doc, new CompletionState(-1, -1, "", nature, "", completionCache), 
-                nature.getAstManager());
+        IModule module;
+        try{
+            module = AbstractASTManager.createModule(file, doc, new CompletionState(-1, -1, "", nature, "", completionCache), 
+                    nature.getAstManager());
+        }catch(MisconfigurationException e1){
+            throw new RuntimeException(e1);
+        }
         
         for (String baseName : importedBase) {
             ICompletionState state = new CompletionState(-1, -1, baseName, nature, "", completionCache);

@@ -27,6 +27,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
@@ -500,6 +501,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                             keyForCacheAccess.file = e.f;
                             doRemoveSingleModule(keyForCacheAccess);
                             n = null;
+                        } catch (MisconfigurationException exc) {
+                            PydevPlugin.log(exc);
+                            n=null;
                         }
                     }
                     

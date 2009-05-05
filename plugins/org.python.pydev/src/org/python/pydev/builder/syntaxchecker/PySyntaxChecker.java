@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.PyDevBuilderVisitor;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
@@ -40,7 +41,13 @@ public class PySyntaxChecker extends PyDevBuilderVisitor{
             Log.toLogFile(this, "Checking!");
         }
         
-        SourceModule mod = getSourceModule(resource, document, nature);
+        SourceModule mod;
+        try{
+            mod = getSourceModule(resource, document, nature);
+        }catch(MisconfigurationException e1){
+            Log.log(e1);
+            return;
+        }
         Throwable parseError = mod.parseError;
         
         try {

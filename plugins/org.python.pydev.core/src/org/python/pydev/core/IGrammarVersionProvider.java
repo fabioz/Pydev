@@ -28,8 +28,9 @@ public interface IGrammarVersionProvider {
 
     /**
      * @return the version of the grammar as defined in IPythonNature.GRAMMAR_PYTHON_VERSION...
+     * @throws MisconfigurationException 
      */
-    public int getGrammarVersion();
+    public int getGrammarVersion() throws MisconfigurationException;
 
     public static List<Integer> grammarVersions = GrammarsIterator.createList();
     
