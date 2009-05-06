@@ -67,7 +67,6 @@ import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonResource;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.navigator.filters.PythonNodeFilter;
-import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
