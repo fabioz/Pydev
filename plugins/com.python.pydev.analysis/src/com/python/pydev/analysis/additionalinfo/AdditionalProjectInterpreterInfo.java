@@ -22,6 +22,7 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
@@ -232,6 +233,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
                 systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
                         PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
             } catch (MisconfigurationException e) {
+                throw new RuntimeException(e);
+            }catch(PythonNatureWithoutProjectException e){
                 throw new RuntimeException(e);
             }
             ret.add(systemInfo);
