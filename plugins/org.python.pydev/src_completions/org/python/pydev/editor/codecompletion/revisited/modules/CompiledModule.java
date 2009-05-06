@@ -129,16 +129,18 @@ public class CompiledModule extends AbstractModule{
                             nature.getRelatedInterpreterManager())); //default
             
             String fPath = completions.o1;
-            if(!fPath.equals("None")){
-                this.file = new File(fPath);
-            }
-
-            String f = fPath;
-            if(f.toLowerCase().endsWith(".pyc")){
-                f = f.substring(0, f.length()-1); //remove the c from pyc
-                File f2 = new File(f);
-                if(f2.exists()){
-                    this.file = f2;
+            if(fPath != null){
+                if(!fPath.equals("None")){
+                    this.file = new File(fPath);
+                }
+    
+                String f = fPath;
+                if(f.toLowerCase().endsWith(".pyc")){
+                    f = f.substring(0, f.length()-1); //remove the c from pyc
+                    File f2 = new File(f);
+                    if(f2.exists()){
+                        this.file = f2;
+                    }
                 }
             }
             ArrayList<IToken> array = new ArrayList<IToken>();

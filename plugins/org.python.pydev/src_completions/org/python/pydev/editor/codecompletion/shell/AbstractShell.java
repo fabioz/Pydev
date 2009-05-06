@@ -26,6 +26,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
@@ -193,7 +194,7 @@ public abstract class AbstractShell {
     }
 
 
-    public synchronized static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException, JDTNotAvailableException, CoreException, MisconfigurationException{
+    public synchronized static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException, JDTNotAvailableException, CoreException, MisconfigurationException, PythonNatureWithoutProjectException{
         return getServerShell(nature.getProjectInterpreter(), nature.getRelatedId(), id);
     }
     
@@ -317,8 +318,9 @@ public abstract class AbstractShell {
      * @throws IOException
      * @throws CoreException
      * @throws MisconfigurationException 
+     * @throws PythonNatureWithoutProjectException 
      */
-    /*package*/ synchronized void startIt(IPythonNature nature) throws IOException, JDTNotAvailableException, CoreException, MisconfigurationException {
+    /*package*/ synchronized void startIt(IPythonNature nature) throws IOException, JDTNotAvailableException, CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
         synchronized(this){
             this.startIt(nature.getProjectInterpreter(), AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS);
         }

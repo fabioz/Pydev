@@ -47,6 +47,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ProjectMisconfiguredException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -459,7 +460,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @param interpreter 
      */
     @SuppressWarnings("unchecked")
-    private void init(
+    private synchronized void init(
             String version, 
             String projectPythonpath, 
             String externalProjectPythonpath, 
@@ -655,8 +656,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     /**
      * @param project the project we want to know about (if it is null, null is returned)
      * @return the python nature for a project (or null if it does not exist for the project)
+     * 
+     * @note: it's synchronized because more than 1 place could call getPythonNature at the same time and more
+     * than one nature ended up being created from project.getNature().
      */
-    public static PythonNature getPythonNature(IProject project) {
+    public static synchronized PythonNature getPythonNature(IProject project) {
         if(project != null && project.isOpen()){
             try {
                 IProjectNature n = project.getNature(PYTHON_NATURE_ID);
@@ -998,7 +1002,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * 
      * @note that an exception will be raised if the 
      */
-    public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException{
+    public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException, PythonNatureWithoutProjectException{
+        if(this.project == null){
+            throw new PythonNatureWithoutProjectException("Project is not set.");
+        }
+        
         try {
             String projectInterpreterName = getProjectInterpreterName();
             IInterpreterInfo ret;
@@ -1043,6 +1051,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @return The name of the interpreter that should be used for the nature this project is associated to.
      * 
      * Note that this is the name that's visible to the user (and not the actual path of the executable).
+     * 
+     * It can be null if the project is still not set!
      */
     public String getProjectInterpreterName() throws CoreException{
         if(project != null){
@@ -1060,8 +1070,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     /**
      * @return a list of configuration errors and the interpreter info for the project (the interpreter info can be null)
+     * @throws PythonNatureWithoutProjectException 
      */
-    public Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(final IProject relatedToProject) {
+    public Tuple<List<ProjectConfigError>, IInterpreterInfo> getConfigErrorsAndInfo(final IProject relatedToProject) throws PythonNatureWithoutProjectException {
         if(IN_TESTS){
             return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList<ProjectConfigError>(), null);
         }

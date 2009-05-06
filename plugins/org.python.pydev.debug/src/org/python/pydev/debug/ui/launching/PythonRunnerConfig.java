@@ -31,6 +31,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -228,7 +229,11 @@ public class PythonRunnerConfig {
                 
                 //When both, the interpreter for the launch and the nature have the same type, let's get the
                 //launch location from the project
-                return nature.getProjectInterpreter();
+                try{
+                    return nature.getProjectInterpreter();
+                }catch(PythonNatureWithoutProjectException e){
+                    throw new RuntimeException(e);
+                }
                 
             }else{
                 

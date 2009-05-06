@@ -10,11 +10,11 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.internal.navigator.workingsets.WorkingSetsContentProvider;
+import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.navigator.ICommonContentExtensionSite;
 import org.eclipse.ui.navigator.IExtensionStateModel;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.navigator.ui.PydevPackageExplorer;
 import org.python.pydev.plugin.PydevPlugin;
 /**
  * Based on code from WorkingSetsContentProvider (but as it's internal and dependent on ProjectExplorer, 
@@ -67,11 +67,11 @@ public class TopLevelProjectsOrWorkingSetChoice {
     /**
      * Starts listening to property changes related to which should be the top-level elements to be shown.
      */
-    public void init(ICommonContentExtensionSite aConfig, PydevPackageExplorer commonNavigator) {
+    public void init(ICommonContentExtensionSite aConfig, CommonViewer viewer) {
         //if it had something, dispose of its association!
         this.dispose();
         try {
-            extensionStateModel = commonNavigator.getNavigatorContentService().findStateModel(
+            extensionStateModel = viewer.getNavigatorContentService().findStateModel(
                     WorkingSetsContentProvider.EXTENSION_ID);
             
             extensionStateModel.addPropertyChangeListener(rootModeListener);

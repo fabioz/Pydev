@@ -30,6 +30,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -68,7 +69,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
      */
     @SuppressWarnings("unchecked")
-    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException, IOException, MisconfigurationException {
+    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
         if(request.getPySelection().getCursorLineContents().trim().startsWith("#")){
             //this may happen if the context is still not correctly computed in python
             return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);
@@ -316,8 +317,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @throws MisconfigurationException 
      * @throws CoreException 
      * @throws IOException 
+     * @throws PythonNatureWithoutProjectException 
      */
-    private void lazyStartShell(CompletionRequest request) throws IOException, CoreException, MisconfigurationException {
+    private void lazyStartShell(CompletionRequest request) throws IOException, CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
         try {
             if(DebugSettings.DEBUG_CODE_COMPLETION){
                 Log.toLogFile(this,"AbstractShell.getServerShell");

@@ -196,6 +196,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      * return the actual path, not the internal representation).
      * 
      * Note: the return can never be null (an exception is thrown if none can be determined) 
+     * @throws PythonNatureWithoutProjectException 
      */
-    IInterpreterInfo getProjectInterpreter() throws MisconfigurationException;
+    IInterpreterInfo getProjectInterpreter() throws MisconfigurationException, PythonNatureWithoutProjectException;
 }

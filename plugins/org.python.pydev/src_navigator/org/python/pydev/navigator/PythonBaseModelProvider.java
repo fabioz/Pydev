@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
+import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.navigator.ICommonContentExtensionSite;
 import org.eclipse.ui.navigator.INavigatorContentService;
 import org.eclipse.ui.navigator.INavigatorFilterService;
@@ -54,6 +55,7 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.structure.TreeNode;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -108,7 +110,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     /**
      * This is the viewer that we're using to see the contents of this file provider.
      */
-    protected PydevCommonViewer viewer;
+    protected CommonViewer viewer;
     
     /**
      * This is the helper we have to know if the top-level elements shoud be working sets or only projects.
@@ -251,6 +253,8 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                 projectPythonpath = nature.getPythonPathNature().getCompleteProjectPythonPath(
                         nature.getProjectInterpreter(), 
                         nature.getRelatedInterpreterManager());
+            }catch(PythonNatureWithoutProjectException e){
+                projectPythonpath = new ArrayList<String>();
             } catch (MisconfigurationException e) {
                 projectPythonpath = new ArrayList<String>();
             }
@@ -835,10 +839,10 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         super.inputChanged(viewer, oldInput, newInput);
 
-        this.viewer = (PydevCommonViewer) viewer;
+        this.viewer = (CommonViewer) viewer;
        
         //whenever the input changes, we must reconfigure the top level choice
-        topLevelChoice.init(aConfig, this.viewer.getPydevPackageExplorer());
+        topLevelChoice.init(aConfig, this.viewer);
 
         
         IWorkspace[] oldWorkspace = null;

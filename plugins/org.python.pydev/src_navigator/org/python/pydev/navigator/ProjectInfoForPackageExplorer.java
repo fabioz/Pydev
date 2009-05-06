@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
@@ -68,7 +69,29 @@ public class ProjectInfoForPackageExplorer{
         if(nature == null){
             return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList(), null);
         }
-        Tuple<List<ProjectConfigError>, IInterpreterInfo> configErrorsAndInfo = nature.getConfigErrorsAndInfo(project);
+        
+        //If the info is not readily available, we try to get some more times... after that, if still not available,
+        //we just return as if it's all OK.
+        Tuple<List<ProjectConfigError>, IInterpreterInfo> configErrorsAndInfo = null;
+        boolean goodToGo = false;
+        for(int i=0;i<10&&!goodToGo;i++){
+            try{
+                configErrorsAndInfo = nature.getConfigErrorsAndInfo(project);
+                goodToGo = true;
+            }catch(PythonNatureWithoutProjectException e1){
+                goodToGo = false;
+                synchronized(this){
+                    try{
+                        wait(100);
+                    }catch(InterruptedException e){
+                    }
+                }
+            }
+        }
+        if(configErrorsAndInfo == null){
+            return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(new ArrayList(), null);
+        }
+        
         if(nature != null){
             try {
                 project.deleteMarkers(PythonBaseModelProvider.PYDEV_PACKAGE_EXPORER_PROBLEM_MARKER, true, 0);

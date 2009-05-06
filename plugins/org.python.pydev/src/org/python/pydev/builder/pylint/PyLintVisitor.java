@@ -33,6 +33,7 @@ import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -180,8 +181,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
          * @param location
          * @throws CoreException
          * @throws MisconfigurationException 
+         * @throws PythonNatureWithoutProjectException 
          */
-        private void passPyLint(IResource resource, IOConsoleOutputStream out) throws CoreException, MisconfigurationException {
+        private void passPyLint(IResource resource, IOConsoleOutputStream out) throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
             File script = new File(PyLintPrefPage.getPyLintLocation());
             File arg = new File(location.toOSString());
 

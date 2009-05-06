@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 
 public interface IPyCodeCompletion {
@@ -27,9 +28,10 @@ public interface IPyCodeCompletion {
      * @throws BadLocationException
      * @throws MisconfigurationException 
      * @throws IOException 
+     * @throws PythonNatureWithoutProjectException 
      */
     public abstract List<Object> getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException,
-            BadLocationException, IOException, MisconfigurationException;
+            BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException;
 
     /**
      * Returns non empty string if we are in imports section 
