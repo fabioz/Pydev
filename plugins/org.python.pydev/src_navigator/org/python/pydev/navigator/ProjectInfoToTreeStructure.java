@@ -17,12 +17,6 @@ public class ProjectInfoToTreeStructure {
         if(interpreterInfo != null){
             root = new InterpreterInfoTreeNode<LabelAndImage>(
                     null,
-                    new LabelAndImage("Interpreter Info", imageCache.get(UIConstants.LIB_SYSTEM_ROOT))
-            );
-            
-            
-            new InterpreterInfoTreeNode<LabelAndImage>(
-                    root, 
                     new LabelAndImage(interpreterInfo.getNameForUI(), imageCache.get(UIConstants.PY_INTERPRETER_ICON))
             );
             

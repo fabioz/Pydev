@@ -111,7 +111,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @param monitor a monitor to display the progress to the user.
      */
     protected void doRestore(IProgressMonitor monitor) {
-        IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
+        IInterpreterManager iMan = getInterpreterManager();
         iMan.restorePythopathForAllInterpreters(monitor);
         
         //We also need to restart our code-completion shell after doing that, as we may have new environment variables!
