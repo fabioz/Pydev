@@ -3,8 +3,8 @@ package com.python.pydev.analysis.actions;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.ui.UIConstants;
 
+import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
@@ -18,6 +18,9 @@ public final class ModuleIInfoLabelProvider extends LabelProvider {
     public String getText(Object element) {
         if(element instanceof AdditionalInfoAndIInfo){
             element = ((AdditionalInfoAndIInfo)element).info;
+        }
+        if(element instanceof String){
+            return (String) element;
         }
         IInfo info = (IInfo) element;
         String path = info.getPath();
@@ -33,6 +36,10 @@ public final class ModuleIInfoLabelProvider extends LabelProvider {
 
     @Override
     public Image getImage(Object element) {
-        return org.python.pydev.plugin.PydevPlugin.getImageCache().get(UIConstants.COMPLETION_PACKAGE_ICON);
+        IInfo info = NameIInfoLabelProvider.getInfo(element);
+        if(info == null){
+            return null;
+        }
+        return AnalysisPlugin.getImageForTypeInfo(info);
     }
 }

@@ -148,25 +148,27 @@ public class PyGlobalsBrowser extends PyAction{
         dialog.open();
         Object[] result = dialog.getResult();
         if(result != null && result.length > 0){
-            IInfo entry;
-            if(result[0] instanceof AdditionalInfoAndIInfo){
-                entry = ((AdditionalInfoAndIInfo)result[0]).info;
-            }else{
-                entry = (IInfo) result[0];
-            }
-            List<ItemPointer> pointers = new ArrayList<ItemPointer>();
-            
-            CompletionCache completionCache = new CompletionCache();
-            for(IPythonNature pythonNature:pythonNatures){
-                //try to find in one of the natures...
-                ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-                if(astManager == null){
-                    continue;
+            for(Object obj:result){
+                IInfo entry;
+                if(obj instanceof AdditionalInfoAndIInfo){
+                    entry = ((AdditionalInfoAndIInfo)obj).info;
+                }else{
+                    entry = (IInfo) obj;
                 }
-                AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry, completionCache);
-                if(pointers.size() > 0){
-                    new PyOpenAction().run(pointers.get(0));
-                    break; //don't check the other natures
+                List<ItemPointer> pointers = new ArrayList<ItemPointer>();
+                
+                CompletionCache completionCache = new CompletionCache();
+                for(IPythonNature pythonNature:pythonNatures){
+                    //try to find in one of the natures...
+                    ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+                    if(astManager == null){
+                        continue;
+                    }
+                    AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, entry, completionCache);
+                    if(pointers.size() > 0){
+                        new PyOpenAction().run(pointers.get(0));
+                        break; //don't check the other natures
+                    }
                 }
             }
         }
