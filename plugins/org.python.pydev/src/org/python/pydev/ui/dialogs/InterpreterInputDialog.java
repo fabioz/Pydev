@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
 
@@ -117,7 +118,8 @@ public class InterpreterInputDialog extends Dialog {
     protected void buttonPressed(int buttonId) {
         if (buttonId == IDialogConstants.OK_ID) {
             interpreterValue = interpreterNameField.getText().trim();
-            interpreterExecutableValue = interpreterExecutableField.getText().trim();
+            //Getting the absolute PATH here because we cannot work with links!
+            interpreterExecutableValue = REF.getFileAbsolutePath(interpreterExecutableField.getText().trim());
         } else {
             interpreterValue = null;
             interpreterExecutableValue = null;
