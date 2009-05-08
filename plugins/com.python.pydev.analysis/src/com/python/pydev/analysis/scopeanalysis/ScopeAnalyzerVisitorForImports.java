@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
