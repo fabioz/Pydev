@@ -18,7 +18,7 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends AbstractJythonWor
         try {
             JythonCompletionWithBuiltinsTestWorkbench test = new JythonCompletionWithBuiltinsTestWorkbench();
             test.setUp();
-            test.testCompleteImportBuiltin2();
+            test.testPropertiesAccess();
             test.tearDown();
             
             junit.textui.TestRunner.run(JythonCompletionWithBuiltinsTestWorkbench.class);
@@ -78,6 +78,16 @@ public class JythonCompletionWithBuiltinsTestWorkbench extends AbstractJythonWor
         requestCompl(s, s.length(), -1, new String[] { "EXIT_ON_CLOSE" });
     }
     
+    /**
+     * Test related to https://sourceforge.net/tracker/?func=detail&atid=577329&aid=2723131&group_id=85796
+     */
+    public void testPropertiesAccess() throws Exception{
+        String s;
+        s = "" +
+        "from java.lang.Boolean import TYPE\n" +
+        "TYPE.";
+        requestCompl(s, s.length(), -1, new String[] { "fields" });
+    }
 
 
 }

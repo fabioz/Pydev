@@ -14,6 +14,7 @@ Fixed Python 3.0 grammar error: star expr on for
 Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)
 Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)
 __future__ imports are always added/reorganized as the 1st import in the module
+Code-completion in Jython recognizes that a method get/setName should be available as a 'name' property. 
 
 Pydev Package Explorer
     Added filter for the python nodes

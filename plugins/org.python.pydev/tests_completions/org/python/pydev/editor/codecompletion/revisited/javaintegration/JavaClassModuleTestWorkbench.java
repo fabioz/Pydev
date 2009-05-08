@@ -73,12 +73,26 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
             //case 8: code-completion for tokens of an import
             checkCase8();
             
+            //case 9: code-completion for properties
+            checkCase9();
+            
 //            goToManual();
         }catch(Throwable e){
             //ok, I like errors to appear in stderr (and not only in the unit-test view)
             e.printStackTrace();
             throw e;
         }
+    }
+    
+    
+    /**
+     * Check with the tokens of a defined import
+     */
+    public void checkCase9() throws CoreException {
+        String mod1Contents = "from java.lang.Boolean import TYPE\nTYPE.";
+        setFileContents(mod1Contents);
+        ICompletionProposal[] props = requestProposals(mod1Contents, editor);
+        CodeCompletionTestsBase.assertContains("fields", props); //getFields should generate a 'fields' entry.
     }
     
     

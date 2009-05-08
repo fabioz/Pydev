@@ -3,6 +3,7 @@ package org.python.pydev.editor.codecompletion.revisited.javaintegration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -25,6 +26,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -106,17 +108,19 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
 
             List<Tuple<IJavaElement, CompletionProposal>> elementsFound = getJavaCompletionProposals(packagePlusactTok, null);
 
-            FastStringBuffer tempArgs = new FastStringBuffer(128);
+            HashMap<String, IJavaElement> generatedProperties = new HashMap<String, IJavaElement>();
+            
+            FastStringBuffer tempBuffer = new FastStringBuffer(128);
             for (Tuple<IJavaElement, CompletionProposal> element : elementsFound) {
                 IJavaElement javaElement = element.o1;
                 String args = "";
                 if (javaElement instanceof IMethod) {
-                    tempArgs.clear();
-                    tempArgs.append("()");
+                    tempBuffer.clear();
+                    tempBuffer.append("()");
                     IMethod method = (IMethod) javaElement;
                     for (String param : method.getParameterTypes()) {
-                        if (tempArgs.length() > 2) {
-                            tempArgs.insert(1, ", ");
+                        if (tempBuffer.length() > 2) {
+                            tempBuffer.insert(1, ", ");
                         }
 
                         //now, let's make the parameter 'pretty'
@@ -133,9 +137,32 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
                         if (replacement != null) {
                             lastPart = replacement;
                         }
-                        tempArgs.insert(1, lastPart);
+                        tempBuffer.insert(1, lastPart);
                     }
-                    args = tempArgs.toString();
+                    args = tempBuffer.toString();
+                    
+                    
+                    String elementName = method.getElementName();
+                    if(elementName.startsWith("get") || elementName.startsWith("set")){
+                        //Create a property for it
+                        tempBuffer.clear();
+                        elementName = elementName.substring(3);
+                        tempBuffer.append(Character.toLowerCase(elementName.charAt(0)));
+                        tempBuffer.append(elementName.substring(1));
+                        
+                        
+                        String propertyName = tempBuffer.toString();
+                        IJavaElement existing = generatedProperties.get(propertyName);
+                        if(existing != null){
+                            if(existing.getElementName().startsWith("set")){
+                                //getXXX has precedence over the setXXX.
+                                generatedProperties.put(propertyName, javaElement);
+                            }
+                        }else{
+                            generatedProperties.put(propertyName, javaElement);
+                        }
+                    }
+                    
                 }
                 if (DEBUG_JAVA_COMPLETIONS) {
                     System.out.println("Element: " + javaElement);
@@ -143,6 +170,14 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
 
                 lst.add(new JavaElementToken(javaElement.getElementName(), "", args, this.name, getType(javaElement.getElementType()),
                         javaElement, element.o2));
+                
+            }
+            
+            //Fill our generated properties.
+            for(Entry<String, IJavaElement> entry:generatedProperties.entrySet()){
+                IJavaElement javaElement = entry.getValue();
+                lst.add(new JavaElementToken(entry.getKey(), "", "", this.name, IToken.TYPE_ATTR,
+                        javaElement, PyCodeCompletionImages.getImageForType(IToken.TYPE_ATTR)));
             }
         } catch (Exception e) {
             PydevPlugin.log(e);

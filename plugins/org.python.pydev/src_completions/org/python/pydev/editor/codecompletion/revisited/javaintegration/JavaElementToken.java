@@ -39,6 +39,11 @@ public class JavaElementToken extends CompiledToken {
     private char[] completionPropsoalSignature;
 
     /**
+     * If not null, this image is returned (otherwise, the image is calculated)
+     */
+    private Image image;
+
+    /**
      * Used for backward compatibility to eclipse 3.2
      */
     static boolean HAS_ADDITIONAL_FLAGS = true;
@@ -76,10 +81,19 @@ public class JavaElementToken extends CompiledToken {
         this.completionPropsoalSignature = completionProposal.getSignature();
     }
     
+    public JavaElementToken(String rep, String doc, String args, String parentPackage, int type, IJavaElement javaElement, Image image) {
+        super(rep, doc, args, parentPackage, type);
+        this.javaElement = javaElement;
+        this.image = image;
+    }
+    
     
 
     @Override
     public Image getImage() {
+        if(this.image != null){
+            return this.image;
+        }
         CompletionProposalLabelProvider provider = new CompletionProposalLabelProvider();
         CompletionProposal generatedProposal = CompletionProposal.create(completionProposalKind, 0);
         generatedProposal.setFlags(completionProposalFlags);

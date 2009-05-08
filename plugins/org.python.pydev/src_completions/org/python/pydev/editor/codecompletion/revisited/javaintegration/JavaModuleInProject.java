@@ -92,7 +92,22 @@ public class JavaModuleInProject extends AbstractJavaClassModule {
             contents = StringUtils.format(contents, completeClassDesc, completeClassDesc);
         }
         
-        return getJavaCompletionProposals(contents, contents.length(), filterCompletionName);
+        List<Tuple<IJavaElement, CompletionProposal>> javaCompletionProposals = getJavaCompletionProposals(contents, contents.length(), filterCompletionName);
+        if(javaCompletionProposals.size() == 0){
+            //Handle static access (notice that we don't create an instance.)
+            if(filterCompletionName != null){
+                //pre-filter it a bit if we already know the completion name
+                contents = "%s.%s";
+                contents = StringUtils.format(contents, completeClassDesc, completeClassDesc, filterCompletionName);
+                
+            }else{
+                contents = "%s.";
+                contents = StringUtils.format(contents, completeClassDesc, completeClassDesc);
+            }
+            javaCompletionProposals = getJavaCompletionProposals(contents, contents.length() - 2, filterCompletionName);
+            
+        }
+        return javaCompletionProposals;
     }
 
     /**
