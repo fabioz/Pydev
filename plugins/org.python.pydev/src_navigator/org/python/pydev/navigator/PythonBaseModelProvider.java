@@ -613,7 +613,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                         continue;
                     }
                     
-                    Set<String> sourcePathSet = localNature.getPythonPathNature().getProjectSourcePathSet();
+                    Set<String> sourcePathSet = localNature.getPythonPathNature().getProjectSourcePathSet(true);
                     IPath fullPath = container.getFullPath();
                     if(sourcePathSet.contains(fullPath.toString())){
                         PythonSourceFolder createdSourceFolder;

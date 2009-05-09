@@ -22,6 +22,7 @@ import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
@@ -116,12 +117,11 @@ public class IProcessFactory {
                     return null;
                 }
                 
-                Collection<String> pythonpath = dialog.getPythonpath(interpreter);
-                if(pythonpath == null){
+                Tuple<Collection<String>, IPythonNature> pythonpathAndNature = dialog.getPythonpathAndNature(interpreter);
+                if(pythonpathAndNature == null){
                     return null;
                 }
-                String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpath);
-                String[] env = SimpleRunner.createEnvWithPythonpath(pythonpathEnv, interpreter.getExecutableOrJar(), interpreterManager);
+                String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpathAndNature.o1);
                 
                 if(interpreterManager.isPython()){
                     commandLine = SimplePythonRunner.makeExecutableCommandStr(interpreter.getExecutableOrJar(), scriptWithinPySrc.getAbsolutePath(), 
@@ -140,6 +140,8 @@ public class IProcessFactory {
                 
                 
                 
+                String[] env = SimpleRunner.createEnvWithPythonpath(
+                        pythonpathEnv, interpreter.getExecutableOrJar(), interpreterManager, pythonpathAndNature.o2);
                 process = SimpleRunner.createProcess(commandLine, env, null);
                 PydevSpawnedInterpreterProcess spawnedInterpreterProcess = 
                     new PydevSpawnedInterpreterProcess(process, launch);

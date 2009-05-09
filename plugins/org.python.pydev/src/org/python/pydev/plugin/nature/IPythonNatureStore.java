@@ -1,5 +1,7 @@
 package org.python.pydev.plugin.nature;
 
+import java.util.Map;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
@@ -32,6 +34,22 @@ interface IPythonNatureStore {
      * @throws CoreException
      */
     public abstract void setPathProperty(QualifiedName key, String value) throws CoreException;
+    
+    /**
+     * Set a map property. If the value is null the property is removed.
+     * 
+     * @param key the name of the property
+     * @param value a map of strings to be set.
+     * @throws CoreException
+     */
+    public abstract void setMapProperty(QualifiedName key, Map<String, String> value) throws CoreException;
+
+    /**
+     * @param key the name of the property
+     * @return a map with Strings or null if not available or some error happened loading it.
+     * @throws CoreException 
+     */
+    public abstract Map<String, String> getMapProperty(QualifiedName key) throws CoreException;
 
     /**
      * Retrieve a string property with the specified key from the Xml representation. If the key is not in the Xml representation, the eclipse persistent property of the same key is read and migrated

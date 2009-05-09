@@ -413,7 +413,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     
     private static void fillList(Tuple<String, String> forcedSplit, ArrayList<String> l2) {
         String forcedLibs = forcedSplit.o2;
-        for (String trimmed:StringUtils.split(forcedLibs, '|')) {
+        for (String trimmed:StringUtils.splitAndRemoveEmptyTrimmed(forcedLibs, '|')) {
             trimmed = trimmed.trim();
             if(trimmed.length() > 0){
                 l2.add(trimmed);

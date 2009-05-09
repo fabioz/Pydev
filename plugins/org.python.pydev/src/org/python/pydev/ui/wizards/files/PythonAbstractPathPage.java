@@ -497,7 +497,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             if (element instanceof IProject) {
                 IPythonPathNature nature = PythonNature.getPythonPathNature((IProject) element);
                 if(nature != null){
-                    String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath());
+                    String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath(true));
                     if(srcPaths.length > 0){
                         textSourceFolder.setText(srcPaths[0]);
                         return true;
@@ -531,7 +531,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
     public String getSrcFolderFromFolder(IFolder f) throws CoreException {
         IPythonPathNature nature = PythonNature.getPythonPathNature(f.getProject());
         if(nature != null){
-            String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath());
+            String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath(true));
             String relFolder = f.getFullPath().toString()+"/";
             for (String src : srcPaths) {
                 if(relFolder.startsWith(src+"/")){
@@ -730,7 +730,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             return "The pydev nature is not configured on the project: "+project.getName();
         }
         String full = resource.getFullPath().toString();
-        String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath());
+        String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath(true));
         for (String str : srcPaths) {
             if(str.equals(full)){
                 validatedSourceFolder = (IContainer) resource;

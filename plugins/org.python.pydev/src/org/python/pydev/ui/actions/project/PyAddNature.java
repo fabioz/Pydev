@@ -18,7 +18,7 @@ public class PyAddNature extends PyRemoveNature{
         }
         
         try {
-            PythonNature.addNature(selectedProject, null, null, null, null, null);
+            PythonNature.addNature(selectedProject, null, null, null, null, null, null);
         } catch (CoreException e) {
             PydevPlugin.log(e);
         }

@@ -67,6 +67,8 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
     /** Exception throw by generator thread */
     Exception creationThreadException;
 
+    private IProject createdProject;
+
     public void init(IWorkbench workbench, IStructuredSelection currentSelection) {
         this.workbench = workbench;
         this.selection = currentSelection;
@@ -186,7 +188,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
      * Launches another thread to create Python project. A progress monitor is shown in the UI thread.
      */
     public boolean performFinish() {
-        createNewProject();
+        createdProject = createNewProject();
 
         // Switch to default perspective
         IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
@@ -204,6 +206,10 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
          */
 
         return true;
+    }
+    
+    public IProject getCreatedProject(){
+        return createdProject;
     }
 
     /**

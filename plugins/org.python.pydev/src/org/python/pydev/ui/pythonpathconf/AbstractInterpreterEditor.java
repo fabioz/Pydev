@@ -654,7 +654,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             int retCode = d.open();
             if (retCode == InputDialog.OK) {
                 String builtins = d.getValue();
-                java.util.List<String> split = StringUtils.split(builtins, ',');
+                java.util.List<String> split = StringUtils.splitAndRemoveEmptyTrimmed(builtins, ',');
                 for (String string : split) {
                     String trimmed = string.trim();
                     if(trimmed.length() > 0){

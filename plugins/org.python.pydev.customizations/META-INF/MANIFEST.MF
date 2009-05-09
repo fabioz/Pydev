@@ -12,7 +12,9 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev,
  org.python.pydev.debug,
  org.eclipse.core.resources,
- org.python.pydev.core
+ org.python.pydev.core,
+ org.junit;resolution:=optional
 Eclipse-LazyStart: true
-Export-Package: org.python.pydev.customizations
+Export-Package: org.python.pydev.customizations,
+ org.python.pydev.customizations.app_engine.wizards
 Bundle-Vendor: Aptana

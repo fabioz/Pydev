@@ -286,7 +286,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                             if(monitor.isCanceled()){
                                 return Status.OK_STATUS;
                             }
-                            init(null, null, null, monitor, null);
+                            init(null, null, null, monitor, null, null);
                             synchronized (jobs) {
                                 if(jobs.get(project) == this){
                                     jobs.remove(project);
@@ -311,7 +311,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             IFile file = (IFile)((FileEditorInput)element).getAdapter(IFile.class);
             if (file != null){
                 try {
-                    return PythonNature.addNature(file.getProject(), null, null, null, null, null);
+                    return PythonNature.addNature(file.getProject(), null, null, null, null, null, null);
                 } catch (CoreException e) {
                     PydevPlugin.log(e);
                 }
@@ -384,7 +384,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             String version, 
             String projectPythonpath, 
             String externalProjectPythonpath, 
-            String projectInterpreter
+            String projectInterpreter,
+            Map<String, String> variableSubstitution
         ) throws CoreException {
         
         if (project == null || !project.isOpen()) {
@@ -430,7 +431,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         if (n instanceof PythonNature) {
             PythonNature nature = (PythonNature) n;
             //call initialize always - let it do the control.
-            nature.init(version, projectPythonpath, externalProjectPythonpath, monitor, projectInterpreter);
+            nature.init(version, projectPythonpath, externalProjectPythonpath, monitor, projectInterpreter, variableSubstitution);
             return nature;
         }
         return null;
@@ -465,12 +466,16 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             String projectPythonpath, 
             String externalProjectPythonpath, 
             IProgressMonitor monitor, 
-            String interpreter
+            String interpreter,
+            Map<String, String> variableSubstitution
         ) {
         
-        if(version != null || projectPythonpath != null || externalProjectPythonpath != null){
+        if(version != null || projectPythonpath != null || externalProjectPythonpath != null || variableSubstitution != null){
             this.getStore().startInit();
             try {
+                if(variableSubstitution != null){
+                    this.getPythonPathNature().setVariableSubstitution(variableSubstitution);
+                }
                 if(projectPythonpath != null){
                     this.getPythonPathNature().setProjectSourcePath(projectPythonpath);
                 }
@@ -1093,7 +1098,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 lst.add(new ProjectConfigError(relatedToProject, "The interpreter configured does not exist in the filesystem: "+executableOrJar));
             }
             
-            List<String> projectSourcePathSet = new ArrayList<String>(this.getPythonPathNature().getProjectSourcePathSet());
+            List<String> projectSourcePathSet = new ArrayList<String>(this.getPythonPathNature().getProjectSourcePathSet(true));
             Collections.sort(projectSourcePathSet);
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
             
@@ -1112,7 +1117,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 }
             }
             
-            List<String> externalPaths = StringUtils.split(this.getPythonPathNature().getProjectExternalSourcePath(), '|');
+            List<String> externalPaths = StringUtils.splitAndRemoveEmptyTrimmed(this.getPythonPathNature().getProjectExternalSourcePath(true), '|');
             Collections.sort(externalPaths);
             for (String path : externalPaths) {
                 if(!new File(path).exists()){

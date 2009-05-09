@@ -3,6 +3,7 @@ package org.python.pydev.runalltests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.python.pydev.customizations.app_engine.wizards.AppEngineConfigWizardPageWorkbenchTest;
 import org.python.pydev.debug.ui.DebuggerTestWorkbench;
 import org.python.pydev.debug.ui.SourceLocatorTestWorkbench;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfigTestWorkbench;
@@ -31,6 +32,7 @@ public class AllWorkbenchTests {
         suite.addTestSuite(JavaClassModuleTestWorkbench.class); 
         suite.addTestSuite(PythonRunnerConfigTestWorkbench.class); 
         suite.addTestSuite(SourceLocatorTestWorkbench.class); 
+        suite.addTestSuite(AppEngineConfigWizardPageWorkbenchTest.class); 
         
         suite.addTestSuite(DebuggerTestWorkbench.class); 
         

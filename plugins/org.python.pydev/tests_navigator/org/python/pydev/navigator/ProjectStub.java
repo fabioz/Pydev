@@ -357,7 +357,6 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
     }
 
     public void deleteMarkers(String type, boolean includeSubtypes, int depth) throws CoreException {
-        throw new RuntimeException("Not impl");
         
     }
 

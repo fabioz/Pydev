@@ -135,37 +135,45 @@ public class AbstractWorkbenchTestCase extends TestCase{
             
             PythonNature nature = PythonNature.getPythonNature(project);
             
-            //Let's give it some time to run the jobs that restore the nature
-            long finishAt = System.currentTimeMillis()+5000; //5 secs is the max time
-            
-            Display display = Display.getCurrent();
-            if(display == null){
-                display = Display.getDefault();
-            }
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-            while (!shell.isDisposed()) {
-                if (!display.readAndDispatch()){
-                    display.sleep();
-                }
-                if(finishAt<System.currentTimeMillis()){
-                    break;
-                }
-                if(nature != null){
-                    if(nature.getAstManager() != null){
-                        break;
-                    }
-                }
-            }
-
-            
-            assertTrue(nature != null);
-            assertTrue(nature.getAstManager() != null);
+            waitForNatureToBeRecreated(nature);
             
             
             editor = (PyEdit) PyOpenEditor.doOpenEditor(mod1);
         }else{
             setFileContents(mod1Contents);//just make sure that the contents of mod1 are correct.
         }
+    }
+
+
+    /**
+     * This method will wait some time until the given nature is properly configured with the ast manager.
+     */
+    protected void waitForNatureToBeRecreated(PythonNature nature){
+        //Let's give it some time to run the jobs that restore the nature
+        long finishAt = System.currentTimeMillis()+5000; //5 secs is the max time
+        
+        Display display = Display.getCurrent();
+        if(display == null){
+            display = Display.getDefault();
+        }
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()){
+                display.sleep();
+            }
+            if(finishAt<System.currentTimeMillis()){
+                break;
+            }
+            if(nature != null){
+                if(nature.getAstManager() != null){
+                    break;
+                }
+            }
+        }
+
+        
+        assertTrue(nature != null);
+        assertTrue(nature.getAstManager() != null);
     }
 
     
@@ -442,7 +450,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
         }
         if(addNature){
             PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, 
-                    "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar", null, null);
+                    "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar", null, null, null);
         }
         return sourceFolder;
     }

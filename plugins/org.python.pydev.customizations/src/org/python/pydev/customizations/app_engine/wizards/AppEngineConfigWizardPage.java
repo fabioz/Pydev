@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -35,6 +36,8 @@ import org.python.pydev.ui.UIConstants;
  */
 public class AppEngineConfigWizardPage extends WizardPage{
 
+    public static final String GOOGLE_APP_ENGINE_VARIABLE = "GOOGLE_APP_ENGINE";
+
     private Label locationLabel;
 
     private Text locationPathField;
@@ -54,6 +57,8 @@ public class AppEngineConfigWizardPage extends WizardPage{
     private Image imageAppEngine;
 
     private final List<String> externalSourceFolders = new ArrayList<String>();
+    
+    private final Map<String, String> variableSubstitution = new HashMap<String, String>();
     
     private Listener locationModifyListener = new Listener(){
         public void handleEvent(Event e){
@@ -141,8 +146,8 @@ public class AppEngineConfigWizardPage extends WizardPage{
      */
     private void handleLocationBrowseButtonPressed(){
         DirectoryDialog dialog = new DirectoryDialog(locationPathField.getShell());
-        dialog
-                .setMessage("Select the Google App Engine root directory (dir containing dev_appserver.py, appcfg.py, lib, etc).");
+        dialog.setMessage(
+                "Select the Google App Engine root directory (dir containing dev_appserver.py, appcfg.py, lib, etc).");
 
         String dirName = getAppEngineLocationFieldValue();
         if(!dirName.equals("")){ //$NON-NLS-1$
@@ -170,6 +175,10 @@ public class AppEngineConfigWizardPage extends WizardPage{
         else
             return locationPathField.getText().trim();
     }
+    
+    public void setAppEngineLocationFieldValue(String location){
+        locationPathField.setText(location);
+    }
 
     /**
      * @return true if the page is valid and false otherwise.
@@ -177,6 +186,7 @@ public class AppEngineConfigWizardPage extends WizardPage{
     private boolean validatePage(){
         tree.removeAll();
         externalSourceFolders.clear();
+        variableSubstitution.clear();
 
         String locationFieldContents = getAppEngineLocationFieldValue();
 
@@ -219,6 +229,7 @@ public class AppEngineConfigWizardPage extends WizardPage{
                 return false;
             }
         }
+        
         List<File> libFoldersForPythonpath = gatherLibFoldersForPythonpath(loc.getAbsolutePath());
         for(File libLoc:libFoldersForPythonpath){
             if(!libLoc.exists()){
@@ -234,7 +245,14 @@ public class AppEngineConfigWizardPage extends WizardPage{
         }
 
         //If we got here, all is OK, let's go on and show the items that'll be added to the PYTHONPATH (as external folders)
-        fillExternalSourceFolders(libFoldersForPythonpath);
+        variableSubstitution.put(GOOGLE_APP_ENGINE_VARIABLE, loc.getAbsolutePath());
+        fillExternalSourceFolders(variableSubstitution, 
+                new String[]{
+                "${"+GOOGLE_APP_ENGINE_VARIABLE+"}/lib/django",
+                "${"+GOOGLE_APP_ENGINE_VARIABLE+"}/lib/webob",
+                "${"+GOOGLE_APP_ENGINE_VARIABLE+"}/lib/yaml/lib",
+                }
+        );
 
         setErrorMessage(null);
         setMessage(null);
@@ -262,25 +280,30 @@ public class AppEngineConfigWizardPage extends WizardPage{
     }
 
     /**
-     * The tree/externalSourceFolders  must be already empty at this point 
+     * The tree/externalSourceFolders/varibleSubstitution  must be already empty at this point 
      */
-    private void fillExternalSourceFolders(List<File> libFoldersForPythonpath){
+    private void fillExternalSourceFolders(Map<String, String> variableSubstitution, String[] libFoldersForPythonpath){
         TreeItem item = new TreeItem(tree, SWT.NONE);
-        item.setText("Google App Engine Libs");
+        
+        item.setText(GOOGLE_APP_ENGINE_VARIABLE+": "+variableSubstitution.get(GOOGLE_APP_ENGINE_VARIABLE));
         item.setImage(imageAppEngine);
 
-        for(File file:libFoldersForPythonpath){
+        for(String file:libFoldersForPythonpath){
             TreeItem subItem = new TreeItem(item, SWT.NONE);
-            subItem.setText(file.getAbsolutePath());
+            subItem.setText(file);
             subItem.setImage(imageSystemLib);
             item.setExpanded(true);
             
-            externalSourceFolders.add(file.getAbsolutePath());
+            externalSourceFolders.add(file);
         }
     }
 
     public List<String> getExternalSourceFolders(){
         return externalSourceFolders;
+    }
+
+    public Map<String, String> getVariableSubstitution(){
+        return variableSubstitution;
     }
 
 }

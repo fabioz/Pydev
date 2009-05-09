@@ -16,5 +16,6 @@ Require-Bundle: org.junit,
  org.python.pydev.help,
  org.python.pydev.jython,
  org.python.pydev.parser,
- org.python.pydev.templates
+ org.python.pydev.templates,
+ org.python.pydev.customizations
 Eclipse-AutoStart: true

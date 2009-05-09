@@ -11,7 +11,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -59,16 +63,6 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
 
 
     private final static String STORE_FILE_NAME = ".pydevproject";
-
-    private final static String PYDEV_PROJECT_DESCRIPTION = "pydev_project";
-
-    private final static String PYDEV_NATURE_PROPERTY = "pydev_property";
-
-    private final static String PYDEV_NATURE_PATH_PROPERTY = "pydev_pathproperty";
-
-    private final static String PYDEV_PATH = "path";
-
-    private final static String PYDEV_NATURE_PROPERTY_NAME = "name";
 
     private volatile IProject project = null;
 
@@ -177,6 +171,38 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         traceFunc("END getPathProperty - ", key, ret);
         return ret;
     }
+    
+    
+    /* (non-Javadoc)
+     * @see org.python.pydev.plugin.nature.IPythonNatureStore#getMapProperty(org.eclipse.core.runtime.QualifiedName)
+     */
+    public synchronized Map<String, String> getMapProperty(QualifiedName key) throws CoreException {
+        if(this.project == null){
+            return null;
+        }
+        checkLoad("getMapProperty");
+        
+        String[] keyAndValues=null;
+        synchronized (this) {
+            try {
+                Node propertyNode = findPropertyNodeInXml("pydev_variables_property", key);
+                if (propertyNode != null) {
+                    keyAndValues = getChildValuesWithType(propertyNode, "key", "value");
+                }
+            } catch (Exception e) {
+                traceFunc("END getMapProperty (EXCEPTION)");
+                IStatus status = new Status(IStatus.ERROR, "PythonNatureStore", -1, e.toString(), e);
+                throw new CoreException(status);
+            }
+        }
+        
+        Map<String, String> ret = null;
+        if(keyAndValues != null){
+            ret = getMapStringFromArray(keyAndValues);
+        }
+        traceFunc("END getMapProperty - ", key, ret);
+        return ret;
+    }
 
     /* (non-Javadoc)
      * @see org.python.pydev.plugin.nature.IPythonNatureStore#setPathProperty(org.eclipse.core.runtime.QualifiedName, java.lang.String)
@@ -185,6 +211,61 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         checkLoad("setPathProperty");
         setPathPropertyToXml(key, getArrayFromPathString(value), true);
     }
+    
+    
+    public synchronized void setMapProperty(QualifiedName key, Map<String, String> value) throws CoreException{
+        checkLoad("setMapProperty");
+        traceFunc("setMapProperty");
+        
+        synchronized (this) {
+            try {
+                boolean store = true;
+                Node oldChild = findPropertyNodeInXml("pydev_variables_property", key);
+                if (oldChild != null && (value == null || value.size()==0)) {
+                    getRootNodeInXml().removeChild(oldChild);
+                    
+                } else if (value != null && value.size() > 0) {
+                    Node property = document.createElement("pydev_variables_property");
+                    Node propertyName = document.createAttribute("name");
+                    propertyName.setNodeValue(getKeyString(key));
+                    property.getAttributes().setNamedItem(propertyName);
+                    
+                    Set<Entry<String, String>> entrySet = value.entrySet();
+                    for(Entry<String, String> entry:entrySet){
+                        Node childKey = document.createElement("key");
+                        setTextContent(entry.getKey(), childKey);
+                        property.appendChild(childKey);
+                        
+                        Node childValue = document.createElement("value");
+                        setTextContent(entry.getValue(), childValue);
+                        property.appendChild(childValue);
+                        
+                    }
+                    
+                    if (oldChild == null) {
+                        // The property is not in the file and we need to set it
+                        getRootNodeInXml().appendChild(property);
+                    } else {
+                        // Replace it
+                        getRootNodeInXml().replaceChild(property, oldChild);
+                    }
+                }else{
+                    store = false;
+                }
+                
+                if (store) {
+                    doStore();
+                }
+    
+            } catch (Exception e) {
+                traceFunc("END setMapProperty (EXCEPTION)");
+                IStatus status = new Status(IStatus.ERROR, "PythonNatureStore", -1, e.toString(), e);
+                throw new CoreException(status);
+            }
+        }
+        traceFunc("END setMapProperty");
+    }
+
 
     /**
      * Loads the Xml representation of the PythonNature properties from the project resource. If the project resource does not exist then an empty representation is created, and its storage is
@@ -215,7 +296,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     document = parser.newDocument();
                     ProcessingInstruction version = document.createProcessingInstruction("eclipse-pydev", "version=\"1.0\""); //$NON-NLS-1$ //$NON-NLS-2$
                     document.appendChild(version);
-                    Element configRootElement = document.createElement(PYDEV_PROJECT_DESCRIPTION);
+                    Element configRootElement = document.createElement("pydev_project");
                     document.appendChild(configRootElement);
 
                     migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
@@ -289,7 +370,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
     private synchronized Node getRootNodeInXml() {
         traceFunc("getRootNodeInXml");
         Assert.isNotNull(document);
-        NodeList nodeList = document.getElementsByTagName(PYDEV_PROJECT_DESCRIPTION);
+        NodeList nodeList = document.getElementsByTagName("pydev_project");
         Node ret = null;
         if (nodeList != null && nodeList.getLength() > 0) {
             ret = nodeList.item(0);
@@ -299,7 +380,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         if(ret != null){
             return ret;
         }
-        throw new RuntimeException(StringUtils.format("Error. Unable to get the %s tag by its name. Project: %s", PYDEV_PROJECT_DESCRIPTION, project));
+        throw new RuntimeException(StringUtils.format("Error. Unable to get the %s tag by its name. Project: %s", "pydev_project", project));
     }
 
     /**
@@ -335,10 +416,13 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 if (child.getNodeName().equals(type)) {
                     NamedNodeMap attrs = child.getAttributes();
                     if (attrs != null && attrs.getLength() > 0) {
-                        String name = attrs.getNamedItem(PYDEV_NATURE_PROPERTY_NAME).getNodeValue();
-                        if (name != null && name.equals(keyString)) {
-                            traceFunc("END findPropertyNodeInXml - ", child);
-                            return child;
+                        Node namedItem = attrs.getNamedItem("name");
+                        if(namedItem != null){
+                            String name = namedItem.getNodeValue();
+                            if (name != null && name.equals(keyString)) {
+                                traceFunc("END findPropertyNodeInXml - ", child);
+                                return child;
+                            }
                         }
                     }
                 }
@@ -355,15 +439,19 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @param type
      * @return the array of strings with the text contents or null if the node has no children.
      */
-    private String[] getChildValuesWithType(Node node, String type) {
+    private String[] getChildValuesWithType(Node node, String ... type) {
         traceFunc("getChildValuesWithType");
         NodeList childNodes = node.getChildNodes();
         if (childNodes != null && childNodes.getLength() > 0) {
             List<String> result = new ArrayList<String>();
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node child = childNodes.item(i);
-                if (child.getNodeName().equals(type)) {
-                    result.add(getTextContent(child));
+                String nodeName = child.getNodeName();
+                for(String t:type){
+                    if (nodeName.equals(t)) {
+                        result.add(getTextContent(child));
+                        break;//after added, we can break the inner for.
+                    }
                 }
             }
             String[] retval = new String[result.size()];
@@ -416,6 +504,26 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         traceFunc("END getPathStringFromArray (null)");
         return null;
     }
+    
+    /**
+     * Convert an array of path strings to a Map<String, String>
+     * @return the assembled string of paths or null if the input was null.
+     */
+    private Map<String, String> getMapStringFromArray(String[] pathArray) {
+        traceFunc("getMapStringFromArray");
+        if (pathArray != null) {
+            HashMap<String, String> ret = new HashMap<String, String>();
+            for(int i=0;i<pathArray.length-1;i+=2){
+                //loop on 0, 2, 4... we stop at -1 to prevent against uneven (which are actually wrong) arrays.
+                String key = pathArray[i];
+                String val = pathArray[i+1];
+                ret.put(key, val);
+            }
+            return ret;
+        }
+        traceFunc("END getMapStringFromArray (null)");
+        return null;
+    }
 
     /**
      * Convert a single string of paths separated by | characters to an array of strings.
@@ -447,7 +555,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         synchronized (this) {
             checkLoad("getPropertyFromXml");
             try {
-                Node propertyNode = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
+                Node propertyNode = findPropertyNodeInXml("pydev_property", key);
     
                 if (propertyNode != null) {
                     String ret = getTextContent(propertyNode);
@@ -474,7 +582,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                 checkLoad("setPropertyToXml");
             }
             try {
-                Node child = findPropertyNodeInXml(PYDEV_NATURE_PROPERTY, key);
+                Node child = findPropertyNodeInXml("pydev_property", key);
                 if (child != null) {
                     if (value == null) {
                         // remove child from file
@@ -484,8 +592,8 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     }
                 } else if (value != null) {
                     // The property is not in the file and we need to set it
-                    Node property = document.createElement(PYDEV_NATURE_PROPERTY);
-                    Node propertyName = document.createAttribute(PYDEV_NATURE_PROPERTY_NAME);
+                    Node property = document.createElement("pydev_property");
+                    Node propertyName = document.createAttribute("name");
                     propertyName.setNodeValue(getKeyString(key));
                     property.getAttributes().setNamedItem(propertyName);
                     setTextContent(value, property);
@@ -593,11 +701,11 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         traceFunc("getPathPropertyFromXml");
         synchronized (this) {
             try {
-                Node propertyNode = findPropertyNodeInXml(PYDEV_NATURE_PATH_PROPERTY, key);
+                Node propertyNode = findPropertyNodeInXml("pydev_pathproperty", key);
     
                 if (propertyNode != null) {
                     traceFunc("END getPathPropertyFromXml");
-                    return getChildValuesWithType(propertyNode, PYDEV_PATH);
+                    return getChildValuesWithType(propertyNode, "path");
                 }
     
                 traceFunc("END getPathPropertyFromXml (null)");
@@ -621,19 +729,31 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         traceFunc("setPathPropertyToXml");
         synchronized (this) {
             try {
-                Node oldChild = findPropertyNodeInXml(PYDEV_NATURE_PATH_PROPERTY, key);
-                if (oldChild != null && paths == null) {
+                Node oldChild = findPropertyNodeInXml("pydev_pathproperty", key);
+                
+                if(paths != null){
+                    ArrayList<String> pathsList = new ArrayList<String>();
+                    for(String p:paths){
+                        if(p != null && p.length() > 0){
+                            pathsList.add(p);
+                        }
+                    }
+                    paths = pathsList.toArray(new String[0]);
+                }
+                
+                if (oldChild != null && (paths == null || paths.length==0)) {
                     getRootNodeInXml().removeChild(oldChild);
                 } else if (paths != null) {
-                    // The property is not in the file and we need to set it
-                    Node property = document.createElement(PYDEV_NATURE_PATH_PROPERTY);
-                    Node propertyName = document.createAttribute(PYDEV_NATURE_PROPERTY_NAME);
+                    Node property = document.createElement("pydev_pathproperty");
+                    Node propertyName = document.createAttribute("name");
                     propertyName.setNodeValue(getKeyString(key));
                     property.getAttributes().setNamedItem(propertyName);
-                    addChildValuesWithType(property, PYDEV_PATH, paths);
+                    addChildValuesWithType(property, "path", paths);
                     if (oldChild == null) {
+                        // The property is not in the file and we need to set it
                         getRootNodeInXml().appendChild(property);
                     } else {
+                        // Replace it
                         getRootNodeInXml().replaceChild(property, oldChild);
                     }
                 }else{

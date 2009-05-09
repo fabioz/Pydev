@@ -4,6 +4,9 @@
  */
 package org.python.pydev.plugin.nature;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.python.pydev.editor.actions.PySelectionTest;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
@@ -27,9 +30,7 @@ public class PythonNatureStoreTest extends TestCase {
         "<pydev_pathproperty name=\"plugin_id.PROJECT_SOURCE_PATH\">\r\n"+
         "<path>/test</path>\r\n"+
         "</pydev_pathproperty>\r\n"+
-        "<pydev_pathproperty name=\"plugin_id.PROJECT_EXTERNAL_SOURCE_PATH\">\r\n"+
-        "<path/>\r\n"+
-        "</pydev_pathproperty>\r\n"+
+        "<pydev_pathproperty name=\"plugin_id.PROJECT_EXTERNAL_SOURCE_PATH\"/>\r\n"+
         "</pydev_project>\r\n"+
         "";
     
@@ -43,9 +44,25 @@ public class PythonNatureStoreTest extends TestCase {
         "<path>/test/foo</path>\r\n"+
         "<path>/bar/kkk</path>\r\n"+
         "</pydev_pathproperty>\r\n"+
-        "<pydev_pathproperty name=\"plugin_id.PROJECT_EXTERNAL_SOURCE_PATH\">\r\n"+
-        "<path/>\r\n"+
+        "<pydev_pathproperty name=\"plugin_id.PROJECT_EXTERNAL_SOURCE_PATH\"/>\r\n"+
+        "</pydev_project>\r\n"+
+        "";
+    
+    private String contents3= 
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"+
+        "<?eclipse-pydev version=\"1.0\"?>\r\n"+
+        "\r\n"+
+        "<pydev_project>\r\n"+
+        "<pydev_property name=\"plugin_id.PYTHON_PROJECT_VERSION\">python 2.5</pydev_property>\r\n"+
+        "<pydev_pathproperty name=\"plugin_id.PROJECT_SOURCE_PATH\">\r\n"+
+        "<path>/test/foo</path>\r\n"+
+        "<path>/bar/kkk</path>\r\n"+
         "</pydev_pathproperty>\r\n"+
+        "<pydev_pathproperty name=\"plugin_id.PROJECT_EXTERNAL_SOURCE_PATH\"/>\r\n"+
+        "<pydev_variables_property name=\"plugin_id.PROJECT_VARIABLE_SUBSTITUTION\">\r\n"+
+        "<key>MY_KEY</key>\r\n"+
+        "<value>MY_VALUE</value>\r\n"+
+        "</pydev_variables_property>\r\n"+
         "</pydev_project>\r\n"+
         "";
     
@@ -78,6 +95,15 @@ public class PythonNatureStoreTest extends TestCase {
         
         strContents = store.getLastLoadedContents();
         PySelectionTest.checkStrEquals(contents2, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
-        assertEquals("", store.getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName()));
+        assertNull(store.getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName()));
+        
+        
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("MY_KEY", "MY_VALUE");
+        store.setMapProperty(PythonPathNature.getProjectVariableSubstitutionQualifiedName(), map);
+        
+        strContents = store.getLastLoadedContents();
+        PySelectionTest.checkStrEquals(contents3, strContents.replaceFirst(" standalone=\"no\"", "")); //depending on the java version, standalone="no" may be generated
+        assertEquals(map, store.getMapProperty(PythonPathNature.getProjectVariableSubstitutionQualifiedName()));
     }
 }

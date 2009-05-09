@@ -29,7 +29,10 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.python.pydev.core.docutils.StringSubstitution;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
+import org.python.pydev.debug.ui.MainModuleTab;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -101,7 +104,19 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
     }
     
     private WidgetListener fListener = new WidgetListener();
+    private MainModuleTab mainModuleTab;
     
+    public WorkingDirectoryBlock(MainModuleTab mainModuleTab) {
+        this.mainModuleTab = mainModuleTab;
+        this.mainModuleTab.fProjectBlock.addModifyListener(new ModifyListener(){
+        
+            public void modifyText(ModifyEvent e){
+                //project modified
+                updateLaunchConfigurationDialog();
+            }
+        });
+    }
+
     /* (non-Javadoc)
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
      */
@@ -182,19 +197,16 @@ public class WorkingDirectoryBlock extends AbstractLaunchConfigurationTab {
         if (path.length() > 0) {
             IResource res = null;
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-            if (path.startsWith("${workspace_loc:")) { //$NON-NLS-1$
-                IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
-                try {
-                    path = manager.performStringSubstitution(path, false);
-                    IContainer[] containers = root.findContainersForLocation(new Path(path));
-                    if (containers.length > 0) {
-                        res = containers[0];
-                    }
-                } 
-                catch (CoreException e) {}
+            StringSubstitution stringSubstitution = this.mainModuleTab.fMainModuleBlock.getStringSubstitution(root);
+            try {
+                path = stringSubstitution.performStringSubstitution(path, false);
+                IContainer[] containers = root.findContainersForLocation(new Path(path));
+                if (containers.length > 0) {
+                    res = containers[0];
+                }
             } 
-            else {        
-                res = root.findMember(path);
+            catch (CoreException e) {
+                Log.log(e);
             }
             if (res instanceof IContainer) {
                 return (IContainer)res;

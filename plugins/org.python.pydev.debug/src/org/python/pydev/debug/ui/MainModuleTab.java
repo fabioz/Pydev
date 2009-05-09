@@ -33,9 +33,9 @@ import org.python.pydev.plugin.PydevPlugin;
 public class MainModuleTab extends AbstractLaunchConfigurationTab {
     
     // Widget blocks
-    private final ProjectBlock    fProjectBlock;
-    private final MainModuleBlock fMainModuleBlock;
-    private final PythonPathBlock fPythonPathBlock;
+    public final ProjectBlock fProjectBlock;
+    public final MainModuleBlock fMainModuleBlock;
+    public final PythonPathBlock fPythonPathBlock;
 
     public MainModuleTab() {
         fProjectBlock = new ProjectBlock();

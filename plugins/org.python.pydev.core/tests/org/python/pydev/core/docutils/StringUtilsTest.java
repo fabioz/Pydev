@@ -134,6 +134,9 @@ public class StringUtilsTest extends TestCase {
         
         split = StringUtils.split(" aaa   ", new char[]{' '}).toArray(new String[0]);
         assertTrue(Arrays.equals(new String[]{"aaa"}, split));
+        
+        split = StringUtils.splitAndRemoveEmptyTrimmed("|| |a||b||", '|').toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"a", "b"}, split));
     }
     
     

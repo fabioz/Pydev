@@ -128,7 +128,7 @@ class PackageContentProvider implements ITreeContentProvider{
             IPythonPathNature nature = PythonNature.getPythonPathNature(project);
             if(nature != null){
                 try {
-                    String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath());
+                    String[] srcPaths = PythonNature.getStrAsStrItems(nature.getProjectSourcePath(true));
                     for (String str : srcPaths) {
                         IResource resource = this.workspaceRoot.findMember(new Path(str));
                         if(resource instanceof IFolder){

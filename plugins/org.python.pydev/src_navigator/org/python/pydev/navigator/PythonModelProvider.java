@@ -356,7 +356,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
         }
         Set<String> sourcePathSet = new HashSet<String>();
         try {
-            sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
+            sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
         } catch (CoreException e) {
             PydevPlugin.log(e);
         }        
@@ -525,7 +525,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
             PythonNature nature = PythonNature.getPythonNature(project);
             if(nature!= null){
                 //check for source folder
-                Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
+                Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
                 PythonSourceFolder newSourceFolder = tryWrapSourceFolder(parent, container, sourcePathSet);
                 if(newSourceFolder != null){
                     return newSourceFolder;
@@ -628,7 +628,7 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
                         }
                         Set<String> sourcePathSet = new HashSet<String>();
                         try {
-                            sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet();
+                            sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
                         } catch (CoreException e) {
                             PydevPlugin.log(e);
                         }        

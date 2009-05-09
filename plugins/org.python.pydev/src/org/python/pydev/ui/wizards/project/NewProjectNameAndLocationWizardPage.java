@@ -519,5 +519,8 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         return checkSrcFolderSelected;
     }
 
+    public void setProjectName(String projectName){
+        this.projectNameField.setText(projectName);
+    }
 
 }

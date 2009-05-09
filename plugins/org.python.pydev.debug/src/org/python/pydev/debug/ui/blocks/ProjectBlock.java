@@ -1,6 +1,7 @@
 package org.python.pydev.debug.ui.blocks;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -207,6 +208,18 @@ public class ProjectBlock extends AbstractLaunchConfigurationTab {
      * @param listener The listener to use
      */
     public void addModifyListener(ModifyListener listener) {
-       fProjectText.addModifyListener(listener);
+        if(fProjectText == null){
+            waitingForProjectTextToExist.add(listener);
+        }else{
+            fProjectText.addModifyListener(listener);
+            for(ModifyListener l:waitingForProjectTextToExist){
+                fProjectText.addModifyListener(l);
+            }
+            waitingForProjectTextToExist.clear();
+        }
     }
+    
+    List<ModifyListener> waitingForProjectTextToExist = new ArrayList<ModifyListener>();
+    
+    
 }

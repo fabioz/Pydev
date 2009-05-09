@@ -21,9 +21,9 @@ public class JythonTabGroup extends AbstractLaunchConfigurationTabGroup {
      * @see org.eclipse.debug.ui.ILaunchConfigurationTabGroup#createTabs(org.eclipse.debug.ui.ILaunchConfigurationDialog, java.lang.String)
      */
     public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
+        MainModuleTab mainModuleTab = new MainModuleTab();
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-            new MainModuleTab(),
-            new ArgumentsTab(),
+            new ArgumentsTab(mainModuleTab),
             new InterpreterTab(PydevPlugin.getJythonInterpreterManager()),
             new RefreshTab(),
             new EnvironmentTab(),

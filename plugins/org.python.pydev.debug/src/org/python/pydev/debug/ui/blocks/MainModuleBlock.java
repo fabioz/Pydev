@@ -11,8 +11,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.variables.IStringVariableManager;
-import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -29,7 +27,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
@@ -194,25 +195,36 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
         IFile file = null;
         if (path.length() > 0) {
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-            if (path.startsWith("${workspace_loc:")) { //$NON-NLS-1$
-                IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
-                try {
-                    path = manager.performStringSubstitution(path, false);
-                    IFile[] files = root.findFilesForLocation(new Path(path));
-                    if (files.length > 0) {
-                        file = files[0];
-                    }
-                } 
-                catch (CoreException e) {}
-            } 
-            else {        
+            
+            StringSubstitution stringSubstitution = getStringSubstitution(root);
+            try {
+                path = stringSubstitution.performStringSubstitution(path, false);
                 IFile[] files = root.findFilesForLocation(new Path(path));
                 if (files.length > 0) {
                     file = files[0];
                 }
+            } 
+            catch (CoreException e) {
+                Log.log(e);
             }
+                
         }
         return file;
+    }
+
+    /**
+     * @param root the workspace root.
+     * @return an object capable on making string substitutions based on variables in the project and in the workspace.
+     */
+    public StringSubstitution getStringSubstitution(IWorkspaceRoot root){
+        IResource resource = root.findMember(fProjectName);
+        IPythonNature nature = null;
+        if (resource instanceof IProject) {
+            nature = PythonNature.getPythonNature(resource);
+        }
+        
+        StringSubstitution stringSubstitution = new StringSubstitution(nature);
+        return stringSubstitution;
     }
 
     /**
@@ -242,7 +254,9 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
             setMessage(null);
             setErrorMessage(null);
             
-            IStringVariableManager stringVariableManager = VariablesPlugin.getDefault().getStringVariableManager();
+            IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+            StringSubstitution stringSubstitution = getStringSubstitution(root);
+
             String location = fMainModuleText.getText();
             try {
                 
@@ -252,8 +266,8 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
                     identifier.equals(Constants.ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE)){
                     
                     //may have  multiple files selected for the run for unitest and code-coverage
-                    for(String loc:StringUtils.split(location, '|')){
-                        String expandedLocation = stringVariableManager.performStringSubstitution(loc);
+                    for(String loc:StringUtils.splitAndRemoveEmptyTrimmed(location, '|')){
+                        String expandedLocation = stringSubstitution.performStringSubstitution(loc);
                         File file = new File(expandedLocation);
                         if(!file.exists()){
                             setErrorMessage(StringUtils.format("The file \"%s\" does not exist.", file));
@@ -263,7 +277,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
                         
                     }
                 }else{
-                    String expandedLocation = stringVariableManager.performStringSubstitution(location);
+                    String expandedLocation = stringSubstitution.performStringSubstitution(location);
                     File file = new File(expandedLocation);
                     if(!file.exists()){
                         setErrorMessage(StringUtils.format("The file \"%s\" does not exist.", file));

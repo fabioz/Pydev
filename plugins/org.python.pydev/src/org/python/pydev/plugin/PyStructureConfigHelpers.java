@@ -1,6 +1,7 @@
 package org.python.pydev.plugin;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -33,7 +34,21 @@ public class PyStructureConfigHelpers {
         return ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
     }
     
-    
+    /**
+     * @see #createPydevProject(IProjectDescription, IProject, IProgressMonitor, String, String, ICallback, ICallback, ICallback)
+     */
+    public static void createPydevProject(
+            IProjectDescription description, 
+            IProject projectHandle, 
+            IProgressMonitor monitor, 
+            String projectType, 
+            String projectInterpreter, 
+            ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback,
+            ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback
+            ) throws OperationCanceledException, CoreException{
+        createPydevProject(description, projectHandle, monitor, projectType, projectInterpreter, 
+                getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback, null);
+    }
     
     /**
      * Creates a project resource given the project handle and description.
@@ -71,6 +86,9 @@ public class PyStructureConfigHelpers {
      * Strings to the actual paths in the filesystem that should be added as external source folders.
      * (if null, no external source folders should be created)
      * 
+     * @param getVariableSubstitutionCallback Same as getSourceFolderHandlesCallback, but returns a map of String, String,
+     * so that the keys in the map can be used to resolve the source folders paths (project and external).
+     * 
      * @exception CoreException if the operation fails
      * @exception OperationCanceledException if the operation is canceled
      */
@@ -81,7 +99,8 @@ public class PyStructureConfigHelpers {
             String projectType, 
             String projectInterpreter, 
             ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback,
-            ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback
+            ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback,
+            ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback
         ) throws CoreException, OperationCanceledException {
         
         try {
@@ -130,8 +149,15 @@ public class PyStructureConfigHelpers {
                 }
             }
             
+            Map<String, String> variableSubstitution = null;
+            if(getVariableSubstitutionCallback != null){
+                variableSubstitution = getVariableSubstitutionCallback.call(projectHandle);
+            }
+            
             //we should rebuild the path even if there's no source-folder (this way we will re-create the astmanager)
-            PythonNature.addNature(projectHandle, null, projectType, projectPythonpath, externalProjectPythonpath, projectInterpreter);
+            PythonNature.addNature(
+                    projectHandle, null, projectType, projectPythonpath, externalProjectPythonpath, projectInterpreter,
+                    variableSubstitution);
         } finally {
             monitor.done();
         }
@@ -149,7 +175,7 @@ public class PyStructureConfigHelpers {
      * @throws CoreException 
      * @throws OperationCanceledException 
      */
-    protected IProject createPydevProject(
+    public static IProject createPydevProject(
             String projectName, 
             IPath projectLocationPath,
             IProject[] references,
@@ -159,7 +185,8 @@ public class PyStructureConfigHelpers {
             String projectType, 
             String projectInterpreter, 
             ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback,
-            ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback
+            ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback,
+            ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback
         ) throws OperationCanceledException, CoreException {
         
         // get a project handle
@@ -175,7 +202,8 @@ public class PyStructureConfigHelpers {
             description.setReferencedProjects(references);
         }
 
-        createPydevProject(description, projectHandle, monitor, projectType, projectInterpreter, getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback);
+        createPydevProject(description, projectHandle, monitor, projectType, projectInterpreter, 
+                getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback, getVariableSubstitutionCallback);
         return projectHandle;
     }
 }

@@ -2,6 +2,7 @@ package org.python.pydev.navigator;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -29,17 +30,17 @@ public class PythonPathNatureStub implements IPythonPathNature{
         
     }
 
-    public String getProjectExternalSourcePath() throws CoreException {
+    public String getProjectExternalSourcePath(boolean resolve) throws CoreException {
         throw new RuntimeException("Not impl");
         
     }
 
-    public String getProjectSourcePath() throws CoreException {
+    public String getProjectSourcePath(boolean resolve) throws CoreException {
         throw new RuntimeException("Not impl");
         
     }
 
-    public Set<String> getProjectSourcePathSet() throws CoreException {
+    public Set<String> getProjectSourcePathSet(boolean resolve) throws CoreException {
         return projectSourcePathSet;
     }
 
@@ -59,6 +60,14 @@ public class PythonPathNatureStub implements IPythonPathNature{
     }
 
     public void clearCaches() {
+    }
+
+    public void setVariableSubstitution(Map<String, String> variableSubstitution){
+        throw new RuntimeException("Not impl");
+    }
+
+    public Map<String, String> getVariableSubstitution() throws CoreException{
+        throw new RuntimeException("Not implemented");
     }
 
 }

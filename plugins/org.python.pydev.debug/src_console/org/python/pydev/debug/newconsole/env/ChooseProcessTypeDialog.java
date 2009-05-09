@@ -19,6 +19,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -143,16 +144,17 @@ final class ChooseProcessTypeDialog extends Dialog {
 
     
     /**
-     * @return the pythonpath to be used or null if not configured.
+     * @return the pythonpath/nature to be used or null if not configured (note that the nature can be null)
      */
-    public Collection<String> getPythonpath(IInterpreterInfo interpreter) {
+    public Tuple<Collection<String>, IPythonNature> getPythonpathAndNature(IInterpreterInfo interpreter) {
         
         if(this.interpreterManager != null){
             if(this.natures.size() == 1){
                 //chosen for the editor
                 IPythonNature nature = this.natures.get(0);
-                return new ArrayList<String>(nature.getPythonPathNature().getCompleteProjectPythonPath(
-                        interpreter, this.interpreterManager));
+                return new Tuple<Collection<String>, IPythonNature>(new ArrayList<String>(
+                        nature.getPythonPathNature().getCompleteProjectPythonPath(
+                        interpreter, this.interpreterManager)), nature);
 
             }
             
@@ -173,7 +175,7 @@ final class ChooseProcessTypeDialog extends Dialog {
                     PydevPlugin.log(e);
                 }
             }
-            return pythonpath;
+            return new Tuple<Collection<String>, IPythonNature>(pythonpath, null);
         }
         
         return null;

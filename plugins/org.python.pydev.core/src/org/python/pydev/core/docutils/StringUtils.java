@@ -440,6 +440,17 @@ public class StringUtils {
         return ret;
     }
     
+    public static List<String> splitAndRemoveEmptyTrimmed(String string, char c){
+        List<String> split = split(string, c);
+        for(int i=split.size()-1;i>=0;i--){
+            if(split.get(i).trim().length() == 0){
+                split.remove(i);
+            }
+        }
+        return split;
+    }
+
+    
     private static boolean contains(char c, char[] toSplit){
         for(char ch:toSplit){
             if(c == ch){
@@ -469,7 +480,7 @@ public class StringUtils {
      * Splits the string as would string.split("\\."), but without yielding empty strings
      */
     public static List<String> dotSplit(String string) {
-        return split(string, '.');
+        return splitAndRemoveEmptyTrimmed(string, '.');
     }
 
     /**
@@ -527,5 +538,6 @@ public class StringUtils {
     public static String removeNewLineChars(String message) {
         return message.replaceAll("\r","").replaceAll("\n","");
     }
+
 
 }

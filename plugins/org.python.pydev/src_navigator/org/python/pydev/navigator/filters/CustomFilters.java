@@ -94,7 +94,7 @@ public class CustomFilters extends ViewerFilter{
     
     
     public void update(String customFilters) {
-        List<String> splittedCustomFilters = StringUtils.split(customFilters, ',');
+        List<String> splittedCustomFilters = StringUtils.splitAndRemoveEmptyTrimmed(customFilters, ',');
         StringMatcherSimple[] temp = new StringMatcherSimple[splittedCustomFilters.size()];
         for (int i = 0; i < temp.length; i++) {
             temp[i] = new StringMatcherSimple(splittedCustomFilters.get(i).trim());

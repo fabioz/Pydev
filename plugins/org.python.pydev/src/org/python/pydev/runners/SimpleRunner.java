@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.pydev.core.IInterpreterInfo;
@@ -27,6 +26,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -70,7 +70,7 @@ public abstract class SimpleRunner {
         String[] env;
         
         if(pythonNature == null){ //no associated nature in the project... just get the default env
-            env = getDefaultSystemEnvAsArray();
+            env = getDefaultSystemEnvAsArray(pythonNature);
         }else{
             String pythonPathEnvStr = "";
             try {
@@ -78,12 +78,12 @@ public abstract class SimpleRunner {
                 if (interpreter != null){ //check if we have a default interpreter.
                     pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter, manager);
                 }
-                env = createEnvWithPythonpath(pythonPathEnvStr);
+                env = createEnvWithPythonpath(pythonPathEnvStr, pythonNature);
                 
             } catch (Exception e) {
                 PydevPlugin.log(e);
                 //We cannot get it. Log it and keep with the default.
-                env = getDefaultSystemEnvAsArray();
+                env = getDefaultSystemEnvAsArray(pythonNature);
             }
         }
         
@@ -96,17 +96,17 @@ public abstract class SimpleRunner {
     /**
      * Same as the getEnvironment, but with a pre-specified pythonpath.
      */
-    public static String[] createEnvWithPythonpath(String pythonPathEnvStr, String interpreter, IInterpreterManager manager) throws CoreException {
-        String[] env = createEnvWithPythonpath(pythonPathEnvStr);
+    public static String[] createEnvWithPythonpath(String pythonPathEnvStr, String interpreter, IInterpreterManager manager, IPythonNature nature) throws CoreException {
+        String[] env = createEnvWithPythonpath(pythonPathEnvStr, nature);
         IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
         env = info.updateEnv(env);
         return env;
     }
     
-    private static String[] createEnvWithPythonpath(String pythonPathEnvStr) throws CoreException {
+    private static String[] createEnvWithPythonpath(String pythonPathEnvStr, IPythonNature nature) throws CoreException {
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
         if(defaultPlugin != null){
-            Map<String,String> env = getDefaultSystemEnv(defaultPlugin);        
+            Map<String,String> env = getDefaultSystemEnv(defaultPlugin, nature);        
     
             env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
             env.put("CLASSPATH", pythonPathEnvStr); //put the environment
@@ -120,8 +120,8 @@ public abstract class SimpleRunner {
     /**
      * @return an array with the env variables for the system with the format xx=yy  
      */
-    public static String[] getDefaultSystemEnvAsArray() throws CoreException {
-        Map<String,String> defaultSystemEnv = getDefaultSystemEnv();
+    public static String[] getDefaultSystemEnvAsArray(IPythonNature nature) throws CoreException {
+        Map<String,String> defaultSystemEnv = getDefaultSystemEnv(nature);
         if(defaultSystemEnv != null){
             return getMapEnvAsArray(defaultSystemEnv);
         }
@@ -131,16 +131,16 @@ public abstract class SimpleRunner {
     /**
      * @return a map with the env variables for the system  
      */
-    public static Map<String,String> getDefaultSystemEnv() throws CoreException {
+    public static Map<String,String> getDefaultSystemEnv(IPythonNature nature) throws CoreException {
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
-        return getDefaultSystemEnv(defaultPlugin);
+        return getDefaultSystemEnv(defaultPlugin, nature);
     }
 
     /**
      * @return a map with the env variables for the system  
      */
     @SuppressWarnings("unchecked")
-    private static Map<String,String> getDefaultSystemEnv(DebugPlugin defaultPlugin) throws CoreException {
+    private static Map<String,String> getDefaultSystemEnv(DebugPlugin defaultPlugin, IPythonNature nature) throws CoreException {
         if(defaultPlugin != null){
             ILaunchManager launchManager = defaultPlugin.getLaunchManager();
     
@@ -162,7 +162,8 @@ public abstract class SimpleRunner {
                 // translate any string substitution variables
                 String translated = value;
                 try {
-                    translated = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value, false);
+                    StringSubstitution stringSubstitution = new StringSubstitution(nature);
+                    translated = stringSubstitution.performStringSubstitution(value, false);
                 } catch (Exception e) {
                     Log.log(e);
                 }

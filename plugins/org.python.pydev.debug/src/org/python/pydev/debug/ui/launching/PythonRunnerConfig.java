@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -34,6 +33,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.codecoverage.PyCoverage;
@@ -117,7 +117,7 @@ public class PythonRunnerConfig {
      * @throws CoreException if unable to retrieve the associated launch configuration attribute, if unable to resolve
      * any variables, or if the resolved location does not point to an existing file in the local file system
      */
-    public static IPath[] getLocation(ILaunchConfiguration configuration) throws CoreException {
+    public static IPath[] getLocation(ILaunchConfiguration configuration, IPythonNature nature) throws CoreException {
         String locationsStr = configuration.getAttribute(Constants.ATTR_ALTERNATE_LOCATION, (String) null);
         if (locationsStr == null) {
             locationsStr = configuration.getAttribute(Constants.ATTR_LOCATION, (String) null);
@@ -126,11 +126,11 @@ public class PythonRunnerConfig {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get location for run", null));
         }
 
-        List<String> locations = StringUtils.split(locationsStr, '|');
+        List<String> locations = StringUtils.splitAndRemoveEmptyTrimmed(locationsStr, '|');
         Path[] ret = new Path[locations.size()];
         int i = 0;
         for (String location : locations) {
-            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
+            String expandedLocation = getStringSubstitution(nature).performStringSubstitution(location);
             if (expandedLocation == null || expandedLocation.length() == 0) {
                 throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
                         "Unable to get expanded location for run", null));
@@ -181,9 +181,10 @@ public class PythonRunnerConfig {
     }   
 
     
-    private static IStringVariableManager getStringVariableManager() {
-        return VariablesPlugin.getDefault().getStringVariableManager();
+    private static StringSubstitution getStringSubstitution(IPythonNature nature) {
+        return new StringSubstitution(nature);
     }
+    
     /**
      * Expands and returns the working directory attribute of the given launch
      * configuration. Returns <code>null</code> if a working directory is not
@@ -198,10 +199,10 @@ public class PythonRunnerConfig {
      * resolved location does not point to an existing directory in the local
      * file system
      */
-    public static IPath getWorkingDirectory(ILaunchConfiguration configuration) throws CoreException {
+    public static IPath getWorkingDirectory(ILaunchConfiguration configuration, IPythonNature nature) throws CoreException {
         String location = configuration.getAttribute(Constants.ATTR_WORKING_DIRECTORY, (String) null);
         if (location != null) {
-            String expandedLocation = getStringVariableManager().performStringSubstitution(location);
+            String expandedLocation = getStringSubstitution(nature).performStringSubstitution(location);
             if (expandedLocation.length() > 0) {
                 File path = new File(expandedLocation);
                 if (path.isDirectory()) {
@@ -281,7 +282,7 @@ public class PythonRunnerConfig {
         if (location == null) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get python interpreter for run", null));
         } else {
-            String expandedLocation = getStringVariableManager().performStringSubstitution(location.getExecutableOrJar());
+            String expandedLocation = getStringSubstitution(nature).performStringSubstitution(location.getExecutableOrJar());
             if (expandedLocation == null || expandedLocation.length() == 0) {
                 throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unable to get expanded interpreter for run", null));
             } else {
@@ -362,9 +363,9 @@ public class PythonRunnerConfig {
         useUnittestWrapper = !run.equals(RUN_UNITTEST) || 
             !conf.getAttribute(Constants.ATTR_NO_UNITTEST_WRAPPER, false);
         
-        resource = getLocation(conf);
+        resource = getLocation(conf, pythonNature);
         arguments = getArguments(conf, makeArgumentsVariableSubstitution);
-        IPath workingPath = getWorkingDirectory(conf);
+        IPath workingPath = getWorkingDirectory(conf, pythonNature);
         workingDirectory = workingPath == null ? null : workingPath.toFile();
         acceptTimeout = PydevPrefs.getPreferences().getInt(PydevEditorPrefs.CONNECT_TIMEOUT);
         
@@ -635,7 +636,7 @@ public class PythonRunnerConfig {
         
         String runArguments[] = null;
         if (makeVariableSubstitution && arguments != null) {
-            String expanded = getStringVariableManager().performStringSubstitution(arguments);
+            String expanded = getStringSubstitution(PythonNature.getPythonNature(project)).performStringSubstitution(arguments);
             runArguments = parseStringIntoList(expanded);
         }
 
@@ -702,7 +703,7 @@ public class PythonRunnerConfig {
     private String[] getVMArguments(ILaunchConfiguration configuration) throws CoreException {
         String args = configuration.getAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);
         if (args != null && args.trim().length() > 0) {
-            String expanded = getStringVariableManager().performStringSubstitution(args);
+            String expanded = getStringSubstitution(PythonNature.getPythonNature(project)).performStringSubstitution(args);
             return parseStringIntoList(expanded);
        }
        return null;

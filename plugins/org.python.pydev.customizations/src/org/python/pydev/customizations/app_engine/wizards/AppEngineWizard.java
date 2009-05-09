@@ -2,6 +2,7 @@ package org.python.pydev.customizations.app_engine.wizards;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -62,8 +63,16 @@ public class AppEngineWizard extends PythonProjectWizard{
             }
         };
         
+        ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback = new ICallback<Map<String, String>, IProject>(){
+            
+            public Map<String, String> call(IProject projectHandle){
+                return appEngineConfigWizardPage.getVariableSubstitution(); 
+            }
+        };
+        
         PyStructureConfigHelpers.createPydevProject(description, newProjectHandle, monitor, projectType,
-                projectInterpreter, getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback);
+                projectInterpreter, getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback,
+                getVariableSubstitutionCallback);
     }
 
 }

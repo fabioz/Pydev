@@ -37,10 +37,10 @@ public class ArgumentsTab extends AbstractLaunchConfigurationTab {
     private VMArgumentsBlock      vmArgumentsBlock;
     private ProgramArgumentsBlock programArgumentsBlock;
 
-    public ArgumentsTab() {
+    public ArgumentsTab(MainModuleTab mainModuleTab) {
         programArgumentsBlock = new ProgramArgumentsBlock();
         vmArgumentsBlock      = new VMArgumentsBlock();
-        workingDirectoryBlock = new WorkingDirectoryBlock();
+        workingDirectoryBlock = new WorkingDirectoryBlock(mainModuleTab);
     }
 
     /* (non-Javadoc)

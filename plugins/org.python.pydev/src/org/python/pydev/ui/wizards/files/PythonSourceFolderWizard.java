@@ -46,7 +46,7 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
         }
         IPythonPathNature pathNature = PythonNature.getPythonPathNature(project);
         if(pathNature == null){
-            IPythonNature nature = PythonNature.addNature(project, monitor, null, null, null, null);
+            IPythonNature nature = PythonNature.addNature(project, monitor, null, null, null, null, null);
             pathNature = nature.getPythonPathNature();
             if(pathNature == null){
                 throw new RuntimeException("Unable to add the nature to the seleted project.");
@@ -58,7 +58,7 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
         }
         String newPath = folder.getFullPath().toString();
         
-        String curr = pathNature.getProjectSourcePath();
+        String curr = pathNature.getProjectSourcePath(true);
         if(curr == null){
             curr = "";
         }

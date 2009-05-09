@@ -68,8 +68,8 @@ public class PyProjectProperties extends PropertyPage {
 
         if(project != null){
             try {
-                String sourcePath = PythonNature.getPythonPathNature(project).getProjectSourcePath();
-                String externalSourcePath = PythonNature.getPythonPathNature(project).getProjectExternalSourcePath();
+                String sourcePath = PythonNature.getPythonPathNature(project).getProjectSourcePath(false);
+                String externalSourcePath = PythonNature.getPythonPathNature(project).getProjectExternalSourcePath(false);
 
                 Label l2 = new Label(topComp, SWT.None);
                 l2.setText("Project Source Folders (and zips/jars/eggs).");
@@ -161,8 +161,8 @@ public class PyProjectProperties extends PropertyPage {
                 boolean changed = false;
                 IPythonPathNature pythonPathNature = PythonNature.getPythonPathNature(project);
                 
-                String sourcePath = pythonPathNature.getProjectSourcePath();
-                String externalSourcePath = pythonPathNature.getProjectExternalSourcePath();
+                String sourcePath = pythonPathNature.getProjectSourcePath(false);
+                String externalSourcePath = pythonPathNature.getProjectExternalSourcePath(false);
                 
                 String newSourcePath = StringUtils.leftAndRightTrim(treeSourceFolders.getTreeItemsAsStr(), '|');
                 String newExternalSourcePath = StringUtils.leftAndRightTrim(treeExternalLibs.getTreeItemsAsStr(), '|');

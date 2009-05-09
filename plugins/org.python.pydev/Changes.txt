@@ -1,6 +1,8 @@
 After 1.4.5
 
 Pydev
+Google App Engine: easy setup
+Project-variables can be used for pythonpath and launch config. 
 The interpreter can be referred from a user-editable name
 Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)
 os.path added to default forced builtins
