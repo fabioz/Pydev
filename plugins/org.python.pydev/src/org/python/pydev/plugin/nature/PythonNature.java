@@ -468,11 +468,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             String interpreter
         ) {
         
-        if(version != null || projectPythonpath != null){
+        if(version != null || projectPythonpath != null || externalProjectPythonpath != null){
             this.getStore().startInit();
             try {
                 if(projectPythonpath != null){
                     this.getPythonPathNature().setProjectSourcePath(projectPythonpath);
+                }
+                if(externalProjectPythonpath != null){
+                    this.getPythonPathNature().setProjectExternalSourcePath(externalProjectPythonpath);
                 }
                 if(version != null || interpreter != null){
                     this.setVersion(version, interpreter);

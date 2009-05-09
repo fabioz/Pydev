@@ -46,20 +46,12 @@ import org.python.pydev.utils.ICallback;
 /**
  * First page for the new project creation wizard. This page
  * collects the name and location of the new project.
- * <p>
- * Example useage:
- * <pre>
- * mainPage = new WizardNewProjectNameAndLocationPage("wizardNewProjectNameAndLocationPage");
- * mainPage.setTitle("Project");
- * mainPage.setDescription("Create a new project.");
- * </pre>
- * </p>
  * 
  * NOTE: COPIED FROM org.eclipse.ui.internal.ide.dialogs.WizardNewProjectNameAndLocationPage 
  * Changed to add the details for the python project type 
  */
 
-public class CopiedWizardNewProjectNameAndLocationPage extends AbstractNewProjectPage implements IWizardNewProjectNameAndLocationPage{
+public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage implements IWizardNewProjectNameAndLocationPage{
     
     // Whether to use default or custom project location
     private boolean useDefaults = true;
@@ -116,7 +108,7 @@ public class CopiedWizardNewProjectNameAndLocationPage extends AbstractNewProjec
      *
      * @param pageName the name of this page
      */
-    public CopiedWizardNewProjectNameAndLocationPage(String pageName) {
+    public NewProjectNameAndLocationWizardPage(String pageName) {
         super(pageName);
         setTitle("Pydev Project");
         setDescription("Create a new Pydev Project.");
@@ -181,7 +173,7 @@ public class CopiedWizardNewProjectNameAndLocationPage extends AbstractNewProjec
 
             //Whenever the configuration changes there, we must evaluate whether the page is complete
             public Object call(Object args) throws Exception {
-                setPageComplete(CopiedWizardNewProjectNameAndLocationPage.this.validatePage());
+                setPageComplete(NewProjectNameAndLocationWizardPage.this.validatePage());
                 return null;
             }}
         );

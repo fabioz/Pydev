@@ -1,0 +1,286 @@
+package org.python.pydev.customizations.app_engine.wizards;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.customizations.CustomizationsPlugin;
+import org.python.pydev.customizations.CustomizationsUIConstants;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
+
+/**
+ * This wizard page gives the google app engine configuration settings.
+ */
+public class AppEngineConfigWizardPage extends WizardPage{
+
+    private Label locationLabel;
+
+    private Text locationPathField;
+
+    private Button browseButton;
+
+    private IPath initialLocationFieldValue;
+
+    private String customLocationFieldValue;
+
+    private static final int SIZING_TEXT_FIELD_WIDTH = 250;
+    
+    private Tree tree;
+    
+    private Image imageSystemLib;
+    
+    private Image imageAppEngine;
+
+    private final List<String> externalSourceFolders = new ArrayList<String>();
+    
+    private Listener locationModifyListener = new Listener(){
+        public void handleEvent(Event e){
+            setPageComplete(validatePage());
+        }
+    };
+
+
+    protected AppEngineConfigWizardPage(String pageName) {
+        super(pageName);
+        this.setPageComplete(false);
+
+        initialLocationFieldValue = new Path("");
+        customLocationFieldValue = "";
+
+        imageAppEngine = CustomizationsPlugin.getImageCache().get(CustomizationsUIConstants.APP_ENGINE);
+        imageSystemLib = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+    }
+
+    public void createControl(Composite parent){
+
+        Font font = parent.getFont();
+
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setLayout(new GridLayout());
+        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        composite.setFont(font);
+
+        // App Engine specification group
+        Composite appEngineGroup = new Composite(composite, SWT.NONE);
+        GridLayout layout = new GridLayout();
+        layout.numColumns = 3;
+        appEngineGroup.setLayout(layout);
+        appEngineGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        appEngineGroup.setFont(font);
+
+        createUserSpecifiedGoogleAppEngineLocationGroup(appEngineGroup);
+
+        tree = new Tree(composite, SWT.SINGLE | SWT.BORDER);
+        tree.setLayoutData(new GridData(GridData.FILL_BOTH));
+        tree.setFont(font);
+
+        setControl(composite);
+    }
+
+    /**
+     * Creates the app engine location specification controls.
+     *
+     * @param appEngineGroup the parent composite
+     * @param enabled the initial enabled state of the widgets created
+     */
+    private void createUserSpecifiedGoogleAppEngineLocationGroup(Composite appEngineGroup){
+        Font font = appEngineGroup.getFont();
+        // location label
+        locationLabel = new Label(appEngineGroup, SWT.NONE);
+        locationLabel.setFont(font);
+        locationLabel.setText("Director&y");
+
+        // app engine location entry field
+        locationPathField = new Text(appEngineGroup, SWT.BORDER);
+        GridData data = new GridData(GridData.FILL_HORIZONTAL);
+        data.widthHint = SIZING_TEXT_FIELD_WIDTH;
+        locationPathField.setLayoutData(data);
+        locationPathField.setFont(font);
+
+        // browse button
+        browseButton = new Button(appEngineGroup, SWT.PUSH);
+        browseButton.setFont(font);
+        browseButton.setText("B&rowse");
+        browseButton.addSelectionListener(new SelectionAdapter(){
+            public void widgetSelected(SelectionEvent event){
+                handleLocationBrowseButtonPressed();
+            }
+        });
+
+        // Set the initial value first before listener
+        // to avoid handling an event during the creation.
+        if(initialLocationFieldValue != null)
+            locationPathField.setText(initialLocationFieldValue.toOSString());
+        locationPathField.addListener(SWT.Modify, locationModifyListener);
+    }
+
+    /**
+     *  Open an appropriate directory browser
+     */
+    private void handleLocationBrowseButtonPressed(){
+        DirectoryDialog dialog = new DirectoryDialog(locationPathField.getShell());
+        dialog
+                .setMessage("Select the Google App Engine root directory (dir containing dev_appserver.py, appcfg.py, lib, etc).");
+
+        String dirName = getAppEngineLocationFieldValue();
+        if(!dirName.equals("")){ //$NON-NLS-1$
+            File path = new File(dirName);
+            if(path.exists())
+                dialog.setFilterPath(new Path(dirName).toOSString());
+        }
+
+        String selectedDirectory = dialog.open();
+        if(selectedDirectory != null){
+            customLocationFieldValue = selectedDirectory;
+            locationPathField.setText(customLocationFieldValue);
+        }
+    }
+
+    /**
+     * Returns the value of the app engine location field
+     * with leading and trailing spaces removed.
+     * 
+     * @return the app engine location directory in the field
+     */
+    private String getAppEngineLocationFieldValue(){
+        if(locationPathField == null)
+            return ""; //$NON-NLS-1$
+        else
+            return locationPathField.getText().trim();
+    }
+
+    /**
+     * @return true if the page is valid and false otherwise.
+     */
+    private boolean validatePage(){
+        tree.removeAll();
+        externalSourceFolders.clear();
+
+        String locationFieldContents = getAppEngineLocationFieldValue();
+
+        if(locationFieldContents.equals("")){ //$NON-NLS-1$
+            setErrorMessage(null);
+            setMessage("Google App Engine location is empty");
+            return false;
+        }
+
+        IPath path = new Path(""); //$NON-NLS-1$
+        if(!path.isValidPath(locationFieldContents)){
+            setErrorMessage("Google App Engine location is not valid");
+            return false;
+        }
+
+        File loc = new File(locationFieldContents);
+        if(!loc.exists()){
+            setErrorMessage("Google App Engine location does not exist");
+            return false;
+        }
+
+        if(!loc.isDirectory()){
+            setErrorMessage("Expecting directory to be selected (not a file)");
+            return false;
+        }
+
+        File[] files = loc.listFiles();
+        HashMap<String, File> map = new HashMap<String, File>();
+        for(File f:files){
+            map.put(f.getName(), f);
+        }
+        String[] preconditions = new String[] { "appcfg.py", "bulkload_client.py", "bulkloader.py", "dev_appserver.py",
+                "VERSION", "lib", };
+
+        for(String precondition:preconditions){
+            if(!map.containsKey(precondition)){
+                setErrorMessage(StringUtils.format("Invalid Google App Engine directory. Did not find: %s in %s",
+                        precondition, locationFieldContents));
+
+                return false;
+            }
+        }
+        List<File> libFoldersForPythonpath = gatherLibFoldersForPythonpath(loc.getAbsolutePath());
+        for(File libLoc:libFoldersForPythonpath){
+            if(!libLoc.exists()){
+                setErrorMessage(StringUtils.format("Invalid Google App Engine directory. Did not find: %s", libLoc
+                        .getAbsolutePath()));
+                return false;
+            }
+            if(!libLoc.isDirectory()){
+                setErrorMessage(StringUtils.format("Invalid Google App Engine install. Expected directory for: %s",
+                        libLoc.getAbsolutePath()));
+
+            }
+        }
+
+        //If we got here, all is OK, let's go on and show the items that'll be added to the PYTHONPATH (as external folders)
+        fillExternalSourceFolders(libFoldersForPythonpath);
+
+        setErrorMessage(null);
+        setMessage(null);
+        return true;
+    }
+
+    /**
+     * Given the app engine location, returns the folders that should be added to the pythonpath.
+     * 
+     * Note that it does not validate if the folders are actually valid (the client is responsible for doing
+     * that and giving the proper errors).
+     */
+    private List<File> gatherLibFoldersForPythonpath(String appEngineLoc){
+        ArrayList<File> ret = new ArrayList<File>();
+        String[] preconditions = new String[] { "django", "webob", "yaml/lib" };
+        for(String precondition:preconditions){
+            List<String> parts = StringUtils.split(precondition, '/');
+            File libLoc = new File(appEngineLoc, "lib");
+            for(String part:parts){
+                libLoc = new File(libLoc, part);
+            }
+            ret.add(libLoc);
+        }
+        return ret;
+    }
+
+    /**
+     * The tree/externalSourceFolders  must be already empty at this point 
+     */
+    private void fillExternalSourceFolders(List<File> libFoldersForPythonpath){
+        TreeItem item = new TreeItem(tree, SWT.NONE);
+        item.setText("Google App Engine Libs");
+        item.setImage(imageAppEngine);
+
+        for(File file:libFoldersForPythonpath){
+            TreeItem subItem = new TreeItem(item, SWT.NONE);
+            subItem.setText(file.getAbsolutePath());
+            subItem.setImage(imageSystemLib);
+            item.setExpanded(true);
+            
+            externalSourceFolders.add(file.getAbsolutePath());
+        }
+    }
+
+    public List<String> getExternalSourceFolders(){
+        return externalSourceFolders;
+    }
+
+}

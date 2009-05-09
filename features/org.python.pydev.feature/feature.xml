@@ -99,4 +99,10 @@ build matches when doing a replace (so, the version of the xml has some extra sp
          install-size="504"
          version="0.9.7.1"/>
 
+   <plugin
+         id="org.python.pydev.customizations"
+         download-size="300"
+         install-size="300"
+         version="0.9.7.1"/>
+
 </feature>

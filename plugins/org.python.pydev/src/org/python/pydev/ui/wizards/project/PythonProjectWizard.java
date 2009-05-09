@@ -41,6 +41,7 @@ import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
  * TODO: Add a checkbox asking should a skeleton of a Python program generated
  * 
  * @author Mikko Ohtamaa
+ * @author Fabio Zadrozny
  */
 public class PythonProjectWizard extends AbstractNewProjectWizard {
 
@@ -56,7 +57,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
 
     public static final String WIZARD_ID = "org.python.pydev.ui.wizards.project.PythonProjectWizard";
 
-    IWizardNewProjectNameAndLocationPage projectPage;
+    protected IWizardNewProjectNameAndLocationPage projectPage;
 
     Shell shell;
 
@@ -77,7 +78,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
      * Creates the project page.
      */
     protected IWizardNewProjectNameAndLocationPage createProjectPage(){
-        return new CopiedWizardNewProjectNameAndLocationPage("Setting project properties");
+        return new NewProjectNameAndLocationWizardPage("Setting project properties");
     }
 
     /**
@@ -125,19 +126,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
         WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
             protected void execute(IProgressMonitor monitor) throws CoreException {
                 
-                ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IFolder>, IProject>(){
-                
-                    public List<IFolder> call(IProject projectHandle) {
-                        if(projectPage.shouldCreatSourceFolder()){
-                            IFolder folder = projectHandle.getFolder("src");
-                            List<IFolder> ret = new ArrayList<IFolder>();
-                            ret.add(folder);
-                            return ret;
-                        }
-                        return null;
-                    }
-                };
-                PyStructureConfigHelpers.createPydevProject(description, newProjectHandle, monitor, projectType, projectInterpreter, getSourceFolderHandlesCallback, null);
+                createAndConfigProject(newProjectHandle, description, projectType, projectInterpreter, monitor);
             }
         };
 
@@ -150,20 +139,46 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
             Throwable t = e.getTargetException();
             if (t instanceof CoreException) {
                 if (((CoreException) t).getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS) {
-                    MessageDialog.openError(getShell(), "IDEWorkbenchMessages.CreateProjectWizard_errorTitle", "IDEWorkbenchMessages.CreateProjectWizard_caseVariantExistsError");
+                    MessageDialog.openError(getShell(), "Unable to create project", "Another project with the same name (and different case) already exists.");
                 } else {
-                    ErrorDialog.openError(getShell(), "IDEWorkbenchMessages.CreateProjectWizard_errorTitle", null, ((CoreException) t).getStatus());
+                    ErrorDialog.openError(getShell(), "Unable to create project", null, ((CoreException) t).getStatus());
                 }
             } else {
                 // Unexpected runtime exceptions and errors may still occur.
                 PydevPlugin.log(IStatus.ERROR, t.toString(), t);
-                MessageDialog.openError(getShell(), "IDEWorkbenchMessages.CreateProjectWizard_errorTitle", t.getMessage());
+                MessageDialog.openError(getShell(), "Unable to create project", t.getMessage());
             }
             return null;
         }
 
         return newProjectHandle;
     }
+    
+    /**
+     * This method can be overridden to provide a custom creation of the project.
+     * 
+     * It should create the project, configure the folders in the pythonpath (source folders and external folders
+     * if applicable), set the project type and project interpreter.
+     */
+    protected void createAndConfigProject(final IProject newProjectHandle, final IProjectDescription description,
+            final String projectType, final String projectInterpreter, IProgressMonitor monitor)
+            throws CoreException{
+        ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IFolder>, IProject>(){
+        
+            public List<IFolder> call(IProject projectHandle) {
+                if(projectPage.shouldCreatSourceFolder()){
+                    IFolder folder = projectHandle.getFolder("src");
+                    List<IFolder> ret = new ArrayList<IFolder>();
+                    ret.add(folder);
+                    return ret;
+                }
+                return null;
+            }
+        };
+        PyStructureConfigHelpers.createPydevProject(
+                description, newProjectHandle, monitor, projectType, projectInterpreter, getSourceFolderHandlesCallback, null);
+    }
+
 
     /**
      * The user clicked Finish button

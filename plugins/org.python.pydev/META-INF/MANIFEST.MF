@@ -105,6 +105,7 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.ui.perspective,
  org.python.pydev.ui.pythonpathconf,
  org.python.pydev.ui.wizards.files,
+ org.python.pydev.ui.wizards.gettingstarted,
  org.python.pydev.ui.wizards.project,
  org.python.pydev.utils,
  org.python.pydev.views

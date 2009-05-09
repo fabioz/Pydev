@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+<!-- wizards -->
+   <extension point="org.eclipse.ui.newWizards">
+
+      <wizard
+            canFinishEarly="false"
+            category="org.python.pydev.PythonCategory"
+            class="org.python.pydev.customizations.app_engine.wizards.AppEngineWizard"
+            descriptionImage="icons/AppEngine-64.png"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/AppEngine-16.png"
+            id="org.python.pydev.customizations.app_engine.wizards.AppEngineWizard"
+            name="Google App Engine Project"
+            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            project="true"/>
+    </extension>
+</plugin>
