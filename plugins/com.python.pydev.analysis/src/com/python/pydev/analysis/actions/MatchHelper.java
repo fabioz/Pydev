@@ -19,7 +19,7 @@ public class MatchHelper{
     public static boolean matchItem(SearchPattern patternMatcher, IInfo info){
         //We want to match the package name in the beggining too...
         String pattern = patternMatcher.getPattern();
-        List<String> split = StringUtils.split(pattern, '.');
+        List<String> split = StringUtils.splitAndRemoveEmptyTrimmed(pattern, '.');
         if(split.size() <= 1){
             if(pattern.endsWith(".")){
                 split.add("");
@@ -35,7 +35,7 @@ public class MatchHelper{
         if(declaringModuleName == null || declaringModuleName.length() == 0){
             return false;
         }
-        List<String> moduleParts = StringUtils.split(declaringModuleName, '.');
+        List<String> moduleParts = StringUtils.splitAndRemoveEmptyTrimmed(declaringModuleName, '.');
         
         while(split.size() > 1){
             String head = split.remove(0);
@@ -93,8 +93,8 @@ public class MatchHelper{
             return false;
         }
         
-        List<String> thisSplit = StringUtils.split(thisPattern, '.');
-        List<String> otherSplit = StringUtils.split(otherPattern, '.');
+        List<String> thisSplit = StringUtils.splitAndRemoveEmptyTrimmed(thisPattern, '.');
+        List<String> otherSplit = StringUtils.splitAndRemoveEmptyTrimmed(otherPattern, '.');
         
         if(thisEndsWithPoint){
             thisSplit.add("");
