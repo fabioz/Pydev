@@ -13,7 +13,7 @@
             hasPages="true"
             icon="icons/AppEngine-16.png"
             id="org.python.pydev.customizations.app_engine.wizards.AppEngineWizard"
-            name="Google App Engine Project"
+            name="Pydev Google App Engine Project"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>
     </extension>
