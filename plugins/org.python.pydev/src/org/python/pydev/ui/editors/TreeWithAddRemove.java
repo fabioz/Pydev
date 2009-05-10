@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -103,9 +104,9 @@ public abstract class TreeWithAddRemove extends Composite{
         layout.marginWidth= 0;
         buttonsSourceFolders.setLayout(layout);
         
-        createFirstAddButton(buttonsSourceFolders);
-
-        createSecondAddButton(buttonsSourceFolders);
+        for(int i=0;i<getNumberOfAddButtons();i++){
+            createAddButton(buttonsSourceFolders, i);
+        }
         
         createRemoveButton(buttonsSourceFolders);
 
@@ -136,19 +137,11 @@ public abstract class TreeWithAddRemove extends Composite{
     }
     
     
-    protected void createFirstAddButton(Composite buttonsSourceFolders){
+    protected void createAddButton(Composite buttonsSourceFolders, int buttonNumber){
         Button buttonAddSourceFolder = new Button(buttonsSourceFolders, SWT.PUSH);
-        customizeAddSomethingButton(buttonAddSourceFolder, 1);
-        buttonAddSourceFolder.setText(getFirstAddButtonLabel());
+        customizeAddSomethingButton(buttonAddSourceFolder, buttonNumber);
+        buttonAddSourceFolder.setText(getButtonLabel(buttonNumber));
         configButtonLayout(buttonAddSourceFolder);
-    }
-
-
-    protected void createSecondAddButton(Composite buttonsSourceFolders){
-        Button buttonAddZip = new Button(buttonsSourceFolders, SWT.PUSH);
-        customizeAddSomethingButton(buttonAddZip, 2);
-        buttonAddZip.setText(getSecondAddButtonLabel());
-        configButtonLayout(buttonAddZip);
     }
 
     
@@ -159,7 +152,6 @@ public abstract class TreeWithAddRemove extends Composite{
     }
     
     
-
     /**
      * Remove is almost always default
      */
@@ -207,6 +199,13 @@ public abstract class TreeWithAddRemove extends Composite{
         if(keyAndValueEntered != null){
             addTreeItem(keyAndValueEntered.o1, keyAndValueEntered.o2);
         }
+    }
+    
+    
+    public void addItemWithDialog(InputDialog dialog){
+        dialog.open();
+        String value = dialog.getValue();
+        addTreeItem(value);
     }
     
     
@@ -342,15 +341,16 @@ public abstract class TreeWithAddRemove extends Composite{
     }
     
 
-    protected abstract String getFirstAddButtonLabel();
-
-    
-    protected abstract String getSecondAddButtonLabel();
+    protected abstract String getButtonLabel(int i);
 
     
     protected abstract String getImageConstant();
 
     
     protected abstract void handleAddButtonSelected(int nButton);
+    
+    protected int getNumberOfAddButtons(){
+        return 3;
+    }
     
 }

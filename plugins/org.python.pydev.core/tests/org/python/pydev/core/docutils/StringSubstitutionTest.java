@@ -26,17 +26,13 @@ public class StringSubstitutionTest extends TestCase{
     public void testStringSubstitution() throws Exception{
         final Map<String, String> variableSubstitution= new HashMap<String, String>();
         variableSubstitution.put("AA", "XX");
-        assertEquals("aaXXbb", createStringSubstitution(variableSubstitution).performStringSubstitution("aa${AA}bb"));
+        assertEquals("aaXXbb", createStringSubstitution(variableSubstitution).performPythonpathStringSubstitution("aa${AA}bb"));
         
         variableSubstitution.put("AA", "${XX}");
         variableSubstitution.put("XX", "YY");
-        assertEquals("aaYYbb", createStringSubstitution(variableSubstitution).performStringSubstitution("aa${AA}bb"));
+        assertEquals("aaYYbb", createStringSubstitution(variableSubstitution).performPythonpathStringSubstitution("aa${AA}bb"));
         
-        //Leave it as is... the IStringVariableManager will do its work when the workbench is working! 
-        assertEquals("aa${unknown}bb", createStringSubstitution(variableSubstitution).performStringSubstitution("aa${unknown}bb"));
-        
-        //Leave it as is... the IStringVariableManager will do its work when the workbench is working! 
-        assertEquals("aa${unknown}bb", createStringSubstitution(variableSubstitution).performStringSubstitution("aa${unknown}bb", false));
+        assertEquals("aa${unknown}bb", createStringSubstitution(variableSubstitution).performPythonpathStringSubstitution("aa${unknown}bb"));
     }
 
     

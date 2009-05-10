@@ -84,7 +84,7 @@
    </extension>
    <extension point="org.eclipse.ui.propertyPages">
          
-      <page name="PyDev - project type"
+      <page name="PyDev - Interpreter/Grammar"
             class="org.python.pydev.ui.PyProjectPythonDetails"
             id="org.python.pydev.ui.pyProjectPythonDetails">
          <filter name="projectNature" value="org.python.pydev.pythonNature"/>

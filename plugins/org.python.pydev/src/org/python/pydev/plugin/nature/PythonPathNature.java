@@ -135,7 +135,7 @@ public class PythonPathNature implements IPythonPathNature {
             
             String source = getProjectSourcePath(true);
             String external = getProjectExternalSourcePath(true);
-            String contributed = stringSubstitution.performStringSubstitution(getContributedSourcePath(), false);
+            String contributed = stringSubstitution.performPythonpathStringSubstitution(getContributedSourcePath());
 
             
             if(source == null){
@@ -388,7 +388,7 @@ public class PythonPathNature implements IPythonPathNature {
         String ret = StringUtils.leftAndRightTrim(projectSourcePath, '|');
         if(replace){
             StringSubstitution substitution = new StringSubstitution(nature);
-            ret = substitution.performStringSubstitution(ret);
+            ret = substitution.performPythonpathStringSubstitution(ret);
         }
         return ret;
     }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -80,7 +81,11 @@ public class PyProjectProperties extends PropertyPage {
         topComp.setLayout(innerLayout);
         GridData gd = new GridData(GridData.FILL_BOTH);
         topComp.setLayoutData(gd);
-        
+        Label label = new Label(topComp, SWT.None);
+        label.setText(
+                "The final PYTHONPATH used for a launch is composed of the paths\n" +
+        		"defined here, joined with the paths defined by the selected interpreter."
+        );
         
         tabFolder = new TabFolder(topComp, SWT.None);
         gd = new GridData();
@@ -131,7 +136,7 @@ public class PyProjectProperties extends PropertyPage {
             variables = new HashMap<String, String>();
         }
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
-        tabItem.setText("Variables");
+        tabItem.setText("String Substitution Variables");
         tabItem.setImage(PydevPlugin.getImageCache().get(UIConstants.VARIABLE_ICON));
         Composite topComp = new Composite(tabFolder, SWT.None);
         topComp.setLayout(new GridLayout(1, false));
@@ -141,7 +146,7 @@ public class PyProjectProperties extends PropertyPage {
         GridData data;
         Label l2;
         l2 = new Label(topComp, SWT.None);
-        l2.setText("Variables used to resolve:\n" +
+        l2.setText("String substitution variables are used to resolve:\n" +
         		"  - source folders\n" +
         		"  - external libraries\n" +
         		"  - main module in launch configuration"
@@ -155,18 +160,7 @@ public class PyProjectProperties extends PropertyPage {
         final Map<String, String> vars = variables; 
         
         treeVariables = new TreeWithAddRemove(topComp, 0, vars) {
-            
-            @Override
-            protected void createSecondAddButton(Composite buttonsSourceFolders){
-                //We do not want to create the 2nd add button!
-            }
-            
-            @Override
-            protected String getSecondAddButtonLabel(){
-                throw new AssertionError("Should not be called: We didn't add the second button.");
-            }
 
-            
             @Override
             protected String getImageConstant() {
                 return UIConstants.VARIABLE_ICON;
@@ -174,18 +168,27 @@ public class PyProjectProperties extends PropertyPage {
             
             @Override
             protected void handleAddButtonSelected(int nButton){
-                if(nButton == 1){
+                if(nButton == 0){
                     addItemWithDialog(new MapOfStringsInputDialog(getShell(), "Variable", "Enter the variable name/value.", vars));
                     
                 }else{
-                    throw new AssertionError("Unexpected (only 1st should be available)");
+                    throw new AssertionError("Unexpected (only 0 should be available)");
                 }
             }
 
             
             @Override
-            protected String getFirstAddButtonLabel() {
+            protected String getButtonLabel(int i) {
+                if(i != 0){
+                    throw new RuntimeException("Expected only i==0. Received: "+i);
+                }
                 return "Add variable";
+            }
+            
+            
+            @Override
+            protected int getNumberOfAddButtons(){
+                return 1;
             }
         };
         
@@ -210,7 +213,12 @@ public class PyProjectProperties extends PropertyPage {
         GridData data;
         Label l2;
         l2 = new Label(topComp, SWT.None);
-        l2.setText("External Source Folders (and zips/jars/eggs).");
+        l2.setText(
+                "External libraries (source folders/zips/jars/eggs) outside of the workspace.\n\n" +
+        		"When using variables, the final paths resolved must be filesystem absolute.\n\n" +
+        		"Changes in external libraries are not monitored, so, the 'Force restore internal info'\ns" +
+        		"hould be used if an external library changes. "
+        );
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = false;
@@ -224,22 +232,39 @@ public class PyProjectProperties extends PropertyPage {
             }
             
             @Override
-            protected String getSecondAddButtonLabel(){
-                return "Add zip/jar/egg";
-            }
-
-            @Override
-            protected String getFirstAddButtonLabel() {
-                return "Add source folder";
+            protected String getButtonLabel(int i) {
+                switch(i){
+                    case 0:
+                        return "Add source folder";
+                        
+                    case 1:
+                        return "Add zip/jar/egg";
+                        
+                    case 2:
+                        return "Add based on variable";
+                        
+                    default:
+                        throw new AssertionError("Unexpected: "+i);
+                        
+                }
             }
 
             @Override
             protected void handleAddButtonSelected(int nButton){
-                if(nButton == 1){
+                if(nButton == 0){
                     addItemWithDialog(new DirectoryDialog(getShell()));
                     
-                }else if(nButton == 2){
+                }else if(nButton == 1){
                     addItemWithDialog(new FileDialog(getShell(), SWT.MULTI));
+                    
+                }else if(nButton == 2){
+                    addItemWithDialog(new InputDialog(
+                            getShell(), 
+                            "Add path to resolve with variable", 
+                            "Add path to resolve with variable in the format: ${VARIABLE}", 
+                            "", 
+                            null)
+                    );
                     
                 }else{
                     throw new AssertionError("Unexpected");
@@ -266,8 +291,9 @@ public class PyProjectProperties extends PropertyPage {
         GridData data;
         Label l2 = new Label(topComp, SWT.None);
         l2.setText(
-                "Project Source Folders (and zips/jars/eggs).\n" +
-        		"Note that even when using variables, the final paths resolved must be workspace-relative.");
+                "Project Source Folders (and zips/jars/eggs).\n\n" +
+        		"When using variables, the final paths resolved must be workspace-relative."
+        );
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = false;
@@ -277,22 +303,39 @@ public class PyProjectProperties extends PropertyPage {
         treeSourceFolders = new TreeWithAddRemove(topComp, 0, PythonNature.getStrAsStrItems(sourcePath)){
 
             @Override
-            protected String getSecondAddButtonLabel(){
-                return "Add zip/jar/egg";
-            }
-          
-            @Override
-            protected String getFirstAddButtonLabel() {
-                return "Add source folder";
+            protected String getButtonLabel(int i) {
+                switch(i){
+                    case 0:
+                        return "Add source folder";
+                        
+                    case 1:
+                        return "Add zip/jar/egg";
+                        
+                    case 2:
+                        return "Add based on variable";
+                        
+                    default:
+                        throw new AssertionError("Unexpected: "+i);
+                        
+                }
             }
 
             @Override
             protected void handleAddButtonSelected(int nButton){
-                if(nButton == 1){
+                if(nButton == 0){
                     addItemWithDialog(new ProjectFolderSelectionDialog(getShell(), project, true, "Choose source folders to add to PYTHONPATH"));
                     
-                }else if(nButton == 2){
+                }else if(nButton == 1){
                     addItemWithDialog(new ResourceSelectionDialog(getShell(), project, "Choose zip/jar/egg to add to PYTHONPATH"));
+                    
+                }else if(nButton == 2){
+                    addItemWithDialog(new InputDialog(
+                            getShell(), 
+                            "Add path to resolve with variable", 
+                            "Add path to resolve with variable in the format: ${VARIABLE}", 
+                            "", 
+                            null)
+                    );
                     
                 }else{
                     throw new AssertionError("Unexpected");

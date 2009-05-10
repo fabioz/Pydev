@@ -34,6 +34,9 @@ public class StringSubstitution{
     }
 
     /**
+     * Replaces with all variables (the ones for this class and the ones in the VariablesPlugin)
+     * 
+     * 
      * Recursively resolves and replaces all variable references in the given
      * expression with their corresponding values. Allows the client to control
      * whether references to undefined variables are reported as an error (i.e.
@@ -47,17 +50,24 @@ public class StringSubstitution{
      */
     public String performStringSubstitution(String expression, boolean reportUndefinedVariables) throws CoreException{
         VariablesPlugin plugin = VariablesPlugin.getDefault();
-        
+        expression = performPythonpathStringSubstitution(expression);
+        expression = plugin.getStringVariableManager().performStringSubstitution(expression, reportUndefinedVariables);
+        return expression;
+    }
+    
+    /**
+     * String substitution for the pythonpath does not use the default eclipse string substitution (only variables
+     * defined explicitly in this class) 
+     */
+    public String performPythonpathStringSubstitution(String expression) throws CoreException{
         if(variableSubstitution != null && variableSubstitution.size() > 0){
             //Only throw exception here if the 
             expression = new StringSubstitutionEngine().performStringSubstitution(expression, true, variableSubstitution);
         }
-        if(plugin != null){ //in tests we don't have that plugin.
-            expression = plugin.getStringVariableManager().performStringSubstitution(expression,
-                    reportUndefinedVariables);
-        }
         return expression;
+        
     }
+
 
     /**
      * Recursively resolves and replaces all variable references in the given
@@ -318,5 +328,6 @@ public class StringSubstitution{
             return res.toString();
         }
     }
+
 
 }
