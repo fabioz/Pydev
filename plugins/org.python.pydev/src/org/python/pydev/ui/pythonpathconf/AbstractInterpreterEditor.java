@@ -799,7 +799,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 int result = dialog.open();
                 
                 if (result == Window.OK){
-                    interpreterNameAndExecutable = dialog.getInterpreterNameAndExecutable();
+                    interpreterNameAndExecutable = dialog.getKeyAndValueEntered();
                     if(interpreterNameAndExecutable == null){
                         ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
                                 "interpreterNameAndExecutable == null", 
