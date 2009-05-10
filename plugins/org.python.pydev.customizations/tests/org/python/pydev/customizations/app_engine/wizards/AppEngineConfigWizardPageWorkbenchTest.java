@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
@@ -96,15 +97,15 @@ public class AppEngineConfigWizardPageWorkbenchTest extends AbstractWorkbenchTes
                 IProject createdProject = appEngineWizard.getCreatedProject();
                 PythonNature nature = PythonNature.getPythonNature(createdProject);
                 Map<String, String> expected = new HashMap<String, String>();
-                expected.put(AppEngineConfigWizardPage.GOOGLE_APP_ENGINE_VARIABLE, new File(TestDependent.GOOGLE_APP_ENGINE_LOCATION).getAbsolutePath());
+                expected.put(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE, new File(TestDependent.GOOGLE_APP_ENGINE_LOCATION).getAbsolutePath());
                 IPythonPathNature pythonPathNature = nature.getPythonPathNature();
                 try{
                     assertEquals(expected, pythonPathNature.getVariableSubstitution());
                     
                     String projectExternalSourcePath = pythonPathNature.getProjectExternalSourcePath(false);
-                    assertTrue(projectExternalSourcePath.indexOf(AppEngineConfigWizardPage.GOOGLE_APP_ENGINE_VARIABLE) != -1);
+                    assertTrue(projectExternalSourcePath.indexOf(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE) != -1);
                     projectExternalSourcePath = pythonPathNature.getProjectExternalSourcePath(true);
-                    assertTrue(projectExternalSourcePath.indexOf(AppEngineConfigWizardPage.GOOGLE_APP_ENGINE_VARIABLE) == -1);
+                    assertTrue(projectExternalSourcePath.indexOf(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE) == -1);
                 }catch(CoreException e){
                     throw new RuntimeException(e);
                 }

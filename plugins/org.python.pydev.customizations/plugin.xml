@@ -17,4 +17,73 @@
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>
     </extension>
+    
+    
+    <extension point="org.eclipse.debug.core.launchConfigurationTypes">
+        <launchConfigurationType
+            delegate="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationDelegate"
+            id="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationType"
+            modes="run, debug"
+            name="Pydev Google App Run"
+            public="true">
+        </launchConfigurationType>
+    </extension>
+    
+    <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+        <launchConfigurationTypeImage
+            icon="icons/AppEngine-16.png"
+            configTypeID="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationType"
+            id="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationTypeImage">
+        </launchConfigurationTypeImage>
+    </extension>
+    
+   <extension point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            namespace="org.python.pydev.customizations"
+            properties="app_engine"
+            type="org.python.pydev.navigator.elements.IWrappedResource"
+            class="org.python.pydev.customizations.app_engine.launching.AppEnginePropertyTester"
+            id="org.python.pydev.navigator.elements.IWrappedResource.app_engine_wrapped_resource">
+      </propertyTester>
+      <propertyTester
+            namespace="org.python.pydev.customizations"
+            properties="app_engine"
+            type="org.eclipse.core.resources.IContainer"
+            class="org.python.pydev.customizations.app_engine.launching.AppEnginePropertyTester"
+            id="org.python.pydev.navigator.elements.IWrappedResource.app_engine_container">
+      </propertyTester>
+   </extension>
+    
+    <extension point="org.eclipse.debug.ui.launchShortcuts">
+        <shortcut
+            label="Pydev: Google App Run"
+            icon="icons/AppEngine-16.png"
+            modes="run, debug"
+            class="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchShortcut"
+            id="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchShortcut">
+            <!--this adds it to run-as...-->
+            <contextualLaunch>
+               <enablement>
+                  <with variable="selection">
+                     <count value="1"/>
+                     <iterate ifEmpty="false" operator="and">
+                        <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
+                     </iterate>
+                  </with>
+               </enablement>
+            </contextualLaunch>
+            <configurationType id="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationType"/>
+        </shortcut>
+    </extension>
+
+    <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+        <!-- Note that it's the same as the regular python launch! -->    
+        <launchConfigurationTabGroup
+            type="org.python.pydev.customizations.app_engine.launching.AppEngineLaunchConfigurationType"
+            class="org.python.pydev.debug.ui.PythonTabGroup"
+            id="org.python.pydev.customizations.app_engine.launching.AppEngineTabGroup">
+        </launchConfigurationTabGroup>
+    </extension>
+    
+    
 </plugin>

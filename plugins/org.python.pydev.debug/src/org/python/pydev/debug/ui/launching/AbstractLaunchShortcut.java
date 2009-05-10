@@ -188,23 +188,29 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     protected abstract String getLaunchConfigurationType();
 
     protected ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource) {
-        IInterpreterManager pythonInterpreterManager = getInterpreterManager();
-        String projName = resource[0].getProject().getName();
         try {
-            ILaunchConfigurationWorkingCopy createdConfiguration = LaunchConfigurationCreator
-                    .createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(),
-                            LaunchConfigurationCreator.getDefaultLocation(resource, false), //it'll be made relative later on
-                            pythonInterpreterManager, projName);
-
-            // Common Tab Arguments
-            CommonTab tab = new CommonTab();
-            tab.setDefaults(createdConfiguration);
-            tab.dispose();
+            ILaunchConfigurationWorkingCopy createdConfiguration = createDefaultLaunchConfigurationWithoutSaving(resource);
             return createdConfiguration.doSave();
         } catch (CoreException e) {
             reportError(null, e);
             return null;
         }
+    }
+
+    protected ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(IResource[] resource)
+            throws CoreException{
+        IInterpreterManager pythonInterpreterManager = getInterpreterManager();
+        String projName = resource[0].getProject().getName();
+        ILaunchConfigurationWorkingCopy createdConfiguration = LaunchConfigurationCreator
+                .createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(),
+                        LaunchConfigurationCreator.getDefaultLocation(resource, false), //it'll be made relative later on
+                        pythonInterpreterManager, projName);
+
+        // Common Tab Arguments
+        CommonTab tab = new CommonTab();
+        tab.setDefaults(createdConfiguration);
+        tab.dispose();
+        return createdConfiguration;
     }
 
     /**

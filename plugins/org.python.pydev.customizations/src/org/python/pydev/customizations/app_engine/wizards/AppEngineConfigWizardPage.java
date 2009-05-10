@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.customizations.CustomizationsPlugin;
 import org.python.pydev.customizations.CustomizationsUIConstants;
+import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -35,8 +36,6 @@ import org.python.pydev.ui.UIConstants;
  * This wizard page gives the google app engine configuration settings.
  */
 public class AppEngineConfigWizardPage extends WizardPage{
-
-    public static final String GOOGLE_APP_ENGINE_VARIABLE = "GOOGLE_APP_ENGINE";
 
     private Label locationLabel;
 
@@ -245,12 +244,12 @@ public class AppEngineConfigWizardPage extends WizardPage{
         }
 
         //If we got here, all is OK, let's go on and show the items that'll be added to the PYTHONPATH (as external folders)
-        variableSubstitution.put(GOOGLE_APP_ENGINE_VARIABLE, loc.getAbsolutePath());
+        variableSubstitution.put(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE, loc.getAbsolutePath());
         fillExternalSourceFolders(variableSubstitution, 
                 new String[]{
-                "${"+GOOGLE_APP_ENGINE_VARIABLE+"}/lib/django",
-                "${"+GOOGLE_APP_ENGINE_VARIABLE+"}/lib/webob",
-                "${"+GOOGLE_APP_ENGINE_VARIABLE+"}/lib/yaml/lib",
+                "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}/lib/django",
+                "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}/lib/webob",
+                "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}/lib/yaml/lib",
                 }
         );
 
@@ -285,7 +284,7 @@ public class AppEngineConfigWizardPage extends WizardPage{
     private void fillExternalSourceFolders(Map<String, String> variableSubstitution, String[] libFoldersForPythonpath){
         TreeItem item = new TreeItem(tree, SWT.NONE);
         
-        item.setText(GOOGLE_APP_ENGINE_VARIABLE+": "+variableSubstitution.get(GOOGLE_APP_ENGINE_VARIABLE));
+        item.setText(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+": "+variableSubstitution.get(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE));
         item.setImage(imageAppEngine);
 
         for(String file:libFoldersForPythonpath){

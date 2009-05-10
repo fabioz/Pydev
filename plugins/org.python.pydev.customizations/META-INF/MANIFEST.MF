@@ -13,7 +13,10 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.debug,
  org.eclipse.core.resources,
  org.python.pydev.core,
- org.junit;resolution:=optional
+ org.junit;resolution:=optional,
+ org.eclipse.debug.core,
+ org.eclipse.debug.ui,
+ org.eclipse.core.expressions
 Eclipse-LazyStart: true
 Export-Package: org.python.pydev.customizations,
  org.python.pydev.customizations.app_engine.wizards
