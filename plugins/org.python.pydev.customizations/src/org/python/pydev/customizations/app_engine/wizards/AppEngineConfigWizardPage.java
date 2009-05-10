@@ -114,7 +114,7 @@ public class AppEngineConfigWizardPage extends WizardPage{
         // location label
         locationLabel = new Label(appEngineGroup, SWT.NONE);
         locationLabel.setFont(font);
-        locationLabel.setText("Director&y");
+        locationLabel.setText("Google App Engine Director&y");
 
         // app engine location entry field
         locationPathField = new Text(appEngineGroup, SWT.BORDER);
@@ -151,8 +151,9 @@ public class AppEngineConfigWizardPage extends WizardPage{
         String dirName = getAppEngineLocationFieldValue();
         if(!dirName.equals("")){ //$NON-NLS-1$
             File path = new File(dirName);
-            if(path.exists())
+            if(path.exists()){
                 dialog.setFilterPath(new Path(dirName).toOSString());
+            }
         }
 
         String selectedDirectory = dialog.open();
@@ -243,7 +244,7 @@ public class AppEngineConfigWizardPage extends WizardPage{
             }
         }
 
-        //If we got here, all is OK, let's go on and show the items that'll be added to the PYTHONPATH (as external folders)
+        //If we got here, all is OK, let's go on and show the templateNamesAndDescriptions that'll be added to the PYTHONPATH (as external folders)
         variableSubstitution.put(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE, loc.getAbsolutePath());
         fillExternalSourceFolders(variableSubstitution, 
                 new String[]{

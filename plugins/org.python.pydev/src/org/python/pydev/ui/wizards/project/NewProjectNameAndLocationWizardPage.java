@@ -96,7 +96,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         }
     };
 
-    private Button checkSrcFolder;
+    protected Button checkSrcFolder;
 
     private boolean checkSrcFolderSelected = true;
 

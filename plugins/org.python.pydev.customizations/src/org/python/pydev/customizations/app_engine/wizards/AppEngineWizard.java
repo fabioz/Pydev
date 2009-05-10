@@ -9,8 +9,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
+import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
+import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
 import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
 /**
@@ -21,6 +24,7 @@ import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 public class AppEngineWizard extends PythonProjectWizard{
 
     private AppEngineConfigWizardPage appEngineConfigWizardPage;
+    private AppEngineTemplatePage appEngineTemplatePage;
 
     /**
      * Add wizard pages to the instance
@@ -34,8 +38,29 @@ public class AppEngineWizard extends PythonProjectWizard{
         appEngineConfigWizardPage.setTitle("Google App Engine");
         appEngineConfigWizardPage.setDescription("Set Google App Engine Configuration");
         addPage(appEngineConfigWizardPage);
-
-        addProjectReferencePage();
+        
+        appEngineTemplatePage = new AppEngineTemplatePage("Initial Structure");
+        addPage(appEngineTemplatePage);
+    }
+    
+    
+    /**
+     * Creates the project page.
+     */
+    protected IWizardNewProjectNameAndLocationPage createProjectPage(){
+        return new NewProjectNameAndLocationWizardPage("Setting project properties"){
+            
+            @Override
+            public void createControl(Composite parent){
+                super.createControl(parent);
+                checkSrcFolder.setVisible(false);
+            }
+            
+            @Override
+            public boolean shouldCreatSourceFolder(){
+                return true; //Always start a google app engine with a source folder (we need it for the templates)
+            }
+        };
     }
 
     /**
@@ -73,6 +98,10 @@ public class AppEngineWizard extends PythonProjectWizard{
         PyStructureConfigHelpers.createPydevProject(description, newProjectHandle, monitor, projectType,
                 projectInterpreter, getSourceFolderHandlesCallback, getExternalSourceFolderHandlesCallback,
                 getVariableSubstitutionCallback);
+        
+        //Ok, after the default is created, let's see if we have a template...
+        IFolder sourceFolder = newProjectHandle.getFolder("src");
+        appEngineTemplatePage.fillSourceFolder(sourceFolder);
     }
 
 }
