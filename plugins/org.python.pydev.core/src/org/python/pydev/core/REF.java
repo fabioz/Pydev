@@ -969,8 +969,16 @@ public class REF {
      * @param filter: a callback that can be used to choose files that should not be copied. 
      * If null, all files are copied, otherwise, if filter returns true, it won't be copied, and
      * if it returns false, it will be copied
+     * 
+     * @param changeFileContents: a callback that's called before copying any file, so that clients
+     * have a change of changing the file contents to be written.
      */
-    public static void copyDirectory(File srcPath, File dstPath, ICallback<Boolean, File> filter) throws IOException{
+    public static void copyDirectory(
+            File srcPath, 
+            File dstPath, 
+            ICallback<Boolean, File> filter,
+            ICallback<String, String> changeFileContents
+        ) throws IOException{
         if(srcPath.isDirectory()){
             if(filter != null && filter.call(srcPath)){
                 return;
@@ -980,7 +988,7 @@ public class REF {
             }
             String files[] = srcPath.list();
             for(int i = 0; i < files.length; i++){
-                copyDirectory(new File(srcPath, files[i]), new File(dstPath, files[i]), filter);
+                copyDirectory(new File(srcPath, files[i]), new File(dstPath, files[i]), filter, changeFileContents);
             }
         }else{
             if(!srcPath.exists()){
@@ -989,7 +997,13 @@ public class REF {
                 if(filter != null && filter.call(srcPath)){
                     return;
                 }
-                copyFile(srcPath.getAbsolutePath(), dstPath.getAbsolutePath());
+                if(changeFileContents == null){
+                    copyFile(srcPath.getAbsolutePath(), dstPath.getAbsolutePath());
+                }else{
+                    String fileContents = getFileContents(srcPath);
+                    fileContents = changeFileContents.call(fileContents);
+                    writeStrToFile(fileContents, dstPath);
+                }
             }
         }
     }
