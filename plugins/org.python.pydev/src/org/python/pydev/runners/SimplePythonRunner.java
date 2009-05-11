@@ -82,11 +82,6 @@ public class SimplePythonRunner extends SimpleRunner {
         monitor.setTaskName("Mounting executable string...");
         monitor.worked(5);
         
-        File file = new File(script);
-        if(file.exists() == false){
-            throw new RuntimeException("The script passed for execution ("+script+") does not exist.");
-        }
-        
         String[] s = preparePythonCallParameters(interpreter, script, args);
         monitor.worked(1);
         return runAndGetOutput(s, workingDir, project, monitor);
@@ -100,7 +95,18 @@ public class SimplePythonRunner extends SimpleRunner {
      * @param args additional arguments to pass to python
      * @return the created array
      */
-    private static String[] preparePythonCallParameters(String interpreter, String script, String[] args) {
+    public static String[] preparePythonCallParameters(String interpreter, String script, String[] args) {
+        File file = new File(script);
+        if(file.exists() == false){
+            throw new RuntimeException("The script passed for execution ("+script+") does not exist.");
+        }
+        
+        file = new File(interpreter);
+        if(file.exists() == false){
+            throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
+        }
+
+        
         if (args == null) {
             args = new String[0];
         }

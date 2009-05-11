@@ -317,16 +317,9 @@ public abstract class SimpleRunner {
 
 
     /**
-     * Runs the given command line and returns a tuple with the output (stdout and stderr) of executing it.
-     * 
-     * @param cmdarray array with the commands to be passed to Runtime.exec
-     * @param workingDir the working dir (may be null)
-     * @param project the project (used to get the pythonpath and put it into the environment) -- if null, no environment is passed.
-     * @param monitor the progress monitor to be used -- may be null
-     * 
-     * @return a tuple with stdout and stderr
+     * @return a tuple with the process created and a string representation of the cmdarray.
      */
-    public Tuple<String, String> runAndGetOutput(String[] cmdarray, File workingDir, IProject project, IProgressMonitor monitor) {
+    public Tuple<Process, String> run(String[] cmdarray, File workingDir, IProject project, IProgressMonitor monitor) {
         if(monitor == null){
             monitor = new NullProgressMonitor();
         }
@@ -351,8 +344,23 @@ public abstract class SimpleRunner {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return getProcessOutput(process, executionString, monitor);
+        return new Tuple<Process, String>(process, executionString);
+    }
+    
+    /**
+     * Runs the given command line and returns a tuple with the output (stdout and stderr) of executing it.
+     * 
+     * @param cmdarray array with the commands to be passed to Runtime.exec
+     * @param workingDir the working dir (may be null)
+     * @param project the project (used to get the pythonpath and put it into the environment) -- if null, no environment is passed.
+     * @param monitor the progress monitor to be used -- may be null
+     * 
+     * @return a tuple with stdout and stderr
+     */
+    public Tuple<String, String> runAndGetOutput(String[] cmdarray, File workingDir, IProject project, IProgressMonitor monitor) {
+        Tuple<Process, String> r = run(cmdarray, workingDir, project, monitor);
+        
+        return getProcessOutput(r.o1, r.o2, monitor);
     }
 
     /**

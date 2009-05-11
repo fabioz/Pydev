@@ -110,4 +110,11 @@ public interface IPythonPathNature {
      */
     public Map<String, String> getVariableSubstitution() throws CoreException;
     
+    
+    /**
+     * The nature that contains this pythonpath nature.
+     * @return
+     */
+    public IPythonNature getNature();
+    
 }

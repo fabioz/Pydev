@@ -5,11 +5,10 @@ import java.util.Map;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.navigator.elements.IWrappedResource;
-import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.customizations.app_engine.util.GoogleAppEngineUtil;
 
 /**
  * Test to check if a given container can be run from google app engine.
@@ -26,28 +25,12 @@ public class AppEnginePropertyTester extends PropertyTester{
      * declared in it and has a app.yaml or app.yml under it.
      */
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
-        IContainer container = null;
-        if(receiver instanceof IWrappedResource){
-            IWrappedResource wrappedResource = (IWrappedResource) receiver;
-            Object actualObject = wrappedResource.getActualObject();
-            if(actualObject instanceof IContainer){
-                container = (IContainer) actualObject;
-            }
-        }
-        if(receiver instanceof IContainer){
-            container = (IContainer) receiver;
-        }
-        
+        IContainer container = GoogleAppEngineUtil.getContainerFromObject(receiver);
         if(container == null){
             return false;
         }
         
-        IProject project = container.getProject();
-        if(project == null){
-            return false;
-        }
-        
-        PythonNature nature = PythonNature.getPythonNature(project);
+        IPythonPathNature nature = GoogleAppEngineUtil.getPythonPathNatureFromObject(receiver);
         if(nature == null){
             return false;
         }
@@ -65,7 +48,7 @@ public class AppEnginePropertyTester extends PropertyTester{
         }
         
         try{
-            Map<String, String> variableSubstitution = nature.getPythonPathNature().getVariableSubstitution();
+            Map<String, String> variableSubstitution = nature.getVariableSubstitution();
             //Only consider a google app engine a project that has a google app engine variable!
             if(variableSubstitution != null && variableSubstitution.containsKey(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE)){
                 return true;

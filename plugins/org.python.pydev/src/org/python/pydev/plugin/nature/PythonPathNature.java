@@ -89,6 +89,10 @@ public class PythonPathNature implements IPythonPathNature {
         }
     }
     
+    public IPythonNature getNature(){
+        return this.nature;
+    }
+    
 
     /**
      * Returns a list of paths with the complete pythonpath for this nature.

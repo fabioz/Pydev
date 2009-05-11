@@ -116,6 +116,10 @@ public class StringSubstitutionTest extends TestCase{
                     public void clearCaches(){
                         throw new RuntimeException("Not implemented");
                     }
+
+                    public IPythonNature getNature(){
+                        throw new RuntimeException("Not implemented");
+                    }
                 };
             }
 

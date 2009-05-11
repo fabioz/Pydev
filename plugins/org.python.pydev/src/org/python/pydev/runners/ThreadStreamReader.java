@@ -56,7 +56,6 @@ public class ThreadStreamReader extends Thread {
             }
         } catch (Exception e) {
             //that's ok
-            e.printStackTrace();
         }
     }
 

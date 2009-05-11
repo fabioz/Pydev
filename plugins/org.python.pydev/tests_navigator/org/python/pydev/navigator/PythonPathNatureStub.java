@@ -70,4 +70,8 @@ public class PythonPathNatureStub implements IPythonPathNature{
         throw new RuntimeException("Not implemented");
     }
 
+    public IPythonNature getNature(){
+        throw new RuntimeException("Not implemented");
+    }
+
 }

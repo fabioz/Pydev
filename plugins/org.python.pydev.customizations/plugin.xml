@@ -86,4 +86,55 @@
     </extension>
     
     
+    <!-- 
+    Reference for creating the commands: 
+    http://xpomul.bloggles.info/2008/08/12/advanced-features-in-eclipse-popup-menus-take-2-the-new-api/ 
+    -->
+    
+    <extension point="org.eclipse.ui.commands">
+      <command
+            description="Manage the project in Google App Engine"
+            id="org.python.pydev.customizations.app_engine.actions.AppEngineManage"
+            name="Pydev: Manage project in Google App Engine">
+      </command>
+    </extension>
+    
+    
+    <extension point="org.eclipse.ui.handlers">
+      <handler
+            class="org.python.pydev.customizations.app_engine.actions.AppEngineManage"
+            commandId="org.python.pydev.customizations.app_engine.actions.AppEngineManage">
+         <enabledWhen>
+            <with variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
+               </iterate>
+            </with>
+         </enabledWhen>
+      </handler>
+    </extension>
+    
+    
+    <extension point="org.eclipse.ui.menus">
+      <menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <command
+               commandId="org.python.pydev.customizations.app_engine.actions.AppEngineManage"
+               icon="icons/AppEngine-16.png"
+               style="push">
+            <visibleWhen>
+                <with variable="selection">
+                   <iterate
+                         ifEmpty="false"
+                         operator="and">
+                      <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
+                   </iterate>
+                </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+    </extension>
+    
+    
 </plugin>
