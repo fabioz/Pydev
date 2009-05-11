@@ -1,14 +1,16 @@
 package org.python.pydev.customizations.app_engine.wizards;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,7 +21,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.python.pydev.core.ICallback;
+import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.customizations.CustomizationsPlugin;
 
 /**
  * This page is used to configure templates for google app engine.
@@ -39,7 +46,7 @@ public class AppEngineTemplatePage extends WizardPage{
     /**
      * The names of the templates and the related description to be shown to the user
      */
-    protected Map<String, String> templateNamesAndDescriptions;
+    protected Map<String, Tuple<String, File>> templateNamesAndDescriptions;
     
     /**
      * Combo-box with the template names for the user to choose. 
@@ -80,8 +87,14 @@ public class AppEngineTemplatePage extends WizardPage{
         
         comboTemplateNames = new Combo(composite, SWT.BORDER);
         comboTemplateNames.setFont(font);
-        templateNamesAndDescriptions = new HashMap<String, String>();
-        templateNamesAndDescriptions.put("Hello World", "Creates a simple project that just prints 'Hello World'");
+        templateNamesAndDescriptions = new HashMap<String, Tuple<String, File>>();
+        
+        
+        try{
+            loadTemplates();
+        }catch(CoreException e1){
+            Log.log(e1);
+        }
         
         ArrayList<String> keys = new ArrayList<String>(templateNamesAndDescriptions.keySet());
         Collections.sort(keys);
@@ -98,7 +111,7 @@ public class AppEngineTemplatePage extends WizardPage{
         comboTemplateNames.addSelectionListener(new SelectionListener(){
         
             public void widgetSelected(SelectionEvent e){
-                handleComboSelectionChanged();
+                handleComboSelectionChanged(comboTemplateNames.getText());
             }
         
             public void widgetDefaultSelected(SelectionEvent e){
@@ -116,14 +129,34 @@ public class AppEngineTemplatePage extends WizardPage{
     }
 
     /**
+     * Loads the templates from the filesystem.
+     */
+    private void loadTemplates() throws CoreException{
+        File relativePath = CustomizationsPlugin.getBundleInfo().getRelativePath(new Path("templates/google_app_engine"));
+        File[] files = relativePath.listFiles();
+        for(File dir:files){
+            if(dir.isDirectory()){
+                File[] secondLevelFiles = dir.listFiles();
+                for(File file2:secondLevelFiles){
+                    if(file2.getName().equals("description.txt")){
+                        String fileContents = REF.getFileContents(file2).trim();
+                        Tuple<String, String> nameAndDesc = StringUtils.splitOnFirst(fileContents, ':');
+                        templateNamesAndDescriptions.put(nameAndDesc.o1, new Tuple<String, File>(nameAndDesc.o2, dir));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * When the selection changes, we update the last choice, description and the error message.
      */
-    protected void handleComboSelectionChanged(){
-        String current = comboTemplateNames.getText();
-        lastChoice = current;
-        String description = templateNamesAndDescriptions.get(current);
-        templateDescription.setText(description!=null?description:"");
-        if(current.equals(CHOOSE_ONE)){
+    protected void handleComboSelectionChanged(String text){
+        lastChoice = text;
+        Tuple<String, File> description = templateNamesAndDescriptions.get(lastChoice);
+        templateDescription.setText(description!=null?description.o1:"");
+        if(lastChoice.equals(CHOOSE_ONE)){
             setChooseOneErrorMessage();
         }else{
             setErrorMessage(null);
@@ -135,39 +168,31 @@ public class AppEngineTemplatePage extends WizardPage{
      * Called so that the initial structure is filled, given the source folder to fill.
      */
     public void fillSourceFolder(IFolder sourceFolder){
-        String text = lastChoice;
-        if(text.equals(CHOOSE_ONE) || text.equals(EMPTY_PROJECT)){
+        if(lastChoice == null || lastChoice.equals(CHOOSE_ONE) || lastChoice.equals(EMPTY_PROJECT)){
             //Do nothing
-        }else if(text.equals("Hello World")){
-            IFile helloWorld = sourceFolder.getFile("helloworld.py");
-            String contents = "" +
-            		"print 'Content-Type: text/plain'\n" +
-            		"print ''\n" +
-            		"print 'Hello, world!'\n" +
-            		"";
-            try{
-                helloWorld.create(new ByteArrayInputStream(contents.getBytes()), true, null);
-            }catch(CoreException e){
-                Log.log(e);
+        }else{
+            Tuple<String, File> tuple = templateNamesAndDescriptions.get(lastChoice);
+            if(tuple != null && tuple.o2.isDirectory()){
+                try{
+                    //copy all but the description.txt file.
+                    REF.copyDirectory(tuple.o2, sourceFolder.getLocation().toFile(), new ICallback<Boolean, File>(){
+                    
+                        public Boolean call(File arg){
+                            if(arg.getName().equals("description.txt")){
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+                }catch(IOException e){
+                    Log.log(e);
+                }
+                try{
+                    sourceFolder.refreshLocal(IResource.DEPTH_INFINITE, null);
+                }catch(CoreException e){
+                    Log.log(e);
+                }
             }
-            
-            IFile yaml = sourceFolder.getFile("app.yaml");
-            contents = "" +
-            		"application: helloworld\n" +
-            		"version: 1\n" +
-            		"runtime: python\n" +
-            		"api_version: 1\n" +
-            		"\n" +
-            		"handlers:\n" +
-            		"- url: /.*\n" +
-            		"  script: helloworld.py\n" +
-            		"";
-            try{
-                yaml.create(new ByteArrayInputStream(contents.getBytes()), true, null);
-            }catch(CoreException e){
-                Log.log(e);
-            }
-            
         }
     }
     

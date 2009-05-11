@@ -248,6 +248,7 @@ public class AppEngineConfigWizardPage extends WizardPage{
         variableSubstitution.put(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE, loc.getAbsolutePath());
         fillExternalSourceFolders(variableSubstitution, 
                 new String[]{
+                "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}",
                 "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}/lib/django",
                 "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}/lib/webob",
                 "${"+AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE+"}/lib/yaml/lib",
