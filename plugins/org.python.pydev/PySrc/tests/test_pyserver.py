@@ -8,7 +8,7 @@ import os
 #without the need for it being in the pythonpath)
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
 #twice the dirname to get the previous level from this file.
-sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
 IS_PYTHON_3K = 0
 if sys.platform.find('java') == -1:
@@ -41,28 +41,28 @@ if sys.platform.find('java') == -1:
             unittest.TestCase.tearDown(self)
         
         def testMessage(self):
-            t = pycompletionserver.T(0,0)
+            t = pycompletionserver.T(0, 0)
             
             l = []
-            l.append(('Def','description'  , 'args'))
-            l.append(('Def1','description1', 'args1'))
-            l.append(('Def2','description2', 'args2'))
+            l.append(('Def', 'description'  , 'args'))
+            l.append(('Def1', 'description1', 'args1'))
+            l.append(('Def2', 'description2', 'args2'))
             
-            msg = t.processor.formatCompletionMessage(None,l)
+            msg = t.processor.formatCompletionMessage(None, l)
             self.assertEquals('@@COMPLETIONS(None,(Def,description,args),(Def1,description1,args1),(Def2,description2,args2))END@@', msg)
             
             l = []
-            l.append(('Def','desc,,r,,i()ption',''  ))
-            l.append(('Def(1','descriptio(n1',''))
-            l.append(('De,f)2','de,s,c,ription2',''))
-            msg = t.processor.formatCompletionMessage(None,l)
+            l.append(('Def', 'desc,,r,,i()ption', ''))
+            l.append(('Def(1', 'descriptio(n1', ''))
+            l.append(('De,f)2', 'de,s,c,ription2', ''))
+            msg = t.processor.formatCompletionMessage(None, l)
             self.assertEquals('@@COMPLETIONS(None,(Def,desc%2C%2Cr%2C%2Ci%28%29ption, ),(Def%281,descriptio%28n1, ),(De%2Cf%292,de%2Cs%2Cc%2Cription2, ))END@@', msg)
     
-        def createConnections(self, p1 = 50002,p2 = 50003):
+        def createConnections(self, p1=50002, p2=50003):
             '''
             Creates the connections needed for testing.
             '''
-            t = pycompletionserver.T(p1,p2)
+            t = pycompletionserver.T(p1, p2)
             
             t.start()
     
@@ -82,7 +82,7 @@ if sys.platform.find('java') == -1:
             finish = False
             msg = ''
             while finish == False:
-                m = self.connToRead.recv(1024*4)
+                m = self.connToRead.recv(1024 * 4)
                 if IS_PYTHON_3K:
                     m = m.decode('utf-8')
                 if m.startswith('@@PROCESSING'):
@@ -101,13 +101,13 @@ if sys.platform.find('java') == -1:
             try:
                 #now that we have the connections all set up, check the code completion messages.
                 msg = quote_plus('math')
-                send(sToWrite, '@@IMPORTS:%sEND@@'%msg) #math completions
+                send(sToWrite, '@@IMPORTS:%sEND@@' % msg) #math completions
                 completions = self.readMsg()
                 #print_ unquote_plus(completions)
                 
                 #math is a builtin and because of that, it starts with None as a file
                 start = '@@COMPLETIONS(None,(__doc__,'
-                self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) )
+                self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % (completions, start))
         
                 self.assert_('@@COMPLETIONS' in completions)
                 self.assert_('END@@' in completions)
@@ -115,21 +115,21 @@ if sys.platform.find('java') == -1:
     
                 #now, test search
                 msg = quote_plus('inspect.ismodule')
-                send(sToWrite, '@@SEARCH%sEND@@'%msg) #math completions
+                send(sToWrite, '@@SEARCH%sEND@@' % msg) #math completions
                 found = self.readMsg()
                 self.assert_('inspect.py' in found)
                 self.assert_('33' in found or '34' in found or '51' in found, 'Could not find 33, 34 or 51in %s' % found)
     
                 #now, test search
                 msg = quote_plus('inspect.CO_NEWLOCALS')
-                send(sToWrite, '@@SEARCH%sEND@@'%msg) #math completions
+                send(sToWrite, '@@SEARCH%sEND@@' % msg) #math completions
                 found = self.readMsg()
                 self.assert_('inspect.py' in found)
                 self.assert_('CO_NEWLOCALS' in found)
                 
                 #now, test search
                 msg = quote_plus('inspect.BlockFinder.tokeneater')
-                send(sToWrite, '@@SEARCH%sEND@@'%msg) 
+                send(sToWrite, '@@SEARCH%sEND@@' % msg) 
                 found = self.readMsg()
                 self.assert_('inspect.py' in found)
     #            self.assert_('CO_NEWLOCALS' in found)

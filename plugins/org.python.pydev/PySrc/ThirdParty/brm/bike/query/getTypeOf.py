@@ -2,7 +2,7 @@
 # getTypeOf(scope,fqn) and getTypeOfExpr(scope,ast)
 
 from bike.parsing.fastparserast import Class, Function, Module, Root, getRoot, Package, Instance, getModule
-from bike.parsing.parserutils import generateLogicalLines, makeLineParseable,splitLogicalLines, makeLineParseable
+from bike.parsing.parserutils import generateLogicalLines, makeLineParseable, splitLogicalLines, makeLineParseable
 from bike.parsing import visitor
 from bike import log
 from bike.parsing.newstuff import getModuleOrPackageUsingFQN
@@ -33,14 +33,14 @@ def getTypeOf(scope, fqn):
     #print_ 
     #print_ str(getTypeOfStack)
     #print_ 
-    if (fqn,scope) in getTypeOfStack:   # loop protection
+    if (fqn, scope) in getTypeOfStack:   # loop protection
         return None
 
     # this is crap!
-    hashcode = str(scope)+fqn
+    hashcode = str(scope) + fqn
 
     try:
-        getTypeOfStack.append((fqn,scope))
+        getTypeOfStack.append((fqn, scope))
 
         try:
             type = Cache.instance.typecache[hashcode]
@@ -61,7 +61,7 @@ def getTypeOf_impl(scope, fqn):
     if "."in fqn:
         rcdr = ".".join(fqn.split(".")[:-1])
         rcar = fqn.split(".")[-1]
-        newscope = getTypeOf(scope,rcdr)
+        newscope = getTypeOf(scope, rcdr)
         if newscope is not None:
             return getTypeOf(newscope, rcar)
         else: 
@@ -71,22 +71,22 @@ def getTypeOf_impl(scope, fqn):
     assert scope is not None
     #assert not ("." in fqn) 
     
-    if isinstance(scope,UnfoundType):
+    if isinstance(scope, UnfoundType):
         return UnfoundType()
     
     if isinstance(scope, Package):
         #assert 0,scope
         return handlePackageScope(scope, fqn)
-    elif isinstance(scope,Instance):
+    elif isinstance(scope, Instance):
         return handleClassInstanceAttribute(scope, fqn)
     else:
-        return handleModuleClassOrFunctionScope(scope,fqn)
+        return handleModuleClassOrFunctionScope(scope, fqn)
 
 
 
-def handleModuleClassOrFunctionScope(scope,name):
-    if name == "self" and isinstance(scope,Function) and \
-           isinstance(scope.getParent(),Class):
+def handleModuleClassOrFunctionScope(scope, name):
+    if name == "self" and isinstance(scope, Function) and \
+           isinstance(scope.getParent(), Class):
         return Instance(scope.getParent())
     
     matches = [c for c in scope.getChildNodes()if c.name == name]
@@ -103,12 +103,12 @@ def handleModuleClassOrFunctionScope(scope,name):
     if type != None:
         return type
     parentScope = scope.getParent()
-    while isinstance(parentScope,Class):
+    while isinstance(parentScope, Class):
         # don't search class scope, since this is not accessible except
         # through self   (is this true?)
         parentScope = parentScope.getParent()
 
-    if not (isinstance(parentScope,Package) or isinstance(parentScope,Root)):
+    if not (isinstance(parentScope, Package) or isinstance(parentScope, Root)):
         return getTypeOf(parentScope, name)
 
 
@@ -122,10 +122,10 @@ def handleClassInstanceAttribute(instance, attrname):
 
     #search methods for assignments with self.foo getattrs
     for child in theClass.getChildNodes():
-        if not isinstance(child,Function):
+        if not isinstance(child, Function):
             continue
-        res = scanScopeAST(child,attrname,
-                          SelfAttributeAssignmentVisitor(child,attrname))
+        res = scanScopeAST(child, attrname,
+                          SelfAttributeAssignmentVisitor(child, attrname))
         if res is not None:
             return res
 
@@ -135,11 +135,11 @@ def handlePackageScope(package, fqn):
     if child:
         return child
 
-    if isinstance(package,Root):
+    if isinstance(package, Root):
         return getModuleOrPackageUsingFQN(fqn)
 
     # try searching the fs
-    node = getModuleOrPackageUsingFQN(fqn,package.path)
+    node = getModuleOrPackageUsingFQN(fqn, package.path)
     if node:
         return node
     
@@ -167,16 +167,16 @@ def isWordInLine(word, line):
 def getImportedType(scope, fqn):
     lines = scope.module.getSourceNode().getLines()
     for lineno in scope.getImportLineNumbers():
-        logicalline = generateLogicalLines(lines[lineno-1:]).next()
+        logicalline = generateLogicalLines(lines[lineno - 1:]).next()
         logicalline = makeLineParseable(logicalline)
         ast = compiler.parse(logicalline)
-        match = visitor.walk(ast, ImportVisitor(scope,fqn)).match
+        match = visitor.walk(ast, ImportVisitor(scope, fqn)).match
         if match:
             return match
         #else loop
 
 class ImportVisitor:
-    def __init__(self,scope,fqn):
+    def __init__(self, scope, fqn):
         self.match = None
         self.targetfqn = fqn
         self.scope = scope
@@ -185,9 +185,9 @@ class ImportVisitor:
         # if target fqn is an import, then it must be a module or package
         for name, alias in node.names:
             if name == self.targetfqn:
-                self.match = resolveImportedModuleOrPackage(self.scope,name)
+                self.match = resolveImportedModuleOrPackage(self.scope, name)
             elif alias is not None and alias == self.targetfqn:
-                self.match = resolveImportedModuleOrPackage(self.scope,name)
+                self.match = resolveImportedModuleOrPackage(self.scope, name)
 
     def visitFrom(self, node):
         if node.names[0][0] == '*': # e.g. from foo import *
@@ -203,17 +203,17 @@ class ImportVisitor:
                     scope = resolveImportedModuleOrPackage(self.scope,
                                                             node.modname)
                     if scope is not None:
-                        if isinstance(scope,Package):
-                            self.match = getModuleOrPackageUsingFQN(name,scope.path)
+                        if isinstance(scope, Package):
+                            self.match = getModuleOrPackageUsingFQN(name, scope.path)
                         else:  
-                            assert isinstance(scope,Module)
+                            assert isinstance(scope, Module)
                             self.match = getTypeOf(scope, name)
 
 
 
 
 class TypeNotSupportedException:
-    def __init__(self,msg):
+    def __init__(self, msg):
         self.msg = msg
 
     def __str__(self):
@@ -231,7 +231,7 @@ def getTypeOfExpr(scope, ast):
         # a string in import statements
         fqn = attemptToConvertGetattrToFqn(ast)
         if fqn is not None:
-            return getTypeOf(scope,fqn)
+            return getTypeOf(scope, fqn)
 
         expr = getTypeOfExpr(scope, ast.expr)
         if expr is not None:
@@ -240,25 +240,25 @@ def getTypeOfExpr(scope, ast):
         return None
 
     elif isinstance(ast, compiler.ast.CallFunc):
-        node = getTypeOfExpr(scope,ast.node)
-        if isinstance(node,Class):
+        node = getTypeOfExpr(scope, ast.node)
+        if isinstance(node, Class):
             return Instance(node)
-        elif isinstance(node,Function):
+        elif isinstance(node, Function):
             return getReturnTypeOfFunction(node)
     else:
         #raise TypeNotSupportedException, \
         #      "Evaluation of "+str(ast)+" not supported. scope="+str(scope)
-        log.warning.write("Evaluation of "+str(ast)+" not supported. scope="+str(scope)+"\n")
+        log.warning.write("Evaluation of " + str(ast) + " not supported. scope=" + str(scope) + "\n")
         return None
 
 
 def attemptToConvertGetattrToFqn(ast):
     fqn = ast.attrname
     ast = ast.expr
-    while isinstance(ast,compiler.ast.Getattr):
+    while isinstance(ast, compiler.ast.Getattr):
         fqn = ast.attrname + "." + fqn
         ast = ast.expr
-    if isinstance(ast,compiler.ast.Name):
+    if isinstance(ast, compiler.ast.Name):
         return ast.name + "." + fqn
     else:
         return None
@@ -275,17 +275,17 @@ def getReturnTypeOfFunction(function):
         del getReturnTypeOfFunction_stack[-1]
 
 def getReturnTypeOfFunction_impl(function):
-    return scanScopeAST(function,"return",ReturnTypeVisitor(function))
+    return scanScopeAST(function, "return", ReturnTypeVisitor(function))
     
 
 # does parse of scope sourcecode to deduce type
 def scanScopeSourceForType(scope, name):
-    return scanScopeAST(scope,name,AssignmentVisitor(scope,name))
+    return scanScopeAST(scope, name, AssignmentVisitor(scope, name))
 
 
 # scans for lines containing keyword, and then runs the visitor over
 # the parsed AST for that line
-def scanScopeAST(scope,keyword,astvisitor):
+def scanScopeAST(scope, keyword, astvisitor):
     lines = scope.getLinesNotIncludingThoseBelongingToChildScopes()
     src = ''.join(lines)
     match = None
@@ -295,71 +295,71 @@ def scanScopeAST(scope,keyword,astvisitor):
             #print_ "scanning for "+keyword+" in line:"+line[:-1]
             doctoredline = makeLineParseable(line)
             ast = compiler.parse(doctoredline)
-            match = visitor.walk(ast,astvisitor).getMatch()
+            match = visitor.walk(ast, astvisitor).getMatch()
             if match:
                 return match
     return match
     
 
 class AssignmentVisitor:
-    def __init__(self,scope,targetName):
-        self.match=None
+    def __init__(self, scope, targetName):
+        self.match = None
         self.scope = scope
         self.targetName = targetName
 
     def getMatch(self):
         return self.match
 
-    def visitAssign(self,node):
-        if isinstance(node.expr,compiler.ast.CallFunc):
+    def visitAssign(self, node):
+        if isinstance(node.expr, compiler.ast.CallFunc):
             for assnode in node.nodes:
-                if isinstance(assnode,compiler.ast.AssName) and \
+                if isinstance(assnode, compiler.ast.AssName) and \
                    assnode.name == self.targetName:
-                    self.match = getTypeOfExpr(self.scope,node.expr)
+                    self.match = getTypeOfExpr(self.scope, node.expr)
                     if self.match is None:
                         self.match = UnfoundType()
                     
                     
 
 class SelfAttributeAssignmentVisitor:
-    def __init__(self,scope,targetName):
-        self.match=None
+    def __init__(self, scope, targetName):
+        self.match = None
         self.scope = scope
         self.targetName = targetName
 
     def getMatch(self):
         return self.match
 
-    def visitAssign(self,node):
-        if isinstance(node.expr,compiler.ast.CallFunc):
+    def visitAssign(self, node):
+        if isinstance(node.expr, compiler.ast.CallFunc):
             for assnode in node.nodes:
-                if isinstance(assnode,compiler.ast.AssAttr) and \
-                   isinstance(assnode.expr,compiler.ast.Name) and \
+                if isinstance(assnode, compiler.ast.AssAttr) and \
+                   isinstance(assnode.expr, compiler.ast.Name) and \
                    assnode.expr.name == "self" and \
                    assnode.attrname == self.targetName:
-                    self.match = getTypeOfExpr(self.scope,node.expr)
+                    self.match = getTypeOfExpr(self.scope, node.expr)
                     #print_ "here!",self.match.getType().fqn
 
 
 class ReturnTypeVisitor:
-    def __init__(self,fn):
-        self.match=None
+    def __init__(self, fn):
+        self.match = None
         self.fn = fn
 
     def getMatch(self):
         return self.match
     
-    def visitReturn(self,node):
+    def visitReturn(self, node):
         try:
-            self.match = getTypeOfExpr(self.fn,node.value)
+            self.match = getTypeOfExpr(self.fn, node.value)
         except TypeNotSupportedException, ex:
             pass
 
 
-def resolveImportedModuleOrPackage(scope,fqn):
+def resolveImportedModuleOrPackage(scope, fqn):
     # try searching from directory containing scope module
     path = os.path.dirname(scope.module.filename)
-    node = getModuleOrPackageUsingFQN(fqn,path)
+    node = getModuleOrPackageUsingFQN(fqn, path)
     if node is not None:
         return node
     # try searching from the root

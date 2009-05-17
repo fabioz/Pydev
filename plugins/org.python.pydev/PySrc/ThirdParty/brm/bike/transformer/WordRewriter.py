@@ -15,10 +15,10 @@ class WordRewriter:
     def rewriteString(self, srcnode, lineno, colno, newname):
         filename = srcnode.filename
         if not self.modifiedsrc.has_key(filename):
-            getUndoStack().addSource(filename,srcnode.getSource())
+            getUndoStack().addSource(filename, srcnode.getSource())
             self.modifiedsrc[filename] = {}
         if not self.modifiedsrc[filename].has_key(lineno):
-            line = srcnode.getLines()[lineno-1]
+            line = srcnode.getLines()[lineno - 1]
             self.modifiedsrc[filename][lineno] = self._lineToDict(line)
         self.modifiedsrc[filename][lineno][colno] = newname
 
@@ -29,8 +29,8 @@ class WordRewriter:
             srcnode = getSourceNode(filename)
             for lineno in self.modifiedsrc[filename]:
                 lines = srcnode.getLines()
-                lines[lineno-1] = self._dictToLine(self.modifiedsrc[filename][lineno])
-            queueFileToSave(filename,"".join(srcnode.getLines()))
+                lines[lineno - 1] = self._dictToLine(self.modifiedsrc[filename][lineno])
+            queueFileToSave(filename, "".join(srcnode.getLines()))
 
 
     # this function creates a dictionary with each word referenced by
@@ -40,7 +40,7 @@ class WordRewriter:
         h = {};i = 0
         for word in words:
             h[i] = word
-            i+=len(word)
+            i += len(word)
         return h
 
     def _dictToLine(self, d):

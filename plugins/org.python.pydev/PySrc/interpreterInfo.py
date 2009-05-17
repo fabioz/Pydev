@@ -29,11 +29,11 @@ if sys.platform == "cygwin":
     try:
         import ctypes #use from the system if available
     except ImportError:
-        sys.path.append(os.path.join(sys.path[0],'ThirdParty/wrapped_for_pydev'))
+        sys.path.append(os.path.join(sys.path[0], 'ThirdParty/wrapped_for_pydev'))
         import ctypes
         
     def nativePath(path):
-        MAX_PATH=512  # On cygwin NT, its 260 lately, but just need BIG ENOUGH buffer
+        MAX_PATH = 512  # On cygwin NT, its 260 lately, but just need BIG ENOUGH buffer
         '''Get the native form of the path, like c:\\Foo for /cygdrive/c/Foo'''
 
         retval = ctypes.create_string_buffer(MAX_PATH)
@@ -114,11 +114,11 @@ if __name__ == '__main__':
             else:
                 result.append((p, False))
             
-    for p,b in result:
+    for p, b in result:
         if b:
-            sys.stdout.write('|%s%s\n'% (p,'INS_PATH'))
+            sys.stdout.write('|%s%s\n' % (p, 'INS_PATH'))
         else:
-            sys.stdout.write('|%s%s\n'% (p,'OUT_PATH'))
+            sys.stdout.write('|%s%s\n' % (p, 'OUT_PATH'))
     
     sys.stdout.write('@\n') #no compiled libs
     sys.stdout.write('$\n') #the forced libs

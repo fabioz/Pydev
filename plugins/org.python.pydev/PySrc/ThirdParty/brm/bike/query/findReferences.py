@@ -2,11 +2,11 @@
 from __future__ import generators
 from bike.globals import *
 from bike.parsing.fastparserast import Module, Class, Function, getRoot, Instance
-from bike.query.common import Match, MatchFinder,\
+from bike.query.common import Match, MatchFinder, \
      getScopeForLine, indexToCoordinates, \
-     translateSourceCoordsIntoASTNode, scanScopeForMatches,\
+     translateSourceCoordsIntoASTNode, scanScopeForMatches, \
      globalScanForMatches, isAMethod, convertNodeToMatchObject
-from compiler.ast import AssName,Name,Getattr,AssAttr
+from compiler.ast import AssName, Name, Getattr, AssAttr
 import compiler
 from findDefinition import findDefinitionFromASTNode
 from bike.query.getTypeOf import getTypeOfExpr, UnfoundType
@@ -18,19 +18,19 @@ from bike.parsing.load import getSourceNode
 class CouldntFindDefinitionException(Exception):
     pass
 
-def findReferencesIncludingDefn(filename,lineno,col):
-    return findReferences(filename,lineno,col,1)
+def findReferencesIncludingDefn(filename, lineno, col):
+    return findReferences(filename, lineno, col, 1)
 
 
-def findReferences(filename,lineno,col,includeDefn=0):
+def findReferences(filename, lineno, col, includeDefn=0):
     sourcenode = getSourceNode(filename)
-    node = translateSourceCoordsIntoASTNode(filename,lineno,col)
+    node = translateSourceCoordsIntoASTNode(filename, lineno, col)
     assert node is not None
-    scope,defnmatch = getDefinitionAndScope(sourcenode,lineno,node)
+    scope, defnmatch = getDefinitionAndScope(sourcenode, lineno, node)
 
     try:
-        for match in findReferencesIncludingDefn_impl(sourcenode,node,
-                                                      scope,defnmatch):
+        for match in findReferencesIncludingDefn_impl(sourcenode, node,
+                                                      scope, defnmatch):
             if not includeDefn and match == defnmatch: 
                 continue        # don't return definition
             else:
@@ -38,67 +38,67 @@ def findReferences(filename,lineno,col,includeDefn=0):
     except CouldntFindDefinitionException:
         raise CouldntFindDefinitionException("Could not find definition. Please locate manually (maybe using find definition) and find references from that")
 
-def findReferencesIncludingDefn_impl(sourcenode,node,scope,defnmatch):
-    if isinstance(node,Name) or isinstance(node,AssName):
-        return generateRefsToName(node.name,scope,sourcenode,defnmatch)
-    elif isinstance(node,Getattr) or isinstance(node,AssAttr):
-        exprtype = getTypeOfExpr(scope,node.expr)
-        if exprtype is None or isinstance(exprtype,UnfoundType):
+def findReferencesIncludingDefn_impl(sourcenode, node, scope, defnmatch):
+    if isinstance(node, Name) or isinstance(node, AssName):
+        return generateRefsToName(node.name, scope, sourcenode, defnmatch)
+    elif isinstance(node, Getattr) or isinstance(node, AssAttr):
+        exprtype = getTypeOfExpr(scope, node.expr)
+        if exprtype is None or isinstance(exprtype, UnfoundType):
             raise CouldntFindDefinitionException()
 
-        if isinstance(exprtype,Instance):
+        if isinstance(exprtype, Instance):
             exprtype = exprtype.getType()
-            return generateRefsToAttribute(exprtype,node.attrname)
+            return generateRefsToAttribute(exprtype, node.attrname)
         
         else:
             targetname = node.attrname
             return globalScanForMatches(sourcenode.filename,
                                         NameRefFinder(targetname, defnmatch),
-                                        targetname, )
-    elif isinstance(node,compiler.ast.Function) or \
-                             isinstance(node,compiler.ast.Class):
+                                        targetname,)
+    elif isinstance(node, compiler.ast.Function) or \
+                             isinstance(node, compiler.ast.Class):
         return handleClassOrFunctionRefs(scope, node, defnmatch)
     else:
-        assert 0,"Seed to references must be Name,Getattr,Function or Class"
+        assert 0, "Seed to references must be Name,Getattr,Function or Class"
 
 def handleClassOrFunctionRefs(scope, node, defnmatch):
-    if isAMethod(scope,node):        
-        for ref in generateRefsToAttribute(scope,node.name):
+    if isAMethod(scope, node):        
+        for ref in generateRefsToAttribute(scope, node.name):
             yield ref
     else:
         #yield convertNodeToMatchObject(node,100)
         yield defnmatch
-        for ref in generateRefsToName(node.name,scope,
+        for ref in generateRefsToName(node.name, scope,
                                     scope.module.getSourceNode(),
                                     defnmatch):
             yield ref
 
-def getDefinitionAndScope(sourcenode,lineno,node):
-    scope = getScopeForLine(sourcenode,lineno)
+def getDefinitionAndScope(sourcenode, lineno, node):
+    scope = getScopeForLine(sourcenode, lineno)
     if scope.getStartLine() == lineno and \
            scope.matchesCompilerNode(node):  # scope is the node
-        return scope.getParent(), convertNodeToMatchObject(scope,100)
-    defnmatch = findDefinitionFromASTNode(scope,node)
+        return scope.getParent(), convertNodeToMatchObject(scope, 100)
+    defnmatch = findDefinitionFromASTNode(scope, node)
     if defnmatch is None:
         raise CouldntFindDefinitionException()
-    scope = getScopeForLine(sourcenode,defnmatch.lineno)
-    return scope,defnmatch
+    scope = getScopeForLine(sourcenode, defnmatch.lineno)
+    return scope, defnmatch
 
-def generateRefsToName(name,scope,sourcenode,defnmatch):
+def generateRefsToName(name, scope, sourcenode, defnmatch):
     assert scope is not None
-    if isinstance(scope,Function):
+    if isinstance(scope, Function):
         # search can be limited to scope
-        return scanScopeForMatches(sourcenode,scope,
-                                   NameRefFinder(name,defnmatch),
+        return scanScopeForMatches(sourcenode, scope,
+                                   NameRefFinder(name, defnmatch),
                                    name)
     else:        
         return globalScanForMatches(sourcenode.filename,
-                                    NameRefFinder(name,defnmatch),
+                                    NameRefFinder(name, defnmatch),
                                     name)
 
 
 class NameRefFinder(MatchFinder):
-    def __init__(self, targetstr,targetMatch):
+    def __init__(self, targetstr, targetMatch):
         self.targetstr = targetstr
         self.targetMatch = targetMatch
         
@@ -163,22 +163,22 @@ class NameRefFinder(MatchFinder):
                 self.popWordsUpTo(alias)
 
     
-    def createGetattr(self,fqn):
+    def createGetattr(self, fqn):
         node = Name(fqn[0])
         for name in fqn.split(".")[1:]:
-            node = Getattr(node,name)
+            node = Getattr(node, name)
         return node
                            
-def generateRefsToAttribute(classobj,attrname):
+def generateRefsToAttribute(classobj, attrname):
     rootClasses = getRootClassesOfHierarchy(classobj)
-    attrRefFinder = AttrbuteRefFinder(rootClasses,attrname)
+    attrRefFinder = AttrbuteRefFinder(rootClasses, attrname)
     for ref in globalScanForMatches(classobj.filename, attrRefFinder, attrname):
         yield ref
     log.progress.write("Done\n")
     
 
 class AttrbuteRefFinder(MatchFinder):
-    def __init__(self,rootClasses,targetAttribute):
+    def __init__(self, rootClasses, targetAttribute):
         self.rootClasses = rootClasses
         self.targetAttributeName = targetAttribute
 
@@ -188,33 +188,33 @@ class AttrbuteRefFinder(MatchFinder):
             self.visit(c)
 
         if node.attrname == self.targetAttributeName:
-            exprtype = getTypeOfExpr(self.scope,node.expr)            
+            exprtype = getTypeOfExpr(self.scope, node.expr)            
 
-            if isinstance(exprtype,Instance) and \
+            if isinstance(exprtype, Instance) and \
                  self._isAClassInTheSameHierarchy(exprtype.getType()):
                 self.appendMatch(self.targetAttributeName)
-            elif isinstance(exprtype,UnfoundType) or \
+            elif isinstance(exprtype, UnfoundType) or \
                  exprtype is None:   # couldn't find type, so not sure
-                self.appendMatch(self.targetAttributeName,50)
+                self.appendMatch(self.targetAttributeName, 50)
             else:
                 pass # definately not a match
         self.popWordsUpTo(node.attrname)
 
     visitAssAttr = visitGetattr
 
-    def visitFunction(self,node):  # visit methods
+    def visitFunction(self, node):  # visit methods
         if node.name == self.targetAttributeName:
             parentScope = self.scope.getParent()
             #print_ parentScope
             #print_ self.targetClasses
-            if isinstance(parentScope,Class) and \
+            if isinstance(parentScope, Class) and \
                    self._isAClassInTheSameHierarchy(parentScope):
                 self.appendMatch(node.name)
 
         for c in node.getChildNodes():
             self.visit(c)
         
-    def _isAClassInTheSameHierarchy(self,classobj):
+    def _isAClassInTheSameHierarchy(self, classobj):
         #return classobj in self.targetClasses
         targetRootClasses = getRootClassesOfHierarchy(classobj)
         for rootclass in self.rootClasses:

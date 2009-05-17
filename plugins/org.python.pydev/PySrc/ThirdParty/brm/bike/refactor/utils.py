@@ -10,16 +10,16 @@ def getLineSeperator(line):
 
 
 def getTabWidthOfLine(line):
-    match = re.match("\s+",line)
+    match = re.match("\s+", line)
     if match is None:
         return 0
     else:
         return match.end(0)
 
-def reverseCoordsIfWrongWayRound(startcoords,endcoords):
+def reverseCoordsIfWrongWayRound(startcoords, endcoords):
     if(startcoords.line > endcoords.line) or \
          (startcoords.line == endcoords.line and \
           startcoords.column > endcoords.column):
-        return endcoords,startcoords
+        return endcoords, startcoords
     else:
-        return startcoords,endcoords
+        return startcoords, endcoords

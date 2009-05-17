@@ -3,16 +3,16 @@ from bike.transformer.WordRewriter import WordRewriter
 from bike.query.findReferences import findReferencesIncludingDefn
 from bike.transformer.save import save
 
-def rename(filename,lineno,col,newname,promptcallback=None):
+def rename(filename, lineno, col, newname, promptcallback=None):
     strrewrite = WordRewriter()
-    for match in findReferencesIncludingDefn(filename,lineno,col):
+    for match in findReferencesIncludingDefn(filename, lineno, col):
         #print_ "rename match ",match
-        if match.confidence == 100 or promptUser(promptcallback,match):
+        if match.confidence == 100 or promptUser(promptcallback, match):
             strrewrite.rewriteString(match.sourcenode,
-                                     match.lineno,match.colno,newname)
+                                     match.lineno, match.colno, newname)
     strrewrite.commit()
 
-def promptUser(promptCallback,match):
+def promptUser(promptCallback, match):
     if promptCallback is not None and \
        promptCallback(match.filename, match.lineno, match.colno, match.colend):
         return 1

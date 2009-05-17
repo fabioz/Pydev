@@ -49,7 +49,7 @@ elif os.name == "posix":
         cmd = 'if type gcc &>/dev/null; then CC=gcc; else CC=cc; fi;' \
               '$CC -Wl,-t -o /dev/null 2>&1 -l' + name
         try:
-            fdout, outfile =  tempfile.mkstemp()
+            fdout, outfile = tempfile.mkstemp()
             fd = os.popen(cmd)
             trace = fd.read()
             err = fd.close()

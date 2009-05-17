@@ -19,7 +19,7 @@ def getRoot():
         resetRoot()
     return _root 
 
-def resetRoot(root = None):
+def resetRoot(root=None):
     global _root
     _root = root or Root()
     _root.unittestmode = False
@@ -48,7 +48,7 @@ def getPackage(directory_path):
 
             
 class Root:
-    def __init__(self, pythonpath = None):
+    def __init__(self, pythonpath=None):
         # singleton hack to allow functions in query package to appear
         # 'stateless'
         resetRoot(self)
@@ -66,7 +66,7 @@ class Root:
 
 
     # dummy method
-    def getChild(self,name):
+    def getChild(self, name):
         return None
 
 class Package:
@@ -74,12 +74,12 @@ class Package:
         self.path = path
         self.name = name
 
-    def getChild(self,name):
+    def getChild(self, name):
         from bike.parsing.newstuff import getModule
-        return getModule(os.path.join(self.path,name+".py"))
+        return getModule(os.path.join(self.path, name + ".py"))
 
     def __repr__(self):
-        return "Package(%s,%s)"%(self.path, self.name)
+        return "Package(%s,%s)" % (self.path, self.name)
 
 # used so that linenum can be an attribute
 class Line(str):
@@ -107,13 +107,13 @@ class StructuralNode:
     def getChildNodes(self):
         return self.childNodes
 
-    def getChild(self,name):
+    def getChild(self, name):
         matches = [c for c in self.getChildNodes() if c.name == name]
         if matches != []:
             return matches[0]
 
-    def getLogicalLine(self,physicalLineno):
-        return generateLogicalLines(self._srclines[physicalLineno-1:]).next()
+    def getLogicalLine(self, physicalLineno):
+        return generateLogicalLines(self._srclines[physicalLineno - 1:]).next()
 
     # badly named: actually returns line numbers of import statements
     def getImportLineNumbers(self):
@@ -127,9 +127,9 @@ class StructuralNode:
         lines = []
         lineno = self.getStartLine()
         for child in self.getChildNodes():
-            lines+=srclines[lineno-1: child.getStartLine()-1]
+            lines += srclines[lineno - 1: child.getStartLine() - 1]
             lineno = child.getEndLine()
-        lines+=srclines[lineno-1: self.getEndLine()-1]
+        lines += srclines[lineno - 1: self.getEndLine() - 1]
         return lines
 
 
@@ -138,20 +138,20 @@ class StructuralNode:
         lines = []
         lineno = self.getStartLine()
         for child in self.getChildNodes():
-            for line in srclines[lineno-1: child.getStartLine()-1]:
-                yield self.attachLinenum(line,lineno)
-                lineno +=1
+            for line in srclines[lineno - 1: child.getStartLine() - 1]:
+                yield self.attachLinenum(line, lineno)
+                lineno += 1
             lineno = child.getEndLine()
-        for line in srclines[lineno-1: self.getEndLine()-1]:
-            yield self.attachLinenum(line,lineno)
-            lineno +=1
+        for line in srclines[lineno - 1: self.getEndLine() - 1]:
+            yield self.attachLinenum(line, lineno)
+            lineno += 1
 
-    def generateLinesWithLineNumbers(self,startline=1):
+    def generateLinesWithLineNumbers(self, startline=1):
         srclines = self.getMaskedModuleLines()
-        for lineno in range(startline,len(srclines)+1):
-            yield self.attachLinenum(srclines[lineno-1],lineno)
+        for lineno in range(startline, len(srclines) + 1):
+            yield self.attachLinenum(srclines[lineno - 1], lineno)
 
-    def attachLinenum(self,line,lineno):
+    def attachLinenum(self, line, lineno):
         line = Line(line)
         line.linenum = lineno
         return line
@@ -187,7 +187,7 @@ class Module(StructuralNode):
         return 1
 
     def getEndLine(self):
-        return len(self.getMaskedModuleLines())+1
+        return len(self.getMaskedModuleLines()) + 1
 
     def getSourceNode(self):
         return self.sourcenode
@@ -195,8 +195,8 @@ class Module(StructuralNode):
     def setSourceNode(self, sourcenode):
         self.sourcenode = sourcenode
 
-    def matchesCompilerNode(self,node):
-        return isinstance(node,compiler.ast.Module) and \
+    def matchesCompilerNode(self, node):
+        return isinstance(node, compiler.ast.Module) and \
                node.name == self.name
 
     def getParent(self):
@@ -208,7 +208,7 @@ class Module(StructuralNode):
 
 
     def __str__(self):
-        return "bike:Module:"+self.filename
+        return "bike:Module:" + self.filename
 
 indentRE = re.compile("^(\s*)\S")
 class Node:
@@ -222,7 +222,7 @@ class Node:
         self.indent = indent
 
     def getMaskedLines(self):
-        return self.getMaskedModuleLines()[self.getStartLine()-1:self.getEndLine()-1]
+        return self.getMaskedModuleLines()[self.getStartLine() - 1:self.getEndLine() - 1]
 
     def getStartLine(self):
         return self.linenum
@@ -231,25 +231,25 @@ class Node:
         if self.endline is None:
             physicallines = self.getMaskedModuleLines()
             lineno = self.linenum
-            logicallines = generateLogicalLines(physicallines[lineno-1:])
+            logicallines = generateLogicalLines(physicallines[lineno - 1:])
 
             # skip the first line, because it's the declaration
             line = logicallines.next()
-            lineno+=line.count("\n")
+            lineno += line.count("\n")
 
             # scan to the end of the fn
             for line in logicallines:
                 #print_ lineno,":",line,
                 match = indentRE.match(line)
-                if match and match.end()-1 <= self.indent:
+                if match and match.end() - 1 <= self.indent:
                     break
-                lineno+=line.count("\n")
+                lineno += line.count("\n")
             self.endline = lineno
         return self.endline
 
     # linenum starts at 0
     def getLine(self, linenum):
-        return self._srclines[(self.getStartLine()-1) + linenum]
+        return self._srclines[(self.getStartLine() - 1) + linenum]
 
 
 baseClassesRE = re.compile("class\s+[^(]+\(([^)]+)\):")
@@ -278,15 +278,15 @@ class Class(StructuralNode, Node):
         return "<bike:Class:%s>" % self.name
 
     def __str__(self):
-        return "bike:Class:"+self.filename+":"+\
-               str(self.getStartLine())+":"+self.name
+        return "bike:Class:" + self.filename + ":" + \
+               str(self.getStartLine()) + ":" + self.name
 
-    def matchesCompilerNode(self,node):
-        return isinstance(node,compiler.ast.Class) and \
+    def matchesCompilerNode(self, node):
+        return isinstance(node, compiler.ast.Class) and \
                node.name == self.name
 
-    def __eq__(self,other):
-        return isinstance(other,Class) and \
+    def __eq__(self, other):
+        return isinstance(other, Class) and \
                self.filename == other.filename and \
                self.getStartLine() == other.getStartLine()
 
@@ -300,7 +300,7 @@ class Instance:
         return self._type
 
     def __str__(self):
-        return "Instance(%s)"%(self.getType())
+        return "Instance(%s)" % (self.getType())
 
 
 class Function(StructuralNode, Node):
@@ -318,11 +318,11 @@ class Function(StructuralNode, Node):
         return "<bike:Function:%s>" % self.name
 
     def __str__(self):
-        return "bike:Function:"+self.filename+":"+\
-               str(self.getStartLine())+":"+self.name
+        return "bike:Function:" + self.filename + ":" + \
+               str(self.getStartLine()) + ":" + self.name
 
-    def matchesCompilerNode(self,node):
-        return isinstance(node,compiler.ast.Function) and \
+    def matchesCompilerNode(self, node):
+        return isinstance(node, compiler.ast.Function) and \
                node.name == self.name
 
 

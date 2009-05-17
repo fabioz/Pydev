@@ -1,3 +1,3 @@
-messages={"PARSING":"Parsing","ADDTYPEINFO":"Deducing Type Information"}
+messages = {"PARSING":"Parsing", "ADDTYPEINFO":"Deducing Type Information"}
 
 MAXCALLDEPTH = 10

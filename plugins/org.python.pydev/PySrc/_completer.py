@@ -49,7 +49,7 @@ class _StartsWithFilter:
 #=======================================================================================================================
 class Completer:
     
-    def __init__(self,namespace=None,global_namespace=None):
+    def __init__(self, namespace=None, global_namespace=None):
         """Create a new completer for the command line.
 
         Completer([namespace,global_namespace]) -> completer instance.

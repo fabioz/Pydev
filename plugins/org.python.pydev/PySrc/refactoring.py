@@ -7,7 +7,7 @@ import StringIO
 import urllib
 
 #kind of hack to get the bicicle repair man without having it in the pythonpath.
-sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]), 
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0]),
     "ThirdParty", "brm"))
 import ThirdParty.brm.bike as bike
 
@@ -38,7 +38,7 @@ class Refactoring(object):
         i = -1
         while i > -v:
             try:
-                msg += progress[i]+'\n'
+                msg += progress[i] + '\n'
             except:
                 pass
             i -= 1
@@ -59,13 +59,13 @@ class Refactoring(object):
         self.init()
         
 
-    def extractMethod(self, filename, startline, startcolumn, 
+    def extractMethod(self, filename, startline, startcolumn,
                             endline, endcolumn, newname):
         '''
         Receives all as a string and changes to correct type.
         '''
-        self.brmctx.extractMethod(filename, int(startline), int(startcolumn), 
-                                            int(endline), int(endcolumn), 
+        self.brmctx.extractMethod(filename, int(startline), int(startcolumn),
+                                            int(endline), int(endcolumn),
                                             newname)
         savedfiles = self.brmctx.save()
         return str(savedfiles)
@@ -89,7 +89,7 @@ class Refactoring(object):
         return str(savedfiles)
         
 
-    def extractLocalVariable(self,filename, begin_line, begin_col,
+    def extractLocalVariable(self, filename, begin_line, begin_col,
                              end_line, end_col, newname):
         '''
         Receives all as a string and changes to correct type.
@@ -109,7 +109,7 @@ class Refactoring(object):
         ret = ''
         
         for ref in defns:
-            ret += '(%s)'%str(ref)
+            ret += '(%s)' % str(ref)
         
         return '[%s]' % ret
 
@@ -152,7 +152,7 @@ def HandleRefactorMessage(msg, keepAliveThread):
         f = func(*msgSplit)
         restartRefactorerBuffer()
         s = urllib.quote_plus(f)
-        return 'BIKE_OK:%s\nEND@@'%(s)
+        return 'BIKE_OK:%s\nEND@@' % (s)
     except:
         import sys
         s = StringIO.StringIO()
@@ -167,11 +167,11 @@ def HandleRefactorMessage(msg, keepAliveThread):
         s.write('%s\n' % (refactorer.getLastProgressMsgs(8),))
         
         s.write('\nDETAILS:\n\n')
-        traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], limit=None, file = s)
+        traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], limit=None, file=s)
         
         restartRefactorerBuffer()
         restartRefactorer()
         s = urllib.quote_plus(s.getvalue())
-        return 'ERROR:%s\nEND@@'%(s)
+        return 'ERROR:%s\nEND@@' % (s)
         
 

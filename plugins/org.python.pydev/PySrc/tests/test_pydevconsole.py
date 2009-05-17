@@ -8,7 +8,7 @@ import sys
 import os
 
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
-sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
 import pydevconsole
 
@@ -90,7 +90,7 @@ class Test(unittest.TestCase):
         self.assert_(desc.find('S.join(sequence) -> string') >= 0 or 
                      desc.find('S.join(sequence) -> str') >= 0 or 
                      desc == "<builtin method 'join'>"  or 
-                     desc == "<built-in method join of str object>", 
+                     desc == "<built-in method join of str object>",
                      "Could not recognize: %s" % (desc,))
 
     

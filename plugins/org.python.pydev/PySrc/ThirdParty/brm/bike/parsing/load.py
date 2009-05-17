@@ -33,16 +33,16 @@ def getSourceNode(filename_path):
     if sourcenode is None:
         raise CantLocateSourceNodeException(filename_path)
 
-    Cache.instance.srcnodecache[filename_path]=sourcenode
+    Cache.instance.srcnodecache[filename_path] = sourcenode
     return sourcenode
 
 class SourceFile:
 
     def createFromString(filename, modulename, src):
-        return SourceFile(filename,modulename,src)
+        return SourceFile(filename, modulename, src)
     createFromString = staticmethod(createFromString)
 
-    def createFromFile(filename,modulename):
+    def createFromFile(filename, modulename):
         try:
             f = file(filename)
             src = f.read()
@@ -50,7 +50,7 @@ class SourceFile:
         except IOError:
             return None
         else:
-            return SourceFile(filename,modulename,src)
+            return SourceFile(filename, modulename, src)
                 
     createFromFile = staticmethod(createFromFile)
     
@@ -66,13 +66,13 @@ class SourceFile:
 
     def resetWithSource(self, source):
         # fastparser ast
-        self.fastparseroot = fastparser(source,self.modulename,self.filename)
+        self.fastparseroot = fastparser(source, self.modulename, self.filename)
         self.fastparseroot.setSourceNode(self)
         self._lines = source.splitlines(1)
         self.sourcenode = self
 
     def __repr__(self):
-        return "Source(%s,%s)"%('source', self.filename)
+        return "Source(%s,%s)" % ('source', self.filename)
 
     def getChildNodes(self):
         return self.fastparseroot.getChildNodes()        
@@ -80,8 +80,8 @@ class SourceFile:
     def getSource(self):
         return  "".join(self.getLines())
 
-    def getLine(self,linenum):
-        return self.getLines()[linenum-1]
+    def getLine(self, linenum):
+        return self.getLines()[linenum - 1]
 
     def getFlattenedListOfFastParserASTNodes(self):
         return self.fastparseroot.getFlattenedListOfChildNodes()

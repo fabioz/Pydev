@@ -42,7 +42,7 @@ def walk(tree, visitor):
     return walker.visitor
     
 
-def walkAndGenerate(tree,visitor):
+def walkAndGenerate(tree, visitor):
     walker = GeneratingTreeWalker()
     return walker.preorder(tree, visitor)
 

@@ -588,7 +588,7 @@ def getargs(co):
                     step = step + 1
                     if op >= dis.HAVE_ARGUMENT:
                         opname = dis.opname[op]
-                        value = ord(code[step]) + ord(code[step+1])*256
+                        value = ord(code[step]) + ord(code[step + 1]) * 256
                         step = step + 2
                         if opname in ['UNPACK_TUPLE', 'UNPACK_SEQUENCE']:
                             remain.append(value)
@@ -745,7 +745,7 @@ def getlineno(frame):
         for i in range(0, len(table), 2):
             addr = addr + ord(table[i])
             if addr > frame.f_lasti: break
-            lineno = lineno + ord(table[i+1])
+            lineno = lineno + ord(table[i + 1])
     return lineno
 
 def getouterframes(frame, context=1):

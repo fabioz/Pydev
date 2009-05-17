@@ -10,15 +10,15 @@ import compiler
 import re
 
 
-def inlineLocalVariable(filename, lineno,col):
+def inlineLocalVariable(filename, lineno, col):
     sourceobj = getSourceNode(filename)
-    return inlineLocalVariable_old(sourceobj, lineno,col)
+    return inlineLocalVariable_old(sourceobj, lineno, col)
 
-def inlineLocalVariable_old(sourcenode,lineno,col):
+def inlineLocalVariable_old(sourcenode, lineno, col):
     definition, region, regionlinecount = getLocalVariableInfo(sourcenode, lineno, col)
     addUndo(sourcenode)
     replaceReferences(sourcenode, findReferences(sourcenode.filename, definition.lineno, definition.colno), region)
-    delLines(sourcenode, definition.lineno-1, regionlinecount)
+    delLines(sourcenode, definition.lineno - 1, regionlinecount)
     updateSource(sourcenode)
 
 def getLocalVariableInfo(sourcenode, lineno, col):
@@ -28,7 +28,7 @@ def getLocalVariableInfo(sourcenode, lineno, col):
 
 def findDefinition(sourcenode, lineno, col):
     definition = findAllPossibleDefinitionsByCoords(sourcenode.filename,
-                                                    lineno,col).next()
+                                                    lineno, col).next()
     assert definition.confidence == 100    
     return definition
 
@@ -54,20 +54,20 @@ def getLineAndContinues(sourcenode, lineno):
     return line, linecount
 
 def addUndo(sourcenode):
-    getUndoStack().addSource(sourcenode.filename,sourcenode.getSource())
+    getUndoStack().addSource(sourcenode.filename, sourcenode.getSource())
 
 def replaceReferences(sourcenode, references, replacement):
-    for reference in safeReplaceOrder( references ):
+    for reference in safeReplaceOrder(references):
         replaceReference(sourcenode, reference, replacement)
 
-def safeReplaceOrder( references ):
+def safeReplaceOrder(references):
     """ 
     When inlining a variable, if multiple instances occur on the line, then the
     last reference must be replaced first. Otherwise the remaining intra-line
     references will be incorrect.
     """
     def safeReplaceOrderCmp(self, other):
-        return -cmp(self.colno, other.colno)
+        return - cmp(self.colno, other.colno)
 
     result = list(references)
     result.sort(safeReplaceOrderCmp)
@@ -78,8 +78,8 @@ def replaceReference(sourcenode, ref, replacement):
     """ sourcenode.getLines()[ref.lineno-1][ref.colno:ref.colend] = replacement
     But strings don't support slice assignment as they are immutable. :(
     """
-    sourcenode.getLines()[ref.lineno-1] = \
-        replaceSubStr(sourcenode.getLines()[ref.lineno-1],
+    sourcenode.getLines()[ref.lineno - 1] = \
+        replaceSubStr(sourcenode.getLines()[ref.lineno - 1],
             ref.colno, ref.colend, replacement)
 
 def replaceSubStr(str, start, end, replacement):
@@ -87,9 +87,9 @@ def replaceSubStr(str, start, end, replacement):
 
 # Possible refactoring: move to class of sourcenode
 def delLines(sourcenode, lineno, linecount=1):
-    del sourcenode.getLines()[lineno:lineno+linecount]
+    del sourcenode.getLines()[lineno:lineno + linecount]
     
 def updateSource(sourcenode):
-    queueFileToSave(sourcenode.filename,"".join(sourcenode.getLines()))
+    queueFileToSave(sourcenode.filename, "".join(sourcenode.getLines()))
     
                     

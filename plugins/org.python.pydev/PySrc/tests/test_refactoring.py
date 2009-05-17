@@ -8,7 +8,7 @@ import sys
 #without the need for it being in the pythonpath)
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
 #twice the dirname to get the previous level from this file.
-sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
 
 import unittest
@@ -96,7 +96,7 @@ c = C()
     
     def testExtractMethod(self):
         r = refactoring.Refactoring()
-        s = r.extractMethod(FILE, 5+1, 12, 5+1, 12+3, 'plusMet')
+        s = r.extractMethod(FILE, 5 + 1, 12, 5 + 1, 12 + 3, 'plusMet')
 
         f = file(FILE, 'r')
         contents = f.read()
@@ -106,7 +106,7 @@ c = C()
 
     def testRename(self):
         r = refactoring.Refactoring()
-        s = r.renameByCoordinates(FILE, 1+1, 6, 'G')
+        s = r.renameByCoordinates(FILE, 1 + 1, 6, 'G')
 
         f = file(FILE, 'r')
         contents = f.read()
@@ -127,18 +127,18 @@ c = C()
 
     def testFind(self):
         r = refactoring.Refactoring()
-        s = r.findDefinition(FILE, 7+1, 4)
+        s = r.findDefinition(FILE, 7 + 1, 4)
         
-        s = s.replace('[(','').replace(')]','').split(',')
-        self.assert_( s[0].endswith('temporary_file.py'))
+        s = s.replace('[(', '').replace(')]', '').split(',')
+        self.assert_(s[0].endswith('temporary_file.py'))
         self.assertEquals('2', s[1])   #line
         self.assertEquals('6', s[2])   #col
         self.assertEquals('100', s[3]) #accuracy
 
         createFile(FILE, getFindFile())
-        s = r.findDefinition(FILE, 5+1, 2)
-        s1 = r.findDefinition(FILE, 5+1, 3)
-        s2 = r.findDefinition(FILE, 5+1, 4)
+        s = r.findDefinition(FILE, 5 + 1, 2)
+        s1 = r.findDefinition(FILE, 5 + 1, 3)
+        s2 = r.findDefinition(FILE, 5 + 1, 4)
         self.assert_(s == s1 == s2)
 
 def getFindFile():

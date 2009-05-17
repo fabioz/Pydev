@@ -4,7 +4,7 @@ from bike.transformer.save import queueFileToSave
 
 _undoStack = None
 
-def getUndoStack(forceNewStack = 0):
+def getUndoStack(forceNewStack=0):
     global _undoStack
     if _undoStack is None or forceNewStack:
         _undoStack = UndoStack()
@@ -43,9 +43,9 @@ class UndoStack(object):
             raise UndoStackEmptyException()
         undoframe = self.stack[-2]
         #print_ "undoframe is",undoframe
-        for filename,src in undoframe.iteritems():
+        for filename, src in undoframe.iteritems():
             log.progress.write("Undoing: %s\n" % (filename,))
-            queueFileToSave(filename,src)
+            queueFileToSave(filename, src)
         self.stack = self.stack[:-2]
         self.stack.append({})
         self.frame = self.stack[-1]

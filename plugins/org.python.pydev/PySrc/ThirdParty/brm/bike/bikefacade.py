@@ -48,28 +48,28 @@ class BRMContext(object):
         """ an ide friendly method which renames a class/fn/method
         pointed to by the coords and filename"""
 
-    def extract(self, filename_path, 
+    def extract(self, filename_path,
                 begin_line, begin_col,
-                end_line, end_col, 
+                end_line, end_col,
                 name):
         """ extracts the region into the named method/function based
         on context"""
 
-    def inlineLocalVariable(self,filename_path, line, col):
+    def inlineLocalVariable(self, filename_path, line, col):
         """ Inlines the variable pointed to by
         line:col. (N.B. line:col can also point to a reference to the
         variable as well as the definition) """
 
 
-    def extractLocalVariable(self,filename_path, begin_line, begin_col,
+    def extractLocalVariable(self, filename_path, begin_line, begin_col,
                              end_line, end_col, variablename):
         """ Extracts the region into a variable """
 
-    def setProgressLogger(self,logger):
+    def setProgressLogger(self, logger):
         """ Sets the progress logger to an object with a write method
         """
         
-    def setWarningLogger(self,logger):
+    def setWarningLogger(self, logger):
         """ Sets the warning logger to an object with a write method
         """
 
@@ -83,16 +83,16 @@ class BRMContext(object):
         returns a generator which finds references to it.
         """
 
-    def findDefinitionByCoordinates(self,filename_path,line,col):        
+    def findDefinitionByCoordinates(self, filename_path, line, col):        
         """ given the coordates to a reference, tries to find the
         definition of that reference """
 
-    def moveClassToNewModule(self,filename_path, line, 
+    def moveClassToNewModule(self, filename_path, line,
                              newfilename):
         """ moves the class pointed to by (filename_path, line)
         to a new module """
 
-    def moveFunctionToNewModule(self,filename_path, line, 
+    def moveFunctionToNewModule(self, filename_path, line,
                              newfilename):
         """ moves the function pointed to by (filename_path, line)
         to a new module """
@@ -107,19 +107,19 @@ class BRMContext_wrapper:
     def __init__(self):
         self.brmctx = BRMContext_impl()
 
-    def __getattr__(self,name):
-        return BRMContext_callWrapper(self.brmctx,name)
+    def __getattr__(self, name):
+        return BRMContext_callWrapper(self.brmctx, name)
 
 
 class BRMContext_callWrapper:
-    def __init__(self,brmctx,methodname):
+    def __init__(self, brmctx, methodname):
         self.name = methodname
         self.brmctx = brmctx
 
-    def __call__(self,*args):
+    def __call__(self, *args):
         Cache.instance.reset()
         try:
-            return getattr(self.brmctx,self.name)(*args)
+            return getattr(self.brmctx, self.name)(*args)
         finally:
             Cache.instance.reset()
 
@@ -150,40 +150,40 @@ class BRMContext_impl(BRMContext):
         self.promptUserClientCallback = callback
 
 
-    def normalizeFilename(self,filename):
+    def normalizeFilename(self, filename):
         filename = os.path.expanduser(filename)
         filename = os.path.normpath(os.path.abspath(filename))
         return filename
 
-    def extractMethod(self, filename_path, 
-                        begin_line, begin_column, 
-                        end_line, end_column, 
+    def extractMethod(self, filename_path,
+                        begin_line, begin_column,
+                        end_line, end_column,
                         methodname):
         self.extract(filename_path, begin_line, begin_column,
-                     end_line, end_column,methodname)
+                     end_line, end_column, methodname)
 
-    def extractFunction(self, filename_path, 
-                        begin_line, begin_column, 
-                        end_line, end_column, 
+    def extractFunction(self, filename_path,
+                        begin_line, begin_column,
+                        end_line, end_column,
                         methodname):
         self.extract(filename_path, begin_line, begin_column,
-                     end_line, end_column,methodname)
+                     end_line, end_column, methodname)
 
     # does it based on context
-    def extract(self, filename_path, 
+    def extract(self, filename_path,
                 begin_line, begin_col,
-                end_line, end_col, 
+                end_line, end_col,
                 name):
         filename_path = self.normalizeFilename(filename_path)
         extractMethod.extractMethod(filename_path,
-                                    coords(begin_line, begin_col), 
+                                    coords(begin_line, begin_col),
                                     coords(end_line, end_col), name)
 
-    def inlineLocalVariable(self,filename_path, line, col):
+    def inlineLocalVariable(self, filename_path, line, col):
         filename_path = self.normalizeFilename(filename_path)
-        inlineVariable.inlineLocalVariable(filename_path,line,col)
+        inlineVariable.inlineLocalVariable(filename_path, line, col)
 
-    def extractLocalVariable(self,filename_path, begin_line, begin_col,
+    def extractLocalVariable(self, filename_path, begin_line, begin_col,
                              end_line, end_col, variablename):
         filename_path = self.normalizeFilename(filename_path)
         extractVariable.extractLocalVariable(filename_path,
@@ -191,18 +191,18 @@ class BRMContext_impl(BRMContext):
                                              coords(end_line, end_col),
                                              variablename)
 
-    def moveClassToNewModule(self,filename_path, line, 
+    def moveClassToNewModule(self, filename_path, line,
                              newfilename):
         filename_path = self.normalizeFilename(filename_path)
         newfilename = self.normalizeFilename(newfilename)
-        moveToModule.moveClassToNewModule(filename_path, line, 
+        moveToModule.moveClassToNewModule(filename_path, line,
                                        newfilename)
 
-    def moveFunctionToNewModule(self,filename_path, line, 
+    def moveFunctionToNewModule(self, filename_path, line,
                              newfilename):
         filename_path = self.normalizeFilename(filename_path)
         newfilename = self.normalizeFilename(newfilename)
-        moveToModule.moveFunctionToNewModule(filename_path, line, 
+        moveToModule.moveFunctionToNewModule(filename_path, line,
                                        newfilename)
 
     def undo(self):
@@ -213,11 +213,11 @@ class BRMContext_impl(BRMContext):
 
 
     # must be an object with a write method
-    def setProgressLogger(self,logger):
+    def setProgressLogger(self, logger):
         log.progress = logger
 
     # must be an object with a write method
-    def setWarningLogger(self,logger):
+    def setWarningLogger(self, logger):
         log.warning = logger
 
 
@@ -227,34 +227,34 @@ class BRMContext_impl(BRMContext):
         Cache.instance.reset()
         try:
             self._setNonLibPythonPath(filename_path)
-            rename(filename_path,line,col,newname,
+            rename(filename_path, line, col, newname,
                    self.promptUserClientCallback)
         finally:
             Cache.instance.reset()
 
     def _reverseCoordsIfWrongWayRound(self, colbegin, colend):
         if(colbegin > colend):
-            colbegin,colend = colend,colbegin
-        return colbegin,colend
+            colbegin, colend = colend, colbegin
+        return colbegin, colend
 
 
-    def findDefinitionByCoordinates(self,filename_path,line,col):
+    def findDefinitionByCoordinates(self, filename_path, line, col):
         filename_path = self.normalizeFilename(filename_path)
         self._setCompletePythonPath(filename_path)
-        return findAllPossibleDefinitionsByCoords(filename_path,line,col)
+        return findAllPossibleDefinitionsByCoords(filename_path, line, col)
 
         
     # filename_path must be absolute
     def findReferencesByCoordinates(self, filename_path, line, column):
         filename_path = self.normalizeFilename(filename_path)
         self._setNonLibPythonPath(filename_path)
-        return findReferences(filename_path,line,column)
+        return findReferences(filename_path, line, column)
         
-    def _setCompletePythonPath(self,filename):
+    def _setCompletePythonPath(self, filename):
         pythonpath = [] + sys.path  # make a copy
         self.ast.pythonpath = pythonpath
         
-    def _setNonLibPythonPath(self,filename):
+    def _setNonLibPythonPath(self, filename):
         if getRoot().unittestmode:
             return
         pythonpath = self._removeLibdirsFromPath(sys.path)
@@ -265,7 +265,7 @@ class BRMContext_impl(BRMContext):
         return self.ast.pythonpath
     
     def _removeLibdirsFromPath(self, pythonpath):
-        libdir = os.path.join(sys.prefix,"lib").lower()
+        libdir = os.path.join(sys.prefix, "lib").lower()
         pythonpath = [p for p in pythonpath
                       if not p.lower().startswith(libdir)]
         return pythonpath
@@ -278,6 +278,6 @@ def _deducePackageOfFile(filename):
     while dir != ""and \
           os.path.exists(os.path.join(dir, "__init__.py")):
         dir, dirname = os.path.split(dir)
-        package = dirname+dot+package
+        package = dirname + dot + package
         dot = "."
     return package

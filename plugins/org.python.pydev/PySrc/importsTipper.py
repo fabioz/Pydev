@@ -66,8 +66,8 @@ def Find(name):
             f = GetFile(mod)
         else:
             if len(foundAs) > 0:
-                foundAs = foundAs+'.'
-            foundAs = foundAs+comp
+                foundAs = foundAs + '.'
+            foundAs = foundAs + comp
             
         old_comp = comp
         
@@ -174,8 +174,8 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                             r = ''
                             for a in (args):
                                 if len(r) > 0:
-                                    r = r+', '
-                                r = r+str(a)
+                                    r = r + ', '
+                                r = r + str(a)
                             args = '(%s)' % (r)
                         except TypeError:
                             #ok, let's see if we can get the arguments from the doc
@@ -207,11 +207,11 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                                                 
                                                 args = s[start:end]
                                                 if not args[-1] == ')':
-                                                    args = args+')'
+                                                    args = args + ')'
     
                                                 
                                                 #now, get rid of unwanted chars
-                                                l = len(args)-1
+                                                l = len(args) - 1
                                                 r = []
                                                 for i in range(len(args)):
                                                     if i == 0 or i == l:

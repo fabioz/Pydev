@@ -15,7 +15,7 @@ def resetOutputQueue():
     global outputqueue
     outputqueue = {}
 
-def queueFileToSave(filename,src):
+def queueFileToSave(filename, src):
     outputqueue[filename] = src
     from bike.parsing.load import getSourceNode
     getSourceNode(filename).resetWithSource(src)
@@ -25,7 +25,7 @@ def save():
 
     global outputqueue
     savedFiles = []
-    for filename,src in outputqueue.iteritems():
+    for filename, src in outputqueue.iteritems():
         log.progress.write("Writing: %s\n" % (filename,))
         f = file(filename, "w+")
         f.write(outputqueue[filename])

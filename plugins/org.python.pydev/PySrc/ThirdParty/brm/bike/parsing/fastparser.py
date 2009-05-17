@@ -9,24 +9,24 @@ indentRE = re.compile("^\s*(\w+)")
 
 # returns a tree of objects representing nested classes and functions
 # in the source
-def fastparser(src,modulename="",filename=""):
+def fastparser(src, modulename="", filename=""):
     try:
-        return fastparser_impl(src,modulename,filename)
+        return fastparser_impl(src, modulename, filename)
     except RuntimeError, ex:   # if recursive call exceeds maximum depth
         if str(ex) == "maximum recursion limit exceeded":
-            raise ParserError,"maximum recursion depth exceeded when fast-parsing src "+filename
+            raise ParserError, "maximum recursion depth exceeded when fast-parsing src " + filename
         else:
             raise
 
-def fastparser_impl(src,modulename,filename):
+def fastparser_impl(src, modulename, filename):
     lines = src.splitlines(1)
     maskedSrc = maskPythonKeywordsInStringsAndComments(src)
     maskedLines = maskedSrc.splitlines(1)
-    root = Module(filename,modulename,lines,maskedSrc)
+    root = Module(filename, modulename, lines, maskedSrc)
     parentnode = root
     lineno = 0
     for line in maskedLines:
-        lineno+=1
+        lineno += 1
         #print_ "line",lineno,":",line
         m = indentRE.match(line)
         if m:
@@ -62,7 +62,7 @@ def fastparser_impl(src,modulename,filename):
                     parentnode = n
 
             elif indent <= parentnode.indent and \
-                     tokenstr in ['if','for','while','try']:
+                     tokenstr in ['if', 'for', 'while', 'try']:
                 parentnode = parentnode.getParent()
                 while indent <= parentnode.indent:
                     parentnode = parentnode.getParent()

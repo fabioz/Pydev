@@ -13,7 +13,7 @@ def containsAny(str, set):
 
 
 
-def getPathOfModuleOrPackage(dotted_name, pathlist = None):
+def getPathOfModuleOrPackage(dotted_name, pathlist=None):
     """ Get the filesystem path for a module or a package.
 
         Return the file system path to a file for a module,

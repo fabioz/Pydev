@@ -9,7 +9,7 @@ escapedQuotesRE = re.compile(r"(\\\\|\\\"|\\\')")
 def maskEscapedQuotes(src):
     return escapedQuotesRE.sub("**", src)
 
-stringsAndCommentsRE =  \
+stringsAndCommentsRE = \
       re.compile("(\"\"\".*?\"\"\"|'''.*?'''|\"[^\"]*\"|\'[^\']*\'|#.*?\n)", re.DOTALL)
 
 import string
@@ -29,7 +29,7 @@ def maskPythonKeywordsInStringsAndComments(src):
 
 
 allchars = string.maketrans("", "")
-allcharsExceptNewline = allchars[: allchars.index('\n')]+allchars[allchars.index('\n')+1:]
+allcharsExceptNewline = allchars[: allchars.index('\n')] + allchars[allchars.index('\n') + 1:]
 allcharsExceptNewlineTranstable = string.maketrans(allcharsExceptNewline, '*'*len(allcharsExceptNewline))
 
 
@@ -42,12 +42,12 @@ def maskStringsAndComments(src):
     # every odd element is a string or comment
     for i in xrange(1, len(allstrings), 2):
         if allstrings[i].startswith("'''")or allstrings[i].startswith('"""'):
-            allstrings[i] = allstrings[i][:3]+ \
-                           allstrings[i][3:-3].translate(allcharsExceptNewlineTranstable)+ \
+            allstrings[i] = allstrings[i][:3] + \
+                           allstrings[i][3:-3].translate(allcharsExceptNewlineTranstable) + \
                            allstrings[i][-3:]
         else:
-            allstrings[i] = allstrings[i][0]+ \
-                           allstrings[i][1:-1].translate(allcharsExceptNewlineTranstable)+ \
+            allstrings[i] = allstrings[i][0] + \
+                           allstrings[i][1:-1].translate(allcharsExceptNewlineTranstable) + \
                            allstrings[i][-1]
 
     return "".join(allstrings)
@@ -62,22 +62,22 @@ def maskStringsAndRemoveComments(src):
     # every odd element is a string or comment
     for i in xrange(1, len(allstrings), 2):
         if allstrings[i].startswith("'''")or allstrings[i].startswith('"""'):
-            allstrings[i] = allstrings[i][:3]+ \
-                           allstrings[i][3:-3].translate(allcharsExceptNewlineTranstable)+ \
+            allstrings[i] = allstrings[i][:3] + \
+                           allstrings[i][3:-3].translate(allcharsExceptNewlineTranstable) + \
                            allstrings[i][-3:]
         elif allstrings[i].startswith("#"):
             allstrings[i] = '\n'
         else:
-            allstrings[i] = allstrings[i][0]+ \
-                           allstrings[i][1:-1].translate(allcharsExceptNewlineTranstable)+ \
+            allstrings[i] = allstrings[i][0] + \
+                           allstrings[i][1:-1].translate(allcharsExceptNewlineTranstable) + \
                            allstrings[i][-1]
     return "".join(allstrings)
         
 
 implicitContinuationChars = (('(', ')'), ('[', ']'), ('{', '}'))
-emptyHangingBraces = [0,0,0,0,0]
+emptyHangingBraces = [0, 0, 0, 0, 0]
 linecontinueRE = re.compile(r"\\\s*(#.*)?$")
-multiLineStringsRE =  \
+multiLineStringsRE = \
       re.compile("(^.*?\"\"\".*?\"\"\".*?$|^.*?'''.*?'''.*?$)", re.DOTALL)
 
 #def splitLogicalLines(src):
@@ -105,7 +105,7 @@ def generateLogicalLines(physicallines):
         for i in range(len(implicitContinuationChars)):
             contchar = implicitContinuationChars[i]
             numHanging = hangingBraces[i]
-            hangingBraces[i] = numHanging+line.count(contchar[0]) - \
+            hangingBraces[i] = numHanging + line.count(contchar[0]) - \
                                line.count(contchar[1])
 
         hangingComments ^= line.count('"""') % 2
@@ -143,7 +143,7 @@ def generateLogicalLinesAndLineNumbers(physicallines):
         for i in range(len(implicitContinuationChars)):
             contchar = implicitContinuationChars[i]
             numHanging = hangingBraces[i]
-            hangingBraces[i] = numHanging+line.count(contchar[0]) - \
+            hangingBraces[i] = numHanging + line.count(contchar[0]) - \
                                line.count(contchar[1])
 
         hangingComments ^= line.count('"""') % 2
@@ -157,7 +157,7 @@ def generateLogicalLinesAndLineNumbers(physicallines):
             tmp.append(line)
         else:
             tmp.append(line)
-            yield "".join(tmp),linenum
+            yield "".join(tmp), linenum
             tmp = []
         
 
@@ -174,7 +174,7 @@ notSpaceRE = re.compile("\s*(\S)")
 commentRE = re.compile("#.*$")
 
 def makeLineParseable(line):
-    return makeLineParseableWhenCommentsRemoved(commentRE.sub("",line))
+    return makeLineParseableWhenCommentsRemoved(commentRE.sub("", line))
 
 def makeLineParseableWhenCommentsRemoved(line):
     line = line.strip()
@@ -190,5 +190,5 @@ def makeLineParseableWhenCommentsRemoved(line):
             line = "if 0: pass\n" + line
             return line
     elif line.startswith("yield"):
-        return ("return"+line[5:])
+        return ("return" + line[5:])
     return line

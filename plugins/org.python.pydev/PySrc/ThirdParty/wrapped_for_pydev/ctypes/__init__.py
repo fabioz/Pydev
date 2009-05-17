@@ -51,7 +51,7 @@ def create_string_buffer(init, size=None):
     """
     if isinstance(init, (str, unicode)):
         if size is None:
-            size = len(init)+1
+            size = len(init) + 1
         buftype = c_char * size
         buf = buftype()
         buf.value = init
@@ -237,7 +237,7 @@ else:
         """
         if isinstance(init, (str, unicode)):
             if size is None:
-                size = len(init)+1
+                size = len(init) + 1
             buftype = c_wchar * size
             buf = buftype()
             buf.value = init
@@ -301,7 +301,7 @@ class CDLL(object):
     def __repr__(self):
         return "<%s '%s', handle %x at %x>" % \
                (self.__class__.__name__, self._name,
-                (self._handle & (_sys.maxint*2 + 1)),
+                (self._handle & (_sys.maxint * 2 + 1)),
                 id(self))
 
     def __getattr__(self, name):

@@ -8,7 +8,7 @@ import sys
 #without the need for it being in the pythonpath)
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
 #twice the dirname to get the previous level from this file.
-sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
 #this does not work (they must be in the system pythonpath)
 #sys.path.insert(1, r"D:\bin\eclipse321\plugins\org.junit_3.8.1\junit.jar" ) #some late loading jar tests
@@ -146,11 +146,11 @@ class TestMod(unittest.TestCase):
 class TestSearch(unittest.TestCase):
 
     def testSearchOnJython(self):
-        self.assertEqual( 'javaos.py', jyimportsTipper.Search('os')[0][0].split(os.sep)[-1])
-        self.assertEqual( 0, jyimportsTipper.Search('os')[0][1])
+        self.assertEqual('javaos.py', jyimportsTipper.Search('os')[0][0].split(os.sep)[-1])
+        self.assertEqual(0, jyimportsTipper.Search('os')[0][1])
         
-        self.assertEqual( 'javaos.py', jyimportsTipper.Search('os.makedirs')[0][0].split(os.sep)[-1])
-        self.assertNotEqual( 0, jyimportsTipper.Search('os.makedirs')[0][1])
+        self.assertEqual('javaos.py', jyimportsTipper.Search('os.makedirs')[0][0].split(os.sep)[-1])
+        self.assertNotEqual(0, jyimportsTipper.Search('os.makedirs')[0][1])
         
         #print jyimportsTipper.Search('os.makedirs')
 
@@ -164,41 +164,41 @@ class TestCompl(unittest.TestCase):
 
     def testGettingInfoOnJython(self):
         
-        dbg( '\n\n--------------------------- java')
+        dbg('\n\n--------------------------- java')
         assert not ismethod(java)[0]
         assert not isclass(java)
         assert jyimportsTipper.ismodule(java)
             
-        dbg( '\n\n--------------------------- java.lang')
+        dbg('\n\n--------------------------- java.lang')
         assert not ismethod(java.lang)[0]
         assert not isclass(java.lang)
         assert jyimportsTipper.ismodule(java.lang)
             
-        dbg( '\n\n--------------------------- Method')
+        dbg('\n\n--------------------------- Method')
         assert not ismethod(Method)[0]
         assert isclass(Method)
             
-        dbg( '\n\n--------------------------- System')
+        dbg('\n\n--------------------------- System')
         assert not ismethod(System)[0]
         assert isclass(System)
             
-        dbg( '\n\n--------------------------- String')
+        dbg('\n\n--------------------------- String')
         assert not ismethod(System)[0]
         assert isclass(String)
         assert len(dirObj(String)) > 10
             
-        dbg( '\n\n--------------------------- arraycopy')
+        dbg('\n\n--------------------------- arraycopy')
         isMet = ismethod(arraycopy)
         assert isMet[0]
         assert isMet[1][0].basicAsStr() == "function:arraycopy args=['java.lang.Object', 'int', 'java.lang.Object', 'int', 'int'], varargs=None, kwargs=None, docs:None"
         assert not isclass(arraycopy)
             
-        dbg( '\n\n--------------------------- out')
+        dbg('\n\n--------------------------- out')
         isMet = ismethod(out)
         assert not isMet[0]
         assert not isclass(out)
             
-        dbg( '\n\n--------------------------- out.println')
+        dbg('\n\n--------------------------- out.println')
         isMet = ismethod(out.println) #@UndefinedVariable
         assert isMet[0]
         assert len(isMet[1]) == 10
@@ -206,7 +206,7 @@ class TestCompl(unittest.TestCase):
         assert isMet[1][1].basicAsStr() == "function:println args=['long'], varargs=None, kwargs=None, docs:None"
         assert not isclass(out.println) #@UndefinedVariable
         
-        dbg( '\n\n--------------------------- str')
+        dbg('\n\n--------------------------- str')
         isMet = ismethod(str)
         #the code below should work, but is failing on jython 22a1
         #assert isMet[0]
@@ -215,10 +215,10 @@ class TestCompl(unittest.TestCase):
         
         
         def met1():
-            a=3
+            a = 3
             return a
         
-        dbg( '\n\n--------------------------- met1')
+        dbg('\n\n--------------------------- met1')
         isMet = ismethod(met1)
         assert isMet[0]
         assert isMet[1][0].basicAsStr() == "function:met1 args=[], varargs=None, kwargs=None, docs:None"
@@ -227,10 +227,10 @@ class TestCompl(unittest.TestCase):
         def met2(arg1, arg2, *vararg, **kwarg):
             '''docmet2'''
             
-            a=1
+            a = 1
             return a
         
-        dbg( '\n\n--------------------------- met2')
+        dbg('\n\n--------------------------- met2')
         isMet = ismethod(met2)
         assert isMet[0]
         assert isMet[1][0].basicAsStr() == "function:met2 args=['arg1', 'arg2'], varargs=vararg, kwargs=kwarg, docs:docmet2"

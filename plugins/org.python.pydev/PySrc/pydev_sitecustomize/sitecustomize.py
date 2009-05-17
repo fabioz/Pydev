@@ -81,7 +81,7 @@ if not IS_PYTHON_3K: #For Python 3.0, the PYTHONIOENCODING should already treat 
                 #ok, default locale is set (if the user didn't specify any encoding, the system default should be used)
                 encoding = loc[1]
                 if DEBUG:
-                    sys.stdout.write('encoding from "locale": %s\n' %  (encoding,))
+                    sys.stdout.write('encoding from "locale": %s\n' % (encoding,))
         
     
     #-------------------------------------------------------------------------------------------------------------------

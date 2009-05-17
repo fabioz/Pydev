@@ -133,7 +133,7 @@ def resolve_dotted_attribute(obj, attr, allow_dotted_names=True):
                 'attempt to access private attribute "%s"' % i
                 )
         else:
-            obj = getattr(obj,i)
+            obj = getattr(obj, i)
     return obj
 
 def list_public_methods(obj):
@@ -207,7 +207,7 @@ class SimpleXMLRPCDispatcher:
         self.instance = instance
         self.allow_dotted_names = allow_dotted_names
 
-    def register_function(self, function, name = None):
+    def register_function(self, function, name=None):
         """Registers a function to respond to XML-RPC requests.
 
         The optional name argument can be used to set a Unicode name
@@ -237,7 +237,7 @@ class SimpleXMLRPCDispatcher:
 
         self.funcs.update({'system.multicall' : self.system_multicall})
 
-    def _marshaled_dispatch(self, data, dispatch_method = None):
+    def _marshaled_dispatch(self, data, dispatch_method=None):
         """Dispatches an XML-RPC method from marshalled (XML) data.
 
         XML-RPC methods are dispatched from the marshalled (XML) data
@@ -456,7 +456,7 @@ class SimpleXMLRPCRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             # We read this in chunks to avoid straining
             # socket.read(); around the 10 or 15Mb mark, some platforms
             # begin to have problems (bug #792570).
-            max_chunk_size = 10*1024*1024
+            max_chunk_size = 10 * 1024 * 1024
             size_remaining = int(self.headers["content-length"])
             L = []
             while size_remaining:
@@ -575,7 +575,7 @@ class CGIXMLRPCRequestHandler(SimpleXMLRPCDispatcher):
         
         sys.stdout.write(response)
 
-    def handle_request(self, request_text = None):
+    def handle_request(self, request_text=None):
         """Handle a single XML-RPC request passed through a CGI post method.
 
         If no XML data is given then it is read from stdin. The resulting
@@ -597,5 +597,5 @@ if __name__ == '__main__':
     sys.stdout.write('Running XML-RPC server on port 8000\n')
     server = SimpleXMLRPCServer(("localhost", 8000))
     server.register_function(pow)
-    server.register_function(lambda x,y: x+y, 'add')
+    server.register_function(lambda x, y: x + y, 'add')
     server.serve_forever()

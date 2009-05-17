@@ -8,7 +8,7 @@ import os
 #without the need for it being in the pythonpath)
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
 #twice the dirname to get the previous level from this file.
-sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
 import unittest
 import pycompletionserver as jycompletionserver
@@ -31,24 +31,24 @@ class Test(unittest.TestCase):
         unittest.TestCase.tearDown(self)
     
     def testIt(self):
-        dbg( 'ok')
+        dbg('ok')
         
     def testMessage(self):
-        t = jycompletionserver.T(0,0)
+        t = jycompletionserver.T(0, 0)
         
         l = []
-        l.append(('Def','description'  , 'args'))
-        l.append(('Def1','description1', 'args1'))
-        l.append(('Def2','description2', 'args2'))
+        l.append(('Def', 'description'  , 'args'))
+        l.append(('Def1', 'description1', 'args1'))
+        l.append(('Def2', 'description2', 'args2'))
         
         msg = t.processor.formatCompletionMessage('test_jyserver.py', l)
         
         self.assertEquals('@@COMPLETIONS(test_jyserver.py,(Def,description,args),(Def1,description1,args1),(Def2,description2,args2))END@@', msg)
         
         l = []
-        l.append(('Def','desc,,r,,i()ption',''  ))
-        l.append(('Def(1','descriptio(n1',''))
-        l.append(('De,f)2','de,s,c,ription2',''))
+        l.append(('Def', 'desc,,r,,i()ption', ''))
+        l.append(('Def(1', 'descriptio(n1', ''))
+        l.append(('De,f)2', 'de,s,c,ription2', ''))
         msg = t.processor.formatCompletionMessage(None, l)
         expected = '@@COMPLETIONS(None,(Def,desc%2C%2Cr%2C%2Ci%28%29ption, ),(Def%281,descriptio%28n1, ),(De%2Cf%292,de%2Cs%2Cc%2Cription2, ))END@@'
         
@@ -60,35 +60,35 @@ class Test(unittest.TestCase):
 
 
     def testCompletionSocketsAndMessages(self):
-        dbg( 'testCompletionSocketsAndMessages')
+        dbg('testCompletionSocketsAndMessages')
         t, sToWrite, sToRead, self.connToRead, addr = self.createConnections()
-        dbg( 'connections created')
+        dbg('connections created')
         
         try:
             #now that we have the connections all set up, check the code completion messages.
             msg = urllib.quote_plus('math')
 
-            toWrite = '@@IMPORTS:%sEND@@'%msg
-            dbg( 'writing' + str(toWrite))
+            toWrite = '@@IMPORTS:%sEND@@' % msg
+            dbg('writing' + str(toWrite))
             sToWrite.send(toWrite) #math completions
             completions = self.readMsg()
-            dbg( urllib.unquote_plus(completions))
+            dbg(urllib.unquote_plus(completions))
             
             start = '@@COMPLETIONS('
-            self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) )
+            self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % (completions, start))
             self.assert_(completions.find('@@COMPLETIONS') != -1)
             self.assert_(completions.find('END@@') != -1)
 
 
             msg = urllib.quote_plus('__builtin__.str')
-            toWrite = '@@IMPORTS:%sEND@@'%msg
-            dbg( 'writing' + str(toWrite))
+            toWrite = '@@IMPORTS:%sEND@@' % msg
+            dbg('writing' + str(toWrite))
             sToWrite.send(toWrite) #math completions
             completions = self.readMsg()
-            dbg( urllib.unquote_plus(completions))
+            dbg(urllib.unquote_plus(completions))
             
             start = '@@COMPLETIONS('
-            self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % ( completions, start) )
+            self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % (completions, start))
             self.assert_(completions.find('@@COMPLETIONS') != -1)
             self.assert_(completions.find('END@@') != -1)
 
@@ -112,11 +112,11 @@ class Test(unittest.TestCase):
 
 
 
-    def createConnections(self, p1 = 50002,p2 = 50003):
+    def createConnections(self, p1=50002, p2=50003):
         '''
         Creates the connections needed for testing.
         '''
-        t = jycompletionserver.T(p1,p2)
+        t = jycompletionserver.T(p1, p2)
         
         t.start()
 
@@ -137,7 +137,7 @@ class Test(unittest.TestCase):
         while msg.startswith('@@PROCESSING'):
             msg = self.connToRead.recv(1024)
             if msg.startswith('@@PROCESSING:'):
-                dbg( 'Status msg:' + str(msg))
+                dbg('Status msg:' + str(msg))
         
         while msg.find('END@@') == -1:
             msg += self.connToRead.recv(1024)

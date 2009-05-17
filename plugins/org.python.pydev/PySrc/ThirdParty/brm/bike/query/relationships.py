@@ -18,10 +18,10 @@ def getRootClassesOfHierarchy(klass):
     else:
         rootclasses = []
         for base in klass.getBaseClassNames():
-            baseclass = getTypeOf(klass,base)
+            baseclass = getTypeOf(klass, base)
             rootclass = getRootClassesOfHierarchy(baseclass)
             if rootclass is None:  # base class not in our ast
                 rootclass = [klass]
-            rootclasses+=rootclass
+            rootclasses += rootclass
         return rootclasses
 

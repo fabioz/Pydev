@@ -56,4 +56,4 @@ def DoFind(f, mod):
             lnum = lnum - 1
         return f, lnum, 0
 
-    raise RuntimeError('Do not know about: '+f+' '+str(mod))
+    raise RuntimeError('Do not know about: ' + f + ' ' + str(mod))

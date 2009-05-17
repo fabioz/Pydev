@@ -23,7 +23,7 @@ def getModuleOrPackageUsingFQN(fqn, dirpath=None):
     if dirpath is not None:
         assert os.path.isdir(dirpath)
         pythonpath = [dirpath] + pythonpath
-    filename = getPathOfModuleOrPackage(fqn,pythonpath)
+    filename = getPathOfModuleOrPackage(fqn, pythonpath)
     #print_ "getModuleOrPackageUsingFQN - filename",filename
     if filename is not None:
         if os.path.isdir(filename):
@@ -58,7 +58,7 @@ def generateModuleFilenamesInPythonPath(contextFilename):
                     yield file
 
         # and search the files immediately above the package hierarchy
-        for file in getFilesForName(os.path.join(rootdir,"*.py")):
+        for file in getFilesForName(os.path.join(rootdir, "*.py")):
             if file not in files:   # check for duplicates
                 files.append(file)
                 yield file
@@ -71,7 +71,7 @@ def generateModuleFilenamesInPackage(filenameInPackage):
 
 
 # search all sourcenodes globally from the perspective of file 'contextFilename'
-def getSourceNodesContainingRegex(regexstr,contextFilename):
+def getSourceNodesContainingRegex(regexstr, contextFilename):
     regex = re.compile(regexstr)
     for fname in generateModuleFilenamesInPythonPath(contextFilename):
         try:

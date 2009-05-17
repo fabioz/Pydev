@@ -71,8 +71,8 @@ def Find(name):
             f = mod.__file__
         else:
             if len(foundAs) > 0:
-                foundAs = foundAs+'.'
-            foundAs = foundAs+comp
+                foundAs = foundAs + '.'
+            foundAs = foundAs + comp
             
         old_comp = comp
         
@@ -130,25 +130,25 @@ class Info:
     def getAsDoc(self):
         s = str(self.name)
         if self.doc:
-            s+='\n@doc %s\n' % str(self.doc)
+            s += '\n@doc %s\n' % str(self.doc)
             
         if self.args:
-            s+='\n@params '
+            s += '\n@params '
             for arg in self.args:
-                s+=str(formatParamClassName(arg))
-                s+='  '
+                s += str(formatParamClassName(arg))
+                s += '  '
         
         if self.varargs:
-            s+='\n@varargs '
-            s+=str(self.varargs)
+            s += '\n@varargs '
+            s += str(self.varargs)
             
         if self.kwargs:
-            s+='\n@kwargs '
-            s+=str(self.kwargs)
+            s += '\n@kwargs '
+            s += str(self.kwargs)
             
         if self.ret:
-            s+='\n@return '
-            s+=str(formatParamClassName(str(self.ret)))
+            s += '\n@return '
+            s += str(formatParamClassName(str(self.ret)))
             
         return str(s)
         
@@ -193,7 +193,7 @@ def ismethod(func):
                 return args, varargs, varkw
             
             args = getargs(func.func_code)
-            return 1, [Info(func.func_name, args = args[0], varargs = args[1], kwargs = args[2], doc = func.func_doc)]
+            return 1, [Info(func.func_name, args=args[0], varargs=args[1], kwargs=args[2], doc=func.func_doc)]
             
         if isinstance(func, core.PyMethod):
             #this is something from java itself, and jython just wrapped it...
@@ -255,7 +255,7 @@ def ismethod(func):
                         args.append(a) #so we don't leave invalid code
     
                     
-                    info = Info(name, args = args, ret = ret)
+                    info = Info(name, args=args, ret=ret)
                     #print_ info.basicAsStr()
                     infos.append(info)
     
@@ -263,7 +263,7 @@ def ismethod(func):
     except Exception, e:
         s = StringIO.StringIO()
         traceback.print_exc(file=s)
-        return 1, [Info(str('ERROR'), doc = s.getvalue())]
+        return 1, [Info(str('ERROR'), doc=s.getvalue())]
         
     return 0, None
 
@@ -281,7 +281,7 @@ def dirObj(obj):
     found = java.util.HashMap()
     original = obj
     if hasattr(obj, '__class__'):
-        if obj.__class__ ==  java.lang.Class:
+        if obj.__class__ == java.lang.Class:
 
             #get info about superclasses
             classes = []
@@ -353,13 +353,13 @@ def formatArg(arg):
     s = str(arg)
     dot = s.rfind('.')
     if dot >= 0:
-        s = s[dot+1:]
+        s = s[dot + 1:]
     
     s = s.replace(';', '')
     s = s.replace('[]', 'Array')
     if len(s) > 0:
         c = s[0].lower()
-        s =  c + s[1:]
+        s = c + s[1:]
 
     return s
     

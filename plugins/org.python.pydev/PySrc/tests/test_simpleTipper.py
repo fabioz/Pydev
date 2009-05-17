@@ -7,7 +7,7 @@ import sys
 #without the need for it being in the pythonpath)
 sys.argv[0] = os.path.dirname(sys.argv[0]) 
 #twice the dirname to get the previous level from this file.
-sys.path.insert(1, os.path.join(  os.path.dirname( sys.argv[0] )) )
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
 try:
     import __builtin__ #@UnusedImport
@@ -135,7 +135,7 @@ if sys.platform.find('java') == -1:
             for a in tips[1]:
                 if tok == a[0]:
                     return a
-            raise AssertionError('%s not in %s' %(tok, tips))
+            raise AssertionError('%s not in %s' % (tok, tips))
     
         def testInspect(self):
             

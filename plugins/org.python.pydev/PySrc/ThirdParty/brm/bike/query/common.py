@@ -14,7 +14,7 @@ class Match:
     def __repr__(self):
         return ",".join([self.filename, str(self.lineno), str(self.colno),
                          str(self.confidence)])
-    def __eq__(self,other):
+    def __eq__(self, other):
         if self is None or other is None:
             return False
         return self.filename == other.filename and \
@@ -45,12 +45,12 @@ def globalScanForMatches(contextFilename, matchFinder, targetname):
     for sourcenode in getSourceNodesContainingRegex(targetname, contextFilename):
         log.progress.write("Scanning %s\n" % (sourcenode.filename,))
         searchscope = sourcenode.fastparseroot
-        for match in scanScopeForMatches(sourcenode,searchscope,
-                                         matchFinder,targetname):
+        for match in scanScopeForMatches(sourcenode, searchscope,
+                                         matchFinder, targetname):
             yield match
 
 
-def scanScopeForMatches(sourcenode,scope,matchFinder,targetname):
+def scanScopeForMatches(sourcenode, scope, matchFinder, targetname):
     lineno = scope.getStartLine()
     for line in generateLogicalLines(scope.getMaskedLines()):
         if line.find(targetname) != -1:
@@ -59,7 +59,7 @@ def scanScopeForMatches(sourcenode,scope,matchFinder,targetname):
                 ast = compiler.parse(doctoredline)
             except :
                 log.warning.write('Error parsing: %s\n' % doctoredline)
-                log.warning.write('Params: \n--%s\n--%s\n--%s\n--%s\n' % (sourcenode,scope,matchFinder,targetname))
+                log.warning.write('Params: \n--%s\n--%s\n--%s\n--%s\n' % (sourcenode, scope, matchFinder, targetname))
                 raise
             scope = getScopeForLine(sourcenode, lineno)
             matchFinder.reset(line)
@@ -70,26 +70,26 @@ def scanScopeForMatches(sourcenode,scope,matchFinder,targetname):
                 match.filename = sourcenode.filename
                 match.sourcenode = sourcenode
                 x, y = indexToCoordinates(line, index)
-                match.lineno = lineno+y
+                match.lineno = lineno + y
                 match.colno = x
-                match.colend = match.colno+len(targetname)
+                match.colend = match.colno + len(targetname)
                 match.confidence = confidence
                 yield match
-        lineno+=line.count("\n")
+        lineno += line.count("\n")
     
 
-def walkLinesContainingStrings(scope,astWalker,targetnames):
+def walkLinesContainingStrings(scope, astWalker, targetnames):
     lineno = scope.getStartLine()
     for line in generateLogicalLines(scope.getMaskedLines()):
-        if lineContainsOneOf(line,targetnames):
+        if lineContainsOneOf(line, targetnames):
             doctoredline = makeLineParseable(line)
             ast = compiler.parse(doctoredline)
             astWalker.lineno = lineno
             matches = visitor.walk(ast, astWalker)
-        lineno+=line.count("\n")
+        lineno += line.count("\n")
 
 
-def lineContainsOneOf(line,targetnames):
+def lineContainsOneOf(line, targetnames):
     for name in targetnames:
         if line.find(name) != -1:
             return True
@@ -100,8 +100,8 @@ def lineContainsOneOf(line,targetnames):
 # returns x and y coords
 def indexToCoordinates(src, index):
     y = src[: index].count("\n")
-    startOfLineIdx = src.rfind("\n", 0, index)+1
-    x = index-startOfLineIdx
+    startOfLineIdx = src.rfind("\n", 0, index) + 1
+    x = index - startOfLineIdx
     return x, y
 
 
@@ -122,14 +122,14 @@ class MatchFinder:
             #if '\n' in word:  # handle newlines
             #    i = len(word[word.index('\n')+1:])
             #else:
-            i+=len(word)
+            i += len(word)
         self.index = 0
 
     def getMatches(self):
         return self.matches
 
     # need to visit childnodes in same order as they appear
-    def visitPrintnl(self,node):
+    def visitPrintnl(self, node):
         if node.dest:
             self.visit(node.dest)
         for n in node.nodes:
@@ -162,7 +162,7 @@ class MatchFinder:
                 self.visit(default)
         self.visit(node.code)
 
-    def visitGetattr(self,node):
+    def visitGetattr(self, node):
         self.visit(node.expr)
         self.popWordsUpTo(node.attrname)
 
@@ -208,32 +208,32 @@ class MatchFinder:
             log.warning.write('ValueError raised (communicate to bicycle repair man plugin).\n')
             log.warning.write('code that raised error (commom.py): posInWords = self.words.index(word)\n')
             try:
-                log.warning.write('WORD: %s\n'%word)
+                log.warning.write('WORD: %s\n' % word)
             except TypeError:
                 log.warning.write('Unable to get word.\n')
-            log.warning.write('SELF.WORDS: %s\n'%self.words)
+            log.warning.write('SELF.WORDS: %s\n' % self.words)
             return
         idx = self.positions[posInWords]
-        self.words = self.words[posInWords+1:]
-        self.positions = self.positions[posInWords+1:]
+        self.words = self.words[posInWords + 1:]
+        self.positions = self.positions[posInWords + 1:]
 
-    def appendMatch(self,name,confidence=100):
+    def appendMatch(self, name, confidence=100):
         idx = self.getNextIndexOfWord(name)
         self.matches.append((idx, confidence))
 
-    def getNextIndexOfWord(self,name):
+    def getNextIndexOfWord(self, name):
         return self.positions[self.words.index(name)]
 
 class CouldNotLocateNodeException(Exception): pass
 
-def translateSourceCoordsIntoASTNode(filename,lineno,col):
+def translateSourceCoordsIntoASTNode(filename, lineno, col):
     module = getModule(filename)
     maskedlines = module.getMaskedModuleLines()
-    lline,backtrackchars = getLogicalLine(module, lineno)
+    lline, backtrackchars = getLogicalLine(module, lineno)
     doctoredline = makeLineParseable(lline)
     ast = compiler.parse(doctoredline)
-    idx = backtrackchars+col
-    nodefinder = ASTNodeFinder(lline,idx)
+    idx = backtrackchars + col
+    nodefinder = ASTNodeFinder(lline, idx)
     node = compiler.walk(ast, nodefinder).node
     if node is None:
         raise CouldNotLocateNodeException("Could not translate editor coordinates into source node")
@@ -245,7 +245,7 @@ def getLogicalLine(module, lineno):
     scope = getScopeForLine(module.getSourceNode(), lineno)
     linegenerator = \
             module.generateLinesWithLineNumbers(scope.getStartLine())
-    for lline,llinenum in \
+    for lline, llinenum in \
             generateLogicalLinesAndLineNumbers(linegenerator):
         if llinenum > lineno:
             break
@@ -253,8 +253,8 @@ def getLogicalLine(module, lineno):
         prevlinenum = llinenum
 
     backtrackchars = 0
-    for i in range(prevlinenum,lineno):
-        backtrackchars += len(module.getSourceNode().getLines()[i-1])
+    for i in range(prevlinenum, lineno):
+        backtrackchars += len(module.getSourceNode().getLines()[i - 1])
     return prevline, backtrackchars
 
 
@@ -262,18 +262,18 @@ def getLogicalLine(module, lineno):
 class ASTNodeFinder(MatchFinder):
     # line is a masked line of text
     # lineno and col are coords
-    def __init__(self,line,col):
+    def __init__(self, line, col):
         self.line = line
         self.col = col
         self.reset(line)
         self.node = None
 
-    def visitName(self,node):
+    def visitName(self, node):
         if self.checkIfNameMatchesColumn(node.name):
             self.node = node
         self.popWordsUpTo(node.name)
 
-    def visitGetattr(self,node):
+    def visitGetattr(self, node):
         self.visit(node.expr)
         if self.checkIfNameMatchesColumn(node.attrname):
             self.node = node
@@ -304,10 +304,10 @@ class ASTNodeFinder(MatchFinder):
             self.visit(base)
 
 
-    def checkIfNameMatchesColumn(self,name):
+    def checkIfNameMatchesColumn(self, name):
         idx = self.getNextIndexOfWord(name)
         #print_ "name",name,"idx",idx,"self.col",self.col
-        if idx <= self.col and idx+len(name) > self.col:
+        if idx <= self.col and idx + len(name) > self.col:
             return 1
         return 0
 
@@ -325,24 +325,24 @@ class ASTNodeFinder(MatchFinder):
     # gets round the fact that imports etc dont contain nested getattr
     # nodes for fqns (e.g. import a.b.bah) by converting the fqn
     # string into a getattr instance
-    def _manufactureASTNodeFromFQN(self,fqn):
+    def _manufactureASTNodeFromFQN(self, fqn):
         if "." in fqn:
             assert 0, "getattr not supported yet"
         else:
             return Name(fqn)
 
-def isAMethod(scope,node):
-    return isinstance(node,compiler.ast.Function) and \
-           isinstance(scope,Class)
+def isAMethod(scope, node):
+    return isinstance(node, compiler.ast.Function) and \
+           isinstance(scope, Class)
 
-def convertNodeToMatchObject(node,confidence=100):
+def convertNodeToMatchObject(node, confidence=100):
     m = Match()
     m.sourcenode = node.module.getSourceNode()
     m.filename = node.filename
-    if isinstance(node,Module):
+    if isinstance(node, Module):
         m.lineno = 1
         m.colno = 0
-    elif isinstance(node,Class) or isinstance(node,Function):
+    elif isinstance(node, Class) or isinstance(node, Function):
         m.lineno = node.getStartLine()
         m.colno = node.getColumnOfName()
     m.confidence = confidence
