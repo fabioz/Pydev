@@ -14,6 +14,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -43,15 +44,28 @@ import org.python.pydev.runners.ThreadStreamReader;
  * This is the window used to handle a process. Currently specific to google app engine (could be more customizable
  * if needed).
  */
-public class ProcessWindow extends Dialog{
+public abstract class ProcessWindow extends Dialog{
+    
+    //Labels
+    private static final String SEND_TO_PROMPT_LABEL = "Send to &prompt: ";
+    private static final String SEND_LABEL = "&Send";
+    
+    private static final String EXECUTING_COMMAND_LABEL = "E&xecuting: ";
+    private static final String COMMAND_TO_EXECUTE_LABEL = "Command to e&xecute: ";
+    
+    private static final String CLOSE_LABEL = "C&lose";
+    private static final String CANCEL_LABEL = "&Cancel";
+    private static final String RUN_LABEL = "&Run";
     
     //Input
-    private Text output;
-    private IContainer container;
-    private IPythonPathNature pythonPathNature;
-    private File appcfg;
-    private File appEngineLocation;
+    protected Text output;
+    protected IContainer container;
+    protected IPythonPathNature pythonPathNature;
+    protected File appcfg;
+    protected File appEngineLocation;
     
+    //If not null, this command should be run when the interface is opened.
+    protected String initialCommand;
     
     //lock and state
     private Object lock = new Object();
@@ -72,10 +86,14 @@ public class ProcessWindow extends Dialog{
     //UI
     private Button cancelButton;
     private Button okButton;
-    private Combo commandLineArguments;
-    private Text commandText;
+    private Combo commandToExecute;
+    private Text sendToText;
 
 
+    private final int NUMBER_OF_COLUMNS = 6;
+    private Label commandToExecuteLabel;
+    
+    
     /**
      * This thread is responsible for reading from the process and writing to it asynchronously.
      */
@@ -104,7 +122,7 @@ public class ProcessWindow extends Dialog{
         
 
         /**
-         * Keep here until process is finished (natually or we finish it).
+         * Keep here until process is finished (naturally or we finish it).
          */
         public void run(){
             try{
@@ -201,9 +219,9 @@ public class ProcessWindow extends Dialog{
                     if(split.size() > 0){
                         String last = split.get(split.size()-1);
                         if(last.toLowerCase().indexOf("password for") != -1){
-                            ProcessWindow.this.commandText.setEchoChar('*');
+                            ProcessWindow.this.sendToText.setEchoChar('*');
                         }else{
-                            ProcessWindow.this.commandText.setEchoChar('\0');
+                            ProcessWindow.this.sendToText.setEchoChar('\0');
                         }
                     }
                     
@@ -230,6 +248,11 @@ public class ProcessWindow extends Dialog{
         setShellStyle(getShellStyle() | SWT.RESIZE);
     }
     
+    protected void configureShell(final Shell shell) {
+        super.configureShell(shell);
+        shell.setText("Manage Google App Engine");
+    }
+    
 
     /**
      * Create the dialog contents
@@ -240,7 +263,7 @@ public class ProcessWindow extends Dialog{
 
         Composite composite = new Composite(top, SWT.None);
         composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        composite.setLayout(new GridLayout(3, false));
+        composite.setLayout(new GridLayout(NUMBER_OF_COLUMNS, false));
 
         createLabel(composite, "Arguments to pass to: "+appcfg.getAbsolutePath());
         createLabel(composite, "The command line can be changed as needed.");
@@ -256,64 +279,88 @@ public class ProcessWindow extends Dialog{
                 Program.launch("http://code.google.com/appengine/docs/python/tools/uploadinganapp.html");
             }}
         );
-        
-        
-        commandLineArguments = new Combo(composite, SWT.SINGLE | SWT.BORDER);
         GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
-        gridData.horizontalSpan = 3;
-        commandLineArguments.setLayoutData(gridData);
-        commandLineArguments.setItems(new String[]{
-                "update --secure "+container.getLocation().toOSString(),
-                "rollback --secure "+container.getLocation().toOSString(),
-                "update_indexes --secure "+container.getLocation().toOSString(),
-                "vacuum_indexes --secure "+container.getLocation().toOSString(),
-                "request_logs --secure "+container.getLocation().toOSString()+ " my_output_file.log",
-        });
+        gridData.horizontalSpan = NUMBER_OF_COLUMNS;
+        link.setLayoutData(gridData);
 
-        commandLineArguments.setText("update --secure "+container.getLocation().toOSString());
+        
+        
+        //--- Command to execute
+        commandToExecuteLabel = createLabel(composite, COMMAND_TO_EXECUTE_LABEL, 1);
+        commandToExecute = new Combo(composite, SWT.SINGLE | SWT.BORDER);
+        gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData.horizontalSpan = NUMBER_OF_COLUMNS-2; //1 from the label and 1 from the button
+        gridData.grabExcessHorizontalSpace = true;
+        commandToExecute.setLayoutData(gridData);
+        String[] availableCommands = getAvailableCommands();
+        commandToExecute.setItems(availableCommands);
+        commandToExecute.setText(availableCommands[0]);
+        
+        okButton = createButton(composite, RUN_LABEL, 1, SWT.PUSH);
+        okButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+                buttonPressed(IDialogConstants.OK_ID);
+            }
+        });
+        okButton.setData(IDialogConstants.OK_ID);
+        
+        
+        
+        //--- main output
+        output = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY);
+        gridData = new GridData(GridData.FILL_BOTH);
+        gridData.horizontalSpan = NUMBER_OF_COLUMNS;
+        gridData.grabExcessHorizontalSpace = true;
+        gridData.grabExcessVerticalSpace = true;
+        output.setLayoutData(gridData);
+
         
         
         //--- Send any command to the shell
-        commandText = createText(composite, 2);
-        Button button = createButton(composite, "Enter command", 1, SWT.PUSH);
-        button.addSelectionListener(new SelectionListener(){
-        
-            public void widgetSelected(SelectionEvent e){
-                addCurrentCommand();
-            }
-        
-            public void widgetDefaultSelected(SelectionEvent e){
-            }
-        });
-        commandText.addKeyListener(new KeyListener(){
+        createLabel(composite, SEND_TO_PROMPT_LABEL, 1);
+        sendToText = createText(composite, NUMBER_OF_COLUMNS-2); //1 from the label and 1 from the button
+        sendToText.addKeyListener(new KeyListener(){
             
             public void keyReleased(KeyEvent e){
                 if(e.character == '\r' || e.character == '\n'){
                     addCurrentCommand();
                 }
             }
-        
+            
             public void keyPressed(KeyEvent e){
             }
         });
+        Button button = createButton(composite, SEND_LABEL, 1, SWT.PUSH);
+        button.addSelectionListener(new SelectionAdapter(){
+            public void widgetSelected(SelectionEvent e){
+                addCurrentCommand();
+            }
+        });
 
-        //--- main output
-        output = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY);
-        gridData = new GridData(GridData.FILL_BOTH);
-        gridData.horizontalSpan = 3;
-        gridData.grabExcessHorizontalSpace = true;
-        gridData.grabExcessVerticalSpace = true;
-        output.setLayoutData(gridData);
 
         return top;
     }
 
-    private void createLabel(Composite composite, String message){
+
+
+
+    /**
+     * Subclasses should override to provide the commands available to be executed.
+     */
+    protected abstract String[] getAvailableCommands();
+
+    
+    private Label createLabel(Composite composite, String message){
+        return createLabel(composite, message, NUMBER_OF_COLUMNS);
+    }
+    
+    private Label createLabel(Composite composite, String message, int horizontalSpan){
         Label label = new Label(composite, SWT.None);
         label.setText(message);
         GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
-        gridData.horizontalSpan = 3;
+        gridData.horizontalSpan = horizontalSpan;
         label.setLayoutData(gridData);
+        return label;
     }
     
     
@@ -324,64 +371,97 @@ public class ProcessWindow extends Dialog{
     }
 
     protected void createButtonsForButtonBar(Composite parent){
-        okButton = createButton(parent, IDialogConstants.OK_ID, "&Run", true);
-        cancelButton = createButton(parent, IDialogConstants.CANCEL_ID, "&Close", false);
+        cancelButton = createButton(parent, IDialogConstants.CANCEL_ID, CLOSE_LABEL, false);
     }
+    
 
+    /**
+     * Overridden to execute the initial command if we had one set.
+     */
+    @Override
+    public void create(){
+        super.create();
+        //After creating things, execute the initial command if it was set.
+        this.okButton.setFocus();
+        if(this.initialCommand != null){
+            commandToExecute.setText(this.initialCommand);
+            this.okPressed();
+        }
+    }
+    
+    /**
+     * The Ok is used for Run/Cancel.
+     */
     @Override
     protected void okPressed(){
-        if(state == STATE_NOT_RUNNING){
-            onStartRun();
-            run();
-            
-            okButton.setEnabled(false);
-            cancelButton.setText("&Cancel");
+        synchronized(lock){
+            if(state == STATE_NOT_RUNNING){
+                state = STATE_RUNNING;
+                run();
+                
+                commandToExecuteLabel.setText(EXECUTING_COMMAND_LABEL);
+                commandToExecute.setEnabled(false);
+                cancelButton.setEnabled(false);
+                okButton.setText(CANCEL_LABEL);
+            }else{
+                //We're running... this means it meant a cancel.
+                cancelRun();
+            }
+        }
+    }
+    
+    /**
+     * Requests the process to be canceled (when it's possible to do so). onEndRun() is called after
+     * it's successfully canceled.
+     */
+    private void cancelRun(){
+        //Running: cancel it.
+        ProcessHandler handler = this.processHandler;
+        if(handler != null){
+            handler.forceQuit = true;
         }
     }
 
     
-    private void onStartRun(){
-        state = STATE_RUNNING;
-    }
-    
     private void onEndRun(){
-        state = STATE_NOT_RUNNING;
-        Display.getDefault().asyncExec(new Runnable(){
-        
-            public void run(){
-                okButton.setEnabled(true);
-                cancelButton.setText("&Close");
-            }
-        });
+        synchronized(lock){
+            state = STATE_NOT_RUNNING;
+            Display.getDefault().asyncExec(new Runnable(){
+            
+                public void run(){
+                    commandToExecuteLabel.setText(COMMAND_TO_EXECUTE_LABEL);
+                    commandToExecute.setEnabled(true);
+                    cancelButton.setEnabled(true);
+                    okButton.setText(RUN_LABEL);
+                }
+            });
+        }
     }
 
     
     public boolean close(){
-        if(state == STATE_NOT_RUNNING){
-            return super.close();
-        }else{
-            //Running: cancel it.
-            ProcessHandler handler = this.processHandler;
-            if(handler != null){
-                handler.forceQuit = true;
+        synchronized(lock){
+            if(state == STATE_NOT_RUNNING){
+                return super.close();
+            }else{
+                cancelRun();
+                return false;
             }
-            return false;
         }
     }
 
     
     @Override
     protected void cancelPressed(){
-        if(state == STATE_NOT_RUNNING){
-            super.cancelPressed();
-        }else{
-            //Running: cancel it.
-            ProcessHandler handler = this.processHandler;
-            if(handler != null){
-                handler.forceQuit = true;
+        synchronized(lock){
+            if(state == STATE_NOT_RUNNING){
+                super.cancelPressed();
+            }else{
+                cancelRun();
             }
         }
     }
+
 
     public void setParameters(IContainer container, IPythonPathNature pythonPathNature, File appcfg,
             File appEngineLocation){
@@ -402,7 +482,7 @@ public class ProcessWindow extends Dialog{
                 IInterpreterInfo interpreterInfo = pythonPathNature.getNature().getProjectInterpreter();
                 String executableOrJar = interpreterInfo.getExecutableOrJar();
     
-                String cmdLineArguments = commandLineArguments.getText().trim();
+                String cmdLineArguments = commandToExecute.getText().trim();
                 List<String> arguments = new ArrayList<String>();
                 if(cmdLineArguments.length() > 0){
                     arguments = StringUtils.split(cmdLineArguments, ' ');
@@ -438,12 +518,20 @@ public class ProcessWindow extends Dialog{
     private Button createButton(Composite composite, String label, int colSpan, int style){
         Button button = new Button(composite, style);
         button.setText(label);
-        GridData gridData = new GridData();
-        gridData.horizontalSpan = colSpan;
-        button.setLayoutData(gridData);
+        setButtonLayout(button, colSpan);
         return button;
     }
 
+
+    private void setButtonLayout(Button button, int colSpan){
+        GridData gridData;
+        gridData = new GridData(GridData.FILL_HORIZONTAL);
+        gridData.horizontalSpan = colSpan;
+        gridData.grabExcessHorizontalSpace = true;
+        button.setLayoutData(gridData);
+    }
+    
+    
     private Text createText(Composite composite, int colSpan){
         Text text = new Text(composite, SWT.SINGLE | SWT.BORDER);
         GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
@@ -455,11 +543,14 @@ public class ProcessWindow extends Dialog{
     private void addCurrentCommand(){
         ProcessHandler p = processHandler;
         if(p != null){
-            String text = commandText.getText();
-            commandText.setText("");
+            String text = sendToText.getText();
+            sendToText.setText("");
             p.addCommandText(text+"\n");
         }
     }
 
+    public void setInitialCommandToRun(String initialCommand){
+        this.initialCommand = initialCommand;
+    }
 
 }

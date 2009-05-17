@@ -93,9 +93,9 @@
     
     <extension point="org.eclipse.ui.commands">
       <command
-            description="Manage the project in Google App Engine"
+            description="Manage project"
             id="org.python.pydev.customizations.app_engine.actions.AppEngineManage"
-            name="Pydev: Manage project in Google App Engine">
+            name="Manage project">
       </command>
     </extension>
     
@@ -116,24 +116,72 @@
       </handler>
     </extension>
     
+    <extension point="org.eclipse.ui.commands">
+      <command
+            description="Upload project"
+            id="org.python.pydev.customizations.app_engine.actions.AppEngineUpload"
+            name="Upload project">
+      </command>
+    </extension>
+    
+    
+    <extension point="org.eclipse.ui.handlers">
+      <handler
+            class="org.python.pydev.customizations.app_engine.actions.AppEngineUpload"
+            commandId="org.python.pydev.customizations.app_engine.actions.AppEngineUpload">
+         <enabledWhen>
+            <with variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
+               </iterate>
+            </with>
+         </enabledWhen>
+      </handler>
+    </extension>
+    
     
     <extension point="org.eclipse.ui.menus">
-      <menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-         <command
-               commandId="org.python.pydev.customizations.app_engine.actions.AppEngineManage"
-               icon="icons/AppEngine-16.png"
-               style="push">
-            <visibleWhen>
-                <with variable="selection">
-                   <iterate
-                         ifEmpty="false"
-                         operator="and">
-                      <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
-                   </iterate>
-                </with>
-            </visibleWhen>
-         </command>
-      </menuContribution>
+        <menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+            <menu
+            icon="icons/AppEngine-16.png"
+            id="org.python.pydev.customizations.app_engine"
+            label="Pydev: Google App Engine">
+            
+            
+                <command
+                    commandId="org.python.pydev.customizations.app_engine.actions.AppEngineManage"
+                    style="push">
+                    <visibleWhen>
+                        <with variable="selection">
+                            <iterate
+                                ifEmpty="false"
+                                operator="and">
+                               <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
+                            </iterate>
+                        </with>
+                    </visibleWhen>
+                </command>
+                
+            
+                <command
+                    commandId="org.python.pydev.customizations.app_engine.actions.AppEngineUpload"
+                    style="push">
+                    <visibleWhen>
+                        <with variable="selection">
+                            <iterate
+                                ifEmpty="false"
+                                operator="and">
+                               <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
+                            </iterate>
+                        </with>
+                    </visibleWhen>
+                </command>
+                
+                
+            </menu>
+        </menuContribution>
     </extension>
     
     

@@ -8,14 +8,17 @@ import org.python.pydev.customizations.app_engine.util.AppEngineProcessWindow;
 import org.python.pydev.editor.actions.PyAction;
 
 /**
- * Just opens a dialog where the user can manage things.
+ * Opens the dialog for the user to manage things running the update command right after it's opened.
  */
-public class AppEngineManage extends AbstractAppEngineHandler{
+public class AppEngineUpload extends AbstractAppEngineHandler{
 
-    protected void handleExecution(IContainer container, IPythonPathNature pythonPathNature, File appcfg, File appEngineLocation){
+    @Override
+    protected void handleExecution(IContainer container, IPythonPathNature pythonPathNature, File appcfg,
+            File appEngineLocation){
         AppEngineProcessWindow processWindow = new AppEngineProcessWindow(PyAction.getShell());
         processWindow.setParameters(container, pythonPathNature, appcfg, appEngineLocation);
+        processWindow.setInitialCommandToRun(AppEngineProcessWindow.getUpdateCommand(container));
         processWindow.open();
     }
-    
+
 }
