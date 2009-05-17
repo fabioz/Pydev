@@ -332,7 +332,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
                     int line = NodeUtils.getLineDefinition(target);
                     int col = NodeUtils.getColDefinition(target);
                 
-                    AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope, module.get());
+                    AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope, module.get(), nodeValue);
                     
                     //mark it as global (if it was found as global in some of the previous contexts).
                     for(Set<String> globals: globalDeclarationsStack){

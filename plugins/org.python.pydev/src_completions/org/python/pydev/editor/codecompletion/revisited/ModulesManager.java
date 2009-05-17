@@ -41,6 +41,14 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModuleForZip;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
@@ -460,61 +468,71 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                     
                 } else {
                     //file exists
+                    n = checkOverride(name, nature, n);
                     
                     
-                    //ok, handle case where the file is actually from a zip file...
-                    if (e instanceof EmptyModuleForZip) {
-                        EmptyModuleForZip emptyModuleForZip = (EmptyModuleForZip) e;
-                        
-                        if(emptyModuleForZip.pathInZip.endsWith(".class") || !emptyModuleForZip.isFile){
-                            //handle java class... (if it's a class or a folder in a jar)
-                            n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip);
+                    if(n instanceof EmptyModule){
+                        //ok, handle case where the file is actually from a zip file...
+                        if (e instanceof EmptyModuleForZip) {
+                            EmptyModuleForZip emptyModuleForZip = (EmptyModuleForZip) e;
                             
-                        }else if(FileTypesPreferencesPage.isValidDll(emptyModuleForZip.pathInZip)){
-                            //.pyd
-                            n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                            if(emptyModuleForZip.pathInZip.endsWith(".class") || !emptyModuleForZip.isFile){
+                                //handle java class... (if it's a class or a folder in a jar)
+                                n = JythonModulesManagerUtils.createModuleFromJar(emptyModuleForZip);
+                                n = decorateModule(n, nature);
+                                
+                            }else if(FileTypesPreferencesPage.isValidDll(emptyModuleForZip.pathInZip)){
+                                //.pyd
+                                n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                                n = decorateModule(n, nature);
+                                
+                            }else if(PythonPathHelper.isValidSourceFile(emptyModuleForZip.pathInZip)){
+                                //handle python file from zip... we have to create it getting the contents from the zip file
+                                try {
+                                    IDocument doc = REF.getDocFromZip(emptyModuleForZip.f, emptyModuleForZip.pathInZip);
+                                    //NOTE: The nature (and so the grammar to be used) must be defined by this modules
+                                    //manager (and not by the initial caller)!!
+                                    n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc, this.getNature(), -1, false);
+                                    SourceModule zipModule = (SourceModule) n;
+                                    zipModule.zipFilePath = emptyModuleForZip.pathInZip;
+                                    n = decorateModule(n, nature);
+                                } catch (Exception exc1) {
+                                    PydevPlugin.log(exc1);
+                                    n = null;
+                                }
+                            }
                             
-                        }else if(PythonPathHelper.isValidSourceFile(emptyModuleForZip.pathInZip)){
-                            //handle python file from zip... we have to create it getting the contents from the zip file
+                            
+                        } else {
+                            //regular case... just go on and create it.
                             try {
-                                IDocument doc = REF.getDocFromZip(emptyModuleForZip.f, emptyModuleForZip.pathInZip);
                                 //NOTE: The nature (and so the grammar to be used) must be defined by this modules
                                 //manager (and not by the initial caller)!!
-                                n = AbstractModule.createModuleFromDoc(name, emptyModuleForZip.f, doc, this.getNature(), -1, false);
-                                SourceModule zipModule = (SourceModule) n;
-                                zipModule.zipFilePath = emptyModuleForZip.pathInZip;
-                            } catch (Exception exc1) {
-                                PydevPlugin.log(exc1);
+                                n = AbstractModule.createModule(name, e.f, this.getNature(), -1);
+                                n = decorateModule(n, nature);
+                            } catch (IOException exc) {
+                                keyForCacheAccess.name = name;
+                                keyForCacheAccess.file = e.f;
+                                doRemoveSingleModule(keyForCacheAccess);
                                 n = null;
+                            } catch (MisconfigurationException exc) {
+                                PydevPlugin.log(exc);
+                                n=null;
                             }
                         }
-                        
-                        
-                    } else {
-                        //regular case... just go on and create it.
-                        try {
-                            //NOTE: The nature (and so the grammar to be used) must be defined by this modules
-                            //manager (and not by the initial caller)!!
-                            n = AbstractModule.createModule(name, e.f, this.getNature(), -1);
-                        } catch (IOException exc) {
-                            keyForCacheAccess.name = name;
-                            keyForCacheAccess.file = e.f;
-                            doRemoveSingleModule(keyForCacheAccess);
-                            n = null;
-                        } catch (MisconfigurationException exc) {
-                            PydevPlugin.log(exc);
-                            n=null;
-                        }
                     }
-                    
                     
                 }
 
             } else { //ok, it does not have a file associated, so, we treat it as a builtin (this can happen in java jars)
-                if (acceptCompiledModule) {
-                    n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
-                } else {
-                    return null;
+                n = checkOverride(name, nature, n);
+                if(n instanceof EmptyModule){
+                    if (acceptCompiledModule) {
+                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                        n = decorateModule(n, nature);
+                    } else {
+                        return null;
+                    }
                 }
             }
 
@@ -534,12 +552,58 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             if(sourceModule.isBootstrapModule()){
                 //if it's a bootstrap module, we must replace it for the related compiled module.
                 n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                n = decorateModule(n, nature);
+            }
+        }
+        
+        return n;
+    }
+    
+    /**
+     * Called after the creation of any module. Used as a workaround for filling tokens that are in no way
+     * available in the code-completion through the regular inspection.
+     * 
+     * The django objects class is the reason why this happens... It's structure for the creation on a model class
+     * follows no real patterns for the creation of the 'objects' attribute in the class, and thus, we have no
+     * real generic way of discovering it (actually, even by looking at the class definition this is very obscure),
+     * so, the solution found is creating the objects by decorating the module with that info.
+     */
+    private AbstractModule decorateModule(AbstractModule n, IPythonNature nature){
+        if(n instanceof SourceModule && "django.db.models.base".equals(n.getName())){
+            SourceModule sourceModule = (SourceModule) n;
+            SimpleNode ast = sourceModule.getAst();
+            for(SimpleNode node:((Module)ast).body){
+                if(node instanceof ClassDef && "Model".equals(NodeUtils.getRepresentationString(node))){
+                    ClassDef classDef = (ClassDef) node;
+                    stmtType[] newBody = new stmtType[classDef.body.length+1];
+                    System.arraycopy(classDef.body, 0, newBody, 1, classDef.body.length);
+                    
+                    //Note that the line/col is important so that we correctly acknowledge it inside the "class Model" scope. 
+                    Name name = new Name("objects", Name.Store, false);
+                    name.beginColumn = classDef.beginColumn+4;
+                    name.beginLine = classDef.beginLine+1;
+                    newBody[0] = new Assign(
+                            new exprType[]{name}, 
+                            NodeUtils.makeAttribute("django.db.models.manager.Manager()")
+                    );
+                    newBody[0].beginColumn = classDef.beginColumn+4;
+                    newBody[0].beginLine = classDef.beginLine+1;
+                    classDef.body = newBody;
+                    break;
+                }
             }
         }
         return n;
     }
-    
 
+    
+    /**
+     * Hook called to give clients a chance to override the module created (still experimenting, so, it's not public).
+     */
+    private AbstractModule checkOverride(String name, IPythonNature nature, AbstractModule emptyModule){
+        return emptyModule;
+    }
+    
 
     private ModulesKey createModulesKey(String name, File f) {
         ModulesKey newEntry = new ModulesKey(name, f);

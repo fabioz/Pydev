@@ -8,6 +8,7 @@ package org.python.pydev.editor.codecompletion.revisited.visitors;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.exprType;
 
 
 public class AssignDefinition extends Definition{
@@ -15,7 +16,7 @@ public class AssignDefinition extends Definition{
     /**
      * This is the token name.
      */
-    public String target;
+    public final String target;
     
     /**
      * This is the position in the target.
@@ -27,12 +28,18 @@ public class AssignDefinition extends Definition{
      * and we're looking for b, target pos would be 1
      * if we were looking for a, target pos would be 0
      */
-    public int targetPos;
+    public final int targetPos;
 
     /**
      * Determines that a 'global' was added for the target before this assign
      */
     public boolean foundAsGlobal;
+
+    /**
+     * This is the value node found (can be used later to determine if it's a
+     * Call or some regular attribute.
+     */
+    public final exprType nodeValue;
     
     /**
      * Constructor.
@@ -41,10 +48,12 @@ public class AssignDefinition extends Definition{
      * @param ast
      * @param line
      * @param col
+     * @param nodeValue 
      */
-    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col, ILocalScope scope, IModule module){
+    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col, ILocalScope scope, IModule module, exprType nodeValue){
         super(line, col, value, ast, scope, module);
         this.target = target;
         this.targetPos = targetPos;
+        this.nodeValue = nodeValue;
     }
 }

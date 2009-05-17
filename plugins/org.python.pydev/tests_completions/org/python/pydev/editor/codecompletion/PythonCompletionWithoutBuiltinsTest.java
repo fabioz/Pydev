@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testMultilineImportCompletion();
+          test.testAcessInstanceOnClass();
           test.tearDown();
           System.out.println("Finished");
 
@@ -1210,6 +1210,20 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertNull(nature.getAstManager().getModule("extendable.invalid-module", nature, true));
         assertNull(nature.getAstManager().getModule("extendable.invalid+module", nature, true));
     }
+    
+    public void testAcessInstanceOnClass() throws Exception {
+        String s = 
+            "import testAssist.assist.ExistingClass\n" +
+            "\n" +
+            "class A:\n" +
+            "    \n" +
+            "    objects = testAssist.assist.ExistingClass()\n" +
+            "" +
+            "A.objects.";
+        
+        requestCompl(s, -1, new String[] {"existingMethod()"});
+    }
+    
     
 }
 

@@ -371,6 +371,9 @@ public abstract class SimpleRunner {
      */
     protected Tuple<String, String> getProcessOutput(Process process,
             String executionString, IProgressMonitor monitor) {
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
         if (process != null) {
 
             try {

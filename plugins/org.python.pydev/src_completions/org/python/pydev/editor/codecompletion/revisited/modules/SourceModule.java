@@ -437,6 +437,16 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                         d = visitor.definitions.get(0);
                                         value = d.value;
                                         if(d instanceof AssignDefinition){
+                                            //Yes, at this point we really are looking for an assign!
+                                            //E.g.:
+                                            //
+                                            //import my.module
+                                            //
+                                            //class A:
+                                            //    objects = my.module.Class()
+                                            //
+                                            //This happens when completing on A.objects.
+                                            initialState.setLookingFor(ICompletionState.LOOKING_FOR_ASSIGN, true);
                                             return getValueCompletions(initialState, manager, value, d.module);
                                         }
                                     }else{

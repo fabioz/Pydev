@@ -12,7 +12,6 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -66,7 +65,6 @@ public class FindScopeVisitor extends AbstractVisitor {
     /**
      * @see org.python.pydev.parser.jython.ast.VisitorBase#unhandled_node(org.python.pydev.parser.jython.SimpleNode)
      */
-    @SuppressWarnings("unchecked")
     protected Object unhandled_node(SimpleNode node) throws Exception {
         //the line passed in starts at 1 and the lines for the visitor nodes start at 0
         if(! found && !(node instanceof Module)){
@@ -120,7 +118,7 @@ public class FindScopeVisitor extends AbstractVisitor {
             node.traverse(this);
             stackScope.pop();
         }
-        return super.visitClassDef(node);
+        return null;
     }
     
     /**
@@ -132,7 +130,7 @@ public class FindScopeVisitor extends AbstractVisitor {
             node.traverse(this);
             stackScope.pop();
         }
-        return super.visitFunctionDef(node);
+        return null;
     }
 
     @Override

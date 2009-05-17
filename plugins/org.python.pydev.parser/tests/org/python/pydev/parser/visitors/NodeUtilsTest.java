@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -26,6 +29,18 @@ public class NodeUtilsTest extends PyParserTestBase {
     }
 
     public void testFullRep() throws Exception {
+        Module node = (Module) parseLegalDocStr("a.b.c.d");
+        exprType attr = ((Expr)node.body[0]).value;
+        assertEquals("a.b.c.d", NodeUtils.getFullRepresentationString(attr));
+        exprType attr1 = NodeUtils.makeAttribute("a.b.c.d");
+        assertEquals("a.b.c.d", NodeUtils.getFullRepresentationString(attr1));
+        assertEquals(attr1.toString(), attr.toString());
+        
+        node = (Module) parseLegalDocStr("a.b.c.d()");
+        exprType callAttr = NodeUtils.makeAttribute("a.b.c.d()");
+        assertEquals(((Expr)node.body[0]).value.toString(), callAttr.toString());
+        
+        
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(
                 "print a.b.c().d.__class__"));
         

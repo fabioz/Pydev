@@ -170,4 +170,21 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(new HashSet<String>(Arrays.asList(info.updateEnv(original2))), new HashSet<String>(Arrays.asList(expected2)));
         
     }
+    
+    public void testInfoIgnoreDjangoForcedBuiltin() throws Exception {
+        List<String> l1 = new ArrayList<String>();
+        List<String> l2 = new ArrayList<String>();
+        List<String> lForcedBuiltins = new ArrayList<String>();
+        lForcedBuiltins.add("__builtin__");
+        lForcedBuiltins.add("__main__");
+        lForcedBuiltins.add("_bisect");
+        lForcedBuiltins.add("django");
+        lForcedBuiltins.add("django.db");
+        InterpreterInfo info = new InterpreterInfo("2.4", "C:\\bin\\Python24\\python.exe", l1, l2, lForcedBuiltins);
+        List<String> asList = Arrays.asList(info.getBuiltins());
+        assertTrue(!asList.contains("django"));
+        assertTrue(!asList.contains("django.db"));
+    }
+    
+    
 }

@@ -49,6 +49,9 @@ import org.python.pydev.ui.UIConstants;
 
 public class InterpreterInfo implements IInterpreterInfo{
     
+    //We want to force some libraries to be analyzed as source (e.g.: django)
+    private static String[] LIBRARIES_TO_IGNORE_AS_FORCED_BUILTINS = new String[]{"django"};
+    
     /**
      * For jython, this is the jython.jar
      * 
@@ -64,22 +67,6 @@ public class InterpreterInfo implements IInterpreterInfo{
      * folders - they should be passed to the pythonpath
      */
     public final java.util.List<String> libs = new ArrayList<String>(); 
-    
-    /**
-     * Those libraries are not really used in python (they are found in the system pythonpath), and 
-     * don't need to be passed in the pythonpath (they are only here so that the user can see
-     * this information)
-     *  
-     * files: .pyd, .dll, etc.
-     * 
-     * for jython, the jars should appear here.
-     * 
-     * This attribute is simply not used, so, it is deprecated (it's only maintained for backward
-     * compatibility of the string representation of the InterpreterInfo, but should not be
-     * used anywhere.)
-     */
-    @Deprecated
-    private java.util.List<String> dllLibs = new ArrayList<String>(); 
     
     /**
      * __builtin__, os, math, etc for python 
@@ -155,8 +142,6 @@ public class InterpreterInfo implements IInterpreterInfo{
     public InterpreterInfo(String version, String exe, Collection<String> libs0){
         this.executableOrJar = exe;
         this.version = version;
-        //deprecated (keep it cleared)
-        dllLibs.clear();
 
         setModulesManager(new SystemModulesManager());
         libs.addAll(libs0);
@@ -172,7 +157,11 @@ public class InterpreterInfo implements IInterpreterInfo{
 
     public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced, List<String> envVars) {
         this(version, exe, libs0, dlls);
-        forcedLibs.addAll(forced);
+        for(String s:forced){
+            if(!isForcedLibToIgnore(s)){
+                forcedLibs.add(s);
+            }
+        }
         
         if(envVars == null){
             this.setEnvVariables(null);
@@ -576,8 +565,27 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
 
     public void addForcedLib(String forcedLib) {
+        if(isForcedLibToIgnore(forcedLib)){
+            return;
+        }
         this.forcedLibs.add(forcedLib);
         this.builtinsCache = null;
+    }
+
+    /**
+     * @return true if the passed forced lib should not be added to the forced builtins.
+     */
+    private boolean isForcedLibToIgnore(String forcedLib){
+        if(forcedLib == null){
+            return true;
+        }
+        //We want django to be always analyzed as source
+        for(String s:LIBRARIES_TO_IGNORE_AS_FORCED_BUILTINS){
+            if(forcedLib.equals(s) || forcedLib.startsWith(s+".")){
+                return true;
+            }
+        }
+        return false;
     }
 
     public void removeForcedLib(String forcedLib) {

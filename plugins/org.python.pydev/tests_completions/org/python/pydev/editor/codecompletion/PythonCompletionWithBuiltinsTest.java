@@ -36,7 +36,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testDeepNested8();
+            builtins.testDjango2();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -87,7 +87,10 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+
                 TestDependent.PYTHON_WXPYTHON_PACKAGES+"|"+
                 TestDependent.PYTHON_MX_PACKAGES+"|"+
-                TestDependent.PYTHON_NUMPY_PACKAGES, false);
+                TestDependent.PYTHON_NUMPY_PACKAGES+"|"+
+                TestDependent.PYTHON_DJANGO_PACKAGES
+                
+                , false);
         
         codeCompletion = new PyCodeCompletion();
 
@@ -442,6 +445,35 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
             assertEquals("os", findDefinition[0].module.getName());
         } finally {
             isInTestFindDefinition = false;
+        }
+    }
+    
+    
+    public void testDjango() throws Exception{
+        if(TestDependent.PYTHON_DJANGO_PACKAGES != null){
+            String s = 
+                "from django.db import models\n" +
+                "\n" +
+                "class HelperForPydevCompletion(models.Model):\n" +
+                "    helper = models.IntegerField()\n" +
+                "\n" +
+                "HelperForPydevCompletion.";
+            
+            requestCompl(s, -1, new String[] {"objects"});
+        }
+    }
+    
+    public void testDjango2() throws Exception{
+        if(TestDependent.PYTHON_DJANGO_PACKAGES != null){
+            String s = 
+                "from django.db import models\n" +
+                "\n" +
+                "class HelperForPydevCompletion(models.Model):\n" +
+                "    helper = models.IntegerField()\n" +
+                "\n" +
+                "HelperForPydevCompletion.objects.";
+            
+            requestCompl(s, -1, new String[] {"get()"});
         }
     }
     

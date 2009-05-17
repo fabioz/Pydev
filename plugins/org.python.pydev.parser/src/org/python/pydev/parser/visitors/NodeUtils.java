@@ -8,8 +8,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
@@ -795,6 +797,55 @@ public class NodeUtils {
         }
         
         return true;
+    }
+
+
+    /**
+     * Creates an attribute from the passed string
+     * 
+     * @param attrString: A string as 'a.b.c' or 'self.b' (at least one dot must be in the string) or self.xx()
+     * Note that the call is only accepted as the last part.
+     * @return an Attribute representing the string.
+     */
+    public static exprType makeAttribute(String attrString){
+        List<String> dotSplit = StringUtils.dotSplit(attrString);
+        Assert.isTrue(dotSplit.size() > 1);
+        
+        exprType first = null;
+        Attribute last = null;
+        Attribute attr = null;
+        for(int i=dotSplit.size()-1;i>0;i--){
+            Call call = null;
+            String part = dotSplit.get(i);
+            if(part.endsWith("()")){
+                if(i == dotSplit.size()-1){
+                    part = part.substring(0, part.length()-2);
+                    call = new Call(null, new exprType[0], new keywordType[0], null, null);
+                    first = call;
+                }else{
+                    throw new RuntimeException("Call only accepted in the last part.");
+                }
+            }
+            attr = new Attribute(null, new NameTok(part, NameTok.Attrib), Attribute.Load);
+            if(call != null){
+                call.func = attr;
+            }
+            if(last != null){
+                last.value = attr;
+            }
+            last = attr;
+            if(first == null){
+                first = last;
+            }
+        }
+        
+        String lastPart = dotSplit.get(0);
+        if(lastPart.endsWith("()")){
+            last.value = new Call(new Name(lastPart.substring(0, lastPart.length()-2), Name.Load, false), null, null, null, null);
+        }else{
+            last.value = new Name(lastPart, Name.Load, false);
+        }
+        return first;
     }
 
 }
