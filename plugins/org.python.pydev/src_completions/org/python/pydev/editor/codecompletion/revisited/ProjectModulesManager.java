@@ -477,7 +477,8 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
                         list.add((IModulesManager) projectModulesManager);
                     }
                 }else{
-                    Log.log(IStatus.WARNING, "No ast manager configured for :"+project.getName(), null);
+                    String msg = "No ast manager configured for :"+project.getName();
+                    Log.log(IStatus.WARNING, msg, new RuntimeException(msg));
                 }
             }
             IModulesManager javaModulesManagerForProject = JavaProjectModulesManagerCreator.createJavaProjectModulesManagerIfPossible(project);

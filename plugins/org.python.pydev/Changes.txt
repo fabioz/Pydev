@@ -17,6 +17,7 @@ Fixed problem on code-completion when file is not in the workspace (SystemASTMan
 Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)
 __future__ imports are always added/reorganized as the 1st import in the module
 Code-completion in Jython recognizes that a method get/setName should be available as a 'name' property. 
+Finding 'objects' for django (and always forcing it to be a source module -- and not a forced builtin)
 
 Pydev Package Explorer
     Added filter for the python nodes
