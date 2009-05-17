@@ -25,20 +25,20 @@ class TracingFunctionHolder:
 def GetExceptionTracebackStr():
     exc_info = sys.exc_info()
     s = StringIO.StringIO()
-    traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file = s)
+    traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], file=s)
     return s.getvalue()
 
 def _GetStackStr(frame):
     
-    msg = '\nIf this is needed, please check: '+\
-          '\nhttp://pydev.blogspot.com/2007/06/why-cant-pydev-debugger-work-with.html'+\
+    msg = '\nIf this is needed, please check: ' + \
+          '\nhttp://pydev.blogspot.com/2007/06/why-cant-pydev-debugger-work-with.html' + \
           '\nto see how to restore the debug tracing back correctly.\n' 
           
     if TracingFunctionHolder._traceback_limit:
         s = StringIO.StringIO()
         s.write('Call Location:\n')
-        traceback.print_stack(f=frame, limit=TracingFunctionHolder._traceback_limit, file = s)
-        msg = msg+s.getvalue()
+        traceback.print_stack(f=frame, limit=TracingFunctionHolder._traceback_limit, file=s)
+        msg = msg + s.getvalue()
     
     return msg
 
@@ -48,9 +48,9 @@ def _InternalSetTrace(tracing_func):
         if not frame.f_back.f_code.co_filename.lower().endswith('threading.py'):
             
             message = \
-            '\nPYDEV DEBUGGER WARNING:'+\
-            '\nsys.settrace() should not be used when the debugger is being used.'+\
-            '\nThis may cause the debugger to stop working correctly.'+\
+            '\nPYDEV DEBUGGER WARNING:' + \
+            '\nsys.settrace() should not be used when the debugger is being used.' + \
+            '\nThis may cause the debugger to stop working correctly.' + \
             '%s' % _GetStackStr(frame.f_back)
             
             if message not in TracingFunctionHolder._warnings_shown:

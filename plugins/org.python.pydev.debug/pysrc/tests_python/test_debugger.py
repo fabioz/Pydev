@@ -80,7 +80,7 @@ class AbstractWriterThread(threading.Thread):
         last = self.readerThread.lastReceived
         if SHOW_WRITES_AND_READS:
             print 'Test Writer Thread Written %s' % (s,)
-        self.sock.send(s+'\n')
+        self.sock.send(s + '\n')
         time.sleep(0.2)
         
         i = 0
@@ -233,7 +233,7 @@ class WriterThreadCase12(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
 
-        assert 13 == self._sequence, 'Expected 13. Had: %s'  % self._sequence
+        assert 13 == self._sequence, 'Expected 13. Had: %s' % self._sequence
         
         self.finishedOk = True
         
@@ -273,7 +273,7 @@ class WriterThreadCase11(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
 
-        assert 13 == self._sequence, 'Expected 13. Had: %s'  % self._sequence
+        assert 13 == self._sequence, 'Expected 13. Had: %s' % self._sequence
         
         self.finishedOk = True
         
@@ -308,7 +308,7 @@ class WriterThreadCase10(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
 
-        assert 11 == self._sequence, 'Expected 11. Had: %s'  % self._sequence
+        assert 11 == self._sequence, 'Expected 11. Had: %s' % self._sequence
         
         self.finishedOk = True
         
@@ -342,7 +342,7 @@ class WriterThreadCase9(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
 
-        assert 11 == self._sequence, 'Expected 11. Had: %s'  % self._sequence
+        assert 11 == self._sequence, 'Expected 11. Had: %s' % self._sequence
         
         self.finishedOk = True
         
@@ -369,7 +369,7 @@ class WriterThreadCase8(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
 
-        assert 9 == self._sequence, 'Expected 9. Had: %s'  % self._sequence
+        assert 9 == self._sequence, 'Expected 9. Had: %s' % self._sequence
         
         self.finishedOk = True
         
@@ -408,7 +408,7 @@ class WriterThreadCase7(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
 
-        assert 17 == self._sequence, 'Expected 17. Had: %s'  % self._sequence
+        assert 17 == self._sequence, 'Expected 17. Had: %s' % self._sequence
         
         self.finishedOk = True
         
@@ -445,7 +445,7 @@ class WriterThreadCase6(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
 
-        assert 13 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
+        assert 13 == self._sequence, 'Expected 15. Had: %s' % self._sequence
         
         self.finishedOk = True
 
@@ -482,7 +482,7 @@ class WriterThreadCase5(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
 
-        assert 15 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
+        assert 15 == self._sequence, 'Expected 15. Had: %s' % self._sequence
         
         self.finishedOk = True
 
@@ -537,7 +537,7 @@ class WriterThreadCase3(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
         
-        assert 17 == self._sequence, 'Expected 17. Had: %s'  % self._sequence
+        assert 17 == self._sequence, 'Expected 17. Had: %s' % self._sequence
         
         self.finishedOk = True
 
@@ -567,7 +567,7 @@ class WriterThreadCase2(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
         
-        assert 15 == self._sequence, 'Expected 15. Had: %s'  % self._sequence
+        assert 15 == self._sequence, 'Expected 15. Had: %s' % self._sequence
         
         self.finishedOk = True
         
@@ -593,7 +593,7 @@ class WriterThreadCase1(AbstractWriterThread):
         
         self.WriteRunThread(threadId)
         
-        assert 13 == self._sequence, 'Expected 13. Had: %s'  % self._sequence
+        assert 13 == self._sequence, 'Expected 13. Had: %s' % self._sequence
         
         self.finishedOk = True
         
@@ -609,13 +609,13 @@ class Test(unittest.TestCase):
         if run_as_python:
             args = [
                 'python',
-                PYDEVD_FILE, 
+                PYDEVD_FILE,
                 '--DEBUG_RECORD_SOCKET_READS',
-                '--client', 
-                'localhost', 
-                '--port', 
-                str(port), 
-                '--file', 
+                '--client',
+                'localhost',
+                '--port',
+                str(port),
+                '--file',
                 writerThread.TEST_FILE,
             ]
             
@@ -626,13 +626,13 @@ class Test(unittest.TestCase):
                 '-classpath',
                 'D:/bin/jython-2.2.1/jython.jar',
                 'org.python.util.jython',
-                PYDEVD_FILE, 
+                PYDEVD_FILE,
                 '--DEBUG_RECORD_SOCKET_READS',
-                '--client', 
-                'localhost', 
-                '--port', 
-                str(port), 
-                '--file', 
+                '--client',
+                'localhost',
+                '--port',
+                str(port),
+                '--file',
                 writerThread.TEST_FILE,
             ]
         
@@ -676,7 +676,7 @@ class Test(unittest.TestCase):
         
         else:
             if process.poll() < 0:
-                self.fail("The other process exited with error code: "+str(process.poll())+" result:"+processReadThread.resultStr)
+                self.fail("The other process exited with error code: " + str(process.poll()) + " result:" + processReadThread.resultStr)
                     
         
         if SHOW_RESULT_STR:

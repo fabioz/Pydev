@@ -11,7 +11,7 @@ class Test(unittest.TestCase):
         #without the need for it being in the pythonpath)
         #(twice the dirname to get the previous level from this file.)
         import test_pydevdio #@UnresolvedImport - importing itself
-        ADD_TO_PYTHONPATH = os.path.join(  os.path.dirname(os.path.dirname( test_pydevdio.__file__ )) )
+        ADD_TO_PYTHONPATH = os.path.join(os.path.dirname(os.path.dirname(test_pydevdio.__file__)))
         sys.path.insert(0, ADD_TO_PYTHONPATH)
         
         try:

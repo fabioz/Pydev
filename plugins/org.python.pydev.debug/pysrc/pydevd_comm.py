@@ -418,7 +418,7 @@ class NetCommandFactory:
         '''
         
         try:
-            if len(v) >  MAX_IO_MSG_SIZE:
+            if len(v) > MAX_IO_MSG_SIZE:
                 v = v[0:MAX_IO_MSG_SIZE]
                 v += '...'
                 
@@ -475,7 +475,7 @@ class NetCommandFactory:
 
                 variables = ''
                 cmdTextList.append('<frame id="%s" name="%s" ' % (myId , pydevd_vars.makeValidXmlValue(myName))) 
-                cmdTextList.append('file="%s" line="%s">"'     % (quote(myFile, '/>_= \t'), myLine)) 
+                cmdTextList.append('file="%s" line="%s">"' % (quote(myFile, '/>_= \t'), myLine)) 
                 cmdTextList.append(variables) 
                 cmdTextList.append("</frame>") 
                 curFrame = curFrame.f_back

@@ -157,7 +157,7 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
         # is on the later of the two lines.
         l = node.lineno
         if l:
-            lines = self.suite_spots.get(l, [l,l])
+            lines = self.suite_spots.get(l, [l, l])
             self.statements[lines[1]] = 1
         
     def visitDiscard(self, node):
@@ -221,7 +221,7 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
         # first line are excluded, then we exclude the else.
         lastprev = self.getLastLine(prevsuite)
         firstelse = self.getFirstLine(suite)
-        for l in range(lastprev+1, firstelse):
+        for l in range(lastprev + 1, firstelse):
             if self.suite_spots.has_key(l):
                 self.doSuite(None, suite, exclude=self.excluded.has_key(l))
                 break
@@ -254,7 +254,7 @@ class StatementFindingAstVisitor(compiler.visitor.ASTVisitor):
             if not a:
                 # It's a plain "except:".  Find the previous suite.
                 if i > 0:
-                    prev = node.handlers[i-1][2]
+                    prev = node.handlers[i - 1][2]
                 else:
                     prev = node.body
                 self.doPlainWordSuite(prev, h)
@@ -314,7 +314,7 @@ class coverage:
         self.nesting = 0
         self.cstack = []
         self.xstack = []
-        self.relative_dir = os.path.normcase(os.path.abspath(os.curdir)+os.sep)
+        self.relative_dir = os.path.normcase(os.path.abspath(os.curdir) + os.sep)
         self.exclude('# *pragma[: ]*[nN][oO] *[cC][oO][vV][eE][rR]')
 
     # t(f, x, y).  This method is passed to sys.settrace as a trace function.  
@@ -366,7 +366,7 @@ class coverage:
             elif o[2:] in long_opts:
                 settings[o[2:]] = 1
             elif o[2:] + '=' in long_opts:
-                settings[o[2:]+'='] = a
+                settings[o[2:] + '='] = a
             else:       #pragma: no cover
                 pass    # Can't get here, because getopt won't return anything unknown.
 
@@ -598,7 +598,7 @@ class coverage:
                 )
         except SyntaxError, synerr:
             raise CoverageException(
-                "Couldn't parse '%s' as Python source: '%s' at line %d" %
+                "Couldn't parse '%s' as Python source: '%s' at line %d" % 
                     (filename, synerr.msg, synerr.lineno)
                 )            
         source.close()
@@ -620,9 +620,9 @@ class coverage:
     
     def find_docstring_pass_pair(self, tree, spots):
         for i in range(1, len(tree)):
-            if self.is_string_constant(tree[i]) and self.is_pass_stmt(tree[i+1]):
+            if self.is_string_constant(tree[i]) and self.is_pass_stmt(tree[i + 1]):
                 first_line = self.first_line_of_tree(tree[i])
-                last_line = self.last_line_of_tree(tree[i+1])
+                last_line = self.last_line_of_tree(tree[i + 1])
                 self.record_multiline(spots, first_line, last_line)
         
     def is_string_constant(self, tree):
@@ -638,7 +638,7 @@ class coverage:
             return False
 
     def record_multiline(self, spots, i, j):
-        for l in range(i, j+1):
+        for l in range(i, j + 1):
             spots[l] = (i, j)
             
     def get_suite_spots(self, tree, spots):
@@ -650,16 +650,16 @@ class coverage:
                 if tree[i][0] == symbol.suite:
                     # Found a suite, look back for the colon and keyword.
                     lineno_colon = lineno_word = None
-                    for j in range(i-1, 0, -1):
+                    for j in range(i - 1, 0, -1):
                         if tree[j][0] == token.COLON:
                             # Colons are never executed themselves: we want the
                             # line number of the last token before the colon.
-                            lineno_colon = self.last_line_of_tree(tree[j-1])
+                            lineno_colon = self.last_line_of_tree(tree[j - 1])
                         elif tree[j][0] == token.NAME:
                             if tree[j][1] == 'elif':
                                 # Find the line number of the first non-terminal
                                 # after the keyword.
-                                t = tree[j+1]
+                                t = tree[j + 1]
                                 while t and token.ISNONTERMINAL(t[0]):
                                     t = t[1]
                                 if t:
@@ -699,19 +699,19 @@ class coverage:
             lines = text.split('\n')
             for i in range(len(lines)):
                 if reExclude.search(lines[i]):
-                    excluded[i+1] = 1
+                    excluded[i + 1] = 1
 
         # Parse the code and analyze the parse tree to find out which statements
         # are multiline, and where suites begin and end.
         import parser
-        tree = parser.suite(text+'\n\n').totuple(1)
+        tree = parser.suite(text + '\n\n').totuple(1)
         self.get_suite_spots(tree, suite_spots)
         #print "Suite spots:", suite_spots
         
         # Use the compiler module to parse the text and find the executable
         # statements.  We add newlines to be impervious to final partial lines.
         statements = {}
-        ast = compiler.parse(text+'\n\n')
+        ast = compiler.parse(text + '\n\n')
         visitor = StatementFindingAstVisitor(statements, excluded, suite_spots)
         compiler.walk(ast, visitor, walker=visitor)
 
@@ -768,7 +768,7 @@ class coverage:
         missing = []
         for line in statements:
             lines = line_map.get(line, [line, line])
-            for l in range(lines[0], lines[1]+1):
+            for l in range(lines[0], lines[1] + 1):
                 if self.cexecuted[filename].has_key(l):
                     break
             else:
@@ -837,7 +837,7 @@ class coverage:
         morfs = self.filter_by_prefix(morfs, omit_prefixes)
         morfs.sort(self.morf_name_compare)
 
-        max_name = max([5,] + map(len, map(self.morf_name, morfs)))
+        max_name = max([5, ] + map(len, map(self.morf_name, morfs)))
         fmt_name = "%%- %ds  " % max_name
         fmt_err = fmt_name + "%s: %s"
         header = fmt_name % "Name" + " Stmts   Exec  Cover"
@@ -847,14 +847,14 @@ class coverage:
             fmt_coverage = fmt_coverage + "@   %s"
         if not file:
             file = sys.stdout
-        print >>file, header
-        print >>file, "-" * len(header)
+        print >> file, header
+        print >> file, "-" * len(header)
         total_statements = 0
         total_executed = 0
         for morf in morfs:
             name = self.morf_name(morf)
             try:
-                _, statements, _, missing, readable  = self.analysis2(morf)
+                _, statements, _, missing, readable = self.analysis2(morf)
                 n = len(statements)
                 m = n - len(missing)
                 if n > 0:
@@ -864,7 +864,7 @@ class coverage:
                 args = (morf, n, m, pc)
                 if show_missing:
                     args = args + (readable,)
-                print >>file, fmt_coverage % args
+                print >> file, fmt_coverage % args
                 total_statements = total_statements + n
                 total_executed = total_executed + m
             except KeyboardInterrupt:                       #pragma: no cover
@@ -872,9 +872,9 @@ class coverage:
             except:
                 if not ignore_errors:
                     typ, msg = sys.exc_info()[:2]
-                    print >>file, fmt_err % (morf, typ, msg)
+                    print >> file, fmt_err % (morf, typ, msg)
         if len(morfs) > 1:
-            print >>file, "-" * len(header)
+            print >> file, "-" * len(header)
             if total_statements > 0:
                 pc = 100.0 * total_executed / total_statements
             else:
@@ -882,7 +882,7 @@ class coverage:
             args = ("TOTAL", total_statements, total_executed, pc)
             if show_missing:
                 args = args + ("",)
-            print >>file, fmt_coverage % args
+            print >> file, fmt_coverage % args
 
     # annotate(morfs, ignore_errors).
 

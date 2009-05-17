@@ -28,7 +28,7 @@ class TestCase(unittest.TestCase):
         
         times = 10
         for i in range(times):
-            info.CreateDbFrame(mainDebugger, filename,  additionalInfo, t, frame)
+            info.CreateDbFrame(mainDebugger, filename, additionalInfo, t, frame)
             
         #we haven't kept any reference, so, they must have been garbage-collected already!
         self.assertEqual(0, len(info.IterFrames()))

@@ -1,39 +1,39 @@
 #IMPORTANT: pydevd_constants must be the 1st thing defined because it'll keep a reference to the original sys._getframe
 from pydevd_constants import * #@UnusedWildImport
 
-from pydevd_comm import  CMD_CHANGE_VARIABLE,\
-                         CMD_EVALUATE_EXPRESSION,\
-                         CMD_EXEC_EXPRESSION,\
-                         CMD_GET_FRAME,\
-                         CMD_GET_VARIABLE,\
-                         CMD_LIST_THREADS,\
-                         CMD_REMOVE_BREAK,\
-                         CMD_RUN,\
-                         CMD_SET_BREAK,\
-                         CMD_STEP_INTO,\
-                         CMD_STEP_OVER,\
-                         CMD_STEP_RETURN,\
-                         CMD_THREAD_CREATE,\
-                         CMD_THREAD_KILL,\
-                         CMD_THREAD_RUN,\
-                         CMD_THREAD_SUSPEND,\
-                         CMD_VERSION,\
-                         GetGlobalDebugger,\
-                         InternalChangeVariable,\
-                         InternalEvaluateExpression,\
-                         InternalGetFrame,\
-                         InternalGetVariable,\
-                         InternalTerminateThread,\
-                         NetCommand,\
-                         NetCommandFactory,\
-                         PyDBDaemonThread,\
-                         PydevQueue,\
-                         ReaderThread,\
-                         SetGlobalDebugger,\
-                         WriterThread,\
-                         PydevdFindThreadById,\
-                         PydevdLog,\
-                         StartClient,\
+from pydevd_comm import  CMD_CHANGE_VARIABLE, \
+                         CMD_EVALUATE_EXPRESSION, \
+                         CMD_EXEC_EXPRESSION, \
+                         CMD_GET_FRAME, \
+                         CMD_GET_VARIABLE, \
+                         CMD_LIST_THREADS, \
+                         CMD_REMOVE_BREAK, \
+                         CMD_RUN, \
+                         CMD_SET_BREAK, \
+                         CMD_STEP_INTO, \
+                         CMD_STEP_OVER, \
+                         CMD_STEP_RETURN, \
+                         CMD_THREAD_CREATE, \
+                         CMD_THREAD_KILL, \
+                         CMD_THREAD_RUN, \
+                         CMD_THREAD_SUSPEND, \
+                         CMD_VERSION, \
+                         GetGlobalDebugger, \
+                         InternalChangeVariable, \
+                         InternalEvaluateExpression, \
+                         InternalGetFrame, \
+                         InternalGetVariable, \
+                         InternalTerminateThread, \
+                         NetCommand, \
+                         NetCommandFactory, \
+                         PyDBDaemonThread, \
+                         PydevQueue, \
+                         ReaderThread, \
+                         SetGlobalDebugger, \
+                         WriterThread, \
+                         PydevdFindThreadById, \
+                         PydevdLog, \
+                         StartClient, \
                          StartServer
 
 import pydevd_file_utils
@@ -46,16 +46,16 @@ import time
 
 DONT_TRACE = {
               #commonly used things from the stdlib that we don't want to trace
-              'threading.py':1, 
-              'Queue.py':1, 
-              'socket.py':1, 
+              'threading.py':1,
+              'Queue.py':1,
+              'socket.py':1,
               
               #things from pydev that we don't want to trace
               'pydevd_additional_thread_info.py':1,
               'pydevd_comm.py':1,
               'pydevd_constants.py':1,
               'pydevd_file_utils.py':1,
-              'pydevd_frame.py':1, 
+              'pydevd_frame.py':1,
               'pydevd_io.py':1 ,
               'pydevd_resolver.py':1 ,
               'pydevd_tracing.py':1 ,
@@ -354,7 +354,7 @@ class PyDB:
                             
                         self.setSuspend(t, CMD_THREAD_SUSPEND)
     
-                elif cmd_id  == CMD_THREAD_RUN:
+                elif cmd_id == CMD_THREAD_RUN:
                     t = PydevdFindThreadById(text)
                     if t: 
                         t.additionalInfo.pydev_step_cmd = None
@@ -376,7 +376,7 @@ class PyDB:
                         
                         tab_index = attr_and_value.rindex('\t')
                         attr = attr_and_value[0:tab_index].replace('\t', '.')
-                        value = attr_and_value[tab_index+1:]
+                        value = attr_and_value[tab_index + 1:]
                         int_cmd = InternalChangeVariable(seq, thread_id, frame_id, scope, attr, value)
                         self.postInternalCommand(int_cmd, thread_id)
                             
@@ -429,7 +429,7 @@ class PyDB:
                     
                     if not os.path.exists(file):
                         sys.stderr.write('pydev debugger: warning: trying to add breakpoint'\
-                            ' to file that does not exist: %s (will have no effect)\n' % (file, ))
+                            ' to file that does not exist: %s (will have no effect)\n' % (file,))
                     
                     line = int(line)
                     
@@ -489,7 +489,7 @@ class PyDB:
                     #command to evaluate the given expression
                     #text is: thread\tstackframe\tLOCAL\texpression
                     thread_id, frame_id, scope, expression = text.split('\t', 3)
-                    int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression, 
+                    int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression,
                         cmd_id == CMD_EXEC_EXPRESSION)
                     self.postInternalCommand(int_cmd, thread_id)
                         
@@ -504,7 +504,7 @@ class PyDB:
                     
             except Exception:
                 traceback.print_exc()
-                cmd = self.cmdFactory.makeErrorMessage(seq, 
+                cmd = self.cmdFactory.makeErrorMessage(seq,
                     "Unexpected exception in processNetCommand.\nInitial params: %s" % ((cmd_id, seq, text),))
                     
                 self.writer.addCommand(cmd)
@@ -722,7 +722,7 @@ def processCommandLine(argv):
     retVal['server'] = False
     retVal['port'] = 0
     retVal['file'] = ''
-    i=0
+    i = 0
     del argv[0]
     while (i < len(argv)):
         if (argv[i] == '--port'):
@@ -766,7 +766,7 @@ def SetTraceForParents(frame, dispatch_func):
         frame = frame.f_back
     del frame
 
-def settrace(host = 'localhost', stdoutToServer = False, stderrToServer = False, port = 5678, suspend = True):
+def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=5678, suspend=True):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
     
     @param host: the user may specify another host, if the debug server is not in the same machine
