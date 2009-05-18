@@ -66,8 +66,10 @@
                <enablement>
                   <with variable="selection">
                      <count value="1"/>
-                     <iterate ifEmpty="false" operator="and">
-                        <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
+                     <iterate>
+                        <or>
+                            <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
+                        </or>
                      </iterate>
                   </with>
                </enablement>
