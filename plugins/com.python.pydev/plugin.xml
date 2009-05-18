@@ -77,7 +77,6 @@
    </extension>
 
 
-
 <!-- binding: search page-->
    <extension
          point="org.eclipse.search.searchPages">
