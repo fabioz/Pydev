@@ -36,7 +36,7 @@ import org.python.pydev.core.bundle.BundleUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 
-import com.aptana.ide.core.licensing.ClientKey;
+import com.aptana.ide.core.licensing.ILicenseKey;
 import com.aptana.ide.core.ui.preferences.ApplicationPreferences;
 import com.aptana.ide.core.ui.preferences.IPreferenceConstants;
 import com.python.pydev.license.ClientEncryption;
@@ -421,7 +421,7 @@ public class PydevPlugin extends AbstractUIPlugin {
             //something went wrong when trying to decrypt it with the pydev license... let's go on and try to 
             //decrypt it with the Aptana license
             try {
-                ClientKey clientKey = com.aptana.ide.professional.licensing.LicensingUtilities.decrypt(encLicense, enteredEmail);
+                ILicenseKey clientKey = com.aptana.ide.professional.licensing.LicensingUtilities.decrypt(encLicense, enteredEmail);
                 if(clientKey.getEmail() == null){
                     //leave same exception... no email is available
                 }else{
