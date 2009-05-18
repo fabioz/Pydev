@@ -72,7 +72,7 @@ public abstract class ProcessWindow extends Dialog{
     
     private static final int STATE_NOT_RUNNING = 0;
     private static final int STATE_RUNNING = 1;
-    private int state;
+    private volatile int state = STATE_NOT_RUNNING;
     
     
     //only while running
@@ -394,19 +394,26 @@ public abstract class ProcessWindow extends Dialog{
      */
     @Override
     protected void okPressed(){
+        boolean doRun = false;
+        
         synchronized(lock){
             if(state == STATE_NOT_RUNNING){
                 state = STATE_RUNNING;
-                run();
-                
-                commandToExecuteLabel.setText(EXECUTING_COMMAND_LABEL);
-                commandToExecute.setEnabled(false);
-                cancelButton.setEnabled(false);
-                okButton.setText(CANCEL_LABEL);
-            }else{
-                //We're running... this means it meant a cancel.
-                cancelRun();
+                doRun = true;
             }
+        }
+            
+            
+        if(doRun){
+            run();
+            
+            commandToExecuteLabel.setText(EXECUTING_COMMAND_LABEL);
+            commandToExecute.setEnabled(false);
+            cancelButton.setEnabled(false);
+            okButton.setText(CANCEL_LABEL);
+        }else{
+            //We're running... this means it meant a cancel.
+            cancelRun();
         }
     }
     
@@ -426,39 +433,36 @@ public abstract class ProcessWindow extends Dialog{
     private void onEndRun(){
         synchronized(lock){
             state = STATE_NOT_RUNNING;
-            Display.getDefault().asyncExec(new Runnable(){
-            
-                public void run(){
-                    commandToExecuteLabel.setText(COMMAND_TO_EXECUTE_LABEL);
-                    commandToExecute.setEnabled(true);
-                    cancelButton.setEnabled(true);
-                    okButton.setText(RUN_LABEL);
-                }
-            });
         }
+        
+        Display.getDefault().asyncExec(new Runnable(){
+        
+            public void run(){
+                commandToExecuteLabel.setText(COMMAND_TO_EXECUTE_LABEL);
+                commandToExecute.setEnabled(true);
+                cancelButton.setEnabled(true);
+                okButton.setText(RUN_LABEL);
+            }
+        });
     }
 
     
     public boolean close(){
-        synchronized(lock){
-            if(state == STATE_NOT_RUNNING){
-                return super.close();
-            }else{
-                cancelRun();
-                return false;
-            }
+        if(state == STATE_NOT_RUNNING){
+            return super.close();
+        }else{
+            cancelRun();
+            return false;
         }
     }
 
     
     @Override
     protected void cancelPressed(){
-        synchronized(lock){
-            if(state == STATE_NOT_RUNNING){
-                super.cancelPressed();
-            }else{
-                cancelRun();
-            }
+        if(state == STATE_NOT_RUNNING){
+            super.cancelPressed();
+        }else{
+            cancelRun();
         }
     }
 
@@ -473,45 +477,43 @@ public abstract class ProcessWindow extends Dialog{
 
     
     private void run(){
-        synchronized(lock){
-            if(processHandler != null){
-                return; //Still running.
+        if(processHandler != null){
+            return; //Still running.
+        }
+        try{
+            IProject project = container.getProject();
+            IInterpreterInfo interpreterInfo = pythonPathNature.getNature().getProjectInterpreter();
+            String executableOrJar = interpreterInfo.getExecutableOrJar();
+
+            String cmdLineArguments = commandToExecute.getText().trim();
+            List<String> arguments = new ArrayList<String>();
+            if(cmdLineArguments.length() > 0){
+                arguments = StringUtils.split(cmdLineArguments, ' ');
             }
-            try{
-                IProject project = container.getProject();
-                IInterpreterInfo interpreterInfo = pythonPathNature.getNature().getProjectInterpreter();
-                String executableOrJar = interpreterInfo.getExecutableOrJar();
-    
-                String cmdLineArguments = commandToExecute.getText().trim();
-                List<String> arguments = new ArrayList<String>();
-                if(cmdLineArguments.length() > 0){
-                    arguments = StringUtils.split(cmdLineArguments, ' ');
-                }
+            
+            SimplePythonRunner runner = new SimplePythonRunner();
+            String[] cmdarray = SimplePythonRunner.preparePythonCallParameters(executableOrJar, appcfg
+                    .getAbsolutePath(), arguments.toArray(new String[0]));
+
+            Tuple<Process, String> run = runner.run(cmdarray, appEngineLocation, project, new NullProgressMonitor());
+            process = run.o1;
+            if(process != null){
+
+                std = new ThreadStreamReader(process.getInputStream());
+                err = new ThreadStreamReader(process.getErrorStream());
+
+                std.start();
+                err.start();
+
+                outputStream = process.getOutputStream();
                 
-                SimplePythonRunner runner = new SimplePythonRunner();
-                String[] cmdarray = SimplePythonRunner.preparePythonCallParameters(executableOrJar, appcfg
-                        .getAbsolutePath(), arguments.toArray(new String[0]));
-    
-                Tuple<Process, String> run = runner.run(cmdarray, appEngineLocation, project, new NullProgressMonitor());
-                process = run.o1;
-                if(process != null){
-    
-                    std = new ThreadStreamReader(process.getInputStream());
-                    err = new ThreadStreamReader(process.getErrorStream());
-    
-                    std.start();
-                    err.start();
-    
-                    outputStream = process.getOutputStream();
-                    
-                    processHandler = new ProcessHandler();
-                    processHandler.start();
-                }
-            }catch(MisconfigurationException e){
-                Log.log(e);
-            }catch(PythonNatureWithoutProjectException e){
-                Log.log(e);
+                processHandler = new ProcessHandler();
+                processHandler.start();
             }
+        }catch(MisconfigurationException e){
+            Log.log(e);
+        }catch(PythonNatureWithoutProjectException e){
+            Log.log(e);
         }
     }
 
