@@ -92,7 +92,7 @@ public class InfoFactory {
         }
         
         if(path != null && path.length() > 0){
-            info.moduleDeclared = path;
+            info.path = path;
         }
         
         String projectName = null;
