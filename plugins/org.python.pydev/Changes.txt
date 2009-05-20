@@ -1,38 +1,41 @@
 After 1.4.5
 
 Pydev
-Google App Engine: easy setup/management
-Project-variables can be used for pythonpath and launch config. 
-The interpreter can be referred from a user-editable name
-Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)
-os.path added to default forced builtins
-Showing error better when code-completion fails (not only on error log)
-Fixed problem finding definition for java class when the constructor was referenced.
-Fixed recursion error on Python 3.0 grammar
-Jython debugging - local variables are not updated
-Multiple forced builtins can be added/removed at once
-Fixed Python 2.6 grammar error: kwarg after unpacking arg list
-Fixed Python 3.0 grammar error: star expr on for
-Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)
-Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)
-__future__ imports are always added/reorganized as the 1st import in the module
-Code-completion in Jython recognizes that a method get/setName should be available as a 'name' property. 
-Finding 'objects' for django (and always forcing it to be a source module -- and not a forced builtin)
 
-Pydev Package Explorer
-    Added filter for the python nodes
-    Showing configuration errors
-    Showing the interpreter info 
-    
+<li><strong>Google App Engine</strong>: customized setup and management of Google App Engine projects</li>
+<li>String substitution variables can be used for pythonpath and launch config. </li>
+<li>The interpreter can be referred from a user-editable name</li>
+<li>Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)</li>
+<li>os.path added to default forced builtins</li>
+<li>Showing better errors when code-completion fails</li>
+<li>Fixed problem finding definition for java class when the constructor was referenced.</li>
+<li>Fixed recursion error on Python 3.0 grammar</li>
+<li>Jython debugger - local variables are properly updated</li>
+<li>Multiple forced builtins can be added/removed at once</li>
+<li>Python 2.6 grammar: kwarg after unpacking arg list</li>
+<li>Python 3.0 grammar: star expr on for</li>
+<li>Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)</li>
+<li>Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)</li>
+<li>__future__ imports are always added/reorganized as the 1st import in the module</li>
+<li>Code-completion in Jython recognizes that a method get/setName should be available as a 'name' property. </li>
+<li>Finding 'objects' for django</li>
+<li>Pydev Package Explorer</li>
+    <ul>
+    <li>Added filter for the python nodes</li>
+    <li>Showing configuration errors</li>
+    <li>Showing the interpreter info </li>
+    </ul>
 
 
 Pydev Extensions
 
-Auto-import for from __future__ import with_statement will add a 'with' token instead of a with_statement token
-Globals browser improved (only for Eclipse 3.3 onwards, older versions will have the old interface):
-    - Can filter with working sets
-    - Can match based on module names. E.g.: django.A would match all the django classes/methods/attributes starting with 'A'
-
+<li>Auto-import for from __future__ import with_statement will add a 'with' token instead of a with_statement token</li>
+<li>Globals browser improved (only for Eclipse 3.3 onwards, older versions will have the old interface):</li>
+    <ul>
+    <li>Can filter with working sets</li>
+    <li>Can match based on module names. E.g.: django.A would match all the django classes/methods/attributes starting with 'A'</li>
+    </ul>
+    
 
 After 1.4.4
 
