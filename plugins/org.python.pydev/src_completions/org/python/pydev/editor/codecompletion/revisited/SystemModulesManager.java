@@ -108,7 +108,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
         if(interpreter == null){
             throw new RuntimeException("The interpreter must be specified (received null)");
         }else{
-            return info.getPythonPath();
+            return interpreter.getPythonPath();
         }
     }
 

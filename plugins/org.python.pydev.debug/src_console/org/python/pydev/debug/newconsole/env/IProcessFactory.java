@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.Launch;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -99,19 +100,33 @@ public class IProcessFactory {
                 File scriptWithinPySrc = PydevPlugin.getScriptWithinPySrc("pydevconsole.py");
                 String[] commandLine;
                 IInterpreterInfo[] interpreters = interpreterManager.getInterpreterInfos();
-                ListDialog listDialog = createChoiceDialog(workbenchWindow, interpreterManager, interpreters);
-                int open = listDialog.open();
-                if(open != ListDialog.OK || listDialog.getResult().length > 1){
+                if(interpreters == null || interpreters.length == 0){
+                    MessageDialog.openError(workbenchWindow.getShell(), 
+                            "No interpreters for creating console", 
+                            "No interpreter available for creating a console.");
                     return null;
                 }
-                Object[] result = (Object[]) listDialog.getResult();
                 IInterpreterInfo interpreter = null;
-                if(result == null || result.length == 0){
+                if(interpreters.length == 1){
+                    //We just have one, so, no point in asking about which one should be there.
                     interpreter = interpreters[0];
-                    
-                }else{
-                    interpreter = ((IInterpreterInfo)result[0]);
                 }
+                
+                if(interpreter == null){
+                    ListDialog listDialog = createChoiceDialog(workbenchWindow, interpreterManager, interpreters);
+                    int open = listDialog.open();
+                    if(open != ListDialog.OK || listDialog.getResult().length > 1){
+                        return null;
+                    }
+                    Object[] result = (Object[]) listDialog.getResult();
+                    if(result == null || result.length == 0){
+                        interpreter = interpreters[0];
+                        
+                    }else{
+                        interpreter = ((IInterpreterInfo)result[0]);
+                    }
+                }
+                
                 
                 if(interpreter == null){
                     return null;
