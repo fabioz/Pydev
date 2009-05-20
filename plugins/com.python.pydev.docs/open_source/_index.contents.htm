@@ -44,6 +44,38 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <h3>New Release: LAST_VERSION_TAG</h3>
 
 <ul>
+<li><strong>Google App Engine</strong>: customized setup and management of Google App Engine projects</li>
+<li>String substitution variables can be used for pythonpath and launch config. </li>
+<li>The interpreter can be referred from a user-editable name</li>
+<li>Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)</li>
+<li>os.path added to default forced builtins</li>
+<li>Showing better errors when code-completion fails</li>
+<li>Fixed problem finding definition for java class when the constructor was referenced.</li>
+<li>Fixed recursion error on Python 3.0 grammar</li>
+<li>Jython debugger - local variables are properly updated</li>
+<li>Multiple forced builtins can be added/removed at once</li>
+<li>Python 2.6 grammar: kwarg after unpacking arg list</li>
+<li>Python 3.0 grammar: star expr on for</li>
+<li>Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)</li>
+<li>Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)</li>
+<li>__future__ imports are always added/reorganized as the 1st import in the module</li>
+<li>Code-completion in Jython recognizes that a method get/setName should be available as a 'name' property. </li>
+<li>Finding 'objects' for django</li>
+<li>Pydev Package Explorer</li>
+    <ul>
+    <li>Added filter for the python nodes</li>
+    <li>Showing configuration errors</li>
+    <li>Showing the interpreter info </li>
+    </ul>
+</ul>
+
+    
+
+
+
+<h3>New Release: 1.4.5</h3>
+
+<ul>
 <li>Better <strong>error handling</strong> in the grammar</li>
 
 <li><strong>Code Formatter</strong></li>
@@ -91,54 +123,6 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 <li>Jython: completions working for static members access</li>
 <li>Hover works on Eclipse 3.2</li>
 </ul>
-
-
-
-
-<h3>New Release: 1.4.4</h3>
-
-<ul>
-This release fixes a critical bug when configuring the interpreter (if no 
-environment variables were specified, it was not possible to configure an interpreter)
-</ul>
-
-<h3>New Release: 1.4.3</h3>
-
-<ul>
-<li><strong>Interactive console</strong> The interpreter to be used can be chosen</li>
-<li><strong>New modules</strong> can be created from <strong>templates</strong></li>
-
-<li><strong>Interpreter configuration</strong> improved!</li>
-<ul>
-    <li>Environment variables can be specified for a given interpreter</li>
-    <li>Canceling operation now works correctly</li>
-</ul><br>
-
-
-<li><strong>Debugger</strong></li>
-<ul>
-	<li>Variables correctly gotten on Jython 2.1 / 2.2</li>
-	<li>Using globals as an union of original globals+locals so that generator expressions can be evaluated</li>
-	<li>Breakpoints only opened on double-click (no longer on select)</li>
-</ul><br>
-
-<li>The project preferences are now applied even if the page to configure the project is not visible.</li>
-<li>Jython 2.5b1 working (problem with sitecustomize)</li>
-<li>Wrap paragraph fixed</li>
-<li>Set comprehension working on Python 3.0 parsing</li>
-<li>Find definition working when a module outside of the known pythonpath is found</li>
-<li>Source folders were not properly found sometimes -- when workspace was not properly refreshed</li>
-<li>Invalid modules could get in the memory</li>
-<li>Getting the grammar version for a project could be wrong (and could loose its indexing at that time)</li>
-<li>Multiple external zip files can be added at once to the pythonpath</li>
-<li>nonlocal added to keywords</li>
-<li>Fixed annoying problem where cursor was jumping when it shouldn't (outline)</li>
-<li>Fixed problem where the breakpoint could be lost (now, playing safe and matching anything in the file if the context cannot be gotten)</li>
-<li>Ctrl + 2 + --reindex can be used to reindex all the opened projects if the indexing becomes corrupt</li>
-<li>Changing nothing on project config and pressing OK no longer reanalyzes the modules</li>
-</ul>
-
-
 
 
 <br/>

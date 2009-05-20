@@ -1,53 +1,32 @@
 <h2>New on: LAST_VERSION_TAG</h2>
-
 <ul>
-<li>Better <strong>error handling</strong> in the grammar</li>
-
-<li><strong>Code Formatter</strong></li>
-<ul>
-    <li>Can be applied from context menu (recursively applied for folders)</li>
-    <li>Can trim whitespaces from the end of the lines</li>
-    <li>Can add new a line to the end of the file</li>
-    <li>Can automatically apply code-formatting on save</li>
-    <li>Fixed issues with unary operators and exponential</li>
-    <li>Fixed issues where parenthesis was lost if no closing parenthesis was available</li>
+<li><strong>Google App Engine</strong>: customized setup and management of Google App Engine projects</li>
+<li>String substitution variables can be used for pythonpath and launch config. </li>
+<li>The interpreter can be referred from a user-editable name</li>
+<li>Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)</li>
+<li>os.path added to default forced builtins</li>
+<li>Showing better errors when code-completion fails</li>
+<li>Fixed problem finding definition for java class when the constructor was referenced.</li>
+<li>Fixed recursion error on Python 3.0 grammar</li>
+<li>Jython debugger - local variables are properly updated</li>
+<li>Multiple forced builtins can be added/removed at once</li>
+<li>Python 2.6 grammar: kwarg after unpacking arg list</li>
+<li>Python 3.0 grammar: star expr on for</li>
+<li>Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)</li>
+<li>Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)</li>
+<li>__future__ imports are always added/reorganized as the 1st import in the module</li>
+<li>Code-completion in Jython recognizes that a method get/setName should be available as a 'name' property. </li>
+<li>Finding 'objects' for django</li>
+<li>Pydev Package Explorer</li>
+    <ul>
+    <li>Added filter for the python nodes</li>
+    <li>Showing configuration errors</li>
+    <li>Showing the interpreter info </li>
+    </ul>
 </ul>
 
+    
 
-<li><strong>Python 3.0</strong></li>
-<ul>
-    <li>Parser supporting unicode identifiers</li>
-    <li>Star expr recognized</li>
-</ul>
-
-
-<li>Python 3.1 version acknowledged (and proper grammar used)</li>
-<li><strong>Pydev package explorer</strong></li>
-<ul>
-<li>Can show working sets as top-level elements</li>
-<li>Folders without __init__.py are no longer shown as packages</li>
-</ul>
-
-<li><strong>Interactive console</strong></li>
-<ul>
-    <li>When waiting for user input, the prompt is not shown</li>
-    <li>Console initial commands compatible with Python 3.0</li>
-    <li>Timeout for starting console communication while the shell is not fully initilized</li>
-    <li>More info is available if connection fails</li>
-</ul>
-
-<li>Alt+R working (mnemonics set for pydev contributed menus)</li>
-<li>With Ctrl+2, matches will no longer take into acount the case</li>
-<li>Code completion: Can get args from docstring when '*' is present.</li>
-<li>Better heuristics for automatic insertion of "self" and "import"</li>
-<li>Fixed problem configuring external jars and zip files</li>
-<li>Launch getting interpreter from project on default config</li>
-<li>After a parenthesis, 'n' indentation levels may be applied (patch by Radim Kubacki)</li>
-<li>.pyc files are now marked as derived (note that this will only happen when they're changed)</li>
-<li>Fixed debugger issue with Jython 2.5b3</li>
-<li>Jython: completions working for static members access</li>
-<li>Hover works on Eclipse 3.2</li>
-</ul>
 
 
 
@@ -153,6 +132,61 @@
 
 <hr/>
 <h2>Features History</h2>
+
+
+<h3>New Release: 1.4.5</h3>
+
+
+
+<ul>
+<li>Better <strong>error handling</strong> in the grammar</li>
+
+<li><strong>Code Formatter</strong></li>
+<ul>
+    <li>Can be applied from context menu (recursively applied for folders)</li>
+    <li>Can trim whitespaces from the end of the lines</li>
+    <li>Can add new a line to the end of the file</li>
+    <li>Can automatically apply code-formatting on save</li>
+    <li>Fixed issues with unary operators and exponential</li>
+    <li>Fixed issues where parenthesis was lost if no closing parenthesis was available</li>
+</ul>
+
+
+<li><strong>Python 3.0</strong></li>
+<ul>
+    <li>Parser supporting unicode identifiers</li>
+    <li>Star expr recognized</li>
+</ul>
+
+
+<li>Python 3.1 version acknowledged (and proper grammar used)</li>
+<li><strong>Pydev package explorer</strong></li>
+<ul>
+<li>Can show working sets as top-level elements</li>
+<li>Folders without __init__.py are no longer shown as packages</li>
+</ul>
+
+<li><strong>Interactive console</strong></li>
+<ul>
+    <li>When waiting for user input, the prompt is not shown</li>
+    <li>Console initial commands compatible with Python 3.0</li>
+    <li>Timeout for starting console communication while the shell is not fully initilized</li>
+    <li>More info is available if connection fails</li>
+</ul>
+
+<li>Alt+R working (mnemonics set for pydev contributed menus)</li>
+<li>With Ctrl+2, matches will no longer take into acount the case</li>
+<li>Code completion: Can get args from docstring when '*' is present.</li>
+<li>Better heuristics for automatic insertion of "self" and "import"</li>
+<li>Fixed problem configuring external jars and zip files</li>
+<li>Launch getting interpreter from project on default config</li>
+<li>After a parenthesis, 'n' indentation levels may be applied (patch by Radim Kubacki)</li>
+<li>.pyc files are now marked as derived (note that this will only happen when they're changed)</li>
+<li>Fixed debugger issue with Jython 2.5b3</li>
+<li>Jython: completions working for static members access</li>
+<li>Hover works on Eclipse 3.2</li>
+</ul>
+
 
 
 <h3>New Release: 1.4.4</h3>
