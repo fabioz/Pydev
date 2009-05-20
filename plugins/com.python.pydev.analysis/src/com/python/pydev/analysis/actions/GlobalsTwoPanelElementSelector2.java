@@ -380,7 +380,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
 
 
         /**
-         * Overriden to consider each dot as a new scope in the pattern (and match according to modules)
+         * Overridden to consider each dot as a new scope in the pattern (and match according to modules)
          */
         public boolean matchItem(Object item){
             if(!(item instanceof AdditionalInfoAndIInfo)){
