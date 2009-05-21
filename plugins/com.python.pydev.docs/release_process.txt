@@ -18,6 +18,14 @@ d:\bin\python261\python.exe make_release.py --make-open --make-pro --no-revert
 d:\bin\python261\python.exe make_release.py --up-docs
 d:\bin\python261\python.exe make_release.py --up-site
 
+This is not OK: files need to be copied to the backup of the site and the p2 updated in place (and then the content.jar/artifacts.jar
+must be copied to the proper location)
+
+Generate P2: 
+D:\bin\eclipse341\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_pro\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+D:\bin\eclipse341\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_open\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_open\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_open -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_open -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+
+
 Upload contents:
 1. W:\temp_deployDir\updateSite\pydev to fabioz,pydev@web.sourceforge.net
 2. W:\temp_deployDir\updateSite\pydevPro to fabioz.com
@@ -30,10 +38,10 @@ Update homepage:
 2. W:\pydev_pro\plugins\com.python.pydev.docs\new_homepage\final to fabioz.com
 
 
-Tag repository: e.g.: pydev_1_4_5
+Tag repository: e.g.: pydev_1_4_6
 svn: 
-svn copy http://svn.aptana.local/svn/pydev/trunk http://svn.aptana.local/svn/pydev/tags/pydev_1_4_5 -m "Creating release 1.4.5"
-svn copy http://svn.aptana.local/svn/pydev_pro/trunk http://svn.aptana.local/svn/pydev_pro/tags/pydev_1_4_5 -m "Creating release 1.4.5"
+svn copy http://svn.aptana.local/svn/pydev/trunk http://svn.aptana.local/svn/pydev/tags/pydev_1_4_6 -m "Creating release 1.4.6"
+svn copy http://svn.aptana.local/svn/pydev_pro/trunk http://svn.aptana.local/svn/pydev_pro/tags/pydev_1_4_6 -m "Creating release 1.4.6"
 
 
 Add news in forum
