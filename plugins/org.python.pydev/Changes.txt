@@ -1,3 +1,9 @@
+After 1.4.6
+
+Pydev
+Fixed problem when recognizing encodings (https://sourceforge.net/tracker/?func=detail&aid=2796762&group_id=85796&atid=577329)
+
+
 After 1.4.5
 
 Pydev

@@ -60,7 +60,12 @@ import org.python.pydev.core.structure.FastStringBuffer;
  */
 public class REF {
 
-    
+    /**
+     * Regular expression for finding the encoding in a python file.
+     */
+    private static final Pattern ENCODING_PATTERN = Pattern.compile("coding[:=][\\s]*([-\\w.]+)");
+
+
     /**
      * @return true if the passed object has a field with the name passed.
      */
@@ -834,26 +839,9 @@ public class REF {
                     
                 }else if(lEnc.charAt(0) == '#'){ //it must be a comment line
                     
-                    //ok, the encoding line is in lEnc
-                    Pattern p = Pattern.compile("coding[:=]+[\\s]*[\\w[\\-]]+[\\s]*");
-                    Matcher matcher = p.matcher(lEnc);
-                    if( matcher.find() ){
-                        
-                        lEnc = lEnc.substring(matcher.start()+6);
-                        
-                        char c;
-                        while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) == ' ' || c == ':' || c == '=')) {
-                            lEnc = lEnc.substring(1);
-                        }
-        
-                        FastStringBuffer buffer = new FastStringBuffer();
-                        while(lEnc.length() > 0 && ((c = lEnc.charAt(0)) != ' ' || c == '-' || c == '*')) {
-                            
-                            buffer.append(c);
-                            lEnc = lEnc.substring(1);
-                        }
-        
-                        ret = buffer.toString().trim();
+                    Matcher matcher = ENCODING_PATTERN.matcher(lEnc);
+                    if(matcher.find()){
+                        ret = matcher.group(1).trim();
                     }
                 }
             }
@@ -877,11 +865,6 @@ public class REF {
         if(lower.startsWith("latin")){
             if(lower.indexOf("1") != -1){
                 return "latin1"; //latin1
-            }
-        }
-        if(lower.startsWith("utf")){
-            if(lower.endsWith("8")){
-                return "UTF-8"; //exact match
             }
         }
         if(lower.equals("iso-latin-1-unix")){

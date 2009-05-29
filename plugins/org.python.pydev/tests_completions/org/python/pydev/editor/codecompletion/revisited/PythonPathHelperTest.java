@@ -27,7 +27,7 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         try {
             PythonPathHelperTest test = new PythonPathHelperTest();
             test.setUp();
-            test.testRecursion2();
+            test.testGetEncoding6();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PythonPathHelperTest.class);
@@ -336,14 +336,74 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         "";
         CharArrayReader reader = new CharArrayReader(s.toCharArray());
         String encoding = REF.getPythonFileEncoding(reader, null);
-        assertEquals("UTF-8", encoding);
+        assertEquals("utf-8", encoding);
+    }
+    
+    public void testGetEncoding5(){
+        String s = "" +
+        "#-*- coding: utf-8; -*-\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        String encoding = REF.getPythonFileEncoding(reader, null);
+        assertEquals("utf-8", encoding);
+    }
+    
+    public void testGetEncoding6(){
+        String s = "" +
+        "#coding: utf-8;\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        String encoding = REF.getPythonFileEncoding(reader, null);
+        assertEquals("utf-8", encoding);
+    }
+    
+    public void testGetEncoding7(){
+        String s = "" +
+        "#coding: utf8;\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        String encoding = REF.getPythonFileEncoding(reader, null);
+        assertEquals("utf8", encoding);
+    }
+    
+    public void testGetEncoding8(){
+        String s = "" +
+        "#coding: iso-latin-1-unix;\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        String encoding = REF.getPythonFileEncoding(reader, null);
+        assertEquals("latin1", encoding);
+    }
+    
+    public void testGetEncoding9(){
+        String s = "" +
+        "#coding: latin-1\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        String encoding = REF.getPythonFileEncoding(reader, null);
+        assertEquals("latin1", encoding);
+    }
+    
+    public void testGetEncoding10(){
+        String s = "" +
+        "#coding: latin1\n" + 
+        "\n" +
+        "";
+        CharArrayReader reader = new CharArrayReader(s.toCharArray());
+        String encoding = REF.getPythonFileEncoding(reader, null);
+        assertEquals("latin1", encoding);
     }
     
     
     public void testGetEncoding(){
         String loc = TestDependent.TEST_PYSRC_LOC+"testenc/encutf8.py";
         String encoding = REF.getPythonFileEncoding(new File(loc));
-        assertEquals("utf-8", encoding.toLowerCase());
+        assertEquals("UTF-8", encoding);
     }
 }
 
