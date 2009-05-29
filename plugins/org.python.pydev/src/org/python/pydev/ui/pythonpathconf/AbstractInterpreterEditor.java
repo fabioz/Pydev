@@ -719,7 +719,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         }else{
             fillPathItemsFromName(null);
             if (treeWithInterpreters.getItemCount() > 0){
-                treeWithInterpreters.select(treeWithInterpreters.getItem(0));
+                treeWithInterpreters.setSelection(treeWithInterpreters.getItem(0));
                 selectionChanged();
                 fillPathItemsFromName(getNameFromTreeItem(treeWithInterpreters.getItem(0)));
             }
