@@ -46,6 +46,7 @@ public class PyProjectPythonDetails extends PropertyPage{
         private static final String INTERPRETER_NOT_CONFIGURED_MSG = "<a>Please configure an interpreter in the related preferences before proceeding.</a>";
         public Button radioPy;
         public Button radioJy;
+        public Button radioIron;
         public Combo comboGrammarVersion;
         public Label versionLabel;
         public Combo interpretersChoice;
@@ -95,6 +96,10 @@ public class PyProjectPythonDetails extends PropertyPage{
             radioJy.setText("Jython");
             
             
+            radioIron = new Button(group, SWT.RADIO | SWT.LEFT);
+            radioIron.setText("Iron Python");
+            
+            
             
             //Grammar version
             versionLabel = new Label(topComp, 0);
@@ -137,16 +142,24 @@ public class PyProjectPythonDetails extends PropertyPage{
                  * @param e can be null to force an update.
                  */
                 public void widgetSelected(SelectionEvent e) {
-                    if(e != null && e.getSource() == radioPy){
-                        return; //we'll get 2 notifications: selection of one and deselection of the other, so, let's just treat it once.
+                    System.out.println(e);
+                    if(e != null){
+                        Button source = (Button) e.getSource();
+                        if(!source.getSelection()){
+                            return; //we'll get 2 notifications: selection of one and deselection of the other, so, let's just treat the selection
+                        }
                     }
                     
                     IInterpreterManager interpreterManager;
                     
-                    if(radioPy.getSelection()){
-                        interpreterManager = PydevPlugin.getPythonInterpreterManager();
-                    }else{
+                    if(radioJy.getSelection()){
                         interpreterManager = PydevPlugin.getJythonInterpreterManager();
+                        
+                    }else if(radioIron.getSelection()){
+                        interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
+                        
+                    }else{
+                        interpreterManager = PydevPlugin.getPythonInterpreterManager();
                     }
                     
                     IInterpreterInfo[] interpretersInfo = interpreterManager.getInterpreterInfos();
@@ -168,10 +181,22 @@ public class PyProjectPythonDetails extends PropertyPage{
                         
                     }
                     //config which preferences page should be opened!
-                    if(interpreterManager.isPython()){
-                        idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
-                    }else{
-                        idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
+                    switch(interpreterManager.getInterpreterType()){
+                        case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
+                            break;
+                        
+                        case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
+                            break;
+                            
+                        case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython";
+                            break;
+                            
+                        default:
+                            throw new RuntimeException("Cannot recognize type: "+interpreterManager.getInterpreterType());
+                            
                     }
                     if(onSelectionChanged != null){
                         try {
@@ -187,6 +212,7 @@ public class PyProjectPythonDetails extends PropertyPage{
             interpretersChoice.setLayoutData(gd);
             radioPy.addSelectionListener(selectionListener);
             radioJy.addSelectionListener(selectionListener);
+            radioIron.addSelectionListener(selectionListener);
             
             
             interpreterNoteText = new Link(topComp, SWT.LEFT | SWT.WRAP);
@@ -221,6 +247,9 @@ public class PyProjectPythonDetails extends PropertyPage{
             }
             if(radioJy.getSelection()){
                 return "jython "+comboGrammarVersion.getText();
+            }
+            if(radioIron.getSelection()){
+                return "ironpython "+comboGrammarVersion.getText();
             }
             throw new RuntimeException("Some radio must be selected");
         }
@@ -281,6 +310,9 @@ public class PyProjectPythonDetails extends PropertyPage{
             String version = pythonNature.getVersion();
             if(IPythonNature.Versions.ALL_PYTHON_VERSIONS.contains(version)){
                 projectConfig.radioPy.setSelection(true);
+                
+            }else if(IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)){
+                projectConfig.radioIron.setSelection(true);
                 
             }else if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)){
                 projectConfig.radioJy.setSelection(true);

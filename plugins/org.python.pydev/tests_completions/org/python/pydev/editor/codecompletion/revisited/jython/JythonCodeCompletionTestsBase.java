@@ -65,12 +65,8 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     protected PythonNature createNature() {
         return new PythonNature(){
             @Override
-            public boolean isJython() throws CoreException {
-                return true;
-            }
-            @Override
-            public boolean isPython() throws CoreException {
-                return false;
+            public int getInterpreterType() throws CoreException {
+                return IInterpreterManager.INTERPRETER_TYPE_JYTHON;
             }
             @Override
             public int getGrammarVersion() {

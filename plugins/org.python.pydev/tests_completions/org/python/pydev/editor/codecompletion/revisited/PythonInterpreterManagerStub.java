@@ -77,17 +77,9 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
         return PythonInterpreterManager.doCreateInterpreterInfo(executable, monitor);
     }
 
-    @Override
-    public boolean canGetInfoOnNature(IPythonNature nature) {
-        return true;
-    }
-
-    public boolean isJython() {
-        return false;
-    }
-
-    public boolean isPython() {
-        return true;
+    
+    public int getInterpreterType() {
+        return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
     }
     
     public String getManagerRelatedName() {

@@ -138,19 +138,25 @@ public class IProcessFactory {
                 }
                 String pythonpathEnv = SimpleRunner.makePythonPathEnvFromPaths(pythonpathAndNature.o1);
                 
-                if(interpreterManager.isPython()){
-                    commandLine = SimplePythonRunner.makeExecutableCommandStr(interpreter.getExecutableOrJar(), scriptWithinPySrc.getAbsolutePath(), 
-                            new String[]{String.valueOf(port), String.valueOf(clientPort)});
+                switch(interpreterManager.getInterpreterType()){
                     
-                }else if(interpreterManager.isJython()){
-                    String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
-                        getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS);
+                    case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                        commandLine = SimplePythonRunner.makeExecutableCommandStr(interpreter.getExecutableOrJar(), scriptWithinPySrc.getAbsolutePath(), 
+                                new String[]{String.valueOf(port), String.valueOf(clientPort)});
+                        break;
                     
-                    commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(interpreter.getExecutableOrJar(), scriptWithinPySrc.getAbsolutePath(), 
-                            pythonpathEnv, vmArgs, new String[]{String.valueOf(port), String.valueOf(clientPort)});
                     
-                }else{
-                    throw new RuntimeException("Expected interpreter manager to be python or jython related.");
+                    case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                        String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
+                            getString(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS);
+                        
+                        commandLine = SimpleJythonRunner.makeExecutableCommandStrWithVMArgs(interpreter.getExecutableOrJar(), scriptWithinPySrc.getAbsolutePath(), 
+                                pythonpathEnv, vmArgs, new String[]{String.valueOf(port), String.valueOf(clientPort)});
+                        break;
+                    
+                    
+                    default:
+                        throw new RuntimeException("Expected interpreter manager to be python or jython related.");
                 }
                 
                 

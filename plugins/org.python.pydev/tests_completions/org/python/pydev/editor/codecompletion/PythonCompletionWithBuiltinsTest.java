@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -51,12 +52,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     protected PythonNature createNature() {
         return new PythonNature(){
             @Override
-            public boolean isJython() throws CoreException {
-                return false;
-            }
-            @Override
-            public boolean isPython() throws CoreException {
-                return true;
+            public int getInterpreterType() throws CoreException {
+                return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
             }
             @Override
             public int getGrammarVersion() {

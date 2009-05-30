@@ -44,7 +44,7 @@ public class PythonNatureStub implements IPythonNature {
         throw new RuntimeException("Not implemented");
     }
 
-    public int getRelatedId() throws CoreException {
+    public int getInterpreterType() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -133,6 +133,10 @@ public class PythonNatureStub implements IPythonNature {
     }
 
     public IInterpreterInfo getProjectInterpreter() {
+        throw new RuntimeException("Not implemented");
+    }
+    
+    public boolean isOkToUse(){
         throw new RuntimeException("Not implemented");
     }
 }

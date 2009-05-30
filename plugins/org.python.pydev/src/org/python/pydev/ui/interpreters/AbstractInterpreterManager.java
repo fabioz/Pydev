@@ -33,7 +33,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -417,7 +416,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * @return whether this interpreter manager can be used to get info on the specified nature
      */
-    public abstract boolean canGetInfoOnNature(IPythonNature nature);
+    public final boolean canGetInfoOnNature(IPythonNature nature) {
+        try {
+            return nature.getInterpreterType() == this.getInterpreterType();
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
     /**
      * @see org.python.pydev.core.IInterpreterManager#hasInfoOnDefaultInterpreter(IPythonNature)
@@ -463,7 +468,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             for (IPythonNature nature : pythonNatures) {
                 try {
                     //If they have the same type of the interpreter manager, notify.
-                    if (this.isPython() == nature.isPython() || this.isJython() == nature.isJython()) {
+                    if (this.getInterpreterType() == nature.getInterpreterType()) {
                         PythonNatureListenersManager.notifyPythonPathRebuilt(nature.getProject(), nature);
                     }
                 } catch (Throwable e) {
@@ -487,15 +492,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
         return true;
     }
+
     
-    public int getRelatedId() {
-        if(isPython()){
-            return IPythonNature.PYTHON_RELATED;
-        }else if(isJython()){
-            return IPythonNature.JYTHON_RELATED;
-        }else{
-            throw new RuntimeException("Expected Python or Jython");
-        }
-    }
+
 }
 

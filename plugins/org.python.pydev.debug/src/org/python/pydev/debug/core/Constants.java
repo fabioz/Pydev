@@ -11,7 +11,7 @@ package org.python.pydev.debug.core;
 public interface Constants {
 
     // Icons
-    static final String MAIN_ICON = "icons/python.gif";
+    static final String MAIN_ICON = "icons/python_run.png";
     static final String ARGUMENTS_ICON  = "icons/arguments.gif";
     static final String PYTHON_ORG_ICON = "icons/python_16x16.png";
         

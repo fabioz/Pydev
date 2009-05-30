@@ -38,12 +38,16 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
     
     public String getVersion() throws CoreException {
-        if(this.manager.isPython()){
-            return IPythonNature.PYTHON_VERSION_LATEST;
-        }else if(this.manager.isJython()){
-            return IPythonNature.JYTHON_VERSION_LATEST;
-        }else{
-            throw new RuntimeException("Not python nor jython?");
+        switch(this.manager.getInterpreterType()){
+            
+            case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                return IPythonNature.PYTHON_VERSION_LATEST;
+                
+            case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                return IPythonNature.JYTHON_VERSION_LATEST;
+                
+            default:
+                throw new RuntimeException("Not python nor jython?");
         }
     }
 
@@ -59,16 +63,8 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         throw new RuntimeException("Not Implemented: the system nature is read-only.");
     }
 
-    public boolean isJython() throws CoreException {
-        return manager.isJython();
-    }
-
-    public boolean isPython() throws CoreException {
-        return manager.isPython();
-    }
-
-    public int getRelatedId() throws CoreException {
-        return PythonNature.getRelatedId(this);
+    public int getInterpreterType() throws CoreException {
+        return this.getInterpreterType();
     }
 
     public File getCompletionsCacheDir() {
@@ -161,4 +157,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         return this.manager.getDefaultInterpreterInfo(null);
     }
 
+    public boolean isOkToUse(){
+        return this.manager != null && this.info != null;
+    }
 }

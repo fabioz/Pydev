@@ -226,7 +226,7 @@ public class PythonRunnerConfig {
         String location = conf.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
         
         if (location != null && location.equals(Constants.ATTR_INTERPRETER_DEFAULT)){
-            if(nature != null && nature.isPython() == interpreterManager.isPython()){
+            if(nature != null && nature.getInterpreterType() == interpreterManager.getInterpreterType()){
                 
                 //When both, the interpreter for the launch and the nature have the same type, let's get the
                 //launch location from the project

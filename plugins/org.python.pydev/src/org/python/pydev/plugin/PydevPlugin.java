@@ -36,6 +36,7 @@ import org.python.pydev.dltk.console.ui.ScriptConsoleUIConstants;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 
@@ -84,6 +85,18 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public static IInterpreterManager getJythonInterpreterManager(boolean haltOnStub) {
         return jythonInterpreterManager;
     }
+    
+    
+    private static IInterpreterManager ironpythonInterpreterManager;
+    public static void setIronpythonInterpreterManager(IInterpreterManager interpreterManager) {
+        PydevPlugin.ironpythonInterpreterManager = interpreterManager;
+    }
+    public static IInterpreterManager getIronpythonInterpreterManager() {
+        return getIronpythonInterpreterManager(false);
+    }
+    public static IInterpreterManager getIronpythonInterpreterManager(boolean haltOnStub) {
+        return ironpythonInterpreterManager;
+    }
     // ----------------- END SINGLETON THINGS --------------------------
 
     /**
@@ -94,15 +107,19 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      */
     public static IInterpreterManager getInterpreterManager(IPythonNature nature) {
         try {
-            if (nature.isJython()) {
-                return jythonInterpreterManager;
-            } else if (nature.isPython()) {
-                return pythonInterpreterManager;
+            switch(nature.getInterpreterType()){
+                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                    return jythonInterpreterManager;
+                case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                    return pythonInterpreterManager;
+                case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                    return ironpythonInterpreterManager;
+                default:
+                    throw new RuntimeException("Unable to get the interpreter manager for unknown interpreter type: "+nature.getInterpreterType());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        throw new RuntimeException("Unable to get the interpreter manager for the nature passed.");
     }
     
     
@@ -139,6 +156,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         //has some problems if that's not done).
         setPythonInterpreterManager(new PythonInterpreterManager(preferences));
         setJythonInterpreterManager(new JythonInterpreterManager(preferences));
+        setIronpythonInterpreterManager(new IronpythonInterpreterManager(preferences));
 
         //restore the nature for all python projects -- that's done when the project is set now.
 //        new Job("PyDev: Restoring projects python nature"){
@@ -165,14 +183,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 //            
 //        }.schedule();
         
-    }
-    
-    public static boolean isPythonInterpreterInitialized() {
-        return true;
-    }
-    
-    public static boolean isJythonInterpreterInitialized() {
-        return true;
     }
     
 

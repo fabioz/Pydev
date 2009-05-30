@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
-import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
@@ -90,23 +90,11 @@ public class JythonInterpreterManager extends AbstractInterpreterManager{
         return new Tuple<InterpreterInfo,String>(info, output);
     }
 
-    @Override
-    public boolean canGetInfoOnNature(IPythonNature nature) {
-        try {
-            return nature.isJython();
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    public boolean isJython() {
-        return true;
+    public int getInterpreterType() {
+        return IInterpreterManager.INTERPRETER_TYPE_JYTHON;
     }
-
-    public boolean isPython() {
-        return false;
-    }
-
+    
     public String getManagerRelatedName() {
         return "jython";
     }

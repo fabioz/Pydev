@@ -32,6 +32,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
@@ -153,7 +154,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         private MessageConsole getConsole() throws MalformedURLException {
             if(PyLintPrefPage.useConsole()){
                 if (fConsole == null){
-                    fConsole = new MessageConsole("", PydevPlugin.getImageCache().getDescriptor(UIConstants.PY_ICON));
+                    fConsole = new MessageConsole("", PydevPlugin.getImageCache().getDescriptor(UIConstants.PY_FILE_ICON));
                     ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{fConsole});
                 }
             }else{
@@ -356,7 +357,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         PythonNature pythonNature = PythonNature.getPythonNature(project);
         try {
             //pylint can only be used for jython projects
-            if (!pythonNature.isPython()) {
+            if (pythonNature.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_PYTHON){
                 return;
             }
         } catch (Exception e) {

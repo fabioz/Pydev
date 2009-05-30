@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICompletionCache;
@@ -115,26 +114,6 @@ public class PyRefactoringFindDefinition {
             PydevPlugin.logInfo("Unable to resolve nature for find definition request (python or jython interpreter may not be configured).");
             return null;
         }
-        
-        //check if it is already initialized....
-        try {
-            if(request.nature.isPython()){
-                if(!PydevPlugin.isPythonInterpreterInitialized()){
-                    PydevPlugin.logInfo("Python interpreter manager not initialized.");
-                    return null;
-                }
-            }else if(request.nature.isJython()){
-                if(!PydevPlugin.isJythonInterpreterInitialized()){
-                    PydevPlugin.logInfo("Jython interpreter manager not initialized.");
-                    return null;
-                }
-            }else{
-                throw new RuntimeException("Project is neither python nor jython?");
-            }
-        } catch (CoreException e1) {
-            throw new RuntimeException(e1);
-        }
-        //end check if it is already initialized....
         
         IModule mod = request.getModule();
         if(mod == null){

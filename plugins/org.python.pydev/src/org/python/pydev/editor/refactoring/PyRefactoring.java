@@ -271,7 +271,7 @@ public class PyRefactoring extends AbstractPyRefactoring {
 
     public void canRefactorNature(IPythonNature pythonNature) throws RuntimeException {
         try {
-            if (!pythonNature.isPython()) {
+            if (pythonNature.getInterpreterType() != IPythonNature.INTERPRETER_TYPE_PYTHON) {
                 throw new RuntimeException("Can only do actions dependent on Bycicle Repair Man in Python projects.");
             }
         } catch (CoreException e) {

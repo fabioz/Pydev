@@ -11,7 +11,7 @@ import java.io.File;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
-import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
@@ -70,23 +70,10 @@ public class PythonInterpreterManager extends AbstractInterpreterManager{
         return new Tuple<InterpreterInfo,String>(info, outTup.o1);
     }
 
-
-    @Override
-    public boolean canGetInfoOnNature(IPythonNature nature) {
-        try {
-            return nature.isPython();
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
-        }
+    public int getInterpreterType() {
+        return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
     }
-
-    public boolean isJython() {
-        return false;
-    }
-
-    public boolean isPython() {
-        return true;
-    }
+    
 
     public String getManagerRelatedName() {
         return "python";

@@ -487,10 +487,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             layout.marginWidth = 0;
             boxSystem.setLayout(layout);
             addBtSystemFolder = createBt(boxSystem, "New Folder", getSelectionListenerSystem());//$NON-NLS-1$
-            if(this.interpreterManager.isJython()){
-                addBtSystemJar = createBt(boxSystem, "New Jar/Zip(s)", getSelectionListenerSystem());//$NON-NLS-1$
-            }else{
-                addBtSystemJar = createBt(boxSystem, "New Egg/Zip(s)", getSelectionListenerSystem());//$NON-NLS-1$
+            switch(this.interpreterManager.getInterpreterType()){
+                
+                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                    addBtSystemJar = createBt(boxSystem, "New Jar/Zip(s)", getSelectionListenerSystem());//$NON-NLS-1$
+                    
+                default:
+                    addBtSystemJar = createBt(boxSystem, "New Egg/Zip(s)", getSelectionListenerSystem());//$NON-NLS-1$
+                
             }
             removeBtSystemFolder = createBt(boxSystem, "ListEditor.remove", getSelectionListenerSystem());//$NON-NLS-1$
             boxSystem.addDisposeListener(new DisposeListener() {
@@ -590,10 +594,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                         } else if (widget == addBtSystemJar) {
                             FileDialog dialog = new FileDialog(getShell(), SWT.PRIMARY_MODAL|SWT.MULTI);
                             
-                            if(AbstractInterpreterEditor.this.interpreterManager.isJython()){
-                                dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardJythonValidZipFiles());
-                            }else{
-                                dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardPythonValidZipFiles());
+                            switch(AbstractInterpreterEditor.this.interpreterManager.getInterpreterType()){
+                                
+                                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                                    dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardJythonValidZipFiles());
+                                    
+                                default:
+                                    dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardPythonValidZipFiles());
                             }
                             
                             dialog.setFilterPath(lastFileDialogPath);

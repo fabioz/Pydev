@@ -621,6 +621,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return astManager;
     }
     
+    public boolean isOkToUse(){
+        return this.astManager != null && this.pythonPathNature != null;
+    }
+
+    
     public void setAstManager(ICodeCompletionASTManager astManager){
         this.astManager = astManager;
     }
@@ -791,17 +796,6 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     
-    public boolean isJython() throws CoreException {
-        if(isJython == null){
-            isJython = IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(getVersion());
-        }
-        return isJython;
-    }
-
-    public boolean isPython() throws CoreException {
-        return !isJython();
-    }
-    
     public void saveAstManager() {
         File astOutputFile = getAstOutputFile();
         if(astOutputFile == null){
@@ -820,20 +814,24 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }
     }
 
-    public int getRelatedId() throws CoreException {
-        return getRelatedId(this);
+    public int getInterpreterType() throws CoreException {
+        if(interpreterType == null){
+            String version = getVersion();
+            if(IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)){
+                interpreterType = INTERPRETER_TYPE_JYTHON;
+                
+            }else if(IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)){
+                interpreterType = INTERPRETER_TYPE_IRONPYTHON;
+                
+            }else{
+                //if others fail, consider it python
+                interpreterType = INTERPRETER_TYPE_PYTHON;
+            }
+        }
+        
+        return interpreterType;
     }
     
-    public static int getRelatedId(IPythonNature nature) throws CoreException {
-        if(nature.isPython()){
-            return PYTHON_RELATED;
-        }else if(nature.isJython()){
-            return JYTHON_RELATED;
-        }
-        throw new RuntimeException("Unable to get the id to which this nature is related");
-    }
-
-
     /**
      * Resolve the module given the absolute path of the file in the filesystem.
      * 
@@ -856,28 +854,36 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     public IInterpreterManager getRelatedInterpreterManager() {
         try {
-            if (isPython()) {
-                return PydevPlugin.getPythonInterpreterManager();
-            } else if (isJython()) {
-                return PydevPlugin.getJythonInterpreterManager();
+            int interpreterType = getInterpreterType();
+            switch(interpreterType){
+                case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                    return PydevPlugin.getPythonInterpreterManager();
+                    
+                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                    return PydevPlugin.getJythonInterpreterManager();
+                    
+                case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                    return PydevPlugin.getIronpythonInterpreterManager();
+                    
+                default:
+                    throw new RuntimeException("Unable to find the related interpreter manager for type: "+interpreterType);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        throw new RuntimeException("Unable to find the related interpreter manager.");
         
     }
 
     
     // ------------------------------------------------------------------------------------------ LOCAL CACHES
     public void clearCaches() {
-        this.isJython = null;
+        this.interpreterType = null;
         this.versionPropertyCache = null;
         this.interpreterPropertyCache = null;
         this.pythonPathNature.clearCaches();
     }
     
-    Boolean isJython = null; //cache
+    Integer interpreterType = null; //cache
     
     public void setBuiltinCompletions(IToken[] comps) {
         this.getRelatedInterpreterManager().setBuiltinCompletions(comps);
@@ -903,7 +909,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             PythonNature nature = getPythonNature(project);
             try {
                 if(nature != null){
-                    if(nature.getRelatedId() == relatedTo){
+                    if(nature.getInterpreterType() == relatedTo){
                         ret.add(nature);
                     }
                 }

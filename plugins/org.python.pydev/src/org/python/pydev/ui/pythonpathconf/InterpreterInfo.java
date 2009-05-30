@@ -5,6 +5,7 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -473,15 +475,29 @@ public class InterpreterInfo implements IInterpreterInfo{
         forcedLibs.add("email"); //email has some lazy imports that pydev cannot handle through the source
         
 
-        if(isJythonInfo()){
-            //by default, we don't want to force anything to python.
-            forcedLibs.add("StringIO"); //jython bug: StringIO is not added
-            forcedLibs.add("re"); //re is very strange in Jython (while it's OK in Python)
-        }else{
-            //those are sources, but we want to get runtime info on them.
-            forcedLibs.add("OpenGL");
-            forcedLibs.add("wxPython");
-            forcedLibs.add("wx");
+        int interpreterType = getInterpreterType();
+        switch(interpreterType){
+            case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                //by default, we don't want to force anything to python.
+                forcedLibs.add("StringIO"); //jython bug: StringIO is not added
+                forcedLibs.add("re"); //re is very strange in Jython (while it's OK in Python)
+                break;
+                
+            case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                //those are sources, but we want to get runtime info on them.
+                forcedLibs.add("OpenGL");
+                forcedLibs.add("wxPython");
+                forcedLibs.add("wx");
+                break;
+                
+            case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                forcedLibs.add("System");
+                forcedLibs.add("Microsoft");
+                forcedLibs.add("clr");
+                break;
+                
+            default:
+                throw new RuntimeException("Don't know how to treat: "+interpreterType);
         }
         this.builtinsCache = null; //force cache recreation
     }
@@ -509,12 +525,18 @@ public class InterpreterInfo implements IInterpreterInfo{
         restorePythonpath(buffer.toString(), monitor);
     }
     
-    /**
-     * @return whether this info belongs to jython 
-     */
-    public boolean isJythonInfo() {
-        return isJythonExecutable(executableOrJar);
+    
+    public int getInterpreterType(){
+        if(isJythonExecutable(executableOrJar)){
+            return IInterpreterManager.INTERPRETER_TYPE_JYTHON;
+            
+        }else if(isIronpythonExecutable(executableOrJar)){
+            return IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON;
+        }
+        //neither one: it's python.
+        return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
     }
+
 
     /**
      * @param executable the executable we want to know about
@@ -525,6 +547,15 @@ public class InterpreterInfo implements IInterpreterInfo{
             return executable.endsWith(".jar\"");
         }
         return executable.endsWith(".jar");
+    }
+    
+    /**
+     * @param executable the executable we want to know about
+     * @return if the executable is the ironpython executable.
+     */
+    private static boolean isIronpythonExecutable(String executable) {
+        File file = new File(executable);
+        return file.getName().startsWith("ipy");
     }
 
     public String getExeAsFileSystemValidPath() {
@@ -781,4 +812,5 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
         return interpreter.equals(executableOrJar);
     }
+
 }

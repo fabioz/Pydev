@@ -114,27 +114,27 @@
 <!--- the launcher icon  -->
 <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
 	<launchConfigurationTypeImage
-		icon="icons/python.gif"
+		icon="icons/python_run.png"
 		configTypeID="org.python.pydev.debug.regularLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
-		icon="icons/python_coverage.gif"
+		icon="icons/python_coverage.png"
 		configTypeID="org.python.pydev.debug.coverageLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
-		icon="icons/python_unit.gif"
+		icon="icons/python_unit.png"
 		configTypeID="org.python.pydev.debug.unittestLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
-		icon="icons/jython_unit.gif"
+		icon="icons/jython_unit.png"
 		configTypeID="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
-		icon="icons/jython.gif"
+		icon="icons/jython_run.png"
 		configTypeID="org.python.pydev.debug.jythonLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
@@ -178,7 +178,7 @@
 <extension point="org.eclipse.debug.ui.launchShortcuts">
 	<shortcut
 		label="Python Run"
-		icon="icons/python.gif"
+		icon="icons/python_run.png"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.LaunchShortcut"
 		id="org.python.pydev.debug.ui.launchShortcut.python">
@@ -201,7 +201,7 @@
 	</shortcut>
 	<shortcut
 		label="Jython Run"
-		icon="icons/jython.gif"
+		icon="icons/jython_run.png"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.JythonLaunchShortcut"
 		id="org.python.pydev.debug.ui.launchShortcut.jython">
@@ -223,7 +223,7 @@
 	</shortcut>
 	<shortcut
 		label="Python Coverage"
-		icon="icons/python_coverage.gif"
+		icon="icons/python_coverage.png"
 		modes="run"
 		class="org.python.pydev.debug.ui.launching.CoverageLaunchShortcut"
 		id="org.python.pydev.debug.ui.launchShortcut.python.coverage">
@@ -245,7 +245,7 @@
 	</shortcut>
 	<shortcut
 		label="Python unit-test"
-		icon="icons/python_unit.gif"
+		icon="icons/python_unit.png"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.UnitTestLaunchShortcut"
 		id="org.python.pydev.debug.ui.launchShortcut.python.unittest">
@@ -266,7 +266,7 @@
 	</shortcut>
 	<shortcut
 		label="Jython unit-test"
-		icon="icons/jython_unit.gif"
+		icon="icons/jython_unit.png"
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.JythonUnitTestLaunchShortcut"
 		id="org.python.pydev.debug.ui.launchShortcut.jython.unittest">
@@ -296,13 +296,13 @@
         id="org.python.pydev.debug"/>
    <view
         class="org.python.pydev.debug.codecoverage.PyCodeCoverageView"
-        icon="icons/python_coverage.gif"
+        icon="icons/python_coverage.png"
         category="org.python.pydev"
         name="Code Coverage Results View"
         id="org.python.pydev.views.PyCodeCoverageView"/>
    <!--- removed until the implementation is improved 
    <view
-        icon="icons/python.gif"
+        icon="icons/python_run.png"
         class="org.python.pydev.debug.unittest.TestReportView"
         category="org.python.pydev"
         name="Unit Test Report View"

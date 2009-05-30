@@ -227,12 +227,8 @@ public class CodeCompletionTestsBase extends TestCase {
     public static PythonNature createStaticNature() {
         return new PythonNature(){
             @Override
-            public boolean isJython() throws CoreException {
-                return false;
-            }
-            @Override
-            public boolean isPython() throws CoreException {
-                return true;
+            public int getInterpreterType() throws CoreException {
+                return IInterpreterManager.INTERPRETER_TYPE_PYTHON;
             }
             @Override
             public int getGrammarVersion() {

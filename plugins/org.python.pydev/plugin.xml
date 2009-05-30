@@ -9,7 +9,7 @@
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
             extensions="py,pyw"
-            icon="icons/python.gif"
+            icon="icons/python_file.gif"
             id="org.python.pydev.editor.PythonEditor"
             name="Python Editor">
       </editor>
@@ -233,6 +233,15 @@
             category="org.python.pydev.prefs"
             class="org.python.pydev.ui.pythonpathconf.JythonInterpreterPreferencesPage"
             id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython">
+	        <keywordReference
+	            id="org.python.pydev.interpreter.keywords">
+	        </keywordReference>
+      </page>
+      <page
+            name="Interpreter - Iron Python"
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.ui.pythonpathconf.IronpythonInterpreterPreferencesPage"
+            id="org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython">
 	        <keywordReference
 	            id="org.python.pydev.interpreter.keywords">
 	        </keywordReference>
@@ -1134,7 +1143,7 @@
             descriptionImage="icons/python_logo.png"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
-            icon="icons/python.gif"
+            icon="icons/python_file.gif"
             id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
             name="Pydev Module"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"

@@ -64,6 +64,9 @@ public class StringSubstitutionTest extends TestCase{
             public String getDefaultVersion(){
                 throw new RuntimeException("Not implemented");
             }
+            public boolean isOkToUse(){
+                throw new RuntimeException("Not implemented");
+            }
 
             public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException,
                     PythonNatureWithoutProjectException{
@@ -123,7 +126,7 @@ public class StringSubstitutionTest extends TestCase{
                 };
             }
 
-            public int getRelatedId() throws CoreException{
+            public int getInterpreterType() throws CoreException{
                 throw new RuntimeException("Not implemented");
             }
 

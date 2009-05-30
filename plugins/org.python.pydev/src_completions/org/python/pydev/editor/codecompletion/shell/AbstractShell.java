@@ -195,15 +195,15 @@ public abstract class AbstractShell {
 
 
     public synchronized static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException, JDTNotAvailableException, CoreException, MisconfigurationException, PythonNatureWithoutProjectException{
-        return getServerShell(nature.getProjectInterpreter(), nature.getRelatedId(), id);
+        return getServerShell(nature.getProjectInterpreter(), nature.getInterpreterType(), id);
     }
     
     /**
      * @param interpreter the interpreter that should create the shell
      * 
      * @param relatedTo identifies to which kind of interpreter the shell should be related.
-     * @see org.python.pydev.core.IPythonNature#PYTHON_RELATED
-     * @see org.python.pydev.core.IPythonNature#JYTHON_RELATED
+     * @see org.python.pydev.core.IPythonNature#INTERPRETER_TYPE_PYTHON
+     * @see org.python.pydev.core.IPythonNature#INTERPRETER_TYPE_JYTHON
      * 
      * @param a given id for the shell
      * @see #COMPLETION_SHELL
@@ -221,7 +221,7 @@ public abstract class AbstractShell {
                 Log.toLogFile("Synchronizing on shells...", AbstractShell.class);
             }
             if(DebugSettings.DEBUG_CODE_COMPLETION){
-                Log.toLogFile( "Getting shell related to:"+ (relatedTo==IPythonNature.PYTHON_RELATED?"Python":"Jython")+
+                Log.toLogFile( "Getting shell related to:"+ (relatedTo==IPythonNature.INTERPRETER_TYPE_PYTHON?"Python":"Jython")+
                         " id:"+id, AbstractShell.class);
             }
             Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
@@ -231,10 +231,15 @@ public abstract class AbstractShell {
                 if(DebugSettings.DEBUG_CODE_COMPLETION){
                     Log.toLogFile("pythonShell == null", AbstractShell.class);
                 }
-                if(relatedTo == IPythonNature.PYTHON_RELATED){
+                if(relatedTo == IPythonNature.INTERPRETER_TYPE_PYTHON){
                     pythonShell = new PythonShell();
-                }else if(relatedTo == IPythonNature.JYTHON_RELATED){
+                    
+                }else if(relatedTo == IPythonNature.INTERPRETER_TYPE_JYTHON){
                     pythonShell = new JythonShell();
+                    
+                }else if(relatedTo == IPythonNature.INTERPRETER_TYPE_IRONPYTHON){
+                    pythonShell = new IronpythonShell();
+                    
                 }else{
                     throw new RuntimeException("unknown related id");
                 }

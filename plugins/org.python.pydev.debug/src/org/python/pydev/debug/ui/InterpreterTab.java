@@ -95,12 +95,17 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      */
     private PythonRunnerConfig getConfig(ILaunchConfiguration configuration, ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException, InvalidRunException, MisconfigurationException {
         String run;
-        if (fInterpreterManager.isJython()) {
-            run = PythonRunnerConfig.RUN_JYTHON;
-        } else if(fInterpreterManager.isPython()) {
-            run = PythonRunnerConfig.RUN_REGULAR;
-        } else {
-            throw new RuntimeException("Should be python or jython interpreter (found unknown).");
+        switch(fInterpreterManager.getInterpreterType()){
+            case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                run = PythonRunnerConfig.RUN_JYTHON;
+                break;
+                
+            case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                run = PythonRunnerConfig.RUN_REGULAR;
+                break;
+                
+            default:
+                throw new RuntimeException("Should be python or jython interpreter (found unknown).");
         }
         
         boolean makeArgumentsVariableSubstitution = false;

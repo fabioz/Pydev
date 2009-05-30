@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.SortedMap;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -80,10 +79,19 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     public IPythonNature getNature() {
         if(nature == null){
             IInterpreterManager manager;
-            if(this.info.isJythonInfo()){
-                manager = PydevPlugin.getJythonInterpreterManager();
-            }else{
-                manager = PydevPlugin.getPythonInterpreterManager();
+            int interpreterType = this.info.getInterpreterType();
+            switch(interpreterType){
+                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                    manager = PydevPlugin.getJythonInterpreterManager();
+                    break;
+                case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                    manager = PydevPlugin.getPythonInterpreterManager();
+                    break;
+                case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                    manager = PydevPlugin.getIronpythonInterpreterManager();
+                    break;
+                default:
+                    throw new RuntimeException("Don't know how to handle: "+interpreterType);
             }
             nature = new SystemPythonNature(manager, this.info);
         }

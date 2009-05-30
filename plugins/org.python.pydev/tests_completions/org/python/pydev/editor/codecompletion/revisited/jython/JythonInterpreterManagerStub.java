@@ -66,20 +66,6 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     }
 
     @Override
-    public boolean canGetInfoOnNature(IPythonNature nature) {
-        return true;
-    }
-    
-
-    public boolean isJython() {
-        return true;
-    }
-
-    public boolean isPython() {
-        return false;
-    }
-
-    @Override
     public String getManagerRelatedName() {
         return "jython";
     }

@@ -21,6 +21,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     public static class Versions{
         public static final HashSet<String> ALL_PYTHON_VERSIONS = new HashSet<String>();
         public static final HashSet<String> ALL_JYTHON_VERSIONS = new HashSet<String>();
+        public static final HashSet<String> ALL_IRONPYTHON_VERSIONS = new HashSet<String>();
         public static final HashSet<String> ALL_VERSIONS_ANY_FLAVOR = new HashSet<String>();
         
         static{
@@ -40,8 +41,17 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_6);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_0);
             
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_1);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_2);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_3);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_4);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_5);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_6);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_0);
+            
             ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_JYTHON_VERSIONS);
             ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_PYTHON_VERSIONS);
+            ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_IRONPYTHON_VERSIONS);
         }
     }
     
@@ -65,6 +75,14 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     public static final String JYTHON_VERSION_2_6 = "jython 2.6";
     public static final String JYTHON_VERSION_3_0 = "jython 3.0";
     
+    public static final String IRONPYTHON_VERSION_2_1 = "ironpython 2.1";
+    public static final String IRONPYTHON_VERSION_2_2 = "ironpython 2.2";
+    public static final String IRONPYTHON_VERSION_2_3 = "ironpython 2.3";
+    public static final String IRONPYTHON_VERSION_2_4 = "ironpython 2.4";
+    public static final String IRONPYTHON_VERSION_2_5 = "ironpython 2.5";
+    public static final String IRONPYTHON_VERSION_2_6 = "ironpython 2.6";
+    public static final String IRONPYTHON_VERSION_3_0 = "ironpython 3.0";
+    
     //NOTE: It's the latest in the 2 series (3 is as if it's a totally new thing)
     public static final String JYTHON_VERSION_LATEST = JYTHON_VERSION_2_6;
     public static final String PYTHON_VERSION_LATEST = PYTHON_VERSION_2_6;
@@ -72,12 +90,20 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     /**
      * this id is provided so that we can have an identifier for python-related things (independent of its version)
      */
-    public static final int PYTHON_RELATED = 0;
+    public static final int INTERPRETER_TYPE_PYTHON = 0;
     
     /**
      * this id is provided so that we can have an identifier for jython-related things (independent of its version)
      */
-    public static final int JYTHON_RELATED = 1;
+    public static final int INTERPRETER_TYPE_JYTHON = 1;
+    
+    /**
+     * This id is provided so that we can have an identifier for ironpython-related things (independent of its version)
+     */
+    public static final int INTERPRETER_TYPE_IRONPYTHON = 2;
+    
+    
+    
     public static final String DEFAULT_INTERPRETER = "Default";
 
     /**
@@ -101,26 +127,15 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      * @throws CoreException 
      */
     void setVersion(String version, String interpreter) throws CoreException;
- 
-    /**
-     * @return whether this project is a jython project
-     * @throws CoreException 
-     */
-    boolean isJython() throws CoreException;
-
-    /**
-     * @return whether this project is a python project
-     * @throws CoreException 
-     */
-    boolean isPython() throws CoreException;
     
     /**
      * @return the id that is related to this nature given its type
      * 
-     * @see #PYTHON_RELATED
-     * @see #JYTHON_RELATED
+     * @see #INTERPRETER_TYPE_PYTHON
+     * @see #INTERPRETER_TYPE_JYTHON
+     * @see #INTERPRETER_TYPE_IRONPYTHON
      */
-    int getRelatedId() throws CoreException;
+    int getInterpreterType() throws CoreException;
     
     /**
      * @return the directory where the completions should be saved (as well as deltas)
@@ -199,4 +214,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      * @throws PythonNatureWithoutProjectException 
      */
     IInterpreterInfo getProjectInterpreter() throws MisconfigurationException, PythonNatureWithoutProjectException;
+
+    boolean isOkToUse();
 }

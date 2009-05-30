@@ -19,6 +19,13 @@ public interface IInterpreterManager {
      * This is the constant from where we get the interpreter info
      */
     public String PYTHON_INTERPRETER_PATH = "INTERPRETER_PATH_NEW";
+    
+    
+    /**
+     * This is the constant from where we get the ipy.exe for iron python
+     */
+    public String IRONPYTHON_INTERPRETER_PATH = "IRONPYTHON_INTERPRETER_PATH";
+    
         
     /**
      * This is the constant from where we get the jython jar
@@ -31,12 +38,20 @@ public interface IInterpreterManager {
     public String JYTHON_CACHE_DIR = "JYTHON_CACHE_DIR";
     
     /**
-     * This is not applicable for jython (the interpreter is given by the java plugin - jdt)
-     * 
-     * @return the default interpreter.
+     * This is the constant from where we get the default vm args for Iron Python
+     */
+    public String IRONPYTHON_DEFAULT_VM_ARGS= "IRONPYTHON_DEFAULT_VM_ARGS";
+
+
+    public int INTERPRETER_TYPE_PYTHON = IPythonNature.INTERPRETER_TYPE_PYTHON;
+    public int INTERPRETER_TYPE_JYTHON = IPythonNature.INTERPRETER_TYPE_JYTHON;
+    public int INTERPRETER_TYPE_IRONPYTHON = IPythonNature.INTERPRETER_TYPE_IRONPYTHON;
+    
+    
+    /**
+     * @return the default interpreter for the given interpreter manager.
      */
     public String getDefaultInterpreter() throws MisconfigurationException;
-    
     
     /**
      * @return the interpreter infos kept internally in the interpreter manager.
@@ -105,15 +120,6 @@ public interface IInterpreterManager {
      */
     public void setInfos(List<IInterpreterInfo> allButTheseInterpreters);
 
-    /**
-     * @return whether this manager treats jython
-     */
-    public boolean isJython();
-
-    /**
-     * @return whether this manager treats python
-     */
-    public boolean isPython();
 
     /**
      * restores the pythonpath for all the interpreters available (gets its information info 
@@ -145,9 +151,9 @@ public interface IInterpreterManager {
     public boolean isConfigured();
 
     /**
-     * @return IPythonNature.PYTHON_RELATED or IPythonNature.JYTHON_RELATED 
+     * @return IPythonNature.INTERPRETER_TYPE_PYTHON or IPythonNature.INTERPRETER_TYPE_JYTHON 
      */
-    public int getRelatedId();
+    public int getInterpreterType();
 
     /**
      * @param interpreter the interpreter we care about. If null is passed, it should go for info

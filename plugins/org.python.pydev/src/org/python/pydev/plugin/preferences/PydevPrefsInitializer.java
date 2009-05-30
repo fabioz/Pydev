@@ -9,6 +9,7 @@ import org.eclipse.jface.resource.StringConverter;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
@@ -26,6 +27,9 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
     @Override
     public void initializeDefaultPreferences() {
         Preferences node = new DefaultScope().getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
+        
+        //iron python
+        node.put(IInterpreterManager.IRONPYTHON_DEFAULT_VM_ARGS, "-X:Frames");
 
         //text
         node.putBoolean(PydevEditorPrefs.SMART_INDENT_PAR, PydevEditorPrefs.DEFAULT_SMART_INDENT_PAR);
