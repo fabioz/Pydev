@@ -34,7 +34,15 @@ public class InfoFactory {
     
     private static final String TAG_PROJECT_NAME = "project";
     
+    /**
+     * This one is deprecated and should not actually appear unless for backward compatibility.
+     */
     private static final String TAG_MANAGER_IS_PYTHON = "is_python";
+    
+    /**
+     * Substituted the is_python tag for a tag that maps to the interpreter type.
+     */
+    private static final String TAG_MANAGER_INTERPRETER_TYPE = "interpreter_type";
     
     private static final String TAG_MANAGER_INTERPRETER = "interpreter";
 
@@ -99,6 +107,8 @@ public class InfoFactory {
         if(keys.contains(TAG_PROJECT_NAME)){
             projectName = memento.getString(TAG_PROJECT_NAME);
         }
+        
+        IInterpreterManager manager = null;
         if(projectName != null){
             IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
             if(project != null){
@@ -108,22 +118,46 @@ public class InfoFactory {
                     return new AdditionalInfoAndIInfo(additionalInfo, info);
                 }
             }
+            
+        }else if(keys.contains(TAG_MANAGER_INTERPRETER_TYPE) && keys.contains(TAG_MANAGER_INTERPRETER)){
+            Integer interpreterType = memento.getInteger(TAG_MANAGER_INTERPRETER_TYPE);
+            if(interpreterType != null){
+                switch(interpreterType){
+                    case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                        manager = PydevPlugin.getPythonInterpreterManager();
+                        break;
+                        
+                    case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                        manager = PydevPlugin.getJythonInterpreterManager();
+                        break;
+                        
+                    case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                        manager = PydevPlugin.getIronpythonInterpreterManager();
+                        break;
+                }
+
+            }
+            
         }else if(keys.contains(TAG_MANAGER_IS_PYTHON) && keys.contains(TAG_MANAGER_INTERPRETER)){
-            Boolean isPython = memento.getBoolean(TAG_MANAGER_IS_PYTHON);
-            if(isPython != null){
-                IInterpreterManager manager;
-                if(isPython){
+            //Kept for backward compatibility
+            Boolean isTagPython = memento.getBoolean(TAG_MANAGER_IS_PYTHON);
+            if(isTagPython != null){
+                if(isTagPython){
                     manager = PydevPlugin.getPythonInterpreterManager();
                 }else{
                     manager = PydevPlugin.getJythonInterpreterManager();
                     
                 }
-                String interpreter = memento.getString(TAG_MANAGER_INTERPRETER);
-                
-                AbstractAdditionalInterpreterInfo additionalInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
-                if(additionalInfo != null){
-                    return new AdditionalInfoAndIInfo(additionalInfo, info);
-                }
+            }
+        }
+        
+        //If it gets here, it MUST contain the TAG_MANAGER_INTERPRETER
+        if(manager != null){
+            String interpreter = memento.getString(TAG_MANAGER_INTERPRETER);
+            
+            AbstractAdditionalInterpreterInfo additionalInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
+            if(additionalInfo != null){
+                return new AdditionalInfoAndIInfo(additionalInfo, info);
             }
         }
         return null;
@@ -163,7 +197,7 @@ public class InfoFactory {
         }else if (info.additionalInfo instanceof AdditionalSystemInterpreterInfo){
             AdditionalSystemInterpreterInfo systemInterpreterInfo = (AdditionalSystemInterpreterInfo) info.additionalInfo;
             IInterpreterManager manager = systemInterpreterInfo.getManager();
-            memento.putBoolean(TAG_MANAGER_IS_PYTHON, manager.isPython());
+            memento.putInteger(TAG_MANAGER_INTERPRETER_TYPE, manager.getInterpreterType());
             memento.putString(TAG_MANAGER_INTERPRETER, systemInterpreterInfo.getAdditionalInfoInterpreter());
             
         }

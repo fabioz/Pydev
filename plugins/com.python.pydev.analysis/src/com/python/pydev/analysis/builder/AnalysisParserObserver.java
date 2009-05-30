@@ -42,11 +42,6 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
     @SuppressWarnings("unchecked")
     public void parserChanged(ChangedParserInfoForObservers info) {
         SimpleNode root = (SimpleNode) info.root;
-        //don't analyze it if we're still not 'all set'
-        if(!PydevPlugin.isPythonInterpreterInitialized() || !PydevPlugin.isJythonInterpreterInitialized()){
-            return;
-        }
-        
         if(info.file == null){
             return;
         }
@@ -82,6 +77,12 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
             if(nature == null){
                 return;
             }
+            
+            //don't analyze it if we're still not 'all set'
+            if(!nature.isOkToUse()){
+                return;
+            }
+            
             if(!nature.startRequests()){
                 return;
             }
