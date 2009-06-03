@@ -14,7 +14,6 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 
@@ -52,7 +51,7 @@ public class PythonShell extends AbstractShell{
         }else{ //however in mac, or linux, this gives an error...
             execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
         }
-        String[] parameters = SimpleIronpythonRunner.preparePythonCallParameters(
+        String[] parameters = SimplePythonRunner.preparePythonCallParameters(
                 interpreter.getExecutableOrJar(), REF.getFileAbsolutePath(serverFile), new String[]{""+pWrite, ""+pRead});
         
         IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager();
