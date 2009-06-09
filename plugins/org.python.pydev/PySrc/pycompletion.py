@@ -11,6 +11,10 @@ import time
 import urllib
 import pycompletionserver
 
+
+#=======================================================================================================================
+# GetImports
+#=======================================================================================================================
 def GetImports(module_name):
     try:
         processor = pycompletionserver.Processor()
@@ -23,10 +27,13 @@ def GetImports(module_name):
     
         traceback.print_exception(exc_info[0], exc_info[1], exc_info[2], limit=None, file=s)
         err = s.getvalue()
-        pycompletionserver.dbg('Received error: ' + str(err), ERROR)
+        pycompletionserver.dbg('Received error: ' + str(err), pycompletionserver.ERROR)
         raise
 
 
+#=======================================================================================================================
+# main
+#=======================================================================================================================
 if __name__ == '__main__':
   mod_name = sys.argv[1]
 
