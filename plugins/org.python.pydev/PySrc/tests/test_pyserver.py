@@ -192,8 +192,8 @@ if sys.platform.find('java') == -1:
 
         
 if __name__ == '__main__':
-    if sys.platform.find('java') == -1:
+    if sys.platform.find('java') == -1 and sys.platform.find('cli') == -1:
         unittest.main()
     else:
-        sys.stdout.write('Not running python tests in jython -- platform: %s\n' % (sys.platform,))
+        sys.stdout.write('Not running python tests in platform: %s\n' % (sys.platform,))
 

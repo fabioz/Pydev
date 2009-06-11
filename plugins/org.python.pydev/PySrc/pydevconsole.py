@@ -1,4 +1,8 @@
-from code import InteractiveConsole
+try:
+    from code import InteractiveConsole
+except ImportError:
+    from pydevconsole_code_for_ironpython import InteractiveConsole 
+
 import os
 import sys
 

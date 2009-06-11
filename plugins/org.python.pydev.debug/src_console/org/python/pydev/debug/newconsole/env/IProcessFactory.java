@@ -30,6 +30,7 @@ import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
+import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
@@ -145,6 +146,11 @@ public class IProcessFactory {
                                 new String[]{String.valueOf(port), String.valueOf(clientPort)});
                         break;
                     
+                    case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                        commandLine = SimpleIronpythonRunner.makeExecutableCommandStr(interpreter.getExecutableOrJar(), scriptWithinPySrc.getAbsolutePath(), 
+                                new String[]{String.valueOf(port), String.valueOf(clientPort)});
+                        break;
+                        
                     
                     case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                         String vmArgs = PydevDebugPlugin.getDefault().getPreferenceStore().
@@ -156,7 +162,7 @@ public class IProcessFactory {
                     
                     
                     default:
-                        throw new RuntimeException("Expected interpreter manager to be python or jython related.");
+                        throw new RuntimeException("Expected interpreter manager to be python or jython or iron python related.");
                 }
                 
                 

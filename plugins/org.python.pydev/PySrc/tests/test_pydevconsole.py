@@ -70,7 +70,12 @@ class Test(unittest.TestCase):
         self.assert_(('CONSTANT', '', '', '3') in comps or ('CONSTANT', '', '', '4') in comps)
         
         comps = interpreter.getCompletions('"".')
-        self.assert_(('__add__', 'x.__add__(y) <==> x+y', '', '3') in comps or ('__add__', '', '', '4') in comps)
+        self.assert_(
+            ('__add__', 'x.__add__(y) <==> x+y', '', '3') in comps or 
+            ('__add__', '', '', '4') in comps or 
+            ('__add__', 'x.__add__(y) <==> x+y\r\nx.__add__(y) <==> x+y', '()', '2') in comps,
+            'Did not find __add__ in : %s' % (comps,)
+        )
         
         self.assert_(('AssertionError', '', '', '1') in interpreter.getCompletions(''))
         self.assert_(('RuntimeError', '', '', '1') not in interpreter.getCompletions('Assert'))
@@ -83,14 +88,18 @@ class Test(unittest.TestCase):
         interpreter.addExec('s = "mystring"')
         
         desc = interpreter.getDescription('val')
-        self.assert_(desc.find('str(object) -> string') >= 0 or desc == "'input_request'" or 
-                     desc.find('str(string[, encoding[, errors]]) -> str') >= 0, 'Could not find what was needed in %s' % desc)
+        self.assert_(desc.find('str(object) -> string') >= 0 or 
+                     desc == "'input_request'" or 
+                     desc.find('str(string[, encoding[, errors]]) -> str') >= 0 or
+                     desc.find('str(Char* value)') >= 0, 
+                     'Could not find what was needed in %s' % desc)
         
         desc = interpreter.getDescription('val.join')
         self.assert_(desc.find('S.join(sequence) -> string') >= 0 or 
                      desc.find('S.join(sequence) -> str') >= 0 or 
                      desc == "<builtin method 'join'>"  or 
-                     desc == "<built-in method join of str object>",
+                     desc == "<built-in method join of str object>" or
+                     desc.find('str join(str self, list sequence)') >= 0,
                      "Could not recognize: %s" % (desc,))
 
     

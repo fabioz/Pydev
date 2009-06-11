@@ -2,21 +2,26 @@
 @author Fabio Zadrozny 
 '''
 import sys
-import os
-
-#make it as if we were executing from the directory above this one (so that we can use jycompletionserver
-#without the need for it being in the pythonpath)
-sys.argv[0] = os.path.dirname(sys.argv[0]) 
-#twice the dirname to get the previous level from this file.
-sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
-
 import unittest
-import pycompletionserver as jycompletionserver
 import socket
 import urllib
 
 
-DEBUG = 0
+IS_JYTHON = sys.platform.find('java') != -1
+
+if IS_JYTHON:
+    import os
+    
+    #make it as if we were executing from the directory above this one (so that we can use jycompletionserver
+    #without the need for it being in the pythonpath)
+    sys.argv[0] = os.path.dirname(sys.argv[0]) 
+    #twice the dirname to get the previous level from this file.
+    sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
+    
+    import pycompletionserver as jycompletionserver
+    
+    
+    DEBUG = 0
 
 def dbg(s):
     if DEBUG:
@@ -156,7 +161,7 @@ class Test(unittest.TestCase):
 #
 #"C:\Program Files\Java\jdk1.5.0_04\bin\java.exe" -Dpython.path="C:\bin\jython21\Lib";"C:\bin\jython21";"C:\Program Files\Java\jdk1.5.0_04\jre\lib\rt.jar" -classpath C:/bin/jython21/jython.jar org.python.util.jython d:\runtime-workbench-workspace\jython_test\src\test.py        
 if __name__ == '__main__':
-    if sys.platform.find('java') != -1:
+    if IS_JYTHON:
         suite = unittest.makeSuite(Test)
         unittest.TextTestRunner(verbosity=1).run(suite)
     else:
