@@ -24,6 +24,24 @@ def _imp(name):
         else:
             s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
             raise ImportError(s)
+        
+        
+if sys.platform == 'cli':
+    _old_imp = _imp
+    def _imp(name):
+        #We must add a reference in clr for .Net
+        import clr
+        initial_name = name
+        while '.' in name:
+            try:
+                clr.AddReference(name)
+                break #If it worked, that's OK.
+            except:
+                name = name[0:name.rfind('.')]
+        
+        return _old_imp(initial_name)
+        
+
 
 def GetFile(mod):
     f = None

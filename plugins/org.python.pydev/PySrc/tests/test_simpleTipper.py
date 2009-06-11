@@ -159,6 +159,14 @@ if sys.platform.find('java') == -1:
             self.assert_(line > 0)
             
             
+        def testDotNetLibraries(self):
+            if sys.platform == 'cli':
+                tip = importsTipper.GenerateTip('System.Drawing')
+                self.assertIn('Brushes' , tip)
+                
+                tip = importsTipper.GenerateTip('System.Drawing.Brushes')
+                self.assertIn('Aqua' , tip)
+            
     
         def testInspect(self):
             
