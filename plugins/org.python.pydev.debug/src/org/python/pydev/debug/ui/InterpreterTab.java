@@ -100,6 +100,10 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
                 run = PythonRunnerConfig.RUN_JYTHON;
                 break;
                 
+            case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                run = PythonRunnerConfig.RUN_IRONPYTHON;
+                break;
+                
             case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
                 run = PythonRunnerConfig.RUN_REGULAR;
                 break;

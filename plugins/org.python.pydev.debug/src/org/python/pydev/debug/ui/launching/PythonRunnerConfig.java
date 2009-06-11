@@ -62,6 +62,7 @@ public class PythonRunnerConfig {
     public static final String RUN_UNITTEST = "pyton unittest run";
     public static final String RUN_JYTHON_UNITTEST = "jython unittest run";
     public static final String RUN_JYTHON   = "jython regular run";
+    public static final String RUN_IRONPYTHON   = "iron python regular run";
         
     public final IProject project;
     public final IPath[] resource;
@@ -92,12 +93,12 @@ public class PythonRunnerConfig {
         return this.run.equals(RUN_UNITTEST) || this.run.equals(RUN_JYTHON_UNITTEST);
     }
     
-    public static boolean isJython(String run){
-        return run.equals(RUN_JYTHON) || run.equals(RUN_JYTHON_UNITTEST);
+    public boolean isJython(){
+        return this.run.equals(RUN_JYTHON) || this.run.equals(RUN_JYTHON_UNITTEST);
     }
     
-    public boolean isJython(){
-        return isJython(this.run);
+    public boolean isIronpython(){
+        return this.run.equals(RUN_IRONPYTHON);
     }
     
     public boolean isFile() throws CoreException{
@@ -378,6 +379,8 @@ public class PythonRunnerConfig {
         IInterpreterManager manager;
         if(isJython()){
             manager = PydevPlugin.getJythonInterpreterManager();
+        }else if(isIronpython()){
+            manager = PydevPlugin.getIronpythonInterpreterManager();
         }else{
             manager = PydevPlugin.getPythonInterpreterManager();
         }
@@ -603,8 +606,6 @@ public class PythonRunnerConfig {
             }else{
                 cmdArgs.add("org.python.util.jython");
             }
-            
-            addUnittestArgs(cmdArgs);
 
         }else{
         
@@ -627,8 +628,8 @@ public class PythonRunnerConfig {
                 }
             }
     
-            addUnittestArgs(cmdArgs);
         }
+        addUnittestArgs(cmdArgs);
         
         for(IPath p:resource){
             cmdArgs.add(p.toOSString());
@@ -725,7 +726,13 @@ public class PythonRunnerConfig {
     }
 
     public IInterpreterManager getRelatedInterpreterManager() {
-        return isJython()?PydevPlugin.getJythonInterpreterManager():PydevPlugin.getPythonInterpreterManager();
+        if(isJython()){
+            return PydevPlugin.getJythonInterpreterManager();
+        }
+        if(isIronpython()){
+            return PydevPlugin.getIronpythonInterpreterManager();
+        }
+        return PydevPlugin.getPythonInterpreterManager();
     }
 
 }

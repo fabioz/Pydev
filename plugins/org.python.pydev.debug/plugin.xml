@@ -80,6 +80,13 @@
         public="true">
 	</launchConfigurationType>
 	<launchConfigurationType
+        delegate="org.python.pydev.debug.ui.launching.IronpythonLaunchConfigurationDelegate"
+        id="org.python.pydev.debug.ironpythonLaunchConfigurationType"
+        modes="run, debug, interactive"
+        name="Iron Python Run"
+        public="true">
+	</launchConfigurationType>
+	<launchConfigurationType
         delegate="org.python.pydev.debug.ui.launching.CoverageLaunchConfigurationDelegate"
         id="org.python.pydev.debug.coverageLaunchConfigurationType"
         modes="run"
@@ -119,6 +126,11 @@
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
+		icon="icons/ironpython_run.png"
+		configTypeID="org.python.pydev.debug.ironpythonLaunchConfigurationType"
+		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+	<launchConfigurationTypeImage
 		icon="icons/python_coverage.png"
 		configTypeID="org.python.pydev.debug.coverageLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
@@ -142,6 +154,14 @@
 <!--- launcher tab group -->
 <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
 
+	<!--Iron Python-->
+	<launchConfigurationTabGroup
+		type="org.python.pydev.debug.ironpythonLaunchConfigurationType"
+		class="org.python.pydev.debug.ui.IronpythonTabGroup"
+		id="org.python.pydev.debug.ui.ironpythonTabGroup">
+	</launchConfigurationTabGroup>
+	
+	
 	<!--Python-->
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.regularLaunchConfigurationType"
@@ -158,6 +178,7 @@
 		class="org.python.pydev.debug.ui.PythonTabGroup"
 		id="org.python.pydev.debug.ui.PythonTabGroup">
 	</launchConfigurationTabGroup>
+	
 	
 	<!--Jython-->
 	<launchConfigurationTabGroup
@@ -182,7 +203,6 @@
 		modes="run, debug"
 		class="org.python.pydev.debug.ui.launching.LaunchShortcut"
 		id="org.python.pydev.debug.ui.launchShortcut.python">
-		<perspective id="org.eclipse.debug.ui.DebugPerspective"/>
 		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
         <contextualLaunch>
            <enablement>
@@ -198,6 +218,28 @@
            </enablement>
         </contextualLaunch>
         <configurationType id="org.python.pydev.debug.regularLaunchConfigurationType"/>
+	</shortcut>
+	<shortcut
+		label="Iron Python Run"
+		icon="icons/ironpython_run.png"
+		modes="run, debug"
+		class="org.python.pydev.debug.ui.launching.IronpythonLaunchShortcut"
+		id="org.python.pydev.debug.ui.launchShortcut.ironpython">
+		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
+        <contextualLaunch>
+           <enablement>
+              <with variable="selection">
+                 <count value="1"/>
+           		 <iterate>
+           		 	<or>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+               		</or>
+           		 </iterate>
+              </with>
+           </enablement>
+        </contextualLaunch>
+        <configurationType id="org.python.pydev.debug.ironpythonLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
 		label="Jython Run"
