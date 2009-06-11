@@ -104,8 +104,15 @@ public class SimpleIronpythonRunner extends SimpleRunner {
             throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
         }
 
-        IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
-        String defaultVmArgs = preferenceStore.getString(IInterpreterManager.IRONPYTHON_DEFAULT_VM_ARGS);
+        PydevPlugin plugin = PydevPlugin.getDefault();
+        String defaultVmArgs;
+        if(plugin == null){
+            //in tests
+            defaultVmArgs = IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS;
+        }else{
+            IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+            defaultVmArgs = preferenceStore.getString(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS);
+        }
         List<String> defaultVmArgsSplit = new ArrayList<String>();
         if(defaultVmArgs != null){
             defaultVmArgsSplit = StringUtils.split(defaultVmArgs, ' ');

@@ -29,7 +29,7 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         Preferences node = new DefaultScope().getNode(PydevPlugin.DEFAULT_PYDEV_SCOPE);
         
         //iron python
-        node.put(IInterpreterManager.IRONPYTHON_DEFAULT_VM_ARGS, "-X:Frames");
+        node.put(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS, IInterpreterManager.IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS);
 
         //text
         node.putBoolean(PydevEditorPrefs.SMART_INDENT_PAR, PydevEditorPrefs.DEFAULT_SMART_INDENT_PAR);

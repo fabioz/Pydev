@@ -40,7 +40,12 @@ public interface IInterpreterManager {
     /**
      * This is the constant from where we get the default vm args for Iron Python
      */
-    public String IRONPYTHON_DEFAULT_VM_ARGS= "IRONPYTHON_DEFAULT_VM_ARGS";
+    public String IRONPYTHON_INTERNAL_SHELL_VM_ARGS= "IRONPYTHON_INTERNAL_SHELL_VM_ARGS";
+    
+    /**
+     * Constant for the default values
+     */
+    public String IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS = "-X:Frames";
 
 
     public int INTERPRETER_TYPE_PYTHON = IPythonNature.INTERPRETER_TYPE_PYTHON;

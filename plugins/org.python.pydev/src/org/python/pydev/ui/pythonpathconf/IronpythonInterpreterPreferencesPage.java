@@ -33,7 +33,7 @@ public class IronpythonInterpreterPreferencesPage extends AbstractInterpreterPre
     
     protected void createFieldEditors() {
         super.createFieldEditors();
-        addField(new StringFieldEditor(IInterpreterManager.IRONPYTHON_DEFAULT_VM_ARGS, "Default vm arguments", getFieldEditorParent()));
+        addField(new StringFieldEditor(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS, "Vm arguments for internal shell", getFieldEditorParent()));
     }
     
     @Override
