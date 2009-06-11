@@ -46,8 +46,11 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
             case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                 return IPythonNature.JYTHON_VERSION_LATEST;
                 
+            case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                return IPythonNature.PYTHON_VERSION_LATEST;
+                
             default:
-                throw new RuntimeException("Not python nor jython?");
+                throw new RuntimeException("Not python nor jython nor iron python?");
         }
     }
 
@@ -64,7 +67,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
 
     public int getInterpreterType() throws CoreException {
-        return this.getInterpreterType();
+        return this.manager.getInterpreterType();
     }
 
     public File getCompletionsCacheDir() {

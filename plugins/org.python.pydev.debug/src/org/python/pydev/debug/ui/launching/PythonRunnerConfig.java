@@ -63,6 +63,7 @@ public class PythonRunnerConfig {
     public static final String RUN_JYTHON_UNITTEST = "jython unittest run";
     public static final String RUN_JYTHON   = "jython regular run";
     public static final String RUN_IRONPYTHON   = "iron python regular run";
+    public static final String RUN_IRONPYTHON_UNITTEST   = "iron python unittest run";
         
     public final IProject project;
     public final IPath[] resource;
@@ -90,7 +91,7 @@ public class PythonRunnerConfig {
     }
     
     public boolean isUnittest(){
-        return this.run.equals(RUN_UNITTEST) || this.run.equals(RUN_JYTHON_UNITTEST);
+        return this.run.equals(RUN_UNITTEST) || this.run.equals(RUN_JYTHON_UNITTEST) || this.run.equals(RUN_IRONPYTHON_UNITTEST);
     }
     
     public boolean isJython(){
@@ -98,7 +99,7 @@ public class PythonRunnerConfig {
     }
     
     public boolean isIronpython(){
-        return this.run.equals(RUN_IRONPYTHON);
+        return this.run.equals(RUN_IRONPYTHON) || this.run.equals(RUN_IRONPYTHON_UNITTEST);
     }
     
     public boolean isFile() throws CoreException{

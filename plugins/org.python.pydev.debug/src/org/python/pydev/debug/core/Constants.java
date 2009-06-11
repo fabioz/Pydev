@@ -17,16 +17,23 @@ public interface Constants {
         
     // Plugin constants
     static final String PLUGIN_ID = "org.python.pydev.debug";
+    
     static final String ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.regularLaunchConfigurationType";
     static final String ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.coverageLaunchConfigurationType";
     static final String ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.unittestLaunchConfigurationType";
+    
     static final String ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.jythonUnittestLaunchConfigurationType";
     static final String ID_JYTHON_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.jythonLaunchConfigurationType";
+    
     static final String ID_IRONPYTHON_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.ironpythonLaunchConfigurationType";
+    static final String ID_IRONPYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE = "org.python.pydev.debug.ironpythonUnittestLaunchConfigurationType";
+    
     static final String PROCESS_TYPE = "PYDEV.PYTHON";
     
     static final String ATTR_VM_ARGUMENTS = "org.python.pydev.debug.vm.arguments";
     static final String JAVA_NATURE = "org.eclipse.jdt.core.javanature";
+    
+    
     
 // LaunchConfiguration properties
 // ATTR_* are copied from IExternalToolConstants, replicated since I have no access to originals

@@ -107,6 +107,13 @@
         name="Jython unittest"
         public="true">
 	</launchConfigurationType>
+	<launchConfigurationType
+        delegate="org.python.pydev.debug.ui.launching.IronpythonUnittestLaunchConfigurationDelegate"
+        id="org.python.pydev.debug.ironpythonUnittestLaunchConfigurationType"
+        modes="run, debug"
+        name="Iron Python unittest"
+        public="true">
+	</launchConfigurationType>
     <launchConfigurationType
         delegate="org.python.pydev.debug.ui.launching.JythonLaunchConfigurationDelegate"
         id="org.python.pydev.debug.jythonLaunchConfigurationType"
@@ -146,6 +153,11 @@
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
+		icon="icons/ironpython_unit.png"
+		configTypeID="org.python.pydev.debug.ironpythonUnittestLaunchConfigurationType"
+		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+	<launchConfigurationTypeImage
 		icon="icons/jython_run.png"
 		configTypeID="org.python.pydev.debug.jythonLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
@@ -158,9 +170,14 @@
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.ironpythonLaunchConfigurationType"
 		class="org.python.pydev.debug.ui.IronpythonTabGroup"
-		id="org.python.pydev.debug.ui.ironpythonTabGroup">
+		id="org.python.pydev.debug.ui.IronpythonTabGroup">
 	</launchConfigurationTabGroup>
-	
+    <launchConfigurationTabGroup
+        type="org.python.pydev.debug.ironpythonUnittestLaunchConfigurationType"
+        class="org.python.pydev.debug.ui.IronpythonTabGroup"
+        id="org.python.pydev.debug.ui.IronpythonTabGroup">
+    </launchConfigurationTabGroup>
+
 	
 	<!--Python-->
 	<launchConfigurationTabGroup
@@ -326,6 +343,27 @@
            </enablement>
         </contextualLaunch>
         <configurationType id="org.python.pydev.debug.jythonUnittestLaunchConfigurationType"/>
+	</shortcut>
+	<shortcut
+		label="Iron Python unit-test"
+		icon="icons/ironpython_unit.png"
+		modes="run, debug"
+		class="org.python.pydev.debug.ui.launching.IronpythonUnitTestLaunchShortcut"
+		id="org.python.pydev.debug.ui.launchShortcut.ironpython.unittest">
+        <contextualLaunch>
+           <enablement>
+              <with variable="selection">
+           		 <iterate>
+           		 	<or>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+               		    <adapt type="org.eclipse.core.resources.IFolder" />
+               		</or>
+           		 </iterate>
+              </with>
+           </enablement>
+        </contextualLaunch>
+        <configurationType id="org.python.pydev.debug.ironpythonUnittestLaunchConfigurationType"/>
 	</shortcut>
 </extension>
 

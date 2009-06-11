@@ -143,6 +143,7 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
      * @see PythonRunnerConfig#RUN_JYTHON_UNITTEST
      * @see PythonRunnerConfig#RUN_JYTHON
      * @see PythonRunnerConfig#RUN_IRONPYTHON
+     * @see PythonRunnerConfig#RUN_IRONPYTHON_UNITTEST
      */
     protected abstract String getRunnerConfigRun();
 }

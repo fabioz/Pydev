@@ -165,9 +165,9 @@ class PydevTestRunner:
             for part in modname.split('.')[1:]:
                 mod = getattr(mod, part)
             return mod
-        except ImportError:
+        except:
             import traceback;traceback.print_exc()
-            sys.stderr.write('ERROR: Module: %s could not be imported (alternative reason: the dir does not have __init__.py folders for all the packages?)' % (modname,))
+            sys.stderr.write('ERROR: Module: %s could not be imported.\n' % (modname,))
             return None
 
     def find_modules_from_files(self, pyfiles):
