@@ -174,7 +174,11 @@ class Processor:
       return
         
     def removeInvalidChars(self, msg):
-        msg = str(msg)
+        try:
+            msg = str(msg)
+        except UnicodeDecodeError:
+            pass
+        
         if msg:
             try:
                 return quote_plus(msg)

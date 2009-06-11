@@ -107,18 +107,25 @@ if sys.platform.find('java') == -1:
                 
                 #math is a builtin and because of that, it starts with None as a file
                 start = '@@COMPLETIONS(None,(__doc__,'
-                self.assert_(completions.startswith(start), '%s DOESNT START WITH %s' % (completions, start))
+                start_2 = '@@COMPLETIONS(None,(__name__,'
+                self.assert_(completions.startswith(start) or completions.startswith(start_2), '%s DOESNT START WITH %s' % (completions, (start, start_2)))
         
                 self.assert_('@@COMPLETIONS' in completions)
                 self.assert_('END@@' in completions)
     
+    
+                #now, test i
+                msg = quote_plus('__builtin__.list')
+                send(sToWrite, "@@IMPORTS:%s\nEND@@" % msg)
+                found = self.readMsg()
+                self.assert_('sort' in found, 'Could not find sort in: %s' % (found,))
     
                 #now, test search
                 msg = quote_plus('inspect.ismodule')
                 send(sToWrite, '@@SEARCH%sEND@@' % msg) #math completions
                 found = self.readMsg()
                 self.assert_('inspect.py' in found)
-                self.assert_('33' in found or '34' in found or '51' in found, 'Could not find 33, 34 or 51in %s' % found)
+                self.assert_('33' in found or '34' in found or '51' in found or '50' in found, 'Could not find 33, 34, 50 or 51 in %s' % found)
     
                 #now, test search
                 msg = quote_plus('inspect.CO_NEWLOCALS')
@@ -192,7 +199,7 @@ if sys.platform.find('java') == -1:
 
         
 if __name__ == '__main__':
-    if sys.platform.find('java') == -1 and sys.platform.find('cli') == -1:
+    if sys.platform.find('java') == -1:
         unittest.main()
     else:
         sys.stdout.write('Not running python tests in platform: %s\n' % (sys.platform,))

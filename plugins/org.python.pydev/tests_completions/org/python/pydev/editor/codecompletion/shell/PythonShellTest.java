@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TestDependent;
@@ -51,6 +52,16 @@ public class PythonShellTest extends CodeCompletionTestsBase{
      */
     public static PythonShell startShell() throws IOException, Exception {
         PythonShell shell = new PythonShell();
+        shell.startIt(nature);
+        return shell;
+    }
+    
+    /**
+     * @throws IOException
+     * @throws CoreException
+     */
+    public static IronpythonShell startIronpythonShell(IPythonNature nature) throws IOException, Exception {
+        IronpythonShell shell = new IronpythonShell();
         shell.startIt(nature);
         return shell;
     }

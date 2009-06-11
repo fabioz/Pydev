@@ -109,14 +109,7 @@ class InterpreterInterface:
             
         if obj is not None:
             try:
-                if not sys.platform.startswith("java"):
-                    #Python
-                    import inspect #@UnresolvedImport
-                    doc = inspect.getdoc(obj) 
-                    if doc is not None:
-                        return doc
-                        
-                else:
+                if sys.platform.startswith("java"):
                     #Jython
                     doc = obj.__doc__
                     if doc is not None:
@@ -129,6 +122,13 @@ class InterpreterInterface:
                         for info in infos:
                             ret += info.getAsDoc()
                         return ret
+                        
+                else:
+                    #Python and Iron Python
+                    import inspect #@UnresolvedImport
+                    doc = inspect.getdoc(obj) 
+                    if doc is not None:
+                        return doc
             except:
                 pass
                 
