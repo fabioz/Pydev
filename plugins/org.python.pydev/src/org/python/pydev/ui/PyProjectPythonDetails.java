@@ -84,7 +84,7 @@ public class PyProjectPythonDetails extends PropertyPage{
             group.setText("Choose the project type");
             GridLayout layout = new GridLayout();
             layout.horizontalSpacing = 8;
-            layout.numColumns = 2;
+            layout.numColumns = 3;
             group.setLayout(layout);
             gd= new GridData(GridData.FILL_HORIZONTAL);
             group.setLayoutData(gd);
@@ -142,7 +142,6 @@ public class PyProjectPythonDetails extends PropertyPage{
                  * @param e can be null to force an update.
                  */
                 public void widgetSelected(SelectionEvent e) {
-                    System.out.println(e);
                     if(e != null){
                         Button source = (Button) e.getSource();
                         if(!source.getSelection()){

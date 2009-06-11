@@ -9,10 +9,10 @@
      targetID="org.python.pydev.editor.PythonEditor"
      id="org.python.pydev.debug.editor.editorContribution">
      <action
-           definitionId="org.python.pydev.debug.ui.actions.runEditorAsPython"
+           definitionId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureType"
            label="Run As Python"
-           class="org.python.pydev.debug.ui.actions.RunEditorAsPython"
-           id="org.python.pydev.debug.ui.actions.runEditorAsPython">
+           class="org.python.pydev.debug.ui.actions.RunEditorBasedOnNatureType"
+           id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureType">
      </action>
      <action
            definitionId="org.python.pydev.debug.ui.actions.runEditorAsJython"
@@ -31,7 +31,7 @@
       </category>
       <command
             description="Run the editor as Python."
-            id="org.python.pydev.debug.ui.actions.runEditorAsPython"
+            id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureType"
             categoryId="org.python.pydev.ui.category.run"
             name="Run As Python">
       </command>
@@ -51,7 +51,7 @@
       <key
             sequence="F9"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.debug.ui.actions.runEditorAsPython"	
+            commandId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureType"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
