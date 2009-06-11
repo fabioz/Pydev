@@ -5,6 +5,8 @@ Fixed problem when recognizing encodings (https://sourceforge.net/tracker/?func=
 Fixed issue when configuring interpreter on Eclipse 3.3 and 3.2 (was using API only available in 3.4)
 Iron Python support
 Changed run icons
+F9 will now run the current editor based on the project type
+
 
 After 1.4.5
 
