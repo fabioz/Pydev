@@ -9,8 +9,10 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
+import org.python.pydev.plugin.PydevPlugin;
 
 public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
     
@@ -56,4 +58,10 @@ public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
     protected String getLaunchConfigurationType() {
         return "com.python.pydev.debug.pydevdServerLaunchConfigurationType";
     }
+    
+    @Override
+    protected IInterpreterManager getInterpreterManager(){
+        return PydevPlugin.getPythonInterpreterManager();
+    }
+    
 }
