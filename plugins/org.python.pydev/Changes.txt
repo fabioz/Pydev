@@ -6,6 +6,7 @@ Fixed issue when configuring interpreter on Eclipse 3.3 and 3.2 (was using API o
 Iron Python support
 Changed run icons
 F9 will now run the current editor based on the project type
+Run configurations can be created for the project
 
 
 After 1.4.5
