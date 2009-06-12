@@ -10,8 +10,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
@@ -29,13 +31,16 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
 
 /**
  * Called when "Run Script..." popup menu item is selected.
@@ -52,6 +57,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     //=============================================================================================
     @SuppressWarnings("unchecked")
     public void launch(ISelection selection, String mode) {
+        boolean requireFile = getRequireFile();
         if (selection instanceof IStructuredSelection) {
             IStructuredSelection structuredSelection = (IStructuredSelection) selection;
             
@@ -60,26 +66,53 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
                 Object object = structuredSelection.getFirstElement();
                 if (object instanceof IAdaptable) {
 
-                    IFile resource = (IFile) ((IAdaptable) object).getAdapter(IFile.class);
+                    IResource resource = (IFile) ((IAdaptable) object).getAdapter(IFile.class);
                     if (resource != null) {
                         launch(resource, mode, null);
                         return;
                     }
 
-                    IFolder folder = (IFolder) ((IAdaptable) object).getAdapter(IFolder.class);
+                    IContainer folder = (IContainer) ((IAdaptable) object).getAdapter(IContainer.class);
                     if (folder != null) {
-                        launch(folder, mode, null);
+                        
+                        if(requireFile){
+                            if(folder instanceof IProject){
+                                Shell parent = PyAction.getShell();
+                                PythonModulePickerDialog dialog = new PythonModulePickerDialog(
+                                        parent, "Select python file", "Select the python file to be launched.", (IProject) folder);
+                                int result = dialog.open();
+                                if (result == PythonModulePickerDialog.OK) {
+                                    Object results[] = dialog.getResult();
+                                    if (   (results != null) 
+                                        && (results.length > 0)
+                                        && (results[0] instanceof IFile)) {
+                                        resource = (IResource) results[0];
+                                    }
+                                }
+                            }
+                            
+                        }else{
+                            resource = folder;
+                        }
+                        
+                        if(resource != null){
+                            launch(resource, mode, null);
+                        }
                         return;
                     }
                 }
 
             //multiple selection
             } else if (structuredSelection.size() > 1) {
+                
+                //for multiple selection, we must accept folders or files!
+                Assert.isTrue(!requireFile);
+                
                 List<IResource> sel = new ArrayList<IResource>();
                 for (Iterator<Object> it = structuredSelection.iterator(); it.hasNext();) {
                     Object object = it.next();
                     if (object instanceof IAdaptable) {
-                        IFolder folder = (IFolder) ((IAdaptable) object).getAdapter(IFolder.class);
+                        IContainer folder = (IContainer) ((IAdaptable) object).getAdapter(IContainer.class);
                         if (folder != null) {
                             sel.add(folder);
                         }else{
@@ -105,6 +138,16 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             PydevPlugin.log("Expecting instance of IStructuredSelection. Received: "+selection.getClass().getName());
         }
         
+    }
+
+    /**
+     * Subclasses can reimplement to signal that they only work with files (so, if a container is selected,
+     * the user will be asked to choose a file contained in that container)
+     * 
+     * @return true if the launch configuration requires files (and does not work with containers) and false otherwise.
+     */
+    protected boolean getRequireFile(){
+        return false;
     }
 
     /**
@@ -216,9 +259,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     /**
      * @return the interpreter manager associated with this shortcut (may be overridden if it is not python)
      */
-    protected IInterpreterManager getInterpreterManager() {
-        return PydevPlugin.getPythonInterpreterManager();
-    }
+    protected abstract IInterpreterManager getInterpreterManager();
 
     /**
      * COPIED/MODIFIED from AntLaunchShortcut

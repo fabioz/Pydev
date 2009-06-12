@@ -9,12 +9,14 @@ import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.plugin.PydevPlugin;
 
 public class RunEditorBasedOnNatureType extends PyAction{
 
     public void run(IAction action) {
         String launchConfigurationType;
         String defaultType = Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE;
+        IInterpreterManager interpreterManager = PydevPlugin.getPythonInterpreterManager();
         
         PyEdit pyEdit = getPyEdit();
         try{
@@ -23,6 +25,7 @@ public class RunEditorBasedOnNatureType extends PyAction{
                 launchConfigurationType = defaultType;
             }else{
                 int interpreterType = nature.getInterpreterType();
+                interpreterManager = nature.getRelatedInterpreterManager();
                 switch(interpreterType){
                     case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
                         launchConfigurationType = Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE;
@@ -44,11 +47,17 @@ public class RunEditorBasedOnNatureType extends PyAction{
         
         
         final String finalLaunchConfigurationType = launchConfigurationType; 
+        final IInterpreterManager finalInterpreterManager = interpreterManager;
         AbstractLaunchShortcut shortcut = new AbstractLaunchShortcut(){
 
             @Override
             protected String getLaunchConfigurationType(){
                 return finalLaunchConfigurationType;
+            }
+            
+            @Override
+            protected IInterpreterManager getInterpreterManager(){
+                return finalInterpreterManager;
             }
             
         };

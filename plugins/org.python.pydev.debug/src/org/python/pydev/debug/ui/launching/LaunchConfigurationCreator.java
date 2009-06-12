@@ -49,7 +49,7 @@ public abstract class LaunchConfigurationCreator {
                 IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
                 loc = makeFileRelativeToWorkspace(file, varManager);
             } else {
-                loc = r.getRawLocation().toString();
+                loc = r.getLocation().toOSString();
             }
             buffer.append(loc);
         }

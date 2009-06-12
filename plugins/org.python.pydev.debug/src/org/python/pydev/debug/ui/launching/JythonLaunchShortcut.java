@@ -19,5 +19,11 @@ public class JythonLaunchShortcut extends AbstractLaunchShortcut{
         return PydevPlugin.getJythonInterpreterManager();
     }
 
+    @Override
+    protected boolean getRequireFile(){
+        return true;
+    }
+
+
 
 }
