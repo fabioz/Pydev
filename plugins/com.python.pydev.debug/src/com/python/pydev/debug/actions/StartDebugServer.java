@@ -1,5 +1,6 @@
 package com.python.pydev.debug.actions;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -31,7 +32,7 @@ public class StartDebugServer implements IWorkbenchWindowActionDelegate {
      */
     public void run(IAction action) {
         PydevdServerLaunchShortcut s = new PydevdServerLaunchShortcut();
-        s.launch(null,"run","");
+        s.launch((IResource[])null, "run");
         
         RemoteDebuggerServer.getInstance(); //doing that, it will automatically start it
     }

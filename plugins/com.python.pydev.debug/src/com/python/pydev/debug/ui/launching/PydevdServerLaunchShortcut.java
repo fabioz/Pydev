@@ -17,7 +17,7 @@ import org.python.pydev.plugin.PydevPlugin;
 public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
     
     @Override    
-    protected ILaunchConfiguration createDefaultLaunchConfiguration( IResource[] resources ) {    
+    public ILaunchConfiguration createDefaultLaunchConfiguration( IResource[] resources ) {    
         ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
         ILaunchConfigurationType type = manager.getLaunchConfigurationType(getLaunchConfigurationType());
         if (type == null) {
@@ -49,7 +49,7 @@ public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
     }
     
     @Override
-    public void launch(IResource[] file, String mode, String targetAttribute) {
+    public void launch(IResource[] file, String mode) {
         ILaunchConfiguration conf = createDefaultLaunchConfiguration(file);                
         DebugUITools.launch(conf, mode);    
     }

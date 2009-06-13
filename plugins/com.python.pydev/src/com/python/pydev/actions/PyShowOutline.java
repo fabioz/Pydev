@@ -14,8 +14,8 @@ import org.python.pydev.editor.model.Location;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
-import com.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 public class PyShowOutline extends PyAction{
 

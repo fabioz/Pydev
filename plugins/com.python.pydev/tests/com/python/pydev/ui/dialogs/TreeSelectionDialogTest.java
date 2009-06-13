@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Display;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ui.SWTTest;
+import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 import com.python.pydev.actions.ShowOutlineLabelProvider;
 import com.python.pydev.actions.ShowOutlineTreeContentProvider;
