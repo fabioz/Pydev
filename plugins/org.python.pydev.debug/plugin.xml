@@ -9,16 +9,16 @@
      targetID="org.python.pydev.editor.PythonEditor"
      id="org.python.pydev.debug.editor.editorContribution">
      <action
-           definitionId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureType"
+           definitionId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction"
            label="Run As Python"
-           class="org.python.pydev.debug.ui.actions.RunEditorBasedOnNatureType"
-           id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureType">
+           class="org.python.pydev.debug.ui.actions.RunEditorBasedOnNatureTypeAction"
+           id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction">
      </action>
      <action
-           definitionId="org.python.pydev.debug.ui.actions.runEditorAsJython"
+           definitionId="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"
            label="Run As Jython"
-           class="org.python.pydev.debug.ui.actions.RunEditorAsJython"
-           id="org.python.pydev.debug.ui.actions.runEditorAsJython">
+           class="org.python.pydev.debug.ui.actions.RunEditorAsCustomUnitTestAction"
+           id="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction">
      </action>
 </editorContribution>
 </extension>
@@ -30,16 +30,16 @@
             id="org.python.pydev.ui.category.run"> 
       </category>
       <command
-            description="Run the editor as Python."
-            id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureType"
+            description="Run the editor based on the python nature"
+            id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction"
             categoryId="org.python.pydev.ui.category.run"
-            name="Run As Python">
+            name="Run from Python nature">
       </command>
       <command
-            description="Run the editor as Jython."
-            id="org.python.pydev.debug.ui.actions.runEditorAsJython"
+            description="Run custom tests from editor."
+            id="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"
             categoryId="org.python.pydev.ui.category.run"
-            name="Run As Jython">
+            name="Run custom tests">
       </command>
 	  <command id="org.python.pydev.debug.command.Display" name="Display Command">
       </command>
@@ -51,13 +51,13 @@
       <key
             sequence="F9"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureType"	
+            commandId="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
             sequence="Ctrl+F9"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.debug.ui.actions.runEditorAsJython"	
+            commandId="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <!-- Ctrl+Shift == M1+M2 -->

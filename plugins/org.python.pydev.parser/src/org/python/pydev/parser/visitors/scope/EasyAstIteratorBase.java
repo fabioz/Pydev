@@ -315,6 +315,13 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     public Iterator<ASTEntry> getClassesAndMethodsIterator() {
         return getIterator(new Class[]{ClassDef.class, FunctionDef.class});
     }
+    
+    /**
+     * @return an iterator for method definitions
+     */
+    public Iterator<ASTEntry> getMethodsIterator() {
+        return getIterator(new Class[]{FunctionDef.class});
+    }
 
     /**
      * @see EasyASTIteratorVisitor#getIterator(Class[])

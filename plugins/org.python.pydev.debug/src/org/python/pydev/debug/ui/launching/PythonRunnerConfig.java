@@ -665,6 +665,12 @@ public class PythonRunnerConfig {
                 cmdArgs.add("--filter");
                 cmdArgs.add(filter);
             }
+            
+            String tests = this.configuration.getAttribute(Constants.ATTR_UNITTEST_TESTS, "");
+            if(tests.length() > 0){
+                cmdArgs.add("--tests");
+                cmdArgs.add(tests);
+            }
         }
     }
 

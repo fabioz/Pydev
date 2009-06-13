@@ -25,22 +25,25 @@ except:
 # parse_cmdline
 #=======================================================================================================================
 def parse_cmdline():
-    """ parses command line and returns test directories, verbosity, and test filter
+    """ parses command line and returns test directories, verbosity, test filter and test suites
         usage: 
-            runfiles.py  -v|--verbosity <level>  -f|--filter <regex>  dirs|files
+            runfiles.py  -v|--verbosity <level>  -f|--filter <regex>  -t|--tests <Test.test1,Test2>  dirs|files
     """
     verbosity = 2
     test_filter = None
+    tests = None
 
-    optlist, dirs = getopt.getopt(sys.argv[1:], "v:f:", ["verbosity=", "filter="])
+    optlist, dirs = getopt.getopt(sys.argv[1:], "v:f:t:", ["verbosity=", "filter=", "tests="])
     for opt, value in optlist:
         if opt in ("-v", "--verbosity"):
             verbosity = value
+            
         elif opt in ("-f", "--filter"):
-            if "," in value:
-                test_filter = value.split(',')
-            else:
-                test_filter = [value]
+            test_filter = value.split(',')
+                
+        elif opt in ("-t", "--tests"):
+            tests = value.split(',')
+                
     if type([]) != type(dirs):
         dirs = [dirs]
 
@@ -52,7 +55,7 @@ def parse_cmdline():
         else:
             ret_dirs.append(d)
 
-    return ret_dirs, int(verbosity), test_filter
+    return ret_dirs, int(verbosity), test_filter, tests
 
 
 #=======================================================================================================================
@@ -64,11 +67,13 @@ class PydevTestRunner:
     __py_extensions = ["*.py", "*.pyw"]
     __exclude_files = ["__init__.*"]
 
-    def __init__(self, test_dir, test_filter=None, verbosity=2):
+    def __init__(self, test_dir, test_filter=None, verbosity=2, tests=None):
         self.test_dir = test_dir
         self.__adjust_path()
         self.test_filter = self.__setup_test_filter(test_filter)
         self.verbosity = verbosity
+        self.tests = tests
+        
 
     def __adjust_path(self):
         """ add the current file or directory to the python path """
@@ -197,16 +202,34 @@ class PydevTestRunner:
 
     def find_tests_from_modules(self, modules):
         """ returns the unittests given a list of modules """
-        return [unittest.defaultTestLoader.loadTestsFromModule(m) for m in modules]
+        loader = unittest.defaultTestLoader
+        
+        if self.tests:
+            prefixes = []
+            for t in self.tests:
+                splitted = t.split('.')
+                if len(splitted) == 2:
+                    prefixes.append(splitted[1])
+                    
+            if prefixes:
+                prefixes.append('test')
+                loader = unittest.TestLoader()
+                loader.testMethodPrefix = tuple(prefixes)
+        
+        return [loader.loadTestsFromModule(m) for m in modules]
 
     def filter_tests(self, test_objs):
         """ based on a filter name, only return those tests that have
             the test case names that match """
         test_suite = []
         for test_obj in test_objs:
+            
             if isinstance(test_obj, unittest.TestSuite):
-                test_obj._tests = self.filter_tests(test_obj._tests)
-                test_suite.append(test_obj)
+                if test_obj._tests:
+                    test_obj._tests = self.filter_tests(test_obj._tests)
+                    if test_obj._tests:
+                        test_suite.append(test_obj)
+                
             elif isinstance(test_obj, unittest.TestCase):
                 test_cases = []
                 for tc in test_objs:
@@ -216,11 +239,31 @@ class PydevTestRunner:
                         #changed in python 2.5
                         testMethodName = tc._testMethodName
 
-                    if self.__match(self.test_filter, testMethodName):
+                    if self.__match(self.test_filter, testMethodName) and self.__match_tests(self.tests, tc, testMethodName):
                         test_cases.append(tc)
                 return test_cases
         return test_suite
 
+
+    def __match_tests(self, tests, test_case, test_method_name):
+        if not tests:
+            return 1
+        
+        for t in tests:
+            class_and_method = t.split('.')
+            if len(class_and_method) == 1:
+                #only class name
+                if class_and_method[0] == test_case.__class__.__name__:
+                    return 1
+                
+            elif len(class_and_method) == 2:
+                if class_and_method[0] == test_case.__class__.__name__ and class_and_method[1] == test_method_name:
+                    return 1
+                
+        return 0
+                
+                
+        
 
     def __match(self, filter_list, name):
         """ returns whether a test name matches the test filter """
@@ -241,9 +284,16 @@ class PydevTestRunner:
         modules = self.find_modules_from_files(files)
         sys.stdout.write("done.\n")
         all_tests = self.find_tests_from_modules(modules)
-        if self.test_filter is not None:
-            sys.stdout.write('Test Filter: %s' % [p.pattern for p in self.test_filter])
+        if self.test_filter or self.tests:
+            
+            if self.test_filter:
+                sys.stdout.write('Test Filter: %s' % ([p.pattern for p in self.test_filter],))
+                
+            if self.tests:
+                sys.stdout.write('Tests to run: %s' % (self.tests,))
+                
             all_tests = self.filter_tests(all_tests)
+            
         sys.stdout.write('\n')
         runner = unittest.TextTestRunner(stream=sys.stdout, descriptions=1, verbosity=verbosity)
         runner.run(unittest.TestSuite(all_tests))
@@ -253,5 +303,5 @@ class PydevTestRunner:
 # main        
 #=======================================================================================================================
 if __name__ == '__main__':
-    dirs, verbosity, test_filter = parse_cmdline()
-    PydevTestRunner(dirs, test_filter, verbosity).run_tests()
+    dirs, verbosity, test_filter, tests = parse_cmdline()
+    PydevTestRunner(dirs, test_filter, verbosity, tests).run_tests()

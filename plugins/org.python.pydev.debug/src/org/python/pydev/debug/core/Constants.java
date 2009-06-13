@@ -50,6 +50,7 @@ public interface Constants {
     static final String ATTR_INTERPRETER_DEFAULT = "__default"; //$NO-NLS-1$; 
     static final String ATTR_PROJECT = PLUGIN_ID + ".ATTR_PROJECT";
     static final String ATTR_RESOURCE_TYPE = PLUGIN_ID + ".ATTR_RESOURCE_TYPE";
+    static final String ATTR_UNITTEST_TESTS = PLUGIN_ID + ".ATTR_UNITTEST_TESTS";
     
     
 }

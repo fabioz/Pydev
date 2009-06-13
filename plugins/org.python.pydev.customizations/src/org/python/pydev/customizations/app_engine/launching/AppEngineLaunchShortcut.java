@@ -20,7 +20,8 @@ public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
     /**
      * The only thing different is that we have to override the creation of the default launch configuration.
      */
-    protected ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resources) {
+    @Override
+    public ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resources) {
         
         try{
             ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(resources);

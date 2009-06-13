@@ -7,6 +7,7 @@ Iron Python support
 Changed run icons
 F9 will now run the current editor based on the project type
 Run configurations can be created for the project
+Ctrl+F9 can be used to run as unit-test and select which tests will be run
 
 
 After 1.4.5

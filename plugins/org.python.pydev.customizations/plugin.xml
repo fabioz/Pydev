@@ -48,7 +48,7 @@
       <propertyTester
             namespace="org.python.pydev.customizations"
             properties="app_engine"
-            type="org.eclipse.core.resources.IContainer"
+            type="org.eclipse.core.resources.IResource"
             class="org.python.pydev.customizations.app_engine.launching.AppEnginePropertyTester"
             id="org.python.pydev.navigator.elements.IWrappedResource.app_engine_container">
       </propertyTester>

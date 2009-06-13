@@ -68,7 +68,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
                     IResource resource = (IFile) ((IAdaptable) object).getAdapter(IFile.class);
                     if (resource != null) {
-                        launch(resource, mode, null);
+                        launch(resource, mode);
                         return;
                     }
 
@@ -96,7 +96,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
                         }
                         
                         if(resource != null){
-                            launch(resource, mode, null);
+                            launch(resource, mode);
                         }
                         return;
                     }
@@ -124,7 +124,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
                     }
                 }
                 if (sel.size() > 0) {
-                    launch(sel.toArray(new IResource[sel.size()]), mode, null);
+                    launch(sel.toArray(new IResource[sel.size()]), mode);
                 }
                 return;
             }
@@ -158,7 +158,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         IEditorInput input = editor.getEditorInput();
         IFile file = (IFile) input.getAdapter(IFile.class);
         if (file != null) {
-            launch(file, mode, null);
+            launch(file, mode);
             return;
         }
         fileNotFound();
@@ -168,7 +168,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     // END ILaunchShortcut IMPL
     //=============================================================================================
 
-    protected void fileNotFound() {
+    public void fileNotFound() {
         String msg = "Unable to launch the file. " + 
                 "Possible reasons may include:\n" +
                 "    - the file (editor) being launched is not under a project in the workspace;\n" + 
@@ -230,7 +230,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
      */
     protected abstract String getLaunchConfigurationType();
 
-    protected ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource) {
+    public ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource) {
         try {
             ILaunchConfigurationWorkingCopy createdConfiguration = createDefaultLaunchConfigurationWithoutSaving(resource);
             return createdConfiguration.doSave();
@@ -240,7 +240,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         }
     }
 
-    protected ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(IResource[] resource)
+    public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(IResource[] resource)
             throws CoreException{
         IInterpreterManager pythonInterpreterManager = getInterpreterManager();
         String projName = resource[0].getProject().getName();
@@ -282,31 +282,29 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             return null;
     }
 
-    protected void launch(IResource file, String mode, String targetAttribute) {
-        launch(new IResource[] { file }, mode, targetAttribute);
+    protected void launch(IResource file, String mode) {
+        launch(new IResource[] { file }, mode);
     }
 
     /**
      * Launch the given targets in the given build file. The targets are
      * launched in the given mode.
      * 
-     * @param file the build file to launch
-     * @param mode the mode in which the build file should be executed
-     * @param targetAttribute the targets to launch, in the form of the launch
-     * configuration targets attribute.
+     * @param resources the resources to launch
+     * @param mode the mode in which the file should be executed
      */
-    protected void launch(IResource[] file, String mode, String targetAttribute) {
+    protected void launch(IResource[] resources, String mode) {
         ILaunchConfiguration conf = null;
-        List<ILaunchConfiguration> configurations = findExistingLaunchConfigurations(file);
+        List<ILaunchConfiguration> configurations = findExistingLaunchConfigurations(resources);
         if (configurations.isEmpty())
-            conf = createDefaultLaunchConfiguration(file);
+            conf = createDefaultLaunchConfiguration(resources);
         else {
             if (configurations.size() == 1) {
                 conf = configurations.get(0);
             } else {
                 conf = chooseConfig(configurations);
                 if (conf == null){
-                    // User cancelled selection
+                    // User canceled selection
                     return;
                 }
             }

@@ -32,6 +32,10 @@ class AnotherSampleTest(unittest.TestCase):
     def test_2(self):
         """ im a doc string"""
         pass
+    def todo_not_tested(self):
+        '''
+        Not there by default!
+        '''
 
 
 if __name__ == '__main__':

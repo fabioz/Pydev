@@ -106,7 +106,7 @@ public class DefinitionsASTIteratorVisitor extends EasyASTIteratorVisitor{
     }
 
     /**
-     * Creates the iterator and transverses the passed root so that the results can be gotten.
+     * Creates the iterator and traverses the passed root so that the results can be gotten.
      */
     public static DefinitionsASTIteratorVisitor create(SimpleNode root){
         if(root == null){

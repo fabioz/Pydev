@@ -31,10 +31,11 @@ sys.path = orig_syspath[:]
 sys.path.remove(desired_runfiles_path)
 
 class RunfilesTest(unittest.TestCase):
-    def _setup_scenario(self, path, t_filter):
+    def _setup_scenario(self, path, t_filter, tests=None):
         self.MyTestRunner = runfiles.PydevTestRunner(test_dir=path,
                                                      test_filter=t_filter,
-                                                     verbosity=1)
+                                                     verbosity=1,
+                                                     tests=tests)
         self.files = self.MyTestRunner.find_import_files()
         self.modules = self.MyTestRunner.find_modules_from_files(self.files)
         self.all_tests = self.MyTestRunner.find_tests_from_modules(self.modules)
@@ -46,40 +47,40 @@ class RunfilesTest(unittest.TestCase):
 
     def test_parse_cmdline(self):
         sys.argv = "runfiles.py ./".split()
-        test_dir, verbosity, test_filter = runfiles.parse_cmdline()
+        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
         self.assertEquals([sys.argv[1]], test_dir)
         self.assertEquals(2, verbosity)        # default value
         self.assertEquals(None, test_filter)   # default value
 
         sys.argv = "runfiles.py ../images c:/temp".split()
-        test_dir, verbosity, test_filter = runfiles.parse_cmdline()
+        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
         self.assertEquals(sys.argv[1:3], test_dir)
         self.assertEquals(2, verbosity)
 
         sys.argv = "runfiles.py --verbosity 3 ../junk c:/asdf ".split()
-        test_dir, verbosity, test_filter = runfiles.parse_cmdline()
+        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
         self.assertEquals(sys.argv[3:], test_dir)
         self.assertEquals(int(sys.argv[2]), verbosity)
 
         sys.argv = "runfiles.py -f Abc.test_def ./".split()
-        test_dir, verbosity, test_filter = runfiles.parse_cmdline()
+        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
         self.assertEquals([sys.argv[-1]], test_dir)
         self.assertEquals([sys.argv[2]], test_filter)
 
         sys.argv = "runfiles.py -f Abc.test_def,Mod.test_abc c:/junk/".split()
-        test_dir, verbosity, test_filter = runfiles.parse_cmdline()
+        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
         self.assertEquals([sys.argv[-1]], test_dir)
         self.assertEquals(sys.argv[2].split(','), test_filter)
 
         sys.argv = ('C:\\eclipse-SDK-3.2-win32\\eclipse\\plugins\\org.python.pydev.debug_1.2.2\\pysrc\\runfiles.py ' + 
                     '--verbosity 1 ' + 
                     'C:\\workspace_eclipse\\fronttpa\\tests\\gui_tests\\calendar_popup_control_test.py ').split()
-        test_dir, verbosity, test_filter = runfiles.parse_cmdline()
+        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
         self.assertEquals([sys.argv[-1]], test_dir)
         self.assertEquals(1, verbosity)
 
         sys.argv = "runfiles.py --verbosity 1 -f Mod.test_abc c:/junk/ ./".split()
-        test_dir, verbosity, test_filter = runfiles.parse_cmdline()
+        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
         self.assertEquals(sys.argv[5:], test_dir)
         self.assertEquals(int(sys.argv[2]), verbosity)
         self.assertEquals([sys.argv[4]], test_filter)
@@ -204,6 +205,24 @@ class RunfilesTest(unittest.TestCase):
         self._setup_scenario(self.file_dir, ["I$^NVALID_REGE$$$X$#@!"])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEquals(0, self.count_tests(filtered_tests))
+        
+    def test_matching_tests(self):
+        self._setup_scenario(self.file_dir, None, ['StillYetAnotherSampleTest'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        self.assertEqual(1, self.count_tests(filtered_tests))
+        
+        self._setup_scenario(self.file_dir, None, ['SampleTest.test_xxxxxx1'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        self.assertEqual(1, self.count_tests(filtered_tests))
+        
+        self._setup_scenario(self.file_dir, None, ['SampleTest'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        self.assertEqual(8, self.count_tests(filtered_tests))
+        
+        self._setup_scenario(self.file_dir, None, ['AnotherSampleTest.todo_not_tested'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        self.assertEqual(1, self.count_tests(filtered_tests))
+        
 
 if __name__ == "__main__":
     #this is so that we can run it frem the jython tests -- because we don't actually have an __main__ module
