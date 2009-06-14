@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testAcessInstanceOnClass();
+          test.testConfigObjEgg();
           test.tearDown();
           System.out.println("Finished");
 
@@ -58,7 +58,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+TestDependent.PYTHON_PIL_PACKAGES, false);
+        this.restorePythonPath(
+                TestDependent.GetCompletePythonLib(true)+"|"+
+                TestDependent.PYTHON_PIL_PACKAGES+"|"+
+                TestDependent.TEST_PYSRC_LOC+"configobj-4.6.0-py2.6.egg",
+                false
+        );
+        
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>(){
@@ -1224,6 +1230,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, -1, new String[] {"existingMethod()"});
     }
     
+    
+    public void testConfigObjEgg() throws Exception{
+        String s = 
+            "import configobj\n" +
+            "\n" +
+            "configobj.";
+        
+        requestCompl(s, -1, new String[] {"__file__"});
+        
+    }
     
 }
 

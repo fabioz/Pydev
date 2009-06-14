@@ -113,7 +113,7 @@ public class StringUtils {
         return stripFromRigthCharOnwards(input, '.');
     }
 
-    private static String stripFromRigthCharOnwards(String input, char ch) {
+    public static int rFind(String input, char ch){
         int len = input.length();
         int st = 0;
         int off = 0;
@@ -123,6 +123,11 @@ public class StringUtils {
             len--;
         }
         len--;
+        return len;
+    }
+
+    private static String stripFromRigthCharOnwards(String input, char ch) {
+        int len = rFind(input, ch);
         if(len == -1){
             return input;
         }
@@ -538,6 +543,7 @@ public class StringUtils {
     public static String removeNewLineChars(String message) {
         return message.replaceAll("\r","").replaceAll("\n","");
     }
+
 
 
 }

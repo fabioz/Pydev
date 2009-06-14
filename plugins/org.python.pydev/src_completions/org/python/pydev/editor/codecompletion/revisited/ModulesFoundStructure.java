@@ -96,15 +96,20 @@ public class ModulesFoundStructure {
                     monitor.worked(1);
 
                 }
-                buffer.clear();
-                buffer.append(StringUtils.stripFromLastSlash(entry.getKey()));
+                String key = entry.getKey();
+                int index = StringUtils.rFind(key, '/');
                 boolean add = true;
-                if(zipContentsType == ZIP_CONTENTS_TYPE_PY_ZIP){
-                    //we don't need to check for __init__ if we have a jar
-                    if (buffer.length() > 0) {
-                        buffer.append("/");
-                        buffer.append("__init__");
-                        add = pyInitFilesLowerWithoutExtension.contains(buffer.toString());
+                if(index != -1){
+                    //If it's in the root, we don't need to check for __init__
+                    buffer.clear();
+                    buffer.append(key.substring(0, index));
+                    if(zipContentsType == ZIP_CONTENTS_TYPE_PY_ZIP){
+                        //we don't need to check for __init__ if we have a jar
+                        if (buffer.length() > 0) {
+                            buffer.append("/");
+                            buffer.append("__init__");
+                            add = pyInitFilesLowerWithoutExtension.contains(buffer.toString());
+                        }
                     }
                 }
                 
