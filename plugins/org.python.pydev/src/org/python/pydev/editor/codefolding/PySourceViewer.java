@@ -12,6 +12,10 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.DocumentRewriteSession;
+import org.eclipse.jface.text.DocumentRewriteSessionType;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.IVerticalRuler;
@@ -19,6 +23,7 @@ import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.PyShiftLeft;
 
 
 public class PySourceViewer extends ProjectionViewer {
@@ -145,6 +150,54 @@ public class PySourceViewer extends ProjectionViewer {
                 };
             }
         };
+    }
+    
+
+    /**
+     * Overridden to provide a shift left that can work even if the number of chars for the dedent
+     * is lower than the number of chars of the indentation string.
+     */
+    @Override
+    public void doOperation(int operation){
+        if (operation == SHIFT_LEFT){
+            doShiftLeft();
+            return;
+        }
+        super.doOperation(operation);
+    }
+
+    
+    /**
+     * Do a shift while properly handling undo/redo and rewrite sessions.
+     * Uses the PyShiftLeft action to actually do the shift.
+     */
+    private void doShiftLeft(){
+        if (fUndoManager != null)
+            fUndoManager.beginCompoundChange();
+
+        IDocument d= getDocument();
+        DocumentRewriteSession rewriteSession= null;
+        try {
+            if (d instanceof IDocumentExtension4) {
+                IDocumentExtension4 extension= (IDocumentExtension4) d;
+                rewriteSession= extension.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
+            }
+            // Perform the shift operation.
+            PyShiftLeft pyShiftLeft = new PyShiftLeft();
+            pyShiftLeft.setEditor(getEdit());
+            pyShiftLeft.run(null);
+
+        } finally {
+
+
+            if (d instanceof IDocumentExtension4) {
+                IDocumentExtension4 extension= (IDocumentExtension4) d;
+                extension.stopRewriteSession(rewriteSession);
+            }
+
+            if (fUndoManager != null)
+                fUndoManager.endCompoundChange();
+        }
     }
     
 
