@@ -244,7 +244,13 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
-        String actTok = state.getActivationToken();
+        String actTok = state.getFullActivationToken();
+        if(actTok == null){
+            actTok = state.getActivationToken();
+        }
+        if(actTok == null){
+            return new IToken[0];
+        }
         String act = new FastStringBuffer(name, 2+actTok.length()).append('.').append(actTok).toString();
         return createTokens(act);
     }

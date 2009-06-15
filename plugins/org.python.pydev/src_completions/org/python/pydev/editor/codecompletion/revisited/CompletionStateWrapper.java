@@ -34,6 +34,14 @@ public class CompletionStateWrapper implements ICompletionState {
         activationToken = string;
     }
     
+
+    public String getFullActivationToken(){
+        return this.wrapped.getFullActivationToken();
+    }
+    
+    public void setFullActivationToken(String act){
+        this.wrapped.setFullActivationToken(act);
+    }
     public boolean getLocalImportsGotten() {
         return localImportsGotten;
     }

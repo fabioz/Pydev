@@ -557,6 +557,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         String act = state.getActivationToken();
         int parI = act.indexOf('(');
         if(parI != -1){
+            state.setFullActivationToken(act);
             act = act.substring(0, parI);
             state.setActivationToken(act);
             state.setLookingFor(ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);

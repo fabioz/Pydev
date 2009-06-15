@@ -14,12 +14,27 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 public interface ICompletionState extends ICompletionCache {
 
     String getActivationToken();
+    
+    String getFullActivationToken();
 
     IPythonNature getNature();
 
     ICompletionState getCopy();
 
-    void setActivationToken(String string);
+    /**
+     * This is the activation token with callables changed to the reference.
+     * 
+     * E.g.: if we had Grinder.grinder.getLogger(), this would be: Grinder.grinder.getLogger
+     * And if we had x.ClassA(), this would be x.ClassA
+     */
+    void setActivationToken(String act);
+    
+    /**
+     * This is the full activation token (e.g.: Grinder.grinder.getLogger().getIt())
+     * Only actually set if the activation token changes.
+     * Note that it's only used to pass on to the java completion engine.
+     */
+    void setFullActivationToken(String act);
 
     void setBuiltinsGotten(boolean b);
 

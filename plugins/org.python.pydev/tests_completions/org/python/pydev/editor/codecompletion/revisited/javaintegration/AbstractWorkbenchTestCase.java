@@ -120,6 +120,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
             setProjectReference(monitor, project, javaProject);
             
             createJunitJar(monitor, project);
+            createGrinderJar(monitor, project);
             
             IFolder sourceFolder = createSourceFolder(monitor, project);
             
@@ -450,7 +451,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
         }
         if(addNature){
             PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, 
-                    "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar", null, null, null);
+                    "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar|/pydev_unit_test_project/grinder.jar", null, null, null);
         }
         return sourceFolder;
     }
@@ -490,6 +491,19 @@ public class AbstractWorkbenchTestCase extends TestCase{
         if(!junitJarFile.exists()){
             REF.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/junit.jar", 
                     junitJarLocatioon);
+        }
+        project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+    }
+    
+    /**
+     * Creates a grinder.jar file in the project.
+     */
+    protected void createGrinderJar(NullProgressMonitor monitor, IProject project) throws CoreException {
+        String grinderJarLocatioon = project.getLocation().toOSString()+"/grinder.jar";
+        File grinderJarFile = new File(grinderJarLocatioon);
+        if(!grinderJarFile.exists()){
+            REF.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/grinder.jar", 
+                    grinderJarLocatioon);
         }
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
     }

@@ -51,13 +51,15 @@ public class CompletionState implements ICompletionState {
     public int lookingForInstance=LOOKING_FOR_INSTANCE_UNDEFINED;
     private List<IToken> tokenImportedModules;
     private ICompletionCache completionCache;
+    private String fullActivationToken;
 
     public ICompletionState getCopy(){
         return new CompletionStateWrapper(this);
     }
     
     public ICompletionState getCopyForResolveImportWithActTok(String actTok) {
-        CompletionState state = (CompletionState) CompletionStateFactory.getEmptyCompletionState(actTok, this.nature, this.completionCache);
+        CompletionState state = (CompletionState) CompletionStateFactory.getEmptyCompletionState(actTok, this.nature, 
+                this.completionCache);
         state.nature = nature;
         state.findResolveImportMemory = findResolveImportMemory;
         
@@ -141,7 +143,8 @@ public class CompletionState implements ICompletionState {
      * @param qual
      * @param nature2
      */
-    public CompletionState(int line2, int col2, String token, IPythonNature nature2, String qualifier, ICompletionCache completionCache) {
+    public CompletionState(int line2, int col2, String token, IPythonNature nature2, String qualifier, 
+            ICompletionCache completionCache) {
         this.line = line2;
         this.col = col2;
         this.activationToken = token;
@@ -269,6 +272,14 @@ public class CompletionState implements ICompletionState {
 
     public void setActivationToken(String string) {
         activationToken = string;
+    }
+    
+    public String getFullActivationToken(){
+        return this.fullActivationToken;
+    }
+    
+    public void setFullActivationToken(String act){
+        this.fullActivationToken = act;
     }
 
     public void setBuiltinsGotten(boolean b) {
