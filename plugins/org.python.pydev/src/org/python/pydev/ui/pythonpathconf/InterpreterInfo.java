@@ -900,7 +900,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * @param executable the executable we want to know about
      * @return if the executable is the ironpython executable.
      */
-    private static boolean isIronpythonExecutable(String executable) {
+    public static boolean isIronpythonExecutable(String executable) {
         File file = new File(executable);
         return file.getName().startsWith("ipy");
     }

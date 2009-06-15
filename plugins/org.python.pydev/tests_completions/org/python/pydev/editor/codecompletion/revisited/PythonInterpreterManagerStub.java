@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.Preferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
@@ -35,7 +34,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     public IInterpreterInfo[] getInterpreterInfos() {
         String defaultInterpreter = getDefaultInterpreter();
         InterpreterInfo info = (InterpreterInfo) this.createInterpreterInfo(defaultInterpreter, new NullProgressMonitor());
-        if(!InterpreterInfo.isJythonExecutable(defaultInterpreter)){
+        if(!InterpreterInfo.isJythonExecutable(defaultInterpreter) && !InterpreterInfo.isIronpythonExecutable(defaultInterpreter)){
             TestDependent.PYTHON_EXE = info.executableOrJar;
         }
         return new IInterpreterInfo[]{info};
@@ -49,7 +48,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
         if(info == null){
             throw new RuntimeException("Unable to get info for: "+executable+". Available: "+this.exeToInfo.keySet());
         }
-        if(!InterpreterInfo.isJythonExecutable(executable)){
+        if(!InterpreterInfo.isJythonExecutable(executable) && !InterpreterInfo.isIronpythonExecutable(executable)){
             TestDependent.PYTHON_EXE = info.executableOrJar;
         }
         return info;
