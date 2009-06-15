@@ -46,6 +46,7 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
  */
 public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 
+    private Object lock = new Object();
     private List<Tuple3<SimpleNode, Throwable, ParserInfo>> parsesDone = new ArrayList<Tuple3<SimpleNode,Throwable,ParserInfo>>();
     private List<Tuple<String, SimpleNode>> fastParsesDone = new ArrayList<Tuple<String, SimpleNode>>();
     
@@ -147,7 +148,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     private void checkSetValidContentsWithFooToken(AbstractAdditionalInterpreterInfo info) throws CoreException {
         print("-------- Setting valid contents with some token -------------");
         resourcesAnalyzed.clear();
-        parsesDone.clear();
+        synchronized(lock){
+            parsesDone.clear();
+        }
         setFileContents(validMod1ContentsWithToken);
         goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
         goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
@@ -159,7 +162,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     private void checkRename(final AbstractAdditionalInterpreterInfo info) throws CoreException {
         print("-------- Renaming and checking if tokens are OK -------------");
         resourcesAnalyzed.clear();
-        parsesDone.clear();
+        synchronized(lock){
+            parsesDone.clear();
+        }
         IPath initialPath = mod1.getFullPath();
         IPath newPath = initialPath.removeLastSegments(1).append("new_mod.py");
         
@@ -203,7 +208,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     private void checkSetValidContents(AbstractAdditionalInterpreterInfo info) throws CoreException {
         print("-------- Setting valid contents -------------");
         resourcesAnalyzed.clear();
-        parsesDone.clear();
+        synchronized(lock){
+            parsesDone.clear();
+        }
         setFileContents(validMod1Contents);
         goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
         goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
@@ -215,7 +222,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
     private void checkSetInvalidContents() throws CoreException {
         print("------------- Setting INvalid contents -------------");
         resourcesAnalyzed.clear();
-        parsesDone.clear();
+        synchronized(lock){
+            parsesDone.clear();
+        }
         setFileContents(invalidMod1Contents);
         goToManual(TIME_FOR_ANALYSIS); //in 1 seconds, only 1 parse/analysis should happen
         goToIdleLoopUntilCondition(get1ResourceAnalyzed(), getResourcesAnalyzed());
@@ -268,7 +277,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         try{
             //no active editor, no analysis in this mode!
             
-            fastParsesDone.clear();
+            synchronized(lock){
+                fastParsesDone.clear();
+            }
             
             print("----------- Setting invalid contents ---------");
             setFileContents(invalidMod1Contents);
@@ -276,7 +287,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             goToManual(TIME_FOR_ANALYSIS); //2 seconds would be enough for errors to appear
             goToIdleLoopUntilCondition(getNoErrorMarkersCondition(), getMarkers());
             
-            fastParsesDone.clear();
+            synchronized(lock){
+                fastParsesDone.clear();
+            }
             
             print("----------- Setting valid contents ---------");
             setFileContents(validMod1Contents);
@@ -386,7 +399,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
         return new ICallback<Object, Tuple<String,SimpleNode>>(){
 
             public Object call(Tuple<String, SimpleNode> arg) {
-                fastParsesDone.add(arg);
+                synchronized(lock){
+                    fastParsesDone.add(arg);
+                }
                 return null;
             }
             
@@ -453,8 +468,10 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             
             public String call(Object arg) {
                 HashSet<String> hashSet = new HashSet<String>();
-                for(Tuple3<SimpleNode, Throwable, ParserInfo> tup:parsesDone){
-                    hashSet.add(tup.o3.moduleName);
+                synchronized(lock){
+                    for(Tuple3<SimpleNode, Throwable, ParserInfo> tup:parsesDone){
+                        hashSet.add(tup.o3.moduleName);
+                    }
                 }
                 
                 return hashSet.toString();
@@ -469,8 +486,10 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             
             public Boolean call(Object arg) {
                 HashSet<String> hashSet = new HashSet<String>();
-                for(Tuple3<SimpleNode, Throwable, ParserInfo> tup:parsesDone){
-                    hashSet.add(tup.o3.moduleName);
+                synchronized(lock){
+                    for(Tuple3<SimpleNode, Throwable, ParserInfo> tup:parsesDone){
+                        hashSet.add(tup.o3.moduleName);
+                    }
                 }
                 for(String o:modulesParsed){
                     if(!hashSet.contains(o)){
@@ -489,8 +508,10 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
             
             public Boolean call(Object arg) {
                 HashSet<String> hashSet = new HashSet<String>();
-                for(Tuple<String, SimpleNode> tup:fastParsesDone){
-                    hashSet.add(tup.o1);
+                synchronized(lock){
+                    for(Tuple<String, SimpleNode> tup:fastParsesDone){
+                        hashSet.add(tup.o1);
+                    }
                 }
                 for(String o:modulesParsed){
                     if(!hashSet.contains(o)){
@@ -523,7 +544,9 @@ public class AnalysisRequestsTestWorkbench extends AbstractWorkbenchTestCase{
 //                    print(arg.o3.document.get());
 //                    print("\n\n-------------------");
 //                }
-                parsesDone.add(arg);
+                synchronized(lock){
+                    parsesDone.add(arg);
+                }
                 return null;
             }};
     }
