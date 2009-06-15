@@ -204,6 +204,8 @@ class PydevTestRunner:
         """ returns the unittests given a list of modules """
         loader = unittest.defaultTestLoader
         
+        ret = []
+        loaded = 0
         if self.tests:
             prefixes = []
             for t in self.tests:
@@ -212,11 +214,24 @@ class PydevTestRunner:
                     prefixes.append(splitted[1])
                     
             if prefixes:
-                prefixes.append('test')
-                loader = unittest.TestLoader()
-                loader.testMethodPrefix = tuple(prefixes)
+                #If we have any forced prefix, only load matching test names (don't load all the default tests
+                #because they'll be filtered away anyways)
+                loaded = 1
+                for prefix in prefixes:
+                    loader = unittest.TestLoader()
+                    initial = loader.testMethodPrefix
+                    try:
+                        loader.testMethodPrefix = prefix
+                        ret.extend([loader.loadTestsFromModule(m) for m in modules])
+                    finally:
+                        loader.testMethodPrefix = initial
         
-        return [loader.loadTestsFromModule(m) for m in modules]
+        if not loaded:
+            #Now, if we didn't have any prefixes to load, load the default modules
+            ret.extend([loader.loadTestsFromModule(m) for m in modules])
+            
+        return ret
+
 
     def filter_tests(self, test_objs):
         """ based on a filter name, only return those tests that have
