@@ -76,6 +76,7 @@
             <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core/src/com/aptana/ide/core/licensing/ILicenseContributor.java" destPath="src/com/aptana/ide/core/licensing/ILicenseContributor.java" />
             <export srcUrl="${aptana.svn.pro.url}/plugins/com.aptana.ide.professional.licensing/src/com/aptana/ide/professional/licensing/LicensingUtilities.java" destPath="src/com/aptana/ide/professional/licensing/LicensingUtilities.java" />
             <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core/src/com/aptana/ide/core/URLEncoder.java" destPath="src/com/aptana/ide/core/URLEncoder.java" />
+			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core/src/com/aptana/ide/core/LicensingUtils.java" destPath="src/com/aptana/ide/core/LicensingUtils.java" />
             <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" destPath="src/com/aptana/ide/core/ui/preferences/ApplicationPreferences.java" />
             <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/Messages.java" destPath="src/com/aptana/ide/core/ui/preferences/Messages.java" />
             <export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core.ui/src/com/aptana/ide/core/ui/preferences/messages.properties" destPath="src/com/aptana/ide/core/ui/preferences/messages.properties" />
