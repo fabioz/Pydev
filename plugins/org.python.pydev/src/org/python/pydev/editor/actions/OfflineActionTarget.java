@@ -237,9 +237,12 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * @return
      */
     private boolean doExec() {
+        statusClear();
         final boolean executed = fEdit.onOfflineAction(fFindString.toString(), this);
         if(executed){
-            leave();
+            //Don't use leave() because we don't want to clear the final status message
+            //(in case the action actually changed it)
+            uninstall();
         }
         return executed;
     }

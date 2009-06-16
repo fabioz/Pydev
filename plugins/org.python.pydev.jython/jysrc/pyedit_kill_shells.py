@@ -30,7 +30,11 @@ if cmd == 'onCreateActions':
                     val2.endIt()
                     
             try:
-                managers = [PydevPlugin.getPythonInterpreterManager(), PydevPlugin.getJythonInterpreterManager()]
+                managers = [
+                    PydevPlugin.getPythonInterpreterManager(), 
+                    PydevPlugin.getJythonInterpreterManager(),
+                    PydevPlugin.getIronpythonInterpreterManager(),
+                ]
                 
                 for manager in managers:
                     try:
