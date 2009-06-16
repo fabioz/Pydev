@@ -90,7 +90,9 @@ class PydevTestRunner:
                 msg = ("unknown type. \n%s\nshould be file or a directory.\n" % (dir_name))
                 raise RuntimeError(msg)
         if path_to_append is not None:
-            sys.path.insert(0, path_to_append)
+            #Add it as the last one (so, first things are resolved against the default dirs and 
+            #if none resolves, then we try a relative import).
+            sys.path.append(path_to_append)
         return
 
     def __setup_test_filter(self, test_filter):
@@ -191,7 +193,9 @@ class PydevTestRunner:
                 continue #can happen if a file is not a valid module
             for s in system_paths:
                 if imp.startswith(s):
-                    new_imports.append(imp[len(s) + 1:])
+                    add = imp[len(s) + 1:]
+                    new_imports.append(add)
+                    #sys.stdout.write(' ' + add + ' ')
                     break
             else:
                 sys.stdout.write('PYTHONPATH not found for file: %s\n' % imp)
