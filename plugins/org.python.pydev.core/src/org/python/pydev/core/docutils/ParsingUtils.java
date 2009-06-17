@@ -20,7 +20,13 @@ import org.python.pydev.core.structure.FastStringBuffer;
  */
 public abstract class ParsingUtils implements IPythonPartitions{
     
+    private boolean throwSyntaxError;
 
+
+    public ParsingUtils(boolean throwSyntaxError){
+        this.throwSyntaxError = throwSyntaxError;
+    }
+    
     /**
      * Class that handles char[]
      *
@@ -28,7 +34,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
      */
     private static class CharArrayParsingUtils extends ParsingUtils{
         private char[] cs;
-        public CharArrayParsingUtils(char[] cs) {
+        public CharArrayParsingUtils(char[] cs, boolean throwSyntaxError) {
+            super(throwSyntaxError);
             this.cs = cs;
         }
         public int len() {
@@ -47,7 +54,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
      */
     private static class FastStringBufferParsingUtils extends ParsingUtils{
         private FastStringBuffer cs;
-        public FastStringBufferParsingUtils(FastStringBuffer cs) {
+        public FastStringBufferParsingUtils(FastStringBuffer cs, boolean throwSyntaxError) {
+            super(throwSyntaxError);
             this.cs = cs;
         }
         public int len() {
@@ -65,7 +73,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
      */
     private static class StringBufferParsingUtils extends ParsingUtils{
         private StringBuffer cs;
-        public StringBufferParsingUtils(StringBuffer cs) {
+        public StringBufferParsingUtils(StringBuffer cs, boolean throwSyntaxError) {
+            super(throwSyntaxError);
             this.cs = cs;
         }
         public int len() {
@@ -83,7 +92,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
      */
     private static class StringParsingUtils extends ParsingUtils{
         private String cs;
-        public StringParsingUtils(String cs) {
+        public StringParsingUtils(String cs, boolean throwSyntaxError) {
+            super(throwSyntaxError);
             this.cs = cs;
         }
         public int len() {
@@ -101,7 +111,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
      */
     private static class IDocumentParsingUtils extends ParsingUtils{
         private IDocument cs;
-        public IDocumentParsingUtils(IDocument cs) {
+        public IDocumentParsingUtils(IDocument cs, boolean throwSyntaxError) {
+            super(throwSyntaxError);
             this.cs = cs;
         }
         public int len() {
@@ -117,23 +128,30 @@ public abstract class ParsingUtils implements IPythonPartitions{
     }
     
     /**
-     * Factory method to create it.
+     * Factory method to create it (and by default doesn't throw any errors).
      */
     public static ParsingUtils create(Object cs) {
+        return create(cs, false);
+    }
+    
+    /**
+     * Factory method to create it.
+     */
+    public static ParsingUtils create(Object cs, boolean throwSyntaxError) {
         if(cs instanceof char[]){
-            return new CharArrayParsingUtils((char[])cs);
+            return new CharArrayParsingUtils((char[])cs, throwSyntaxError);
         }
         if(cs instanceof FastStringBuffer){
-            return new FastStringBufferParsingUtils((FastStringBuffer)cs);
+            return new FastStringBufferParsingUtils((FastStringBuffer)cs, throwSyntaxError);
         }
         if(cs instanceof StringBuffer){
-            return new StringBufferParsingUtils((StringBuffer)cs);
+            return new StringBufferParsingUtils((StringBuffer)cs, throwSyntaxError);
         }
         if(cs instanceof String){
-            return new StringParsingUtils((String)cs);
+            return new StringParsingUtils((String)cs, throwSyntaxError);
         }
         if(cs instanceof IDocument){
-            return new IDocumentParsingUtils((IDocument)cs);
+            return new IDocumentParsingUtils((IDocument)cs, throwSyntaxError);
         }
         throw new RuntimeException("Don't know how to create instance for: "+cs.getClass());
     }
@@ -223,7 +241,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
      * @param i the ' or " position
      * @return the end of the literal position (or end of document) -- so, the final char is the ' or " position
      */
-    public int eatLiterals(FastStringBuffer buf, int i) {
+    public int eatLiterals(FastStringBuffer buf, int i) throws SyntaxErrorException{
         //ok, current pos is ' or "
         //check if we're starting a single or multiline comment...
         char curr = charAt(i);
@@ -249,8 +267,9 @@ public abstract class ParsingUtils implements IPythonPartitions{
      * @param i index we are analyzing it
      * @param curr current char
      * @return the end of the multiline literal
+     * @throws SyntaxErrorException 
      */
-    public int getLiteralEnd(int i, char curr) {
+    public int getLiteralEnd(int i, char curr) throws SyntaxErrorException {
         boolean multi = isMultiLiteral(i, curr);
         
         int j;
@@ -267,8 +286,9 @@ public abstract class ParsingUtils implements IPythonPartitions{
      * @param buf used to add the comments contents (out)
      * @param i the ' or " position
      * @return the end of the literal position (or end of document)
+     * @throws SyntaxErrorException 
      */
-    public int eatPar(int i, FastStringBuffer buf) {
+    public int eatPar(int i, FastStringBuffer buf) throws SyntaxErrorException {
         return eatPar(i, buf, '(');
     }
     
@@ -277,8 +297,9 @@ public abstract class ParsingUtils implements IPythonPartitions{
      * @param i the index where we should start getting chars
      * @param buf the buffer that should be filled with the contents gotten (if null, they're ignored)
      * @return the index where the parsing stopped
+     * @throws SyntaxErrorException 
      */
-    public int getFullFlattenedLine(int i, FastStringBuffer buf) {
+    public int getFullFlattenedLine(int i, FastStringBuffer buf) throws SyntaxErrorException {
         char c = this.charAt(i);
         int len = len();
         boolean ignoreNextNewLine = false;
@@ -320,8 +341,9 @@ public abstract class ParsingUtils implements IPythonPartitions{
 
     /**
      * @param buf if null, it'll simply advance without adding anything to the buffer.
+     * @throws SyntaxErrorException 
      */
-    public int eatPar(int i, FastStringBuffer buf, char par) {
+    public int eatPar(int i, FastStringBuffer buf, char par) throws SyntaxErrorException {
         char c = ' ';
         
         char closingPar = DocUtils.getPeer(par);
@@ -347,14 +369,18 @@ public abstract class ParsingUtils implements IPythonPartitions{
                 }
             }
         }
+        if(this.throwSyntaxError && c != closingPar){
+            throw new SyntaxErrorException();
+        }
         return j;
     }
 
     
     /**
      * discover the position of the closing quote
+     * @throws SyntaxErrorException 
      */
-    public int findNextSingle(int i, char curr) {
+    public int findNextSingle(int i, char curr) throws SyntaxErrorException {
         boolean ignoreNext = false;
         int len = len();
         while(i < len){
@@ -362,7 +388,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
             
             
             if(!ignoreNext && c == curr){
-                break;
+                return i;
             }
 
             if(!ignoreNext){
@@ -375,24 +401,36 @@ public abstract class ParsingUtils implements IPythonPartitions{
             
             i++;
         }
+        if(throwSyntaxError){
+            throw new SyntaxErrorException();
+        }
         return i;
     }
 
     /**
      * check the end of the multiline quote
+     * @throws SyntaxErrorException 
      */
-    public int findNextMulti(int i, char curr) {
+    public int findNextMulti(int i, char curr) throws SyntaxErrorException {
         int len = len();
         while(i+2 < len){
             char c = charAt(i);
             if (c == curr && charAt(i+1) == curr && charAt(i+2) == curr){
-                break;
+                if(len < i+2){
+                    return len;
+                }
+                return i+2;
             }
             i++;
             if(c == '\\'){ //this is for escaped quotes
                 i++;
             }
         }
+        
+        if(throwSyntaxError){
+            throw new SyntaxErrorException();
+        }
+        
         if(len < i+2){
             return len;
         }
@@ -441,8 +479,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
     }
 
 
-    public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf) {
-        removeCommentsWhitespacesAndLiterals(buf, true);
+    public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf, boolean throwSyntaxError) throws SyntaxErrorException {
+        removeCommentsWhitespacesAndLiterals(buf, true, throwSyntaxError);
     }
     
     /**
@@ -453,9 +491,10 @@ public abstract class ParsingUtils implements IPythonPartitions{
      * 
      * @param buf the buffer from where things should be removed.
      * @param whitespacesToo: are you sure about the whitespaces?
+     * @throws SyntaxErrorException 
      */
-    public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf, boolean whitespacesToo) {
-        ParsingUtils parsingUtils = create(buf);
+    public static void removeCommentsWhitespacesAndLiterals(FastStringBuffer buf, boolean whitespacesToo, boolean throwSyntaxError) throws SyntaxErrorException {
+        ParsingUtils parsingUtils = create(buf, throwSyntaxError);
         for (int i = 0; i < buf.length(); i++) {
             char ch = buf.charAt(i);
             if(ch == '#'){
@@ -490,8 +529,9 @@ public abstract class ParsingUtils implements IPythonPartitions{
             }
         }
     }
-    public static void removeLiterals(FastStringBuffer buf) {
-        ParsingUtils parsingUtils = create(buf);
+    
+    public static void removeLiterals(FastStringBuffer buf, boolean throwSyntaxError) throws SyntaxErrorException {
+        ParsingUtils parsingUtils = create(buf, throwSyntaxError);
         for (int i = 0; i < buf.length(); i++) {
             char ch = buf.charAt(i);
             if(ch == '#'){
@@ -579,7 +619,11 @@ public abstract class ParsingUtils implements IPythonPartitions{
                 if(ch == '"'){
                     curr = PY_SINGLELINE_STRING2;
                 }
-                i = parsingUtils.getLiteralEnd(i, ch);
+                try{
+                    i = parsingUtils.getLiteralEnd(i, ch);
+                }catch(SyntaxErrorException e){
+                    throw new RuntimeException(e);
+                }
             }
         }
         return curr;

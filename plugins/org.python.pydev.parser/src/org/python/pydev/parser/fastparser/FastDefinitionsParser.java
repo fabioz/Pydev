@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStack;
@@ -109,8 +110,9 @@ public final class FastDefinitionsParser {
     
     /**
      * This is the method that actually extracts things from the passed buffer.
+     * @throws SyntaxErrorException 
      */
-    private void extractBody() {
+    private void extractBody() throws SyntaxErrorException {
         if(currIndex < length){
             handleNewLine();
         }
@@ -506,7 +508,11 @@ public final class FastDefinitionsParser {
      */
     public static SimpleNode parse(char[] cs, String moduleName) {
         FastDefinitionsParser parser = new FastDefinitionsParser(cs);
-        parser.extractBody();
+        try{
+            parser.extractBody();
+        }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);
+        }
         List<stmtType> body = parser.body;
         Module ret = new Module(body.toArray(new stmtType[body.size()]));
         if(parseCallbacks.size() > 0){

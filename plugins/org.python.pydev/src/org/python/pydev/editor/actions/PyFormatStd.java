@@ -12,8 +12,10 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.prettyprinter.IFormatter;
@@ -70,7 +72,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
             PySelection ps = new PySelection(pyEdit);
             
             
-            applyFormatAction(pyEdit, ps, false);
+            try{
+                applyFormatAction(pyEdit, ps, false, true);
+            }catch(SyntaxErrorException e){
+                pyEdit.getStatusLineManager().setErrorMessage(e.getMessage());
+            }
 
         } catch (Exception e) {
             beep(e);
@@ -84,8 +90,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param pyEdit used to restore the selection
      * @param ps the selection used (contains the document that'll be changed)
      * @param forceFormatAll whether the full formatting (and not the selection formatting) should be applied.
+     * @param throwSyntaxError 
+     * @throws SyntaxErrorException 
      */
-    public void applyFormatAction(PyEdit pyEdit, PySelection ps, boolean forceFormatAll) throws BadLocationException {
+    public void applyFormatAction(PyEdit pyEdit, PySelection ps, boolean forceFormatAll, boolean throwSyntaxError) throws BadLocationException, SyntaxErrorException {
         final IFormatter participant = getFormatter();
         final IDocument doc = ps.getDoc();
         final ITextSelection selection = ps.getTextSelection();
@@ -93,7 +101,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         final SelectionKeeper selectionKeeper = new SelectionKeeper(ps);
         
         if (selection.getLength() == 0 || forceFormatAll) {
-            participant.formatAll(doc, pyEdit, true);
+            participant.formatAll(doc, pyEdit, true, throwSyntaxError);
         } else {
             participant.formatSelection(doc, startLine, ps.getEndLineIndex(), pyEdit, ps);
         }
@@ -132,31 +140,34 @@ public class PyFormatStd extends PyAction implements IFormatter {
         
             String d = doc.get(iStart, iEnd - iStart);
             FormatStd formatStd = getFormat();
-            String formatted = formatStr(d, formatStd, ps.getDelimiter(doc));
+            String formatted = formatStr(d, formatStd, PySelection.getDelimiter(doc), false);
         
             doc.replace(iStart, iEnd - iStart, formatted);
         
         } catch (BadLocationException e) {
-            e.printStackTrace();
+            Log.log(e);
+        }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * Formats the whole document
+     * @throws SyntaxErrorException 
      * @see IFormatter
      */
-    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile) {
+    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, boolean throwSyntaxError) throws SyntaxErrorException {
 //        Formatter formatter = new Formatter();
 //        formatter.formatAll(doc, edit);
         
         FormatStd formatStd = getFormat();
-        formatAll(doc, edit, isOpenedFile, formatStd);
+        formatAll(doc, edit, isOpenedFile, formatStd, throwSyntaxError);
     }
     
-    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, FormatStd formatStd) {
+    public void formatAll(IDocument doc, IPyEdit edit, boolean isOpenedFile, FormatStd formatStd, boolean throwSyntaxError) throws SyntaxErrorException {
         String d = doc.get();
         String delimiter = PySelection.getDelimiter(doc);
-        String formatted = formatStr(d, formatStd, delimiter);
+        String formatted = formatStr(d, formatStd, delimiter, throwSyntaxError);
         
         String contents = doc.get();
         if(contents.equals(formatted)){
@@ -212,9 +223,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param str the string to be formatted
      * @param std the standard to be used
      * @return a new (formatted) string
+     * @throws SyntaxErrorException 
      */
-    public String formatStr(String str, FormatStd std, String delimiter) {
-        return formatStr(str, std, 0, delimiter);
+    public String formatStr(String str, FormatStd std, String delimiter, boolean throwSyntaxError) throws SyntaxErrorException {
+        return formatStr(str, std, 0, delimiter, throwSyntaxError);
     }
     
     /**
@@ -224,11 +236,12 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @param std the standard to be used
      * @param parensLevel the level of the parenthesis available.
      * @return a new (formatted) string
+     * @throws SyntaxErrorException 
      */
-    private String formatStr(String str, FormatStd std, int parensLevel, String delimiter) {
+    private String formatStr(String str, FormatStd std, int parensLevel, String delimiter, boolean throwSyntaxError) throws SyntaxErrorException {
         char[] cs = str.toCharArray();
         FastStringBuffer buf = new FastStringBuffer();
-        ParsingUtils parsingUtils = ParsingUtils.create(cs);
+        ParsingUtils parsingUtils = ParsingUtils.create(cs, throwSyntaxError);
         char lastChar = '\0';
         for (int i = 0; i < cs.length; i++) {
             char c = cs[i];
@@ -250,7 +263,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     break;
 
                 case '(':
-                    i = formatForPar(parsingUtils, cs, i, std, buf, parensLevel+1, delimiter);
+                    i = formatForPar(parsingUtils, cs, i, std, buf, parensLevel+1, delimiter, throwSyntaxError);
                     break;
                     
                     
@@ -594,6 +607,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
 
     /**
      * Formats the contents for when a parenthesis is found (so, go until the closing parens and format it accordingly)
+     * @param throwSyntaxError 
+     * @throws SyntaxErrorException 
      */
     private int formatForPar(
             final ParsingUtils parsingUtils, 
@@ -602,7 +617,8 @@ public class PyFormatStd extends PyAction implements IFormatter {
             final FormatStd std, 
             final FastStringBuffer buf, 
             final int parensLevel, 
-            final String delimiter) {
+            final String delimiter, 
+            boolean throwSyntaxError) throws SyntaxErrorException {
         char c = ' ';
         FastStringBuffer locBuf = new FastStringBuffer();
 
@@ -618,7 +634,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 j = parsingUtils.eatComments(locBuf, j - 1) + 1;
 
             } else if (c == '(') { //open another par.
-                j = formatForPar(parsingUtils, cs, j - 1, std, locBuf, parensLevel+1, delimiter) + 1;
+                j = formatForPar(parsingUtils, cs, j - 1, std, locBuf, parensLevel+1, delimiter, throwSyntaxError) + 1;
 
             } else {
                 locBuf.append(c);
@@ -641,7 +657,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                 }
             }
 
-            String formatStr = formatStr(trim(locBuf).toString(), std, parensLevel, delimiter);
+            String formatStr = formatStr(trim(locBuf).toString(), std, parensLevel, delimiter, throwSyntaxError);
             FastStringBuffer formatStrBuf = trim(new FastStringBuffer(formatStr, 10));
 
             String closing = ")";

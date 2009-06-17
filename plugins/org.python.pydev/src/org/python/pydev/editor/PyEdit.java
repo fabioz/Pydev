@@ -72,6 +72,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
@@ -672,9 +673,17 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         //Before saving, let's see if the auto-code formatting is turned on.
         try {
             if(PyCodeFormatterPage.getFormatBeforeSaving()){
+                IStatusLineManager statusLineManager = this.getStatusLineManager();
+                
                 PyFormatStd std = new PyFormatStd();
                 PySelection ps = new PySelection(document, (ITextSelection) this.getSelectionProvider().getSelection());
-                std.applyFormatAction(this, ps, true);
+                boolean throwSyntaxError = true;
+                try{
+                    std.applyFormatAction(this, ps, true, throwSyntaxError);
+                    statusLineManager.setErrorMessage(null);
+                }catch(SyntaxErrorException e){
+                    statusLineManager.setErrorMessage(e.getMessage());
+                }
             }
         } catch (Throwable e) {
             //can never fail

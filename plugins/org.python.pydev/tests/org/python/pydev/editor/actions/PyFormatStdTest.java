@@ -8,6 +8,7 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 
@@ -869,36 +870,40 @@ public class PyFormatStdTest extends TestCase {
      */
     private void checkFormatResults(String s, String expected) {
         //default check (defined with \n)
-        final PyFormatStd pyFormatStd = new PyFormatStd();
-        String formatStr = pyFormatStd.formatStr(s, std, "\n");
-        
-        if(DEBUG){
-            System.out.println(">>"+s.replace(' ', '.')+"<<");
-            System.out.println(">>"+formatStr.replace(' ', '.')+"<<");
+        try{
+            final PyFormatStd pyFormatStd = new PyFormatStd();
+            String formatStr = pyFormatStd.formatStr(s, std, "\n", false);
+            
+            if(DEBUG){
+                System.out.println(">>"+s.replace(' ', '.')+"<<");
+                System.out.println(">>"+formatStr.replace(' ', '.')+"<<");
+            }
+            assertEquals(expected, formatStr);
+            
+            //second check (defined with \r)
+            s = s.replace('\n', '\r');
+            expected = expected.replace('\n', '\r');
+            
+            formatStr = pyFormatStd.formatStr(s, std, "\r", false);
+            assertEquals(expected, formatStr);
+            
+            //third check (defined with \r\n)
+            s = StringUtils.replaceAll(s, "\r", "\r\n");
+            expected = StringUtils.replaceAll(expected, "\r", "\r\n");
+            
+            formatStr = pyFormatStd.formatStr(s, std, "\r\n", false);
+            assertEquals(expected, formatStr);
+            
+            
+            
+            //now, same thing with different API
+            Document doc = new Document();
+            doc.set(s);
+            pyFormatStd.formatAll(doc, null, true, std, false);
+            assertEquals(expected, doc.get());
+        }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);
         }
-        assertEquals(expected, formatStr);
-        
-        //second check (defined with \r)
-        s = s.replace('\n', '\r');
-        expected = expected.replace('\n', '\r');
-        
-        formatStr = pyFormatStd.formatStr(s, std, "\r");
-        assertEquals(expected, formatStr);
-        
-        //third check (defined with \r\n)
-        s = StringUtils.replaceAll(s, "\r", "\r\n");
-        expected = StringUtils.replaceAll(expected, "\r", "\r\n");
-        
-        formatStr = pyFormatStd.formatStr(s, std, "\r\n");
-        assertEquals(expected, formatStr);
-        
-        
-        
-        //now, same thing with different API
-        Document doc = new Document();
-        doc.set(s);
-        pyFormatStd.formatAll(doc, null, true, std);
-        assertEquals(expected, doc.get());
     }
 
     

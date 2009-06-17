@@ -18,6 +18,7 @@ import org.eclipse.jface.text.contentassist.IContextInformationPresenter;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -113,6 +114,8 @@ public class PyContextInformationValidator implements IContextInformationValidat
             currentParameter = getCurrentParameter(doc, fPosition, position, ",", "", true);
         } catch (BadLocationException x) {
             return false;
+        }catch(SyntaxErrorException e){
+            return false;
         }
 
         if (fCurrentParameter != -1) {
@@ -189,9 +192,10 @@ public class PyContextInformationValidator implements IContextInformationValidat
      * @param considerNesting
      * @return
      * @throws BadLocationException
+     * @throws SyntaxErrorException 
      */
     public int getCurrentParameter(IDocument document, final int start, final int end, String increments,
-            String decrements, boolean considerNesting) throws BadLocationException {
+            String decrements, boolean considerNesting) throws BadLocationException, SyntaxErrorException {
 
         Assert.isTrue((increments.length() != 0 || decrements.length() != 0) && !increments.equals(decrements));
 

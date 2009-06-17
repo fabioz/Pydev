@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 
@@ -120,7 +121,11 @@ public class PythonCodeReader {
                     
                 case '"':
                 case '\'':
-                    fOffset = parsingUtils.eatLiterals(null, fOffset-1)+1;
+                    try{
+                        fOffset = parsingUtils.eatLiterals(null, fOffset-1)+1;
+                    }catch(SyntaxErrorException e){
+                        throw new RuntimeException(e);
+                    }
                     continue;
             }
             

@@ -53,7 +53,7 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals('\n', parsingUtils.charAt(i));
     }
     
-    public void testEatLiterals() {
+    public void testEatLiterals() throws SyntaxErrorException {
         String str = "" +
         "'''\n" +
         "pass\n" +
@@ -64,6 +64,42 @@ public class ParsingUtilsTest extends TestCase {
         int i = parsingUtils.eatLiterals(null, 0);
         assertEquals(11, i);
         assertEquals('\'', parsingUtils.charAt(i));
+    }
+    
+    public void testInvalidSyntax() {
+        String str = "" +
+        "'" + //not properly closed
+        "";
+        ParsingUtils parsingUtils = ParsingUtils.create(str, true);
+        try{
+            parsingUtils.eatLiterals(null, 0);
+            fail("Expected invalid code.");
+        }catch(SyntaxErrorException e){
+            //expected
+        }
+        
+        str = "" +
+        "'''" + //not properly closed
+        "";
+        parsingUtils = ParsingUtils.create(str, true);
+        try{
+            parsingUtils.eatLiterals(null, 0);
+            fail("Expected invalid code.");
+        }catch(SyntaxErrorException e){
+            //expected
+        }
+        
+        str = "" +
+        "(" + //not properly closed
+        "";
+        parsingUtils = ParsingUtils.create(str, true);
+        try{
+            parsingUtils.eatPar(0, null);
+            fail("Expected invalid code.");
+        }catch(SyntaxErrorException e){
+            //expected
+        }
+        
     }
     
     public void testEatWhitespaces() {

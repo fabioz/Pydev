@@ -3,6 +3,7 @@
  */
 package org.python.pydev.parser.visitors;
 
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 
@@ -29,13 +30,13 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals("a,b=0,*args,**kwargs", buf.toString());
     }
     
-    public void testRemoveCommentsWhitespacesAndLiterals() {
+    public void testRemoveCommentsWhitespacesAndLiterals() throws SyntaxErrorException {
         String s = 
             "a , b = 0,#ignore\n" +
             "*args, **kwargs\n" +
             "'''";
         FastStringBuffer buf = new FastStringBuffer(s, 0);
-        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf);
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false);
         assertEquals("a,b=0,*args,**kwargs", buf.toString());
         
         s = 
@@ -43,7 +44,7 @@ public class ParsingUtilsTest extends TestCase {
             "*args, **kwargs\n" +
             "'''remove'\"";
         buf = new FastStringBuffer(s, 0);
-        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf);
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false);
         assertEquals("a,b=0,*args,**kwargs", buf.toString());
         
         s = 
@@ -51,7 +52,7 @@ public class ParsingUtilsTest extends TestCase {
             "*args, **kwargs\n" +
             "'''remove'''keep";
         buf = new FastStringBuffer(s, 0);
-        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf);
+        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, true);
         assertEquals("a,b=0,*args,**kwargskeep", buf.toString());
     }
 

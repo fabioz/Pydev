@@ -249,7 +249,12 @@ public class PySelection {
                         } catch (BadLocationException e1) {
                             throw new RuntimeException(e1);
                         }
-                        int j = parsingUtils.eatPar(lineOffset+i, null);
+                        int j;
+                        try{
+                            j = parsingUtils.eatPar(lineOffset+i, null);
+                        }catch(SyntaxErrorException e1){
+                            throw new RuntimeException(e1);
+                        }
                         try {
                             line = document.getLineOfOffset(j);
                         } catch (BadLocationException e) {
@@ -332,6 +337,8 @@ public class PySelection {
             }
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
+        }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);
         }
     }
 
@@ -342,7 +349,12 @@ public class PySelection {
 
     public static String getLineWithoutCommentsOrLiterals(String l) {
         FastStringBuffer buf = new FastStringBuffer(l, 2);
-        ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false);
+        boolean throwSyntaxError = false;
+        try{
+            ParsingUtils.removeCommentsWhitespacesAndLiterals(buf, false, throwSyntaxError);
+        }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);
+        }
         return buf.toString();
         
     }
@@ -350,9 +362,14 @@ public class PySelection {
         return getLineWithoutCommentsOrLiterals(getLine());
     }
 
-    public static String getLineWithoutLiterals(String line) {
+    public static String getLineWithoutLiterals(String line)  {
         FastStringBuffer buf = new FastStringBuffer(line, 2);
-        ParsingUtils.removeLiterals(buf);
+        boolean throwSyntaxError = false;
+        try{
+            ParsingUtils.removeLiterals(buf, throwSyntaxError);
+        }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);
+        }
         return buf.toString();
     }
     
@@ -867,7 +884,12 @@ public class PySelection {
         int lineOffset = getStartLineOffset();
         String docContents = doc.get();
         int i = lineOffset + openParIndex;
-        int j = ParsingUtils.create(docContents).eatPar(i, null);
+        int j;
+        try{
+            j = ParsingUtils.create(docContents).eatPar(i, null);
+        }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);
+        }
         String insideParentesisTok = docContents.substring(i + 1, j);
 
         StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");

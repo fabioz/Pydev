@@ -15,6 +15,7 @@ import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.ImportsSelection;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.NoPeerAvailableException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
@@ -803,7 +804,7 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             
             FastStringBuffer doc = new FastStringBuffer(document.get(), 2);
             //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
-            ParsingUtils.removeCommentsWhitespacesAndLiterals(doc);
+            ParsingUtils.removeCommentsWhitespacesAndLiterals(doc, false);
             int chars = PyAction.countChars(c, doc);
             int peers = PyAction.countChars(peer, doc);
     
@@ -811,6 +812,8 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
             return skipChar;
         }catch(NoPeerAvailableException e){
             return false;
+        }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);//not expected!
         }
     }
         

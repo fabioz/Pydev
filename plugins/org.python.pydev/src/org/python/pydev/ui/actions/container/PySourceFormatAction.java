@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorPart;
@@ -17,7 +18,9 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -113,7 +116,11 @@ public class PySourceFormatAction extends PyContainerAction implements IObjectAc
                             IDocument doc = REF.getDocFromResource(c);
                             
                             boolean isOpenedFile = openFiles.contains(file);
-                            formatter.formatAll(doc, null, isOpenedFile);
+                            try{
+                                formatter.formatAll(doc, null, isOpenedFile, true);
+                            }catch(SyntaxErrorException e){
+                                Log.log(IStatus.ERROR, "Could not source-format file: "+name+ " (invalid syntax).", e);
+                            }
                             formatted += 1;
                             if(isOpenedFile){
                                 //This means that it's an open buffer (let the user save it when he wants).
