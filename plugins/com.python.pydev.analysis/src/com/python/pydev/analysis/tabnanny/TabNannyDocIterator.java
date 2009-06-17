@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
@@ -182,6 +183,8 @@ public class TabNannyDocIterator implements Iterator<Tuple3<String, Integer, Boo
             
             
         } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }catch(SyntaxErrorException e){
             throw new RuntimeException(e);
         }
         return true;
