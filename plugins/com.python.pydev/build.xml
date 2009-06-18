@@ -13,6 +13,13 @@ This script gathers the dependencies that Pydev has on Aptana, so that we can pr
 	</target>
 
 	<target name="getdeps" description="Gets the file dependencies that Pydev needs." depends="init">
+		<delete dir="${basedir}/src/com/aptana" failonerror="false"/>
+		
+		<mkdir dir="${basedir}/src/com/aptana/ide/core/licensing" />
+        <mkdir dir="${basedir}/src/com/aptana/ide/core/ui/preferences" />
+        <mkdir dir="${basedir}/src/com/aptana/ide/professional/licensing" />
+        
+		
 		<!-- We need to export it: checkout cannot get a single file -->
 		<svn username="build" password="build$$1" javahl="false">
 			<export srcUrl="${aptana.svn.core.url}/plugins/com.aptana.ide.core/src/com/aptana/ide/core/licensing/ClientKey.java" destPath="${basedir}/src/com/aptana/ide/core/licensing/ClientKey.java" />
