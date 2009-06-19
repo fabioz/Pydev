@@ -1,5 +1,11 @@
 After 1.4.6
 
+Pydev Extensions
+- Remote debugger can have contents redirected from the server to show on multiple runs (the PipedInputStream
+didn't work properly after the original threads were removed, which caused this to malfunction).
+- The interactive console while debugging can be used on the remote debugger
+
+
 Pydev
 Fixed problem when recognizing encodings (https://sourceforge.net/tracker/?func=detail&aid=2796762&group_id=85796&atid=577329)
 Fixed issue when configuring interpreter on Eclipse 3.3 and 3.2 (was using API only available in 3.4)

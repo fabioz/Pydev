@@ -262,6 +262,10 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
             return null;
         }
         
+        if (adapter.equals(IDebugTarget.class)){
+            return thread.getDebugTarget();
+        }
+        
         if (adapter.equals(IPropertySource.class) 
             || adapter.equals(ITaskListResourceAdapter.class)
             || adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)

@@ -200,8 +200,13 @@ public class PyThread extends PlatformObject implements IThread {
         if (adapter.equals(ILaunch.class) ||
             adapter.equals(IResource.class)){
             return target.getAdapter(adapter);
+            
         }else if (adapter.equals(ITaskListResourceAdapter.class)){
             return null;
+            
+        }else if (adapter.equals(IDebugTarget.class)){
+            return target;
+            
         }else if (adapter.equals(IPropertySource.class) 
                 || adapter.equals(ITaskListResourceAdapter.class)
                 || adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)

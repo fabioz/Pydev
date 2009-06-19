@@ -362,5 +362,11 @@ public final class FastStringBuffer{
             this.deleteLast();
         }
     }
+
+    public char deleteFirst(){
+        char ret = this.value[0];
+        this.deleteCharAt(0);
+        return ret;
+    }
     
 }
