@@ -52,6 +52,7 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
@@ -1031,6 +1032,27 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         boolean ret = changed;
         changed = false;
         return ret;
+    }
+    
+
+    public Tuple<String, String> getAutoNewInputFromPaths(java.util.List<String> pathsToSearch, String expectedFilename,
+            String nameForUser){
+        for(String s:pathsToSearch){
+            if(s.trim().length() > 0){
+                File file = new File(s.trim());
+                if(file.isDirectory()){
+                    String[] available = file.list();
+                    for(String jar:available){
+                        if(jar.toLowerCase().equals(expectedFilename)){
+                            return new Tuple<String, String>(
+                                    getUniqueInterpreterName(nameForUser), 
+                                    REF.getFileAbsolutePath(new File(file, jar)));
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }
