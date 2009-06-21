@@ -16,6 +16,7 @@ Run configurations can be created for the project
 Ctrl+F9 can be used to run as unit-test and select which tests will be run
 Shift left can now shift even when there are less chars than the required indent string
 Fixed problem recognizing top-level modules on .egg files
+Fixed problem on auto-config of interpreter
 
 After 1.4.5
 
