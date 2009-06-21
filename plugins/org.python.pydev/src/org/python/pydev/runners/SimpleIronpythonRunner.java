@@ -99,10 +99,11 @@ public class SimpleIronpythonRunner extends SimpleRunner {
             throw new RuntimeException("The script passed for execution ("+script+") does not exist.");
         }
         
-        file = new File(interpreter);
-        if(file.exists() == false){
-            throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
-        }
+        //Note that we don't check it (interpreter could be just the string 'ipy')
+//        file = new File(interpreter);
+//        if(file.exists() == false){
+//            throw new RuntimeException("The interpreter passed for execution ("+interpreter+") does not exist.");
+//        }
 
         PydevPlugin plugin = PydevPlugin.getDefault();
         String defaultVmArgs;
