@@ -5,12 +5,9 @@ import java.util.List;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.IIndentPrefs;
 
@@ -22,15 +19,15 @@ public class PyShiftLeft extends PyAction{
 
     /**
      * Grabs the selection information and performs the action.
+     * 
+     * Note that setting the rewrite session and undo/redo must be done from the caller.
      */
     public void run(IAction action) {
         try {
             PyEdit pyEdit = (PyEdit) getTextEditor();
             IIndentPrefs indentPrefs = pyEdit.getIndentPrefs();
             PySelection ps = new PySelection(pyEdit);
-            Tuple<Integer, Integer> repRegion = perform(ps, indentPrefs);
-
-            pyEdit.selectAndReveal(repRegion.o1, repRegion.o2);
+            perform(ps, indentPrefs);
         } catch (Exception e) {
             beep(e);
         }
@@ -45,17 +42,12 @@ public class PyShiftLeft extends PyAction{
      * @return the new selection
      * @throws BadLocationException 
      */
-    public Tuple<Integer, Integer> perform(PySelection ps, IIndentPrefs indentPrefs) throws BadLocationException {
+    public void perform(PySelection ps, IIndentPrefs indentPrefs) throws BadLocationException {
         int endLineIndex = ps.getEndLineIndex();
-        
-        //Get the start and len before we change to select the full contents.
-        int initialStart = ps.getAbsoluteCursorOffset();
-        int initialLen = ps.getSelLength();
-        int initialOffsetAtLastLine = (initialStart + initialLen) - ps.getEndLine().getOffset();
+        int startLineIndex = ps.getStartLineIndex();
         
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
-        int newStart = ps.getAbsoluteCursorOffset();
 
         String selectedText = ps.getSelectedText();
         List<String> ret = StringUtils.splitInLines(selectedText);
@@ -90,58 +82,21 @@ public class PyShiftLeft extends PyAction{
         }
         
         
-        //Actually do the replacement
         String defaultIndentStr = DocUtils.createSpaceString(tabWidthToUse);
-        FastStringBuffer strbuf = new FastStringBuffer(selectedText.length()+ret.size()+2);
         
-        //We must also get the number of chars removed at the 1st and last line so that we can calculate the
-        //new selection.
-        int removedAtFirst = 0;
-        int removedAtLast = 0;
-        
-        for(int i=0;i<ret.size();i++){
-            String line = ret.get(i);
+
+        //Note that we remove the contents line by line just erasing the needed chars
+        //(if we did a full replacement in the end, the cursor wouldn't end in the correct position
+        //and trying to set the cursor later also changed the editor scroll position).
+        IDocument doc = ps.getDoc();
+        for(int i=startLineIndex;i<=endLineIndex;i++){
+            String line = ps.getLine(i);
             if(line.startsWith("\t")){
-                if(i == 0){
-                    removedAtFirst = 1;
-                }
-                if(i == ret.size()-1){
-                    removedAtLast = 1;
-                }
-                line = line.substring(1);
+                doc.replace(ps.getLineOffset(i), 1, "");
                 
             }else if(line.startsWith(defaultIndentStr)){
-                if(i == 0){
-                    removedAtFirst = defaultIndentStr.length();
-                }
-                if(i == ret.size()-1){
-                    removedAtLast = defaultIndentStr.length();
-                }
-                line = line.substring(defaultIndentStr.length());
+                doc.replace(ps.getLineOffset(i), defaultIndentStr.length(), "");
             }
-            strbuf.append(line);
         }
-        
-        ITextSelection txtSel = ps.getTextSelection();
-        int start = txtSel.getOffset();
-        int len = txtSel.getLength();
-        
-        String replacement = strbuf.toString();
-        // Replace the text with the modified information
-        IDocument doc = ps.getDoc();
-        doc.replace(start, len, replacement);
-        
-        
-        //Calculate the new cursor position.
-        int startSel = initialStart - removedAtFirst;
-        if(startSel < newStart){
-            startSel = newStart;
-        }
-        int endSel = initialOffsetAtLastLine - removedAtLast;
-        if(endSel < 0){
-            endSel = initialOffsetAtLastLine;
-        }
-        int endLen = doc.getLineOffset(endLineIndex)+endSel - startSel;
-        return new Tuple<Integer, Integer>(startSel, endLen);
     }
 }

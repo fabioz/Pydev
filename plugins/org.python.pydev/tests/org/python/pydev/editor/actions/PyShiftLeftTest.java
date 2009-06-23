@@ -3,7 +3,6 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.TestIndentPrefs;
 
@@ -16,8 +15,7 @@ public class PyShiftLeftTest extends TestCase{
                 "        pass\n" +
                 "    \n");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        Tuple<Integer, Integer> newSel = new PyShiftLeft().perform(ps, new TestIndentPrefs(true, 4));
-        assertEquals(new Tuple<Integer, Integer>(0, doc.getLength()), newSel);
+        new PyShiftLeft().perform(ps, new TestIndentPrefs(true, 4));
         
         String expected = "def a(aa):\n" +
                           "    pass\n" +
@@ -32,8 +30,7 @@ public class PyShiftLeftTest extends TestCase{
                 "        pass\n" +
                 "    \n");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        Tuple<Integer, Integer> newSel = new PyShiftLeft().perform(ps, new TestIndentPrefs(true, 4));
-        assertEquals(new Tuple<Integer, Integer>(0, doc.getLength()), newSel);
+        new PyShiftLeft().perform(ps, new TestIndentPrefs(true, 4));
         
         String expected = "def a(aa):\n" +
                           "     pass\n" +
@@ -47,8 +44,7 @@ public class PyShiftLeftTest extends TestCase{
                 "        pass\n" +
                 "    bb\n");
         PySelection ps = new PySelection(doc, 0, 3, doc.getLength()-2-3);
-        Tuple<Integer, Integer> newSel = new PyShiftLeft().perform(ps, new TestIndentPrefs(true, 4));
-        assertEquals(new Tuple<Integer, Integer>(0, doc.getLength()-2), newSel);
+        new PyShiftLeft().perform(ps, new TestIndentPrefs(true, 4));
         
         String expected = "def a(aa):\n" +
                           "     pass\n" +
