@@ -18,6 +18,7 @@ Run as unit-test can have --filter and --tests as a parameter set in the run con
 Shift left can now shift even when there are less chars than the required indent string
 Fixed problem recognizing top-level modules on .egg files
 Fixed problem on auto-config of interpreter
+Code-completion better heuristic when analyzing function return that's called on self.
 
 
 After 1.4.5

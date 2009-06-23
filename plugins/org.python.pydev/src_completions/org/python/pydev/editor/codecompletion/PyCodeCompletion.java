@@ -264,6 +264,12 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             request.activationToken = request.activationToken.substring(0, request.activationToken.length() - 1);
         }
         
+        final String initialActivationToken = request.activationToken;
+        int parI = request.activationToken.indexOf('(');
+        if(parI != -1){
+            request.activationToken = request.activationToken.substring(0, parI);
+        }
+        
         char[] toks = new char[]{'.', ' '};
         List<Object> completions = new ArrayList<Object>();
         
@@ -278,7 +284,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         } 
         
         if(lookInGlobals){
-            state.setActivationToken(request.activationToken);
+            state.setActivationToken(initialActivationToken);
 
             //Ok, looking for a token in globals.
             IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);

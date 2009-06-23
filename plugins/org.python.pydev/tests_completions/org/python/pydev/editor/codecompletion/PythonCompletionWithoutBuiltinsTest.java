@@ -40,7 +40,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testConfigObjEgg();
+          test.testReturn5();
           test.tearDown();
           System.out.println("Finished");
 
@@ -1050,6 +1050,35 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "    some = some_function()\n" +
             "    some.";
         requestCompl(s, s.length(), 1, new String[] {"method10()"});
+    }
+    
+    
+    public void testReturn4() throws Exception {
+        String s = 
+            "class Foo:\n" +
+            "    def foo(self):\n" +
+            "        pass\n" +
+            "def m1():\n" +
+            "    return Foo()\n" +
+            "def m2():\n" +
+            "    m1().";
+        requestCompl(s, s.length(), 1, new String[] {"foo()"});
+    }
+    
+    public void testReturn5() throws Exception {
+        String s = 
+            "import unittest\n" +
+            "\n" +
+            "\n" +
+            "class Test(unittest.TestCase):\n" +
+            "        \n" +
+            "    def Compute(self):\n" +
+            "        return Test()\n" +
+            "\n" +
+            "    def BB(self):\n" +
+            "        self.Compute()." +
+            "";
+        requestCompl(s, s.length(), -1, new String[] {"BB()", "assertEquals"});
     }
     
     public void testDecorateObject() throws Exception {

@@ -65,7 +65,7 @@ public class AssignAnalysis {
                     if(!(definition.ast instanceof FunctionDef)){
                         addNonFunctionDefCompletionsFromAssign(manager, state, ret, s, definition, assignDefinition);
                     }else{
-                        addFunctionDefCompletionsFromAssign(manager, state, ret, s, definition, assignDefinition);
+                        addFunctionDefCompletionsFromReturn(manager, state, ret, s, definition);
                     }
                 }
                 
@@ -83,7 +83,7 @@ public class AssignAnalysis {
 
 
 
-    private void addFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager, ICompletionState state, ArrayList<IToken> ret, SourceModule s, Definition definition, AssignDefinition assignDefinition) throws CompletionRecursionException {
+    private void addFunctionDefCompletionsFromReturn(ICodeCompletionASTManager manager, ICompletionState state, ArrayList<IToken> ret, SourceModule s, Definition definition) throws CompletionRecursionException {
         FunctionDef functionDef = (FunctionDef) definition.ast;
         for(Return return1: ReturnVisitor.findReturns(functionDef)){
             ICompletionState copy = state.getCopy();
