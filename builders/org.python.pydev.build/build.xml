@@ -26,8 +26,8 @@
           target: build              
          ================================= -->
 	<target name="doit" description="Builds the PyDev feature" depends="generate.build.properties,get.revision,generate.base">
-		<java jar="${baseLocation}/plugins/${launcher.jar}" fork="true" failonerror="yes">
-			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${pde.build.version}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
+		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
+			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
 		</java>
 		<antcall target="categorize" />
 	</target>
@@ -74,8 +74,8 @@
 			</fileset>
 		</delete>
 		<delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
-		<java jar="${vanilla.eclipse}/plugins/${launcher.jar}" fork="true" failonerror="false">
-			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${pde.build.version}/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
+		<java jar="${vanilla.eclipse}/plugins/${launcher.plugin}.jar" fork="true" failonerror="false">
+			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
 		</java>
 		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
 		<delete dir="${p2.repo.dir}" failonerror="false" />
