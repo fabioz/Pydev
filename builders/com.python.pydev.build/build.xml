@@ -26,9 +26,10 @@
           target: build              
          ================================= -->
 	<target name="doit" description="Builds the PyDev Extensions feature" depends="generate.build.properties,get.revision,generate.base">
-		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="yes">
-			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/org.eclipse.pde.build_3.4.1.R34x_v20080805/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
+		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
+			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
 		</java>
+		<antcall target="categorize" />
 	</target>
 
 	<!-- ================================= 
@@ -45,6 +46,20 @@
 			</propertyset>
 		</echoproperties>
 	</target>
+	
+	<!-- ================================= 
+          target: categorize              
+         ================================= -->
+    <target name="categorize" description="categorize the update site">
+    	<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
+    		<arg line="-application org.eclipse.equinox.p2.publisher.CategoryPublisher -nosplash -console -consolelog -metadataRepository file:${deploy.dir} -categoryDefinition file:${deploy.dir}/site.xml" />
+    	</java>
+    	<!-- Re-JAR the content.xml file! -->
+    	<jar destfile="${deploy.dir}/content.jar">
+    		<fileset file="${deploy.dir}/content.xml" />
+    	</jar>
+    	<delete file="${deploy.dir}/content.xml" />
+    </target>
 
 	<!-- ================================= 
           target: clean.sources
@@ -59,8 +74,8 @@
 			</fileset>
 		</delete>
 		<delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
-		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="false">
-			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/org.eclipse.pde.build_3.4.1.R34x_v20080805/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
+		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="false">
+			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
 		</java>
 		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
 		<delete dir="${p2.repo.dir}" failonerror="false" />
@@ -136,7 +151,7 @@
           target: run.director                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="run.director" description="Runs the p2 director installs">
-		<java jar="${baseLocation}/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20080819.jar" fork="true" failonerror="true" dir="${baseLocation}" timeout="900000">
+		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="true" dir="${baseLocation}" timeout="900000">
 			<arg line="-application org.eclipse.equinox.p2.director.app.application" />
 			<arg line="-nosplash" />
 			<arg line="-consoleLog" />
