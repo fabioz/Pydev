@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -134,18 +135,25 @@ public abstract class PythonListEditor extends FieldEditor {
     private void addNewInput(String name, String executable) {
         if (name != null && executable != null) {
             setPresentsDefaultValue(false);
-            createInterpreterItem(name, executable);
+            TreeItem item = createInterpreterItem(name, executable);
+            try{
+                treeWithInterpreters.setSelection(item);
+            }catch(Exception e){
+                Log.log(e);
+            }
             selectionChanged();
         }
     }
 
     /**
      * Adds a new tree item to the interpreter tree.
+     * @return 
      */
-    protected void createInterpreterItem(String name, String executable) {
+    protected TreeItem createInterpreterItem(String name, String executable) {
         TreeItem item = new TreeItem(treeWithInterpreters, SWT.NULL);
         item.setText(new String[]{name, executable});
         item.setImage(this.imageInterpreter);
+        return item;
     }
 
     /*

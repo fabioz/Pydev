@@ -19,7 +19,8 @@ Shift left can now shift even when there are less chars than the required indent
 Fixed problem recognizing top-level modules on .egg files
 Fixed problem on auto-config of interpreter
 Code-completion better heuristic when analyzing function return that's called on self.
-
+Fixed problem when .pydevproject was not a parseable xml file (the pydev package explorer wouldn't work because of that)
+When a new interpreter is created, it's properly selected in the tree
 
 After 1.4.5
 

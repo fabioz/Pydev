@@ -29,6 +29,8 @@ import java.lang.reflect.Modifier;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
@@ -989,6 +991,34 @@ public class REF {
                 }
             }
         }
+    }
+
+
+    /**
+     * This method will try to create a backup file of the passed file.
+     * @param file this is the file we want to copy as the backup.
+     * @return true if it was properly copied and false otherwise.
+     */
+    public static boolean createBackupFile(File file){
+        if(file != null && file.isFile()){
+            File parent = file.getParentFile();
+            if(parent.isDirectory()){
+                String[] list = parent.list();
+                HashSet<String> set = new HashSet<String>();
+                set.addAll(Arrays.asList(list));
+                String initialName = file.getName();
+                initialName += ".bak";
+                String name = initialName;
+                int i=0;
+                while(set.contains(name)){
+                    name = initialName+i;
+                    i++;
+                }
+                copyFile(file.getAbsolutePath(), new File(parent, name).getAbsolutePath());
+                return true;
+            }
+        }
+        return false;
     }
 
 

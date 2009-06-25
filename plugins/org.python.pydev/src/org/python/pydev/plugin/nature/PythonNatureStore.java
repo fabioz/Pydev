@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -32,12 +33,12 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.Status;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -281,10 +282,16 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         
         traceFunc("loadFromFile");
         
+        DocumentBuilder parser;
+        try{
+            parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        }catch(ParserConfigurationException e){
+            throw new RuntimeException(e); //What can we do about that?
+        }
+        
+        File file = getRawXmlFileLocation();
         try {
-            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             
-            File file = getRawXmlFileLocation();
             
             if (file == null || !file.exists()) {
                 if (document != null) {
@@ -293,15 +300,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     return true;
                 } else {
                     // The document never existed (create the default)
-                    document = parser.newDocument();
-                    ProcessingInstruction version = document.createProcessingInstruction("eclipse-pydev", "version=\"1.0\""); //$NON-NLS-1$ //$NON-NLS-2$
-                    document.appendChild(version);
-                    Element configRootElement = document.createElement("pydev_project");
-                    document.appendChild(configRootElement);
-
-                    migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
-                    migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
-                    migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
+                    document = createInMemoryDocument(parser);
                     doStore();
                     return true;
                 }
@@ -311,15 +310,51 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     return false;
                 }
                 lastLoadedContents = fileContents;
-                document = parser.parse(new ByteArrayInputStream(fileContents.getBytes()));
+                try{
+                    document = parser.parse(new ByteArrayInputStream(fileContents.getBytes()));
+                }catch(Exception e){
+                    handleProblemInXmlDocument(parser, file, e);
+                }
                 return true;
             }
         } catch (Exception e) {
-            PydevPlugin.log("Error loading contents from .pydevproject", e);
+            handleProblemInXmlDocument(parser, file, e);
         }
     
         traceFunc("END loadFromFile");
         return false;
+    }
+
+    /**
+     * This method should be called if we have a problem parsing the xml file.
+     * It creates a backup of the original file and creates a new document to be used.
+     */
+    private void handleProblemInXmlDocument(DocumentBuilder parser, File file, Exception e) throws CoreException{
+        PydevPlugin.log("Error loading contents from .pydevproject: "+file, e);
+        try{
+            REF.createBackupFile(file);
+        }catch(Exception e1){
+            PydevPlugin.log("Error creating backup for: "+file, e);
+        }
+        document = createInMemoryDocument(parser);
+        doStore();
+    }
+
+    /**
+     * Creates a new xml document in memory
+     * @return 
+     */
+    private Document createInMemoryDocument(DocumentBuilder parser) throws CoreException{
+        Document document = parser.newDocument();
+        ProcessingInstruction version = document.createProcessingInstruction("eclipse-pydev", "version=\"1.0\""); //$NON-NLS-1$ //$NON-NLS-2$
+        document.appendChild(version);
+        Element configRootElement = document.createElement("pydev_project");
+        document.appendChild(configRootElement);
+
+        migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
+        migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
+        migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
+        return document;
     }
 
 
@@ -365,11 +400,14 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * Get the root node of the project description
      * 
      * @return the root Node object
+     * @throws MisconfigurationException 
      * @throws CoreException if root node is not present
      */
-    private synchronized Node getRootNodeInXml() {
+    private synchronized Node getRootNodeInXml() throws MisconfigurationException {
         traceFunc("getRootNodeInXml");
-        Assert.isNotNull(document);
+        if(document == null){
+            throw new MisconfigurationException("Found null XML document. Please check if "+this.xmlFile+" is a valid XML file.");
+        }
         NodeList nodeList = document.getElementsByTagName("pydev_project");
         Node ret = null;
         if (nodeList != null && nodeList.getLength() > 0) {
@@ -403,9 +441,10 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * @param type
      * @param key
      * @return The property node or null if a node with the supplied key and type cannot be found.
+     * @throws MisconfigurationException 
      * @throws CoreException
      */
-    private synchronized Node findPropertyNodeInXml(String type, QualifiedName key) {
+    private synchronized Node findPropertyNodeInXml(String type, QualifiedName key) throws MisconfigurationException {
         traceFunc("findPropertyNodeInXml");
         Node root = getRootNodeInXml();
         NodeList childNodes = root.getChildNodes();

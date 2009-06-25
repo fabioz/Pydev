@@ -1142,7 +1142,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             lst.add(new ProjectConfigError(
                     relatedToProject, StringUtils.replaceNewLines(e.getMessage(), " ")));
             
-        } catch (CoreException e) {
+        } catch (Throwable e) {
             lst.add(new ProjectConfigError(
                     relatedToProject, StringUtils.replaceNewLines("Unexpected error:"+e.getMessage(), " ")));
         }
