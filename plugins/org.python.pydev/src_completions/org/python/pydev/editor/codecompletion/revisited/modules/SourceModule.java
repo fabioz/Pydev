@@ -1027,6 +1027,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             if(m.file != null){
                 return false;
             }
+            if(this.name == null){
+                return this.name == m.name;
+            }
             return this.name.equals(m.name);
         }
         
