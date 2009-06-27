@@ -15,6 +15,22 @@ except:
     setattr(__builtin__, 'False', 0)
 
 
+
+
+#=======================================================================================================================
+# Jython?
+#=======================================================================================================================
+try:
+    import org.python.core.PyDictionary #@UnresolvedImport @UnusedImport -- just to check if it could be valid
+    def DictContains(d, key):
+        return d.has_key(key)
+except:
+    try:
+        #Py3k does not have has_key anymore, and older versions don't have __contains__
+        DictContains = dict.__contains__
+    except:
+        DictContains = dict.has_key
+
 try:
     xrange
 except:
@@ -38,7 +54,7 @@ class GetoptError(Exception):
         return self.msg
 
 
-def gnu_getopt(args, shortopts, longopts = []):
+def gnu_getopt(args, shortopts, longopts=[]):
     """getopt(args, options[, long_options]) -> opts, args
 
     This function works like getopt(), except that GNU style scanning
@@ -93,7 +109,7 @@ def do_longs(opts, opt, longopts, args):
     except ValueError:
         optarg = None
     else:
-        opt, optarg = opt[:i], opt[i+1:]
+        opt, optarg = opt[:i], opt[i + 1:]
 
     has_arg, opt = long_has_args(opt, longopts)
     if has_arg:
@@ -148,7 +164,7 @@ def do_shorts(opts, optstring, shortopts, args):
 def short_has_arg(opt, shortopts):
     for i in range(len(shortopts)):
         if opt == shortopts[i] != ':':
-            return shortopts.startswith(':', i+1)
+            return shortopts.startswith(':', i + 1)
     raise GetoptError('option -%s not recognized' % opt, opt)
 
 
@@ -350,33 +366,58 @@ class PydevTestRunner:
 
     def find_tests_from_modules(self, modules):
         """ returns the unittests given a list of modules """
-        loader = unittest.defaultTestLoader
-        
+        loader = unittest.TestLoader()
+
         ret = []
-        loaded = 0
         if self.tests:
-            prefixes = []
+            accepted_classes = {}
+            accepted_methods = {}
+            
             for t in self.tests:
                 splitted = t.split('.')
-                if len(splitted) == 2:
-                    prefixes.append(splitted[1])
+                if len(splitted) == 1:
+                    accepted_classes[t] = t
                     
-            if prefixes:
-                #If we have any forced prefix, only load matching test names (don't load all the default tests
-                #because they'll be filtered away anyways)
-                loaded = 1
-                for prefix in prefixes:
-                    loader = unittest.TestLoader()
-                    initial = loader.testMethodPrefix
-                    try:
-                        loader.testMethodPrefix = prefix
-                        ret.extend([loader.loadTestsFromModule(m) for m in modules])
-                    finally:
-                        loader.testMethodPrefix = initial
+                elif len(splitted) == 2:
+                    accepted_methods[t] = t
+                    
+            #===========================================================================================================
+            # GetTestCaseNames
+            #===========================================================================================================
+            class GetTestCaseNames:
+                """Yes, we need a class for that (cannot use outer context on jython 2.1)"""
+                    
+                def __init__(self, accepted_classes, accepted_methods):
+                    self.accepted_classes = accepted_classes
+                    self.accepted_methods = accepted_methods
+                        
+                def __call__(self, testCaseClass):
+                    """Return a sorted sequence of method names found within testCaseClass"""
+                    testFnNames = []
+                    className = testCaseClass.__name__
+                    
+                    if DictContains(self.accepted_classes, className):
+                        for attrname in dir(testCaseClass):
+                            #If a class is chosen, we select all the 'test' methods'
+                            if attrname.startswith('test') and hasattr(getattr(testCaseClass, attrname), '__call__'):
+                                testFnNames.append(attrname)
+                                
+                    else:
+                        for attrname in dir(testCaseClass):
+                            #If we have the class+method name, we must do a full check and have an exact match.
+                            if DictContains(self.accepted_methods, className + '.' + attrname):
+                                if hasattr(getattr(testCaseClass, attrname), '__call__'):
+                                    testFnNames.append(attrname)
+                                  
+                    #sorted() is not available in jython 2.1
+                    testFnNames.sort()  
+                    return testFnNames
+            
+            
+            loader.getTestCaseNames = GetTestCaseNames(accepted_classes, accepted_methods)
+                
         
-        if not loaded:
-            #Now, if we didn't have any prefixes to load, load the default modules
-            ret.extend([loader.loadTestsFromModule(m) for m in modules])
+        ret.extend([loader.loadTestsFromModule(m) for m in modules])
             
         return ret
 

@@ -11,13 +11,17 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
@@ -71,6 +75,38 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
                 return memento.getInitialLocation(initialSize, super.getInitialLocation(initialSize), getShell());
             }
 
+            /*
+             * @see SelectionStatusDialog#computeResult()
+             */
+            @SuppressWarnings("unchecked")
+            protected void computeResult() {
+                IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
+                List<Object> list = selection.toList();
+                if(list.size() > 0){
+                    setResult(list);
+                }else{
+                    Tree tree = getTreeViewer().getTree();
+                    TreeItem[] items = tree.getItems();
+                    list = new ArrayList<Object>();
+                    //Now, if he didn't select anything, let's create tests with all that is currently filtered
+                    //in the interface 
+                    createListWithLeafs(items, list);
+                    setResult(list);
+                }
+            }
+
+            private void createListWithLeafs(TreeItem[] items, List<Object> leafObjectsList){
+                for(TreeItem item:items){
+                    TreeItem[] children = item.getItems();
+                    if(children.length == 0){
+                        leafObjectsList.add(item.getData());
+                    }else{
+                        createListWithLeafs(children, leafObjectsList);
+                    }
+                }
+            }
+            
+            
         };
 
         dialog.setTitle("Pydev: Select tests to run");
@@ -78,7 +114,10 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
         dialog.setInitialFilter("test");
         dialog.setAllowMultiple(true);
         dialog.setInput(ast);
-        dialog.open();
+        int open = dialog.open();
+        if(open != Window.OK){
+            return;
+        }
         Object[] result = dialog.getResult();
         
         final FastStringBuffer buf = new FastStringBuffer();

@@ -223,6 +223,11 @@ class RunfilesTest(unittest.TestCase):
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(1, self.count_tests(filtered_tests))
         
+        self._setup_scenario(self.file_dir, None, ['StillYetAnotherSampleTest', 'SampleTest.test_xxxxxx1'])
+        filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
+        self.assertEqual(2, self.count_tests(filtered_tests))
+
+        
 
 if __name__ == "__main__":
     #this is so that we can run it frem the jython tests -- because we don't actually have an __main__ module
