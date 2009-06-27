@@ -254,7 +254,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
      * IPyDevCompletionParticipant
      */
     @SuppressWarnings("unchecked")
-    public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
+    public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         String qual = state.getQualifier();
         if(qual.length() >= 3){ //at least n characters or 3 interface tokens required
@@ -275,6 +275,17 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
     @SuppressWarnings("unchecked")
     public Collection getStringGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException {
         return getThem(request, state, false);
+    }
+
+    public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
+            Collection<IToken> interfaceForLocal){
+        throw new RuntimeException("Deprecated");
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
+            Collection<IToken> interfaceForLocal){
+        return getCompletionsForMethodParameter(state, localScope, interfaceForLocal);
     }
 
 

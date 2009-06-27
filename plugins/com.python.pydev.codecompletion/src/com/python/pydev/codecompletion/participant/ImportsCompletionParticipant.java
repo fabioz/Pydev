@@ -258,7 +258,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     }
     
     @SuppressWarnings("unchecked")
-    public Collection getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
+    public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
         return Collections.emptyList();
     }
 
@@ -267,4 +267,16 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         return getThem(request, state, false);
     }
 
+    public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
+            Collection<IToken> interfaceForLocal){
+        throw new RuntimeException("Deprecated");
+    }
+
+
+    public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope,
+            Collection<IToken> interfaceForLocal){
+        return Collections.emptyList();
+    }
+
+    
 }
