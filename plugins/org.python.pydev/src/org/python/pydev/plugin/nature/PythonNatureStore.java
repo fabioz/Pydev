@@ -351,9 +351,21 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         Element configRootElement = document.createElement("pydev_project");
         document.appendChild(configRootElement);
 
-        migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
-        migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
-        migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
+        try{
+            migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
+        }catch(Exception e){
+            //Ignore backward compatibility problem
+        }
+        try{
+            migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
+        }catch(Exception e){
+            //Ignore backward compatibility problem
+        }
+        try{
+            migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
+        }catch(Exception e){
+            //Ignore backward compatibility problem
+        }
         return document;
     }
 
