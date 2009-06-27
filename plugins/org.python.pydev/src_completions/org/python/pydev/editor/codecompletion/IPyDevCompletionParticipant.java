@@ -36,12 +36,58 @@ public interface IPyDevCompletionParticipant {
     /**
      * Called when a completion is requested within a string.
      * @throws MisconfigurationException 
+     * 
+     * @return a list of proposals or tokens
+     * @see org.eclipse.jface.text.contentassist.ICompletionProposal
+     * @see org.python.pydev.core.IToken
      */
     Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state) throws MisconfigurationException;
 
     /**
-     * Called when a completion is requested for some argument.
+     * Called when a completion is requested for a method parameter.
+     * 
+     * The completions for attributes already assigned in the local scope are already added in the default engine, so, at this
+     * point, clients can add other completions (e.g.: getting other known tokens to appear there).
+     * 
+     * @param state The state for the completion
+     * @param localScope The current local scope for the completion
+     * @param interfaceForLocal a list of tokens that were called in the local scope for the passed activation token.
+     * 
+     * @return a list of proposals or tokens
+     * @see org.eclipse.jface.text.contentassist.ICompletionProposal
+     * @see org.python.pydev.core.IToken
+     */
+    Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal);
+    
+    
+    /**
+     * Called when a completion is requested for some token whose type we don't know about
+     * (excluding parameters -- that's handled at getCompletionsForMethodParameter)
+     * 
+     * E.g.: 
+     *     for a in xrange(10):
+     *         a.|<-- as variables created in the for are not resolved to any known type, this method is called on extensions.
+     * 
+     * 
+     * @param state The state for the completion
+     * @param localScope The current local scope for the completion
+     * @param interfaceForLocal a list of tokens that were called in the local scope for the passed activation token.
+     * 
+     * @return a list of proposals or tokens
+     * @see org.eclipse.jface.text.contentassist.ICompletionProposal
+     * @see org.python.pydev.core.IToken
+     */
+    Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal);
+    
+    
+    /**
+     * getCompletionsForMethodParameter is used instead (the name of the method was misleading)
+     * 
+     * This method is not called anymore.
+     * 
+     * @deprecated
      */
     Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal);
+
 
 }

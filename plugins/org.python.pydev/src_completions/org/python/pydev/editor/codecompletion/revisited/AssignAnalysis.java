@@ -46,26 +46,39 @@ public class AssignAnalysis {
      * so, first thing is discovering in which scope we are (Storing previous scopes so 
      * that we can search in other scopes as well).
      */
-    public List<IToken> getAssignCompletions(ICodeCompletionASTManager manager, IModule module, ICompletionState state) {
+    public AssignCompletionInfo getAssignCompletions(ICodeCompletionASTManager manager, IModule module, ICompletionState state) {
         ArrayList<IToken> ret = new ArrayList<IToken>();
+        Definition[] defs = new Definition[0];
         if (module instanceof SourceModule) {
             SourceModule s = (SourceModule) module;
             
             try {
-                Definition[] defs = s.findDefinition(state, state.getLine()+1, state.getCol()+1, state.getNature());
+                defs = s.findDefinition(state, state.getLine()+1, state.getCol()+1, state.getNature());
                 for (int i = 0; i < defs.length; i++) {
                     //go through all definitions found and make a merge of it...
                     Definition definition = defs[i];
+                    
+                    if(state.getLine() == definition.line && 
+                            state.getCol() == definition.col){
+                        //Check the module
+                        if(definition.module != null && definition.module.equals(s)){
+                            //initial and final are the same
+                            if(state.checkFoudSameDefinition(definition.line, definition.col, definition.module)){
+                                //We found the same place we found previously (so, we're recursing here... Just go on)
+                                continue;
+                            }
+                        }
+                    }
                     
                     AssignDefinition assignDefinition = null;
                     if(definition instanceof AssignDefinition){
                         assignDefinition = (AssignDefinition) definition;
                     }
                     
-                    if(!(definition.ast instanceof FunctionDef)){
-                        addNonFunctionDefCompletionsFromAssign(manager, state, ret, s, definition, assignDefinition);
-                    }else{
+                    if(definition.ast instanceof FunctionDef){
                         addFunctionDefCompletionsFromReturn(manager, state, ret, s, definition);
+                    }else{
+                        addNonFunctionDefCompletionsFromAssign(manager, state, ret, s, definition, assignDefinition);
                     }
                 }
                 
@@ -73,12 +86,13 @@ public class AssignAnalysis {
             } catch (CompletionRecursionException e) {
                 //thats ok
             } catch (Exception e) {
+                e.printStackTrace();
                 throw new RuntimeException("Error when getting assign completions for:"+module.getName(), e);
             } catch (Throwable t) {
                 throw new RuntimeException("A throwable exception has been detected "+t.getClass());
             }
         }
-        return ret;
+        return new AssignCompletionInfo(defs, ret);
     }
 
 

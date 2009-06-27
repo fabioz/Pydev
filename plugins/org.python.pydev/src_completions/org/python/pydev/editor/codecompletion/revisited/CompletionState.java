@@ -7,9 +7,11 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.core.runtime.Assert;
@@ -19,6 +21,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 
@@ -216,6 +219,18 @@ public class CompletionState implements ICompletionState {
         if(this.memory.isInRecursion(module, base)){
             throw new CompletionRecursionException("Possible recursion found -- probably programming error --  (module: "+module.getName()+", token: "+base+") - stopping analysis.");
         }
+    }
+    
+    
+    Set<Tuple3<Integer, Integer, IModule>> foundSameDefinitionMemory = new HashSet<Tuple3<Integer,Integer,IModule>>();
+    
+    public boolean checkFoudSameDefinition(int line, int col, IModule mod){
+        Tuple3<Integer, Integer, IModule> key = new Tuple3<Integer, Integer, IModule>(line, col, mod);
+        if(foundSameDefinitionMemory.contains(key)){
+            return true;
+        }
+        foundSameDefinitionMemory.add(key);
+        return false;
     }
     
     

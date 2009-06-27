@@ -8,13 +8,23 @@ package org.python.pydev.editor.codecompletion;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICallback;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.ImportsSelection;
@@ -26,6 +36,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 
 /**
  * This tests the 'whole' code completion, passing through all modules.
@@ -34,13 +45,43 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
  */
 public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase {
 
+    private static final class ParticipantWithBarToken implements IPyDevCompletionParticipant{
+        public Collection<Object> getStringGlobalCompletions(CompletionRequest request, ICompletionState state)
+        throws MisconfigurationException{
+            throw new RuntimeException("Not implemented");
+        }
+
+        public Collection<Object> getGlobalCompletions(CompletionRequest request, ICompletionState state)
+        throws MisconfigurationException{
+            throw new RuntimeException("Not implemented");
+        }
+
+        public Collection<IToken> getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope,
+                Collection<IToken> interfaceForLocal){
+            throw new RuntimeException("Not implemented");
+        }
+
+        public Collection<IToken> getCompletionsForTokenWithUndefinedType(ICompletionState state,
+                ILocalScope localScope, Collection<IToken> interfaceForLocal){
+            ArrayList<IToken> ret = new ArrayList<IToken>();
+            ret.add(new SourceToken(null, "bar", null, null, null, IToken.TYPE_ATTR));
+            return ret;
+        }
+
+        public Collection<Object> getArgsCompletion(ICompletionState state, ILocalScope localScope,
+                Collection<IToken> interfaceForLocal){
+            throw new RuntimeException("Not implemented");
+        }
+    }
+
+
     public static void main(String[] args) {
         
       try {
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testReturn5();
+          test.testForWithExtensions();
           test.tearDown();
           System.out.println("Finished");
 
@@ -702,7 +743,6 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     /**
      * @throws BadLocationException
      * @throws CoreException
-     * 
      */
     public void testFor() throws Exception {
         String s;
@@ -710,11 +750,92 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "for event in a:   \n" +
             "    print event   \n" +
             "                  \n" +
-            "event.";
+            "print event.xx\n" +
+            "print event." +
+            "";
+        requestCompl(s, s.length(), -1, new String[] {"xx"});
+    }
+    
+    public void testForWithExtensions() throws Exception {
+        String s;
+        s = "" +
+        "for event in a:   \n" +
+        "    print event   \n" +
+        "                  \n" +
+        "print event.xx\n" +
+        "print event." +
+        "";
+        checkParticipantAndXXInterface(s);
+    }
+    
+    public void testForWithExtensions2() throws Exception {
+        String s;
+        s = "" +
+        "for x in []:   \n" +
+        "   x.xx = 10\n" +
+        "   x." +
+        "";
+        checkParticipantAndXXInterface(s);
+    }
+
+    private void checkParticipantAndXXInterface(String s) throws Exception{
         try {
-            requestCompl(s, s.length(), -1, new String[] {});
+            Map<String, List<Object>> participants = new HashMap<String, List<Object>>();
+            List<Object> completionParticipants = new ArrayList<Object>();
+            participants.put(ExtensionHelper.PYDEV_COMPLETION, completionParticipants);
+            completionParticipants.add(new ParticipantWithBarToken());
+            ExtensionHelper.testingParticipants = participants;
+            
+            requestCompl(s, s.length(), -1, new String[] {"xx", "bar"});
         } catch (StackOverflowError e) {
             throw new RuntimeException(e);
+        }finally{
+            ExtensionHelper.testingParticipants = null;
+        }
+    }
+    
+    public void testForWithExtensions3() throws Exception {
+        String s;
+        s = "" +
+        "for x in []:   \n" +
+        "   x[0].a." +
+        "";
+        checkParticipant(s);
+    }
+    
+    public void testExtensionsWithUndefined() throws Exception {
+        String s;
+        s = "" +
+        "x = [1,2,3]" +
+        "x[0]." +
+        "";
+        checkParticipant(s);
+    }
+    
+    public void testExtensionsWithUndefinedMethodReturn() throws Exception {
+        String s;
+        s = "" +
+        "def m1():\n" +
+        "    return a\n" +
+        "x = m1()\n" +
+        "x." +
+        "";
+        checkParticipant(s);
+    }
+
+    private void checkParticipant(String s) throws Exception{
+        try {
+            Map<String, List<Object>> participants = new HashMap<String, List<Object>>();
+            List<Object> completionParticipants = new ArrayList<Object>();
+            participants.put(ExtensionHelper.PYDEV_COMPLETION, completionParticipants);
+            completionParticipants.add(new ParticipantWithBarToken());
+            ExtensionHelper.testingParticipants = participants;
+            
+            requestCompl(s, s.length(), -1, new String[] {"bar"});
+        } catch (StackOverflowError e) {
+            throw new RuntimeException(e);
+        }finally{
+            ExtensionHelper.testingParticipants = null;
         }
     }
     
@@ -1080,6 +1201,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "";
         requestCompl(s, s.length(), -1, new String[] {"BB()", "assertEquals"});
     }
+    
     
     public void testDecorateObject() throws Exception {
         String s = 

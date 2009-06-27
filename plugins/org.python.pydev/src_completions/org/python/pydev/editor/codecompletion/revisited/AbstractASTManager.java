@@ -14,7 +14,6 @@ import java.util.SortedMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
@@ -35,10 +34,10 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
-import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
@@ -684,14 +683,37 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     
                     //ok, didn't find in assert isinstance... keep going
                     //if there was no assert for the class, get from extensions / local scope interface
-                    tokens = getArgsCompletion(state, localScope);
+                    tokens = CompletionParticipantsHelper.getCompletionsForMethodParameter(state, localScope).toArray(EMPTY_ITOKEN_ARRAY);
                     if(tokens != null && tokens.length > 0){
                         return tokens;
                     }
                 }
                 
                 //nothing worked so far, so, let's look for an assignment...
-                return getAssignAnalysis().getAssignCompletions(this, module, state).toArray(EMPTY_ITOKEN_ARRAY);
+                AssignCompletionInfo assignCompletions = getAssignAnalysis().getAssignCompletions(this, module, state);
+                
+                boolean useExtensions = assignCompletions.completions.size() == 0;
+                
+                if(lookForArgumentCompletion && localScope != null && 
+                        assignCompletions.completions.size() == 0 && 
+                        assignCompletions.defs.length > 0){
+                    //Now, if a definition found was available in the same scope we started on, let's add the
+                    //tokens that are available from that scope.
+                    for(Definition d:assignCompletions.defs){
+                        if(d.module.equals(module) && localScope.equals(d.scope)){
+                            Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
+                            assignCompletions.completions.addAll(interfaceForLocal);
+                            break;
+                        }
+                    }
+                }
+                
+                if(useExtensions && localScope != null){
+                    assignCompletions.completions.addAll(
+                            CompletionParticipantsHelper.getCompletionsForTokenWithUndefinedType(state, localScope));
+                }
+                
+                return assignCompletions.completions.toArray(EMPTY_ITOKEN_ARRAY);
             }
 
             
@@ -731,48 +753,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             stateCopy.setLookingFor(prevLookingFor, true);
         }
     }
-
-
-
-
-
-    /**
-     * Get the completions based on the arguments received
-     * 
-     * @param state this is the state used for the completion
-     * @param localScope this is the scope we're currently on (may be null)
-     */
-    @SuppressWarnings("unchecked")
-    private IToken[] getArgsCompletion(ICompletionState state, ILocalScope localScope) {
-        IToken[] args = localScope.getLocalTokens(-1,-1,true); //only to get the args
-        String activationToken = state.getActivationToken();
-        String firstPart = FullRepIterable.getFirstPart(activationToken);
-        for (IToken token : args) {
-            if(token.getRepresentation().equals(firstPart)){
-                Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
-                Collection argsCompletionFromParticipants = getArgsCompletionFromParticipants(state, localScope, interfaceForLocal);
-                for (IToken t : interfaceForLocal) {
-                    if(!t.getRepresentation().equals(state.getQualifier())){
-                        argsCompletionFromParticipants.add(t);
-                    }
-                }
-                return (IToken[]) argsCompletionFromParticipants.toArray(EMPTY_ITOKEN_ARRAY);
-            }
-        }
-        return null;
-    }
     
-    @SuppressWarnings("unchecked")
-    private Collection getArgsCompletionFromParticipants(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
-        ArrayList ret = new ArrayList();
-        
-        List participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
-        for (Iterator iter = participants.iterator(); iter.hasNext();) {
-            IPyDevCompletionParticipant participant = (IPyDevCompletionParticipant) iter.next();
-            ret.addAll(participant.getArgsCompletion(state, localScope, interfaceForLocal));
-        }
-        return ret;
-    }
+    
 
 
     /**

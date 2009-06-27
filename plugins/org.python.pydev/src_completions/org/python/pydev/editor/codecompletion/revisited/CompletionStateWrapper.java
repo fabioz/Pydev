@@ -100,6 +100,10 @@ public class CompletionStateWrapper implements ICompletionState {
         wrapped.checkWildImportInMemory(current, mod);
     }
     
+    public boolean checkFoudSameDefinition(int line, int col, IModule mod){
+        return wrapped.checkFoudSameDefinition(line, col, mod);
+    }
+    
     public boolean canStillCheckFindSourceFromCompiled(IModule mod, String tok) {
         return wrapped.canStillCheckFindSourceFromCompiled(mod, tok);
     }

@@ -82,6 +82,10 @@ public interface ICompletionState extends ICompletionCache {
     
     void checkFindResolveImportMemory(IToken tok) throws CompletionRecursionException;
     
+    /**
+     * Doesn't throw an exception, returns true if the given line and column have already been found previously.
+     */
+    boolean checkFoudSameDefinition(int line, int col, IModule mod);
     
     /**
      * Unlike other checks, it won't throw an exception, but'll see if the given module was already checked for

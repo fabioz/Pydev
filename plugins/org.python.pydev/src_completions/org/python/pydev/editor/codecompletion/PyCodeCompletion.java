@@ -480,7 +480,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         IModule module = AbstractModule.createModuleFromDoc(modName, requestFile, request.doc, request.nature, line);
                       
                         AbstractASTManager astMan = ((AbstractASTManager)request.nature.getAstManager());
-                        theList.addAll(new AssignAnalysis().getAssignCompletions(astMan, module, new CompletionState(line, col, request.activationToken, request.nature, request.qualifier)));
+                        theList.addAll(new AssignAnalysis().getAssignCompletions(
+                                astMan, module, new CompletionState(line, col, request.activationToken, request.nature, request.qualifier)).completions);
                     }
                 }
             }
