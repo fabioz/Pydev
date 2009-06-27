@@ -74,6 +74,9 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         if(id != IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE){
             return;
         }
+        if(nature == null){
+            return;
+        }
         
         Integer start = (Integer) marker.getAttribute(IMarker.CHAR_START);
         Integer end = (Integer) marker.getAttribute(IMarker.CHAR_END);
