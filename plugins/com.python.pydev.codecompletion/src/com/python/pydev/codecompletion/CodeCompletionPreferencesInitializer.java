@@ -19,13 +19,20 @@ public class CodeCompletionPreferencesInitializer extends AbstractPreferenceInit
     public static final String KEYWORDS_CODE_COMPLETION = "KEYWORDS_CODE_COMPLETION";
     public static final String DEFAULT_KEYWORDS_CODE_COMPLETION = KeywordsSimpleAssist.defaultKeywordsAsString();
     
+    public static final String CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION = "CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION";
+    public static final int DEFAULT_CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION = 2;
+    
+    public static final String CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION = "CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION";
+    public static final int DEFAULT_CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION = 3;
+    
     @Override
     public void initializeDefaultPreferences() {
         Preferences node = new DefaultScope().getNode(DEFAULT_SCOPE);
         
         node.putBoolean(USE_KEYWORDS_CODE_COMPLETION, DEFAULT_USE_KEYWORDS_CODE_COMPLETION);
         node.put(KEYWORDS_CODE_COMPLETION, DEFAULT_KEYWORDS_CODE_COMPLETION);
-
+        node.putInt(CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION, DEFAULT_CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION);
+        node.putInt(CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION, DEFAULT_CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION);
     }
 
 }

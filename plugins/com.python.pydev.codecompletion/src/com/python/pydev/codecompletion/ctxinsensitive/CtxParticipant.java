@@ -33,6 +33,7 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
+import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
  * Provides the completions in a context-insensitive way for classes and methods (both for the editor or the console).
@@ -56,7 +57,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         }
         
         String qual = tokenAndQual.qualifier;
-        if(qual.length() >= 3 && naturesUsed.size() > 0){ //at least n characters required...
+        if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion() && naturesUsed.size() > 0){ //at least n characters required...
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
             int qlen = qual.length();
             String lowerQual = qual.toLowerCase();
@@ -164,7 +165,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         HashSet<String> importedNames = getImportedNames(state);
         
         String qual = request.qualifier;
-        if(qual.length() >= 3){ //at least n characters required...
+        if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion()){ //at least n characters required...
             String lowerQual = qual.toLowerCase();
             
             String initialModule = request.resolveModule();
@@ -257,7 +258,7 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
     public Collection getCompletionsForMethodParameter(ICompletionState state, ILocalScope localScope, Collection<IToken> interfaceForLocal) {
         ArrayList<IToken> ret = new ArrayList<IToken>();
         String qual = state.getQualifier();
-        if(qual.length() >= 3){ //at least n characters or 3 interface tokens required
+        if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion()){ //at least n characters
             
             List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(), AbstractAdditionalInterpreterInfo.INNER);
             for (IInfo info : tokensStartingWith) {

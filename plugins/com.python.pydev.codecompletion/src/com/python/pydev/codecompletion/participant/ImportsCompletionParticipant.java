@@ -34,6 +34,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import com.python.pydev.analysis.CtxInsensitiveImportComplProposal;
 import com.python.pydev.analysis.ui.AutoImportsPreferencesPage;
 import com.python.pydev.codecompletion.ctxinsensitive.PyConsoleCompletion;
+import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
 
 /**
  * Gathers completions from the modules available (for the editor or for the console).
@@ -54,7 +55,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         }
 
         String qual = tokenAndQual.qualifier;
-        if(qual.length() >= 2 && naturesUsed.size() > 0){ //at least n characters required...
+        if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveModulesCompletion() && naturesUsed.size() > 0){ //at least n characters required...
             
             int qlen = qual.length();
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
@@ -169,7 +170,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             return list;
         }
         
-        if(request.qualifier.length() >= 2){ //at least n characters required...
+        if(request.qualifier.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveModulesCompletion()){ //at least n characters required...
             
             ICodeCompletionASTManager astManager = request.nature.getAstManager();
             String initialModule = request.resolveModule();

@@ -8,6 +8,7 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -36,7 +37,14 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION, "Use common tokens auto code completion?", p));
+        addField(new IntegerFieldEditor(CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION, 
+                "Number of chars for showing modules in context-insensitive completions?", p));
+        
+        addField(new IntegerFieldEditor(CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION, 
+                "Number of chars for showing global tokens in context-insensitive completions?", p));
+        
+        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION, 
+                "Use common tokens auto code completion?", p));
         addField(new ListEditor(CodeCompletionPreferencesInitializer.KEYWORDS_CODE_COMPLETION, "Tokens to use:", p){
 
                 @Override
@@ -80,12 +88,24 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
     public void init(IWorkbench workbench) {
     }
 
+    public static int getCharsForContextInsensitiveModulesCompletion(){
+        return CodecompletionPlugin.getDefault().getPreferenceStore().getInt(
+                CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION);
+    }
+    
+    public static int getCharsForContextInsensitiveGlobalTokensCompletion(){
+        return CodecompletionPlugin.getDefault().getPreferenceStore().getInt(
+                CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION);
+    }
+    
     public static boolean useKeywordsCodeCompletion(){
-        return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION);
+        return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(
+                CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION);
     }
 
     public static String[] getKeywords() {
-        String keywords= CodecompletionPlugin.getDefault().getPreferenceStore().getString(CodeCompletionPreferencesInitializer.KEYWORDS_CODE_COMPLETION);
+        String keywords= CodecompletionPlugin.getDefault().getPreferenceStore().getString(
+                CodeCompletionPreferencesInitializer.KEYWORDS_CODE_COMPLETION);
         return KeywordsSimpleAssist.stringAsWords(keywords);
     }
 
