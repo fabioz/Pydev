@@ -79,12 +79,18 @@ public class CompletionRequest implements ICompletionRequest {
      * may be used to resolve some path.
      */
     public File editorFile;
-
+    public File getEditorFile(){
+        return editorFile;
+    }
+    
     /**
      * Used when a completion is requested for an editor
      */
     public IPythonNature nature;
-
+    public IPythonNature getNature(){
+        return nature;
+    }
+    
     public IDocument doc;
 
     /**

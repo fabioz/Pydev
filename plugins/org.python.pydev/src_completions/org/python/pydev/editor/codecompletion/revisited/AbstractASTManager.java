@@ -33,7 +33,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
@@ -108,7 +107,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return a Set with the imports as tuples with the name, the docstring.
      * @throws CompletionRecursionException 
      */
-    public IToken[] getCompletionsForImport(ImportInfo importInfo, ICompletionRequest r) throws CompletionRecursionException {
+    public IToken[] getCompletionsForImport(ImportInfo importInfo, ICompletionRequest r, boolean onlyGetDirectModules) throws CompletionRecursionException {
         String original = importInfo.importsTipperStr;
         String afterDots = null;
         int level = 0; //meaning: no absolute import
@@ -127,13 +126,13 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 level++;
             }
         }
-        CompletionRequest request = (CompletionRequest) r;
-        IPythonNature nature = request.nature;
+        ICompletionRequest request = r;
+        IPythonNature nature = request.getNature();
         
         String relative = null;
         String moduleName = null;
-        if(request.editorFile != null){
-            moduleName = nature.getAstManager().getModulesManager().resolveModule(REF.getFileAbsolutePath(request.editorFile));
+        if(request.getEditorFile() != null){
+            moduleName = nature.getAstManager().getModulesManager().resolveModule(REF.getFileAbsolutePath(request.getEditorFile()));
             if(moduleName != null){
                 
                 if(level > 0){
@@ -170,7 +169,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
         if(level == 0){
             //first we get the imports... that complete for the token.
-            getAbsoluteImportTokens(absoluteModule, set, IToken.TYPE_IMPORT, false, importInfo);
+            getAbsoluteImportTokens(absoluteModule, set, IToken.TYPE_IMPORT, false, importInfo, onlyGetDirectModules);
     
             //Now, if we have an initial module, we have to get the completions
             //for it.
@@ -178,7 +177,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         }
 
         if(relative != null && relative.equals(absoluteModule) == false){
-            getAbsoluteImportTokens(relative, set, IToken.TYPE_RELATIVE_IMPORT, false, importInfo);
+            getAbsoluteImportTokens(relative, set, IToken.TYPE_RELATIVE_IMPORT, false, importInfo, onlyGetDirectModules);
             if(importInfo.hasImportSubstring){
                 getTokensForModule(relative, nature, relative, set);
             }
@@ -207,7 +206,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * to see if it should add only the 1st element of the module or the complete module (e.g.: add only xml or 
      * xml.dom and other submodules too)
      */
-    protected void getAbsoluteImportTokens(String moduleToGetTokensFrom, Set<IToken> set, int type, boolean onlyFilesOnSameLevel, ImportInfo importInfo) {
+    public void getAbsoluteImportTokens(
+            String moduleToGetTokensFrom, Set<IToken> set, int type, boolean onlyFilesOnSameLevel, ImportInfo importInfo, boolean onlyGetDirectModules) {
+        
         boolean getSubModules = false;
         if(importInfo != null){
             //we only want to get submodules if we're in:
@@ -221,7 +222,13 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             }
         }
         
-        SortedMap<ModulesKey,ModulesKey> modulesStartingWith = modulesManager.getAllModulesStartingWith(moduleToGetTokensFrom);
+        SortedMap<ModulesKey,ModulesKey> modulesStartingWith;
+        if(onlyGetDirectModules){
+            modulesStartingWith = modulesManager.getAllDirectModulesStartingWith(moduleToGetTokensFrom);
+        }else{
+            modulesStartingWith = modulesManager.getAllModulesStartingWith(moduleToGetTokensFrom);
+        }
+        
         Iterator<ModulesKey> itModules = modulesStartingWith.keySet().iterator();
         while(itModules.hasNext()){
             ModulesKey key = itModules.next();
@@ -582,7 +589,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 if(module.isPackage()){
                     HashSet<IToken> gotten = new HashSet<IToken>();
                     //the module also decides how to get its submodules
-                    getAbsoluteImportTokens(module.getPackageFolderName(), gotten, IToken.TYPE_IMPORT, true, null);
+                    getAbsoluteImportTokens(module.getPackageFolderName(), gotten, IToken.TYPE_IMPORT, true, null, false);
                     for (IToken token : gotten) {
                         if(token.getRepresentation().equals("__init__") == false){
                             initial.add(token);

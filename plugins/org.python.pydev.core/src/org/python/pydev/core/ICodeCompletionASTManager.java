@@ -89,7 +89,7 @@ public interface ICodeCompletionASTManager {
      * @return a Set with the imports as tuples with the name, the docstring.
      * @throws CompletionRecursionException 
      */
-    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request) throws CompletionRecursionException;
+    public abstract IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request, boolean onlyGetDirectModules) throws CompletionRecursionException;
 
 
     /**

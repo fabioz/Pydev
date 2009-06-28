@@ -54,7 +54,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     public IToken[] getCompletionsForImport(ImportInfo original,
-            ICompletionRequest request) throws CompletionRecursionException {
+            ICompletionRequest request, boolean onlyGetDirectModules) throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 

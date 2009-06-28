@@ -304,7 +304,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
         importsTip = true;
         importsTipper.importsTipperStr = importsTipper.importsTipperStr.trim();
-        IToken[] imports = astManager.getCompletionsForImport(importsTipper, request);
+        IToken[] imports = astManager.getCompletionsForImport(importsTipper, request, false);
         tokensList.addAll(Arrays.asList(imports));
         return importsTip;
     }

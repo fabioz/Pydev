@@ -1,15 +1,24 @@
 package org.python.pydev.debug.newconsole;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
+import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
+import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.dltk.console.IScriptConsoleCommunication;
@@ -18,7 +27,10 @@ import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.codecompletion.AbstractCompletionProcessorWithCycling;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
+import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.editor.codecompletion.PyCompletionProposal;
+import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
 
@@ -61,8 +73,62 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     public ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, 
             int position, int offset, int whatToShow) throws Exception {
 
+        
         String text = commandLine.substring(0, position);
         ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(), true, false);
+        
+        
+        //Code-completion for imports
+        ImportInfo importsTipper = ImportsSelection.getImportsTipperStr(text, false);
+        if (importsTipper.importsTipperStr.length() != 0){
+            importsTipper.importsTipperStr = importsTipper.importsTipperStr.trim();
+            Set<IToken> tokens = new TreeSet<IToken>();
+            boolean onlyGetDirectModules = false;
+            
+            //Check all the natures.
+            for(final IPythonNature nature:naturesUsed){
+                ICodeCompletionASTManager astManager = nature.getAstManager();
+                IToken[] importTokens = astManager.getCompletionsForImport(importsTipper, new ICompletionRequest(){
+                    
+                    public IPythonNature getNature(){
+                        return nature;
+                    }
+                    
+                    public File getEditorFile(){
+                        return null;
+                    }
+                }, onlyGetDirectModules);
+                
+                //only get all modules for the 1st one we analyze (no need to get on the others)
+                onlyGetDirectModules = true;
+                tokens.addAll(Arrays.asList(importTokens));
+            }
+            
+            int qlen = tokenAndQual.qualifier.length();
+            List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>(tokens.size());
+            Iterator<IToken> it = tokens.iterator();
+            for(int i=0;i<tokens.size();i++){
+                IToken t = it.next();
+                int replacementOffset = offset - qlen;
+                String representation = t.getRepresentation();
+                if(representation.startsWith(tokenAndQual.qualifier)){
+                    ret.add(new PyLinkedModeCompletionProposal(
+                            representation, 
+                            replacementOffset, 
+                            qlen, 
+                            representation.length(), 
+                            t, 
+                            null, 
+                            null, 
+                            IPyCompletionProposal.PRIORITY_DEFAULT, 
+                            PyCompletionProposal.ON_APPLY_DEFAULT, 
+                            ""));
+                }
+            }
+            return ret.toArray(new ICompletionProposal[ret.size()]);
+        }
+        //END Code-completion for imports
+        
         
         String actTok = tokenAndQual.activationToken;
         if(tokenAndQual.qualifier != null && tokenAndQual.qualifier.length() > 0){
@@ -115,7 +181,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         results.addAll(results2);
         results.addAll(results3);
         
-        return (ICompletionProposal[]) results.toArray(new ICompletionProposal[0]);
+        return results.toArray(new ICompletionProposal[results.size()]);
     }
 
     
