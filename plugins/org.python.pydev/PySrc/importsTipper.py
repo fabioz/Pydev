@@ -38,6 +38,11 @@ if sys.platform == 'cli':
                 break #If it worked, that's OK.
             except:
                 name = name[0:name.rfind('.')]
+        else:
+            try:
+                clr.AddReference(name)
+            except:
+                pass #That's OK (not dot net module).
         
         return _old_imp(initial_name)
         

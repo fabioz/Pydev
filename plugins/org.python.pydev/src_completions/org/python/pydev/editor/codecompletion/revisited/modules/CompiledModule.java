@@ -128,6 +128,10 @@ public class CompiledModule extends AbstractModule{
                     manager.getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
                             nature.getRelatedInterpreterManager())); //default
             
+            if(TRACE_COMPILED_MODULES){
+                PydevPlugin.log(IStatus.INFO, 
+                        "Compiled modules: file: "+completions.o1+" found: "+completions.o2.size()+" completions.", null);
+            }
             String fPath = completions.o1;
             if(fPath != null){
                 if(!fPath.equals("None")){
