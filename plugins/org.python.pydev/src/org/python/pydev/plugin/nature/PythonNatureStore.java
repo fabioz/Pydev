@@ -300,7 +300,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
                     return true;
                 } else {
                     // The document never existed (create the default)
-                    document = createInMemoryDocument(parser);
+                    createAndSetInMemoryDocument(parser);
                     doStore();
                     return true;
                 }
@@ -336,7 +336,7 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
         }catch(Exception e1){
             PydevPlugin.log("Error creating backup for: "+file, e);
         }
-        document = createInMemoryDocument(parser);
+        createAndSetInMemoryDocument(parser);
         doStore();
     }
 
@@ -344,29 +344,16 @@ class PythonNatureStore implements IResourceChangeListener, IPythonNatureStore {
      * Creates a new xml document in memory
      * @return 
      */
-    private Document createInMemoryDocument(DocumentBuilder parser) throws CoreException{
-        Document document = parser.newDocument();
+    private void createAndSetInMemoryDocument(DocumentBuilder parser) throws CoreException{
+        document = parser.newDocument();
         ProcessingInstruction version = document.createProcessingInstruction("eclipse-pydev", "version=\"1.0\""); //$NON-NLS-1$ //$NON-NLS-2$
         document.appendChild(version);
         Element configRootElement = document.createElement("pydev_project");
         document.appendChild(configRootElement);
 
-        try{
-            migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
-        }catch(Exception e){
-            //Ignore backward compatibility problem
-        }
-        try{
-            migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
-        }catch(Exception e){
-            //Ignore backward compatibility problem
-        }
-        try{
-            migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
-        }catch(Exception e){
-            //Ignore backward compatibility problem
-        }
-        return document;
+        migrateProperty(PythonNature.getPythonProjectVersionQualifiedName());
+        migratePath(PythonPathNature.getProjectSourcePathQualifiedName());
+        migratePath(PythonPathNature.getProjectExternalSourcePathQualifiedName());
     }
 
 
