@@ -492,6 +492,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 
                 case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                     addBtSystemJar = createBt(boxSystem, "New Jar/Zip(s)", getSelectionListenerSystem());//$NON-NLS-1$
+                    break;
                     
                 default:
                     addBtSystemJar = createBt(boxSystem, "New Egg/Zip(s)", getSelectionListenerSystem());//$NON-NLS-1$
