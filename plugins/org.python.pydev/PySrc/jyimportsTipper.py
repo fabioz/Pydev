@@ -6,12 +6,14 @@ import java.lang #@UnresolvedImport
 import sys
 from _tipper_common import DoFind
 
+
 try:
-    __setFalse = False
-except:
+    False
+    True
+except NameError: # version < 2.3 -- didn't have the True/False builtins
     import __builtin__
-    __builtin__.True = 1
-    __builtin__.False = 0
+    setattr(__builtin__, 'True', 1)
+    setattr(__builtin__, 'False', 0)
     
     
 from org.python.core import PyReflectedFunction #@UnresolvedImport

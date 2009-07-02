@@ -3,24 +3,20 @@ try:
     import __builtin__
 except ImportError:
     import builtins as __builtin__
+
+try:
+    False
+    True
+except NameError: # version < 2.3 -- didn't have the True/False builtins
+    setattr(__builtin__, 'True', 1)
+    setattr(__builtin__, 'False', 0)
     
 try:
     import java.lang #@UnusedImport
-    setattr(__builtin__, 'True', 1) #Python 3.0
-    setattr(__builtin__, 'False', 0)
     import jyimportsTipper #as importsTipper #changed to be backward compatible with 1.5
     importsTipper = jyimportsTipper
-
 except ImportError:
-    #it is python
-    try:
-        IS_JYTHON = False
-    except NameError:
-        #it is an early version of python
-        setattr(__builtin__, 'True', 1) #Python 3.0
-        setattr(__builtin__, 'False', 0)
-        IS_JYTHON = False
-        
+    IS_JYTHON = False
     import importsTipper
 
 

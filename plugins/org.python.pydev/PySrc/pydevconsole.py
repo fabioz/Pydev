@@ -7,8 +7,9 @@ import os
 import sys
 
 try:
-    __setFalse = False
-except:
+    False
+    True
+except NameError: # version < 2.3 -- didn't have the True/False builtins
     import __builtin__
     setattr(__builtin__, 'True', 1) #Python 3.0 does not accept __builtin__.True = 1 in its syntax
     setattr(__builtin__, 'False', 0)
