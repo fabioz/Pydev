@@ -600,6 +600,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                 
                                 case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                                     dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardJythonValidZipFiles());
+                                    break;
                                     
                                 default:
                                     dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardPythonValidZipFiles());
