@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.DocumentChange;
+import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.python.pydev.core.REF;
@@ -46,13 +46,13 @@ public class AddStmtChange extends AbstractStmtChange{
      * @see com.python.pydev.refactoring.ast.IChanges#getChange(org.eclipse.jface.text.IDocument)
      */
     public Change getChange(IDocument doc) throws Throwable {
-        Tuple<DocumentChange, MultiTextEdit> tup = getDocChange(doc);
+        Tuple<TextChange, MultiTextEdit> tup = getDocChange(doc);
         
         return getDocChange(doc, tup);
     }
 
 
-    public Change getDocChange(IDocument doc, Tuple<DocumentChange, MultiTextEdit> tup) throws Exception {
+    public Change getDocChange(IDocument doc, Tuple<TextChange, MultiTextEdit> tup) throws Exception {
         stmtType[] attrObj = (stmtType[]) REF.getAttrObj(applyAt, attr);
         
         int prevStmtPos = 0;

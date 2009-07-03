@@ -11,7 +11,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
-import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
@@ -88,8 +87,10 @@ public class TextEditCreation {
      */
     private HashSet<ASTEntry> docOccurrences;
 
+    private IFile currentFile;
+
     public TextEditCreation(String initialName, String inputName, String moduleName, IDocument currentDoc,
-            List<IRefactorRenameProcess> processes, RefactoringStatus status, CompositeChange fChange) {
+            List<IRefactorRenameProcess> processes, RefactoringStatus status, CompositeChange fChange, IFile currentFile) {
         this.initialName = initialName;
         this.inputName = inputName;
         this.moduleName = moduleName;
@@ -97,6 +98,7 @@ public class TextEditCreation {
         this.processes = processes;
         this.fChange = fChange;
         this.status = status;
+        this.currentFile = currentFile;
     }
 
     /**
@@ -222,7 +224,7 @@ public class TextEditCreation {
      * @param editsAlreadyCreated 
      */
     private void createCurrModuleChange() {
-        DocumentChange docChange = new DocumentChange("Current module: " + moduleName, currentDoc);
+        TextChange docChange = new TextFileChange("Current module: " + moduleName, this.currentFile);
         if (docOccurrences.size() == 0) {
             status.addFatalError("No occurrences found.");
             return;

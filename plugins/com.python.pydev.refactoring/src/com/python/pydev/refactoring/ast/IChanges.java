@@ -5,7 +5,7 @@ package com.python.pydev.refactoring.ast;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.DocumentChange;
+import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.python.pydev.core.Tuple;
 
@@ -21,6 +21,6 @@ public interface IChanges {
      * @param tup a tuple with the document change and the text edit change
      * @return the change to be applied
      */
-    Change getDocChange(IDocument doc, Tuple<DocumentChange, MultiTextEdit> tup) throws Throwable;
+    Change getDocChange(IDocument doc, Tuple<TextChange, MultiTextEdit> tup) throws Throwable;
 
 }

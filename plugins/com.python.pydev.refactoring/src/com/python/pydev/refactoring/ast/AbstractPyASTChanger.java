@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
-import org.eclipse.ltk.core.refactoring.DocumentChange;
+import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.PyParser;
@@ -69,7 +69,7 @@ public abstract class AbstractPyASTChanger {
         getChange().perform(monitor);
     }
     
-    public void getChange(Tuple<DocumentChange, MultiTextEdit> tup) {
+    public void getChange(Tuple<TextChange, MultiTextEdit> tup) {
         for (IChanges change : changes) {
             try {
                 change.getDocChange(doc, tup); //actually, the changes will be filled in the passed tuple

@@ -8,9 +8,10 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
-import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
+import org.eclipse.ltk.core.refactoring.TextChange;
+import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
@@ -103,14 +104,14 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
         
         fChange = new CompositeChange("ExtractMethodChange: "+request.inputName);
         
-        DocumentChange docChange = new DocumentChange("ExtractMethodChange: ", request.getDoc());
+        TextChange docChange = new TextFileChange("ExtractMethodChange: ", request.pyEdit.getIFile());
         MultiTextEdit rootEdit = new MultiTextEdit();
         docChange.setEdit(rootEdit);
         docChange.setKeepPreviewEdits(true);
         Expr expr = new Expr(PyASTFactory.makeCall(request.inputName));
         astChanger.addStmtToNode(ast, "body", 0, expr, false);
         
-        Tuple<DocumentChange, MultiTextEdit> tup = new Tuple<DocumentChange, MultiTextEdit>(docChange, rootEdit);
+        Tuple<TextChange, MultiTextEdit> tup = new Tuple<TextChange, MultiTextEdit>(docChange, rootEdit);
         astChanger.getChange(tup);
         
         ITextSelection selection = request.ps.getTextSelection();

@@ -3,7 +3,7 @@ package com.python.pydev.refactoring.ast;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.DocumentChange;
+import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.python.pydev.core.REF;
@@ -37,11 +37,11 @@ public class DelStmtChange extends AbstractStmtChange{
     }
 
     public Change getChange(IDocument doc) throws Throwable {
-        Tuple<DocumentChange, MultiTextEdit> tup = getDocChange(doc);
+        Tuple<TextChange, MultiTextEdit> tup = getDocChange(doc);
         return getDocChange(doc, tup);
     }
 
-    public Change getDocChange(IDocument doc, Tuple<DocumentChange, MultiTextEdit> tup) throws BadLocationException {
+    public Change getDocChange(IDocument doc, Tuple<TextChange, MultiTextEdit> tup) throws BadLocationException {
         if(makeChangesToParent){
             stmtType[] attrObj = (stmtType[]) REF.getAttrObj(applyAt, attr);
     
