@@ -7,6 +7,7 @@ didn't work properly after the original threads were removed, which caused this 
 - Providing context-independent completions when other completions are not available (until now, it only gave those
   completions for method parameters)
 - The number of chars required to show the context-insensitive completion can now be customized.
+- Fixed problem with Eclipse 3.5: "Invalid Thread Access" when trying to rename a class
 
 
 Pydev
