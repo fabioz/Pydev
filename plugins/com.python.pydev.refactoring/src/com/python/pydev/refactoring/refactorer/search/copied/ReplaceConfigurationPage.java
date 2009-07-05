@@ -119,13 +119,22 @@ public class ReplaceConfigurationPage extends UserInputWizardPage {
             //just ignore it if we don't succeed
         }
 		
-        fTextFieldContentAssist= new ContentAssistCommandAdapter(
-				fTextField,
-				contentAdapter, replaceProposer,
-				ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
-				new char[] {'$', '\\'},
-				true);
-		
+        try {
+            fTextFieldContentAssist= new ContentAssistCommandAdapter(
+                    fTextField,
+                    contentAdapter, replaceProposer,
+                    ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
+                    new char[] {'$', '\\'},
+                    true);
+        } catch (Throwable e) {
+            // Not available in eclipse 3.2
+            fTextFieldContentAssist= new ContentAssistCommandAdapter(
+                    fTextField,
+                    contentAdapter, replaceProposer,
+                    ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
+                    new char[] {'$', '\\'});
+        }
+        
 		new Label(result, SWT.NONE);
 		fReplaceWithRegex= new Button(result, SWT.CHECK);
 		fReplaceWithRegex.setText(SearchMessages.ReplaceConfigurationPage_isRegex_label);

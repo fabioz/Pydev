@@ -70,7 +70,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
 
         setTitle("Pydev: Globals Browser");
 
-        NameIInfoLabelProvider resourceItemLabelProvider = new NameIInfoLabelProvider(true);
+        NameIInfoLabelProvider resourceItemLabelProvider = new NameIInfoStyledLabelProvider(true);
 
         ModuleIInfoLabelProvider resourceItemDetailsLabelProvider = new ModuleIInfoLabelProvider();
 

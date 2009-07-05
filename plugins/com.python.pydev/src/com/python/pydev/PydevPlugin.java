@@ -101,7 +101,7 @@ public class PydevPlugin extends AbstractUIPlugin {
                     if (shell != null) {
                         ErrorDialog.openError(shell, "Pydev: version mismatch.", 
                                 "The versions of Pydev Extensions and Pydev don't match.", 
-                                new Status(IStatus.ERROR, getPluginID(), msg));
+                                new Status(IStatus.ERROR, getPluginID(), -1, msg, null));
                     }
                 }
             });

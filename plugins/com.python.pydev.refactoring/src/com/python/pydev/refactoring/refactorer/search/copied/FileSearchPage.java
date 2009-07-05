@@ -116,7 +116,11 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
 	}
 	
 	public void setElementLimit(Integer elementLimit) {
-		super.setElementLimit(elementLimit);
+        try {
+            super.setElementLimit(elementLimit);
+        } catch (Throwable e) {
+            //ignore (not available in eclipse 3.2)
+        }
 		int limit= elementLimit.intValue();
 		getSettings().put(KEY_LIMIT, limit);
 	}	
@@ -271,7 +275,11 @@ public class FileSearchPage extends AbstractTextSearchViewPage implements IAdapt
 	public void saveState(IMemento memento) {
 		super.saveState(memento);
 		memento.putInteger(KEY_SORTING, fCurrentSortOrder);
-		memento.putInteger(KEY_LIMIT, getElementLimit().intValue());
+        try {
+            memento.putInteger(KEY_LIMIT, getElementLimit().intValue());
+        } catch (Throwable e) {
+            //ignore (not available in eclipse 3.2)
+        }
 	}
 	
 	public Object getAdapter(Class adapter) {

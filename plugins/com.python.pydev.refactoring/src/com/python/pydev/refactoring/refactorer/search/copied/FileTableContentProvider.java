@@ -60,9 +60,14 @@ public class FileTableContentProvider implements IStructuredContentProvider, IFi
 		}
 	}
 
-	private int getElementLimit() {
-		return fPage.getElementLimit().intValue();
-	}
+    private int getElementLimit() {
+        try {
+            return fPage.getElementLimit().intValue();
+        } catch (Throwable e) {
+            //ignore (not available in eclipse 3.2)
+            return 0;
+        }
+    }
 
 	private TableViewer getViewer() {
 		return (TableViewer) fPage.getViewer();

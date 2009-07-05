@@ -45,7 +45,12 @@ public class FileTreeContentProvider implements ITreeContentProvider, IFileSearc
 	}
 	
 	private int getElementLimit() {
-		return fPage.getElementLimit().intValue();
+		try{
+            return fPage.getElementLimit().intValue();
+        }catch(Throwable e){
+            // not available in eclipse 3.2
+            return 0;
+        }
 	}
 	
 	public void dispose() {

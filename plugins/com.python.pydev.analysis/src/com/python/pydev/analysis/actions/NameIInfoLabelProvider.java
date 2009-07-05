@@ -1,8 +1,6 @@
 package com.python.pydev.analysis.actions;
 
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
 import com.python.pydev.analysis.AnalysisPlugin;
@@ -13,13 +11,13 @@ import com.python.pydev.analysis.additionalinfo.IInfo;
  *
  * @author Fabio
  */
-public final class NameIInfoLabelProvider extends LabelProvider implements IStyledLabelProvider {
+public class NameIInfoLabelProvider extends LabelProvider {
     
     /**
      * Should we should the whole name with the package structure or only the name of the token (if true
      * shows it fully qualified)
      */
-    private final boolean showCompleteName;
+    protected final boolean showCompleteName;
 
     public NameIInfoLabelProvider(boolean showCompleteName){
         this.showCompleteName = showCompleteName;
@@ -44,20 +42,6 @@ public final class NameIInfoLabelProvider extends LabelProvider implements IStyl
             return null;
         }
         return AnalysisPlugin.getImageForTypeInfo(info);
-    }
-
-    /**
-     * @return the text with a style for the module part
-     */
-    public StyledString getStyledText(Object element){
-        IInfo info = getInfo(element);
-        if(info == null){
-            return new StyledString();
-        }
-        if(showCompleteName){
-            return new StyledString(info.getName()).append(" - " + info.getDeclaringModuleName(), StyledString.QUALIFIER_STYLER);
-        }
-        return new StyledString(info.getName());
     }
 
     
