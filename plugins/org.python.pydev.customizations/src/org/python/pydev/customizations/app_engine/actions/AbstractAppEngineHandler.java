@@ -9,9 +9,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
@@ -25,15 +22,17 @@ public abstract class AbstractAppEngineHandler extends AbstractHandler{
 
     
     public Object execute(ExecutionEvent event) throws ExecutionException{
-        ISelection sel = HandlerUtil.getCurrentSelectionChecked(event);
-        if(sel instanceof IStructuredSelection){
-            IStructuredSelection selection = (IStructuredSelection) sel;
-            Object firstElement = selection.getFirstElement();
-            
-            return executeInObject(firstElement);
-
-        }
-        return null;
+        throw new RuntimeException("Not used anymore!");
+        //Note: HandlerUtil is not available in eclipse 3.2
+//        ISelection sel = HandlerUtil.getCurrentSelectionChecked(event);
+//        if(sel instanceof IStructuredSelection){
+//            IStructuredSelection selection = (IStructuredSelection) sel;
+//            Object firstElement = selection.getFirstElement();
+//            
+//            return executeInObject(firstElement);
+//
+//        }
+//        return null;
     }
 
     public Object executeInObject(Object firstElement){

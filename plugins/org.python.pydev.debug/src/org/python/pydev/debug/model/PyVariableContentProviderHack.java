@@ -1,7 +1,6 @@
 package org.python.pydev.debug.model;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.debug.core.model.IWatchExpression;
 import org.eclipse.debug.internal.ui.model.elements.VariableContentProvider;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IPresentationContext;

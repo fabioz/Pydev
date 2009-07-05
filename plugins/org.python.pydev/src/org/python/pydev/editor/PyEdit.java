@@ -26,6 +26,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -1297,7 +1298,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * Used in the script pyedit_list_bindings.py
      */
-    public Font getFont(FontData descriptor) {
+    public Font getFont(FontData descriptor) throws DeviceResourceException{
         Font font = getResourceManager().createFont(FontDescriptor.createFrom(descriptor));
         
 //        Old implementation (for Eclipse 3.3)
