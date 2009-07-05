@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.ui.IActionFilter;
 import org.eclipse.ui.IContributorResourceAdapter;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -127,6 +128,10 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
 
     @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
+        if(adapter == IActionFilter.class){
+            IActionFilter platformActionFilter = (IActionFilter) this.getActualObject().getAdapter(adapter);
+            return new PythonSourceFolderActionFilter(platformActionFilter);
+        }
         if(adapter == IContributorResourceAdapter.class){
             return this;
         }

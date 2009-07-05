@@ -50,7 +50,7 @@ public class ExtensionHelper {
 
 
     
-    private static IExtension[] getExtensions(String type) {
+    public static IExtension[] getExtensions(String type) {
         IExtension[] extensions = extensionsCache.get(type);
         if(extensions == null){
             IExtensionRegistry registry = Platform.getExtensionRegistry();

@@ -91,7 +91,56 @@
     <!-- 
     Reference for creating the commands: 
     http://xpomul.bloggles.info/2008/08/12/advanced-features-in-eclipse-popup-menus-take-2-the-new-api/ 
+    
+    I take it back. it doesn't work in eclipse 3.2, so, changed to use reference: 
+    http://xpomul.bloggles.info/2008/07/24/using-advanced-features-in-eclipse-popup-menus/
     -->
+    <extension point="org.eclipse.ui.popupMenus">
+    
+      <objectContribution
+            adaptable="false"
+            id="org.python.pydev.customizations.app_engine.actions.AppEngineUploadAction"
+            objectClass="org.python.pydev.navigator.elements.PythonSourceFolder">
+         <menu
+               icon="icons/AppEngine-16.png"
+               id="org.python.pydev.ui.actions.app_engine_menu"
+               label="Pydev: Google App Engine"/>
+         <action
+               class="org.python.pydev.customizations.app_engine.actions.AppEngineUploadAction"
+               enablesFor="1"
+               id="org.python.pydev.customizations.app_engine.actions.AppEngineUploadAction"
+               label="Upload"
+               menubarPath="org.python.pydev.ui.actions.app_engine_menu/app_engine"
+               tooltip="Upload google app engine.">
+         </action>
+         <visibility><objectState name="app_engine" value="true"></objectState></visibility>
+      </objectContribution>
+    
+    
+      <objectContribution
+            adaptable="false"
+            id="org.python.pydev.customizations.app_engine.actions.AppEngineManageAction"
+            objectClass="org.python.pydev.navigator.elements.PythonSourceFolder">
+         <action
+               class="org.python.pydev.customizations.app_engine.actions.AppEngineManageAction"
+               enablesFor="1"
+               id="org.python.pydev.customizations.app_engine.actions.AppEngineManageAction"
+               label="Manage"
+               menubarPath="org.python.pydev.ui.actions.app_engine_menu/app_engine"
+               tooltip="Manage google app engine.">
+         </action>
+         <visibility><objectState name="app_engine" value="true"></objectState></visibility>
+      </objectContribution>
+
+    </extension>
+    
+    
+
+    
+    <!-- 
+    Commented out because eclipse 3.2 doesn't support it
+    Maybe in the future, when support for eclipse 3.2 is removed, this could be re-added
+    (and the hack for PythonSourceFolderActionFilter removed).
     
     <extension point="org.eclipse.ui.commands">
       <command
@@ -185,6 +234,6 @@
             </menu>
         </menuContribution>
     </extension>
-    
+    -->
     
 </plugin>

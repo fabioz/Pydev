@@ -30,43 +30,48 @@ public abstract class AbstractAppEngineHandler extends AbstractHandler{
             IStructuredSelection selection = (IStructuredSelection) sel;
             Object firstElement = selection.getFirstElement();
             
-            IContainer container = GoogleAppEngineUtil.getContainerFromObject(firstElement);
-            if(container == null){
-                return null;
-            }
-            
-            IPythonPathNature pythonPathNature = GoogleAppEngineUtil.getPythonPathNatureFromObject(firstElement);
-            if(pythonPathNature == null){
-                return null;
-            }
-            
-            
-            Map<String, String> variableSubstitution;
-            try{
-                variableSubstitution = pythonPathNature.getVariableSubstitution();
-                //Only consider a google app engine a project that has a google app engine variable!
-                if(variableSubstitution == null || !variableSubstitution.containsKey(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE)){
-                    return null;
-                }
-                
-                File appEngineLocation = new File(variableSubstitution.get(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE));
-                if(!appEngineLocation.isDirectory()){
-                    MessageDialog.openError(PyAction.getShell(), "Error", "Expected: "+appEngineLocation+" to be a directory.");
-                    return null;
-                }
-                
-                File appcfg = new File(appEngineLocation, "appcfg.py");
-                if(!appcfg.isFile()){
-                    MessageDialog.openError(PyAction.getShell(), "Error", "Expected: "+appcfg+" to be a file.");
-                    return null;
-                }
-                
-                handleExecution(container, pythonPathNature, appcfg, appEngineLocation);
-                
-            }catch(CoreException e){
-                Log.log(e);
-            }
+            return executeInObject(firstElement);
 
+        }
+        return null;
+    }
+
+    public Object executeInObject(Object firstElement){
+        IContainer container = GoogleAppEngineUtil.getContainerFromObject(firstElement);
+        if(container == null){
+            return null;
+        }
+        
+        IPythonPathNature pythonPathNature = GoogleAppEngineUtil.getPythonPathNatureFromObject(firstElement);
+        if(pythonPathNature == null){
+            return null;
+        }
+        
+        
+        Map<String, String> variableSubstitution;
+        try{
+            variableSubstitution = pythonPathNature.getVariableSubstitution();
+            //Only consider a google app engine a project that has a google app engine variable!
+            if(variableSubstitution == null || !variableSubstitution.containsKey(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE)){
+                return null;
+            }
+            
+            File appEngineLocation = new File(variableSubstitution.get(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE));
+            if(!appEngineLocation.isDirectory()){
+                MessageDialog.openError(PyAction.getShell(), "Error", "Expected: "+appEngineLocation+" to be a directory.");
+                return null;
+            }
+            
+            File appcfg = new File(appEngineLocation, "appcfg.py");
+            if(!appcfg.isFile()){
+                MessageDialog.openError(PyAction.getShell(), "Error", "Expected: "+appcfg+" to be a file.");
+                return null;
+            }
+            
+            handleExecution(container, pythonPathNature, appcfg, appEngineLocation);
+            
+        }catch(CoreException e){
+            Log.log(e);
         }
         return null;
     }

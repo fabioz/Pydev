@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -25,6 +26,12 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public abstract class PyContainerAction {
 
+    /**
+     * Subclasses can override to determine if the container should be refreshed before the action is executed or not.
+     */
+    protected boolean getRefreshBeforeExecute(){
+        return true;
+    }
     
     /**
      * List with the containers the user selected 
@@ -54,6 +61,13 @@ public abstract class PyContainerAction {
             Object o = it.next();
             if(o instanceof IContainer){
                 containers.add((IContainer) o);
+                
+            }else if(o instanceof IAdaptable){
+                IAdaptable adaptable = (IAdaptable) o;
+                IContainer container = (IContainer) adaptable.getAdapter(IContainer.class);
+                if(container != null){
+                    containers.add(container);
+                }
             }
         }
         
@@ -84,11 +98,13 @@ public abstract class PyContainerAction {
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     for (Iterator<IContainer> iter = selectedContainers.iterator(); iter.hasNext();) {
                         IContainer next = iter.next();
-                        //as files are generated externally, if we don't refresh, it's very likely that we won't delete a bunch of files.
-                        try {
-                            next.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
+                        if(getRefreshBeforeExecute()){
+                            //as files are generated externally, if we don't refresh, it's very likely that we won't delete a bunch of files.
+                            try {
+                                next.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+                            } catch (Exception e) {
+                                PydevPlugin.log(e);
+                            }
                         }
                         nChanged[0] += doActionOnContainer(next, monitor);
                     }
