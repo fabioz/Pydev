@@ -30,7 +30,7 @@ public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
             
             //dev_appserver.py [options] <application root>
             workingCopy.setAttribute(Constants.ATTR_LOCATION, "${GOOGLE_APP_ENGINE}/dev_appserver.py");
-            workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, mainDir);
+            workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "\""+mainDir+"\"");
             
             
             return workingCopy.doSave();

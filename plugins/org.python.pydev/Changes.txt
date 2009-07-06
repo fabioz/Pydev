@@ -14,6 +14,7 @@ Pydev
 Fixed problem when recognizing encodings (https://sourceforge.net/tracker/?func=detail&aid=2796762&group_id=85796&atid=577329)
 Fixed issue when configuring interpreter on Eclipse 3.3 and 3.2 (was using API only available in 3.4)
 Popup menus for google app engine are now working with eclipse 3.2
+Fixed issues when google app engine project has spaces in path
 Iron Python support
 Changed run icons
 F9 will now run the current editor based on the project type

@@ -17,16 +17,25 @@ public class AppEngineProcessWindow extends ProcessWindow{
     }
 
     public static String[] getAvailableCommands(IResource resource){
+        String loc = getResourceLoc(resource);
         return new String[] { 
                 getUpdateCommand(resource), 
-                "rollback --secure " + resource.getLocation().toOSString(),
-                "update_indexes --secure " + resource.getLocation().toOSString(),
-                "vacuum_indexes --secure " + resource.getLocation().toOSString(),
-                "request_logs --secure " + resource.getLocation().toOSString() + " my_output_file.log", };
+                "rollback --secure " + loc,
+                "update_indexes --secure " + getResourceLoc(resource),
+                "vacuum_indexes --secure " + getResourceLoc(resource),
+                "request_logs --secure " + getResourceLoc(resource) + " my_output_file.log", };
+    }
+
+    private static String getResourceLoc(IResource resource){
+        String loc = resource.getLocation().toOSString();
+        if(loc.indexOf(' ')!=-1){
+            loc = "\"" + loc + "\""; //add escaping to the argument
+        }
+        return loc;
     }
 
     public static String getUpdateCommand(IResource resource){
-        return "update --secure " + resource.getLocation().toOSString();
+        return "update --secure " + getResourceLoc(resource);
     }
 
 }

@@ -37,6 +37,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.ThreadStreamReader;
 
@@ -486,14 +487,14 @@ public abstract class ProcessWindow extends Dialog{
             String executableOrJar = interpreterInfo.getExecutableOrJar();
 
             String cmdLineArguments = commandToExecute.getText().trim();
-            List<String> arguments = new ArrayList<String>();
+            String[] arguments = new String[0];
             if(cmdLineArguments.length() > 0){
-                arguments = StringUtils.split(cmdLineArguments, ' ');
+                arguments = PythonRunnerConfig.parseStringIntoList(cmdLineArguments);
             }
             
             SimplePythonRunner runner = new SimplePythonRunner();
             String[] cmdarray = SimplePythonRunner.preparePythonCallParameters(executableOrJar, appcfg
-                    .getAbsolutePath(), arguments.toArray(new String[0]));
+                    .getAbsolutePath(), arguments);
 
             Tuple<Process, String> run = runner.run(cmdarray, appEngineLocation, project, new NullProgressMonitor());
             process = run.o1;
