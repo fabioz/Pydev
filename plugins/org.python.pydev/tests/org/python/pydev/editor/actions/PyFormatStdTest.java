@@ -26,7 +26,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testDontLooseComma();
+            n.testSimpleOperator5();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -598,7 +598,7 @@ public class PyFormatStdTest extends TestCase {
         "";
         
         String s1 = "" +
-        "expected_id = int(key.split('(')[-1][:-1])\n" +
+        "expected_id = int(key.split('(')[ -1][:-1])\n" +
         "";
         
         checkFormatResults(s, s1);
@@ -918,6 +918,32 @@ public class PyFormatStdTest extends TestCase {
         
         String s1 = "" +
         "call(aa, (1, 2)\n" +
+        "";
+        
+        checkFormatResults(s, s1);
+    }
+    
+    public void testKeepWhitespaces(){
+        std.spaceAfterComma = true;
+        std.parametersWithSpace = false;
+        std.operatorsWithSpace = true;
+        
+        String s = "" +
+        "t1 = ( 1, )\n" +
+        "t2 = ( -1, )\n" +
+        "l1 = [ 1 ]\n" +
+        "l2 = [ -1 ]\n" +
+        "d1 = { 1:0 }\n" +
+        "d2 = { -1:0 }\n" +
+        "";
+        
+        String s1 = "" +
+        "t1 = (1,)\n" +
+        "t2 = (-1,)\n" +
+        "l1 = [ 1 ]\n" +
+        "l2 = [ -1 ]\n" +
+        "d1 = { 1:0 }\n" +
+        "d2 = { -1:0 }\n" +
         "";
         
         checkFormatResults(s, s1);

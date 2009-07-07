@@ -28,6 +28,8 @@ Code-completion better heuristic when analyzing function return that's called on
 Fixed problem when .pydevproject was not a parseable xml file (the pydev package explorer wouldn't work because of that)
 When a new interpreter is created, it's properly selected in the tree
 Code-completion in the interactive console now handles import sections correctly
+Code formatter: Spaces after square and curly braces are no longer changed when an unary operator is found afterwards
+
 
 After 1.4.5
 

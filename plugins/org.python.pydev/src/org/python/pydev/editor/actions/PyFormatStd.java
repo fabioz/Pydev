@@ -466,6 +466,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         boolean isUnaryWithContents = true;
         
         boolean isUnary = false;
+        boolean changeWhitespacesBefore = true;
         if(c == '~' || c == '+' || c == '-'){
             //could be an unary operator...
             isUnary = buf.length() == 0;
@@ -480,8 +481,10 @@ public class PyFormatStd extends PyAction implements IFormatter {
                     
                     switch(itChar){
                         case '[':
-                        case '(':
                         case '{':
+                            changeWhitespacesBefore = false;
+                            
+                        case '(':
                         case ':':
                             isUnaryWithContents = false;
                             
@@ -509,7 +512,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
             }
         }
         
-        boolean changeWhitespacesBefore = true;
         if(!isUnary){
             //We don't want to change whitespaces before in a binary operator that is in a new line.
             for(char ch:buf.reverseIterator()){
