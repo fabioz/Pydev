@@ -1,34 +1,30 @@
 <h2>New on: LAST_VERSION_TAG</h2>
 <ul>
-<li><strong>Google App Engine</strong>: customized setup and management of Google App Engine projects</li>
-<li>String substitution variables can be used for pythonpath and launch config. </li>
-<li>The interpreter can be referred from a user-editable name</li>
-<li>Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)</li>
-<li>os.path added to default forced builtins</li>
-<li>Showing better errors when code-completion fails</li>
-<li>Fixed problem finding definition for java class when the constructor was referenced.</li>
-<li>Fixed recursion error on Python 3.0 grammar</li>
-<li>Jython debugger - local variables are properly updated</li>
-<li>Multiple forced builtins can be added/removed at once</li>
-<li>Python 2.6 grammar: kwarg after unpacking arg list</li>
-<li>Python 3.0 grammar: star expr on for</li>
-<li>Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)</li>
-<li>Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)</li>
-<li>__future__ imports are always added/reorganized as the 1st import in the module</li>
-<li>Code-completion in Jython recognizes that a method get/setName should be available as a 'name' property. </li>
-<li>Finding 'objects' for django</li>
-<li>Pydev Package Explorer</li>
-    <ul>
-    <li>Added filter for the python nodes</li>
-    <li>Showing configuration errors</li>
-    <li>Showing the interpreter info </li>
-    </ul>
+<li><strong>Iron Python support</strong></li>
+<li>Fixed issue when configuring interpreter on Eclipse 3.3 and 3.2 (was using API only available in 3.4)</li>
+<li><strong>Google App Engine</strong></li>
+<ul>
+        <li>Popup menus for google app engine are now working with eclipse 3.2</li>
+        <li>Fixed issues when google app engine project has spaces in path</li>
 </ul>
-
-    
-
-
-
+<li><strong>Launching</strong></li>
+<ul>
+    <li><strong>Ctrl+F9</strong> can be used to run as unit-test and select which tests will be run</li>
+    <li><strong>F9</strong> will now run the current editor based on the project type</li>
+    <li>Changed run icons</li>
+    <li>Run configurations can be created for the project</li>
+    <li>Run as unit-test can have --filter and --tests as a parameter set in the run configuration</li>
+</ul>
+<li>Shift left can now shift even when there are less chars than the required indent string</li>
+<li>Top-level modules on .egg files are now properly recognized</li>
+<li>Auto-config fixed</li>
+<li>Fixed problem when .pydevproject was not a parseable xml file (the pydev package explorer wouldn't work because of that)</li>
+<li>When a new interpreter is created, it's properly selected in the tree</li>
+<li>Code-completion better heuristic when analyzing function return that's called on self.</li>
+<li>Code-completion in the interactive console now handles import sections correctly</li>
+<li>Code formatter: Spaces after square and curly braces are no longer changed when an unary operator is found afterwards</li>
+<li>Fixed problem when recognizing encodings (regexp was not correct)</li>
+</ul>
 
 
 
@@ -132,6 +128,38 @@
 
 <hr/>
 <h2>Features History</h2>
+
+
+<h3>New Release: 1.4.6</h3>
+
+
+<ul>
+<li><strong>Google App Engine</strong>: customized setup and management of Google App Engine projects</li>
+<li>String substitution variables can be used for pythonpath and launch config. </li>
+<li>The interpreter can be referred from a user-editable name</li>
+<li>Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)</li>
+<li>os.path added to default forced builtins</li>
+<li>Showing better errors when code-completion fails</li>
+<li>Fixed problem finding definition for java class when the constructor was referenced.</li>
+<li>Fixed recursion error on Python 3.0 grammar</li>
+<li>Jython debugger - local variables are properly updated</li>
+<li>Multiple forced builtins can be added/removed at once</li>
+<li>Python 2.6 grammar: kwarg after unpacking arg list</li>
+<li>Python 3.0 grammar: star expr on for</li>
+<li>Fixed problem on code-completion when file is not in the workspace (SystemASTManager cannot be cast to ASTManager)</li>
+<li>Not throwing IllegalCharsetNameEx on illegal encoding declaration anymore (patch by Radim Kubacki)</li>
+<li>__future__ imports are always added/reorganized as the 1st import in the module</li>
+<li>Code-completion in Jython recognizes that a method get/setName should be available as a 'name' property. </li>
+<li>Finding 'objects' for django</li>
+<li>Pydev Package Explorer</li>
+    <ul>
+    <li>Added filter for the python nodes</li>
+    <li>Showing configuration errors</li>
+    <li>Showing the interpreter info </li>
+    </ul>
+</ul>
+
+    
 
 
 <h3>New Release: 1.4.5</h3>

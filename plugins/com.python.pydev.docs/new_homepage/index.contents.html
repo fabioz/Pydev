@@ -14,11 +14,22 @@ It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and t
 
 
 	<ul>
-		<li><h4>Release 1.4.6 <IMG src="images/new.png" border="0" /></h4></li>
+		<li><h4>Release 1.4.7 <IMG src="images/new.png" border="0" /></h4></li>
+		<ul>
+			<li>The interactive console can be used on the remote debugger</li>
+			<li>Remote debugger properly redirects contents from the server on multiple runs.</li>
+			<li>Providing context-independent completions when other completions are not available (until now, it only gave those completions for method parameters)</li>
+			<li>The number of chars required to show the context-insensitive completion can now be customized.</li>
+			<li>Fixed problem with Eclipse 3.5: "Invalid Thread Access" when trying to rename a class</li>
+	    </ul>
+    </ul>
+
+	<ul>
+		<li><h4>Release 1.4.6</h4></li>
 		<ul>
 			<li>Auto-import for from __future__ import with_statement will add a 'with' token instead of a with_statement token</li>
 			<li>Globals browser improved (only for Eclipse 3.3 onwards, older versions will have the old interface):</li>
-			    <ul>
+		    <ul>
 			    <li>Can filter with working sets</li>
 			    <li>Can match based on module names. E.g.: django.A would match all the django classes/methods/attributes starting with 'A'</li>
 		    </ul>
