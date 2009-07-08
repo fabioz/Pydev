@@ -190,7 +190,7 @@ def WriteToFile(filename, contents):
 def BuildP2(deploy_dir, update_site):
     '''
     Command line to create the .jar files from an update site:
-    D:\bin\eclipse341\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+    D:\bin\eclipse350\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
     '''
     #Now, lets put the new site in the content.jar and artifacts.jar
     Execute(
@@ -541,14 +541,14 @@ def Make(make, revert_and_update_svn=REVERT_SVN):
         env['JAVA_HOME'] = r'D:\bin\jdk_1_5_09'
         
         cmds = [
-             r'W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin\ant.bat',
+             r'W:\eclipse_350_clean\plugins\org.apache.ant_1.7.1.v20090120-1145\bin\ant.bat',
              '-DbuildDirectory=%s' % (build_dir,),
              '-Dbaseos=win32',
              '-Dbasews=win32',
              '-Dbasearch=x86',
              '-Ddeploy.dir=%s' % (deploy_dir,),
              '-DcleanAfter=false',
-             '-Dvanilla.eclipse=W:/eclipse_341_clean',
+             '-Dvanilla.eclipse=W:/eclipse_350_clean',
              '-Dpydev.p2.repo=file:%s/pydev' % (BASE_DEPLOY_DIR,), #Only really used when building the pro version
         ]
         Execute(cmds, env=env, shell=True)
