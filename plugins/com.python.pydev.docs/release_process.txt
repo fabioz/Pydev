@@ -22,8 +22,9 @@ This is not OK: files need to be copied to the backup of the site and the p2 upd
 must be copied to the proper location)
 
 Generate P2: 
-D:\bin\eclipse341\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_pro\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
-D:\bin\eclipse341\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_open\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_open\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_open -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_open -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+pro_both: D:\bin\eclipse342\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_pro_both\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_both\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_both -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_both -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+pro_only: D:\bin\eclipse342\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_pro_only\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_only\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_only -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_only -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+open:     D:\bin\eclipse342\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_open\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_open\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_open -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_open -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
 
 
 Upload contents:
@@ -33,6 +34,10 @@ Upload contents:
 4. W:\temp_deployDir\updateSite\zipsPydev to sourceforge: sftp: frs.sourceforge.net /incoming/f/fa/fabioz/uploads
    and do release: E.g.: Pydev 1.3.7 -- details at http://alexandria.wiki.sourceforge.net/File+Release+System+-+Offering+Files+for+Download#upload
 
+Add contents to Aptana update site
+
+Stopped here:
+   
 Update homepage:
 1. W:\pydev_pro\plugins\com.python.pydev.docs\open_source\final to fabioz,pydev@web.sourceforge.net
 2. W:\pydev_pro\plugins\com.python.pydev.docs\new_homepage\final to fabioz.com
