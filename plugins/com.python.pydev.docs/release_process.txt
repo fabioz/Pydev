@@ -43,10 +43,10 @@ Update homepage:
 2. W:\pydev_pro\plugins\com.python.pydev.docs\new_homepage\final to fabioz.com
 
 
-Tag repository: e.g.: pydev_1_4_6
+Tag repository: e.g.: pydev_1_4_7
 svn: 
-svn copy http://svn.aptana.local/svn/pydev/trunk http://svn.aptana.local/svn/pydev/tags/pydev_1_4_6 -m "Creating release 1.4.6"
-svn copy http://svn.aptana.local/svn/pydev_pro/trunk http://svn.aptana.local/svn/pydev_pro/tags/pydev_1_4_6 -m "Creating release 1.4.6"
+svn copy http://svn.aptana.local/svn/pydev/trunk http://svn.aptana.local/svn/pydev/tags/pydev_1_4_7 -m "Creating release 1.4.7"
+svn copy http://svn.aptana.local/svn/pydev_pro/trunk http://svn.aptana.local/svn/pydev_pro/tags/pydev_1_4_7 -m "Creating release 1.4.7"
 
 
 Add news in forum
