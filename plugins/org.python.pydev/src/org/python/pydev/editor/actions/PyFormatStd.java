@@ -206,7 +206,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
     /**
      * @return the format standard that should be used to do the formatting
      */
-    private FormatStd getFormat() {
+    public static FormatStd getFormat() {
         FormatStd formatStd = new FormatStd();
         formatStd.assignWithSpaceInsideParens = PyCodeFormatterPage.useAssignWithSpacesInsideParenthesis();
         formatStd.operatorsWithSpace = PyCodeFormatterPage.useOperatorsWithSpace();

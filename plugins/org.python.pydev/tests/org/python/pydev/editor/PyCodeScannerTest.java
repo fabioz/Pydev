@@ -5,9 +5,15 @@
  */
 package org.python.pydev.editor;
 
-import org.python.pydev.editor.PyCodeScanner.NumberDetector;
-
 import junit.framework.TestCase;
+
+import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.jface.resource.StringConverter;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.swt.graphics.RGB;
+import org.python.pydev.editor.PyCodeScanner.NumberDetector;
+import org.python.pydev.ui.ColorCache;
 
 /**
  * @author Fabio Zadrozny
@@ -50,5 +56,37 @@ public class PyCodeScannerTest extends TestCase {
         assertTrue(detector.isWordPart('F'));
         assertTrue(detector.isWordPart('F'));
         assertFalse(detector.isWordPart(' '));
+    }
+    
+    
+    public void testScanner() throws Exception{
+        String str= 
+            "class Example(object):             \n"+
+            "                                   \n"+
+            "    def Call(self, param1=None):   \n"+
+            "        return param1 + 10 * 10    \n"+
+            "                                   \n"+
+            "    def Call2(self):               \n"+
+            "        return self.Call(param1=10)"+
+            "";
+        
+        PreferenceStore store = new PreferenceStore();
+        store.putValue("KEYWORD_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue("SELF_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue("CODE_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue("DECORATOR_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue("NUMBER_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue("FUNC_NAME_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue("CLASS_NAME_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
+        
+        ColorCache colorCache = new ColorCache(store);
+        PyCodeScanner scanner = new PyCodeScanner(colorCache);
+        scanner.setRange(new Document(str), 0, str.length());
+        IToken nextToken = scanner.nextToken();
+        while(!nextToken.isEOF()){
+            scanner.getTokenOffset();
+            scanner.getTokenLength();
+            nextToken = scanner.nextToken();
+        }
     }
 }

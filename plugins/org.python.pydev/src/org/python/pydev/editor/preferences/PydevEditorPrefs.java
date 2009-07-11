@@ -113,8 +113,9 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                 
                 int i= fAppearanceColorList.getSelectionIndex();
                 String key= fAppearanceColorListModel[i][2];
-                if (key != null)
+                if (key != null){
                     fOverlayStore.setValue(key, systemDefault);
+                }
             }
             public void widgetDefaultSelected(SelectionEvent e) {}
         };
@@ -145,6 +146,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
                 String key= fAppearanceColorListModel[i][1];
                 
                 PreferenceConverter.setValue(fOverlayStore, key, fAppearanceColorEditor.getColorValue());
+                onAppearanceRelatedPreferenceChanged();
             }
         });
 

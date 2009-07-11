@@ -253,7 +253,7 @@
             id="org.python.pydev.prefs.pyunitPage"/>
       <page
             name="Code Style"
-            category="org.python.pydev.prefs"
+            category="org.python.pydev.prefs.editor"
             class="org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage"
             id="org.python.pydev.plugin.pyCodeStylePreferencesPage"/>
             

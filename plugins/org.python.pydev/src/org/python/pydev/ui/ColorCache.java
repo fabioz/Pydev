@@ -59,7 +59,7 @@ public class ColorCache {
     }
     
     // getNamedColor gets color from preferences
-    // if prefernce is not found, then it looks whether color is one
+    // if preference is not found, then it looks whether color is one
     // of the well-known predefined names
     public Color getNamedColor(String name) {
         Color color = (Color)fNamedColorTable.get(name);
@@ -101,5 +101,9 @@ public class ColorCache {
             ((Color)fNamedColorTable.get(name)).dispose();
             fNamedColorTable.remove(name);
         }
+    }
+
+    public IPreferenceStore getPreferences(){
+        return this.preferences;
     }
 }

@@ -7,10 +7,21 @@ package org.python.pydev.plugin.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.FormatAndStyleRangeHelper;
+import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.ColorCache;
 
 /**
  * @author Fabio Zadrozny
@@ -47,11 +58,20 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     //operators =, !=, <, >, //, etc.
     public static final String USE_OPERATORS_WITH_SPACE = "USE_OPERATORS_WITH_SPACE";
     public static final boolean DEFAULT_USE_OPERATORS_WITH_SPACE = true;
+    private StyledText labelExample;
+    private BooleanFieldEditor spaceAfterComma;
+    private BooleanFieldEditor spaceForParentesis;
+    private BooleanFieldEditor assignWithSpaceInsideParentesis;
+    private BooleanFieldEditor operatorsWithSpace;
+    private BooleanFieldEditor rightTrimLines;
+    private BooleanFieldEditor addNewLineAtEndOfFile;
+    private ColorCache colorCache;
     
 
     public PyCodeFormatterPage() {
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+        colorCache = new ColorCache(PydevPrefs.getChainedPrefStore());
     }
 
     /**
@@ -62,17 +82,69 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
 
         addField(new BooleanFieldEditor(FORMAT_BEFORE_SAVING, "Auto-Format editor contents before saving?", p));
         
-        addField(new BooleanFieldEditor(USE_SPACE_AFTER_COMMA, "Use space after commas?", p));
+        spaceAfterComma = new BooleanFieldEditor(USE_SPACE_AFTER_COMMA, "Use space after commas?", p);
+        addField(spaceAfterComma);
 
-        addField(new BooleanFieldEditor(USE_SPACE_FOR_PARENTESIS, "Use space before and after parenthesis?", p));
+        spaceForParentesis = new BooleanFieldEditor(USE_SPACE_FOR_PARENTESIS, "Use space before and after parenthesis?", p);
+        addField(spaceForParentesis);
         
-        addField(new BooleanFieldEditor(USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS, "Use space before and after assign for keyword arguments?", p));
+        assignWithSpaceInsideParentesis = new BooleanFieldEditor(USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS, "Use space before and after assign for keyword arguments?", p);
+        addField(assignWithSpaceInsideParentesis);
         
-        addField(new BooleanFieldEditor(USE_OPERATORS_WITH_SPACE, "Use space before and after operators? (+, -, /, *, //, **, etc.)", p));
+        operatorsWithSpace = new BooleanFieldEditor(USE_OPERATORS_WITH_SPACE, "Use space before and after operators? (+, -, /, *, //, **, etc.)", p);
+        addField(operatorsWithSpace);
         
-        addField(new BooleanFieldEditor(TRIM_LINES, "Right trim lines?", p));
+        rightTrimLines = new BooleanFieldEditor(TRIM_LINES, "Right trim lines?", p);
+        addField(rightTrimLines);
+        
+        addNewLineAtEndOfFile = new BooleanFieldEditor(ADD_NEW_LINE_AT_END_OF_FILE, "Add new line at end of file?", p);
+        addField(addNewLineAtEndOfFile);
+        
+        labelExample = new StyledText(p, SWT.BORDER);
+        try {
+            FontData labelFontData = new FontData("Courier New", 10, SWT.NONE);
+            labelExample.setFont(new Font(p.getDisplay(), labelFontData));
+        } catch (Throwable e) {
+            //ignore
+        }
+        updateLabelExample(PyFormatStd.getFormat());
     }
 
+    private void updateLabelExample(FormatStd formatStd){
+        String str= 
+            "class Example(object):             \n"+
+            "                                   \n"+
+            "    def Call(self, param1=None):   \n"+
+            "        '''docstring'''            \n"+
+            "        return param1 + 10 * 10    \n"+
+            "                                   \n"+
+            "    def Call2(self):               \n"+
+            "        #Comment                   \n"+
+            "        return self.Call(param1=10)"+
+            "";
+        Tuple<String, StyleRange[]> result = FormatAndStyleRangeHelper.formatAndGetStyleRanges(formatStd, str, this.colorCache);
+        labelExample.setText(result.o1);
+        labelExample.setStyleRanges(result.o2);
+    }
+
+    
+
+    
+    @Override
+    public void propertyChange(PropertyChangeEvent event){
+        super.propertyChange(event);
+        FormatStd formatStd = new FormatStd();
+        formatStd.assignWithSpaceInsideParens = this.assignWithSpaceInsideParentesis.getBooleanValue();
+        formatStd.operatorsWithSpace = operatorsWithSpace.getBooleanValue();
+        formatStd.parametersWithSpace = spaceForParentesis.getBooleanValue();
+        formatStd.spaceAfterComma = spaceAfterComma.getBooleanValue();
+        formatStd.addNewLineAtEndOfFile = addNewLineAtEndOfFile.getBooleanValue();
+        formatStd.trimLines = rightTrimLines.getBooleanValue();
+        updateLabelExample(formatStd);
+    }
+
+
+    
     /**
      * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
@@ -107,4 +179,14 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         return PydevPrefs.getPreferences().getBoolean(USE_OPERATORS_WITH_SPACE);
     }
 
+    @Override
+    public void dispose(){
+        super.dispose();
+        colorCache.dispose();
+    }
+    
+    
+    
+    
+        
 }

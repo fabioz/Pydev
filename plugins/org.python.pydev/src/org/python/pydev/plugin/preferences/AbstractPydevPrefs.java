@@ -270,6 +270,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
                 style= style | SWT.ITALIC;
             }
             fOverlayStore.setValue(styleKey, style);
+            onAppearanceRelatedPreferenceChanged();
         }
     };
     
@@ -341,6 +342,14 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.toArray(keys);
         return new OverlayPreferenceStore(getPreferenceStore(), keys);
     }
+    
+    /**
+     * This method should be called when the preferences change for some appearance option
+     * (color, bold, italic).
+     */
+    protected void onAppearanceRelatedPreferenceChanged(){
+    }
+    
     /*
      * @see IWorkbenchPreferencePage#init()
      */ 
@@ -458,6 +467,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         handleAppearanceColorListSelection();
 
         super.performDefaults();
+        
+        onAppearanceRelatedPreferenceChanged();
     }
     
     /*
