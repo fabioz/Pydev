@@ -368,5 +368,19 @@ public final class FastStringBuffer{
         this.deleteCharAt(0);
         return ret;
     }
+
+    public FastStringBuffer appendN(String val, int n){
+        for(int i=0;i<n;i++){
+            this.append(val);
+        }
+        return this;
+    }
+
+    public FastStringBuffer appendN(char val, int n){
+        for(int i=0;i<n;i++){
+            this.append(val);
+        }
+        return this;
+    }
     
 }
