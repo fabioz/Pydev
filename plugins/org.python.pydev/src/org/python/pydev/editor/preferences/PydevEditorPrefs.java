@@ -14,8 +14,12 @@
 package org.python.pydev.editor.preferences;
 
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -25,9 +29,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.StyledTextForShowingCodeFactory;
+import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 import org.python.pydev.plugin.preferences.ColorEditor;
+import org.python.pydev.plugin.preferences.PydevPrefs;
 
 
 /**
@@ -37,12 +46,27 @@ import org.python.pydev.plugin.preferences.ColorEditor;
  */
 public class PydevEditorPrefs extends AbstractPydevPrefs {
 
+    /**
+     * Shows sample code with the new preferences.
+     */
+    private StyledText labelExample;
+    
+    /**
+     * A local store that has the preferences set given the user configuration of colors.
+     */
+    private final IPreferenceStore localStore;
+    
+    /**
+     * Helper to create the styled text and show the code later.
+     */
+    private StyledTextForShowingCodeFactory formatAndStyleRangeHelper;
 
     public PydevEditorPrefs() {
         setDescription("Pydev editor appearance settings:\nNote: Pydev ignores the 'Insert spaces for tabs' in the general settings."); 
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         
         fOverlayStore= createOverlayStore();
+        localStore = new PreferenceStore();
     }
 
     protected Control createAppearancePage(Composite parent) {
@@ -153,7 +177,70 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         fFontBoldCheckBox = addStyleCheckBox(stylesComposite, "Bold");
         fFontItalicCheckBox = addStyleCheckBox(stylesComposite, "Italic");
         
+        formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
+        labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(parent);
+        updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
+        
         return appearanceComposite;
     }
 
+
+
+    
+    private void updateLabelExample(FormatStd formatStd, IPreferenceStore store){
+        String str= 
+            "class Example(object):\n"+
+            "\n"+
+            "    backquotes = `backquotes`\n"+
+            "\n"+
+            "    @memoize(size=10)\n"+
+            "    def Call(self, param1=None):\n"+
+            "        '''docstring'''\n"+
+            "        return param1 + 10 * 10\n"+
+            "\n"+
+            "    def Call2(self):\n"+
+            "        #Comment\n"+
+            "        return self.Call(param1=10)"+
+            "";
+        Tuple<String, StyleRange[]> result = formatAndStyleRangeHelper.formatAndGetStyleRanges(
+                formatStd, str, store, false);
+        labelExample.setText(result.o1);
+        labelExample.setStyleRanges(result.o2);
+    }
+
+    
+    @Override
+    protected void onAppearanceRelatedPreferenceChanged(){
+        localStore.setValue(KEYWORD_COLOR, fOverlayStore.getString(KEYWORD_COLOR));
+        localStore.setValue(SELF_COLOR, fOverlayStore.getString(SELF_COLOR));  
+        localStore.setValue(CODE_COLOR, fOverlayStore.getString(CODE_COLOR));
+        localStore.setValue(DECORATOR_COLOR, fOverlayStore.getString(DECORATOR_COLOR));
+        localStore.setValue(NUMBER_COLOR, fOverlayStore.getString(NUMBER_COLOR));
+        localStore.setValue(FUNC_NAME_COLOR, fOverlayStore.getString(FUNC_NAME_COLOR));
+        localStore.setValue(CLASS_NAME_COLOR, fOverlayStore.getString(CLASS_NAME_COLOR));
+        localStore.setValue(STRING_COLOR, fOverlayStore.getString(STRING_COLOR));
+        localStore.setValue(COMMENT_COLOR, fOverlayStore.getString(COMMENT_COLOR));
+        localStore.setValue(BACKQUOTES_COLOR, fOverlayStore.getString(BACKQUOTES_COLOR));
+        
+        
+        localStore.setValue(KEYWORD_STYLE, fOverlayStore.getInt(KEYWORD_STYLE));
+        localStore.setValue(SELF_STYLE, fOverlayStore.getInt(SELF_STYLE));  
+        localStore.setValue(CODE_STYLE, fOverlayStore.getInt(CODE_STYLE));
+        localStore.setValue(DECORATOR_STYLE, fOverlayStore.getInt(DECORATOR_STYLE));
+        localStore.setValue(NUMBER_STYLE, fOverlayStore.getInt(NUMBER_STYLE));
+        localStore.setValue(FUNC_NAME_STYLE, fOverlayStore.getInt(FUNC_NAME_STYLE));
+        localStore.setValue(CLASS_NAME_STYLE, fOverlayStore.getInt(CLASS_NAME_STYLE));
+        localStore.setValue(STRING_STYLE, fOverlayStore.getInt(STRING_STYLE));
+        localStore.setValue(COMMENT_STYLE, fOverlayStore.getInt(COMMENT_STYLE));
+        localStore.setValue(BACKQUOTES_STYLE, fOverlayStore.getInt(BACKQUOTES_STYLE));
+        
+        
+        this.updateLabelExample(PyFormatStd.getFormat(), localStore);
+    }
+    
+    @Override
+    public void dispose(){
+        super.dispose();
+        formatAndStyleRangeHelper.dispose();
+    }
 }

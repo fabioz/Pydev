@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
@@ -23,8 +22,6 @@ import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
 /**
@@ -167,7 +164,7 @@ public class PyCodeScanner extends RuleBasedScanner {
     }
     
     private void setupRules() {
-        IPreferenceStore preferences = getChainedPrefStore();
+        IPreferenceStore preferences = colorCache.getPreferences();
         keywordToken   = new Token( new TextAttribute(colorCache.getNamedColor(
                 PydevEditorPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevEditorPrefs.KEYWORD_STYLE)));
         
@@ -217,12 +214,5 @@ public class PyCodeScanner extends RuleBasedScanner {
         rules.add(new WordRule(new NumberDetector(), numberToken));
         
         setRules(rules.toArray(new IRule[0]));
-    }
-
-    private IPreferenceStore getChainedPrefStore(){
-        if(PydevPlugin.getDefault() == null){
-            return new PreferenceStore();
-        }
-        return PydevPrefs.getChainedPrefStore();
     }
 }

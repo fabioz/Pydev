@@ -8,20 +8,16 @@ package org.python.pydev.plugin.preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.editor.FormatAndStyleRangeHelper;
+import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.ColorCache;
 
 /**
  * @author Fabio Zadrozny
@@ -65,13 +61,12 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     private BooleanFieldEditor operatorsWithSpace;
     private BooleanFieldEditor rightTrimLines;
     private BooleanFieldEditor addNewLineAtEndOfFile;
-    private ColorCache colorCache;
+    private StyledTextForShowingCodeFactory formatAndStyleRangeHelper;
     
 
     public PyCodeFormatterPage() {
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-        colorCache = new ColorCache(PydevPrefs.getChainedPrefStore());
     }
 
     /**
@@ -100,13 +95,9 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
         addNewLineAtEndOfFile = new BooleanFieldEditor(ADD_NEW_LINE_AT_END_OF_FILE, "Add new line at end of file?", p);
         addField(addNewLineAtEndOfFile);
         
-        labelExample = new StyledText(p, SWT.BORDER);
-        try {
-            FontData labelFontData = new FontData("Courier New", 10, SWT.NONE);
-            labelExample.setFont(new Font(p.getDisplay(), labelFontData));
-        } catch (Throwable e) {
-            //ignore
-        }
+        formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
+        labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(p);
+        
         updateLabelExample(PyFormatStd.getFormat());
     }
 
@@ -122,7 +113,8 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
             "        #Comment                   \n"+
             "        return self.Call(param1=10)"+
             "";
-        Tuple<String, StyleRange[]> result = FormatAndStyleRangeHelper.formatAndGetStyleRanges(formatStd, str, this.colorCache);
+        Tuple<String, StyleRange[]> result = formatAndStyleRangeHelper.formatAndGetStyleRanges(
+                formatStd, str, PydevPrefs.getChainedPrefStore(), true);
         labelExample.setText(result.o1);
         labelExample.setStyleRanges(result.o2);
     }
@@ -182,7 +174,7 @@ public class PyCodeFormatterPage extends FieldEditorPreferencePage implements IW
     @Override
     public void dispose(){
         super.dispose();
-        colorCache.dispose();
+        formatAndStyleRangeHelper.dispose();
     }
     
     

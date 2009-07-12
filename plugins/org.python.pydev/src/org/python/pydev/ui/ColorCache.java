@@ -31,8 +31,8 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class ColorCache {
 
-    private Map fColorTable = new HashMap(10);
-    private Map fNamedColorTable = new HashMap(10);
+    private Map<RGB, Color> fColorTable = new HashMap<RGB, Color>();
+    private Map<String, Color> fNamedColorTable = new HashMap<String, Color>();
     private IPreferenceStore preferences;
     
     
@@ -41,12 +41,19 @@ public class ColorCache {
     }
     
     public void dispose() {
-        Iterator e = fColorTable.values().iterator();
-        while (e.hasNext())
-             ((Color) e.next()).dispose();
-        e = fNamedColorTable.values().iterator();
-        while (e.hasNext())
-            ((Color) e.next()).dispose();
+        Iterator<Color> it = fColorTable.values().iterator();
+        while (it.hasNext()){
+             it.next().dispose();
+        }
+        
+        it = fNamedColorTable.values().iterator();
+        
+        while (it.hasNext()){
+            it.next().dispose();
+        }
+        
+        fColorTable.clear();
+        fNamedColorTable.clear();
     }
     
     public Color getColor(RGB rgb) {
@@ -105,5 +112,13 @@ public class ColorCache {
 
     public IPreferenceStore getPreferences(){
         return this.preferences;
+    }
+
+    /**
+     * When new preferences are set, the contents of the cache are cleared.
+     */
+    public void setPreferences(IPreferenceStore prefs){
+        this.dispose();
+        this.preferences = prefs;
     }
 }
