@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
@@ -37,6 +38,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 import org.python.pydev.plugin.preferences.ColorEditor;
 import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.utils.LinkFieldEditor;
 
 
 /**
@@ -181,10 +183,36 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(parent);
         updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
         
+        LinkFieldEditor colorsAndFontsLinkFieldEditor = new LinkFieldEditor(
+                "UNUSED", "For additional settings see the <a>Text Editors</a>", parent, new SelectionListener() {
+                    
+            public void widgetSelected(SelectionEvent e) {
+                String id = "org.eclipse.ui.preferencePages.GeneralTextEditor";
+                IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                workbenchPreferenceContainer.openPage(id, null);
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        colorsAndFontsLinkFieldEditor.getLinkControl(parent);
+        
+        colorsAndFontsLinkFieldEditor = new LinkFieldEditor(
+                "UNUSED", "and  the <a>Colors and Fonts</a> preference pages\n", parent, new SelectionListener() {
+                    
+            public void widgetSelected(SelectionEvent e) {
+                String id = "org.eclipse.ui.preferencePages.ColorsAndFonts";
+                IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                workbenchPreferenceContainer.openPage(id, null);
+            }
+            
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        colorsAndFontsLinkFieldEditor.getLinkControl(parent);
+        
         return appearanceComposite;
     }
-
-
 
     
     private void updateLabelExample(FormatStd formatStd, IPreferenceStore store){

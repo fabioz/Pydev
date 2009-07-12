@@ -2,7 +2,7 @@ After 1.4.7
 
 Pydev Extensions
 Pydev
-Usability improvement on the preferences pages (code-formatter, comment block and code-style showing examples)
+Usability improvement on the preferences pages (editor, code-formatter, comment block and code-style showing examples)
 
 
 After 1.4.6
