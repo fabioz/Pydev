@@ -6,12 +6,12 @@ Well, if you don't find anything that helps you, please check if it is a known B
 The place to search and report BUGS is <a href="http://sourceforge.net/tracker/?group_id=85796&atid=577329">here</a><br>
 When reporting a bug, don't forget to give the following information:<br><br>
 - System (e.g windows XP)<br>
-- Eclipse version (e.g. 3.1)<br>
-- Pydev version (e.g. 0.9.7)<br>
+- Eclipse version (e.g. 3.5)<br>
+- Pydev version (e.g. 1.4.7)<br>
 - Pydev error log (if any): go to window->show view->other->PDE Runtime->Error log. (if you have the SDK installed, otherwise,
 you have to find the log file at your_workspace/.metadata/.log)<br>
-- Eclipse install location (e.g. D:\eclipse_3\302\eclipse)<br>
-- Project location where the bug appears (e.g. D:\eclipse\workspace\org.python.pydev)<br>
+- Eclipse install location (e.g. D:\eclipse_3\352\eclipse)<br>
+- Project location where the bug appears (e.g. D:\eclipse\workspace\my project)<br>
 <br>
 NOTE: the <A href="http://sourceforge.net/forum/forum.php?forum_id=293649">Users Forum</A> may be used for
 some doubts, but if you have a bug, that's not the place to go (even though, it might be useful searching it to
@@ -35,63 +35,16 @@ but please, try to find what you're looking for in the homepage first.
 Can I have Eclipse installed anywhere to use Pydev?
 --------------------------------------------------------------------------------------------------------------Answer
 
-Well, you can have it anywhere, provided that your Eclipse installation path does not have spaces!
+Yes (note that some previous versions had a bug in which it didn't work if the Eclipse installation had spaces in the path).
 
 
 --------------------------------------------------------------------------------------------------------------Title
 How do I get started with Pydev?
 --------------------------------------------------------------------------------------------------------------Answer
 
-The following text was contributed by Jack Trainor as a "Hello World" to get started with pydev.<br>
-<br><br>
-<strong>NOTE:</strong><br>
-Specific details that may not apply to others are included, but as a developer 
-I find it easier to modify specific working instructions, than to guess what I need from vague recommendations.
-<br><br>
-<strong>Requirements not covered in the faq:</strong><br>
-<ul>
-</li><li>Python 2.3.x or 2.4.x must be installed
-</li><li>Java 1.4 or higher must be installed
-</ul>
+Check the getting started manual at: <a href="http://fabioz.com/pydev/manual_101_root.html">http://fabioz.com/pydev/manual_101_root.html</a>
 
-
-<strong>Step-by-step:</strong><br>
-<ul>
-<li>Unzip eclipse-SDK-3.1-win32.zip to c:\
-</li><li>Unzip org.python.pydev.feature_xxxxxx.zip to c:\ <br> <strong>NOTE:</strong>The <a href="download.html">download page</a> contains instructions on how to get and install pydev using the Eclipse update manager instead of the .zip file.
-</li><li>Double-click c:\eclipse\eclipse.exe
-</li><li>Set default workspace where you want it.
-</li><li>Close Welcome splash pane.
-</li><li>Select Resource perspective: Window\Open Perspective\Other...\Select Perspective\Resource.
-</li><li>Click OK.
-</li><li>Select Window\Preferences\Pydev\Interpreter - Python.
-</li><li>Click top New... button and enter Python path, e.g., c:\Python24\python.exe
-</li><li>Click OK.
-</li><li>Click File\New\Project...
-</li><li>Select Simple\Project Wizard
-</li><li>Click Next.
-</li><li>Enter Project Name, e.g. SimpleProj1.
-</li><li>Click Finish.
-</li><li>Click File\New...\File.
-</li><li>Enter File Name, e.g. Py1.py.
-</li><li>Click Finish.
-</li><li>Right-click SimpleProj1 in Navigator pane and select Properties.
-</li><li>Click Pydev-PYTHONPATH.
-</li><li>Click top pane "Add source folder" button.
-</li><li>/SimpleProj1 should already be selected. Click OK.
-</li><li>Click top pane "Add source folder" button.
-</li><li>Add path to source folder on disk, e.g., C:\Dev\eclipse\SimpleProj1.
-</li><li>Click OK.
-</li><li>Add some Python code to Py1.py: print 'Hello world!'
-</li><li>Save.
-</li><li>Right-click on Py1.py in Navigator pane.
-</li><li>Select Run as\Python run.
-</li><li>A console window should appear showing output from the Python program.
-</li>
-</ul>
-
-<strong>NOTE 2:</strong><br>
-If some specific detail does not work in the way it is described, please report it in the pydev bug-tracker.
+TODO: Add reference to videos.
 
 --------------------------------------------------------------------------------------------------------------Title
 How do I configure my PYTHONPATH?
@@ -121,8 +74,7 @@ you can check at the following mailing thread:
 How do I configure Pydev to use IronPython?
 --------------------------------------------------------------------------------------------------------------Answer
 
-Check http://sourceforge.net/tracker/index.php?func=detail&aid=1535901&group_id=85796&atid=577329 to know how
-the os library should be added to iron python and after, just specify the iron python executable as your python executable. 
+TODO: Update this
 
 --------------------------------------------------------------------------------------------------------------Title
 How do I reference Java projects with Jython?
@@ -135,6 +87,7 @@ add your java output class folders to the project source folders, and only then 
 Check the question: "How do I configure my PYTHONPATH?" for information on how to add source folders to the project
 pythonpath.
 
+TODO: Add better answer.
 
 
 --------------------------------------------------------------------------------------------------------------Title

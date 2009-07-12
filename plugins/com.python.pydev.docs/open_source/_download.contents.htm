@@ -7,10 +7,32 @@
 <ul>
 <li>Urls to use when updating with the Eclipse update manager: </li>
 
+<br/>
 <ul>
-    <li><strong>1.4.3 onwards:</strong> <a href="http://pydev.sourceforge.net/updates/">http://pydev.sourceforge.net/updates/</a></li>
-    <li><strong>Before 1.4.3:</strong> <A href="http://pydev.sourceforge.net/updates_old/">http://pydev.sourceforge.net/updates_old/</A></li>
-    <li><strong>Nightly builds:</strong> <A href="http://nightly.aptana.com/pydev/site.xml">http://nightly.aptana.com/pydev/site.xml</A></li>
+    <strong>Mirrors for 1.4.3 onwards:</strong>
+    
+    <br/>
+    <br/>
+    <ul> 
+    
+        <a href="http://pydev.sourceforge.net/updates/">http://pydev.sourceforge.net/updates/</a><br/>
+        <a href="http://update.aptana.com/update/pydev/3.2">http://update.aptana.com/update/pydev/3.2</a>
+    </ul>
+    <br/>
+    
+    <strong>Before 1.4.3:</strong> 
+	    <br/>
+	    <ul> 
+        <A href="http://pydev.sourceforge.net/updates_old/">http://pydev.sourceforge.net/updates_old/</A><br/>
+	    </ul>
+	    <br/>
+        
+    <strong>Nightly builds:</strong> 
+	    <br/>
+	    <ul> 
+        <A href="http://nightly.aptana.com/pydev/site.xml">http://nightly.aptana.com/pydev/site.xml</A>
+	    </ul>
+        
 </ul>
 <br>
 
@@ -23,23 +45,38 @@
 <h4>Requirements:</h4>
 
 <ul>
-<li><a href="http://www.eclipse.org/">Eclipse 3.2, 3.3 or 3.4</a> (python requires only the platform release, and jython also requires JDT)</li>
-<li><a href="http://www.python.org">Python</a> and/or <a href="http://www.jython.org">Jython</a></li>
+<li><a href="http://www.eclipse.org/">Eclipse 3.2, 3.3, 3.4 or 3.5</a> (python and iron python require only the platform release, and jython also requires JDT)</li>
+<li>
+<a href="http://www.python.org">Python</a> and/or 
+<a href="http://www.jython.org">Jython</a> and/or 
+<a href="http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython">Iron Python</a></li>
+
 <li><a href="http://www.javasoft.com">Java</a> 1.4 or higher </li>
 </ul>
 
 
-<h4>Fast Install:</h4>
+<h4>Fast Install Instructions:</h4>
 
+<ul>
+<strong>Update Manager</strong>
+<ul>
 <p> Go to the update manager (inside the help menu) and add 
-	update site: <A href="http://pydev.sourceforge.net/updates/">http://pydev.sourceforge.net/updates/</A> or
-	some other specified url (Eclipse should do the rest)</p>
+	one of the urls specified above and follow the wizard (Eclipse should do the rest)</p>
+</ul>
 
+<strong>Zip File</strong>
+<ul>
 <p>
-An alternative is just getting the zip file and extracting it 
-yourself in eclipse. If you choose to do it, just make sure the plugins folder 
-is extracted on top of the eclipse plugins folder and restart with '-clean'.<br/><br/>
+An alternative is just getting the zip file and extracting it yourself in eclipse. 
+<br/><br/>
+For <strong>Eclipse 3.2 and 3.3</strong>, you have to make sure the plugins folder is extracted on top of the Eclipse 
+plugins folder and <strong>restart with '-clean'</strong>.<br/><br/>
+
+For <strong>Eclipse 3.4 and 3.5</strong>, you can extract it in the '<strong>dropins</strong>' folder (and restart Eclipse).<br/><br/>
+</ul>
+
 </p>
+</ul>
 
 <h4>Complete Install:</h4>
 <p>
