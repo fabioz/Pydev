@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
@@ -52,10 +53,23 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
         try {
             String id = configuration.getType().getIdentifier();
             IInterpreterManager manager;
-            if(Constants.ID_JYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id) || Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)){
+            if(Constants.ID_JYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id) || 
+                    Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)){
                 manager = PydevPlugin.getJythonInterpreterManager();
-            }else{
+                
+            }else if(Constants.ID_IRONPYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id) || 
+                    Constants.ID_IRONPYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)){
+                manager = PydevPlugin.getIronpythonInterpreterManager();
+                
+            }else if(Constants.ID_PYTHON_REGULAR_LAUNCH_CONFIGURATION_TYPE.equals(id) || 
+                    Constants.ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE.equals(id) ||
+                    Constants.ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)
+                    ){
                 manager = PydevPlugin.getPythonInterpreterManager();
+            }else{
+                Log.log("Could not recognize: '"+id+"' using python interpreter manager.");
+                manager = PydevPlugin.getPythonInterpreterManager();
+                
             }
             String pythonPath = PythonRunnerConfig.getPythonpathFromConfiguration(configuration, manager);
 

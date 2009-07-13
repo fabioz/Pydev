@@ -23,6 +23,7 @@ public class JythonTabGroup extends AbstractLaunchConfigurationTabGroup {
     public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
         MainModuleTab mainModuleTab = new MainModuleTab();
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
+            mainModuleTab,
             new ArgumentsTab(mainModuleTab),
             new InterpreterTab(PydevPlugin.getJythonInterpreterManager()),
             new RefreshTab(),
