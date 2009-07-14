@@ -104,7 +104,7 @@ def _otherFeatures():
 ''' 
     return s % (
        _getFeaturesTd('editor.html','Editor'),
-       _getFeaturesTd('debug.html','Debugger'),
+       _getFeaturesTd('debug.html','Launch/Debug'),
        _getFeaturesTd('codecompletion.html','Code Completion'),
        _getFeaturesTd('templates.html','Templates'),
        _getFeaturesTd('codecoverage.html','Code Coverage'),
