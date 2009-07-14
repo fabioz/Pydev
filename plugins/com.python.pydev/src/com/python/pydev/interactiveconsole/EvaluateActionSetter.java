@@ -34,7 +34,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.runners.SimpleRunner;
 
 /**
- * This class will setup the editor so that we can evaluate commands on new lines.
+ * This class will setup the editor so that we can create interactive consoles, send code to it or make an execfile.
  * 
  * It is as a 'singleton' for all PyEdit editors.
  */
