@@ -55,11 +55,14 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
                     int cols = colsAndChar.o1;
                     char c = colsAndChar.o2;
                     
-                    FastStringBuffer buffer = makeBufferToIndent(line, cols);            
+                    FastStringBuffer buffer = makeBufferToIndent(line, cols);
+                    int lenOfStrWithTabsAsSpaces = getLenOfStrConsideringTabEditorLen(buffer.toString());
+                    int diff = lenOfStrWithTabsAsSpaces - buffer.length();
+                    
                     buffer.append("# ");
                     buffer.append(line.trim());
                     buffer.append(' ');
-                    while(buffer.length() < cols){
+                    while(buffer.length()+diff < cols){
                         buffer.append(c);
                     }
                     strbuf.append(buffer);
@@ -109,10 +112,12 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
         int cols = colsAndChar.o1;
         char c = colsAndChar.o2;
         
-        FastStringBuffer buffer = makeBufferToIndent(line, cols);            
+        FastStringBuffer buffer = makeBufferToIndent(line, cols);     
+        int lenOfStrWithTabsAsSpaces = getLenOfStrConsideringTabEditorLen(buffer.toString());
+        int diff = lenOfStrWithTabsAsSpaces - buffer.length();
         
         buffer.append("#");
-        for (int i = 0; i + line.length() < cols - 2; i++) {
+        for (int i = 0; i + line.length()+ diff < cols - 2; i++) {
             buffer.append(c);
         }
         buffer.append(" ");

@@ -19,12 +19,12 @@ public class PyAddBlockCommentTest extends TestCase {
                 "# cc\r\n" +
                 "#---------", doc.get());
         
-        doc = new Document("\tcc");
+        doc = new Document("\t cc");
         new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));
         PySelectionTest.checkStrEquals("" +
-                "#---------\r\n" +
-                "#\tcc\r\n" +
-                "#---------", doc.get());
+                "\t #----\r\n" +
+                "\t # cc\r\n" +
+                "\t #----", doc.get());
         
         doc = new Document("class Foo(object):");
         new PyAddBlockComment(10, true, true, true).perform(new PySelection(doc, 0,0,0));

@@ -36,6 +36,14 @@ public class PyAddSingleBlockCommentTest extends TestCase {
         new PyAddSingleBlockComment(10, false).perform(new PySelection(doc, 0,0,0));
         assertEquals("# cc -----", doc.get());
         
+        doc = new Document("\tcc");
+        new PyAddSingleBlockComment(12, false).perform(new PySelection(doc, 0,0,0));
+        assertEquals("\t# cc ---", doc.get());
+        
+        doc = new Document("\tcc");
+        new PyAddSingleBlockComment(12, true).perform(new PySelection(doc, 0,0,0));
+        assertEquals("\t#---- cc", doc.get());
+        
     }
 
 }

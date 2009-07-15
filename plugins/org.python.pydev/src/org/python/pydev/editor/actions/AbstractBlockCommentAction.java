@@ -70,8 +70,36 @@ public abstract class AbstractBlockCommentAction extends PyAction {
         }
         return new Tuple<Integer, Character>(cols, c);
     }
+    
+    /**
+     * @return the editor tab width.
+     */
+    public int getEditorTabWidth(){
+        try{
+            IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+            return chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
+        }catch(NullPointerException e){
+            //ignore... we're in the tests env
+        }
+        return 4; //if not available, default is 4
+    }
 
     protected abstract String getPreferencesNameForChar() ;
 
+    /**
+     * @return the length of the string considering the size of the tab for the editor
+     */
+    protected int getLenOfStrConsideringTabEditorLen(String str){
+        int ret = 0;
+        int tabWidth = this.getEditorTabWidth();
+        for(int i=0;i<str.length();i++){
+            if(str.charAt(i) == '\t'){
+                ret += tabWidth;
+            }else{
+                ret += 1;
+            }
+        }
+        return ret;
+    }
 
 }

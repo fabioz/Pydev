@@ -6,6 +6,9 @@
 
 package org.python.pydev.editor.actions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.Preferences;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
@@ -152,20 +155,37 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 
                 
             }else{
-                fullCommentLine = getFullCommentLine(0, tempBuffer);
-                strbuf.append("#").append(fullCommentLine).append(endLineDelim);
+                List<String> lines = new ArrayList<String>();
+
+                int minCharsBefore = Integer.MAX_VALUE;
+                for (int i = startLineIndex; i <= endLineIndex; i++) {
+                    String line = ps.getLine(i);
+                    minCharsBefore = Math.min(minCharsBefore, PySelection.getFirstCharPosition(line));
+                    lines.add(line);
+                }
+                
+                String firstLine = lines.get(0);
+                String lastLine = lines.get(lines.size()-1);
+                
+                String strBefore = firstLine.substring(0, minCharsBefore);
+                fullCommentLine = getFullCommentLine(getLenOfStrConsideringTabEditorLen(strBefore), tempBuffer.clear());
+                strbuf.append(strBefore).append("#").append(fullCommentLine).append(endLineDelim);
                 // For each line, comment them out
                 for (int i = startLineIndex; i <= endLineIndex; i++) {
-                    strbuf.append("#");
                     String line = ps.getLine(i);
+                    strbuf.append(line.substring(0, minCharsBefore));
+                    strbuf.append("#");
+                    line = line.substring(minCharsBefore);
                     if(!line.startsWith("\t") && !line.startsWith(" ")){
-                        strbuf.append(" ");
+                        strbuf.append(' ');
                     }
                     strbuf.append(line);
                     strbuf.append(endLineDelim);
                 }
                 // End of block
-                strbuf.append("#").append(fullCommentLine);
+                String strAfter = firstLine.substring(0, minCharsBefore);
+                fullCommentLine = getFullCommentLine(getLenOfStrConsideringTabEditorLen(strAfter), tempBuffer.clear());
+                strbuf.append(lastLine.substring(0, minCharsBefore)).append("#").append(fullCommentLine);
             }
             
             int startOffset = ps.getStartLine().getOffset();
@@ -181,6 +201,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
         // In event of problems, return false
         return -1;
     }
+
 
     @Override
     protected String getPreferencesNameForChar() {
