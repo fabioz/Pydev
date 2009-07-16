@@ -1,10 +1,14 @@
 After 1.4.7
 
 Pydev Extensions
+Created public API for starting/finishing debug server
+
 Pydev
 Usability improvement on the preferences pages (editor, code-formatter, comment block and code-style showing examples)
 Pythonpath reported in the main tab was not correct for ironpython launch configs
 Main module tab in launch configuration was not appearing for jython
+Multiline block comments considering the current indentation (and working with tabs) 
+
 
 After 1.4.6
 
