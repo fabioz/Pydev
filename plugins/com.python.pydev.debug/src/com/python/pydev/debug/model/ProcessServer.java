@@ -75,26 +75,32 @@ public class ProcessServer extends Process{
             lock.notify();
         }
 
-        if(!RemoteDebuggerServer.getInstance().isTerminated()){
-            RemoteDebuggerServer.getInstance().dispose();
-        }
+        //Let it manage if it was already disposed or not.
+        RemoteDebuggerServer.getInstance().dispose();
+        
         try{
-            outputStream.close();
-            outputStream = null;
+            if(outputStream != null){
+                outputStream.close();
+                outputStream = null;
+            }
         }catch(Exception e){
             Log.log(e);
         }
 
         try{
-            inputStream.close();
-            inputStream = null;
+            if(inputStream != null){
+                inputStream.close();
+                inputStream = null;
+            }
         }catch(Exception e){
             Log.log(e);
         }
 
         try{
-            errorStream.close();
-            errorStream = null;
+            if(errorStream != null){
+                errorStream.close();
+                errorStream = null;
+            }
         }catch(Exception e){
             Log.log(e);
         }

@@ -14,6 +14,7 @@ import org.python.pydev.plugin.nature.SaveFileWithoutNatureTestWorkbench;
 
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
 import com.python.pydev.codecompletion.JavaIntegrationPydevComTestWorkbench;
+import com.python.pydev.debug.remote.client_api.PydevRemoteDebuggerServerTestWorkbench;
 import com.python.pydev.ui.LicensingTestWorkbench;
 
 public class AllWorkbenchTests {
@@ -41,6 +42,7 @@ public class AllWorkbenchTests {
         suite.addTestSuite(PythonRunnerConfigTestWorkbench.class); 
         suite.addTestSuite(SourceLocatorTestWorkbench.class); 
         
+        suite.addTestSuite(PydevRemoteDebuggerServerTestWorkbench.class); 
         suite.addTestSuite(DebuggerTestWorkbench.class); 
         
         if (suite.countTestCases() == 0) {

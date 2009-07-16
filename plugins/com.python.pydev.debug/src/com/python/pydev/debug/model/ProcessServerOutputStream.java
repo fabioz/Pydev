@@ -53,14 +53,16 @@ public final class ProcessServerOutputStream extends ByteArrayOutputStream{
         this.reset();
         char c;
         if(s.length() > 0 && ((c = s.charAt(s.length() - 1)) == '\n' || c == '\r')){
-            s = StringUtils.rightTrim(s);
             IAdaptable context = DebugUITools.getDebugContext();
-            Object adapter = context.getAdapter(IDebugTarget.class);
-            if(adapter instanceof AbstractDebugTarget){
-                AbstractDebugTarget target = (AbstractDebugTarget) adapter;
-
-                for(IConsoleInputListener listener:participants){
-                    listener.newLineReceived(s, target);
+            if(context != null){
+                s = StringUtils.rightTrim(s);
+                Object adapter = context.getAdapter(IDebugTarget.class);
+                if(adapter instanceof AbstractDebugTarget){
+                    AbstractDebugTarget target = (AbstractDebugTarget) adapter;
+    
+                    for(IConsoleInputListener listener:participants){
+                        listener.newLineReceived(s, target);
+                    }
                 }
             }
         }

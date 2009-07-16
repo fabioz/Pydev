@@ -31,17 +31,20 @@ public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
         try {
 
             ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
-            // Python Main Tab Arguments
-            workingCopy.setAttribute(Constants.ATTR_PROJECT,"Pydevd Debug Server");
-            workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE,1);
-            
-            workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
 
             // Common Tab Arguments
             CommonTab tab = new CommonTab();
             tab.setDefaults(workingCopy);
             tab.dispose();
-            return workingCopy.doSave();
+            
+            // Python Main Tab Arguments
+            workingCopy.setAttribute(Constants.ATTR_PROJECT,"Pydevd Debug Server");
+            workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE,1);
+            
+            workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
+            
+            ILaunchConfiguration ret = workingCopy.doSave();
+            return ret;
         } catch (CoreException e) {
             reportError(null, e);
             return null;
