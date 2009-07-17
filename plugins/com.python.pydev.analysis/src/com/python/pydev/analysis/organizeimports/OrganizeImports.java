@@ -5,7 +5,6 @@ package com.python.pydev.analysis.organizeimports;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -14,7 +13,6 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
-import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
@@ -22,11 +20,11 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.IOrganizeImports;
+import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
@@ -58,14 +56,14 @@ public class OrganizeImports implements IOrganizeImports{
         if(!AutoImportsPreferencesPage.doAutoImportOnOrganizeImports()){
             return true;
         }
-        ArrayList<IMarker> undefinedVariablesMarkers = getUndefinedVariableMarkers(edit);
+        ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = getUndefinedVariableMarkers(edit);
         
 
         //sort them
-        TreeMap<Integer, IMarker> map = new TreeMap<Integer, IMarker>();
+        TreeMap<Integer, MarkerAnnotationAndPosition> map = new TreeMap<Integer, MarkerAnnotationAndPosition>();
         
-        for (IMarker marker : undefinedVariablesMarkers) {
-            int start = marker.getAttribute(IMarker.CHAR_START, -1);
+        for (MarkerAnnotationAndPosition marker : undefinedVariablesMarkers) {
+            int start = marker.position.offset;
             map.put(start, marker);
         }
         
@@ -87,14 +85,14 @@ public class OrganizeImports implements IOrganizeImports{
         final IDialogSettings dialogSettings = AnalysisPlugin.getDefault().getDialogSettings();
         
         //analyse the markers (one by one)
-        for (final IMarker marker : map.values()) {
+        for (final MarkerAnnotationAndPosition marker : map.values()) {
             if(!keepGoing[0]){
                 break;
             }
             try {
                 
-                final int start = marker.getAttribute(IMarker.CHAR_START, -1);
-                final int end = marker.getAttribute(IMarker.CHAR_END, -1);
+                final int start = marker.position.offset;
+                final int end = start+marker.position.length;
                 
                 
                 if(start >= 0 && end > start){
@@ -204,28 +202,20 @@ public class OrganizeImports implements IOrganizeImports{
     /**
      * @return the markers representing undefined variables found in the editor.
      */
-    @SuppressWarnings("unchecked")
-    private ArrayList<IMarker> getUndefinedVariableMarkers(final PyEdit edit) {
+    private ArrayList<MarkerAnnotationAndPosition> getUndefinedVariableMarkers(final PyEdit edit) {
         PySourceViewer s = edit.getPySourceViewer();
         
-        ArrayList<IMarker> undefinedVariablesMarkers = new ArrayList<IMarker>();
-        IAnnotationModel annotationModel = s.getAnnotationModel();
-        Iterator it = annotationModel.getAnnotationIterator();
+        ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = new ArrayList<MarkerAnnotationAndPosition>();
         
         //get the markers we are interested in (undefined variables)
-        while(it.hasNext()){
-            Object ann=it.next();
-            if(!(ann instanceof MarkerAnnotation)){
-                continue;
-            }
-            MarkerAnnotation markerAnnotation = (MarkerAnnotation) ann;
-            IMarker marker = markerAnnotation.getMarker();
+        for(MarkerAnnotationAndPosition m:s.getMarkerIteratable()){
+            IMarker marker = m.markerAnnotation.getMarker();
             try {
                 String type = marker.getType();
                 if(type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)){
                     Integer attribute = marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE, -1 );
                     if (attribute != null && attribute.equals(IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE)){
-                        undefinedVariablesMarkers.add(marker);
+                        undefinedVariablesMarkers.add(m);
                     }
 
                 }

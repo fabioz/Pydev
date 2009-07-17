@@ -14,7 +14,9 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ModulesKey;
@@ -26,6 +28,7 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -79,7 +82,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
      * @return the created stub
      */
     @SuppressWarnings("unchecked")
-    protected MarkerStub createMarkerStub(int start, int end, int type) {
+    protected MarkerAnnotationAndPosition createMarkerStub(int start, int end, int type) {
         HashMap attrs = new HashMap();
 
         attrs.put(AnalysisRunner.PYDEV_ANALYSIS_TYPE, type);
@@ -87,7 +90,7 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         attrs.put(IMarker.CHAR_END, end);
     
         MarkerStub marker = new MarkerStub(attrs);
-        return marker;
+        return new MarkerAnnotationAndPosition(new MarkerAnnotation(marker), new Position(start, end-start));
     }
     
     protected void addFooModule(final SimpleNode ast) {

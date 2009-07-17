@@ -13,6 +13,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -22,6 +23,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
+import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -57,11 +59,12 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
     }
     
     /**
-     * @see IAnalysisMarkersParticipant#addProps(IMarker, IAnalysisPreferences, String, PySelection, int, IPythonNature, 
+     * @see IAnalysisMarkersParticipant#addProps(MarkerAnnotation, IAnalysisPreferences, String, PySelection, int, IPythonNature, 
      * PyEdit, List)
      * 
      */
-    public void addProps(IMarker marker, 
+    public void addProps(
+            MarkerAnnotationAndPosition markerAnnotation, 
             IAnalysisPreferences analysisPreferences, 
             String line, 
             PySelection ps, 
@@ -69,7 +72,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
             IPythonNature nature,
             PyEdit edit, 
             List<ICompletionProposal> props) throws BadLocationException, CoreException {
-        
+        IMarker marker = markerAnnotation.markerAnnotation.getMarker();
         Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
         if(id != IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE){
             return;
@@ -78,8 +81,8 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
             return;
         }
         
-        Integer start = (Integer) marker.getAttribute(IMarker.CHAR_START);
-        Integer end = (Integer) marker.getAttribute(IMarker.CHAR_END);
+        int start = markerAnnotation.position.offset;
+        int end = start+markerAnnotation.position.length;
         ps.setSelection(start, end);
         String markerContents = ps.getSelectedText();
         String fullRep = ps.getFullRepAfterSelection();

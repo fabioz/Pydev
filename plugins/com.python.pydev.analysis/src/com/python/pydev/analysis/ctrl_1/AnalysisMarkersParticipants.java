@@ -7,13 +7,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
@@ -24,7 +24,7 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
 
 public class AnalysisMarkersParticipants implements IAssistProps{
 
-    private List<IMarker> markersAtLine;
+    private List<MarkerAnnotationAndPosition> markersAtLine;
     private IAnalysisMarkersParticipant ignoreParticipant;
     private IAnalysisMarkersParticipant fixParticipant;
     private ArrayList<IAnalysisMarkersParticipant> participants;
@@ -43,7 +43,8 @@ public class AnalysisMarkersParticipants implements IAssistProps{
         IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
         String line = ps.getLine();
         
-        for (IMarker marker : markersAtLine) {
+        
+        for (MarkerAnnotationAndPosition marker : markersAtLine) {
             for (IAnalysisMarkersParticipant participant : participants) {
                 try {
                     participant.addProps(marker, analysisPreferences, line, ps, offset, nature, edit, props);
@@ -64,7 +65,7 @@ public class AnalysisMarkersParticipants implements IAssistProps{
         PySourceViewer s = edit.getPySourceViewer();
         
         int line = ps.getLineOfOffset(offset);
-        List<IMarker> markersAtLine = s.getMarkersAtLine(line, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER);
+        List<MarkerAnnotationAndPosition> markersAtLine = s.getMarkersAtLine(line, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER);
         
         if(markersAtLine.size() > 0){
             //store it for later use
