@@ -12,15 +12,19 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
+import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
@@ -31,7 +35,9 @@ public class PySourceViewer extends ProjectionViewer {
 
     private WeakReference<PyEdit> projection;
 
-    public PySourceViewer(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles, PyEditProjection projection) {
+    public PySourceViewer(
+            Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, 
+            int styles, PyEditProjection projection) {
         super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
         this.projection = new WeakReference<PyEdit>((PyEdit) projection);
     }
@@ -56,24 +62,51 @@ public class PySourceViewer extends ProjectionViewer {
      * @param markerType the type of the marker (if null, it is not used)
      * @return a list of markers at the given line
      */
-    public List<IMarker> getMarkersAtLine(int markerLine, String markerType){
-        ArrayList<IMarker> markers = new ArrayList<IMarker>();
+    public List<MarkerAnnotationAndPosition> getMarkersAtLine(int markerLine, String markerType){
+        ArrayList<MarkerAnnotationAndPosition> markers = new ArrayList<MarkerAnnotationAndPosition>();
+        IDocumentProvider documentProvider = this.getEdit().getDocumentProvider();
+        if(documentProvider == null){
+            return markers;
+        }
+        IEditorInput editorInput = this.getEdit().getEditorInput();
+        if(editorInput == null){
+            return markers;
+        }
+        IAnnotationModel annotationModel= documentProvider.getAnnotationModel(editorInput);
+        if(annotationModel == null){
+            return markers;
+        }
+        IDocument document = documentProvider.getDocument(editorInput);
+        if(document == null){
+            return markers;
+        }
+
+        int lineStartOffset = -1;
+        int lineEndOffset = -1;
+        try{
+            lineStartOffset = document.getLineOffset(markerLine);
+            lineEndOffset = lineStartOffset + document.getLineLength(markerLine);
+        }catch(BadLocationException e){
+            return markers;
+        }
         
-        Iterable<IMarker> markerIteratable = getMarkerIteratable();
-        for (IMarker marker : markerIteratable) {
-            try {
-                //check the line
-                Integer line = (Integer) marker.getAttribute(IMarker.LINE_NUMBER);
-                if(line != null && line.intValue() == markerLine){
-                    
-                    //and the marker type
-                    if(markerType == null || markerType.equals(marker.getType())){
-                        markers.add(marker);
-                    }
+        for(MarkerAnnotationAndPosition annotation:getMarkerIteratable()){
+            
+            Position position = annotation.position;
+            int offset = position.getOffset();
+            if(offset >= lineStartOffset && offset <= lineEndOffset){
+                IMarker marker = annotation.markerAnnotation.getMarker();
+                String type;
+                try{
+                    type = marker.getType();
+                }catch(CoreException e){
+                    continue;
                 }
-            } catch (CoreException e) {
-                //ok - no line ?
+                if(markerType == null || markerType.equals(type)){
+                    markers.add(annotation);
+                }
             }
+            
         }
         
         return markers;
@@ -82,7 +115,7 @@ public class PySourceViewer extends ProjectionViewer {
     /**
      * @return a class that iterates through the markers available in this source viewer
      */
-    public Iterable<IMarker> getMarkerIteratable(){
+    public Iterable<MarkerAnnotationAndPosition> getMarkerIteratable(){
         final IAnnotationModel annotationModel = getAnnotationModel();
         //it may be null on external files, because I simply cannot make it get the org.python.copiedfromeclipsesrc.PydevFileEditorInput
         //(if it did, I could enhance it...). Instead, it returns a org.eclipse.ui.internal.editors.text.JavaFileEditorInput
@@ -90,12 +123,12 @@ public class PySourceViewer extends ProjectionViewer {
         if(annotationModel != null){
             final Iterator annotationIterator = annotationModel.getAnnotationIterator();
     
-            return new Iterable<IMarker>(){
+            return new Iterable<MarkerAnnotationAndPosition>(){
     
-                public Iterator<IMarker> iterator() {
-                    return new Iterator<IMarker>(){
+                public Iterator<MarkerAnnotationAndPosition> iterator() {
+                    return new Iterator<MarkerAnnotationAndPosition>(){
     
-                        private IMarker marker;
+                        private MarkerAnnotationAndPosition marker;
     
                         public boolean hasNext() {
                             while(annotationIterator.hasNext()){
@@ -107,7 +140,10 @@ public class PySourceViewer extends ProjectionViewer {
                                     Object object = annotationIterator.next();
                                     if(object instanceof MarkerAnnotation){
                                         MarkerAnnotation m = (MarkerAnnotation) object;
-                                        marker = m.getMarker();
+                                        if(m.isMarkedDeleted()){
+                                            continue;
+                                        }
+                                        marker = new MarkerAnnotationAndPosition(m, annotationModel.getPosition(m));
                                         return true;
                                     }
                                 }
@@ -115,10 +151,10 @@ public class PySourceViewer extends ProjectionViewer {
                             return false;
                         }
     
-                        public IMarker next() {
+                        public MarkerAnnotationAndPosition next() {
                             hasNext();
                             
-                            IMarker m = marker;
+                            MarkerAnnotationAndPosition m = marker;
                             marker = null;
                             return m;
                         }
@@ -132,15 +168,15 @@ public class PySourceViewer extends ProjectionViewer {
                 
             };
         }
-        return new Iterable<IMarker>(){
+        return new Iterable<MarkerAnnotationAndPosition>(){
             
-            public Iterator<IMarker> iterator() {
-                return new Iterator<IMarker>(){
+            public Iterator<MarkerAnnotationAndPosition> iterator() {
+                return new Iterator<MarkerAnnotationAndPosition>(){
                     public boolean hasNext() {
                         return false;
                     }
 
-                    public IMarker next() {
+                    public MarkerAnnotationAndPosition next() {
                         return null;
                     }
 

@@ -157,7 +157,14 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
             try {
                 if (assist.isValid(ps, sel, edit, offset)) {
                     try {
-                        results.addAll(assist.getProps(ps, PydevPlugin.getImageCache(), edit.getEditorFile(), edit.getPythonNature(), edit, offset));
+                        results.addAll(assist.getProps(
+                                ps, 
+                                PydevPlugin.getImageCache(), 
+                                edit.getEditorFile(), 
+                                edit.getPythonNature(), 
+                                edit, 
+                                offset)
+                        );
                     } catch (BadLocationException e) {
                         PydevPlugin.log(e);
                     }

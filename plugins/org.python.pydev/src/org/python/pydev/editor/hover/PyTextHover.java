@@ -36,6 +36,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyInformationPresenter;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
@@ -123,18 +124,16 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
      * Fills the buffer with the text for markers we're hovering over.
      */
     private void getMarkerHover(IRegion hoverRegion, PySourceViewer s) {
-        for(IMarker marker : s.getMarkerIteratable()){
+        for(MarkerAnnotationAndPosition marker : s.getMarkerIteratable()){
             try {
-                Integer cStart = (Integer) marker.getAttribute(IMarker.CHAR_START);
-                Integer cEnd = (Integer) marker.getAttribute(IMarker.CHAR_END);
-                if(cStart != null && cEnd != null){
-                    int offset = hoverRegion.getOffset();
-                    if(cStart <= offset && cEnd >= offset){
-                        if(buf.length() >0){
-                            buf.append(PyInformationPresenter.LINE_DELIM);
-                        }
-                        buf.appendObject(marker.getAttribute(IMarker.MESSAGE));
+                int cStart = marker.position.offset;
+                int cEnd = cStart + marker.position.length;
+                int offset = hoverRegion.getOffset();
+                if(cStart <= offset && cEnd >= offset){
+                    if(buf.length() >0){
+                        buf.append(PyInformationPresenter.LINE_DELIM);
                     }
+                    buf.appendObject(marker.markerAnnotation.getMarker().getAttribute(IMarker.MESSAGE));
                 }
             } catch (CoreException e) {
                 //ignore marker does not exist anymore

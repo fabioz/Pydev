@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -24,17 +25,13 @@ public class PyAnnotationHover implements IAnnotationHover{
         
         if(sourceViewer instanceof PySourceViewer){
             PySourceViewer s = (PySourceViewer) sourceViewer;
-            for(IMarker marker : s.getMarkerIteratable()){
+            
+            for(MarkerAnnotationAndPosition marker : s.getMarkersAtLine(lineNumber, null)){
                 try {
-                    Integer line = (Integer) marker.getAttribute(IMarker.LINE_NUMBER);
-                    if(line != null){
-                        if(line == lineNumber){
-                            if(buf.length() >0){
-                                buf.append("\n");
-                            }
-                            buf.appendObject(marker.getAttribute(IMarker.MESSAGE));
-                        }
+                    if(buf.length() >0){
+                        buf.append("\n");
                     }
+                    buf.appendObject(marker.markerAnnotation.getMarker().getAttribute(IMarker.MESSAGE));
                 } catch (CoreException e) {
                     PydevPlugin.log(e);
                 }
