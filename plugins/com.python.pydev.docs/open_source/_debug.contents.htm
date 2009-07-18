@@ -1,28 +1,137 @@
-<h2>Launching/Debugging Python scripts</h2>
+<h1>Launching/Debugging Python scripts</h1>
 
-The easiest way of launching a python file from pydev is having it open and using the F9 keybinding. Through that command,
-Pydev will create/reuse a launch config to run the current editor based on the current settings of the project (i.e.:
-if the project is configured as iron python, it'll use an iron python interpreter).
+<a name="top">
+<h2><a href="#regular_launch">Regular Launch</a></h2>
+<h2><a href="#unit_test_launch">Unit Test Launch</a></h2>
+<h2><a href="#debug_launch">Debug Launch</a></h2>
+<h2><a href="#run_last_launch">Rerun Last Launch (regular or debug mode)</a></h2>
+<h2><a href="#debug">Debugging</a></h2>
+
+
+<br/><br/>
 
 
 
-<p>Here it is, try it out. You have: </p>
+<h2><a name="regular_launch">Regular Launch</a></h2>
+
+<p>
+The easiest way of launching a python file from pydev is opening an editor and using the <strong>F9 keybinding</strong>. 
+Through that command, Pydev will create/reuse a <strong>launch</strong> config to run the current editor based on the <strong>current settings 
+of the project</strong> (i.e.: if the project is configured as iron python, it'll use an iron python interpreter).
+</p>
+<br/><br/><p><img border="1" src="images/debugger/f9.png"> </p><br/><br/>
+
+<p>Another option would be running using the <strong>context menu</strong>, where you can choose how you want to make 
+the run (in that way, you could run a python project with a jython interpreter)</p>
+<br/><br/><p><img border="1" src="images/debugger/run_as_regular.png"> </p><br/><br/>
+
+
+<strong><a href="#top"><p>Return to top&nbsp;&nbsp;</p></a></strong><br/><br/>
+
+
+
+
+
+
+<h2><a name="unit_test_launch">Unit Test Launch</a></h2>
+<p>
+If you use <strong>unit-tests</strong>, and want to run only a single unit-test or a few unit-tests of a module, 
+you can use the <strong>Ctrl+F9 keybinding</strong>, which will open a tree where you can choose which test(s) you want to run:
+</p>
+
+
+<br/><br/>
+<p><img border="1" src="images/debugger/ctrl_f9.png"> </p>
+<br/><br/>
+
+In that dialog, there are some options:
+
 <ul>
-  <li>breakpoints (with optional condition)</li>
-  <li>step in/out/over</li>
-  <li>multiple threads stack view</li>
-  <li>variable display</li>
+	<li>Extending the filter and pressing 'Enter' will run the filtered tests</li>
+	<li>Explicitly selecting the class/tests to run will run those tests</li>
+</ul>
+<strong><a href="#top"><p>Return to top&nbsp;&nbsp;</p></a></strong><br/><br/>
+
+
+
+<h2><a name="debug_launch">Debug Launch</a></h2>
+
+<p>To run in debug mode, you can use the <strong>context menu</strong>, where you can choose how you want to make 
+the debug (note that in that way, you could debug a python project with a jython interpreter)</p>
+<br/><br/><p><img border="1" src="images/debugger/run_as_debug.png"> </p><br/><br/>
+
+<p>
+Another option would be running the last launch in debug mode. See: <a href="#run_last_launch">Rerun Last Launch (regular or debug mode)</a>
+</p>
+
+<strong><a href="#top"><p>Return to top&nbsp;&nbsp;</p></a></strong><br/><br/>
+
+
+
+
+
+
+<h2><a name="run_last_launch">Rerun Last Launch (regular or debug mode)</a></h2>
+<p>
+If you use the F9 and Ctrl+F9 keybindings or launch through the context menu, 
+usually you'll also want to check the default eclipse preferences so that 
+<strong>Ctrl+F11</strong> and <strong>F11</strong>
+will run your last configuration (otherwise, they'll bring a dialog to run/debug your current editor, which is mostly what's
+already given by Pydev through F9 and Ctrl+F9).
+</p>
+
+<p>
+To do that, open the eclipse preferences (<strong>window > preferences</strong>) and check 
+<strong>"Always launch previously launched application"</strong>, that way, when you use <strong>F11</strong>, your last launch
+will be repeated in <strong>debug mode</strong> and with <strong>Ctrl+F11</strong>, it'll be relaunched in the 
+<strong>regular mode</strong>.
+</p>
+
+<br/><br/><p><img border="1" src="images/debugger/launching_dialog.png"> </p><br/><br/>
+
+Another option would be running the last launch from the menu. You can go to the menu with keybindings 
+(<strong>Alt+R, then 'T' regular run or 'H' for debug run</strong>) and choose some existing launch to be run.
+
+<br/><br/><p><img border="1" src="images/debugger/run_history.png"> </p><br/><br/>
+
+<strong><a href="#top"><p>Return to top&nbsp;&nbsp;</p></a></strong><br/><br/>
+
+
+
+
+
+
+
+<h2><a name="debug">Debugging</a></h2>
+<br/>
+<p>Currently the debugger supports:</p>
+<ul>
+  <li>Step in: <strong>F5</strong></li>
+  <li>Step over: <strong>F6</strong></li>
+  <li>Step return: <strong>F7</strong></li>
+  <li>Continue: <strong>F8</strong></li>
+  <li>Breakpoints (with optional condition)</li>
+  <li>Stack view showing multiple threads</li>
+  <li>Locals and Globals variable display</li>
+  <li>Expressions display</li>
+  <li>Temporary display for selection: <strong>Ctrl+Shift+D</strong></li>
+  <li>Hover showing the selected expression evaluation</li>
 </ul>
 
-<p>The debugger can be invoked from the standard Eclipse debugger menus in the debug perspective, or through a context menu inside  Navigator:</p>
-<p><p><img border="1" src="images/debugger/debug_menu.png" ></p>
 
-<p>Debug settings are configured in the standard dialog </p>
-<p><img border="1" src="images/debugger/debug_dialog.gif" width="612" height="434"> </p>
-<p>Here you can pick your program arguments, etc. The dialog will try to verify that your python interpreter is present. If it is not, go to Preferences:Pydev:Debug and configure a valid python executable.</p>
+<p>To add breakpoints, you can double click the left bar or use Ctrl+F10 > Add breakpoint. In a line with
+an existing breakpoint Ctrl+F10 will be able to remove the breakpoint, disable it and edit its properties (which
+can be used to provide conditions for the breakpoint to be hit). Double-clicking an existing breakpoint will remove it.
+</p>
 
-<p>The program output is displayed in the console, and the errors in the console are hyperlinked back to the file:</p>
-<p><img border="1" src="images/debugger/debug_console.gif" width="600" height="498"> </p>
 
-<p>If you are running under the debugger, you'll get the standard debug interface:</p>
-<p><img border="1" src="images/debugger/debugger.gif" width="816" height="543"> </p>
+<p>When you hit a breakpoint, you'll get a view that allows you to inspect the stack, see locals and globals, hover over
+variables (or select a text to be evaluated) and add expressions.</p>
+<br/><br/><p><img border="1" src="images/debugger/debug_perspective.png"> </p><br/><br/>
+
+
+<p>Note that the program output is displayed in the console, and the errors in the console are hyperlinked back to the file:</p>
+<br/><br/><p><img border="1" src="images/debugger/hyperlink.png"> </p><br/><br/>
+
+<strong><a href="#top"><p>Return to top&nbsp;&nbsp;</p></a></strong><br/><br/>
+
