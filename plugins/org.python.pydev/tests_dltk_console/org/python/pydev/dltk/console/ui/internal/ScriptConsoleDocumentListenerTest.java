@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
@@ -53,9 +54,10 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
             
         new ICommandHandler(){
 
-            public InterpreterResponse handleCommand(String userInput) throws Exception {
+            public void handleCommand(
+                    String userInput, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
                 commandsHandled.add(userInput);
-                return new InterpreterResponse("", "", false, false);
+                onResponseReceived.call(new InterpreterResponse("", "", false, false));
             }
         }, 
             

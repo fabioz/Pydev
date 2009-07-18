@@ -23,6 +23,7 @@ import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.REF;
 import org.python.pydev.dltk.console.IScriptConsoleInterpreter;
 import org.python.pydev.dltk.console.InterpreterResponse;
@@ -164,7 +165,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      * 
      * @param userInput that's the command to be evaluated by the user.
      */
-    public InterpreterResponse handleCommand(String userInput) throws Exception {
+    public void handleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
         Object[] listeners = consoleListeners.getListeners();
 
         //notify about the user request
@@ -184,8 +185,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
             ((IScriptConsoleListener) listener).interpreterResponse(response.out);
             ((IScriptConsoleListener) listener).interpreterResponse(response.err);
         }
-
-        return response;
+        onResponseReceived.call(response);
     }
 
     /**

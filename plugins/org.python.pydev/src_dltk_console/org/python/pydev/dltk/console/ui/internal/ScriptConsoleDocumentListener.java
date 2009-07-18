@@ -18,8 +18,10 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
@@ -245,7 +247,18 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     protected void handleCommandLine() throws Exception {
         final String command = getCommandLine();
         appendText(getDelimeter());
-        processResult(handler.handleCommand(command));
+        ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>(){
+            
+            public Object call(InterpreterResponse arg){
+                try{
+                    processResult(arg);
+                }catch(BadLocationException e){
+                    Log.log(e);
+                }
+                return null;
+            }
+        };
+        handler.handleCommand(command, onResponseReceived);
     }
 
     

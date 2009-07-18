@@ -9,9 +9,10 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console.ui.internal;
 
+import org.python.pydev.core.ICallback;
 import org.python.pydev.dltk.console.InterpreterResponse;
 
 public interface ICommandHandler {
     
-    InterpreterResponse handleCommand(String userInput) throws Exception;
+    void handleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception;
 }

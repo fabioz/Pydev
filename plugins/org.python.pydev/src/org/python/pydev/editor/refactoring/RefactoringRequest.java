@@ -6,6 +6,7 @@ package org.python.pydev.editor.refactoring;
 import java.io.File;
 import java.util.Stack;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -276,6 +277,13 @@ public class RefactoringRequest extends DecoratableObject{
             monitor = new NullProgressMonitor();
         }
         pushMonitor(new SubProgressMonitor(monitor, 50));        
+    }
+
+    public IFile getIFile(){
+        if(this.pyEdit == null){
+            return null;
+        }
+        return this.pyEdit.getIFile();
     }
 
 
