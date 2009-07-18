@@ -23,6 +23,17 @@ body {
 	color:#252020 ; 
 	
 }
+p {
+	margin-top: 25px;
+	margin-bottom: 25px;
+}
+
+img.snap {
+	margin-top: 20px;
+	margin-bottom: 20px;
+	border: 1px solid black;
+}
+
 
 .italic {
 	font-family: Arial, Helvetica, sans-serif;
