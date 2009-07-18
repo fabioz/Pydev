@@ -251,7 +251,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
             if (fillChangeObject) {
                 TextEditCreation textEditCreation = 
                     new TextEditCreation(request.initialName, request.inputName, request.getModule().getName(), 
-                            request.getDoc(), process, status, fChange, request.pyEdit.getIFile());
+                            request.getDoc(), process, status, fChange, request.getIFile());
                 
                 textEditCreation.fillRefactoringChangeObject(request, context);
                  if (status.hasFatalError() || request.getMonitor().isCanceled()) {

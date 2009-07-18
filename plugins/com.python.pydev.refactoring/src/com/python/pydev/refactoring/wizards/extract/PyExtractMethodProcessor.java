@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
 import org.eclipse.ltk.core.refactoring.TextChange;
@@ -104,7 +105,14 @@ public class PyExtractMethodProcessor extends RefactoringProcessor{
         
         fChange = new CompositeChange("ExtractMethodChange: "+request.inputName);
         
-        TextChange docChange = new TextFileChange("ExtractMethodChange: ", request.pyEdit.getIFile());
+        TextChange docChange;
+        if(request.pyEdit == null){
+            //used in tests
+            docChange = new DocumentChange("ExtractMethodChange: ", request.ps.getDoc());
+        }else{
+            docChange = new TextFileChange("ExtractMethodChange: ", request.getIFile());
+        }
+        
         MultiTextEdit rootEdit = new MultiTextEdit();
         docChange.setEdit(rootEdit);
         docChange.setKeepPreviewEdits(true);

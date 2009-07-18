@@ -79,7 +79,7 @@ public class MarkerStub implements IMarker{
     }
 
     public boolean isSubtypeOf(String superType) throws CoreException {
-        throw new RuntimeException("not impl");
+        return false;
     }
 
     public void setAttribute(String attributeName, int value) throws CoreException {

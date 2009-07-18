@@ -89,13 +89,21 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
     }
 
     public static int getCharsForContextInsensitiveModulesCompletion(){
-        return CodecompletionPlugin.getDefault().getPreferenceStore().getInt(
-                CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION);
+        String prefName = CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION;
+        return getIntFromPrefs(prefName);
+    }
+
+    private static int getIntFromPrefs(String prefName){
+        CodecompletionPlugin plugin = CodecompletionPlugin.getDefault();
+        if(plugin == null){
+            return 1;
+        }
+        return plugin.getPreferenceStore().getInt(prefName);
     }
     
     public static int getCharsForContextInsensitiveGlobalTokensCompletion(){
-        return CodecompletionPlugin.getDefault().getPreferenceStore().getInt(
-                CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION);
+        String prefName = CodeCompletionPreferencesInitializer.CHARS_FOR_CTX_INSENSITIVE_TOKENS_COMPLETION;
+        return getIntFromPrefs(prefName);
     }
     
     public static boolean useKeywordsCodeCompletion(){

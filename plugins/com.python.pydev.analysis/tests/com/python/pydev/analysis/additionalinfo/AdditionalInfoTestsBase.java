@@ -90,8 +90,10 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
         attrs.put(IMarker.CHAR_END, end);
     
         MarkerStub marker = new MarkerStub(attrs);
-        return new MarkerAnnotationAndPosition(new MarkerAnnotation(marker), new Position(start, end-start));
+        return new MarkerAnnotationAndPosition(new MarkerAnnotation("org.eclipse.core.resources.problemmarker", marker), 
+                new Position(start, end-start));
     }
+    
     
     protected void addFooModule(final SimpleNode ast) {
         String modName = "foo";

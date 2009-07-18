@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
@@ -224,7 +225,13 @@ public class TextEditCreation {
      * @param editsAlreadyCreated 
      */
     private void createCurrModuleChange() {
-        TextChange docChange = new TextFileChange("Current module: " + moduleName, this.currentFile);
+        TextChange docChange;
+        if(this.currentFile != null){
+            docChange = new TextFileChange("Current module: " + moduleName, this.currentFile);
+        }else{
+            //used for tests
+            docChange = new DocumentChange("Current module: " + moduleName, this.currentDoc);
+        }
         if (docOccurrences.size() == 0) {
             status.addFatalError("No occurrences found.");
             return;

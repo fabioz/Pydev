@@ -19,8 +19,8 @@ import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 
-import com.python.pydev.refactoring.refactorer.Refactorer;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
+import com.python.pydev.refactoring.refactorer.Refactorer;
 import com.python.pydev.refactoring.wizards.extract.PyExtractMethodProcessor;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
