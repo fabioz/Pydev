@@ -165,8 +165,8 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      * 
      * @param userInput that's the command to be evaluated by the user.
      */
-    public void handleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
-        Object[] listeners = consoleListeners.getListeners();
+    public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
+        final Object[] listeners = consoleListeners.getListeners();
 
         //notify about the user request
         for (Object listener : listeners) {
@@ -174,18 +174,23 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
         }
 
         //executes the user input in the interpreter
-        InterpreterResponse response = interpreter.exec(userInput);
+        interpreter.exec(userInput, new ICallback<Object, InterpreterResponse>(){
 
-        //sets the new mode
-        prompt.setMode(!response.more);
-        prompt.setNeedInput(response.need_input);
+            public Object call(final InterpreterResponse response){
+                //sets the new mode
+                prompt.setMode(!response.more);
+                prompt.setNeedInput(response.need_input);
+                
+                //notify about the console answer
+                for (Object listener : listeners) {
+                    ((IScriptConsoleListener) listener).interpreterResponse(response.out);
+                    ((IScriptConsoleListener) listener).interpreterResponse(response.err);
+                }
+                onResponseReceived.call(response);
+                return null;
+            }
+        });
 
-        //notify about the console answer
-        for (Object listener : listeners) {
-            ((IScriptConsoleListener) listener).interpreterResponse(response.out);
-            ((IScriptConsoleListener) listener).interpreterResponse(response.err);
-        }
-        onResponseReceived.call(response);
     }
 
     /**

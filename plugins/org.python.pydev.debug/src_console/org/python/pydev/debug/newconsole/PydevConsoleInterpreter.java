@@ -13,6 +13,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPythonNature;
@@ -65,8 +66,14 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * (non-Javadoc)
      * @see org.python.pydev.dltk.console.IScriptConsoleInterpreter#exec(java.lang.String)
      */
-    public InterpreterResponse exec(String command) throws Exception {
-        return consoleCommunication.execInterpreter(command);
+    public void exec(String command, final ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
+        consoleCommunication.execInterpreter(command, new ICallback<Object, InterpreterResponse>(){
+            
+            public Object call(InterpreterResponse response){
+                onResponseReceived.call(response);
+                return null;
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")

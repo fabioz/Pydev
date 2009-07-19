@@ -239,30 +239,6 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     }
 
     /**
-     * When the user presses a return and goes to a new line, this function should be called so that
-     * the contents of the current line are sent to the interpreter (and its results properly handled).
-     * 
-     * @throws Exception if something happens while trying to push a command to the interpreter.
-     */
-    protected void handleCommandLine() throws Exception {
-        final String command = getCommandLine();
-        appendText(getDelimeter());
-        ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>(){
-            
-            public Object call(InterpreterResponse arg){
-                try{
-                    processResult(arg);
-                }catch(BadLocationException e){
-                    Log.log(e);
-                }
-                return null;
-            }
-        };
-        handler.handleCommand(command, onResponseReceived);
-    }
-
-    
-    /**
      * Process the result that came from pushing some text to the interpreter.
      * 
      * @param result the response from the interpreter after sending some command for it to process.
@@ -406,7 +382,25 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             String commandLine = getCommandLine();
             history.update(commandLine);
             start = index + delim.length();
-            handleCommandLine();
+            
+            
+            // handle the command line:
+            // When the user presses a return and goes to a new line,  the contents of the current line are sent to 
+            // the interpreter (and its results properly handled).
+
+            appendText(getDelimeter());
+            ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>(){
+                
+                public Object call(InterpreterResponse arg){
+                    try{
+                        processResult(arg);
+                    }catch(BadLocationException e){
+                        Log.log(e);
+                    }
+                    return null;
+                }
+            };
+            handler.handleCommand(commandLine, onResponseReceived);
             
             if(addedNewLine){
                 IDocument historyDoc = this.history.getAsDoc();
@@ -420,7 +414,6 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                     }
                 }
             }
-
         }
         
         boolean shiftsCaret = true;

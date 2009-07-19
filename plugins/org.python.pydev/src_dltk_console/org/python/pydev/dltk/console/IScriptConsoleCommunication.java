@@ -10,6 +10,7 @@
 package org.python.pydev.dltk.console;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ICallback;
 
 /**
  * Interface for the console communication.
@@ -25,7 +26,7 @@ public interface IScriptConsoleCommunication {
      * @return the response from the interpreter (contains the stdout, stderr, etc).
      * @throws Exception
      */
-    InterpreterResponse execInterpreter(String command) throws Exception;
+    void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception;
 
     /**
      * Creates the completions to be applied in the interpreter.

@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console;
 
+import org.python.pydev.core.ICallback;
+
 
 public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsoleRequest {
 
@@ -17,7 +19,7 @@ public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsole
      * @return the response from the interpreter.
      * @throws Exception if something wrong happened while doing the request.
      */
-    InterpreterResponse exec(String command) throws Exception;
+    void exec(String command, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception;
 
 
 }

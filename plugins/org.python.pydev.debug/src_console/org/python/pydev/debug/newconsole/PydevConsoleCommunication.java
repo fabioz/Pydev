@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple;
@@ -185,7 +186,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * 
      * @param command the command to be executed in the client
      */
-    public InterpreterResponse execInterpreter(final String command) throws Exception {
+    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
         nextResponse = null;
         if(waitingForInput){
             inputReceived = command;
@@ -305,7 +306,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                 }
             }
         }
-        return nextResponse;
+        onResponseReceived.call(nextResponse);
     }
 
     /**
