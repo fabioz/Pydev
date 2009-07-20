@@ -96,7 +96,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      */
     public void close() throws Exception {
         if(this.client != null){
-            new Job("Close console communication"){
+            Job job = new Job("Close console communication"){
 
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
@@ -108,7 +108,8 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     PydevConsoleCommunication.this.client = null;
                     return Status.OK_STATUS;
                 }
-            }.schedule(); //finish it
+            };
+            job.schedule(); //finish it
         }
         
         if(this.webServer != null){
@@ -186,7 +187,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * 
      * @param command the command to be executed in the client
      */
-    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
+    public void execInterpreter(final String command, final ICallback<Object, InterpreterResponse> onResponseReceived){
         nextResponse = null;
         if(waitingForInput){
             inputReceived = command;

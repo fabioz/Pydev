@@ -9,9 +9,12 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console.ui;
 
+import org.python.pydev.dltk.console.InterpreterResponse;
+import org.python.pydev.dltk.console.ScriptConsolePrompt;
+
 public interface IScriptConsoleListener {
     
-    void userRequest(String text);
+    void userRequest(String text, ScriptConsolePrompt prompt);
 
-    void interpreterResponse(String text);
+    void interpreterResponse(InterpreterResponse response, ScriptConsolePrompt prompt);
 }

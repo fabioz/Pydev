@@ -34,7 +34,6 @@ public class PydevConsoleCompletionProcessor extends AbstractCompletionProcessor
     private String errorMessage = null;
     private int lastActivationCount=-1;
 
-    @SuppressWarnings("unchecked")
     public PydevConsoleCompletionProcessor(IScriptConsoleShell interpreterShell, PyContentAssistant pyContentAssistant) {
         super(pyContentAssistant);
         pyContentAssistant.addCompletionListener(this);

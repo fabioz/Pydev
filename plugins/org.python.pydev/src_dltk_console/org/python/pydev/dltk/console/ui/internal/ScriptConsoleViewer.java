@@ -40,6 +40,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
@@ -144,10 +145,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
                             if(commandsToExecute != null){
                                 //remove the current command (substituted by the one gotten from page up)
                                 listener.setCommandLine("");
-                                for(String s:commandsToExecute){
-                                    IDocument d = getDocument();
-                                    d.replace(d.getLength(), 0, s+"\n");
-                                }
+                                IDocument d = getDocument();
+                                //Pass them all at once (let the document listener separate the command in lines).
+                                d.replace(d.getLength(), 0, StringUtils.join("\n", commandsToExecute)+"\n");
                             }
                             return;
                         }
@@ -630,11 +630,7 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * @return the contents of the current buffer (text edited still not passed to the shell)
      */
     public String getCommandLine() {
-        try {
-            return listener.getCommandLine();
-        } catch (BadLocationException e) {
-            return "";
-        }
+        return listener.getCommandLine();
     }
 
     /**

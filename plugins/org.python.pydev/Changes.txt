@@ -12,6 +12,8 @@ Pythonpath reported in the main tab was not correct for ironpython launch config
 Main module tab in launch configuration was not appearing for jython
 Multiline block comments considering the current indentation (and working with tabs) 
 Hover works correctly when the document is changed.
+The interactive console no longer uses the UI thread (so, it doesn't make eclipse halt anymore on slow requests to the shell)
+The interactive console save history now saves the contents in the same way they're written
 
 
 After 1.4.6

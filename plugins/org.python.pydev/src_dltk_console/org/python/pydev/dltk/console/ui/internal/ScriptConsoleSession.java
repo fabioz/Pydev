@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console.ui.internal;
 
+import org.python.pydev.dltk.console.InterpreterResponse;
+import org.python.pydev.dltk.console.ScriptConsolePrompt;
 import org.python.pydev.dltk.console.ui.IScriptConsoleListener;
 import org.python.pydev.dltk.console.ui.IScriptConsoleSession;
 
@@ -20,15 +22,19 @@ public class ScriptConsoleSession implements IScriptConsoleListener, IScriptCons
         this.session = new StringBuffer();
     }
 
-    public void interpreterResponse(String text) {
-        if (text != null) {
-            session.append("> "); //$NON-NLS-1$
-            session.append(text);
+    public void interpreterResponse(InterpreterResponse response, ScriptConsolePrompt prompt) {
+        if (response != null) {
+            if(response.err != null && response.err.length() > 0){
+                session.append(response.err);
+            }
+            if(response.out != null && response.out.length() > 0){
+                session.append(response.out);
+            }
         }
     }
 
-    public void userRequest(String text) {
-        session.append("< "); //$NON-NLS-1$
+    public void userRequest(String text, ScriptConsolePrompt prompt) {
+        session.append(prompt.toString());
         session.append(text);
         session.append('\n');
     }

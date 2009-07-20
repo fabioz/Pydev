@@ -26,7 +26,7 @@ public interface IScriptConsoleCommunication {
      * @return the response from the interpreter (contains the stdout, stderr, etc).
      * @throws Exception
      */
-    void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception;
+    void execInterpreter(String command, ICallback<Object, InterpreterResponse> onResponseReceived);
 
     /**
      * Creates the completions to be applied in the interpreter.

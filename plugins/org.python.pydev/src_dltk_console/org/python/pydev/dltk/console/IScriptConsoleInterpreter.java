@@ -19,7 +19,7 @@ public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsole
      * @return the response from the interpreter.
      * @throws Exception if something wrong happened while doing the request.
      */
-    void exec(String command, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception;
+    void exec(String command, ICallback<Object, InterpreterResponse> onResponseReceived);
 
 
 }

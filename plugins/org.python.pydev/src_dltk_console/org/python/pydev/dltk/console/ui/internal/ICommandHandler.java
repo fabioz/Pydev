@@ -14,5 +14,5 @@ import org.python.pydev.dltk.console.InterpreterResponse;
 
 public interface ICommandHandler {
     
-    void handleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception;
+    void handleCommand(String userInput, ICallback<Object, InterpreterResponse> onResponseReceived);
 }

@@ -55,7 +55,7 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         new ICommandHandler(){
 
             public void handleCommand(
-                    String userInput, ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
+                    String userInput, ICallback<Object, InterpreterResponse> onResponseReceived){
                 commandsHandled.add(userInput);
                 onResponseReceived.call(new InterpreterResponse("", "", false, false));
             }
@@ -70,6 +70,16 @@ public class ScriptConsoleDocumentListenerTest extends TestCase {
         
         doc.replace(0, 0, ">>> class A:");
         doc.replace(doc.getLength(), 0, "\n");
+        //Things happen in a thread now, so, we have to wait for it to happen...
+        for(int i=0;i<50;i++){
+            //if we get at the expected condition, break our for.
+            if(StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()).equals(doc.get())){
+                break;
+            }
+            synchronized(this){
+                wait(250);
+            }
+        }
         assertEquals(StringUtils.format(">>> class A:%s>>>     ", listener.getDelimeter()), doc.get());
         doc.replace(doc.getLength(), 0, "def m1");
         doc.replace(doc.getLength(), 0, "(");

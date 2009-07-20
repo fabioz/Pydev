@@ -165,12 +165,12 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
      * 
      * @param userInput that's the command to be evaluated by the user.
      */
-    public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
+    public void handleCommand(String userInput, final ICallback<Object, InterpreterResponse> onResponseReceived){
         final Object[] listeners = consoleListeners.getListeners();
 
         //notify about the user request
         for (Object listener : listeners) {
-            ((IScriptConsoleListener) listener).userRequest(userInput);
+            ((IScriptConsoleListener) listener).userRequest(userInput, prompt);
         }
 
         //executes the user input in the interpreter
@@ -183,8 +183,7 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
                 
                 //notify about the console answer
                 for (Object listener : listeners) {
-                    ((IScriptConsoleListener) listener).interpreterResponse(response.out);
-                    ((IScriptConsoleListener) listener).interpreterResponse(response.err);
+                    ((IScriptConsoleListener) listener).interpreterResponse(response, prompt);
                 }
                 onResponseReceived.call(response);
                 return null;

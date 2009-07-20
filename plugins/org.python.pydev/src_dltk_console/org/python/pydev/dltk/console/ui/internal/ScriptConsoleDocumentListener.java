@@ -22,6 +22,7 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
@@ -160,16 +161,12 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * @param addInitialCommands indicates if the initial commands should be appended to the document. 
      */
     public void clear(boolean addInitialCommands) {
-        try {
-            startDisconnected();
-            try{
-                doc.set(""); //$NON-NLS-1$
-                appendInvitation(true);
-            }finally{
-                stopDisconnected();
-            }
-        } catch (BadLocationException e) {
-            PydevPlugin.log(e);
+        startDisconnected();
+        try{
+            doc.set(""); //$NON-NLS-1$
+            appendInvitation(true);
+        }finally{
+            stopDisconnected();
         }
         
         if(addInitialCommands){
@@ -242,15 +239,18 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Process the result that came from pushing some text to the interpreter.
      * 
      * @param result the response from the interpreter after sending some command for it to process.
-     * @throws BadLocationException
      */
-    protected void processResult(final InterpreterResponse result) throws BadLocationException {
+    protected void processResult(final InterpreterResponse result){
         if (result != null) {
             addToConsoleView(result.out, true);
             addToConsoleView(result.err, false);
 
             history.commit();
-            offset = getLastLineLength();
+            try{
+                offset = getLastLineLength();
+            }catch(BadLocationException e){
+                PydevPlugin.log(e);
+            }
         }
         appendInvitation(false);
     }
@@ -260,9 +260,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * 
      * @param out the text that should be added
      * @param stdout true if it came from stdout and falso if it came from stderr
-     * @throws BadLocationException
      */
-    private void addToConsoleView(String out, boolean stdout) throws BadLocationException {
+    private void addToConsoleView(String out, boolean stdout){
         if(out.length() == 0){
             return; //nothing to add!
         }
@@ -327,10 +326,8 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * 
      * @param offset the offset where the addition took place
      * @param text the text that should be adedd
-     * 
-     * @throws Exception
      */
-    protected void proccessAddition(int offset, String text) throws Exception {
+    protected void proccessAddition(int offset, String text){
         //we have to do some gymnastics here to add line-by-line the contents that the user entered.
         //(mostly because it may have been a copy/paste with multi-lines)
         
@@ -362,9 +359,18 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         int newDeltaCaretPosition = doc.getLength() - (offset + text.length());
 
         //1st, remove the text the user just entered (and enter it line-by-line later)
-        text = doc.get(offset, doc.getLength() - offset);
+        try{
+            text = doc.get(offset, doc.getLength() - offset);
+        }catch(BadLocationException e){
+            text = "";
+            PydevPlugin.log(e);
+        }
 
-        doc.replace(offset, text.length(), ""); //$NON-NLS-1$
+        try{
+            doc.replace(offset, text.length(), ""); //$NON-NLS-1$
+        }catch(BadLocationException e){
+            PydevPlugin.log(e);
+        }
 
         text = text.replaceAll("\r\n|\n|\r", delim); //$NON-NLS-1$
 
@@ -372,88 +378,194 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         //new line in the text added).
         int start = 0;
         int index = -1;
+        List<String> commands = new ArrayList<String>();
         while ((index = text.indexOf(delim, start)) != -1) {
             String cmd = text.substring(start, index);
-
             cmd = convertTabs(cmd);
-            applyStyleToUserAddedText(cmd, doc.getLength());
-            appendText(cmd);
-
-            String commandLine = getCommandLine();
-            history.update(commandLine);
+            commands.add(cmd);
             start = index + delim.length();
-            
-            
-            // handle the command line:
-            // When the user presses a return and goes to a new line,  the contents of the current line are sent to 
-            // the interpreter (and its results properly handled).
-
-            appendText(getDelimeter());
-            ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>(){
-                
-                public Object call(InterpreterResponse arg){
-                    try{
-                        processResult(arg);
-                    }catch(BadLocationException e){
-                        Log.log(e);
-                    }
-                    return null;
-                }
-            };
-            handler.handleCommand(commandLine, onResponseReceived);
-            
-            if(addedNewLine){
-                IDocument historyDoc = this.history.getAsDoc();
-                int currHistoryLen = historyDoc.getLength();
-                if(currHistoryLen > 0){
-                    DocCmd docCmd = new DocCmd(currHistoryLen-1, 0, delim);
-                    strategy.customizeNewLine(historyDoc, docCmd);
-                    indentString = docCmd.text.replaceAll("\\r\\n|\\n|\\r", ""); //remove any new line added!
-                    if(currHistoryLen != historyDoc.getLength()){
-                        PydevPlugin.log("Error: the document passed to the customizeNewLine should not be changed!");
-                    }
-                }
-            }
         }
         
+
+        final String[] finalIndentString = new String[]{indentString};
+        
+        if(commands.size() > 0){
+            //Note that we'll disconnect from the document here and reconnect when the last line is executed.
+            startDisconnected();
+            String cmd = commands.get(0);
+            execCommand(addedNewLine, delim, finalIndentString, cmd, commands, 0,
+                    text, addedParen, start, addedCloseParen, newDeltaCaretPosition);
+        }else{
+            onAfterAllLinesHandled(text, addedParen, start, offset, addedCloseParen, finalIndentString[0], newDeltaCaretPosition);            
+        }
+        
+    }
+
+    /**
+     * Here is where we run things not using the UI thread. It's a recursive function. In summary, it'll
+     * run each line in the commands received in a new thread, and as each finishes, it calls itself again
+     * for the next command. The last command will reconnect to the document.
+     * 
+     * Exceptions had to be locally handled, because they're not well tolerated under this scenario
+     * (if on of the callbacks fail, the others won't be executed and we'd get into a situation
+     * where the shell becomes unusable).
+     */
+    private void execCommand(
+            final boolean addedNewLine, 
+            final String delim, 
+            final String[] finalIndentString, 
+            final String cmd, 
+            final List<String> commands, 
+            final int currentCommand,
+            final String text, 
+            final boolean addedParen, 
+            final int start, 
+            final boolean addedCloseParen, 
+            final int newDeltaCaretPosition
+            ){
+        applyStyleToUserAddedText(cmd, doc.getLength());
+        
+        //the cmd could be something as '\n'
+        appendText(cmd);
+
+        //and the command line the actual contents to be executed at this time
+        final String commandLine = getCommandLine();
+        history.update(commandLine);
+        
+        
+        // handle the command line:
+        // When the user presses a return and goes to a new line,  the contents of the current line are sent to 
+        // the interpreter (and its results properly handled).
+
+        appendText(getDelimeter());
+        final boolean finalAddedNewLine = addedNewLine;
+        final String finalDelim = delim;
+        
+        final ICallback<Object, InterpreterResponse> onResponseReceived = new ICallback<Object, InterpreterResponse>(){
+            
+            public Object call(final InterpreterResponse arg){
+                //When we receive the response, we must handle it in the UI thread.
+                RunInUiThread.async(new Runnable(){
+                    
+                    public void run(){
+                        try{
+                            processResult(arg);
+                            if(finalAddedNewLine){
+                                IDocument historyDoc = history.getAsDoc();
+                                int currHistoryLen = historyDoc.getLength();
+                                if(currHistoryLen > 0){
+                                    DocCmd docCmd = new DocCmd(currHistoryLen-1, 0, finalDelim);
+                                    strategy.customizeNewLine(historyDoc, docCmd);
+                                    finalIndentString[0] = docCmd.text.replaceAll("\\r\\n|\\n|\\r", ""); //remove any new line added!
+                                    if(currHistoryLen != historyDoc.getLength()){
+                                        PydevPlugin.log("Error: the document passed to the customizeNewLine should not be changed!");
+                                    }
+                                }
+                            }
+                        }catch(Throwable e){
+                            //Yeap, it can never fail!
+                            Log.log(e);
+                        }
+                        if(currentCommand + 1 < commands.size()){
+                            execCommand(
+                                    finalAddedNewLine, 
+                                    finalDelim, 
+                                    finalIndentString, 
+                                    commands.get(currentCommand+1), 
+                                    commands, 
+                                    currentCommand+1,
+                                    text, 
+                                    addedParen, 
+                                    start, 
+                                    addedCloseParen, 
+                                    newDeltaCaretPosition
+                                );
+                        }else{
+                            //last one
+                            try{
+                                onAfterAllLinesHandled(
+                                        text, addedParen, start, offset, addedCloseParen, finalIndentString[0], newDeltaCaretPosition);
+                            }finally{
+                                //We must disconnect
+                                stopDisconnected(); //reconnect with the document
+                            }
+                        }
+                    }
+                });
+                return null;
+            }
+        };
+        
+        //Handle the command in a thread that doesn't block the U/I.
+        new Thread(){
+            public void run(){
+                handler.handleCommand(commandLine, onResponseReceived);
+            }
+        }.start();
+    }
+
+    
+    
+    /**
+     * This method should be called after all the lines received were processed.
+     */
+    private void onAfterAllLinesHandled(
+        final String finalText,
+        final boolean finalAddedParen,
+        final int finalStart,
+        final int finalOffset,
+        final boolean finalAddedCloseParen,
+        final String finalIndentString,
+        final int finalNewDeltaCaretPosition
+        ){
         boolean shiftsCaret = true;
-        String newText = text.substring(start, text.length());
-        if(addedParen){
+        String newText = finalText.substring(finalStart, finalText.length());
+        if(finalAddedParen){
             String cmdLine = getCommandLine();
             Document parenDoc = new Document(cmdLine+newText);
             int currentOffset = cmdLine.length()+1;
             DocCmd docCmd = new DocCmd(currentOffset, 0, "(");
             docCmd.shiftsCaret = true;
-            strategy.customizeParenthesis(parenDoc, docCmd, true);
+            try{
+                strategy.customizeParenthesis(parenDoc, docCmd, true);
+            }catch(BadLocationException e){
+                PydevPlugin.log(e);
+            }
             newText = docCmd.text+newText.substring(1);
             if(!docCmd.shiftsCaret){
                 shiftsCaret = false;
-                setCaretOffset(offset + (docCmd.caretOffset-currentOffset));
+                setCaretOffset(finalOffset + (docCmd.caretOffset-currentOffset));
             }
-        }else if (addedCloseParen){
+        }else if (finalAddedCloseParen){
             String cmdLine = getCommandLine();
-            String existingDoc = cmdLine+text.substring(1);
+            String existingDoc = cmdLine+finalText.substring(1);
             int cmdLineOffset = cmdLine.length();
             if(existingDoc.length() > cmdLineOffset){
                 Document parenDoc = new Document(existingDoc);
                 DocCmd docCmd = new DocCmd(cmdLineOffset, 0, ")");
                 docCmd.shiftsCaret = true;
-                boolean canSkipOpenParenthesis = strategy.canSkipOpenParenthesis(parenDoc, docCmd);
+                boolean canSkipOpenParenthesis;
+                try{
+                    canSkipOpenParenthesis = strategy.canSkipOpenParenthesis(parenDoc, docCmd);
+                }catch(BadLocationException e){
+                    canSkipOpenParenthesis = false;
+                    PydevPlugin.log(e);
+                }
                 if(canSkipOpenParenthesis){
                     shiftsCaret = false;
-                    setCaretOffset(offset + 1);
+                    setCaretOffset(finalOffset + 1);
                     newText = newText.substring(1);
                 }
             }
         }
 
         //and now add the last line (without actually handling it).
-        String cmd = indentString+newText;
+        String cmd = finalIndentString+newText;
         cmd = convertTabs(cmd);
         applyStyleToUserAddedText(cmd, doc.getLength());
         appendText(cmd);
         if(shiftsCaret){
-            setCaretOffset(doc.getLength()-newDeltaCaretPosition);
+            setCaretOffset(doc.getLength()-finalNewDeltaCaretPosition);
         }
 
 
@@ -493,15 +605,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         try{
             int eventOffset = event.getOffset();
             String eventText = event.getText();
-            try {
-                proccessAddition(eventOffset, eventText);
-            } catch (BadLocationException e) {
-                System.out.println(StringUtils.format(
-                        "Error: bad location: offset:%s text:%s", eventOffset, eventText));
-                
-            } catch (Exception e) {
-                PydevPlugin.log(e);
-            }
+            proccessAddition(eventOffset, eventText);
         }finally{
             stopDisconnected();
         }
@@ -511,20 +615,20 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Appends some text at the end of the document.
      * 
      * @param text the text to be added.
-     * 
-     * @throws BadLocationException
      */
-    protected void appendText(String text) throws BadLocationException {
+    protected void appendText(String text) {
         int initialOffset = doc.getLength();
-        doc.replace(initialOffset, 0, text);
+        try{
+            doc.replace(initialOffset, 0, text);
+        }catch(BadLocationException e){
+            PydevPlugin.log(e);
+        }
     }
 
     /**
      * Shows the prompt for the user (e.g.: >>>)
-     * 
-     * @throws BadLocationException
      */
-    protected void appendInvitation(boolean async) throws BadLocationException {
+    protected void appendInvitation(boolean async){
         int start = doc.getLength();
         String promptStr = prompt.toString();
         IConsoleStyleProvider styleProvider = viewer.getStyleProvider();
@@ -587,7 +691,6 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
     /**
      * @return the length of the last line
-     * @throws BadLocationException
      */
     public int getLastLineLength() throws BadLocationException {
         int lastLine = doc.getNumberOfLines() - 1;
@@ -628,9 +731,16 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * @return the command line that the user entered.
      * @throws BadLocationException
      */
-    public String getCommandLine() throws BadLocationException {
-        int commandLineOffset = getCommandLineOffset();
-        int commandLineLength = getCommandLineLength();
+    public String getCommandLine() {
+        int commandLineOffset;
+        int commandLineLength;
+        try{
+            commandLineOffset = getCommandLineOffset();
+            commandLineLength = getCommandLineLength();
+        }catch(BadLocationException e1){
+            PydevPlugin.log(e1);
+            return "";
+        }
         if(commandLineLength < 0){
             return "";
         }

@@ -66,7 +66,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
      * (non-Javadoc)
      * @see org.python.pydev.dltk.console.IScriptConsoleInterpreter#exec(java.lang.String)
      */
-    public void exec(String command, final ICallback<Object, InterpreterResponse> onResponseReceived) throws Exception {
+    public void exec(String command, final ICallback<Object, InterpreterResponse> onResponseReceived){
         consoleCommunication.execInterpreter(command, new ICallback<Object, InterpreterResponse>(){
             
             public Object call(InterpreterResponse response){
