@@ -68,11 +68,12 @@ public class PyConsoleCompletion  extends CtxInsensitiveImportComplProposal{
             //now, add the import if that should be done...
             
             if(addImport){
-                document.replace(commandLineOffset, 0, realImportRep+delimiter);
+                //add the import and the contents of the current line
+                document.replace(commandLineOffset, 0, realImportRep+delimiter+newCurrentLineString);
+            }else{
+                //just add the completion contents without doing the import
+                document.replace(document.getLength(), 0, newCurrentLineString);
             }
-            
-            //and update the current line contents
-            document.replace(document.getLength(), 0, newCurrentLineString);
         } catch (BadLocationException x) {
             PydevPlugin.log(x);
         }

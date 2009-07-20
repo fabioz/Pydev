@@ -163,8 +163,11 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
 
     // Editor completions ----------------------------------------------------------------------------------------------
     
-    private Collection<CtxInsensitiveImportComplProposal> getThem(CompletionRequest request, 
-            ICompletionState state, boolean addAutoImport) throws MisconfigurationException {
+    private Collection<CtxInsensitiveImportComplProposal> getThem(
+            CompletionRequest request, 
+            ICompletionState state, 
+            boolean addAutoImport
+            ) throws MisconfigurationException {
         ArrayList<CtxInsensitiveImportComplProposal> list = new ArrayList<CtxInsensitiveImportComplProposal>();
         if(request.isInCalltip){
             return list;
