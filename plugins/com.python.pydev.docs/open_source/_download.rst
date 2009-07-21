@@ -46,10 +46,17 @@ Requirements
 .. _Iron Python: http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython
 .. _Eclipse 3.2, 3.3, 3.4 or 3.5: http://www.eclipse.org
 .. _Java: http://www.javasoft.com
+.. _JDT: http://www.eclipse.org/jdt/
+.. _Platform Runtime Binary: http://download.eclipse.org/eclipse/downloads/
 
-* `Eclipse 3.2, 3.3, 3.4 or 3.5`_ (python and iron python require only the platform release, and jython also requires JDT)
-* Python_ and/or Jython_ and/or `Iron Python`_
+* `Eclipse 3.2, 3.3, 3.4 or 3.5`_ -- Python_ and `Iron Python`_ require only the `Platform Runtime Binary`_ (download around 45-50 MB), and Jython_ also requires JDT_.
 * Java_ 1.4 or higher
+
+And at least one of:
+
+* Python_ **(2.1 or newer)**
+* Jython_ **(2.1 or newer)**
+* `Iron Python`_ **(2.6 or newer)**
 
 
 Fast Install Instructions
