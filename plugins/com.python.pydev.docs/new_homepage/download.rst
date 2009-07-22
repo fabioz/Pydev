@@ -1,9 +1,14 @@
 
+Download (Current release: **LAST_VERSION_TAG**)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. contents::
 
+Notes
+~~~~~~
 
-Download (Current release: **LAST_VERSION_TAG**.)
------------------------------------------------------------
+* The Pydev Extensions version must always be accompanied by the same version of the Pydev "Open Source" version.
+* If you already have the matching Open Source version installed, it will not appear in the Eclipse update manager.
 
 
 
@@ -72,7 +77,7 @@ Urls to use when updating with the Eclipse update manager
     
     :Containing Pydev and Pydev Extensions:    
         * `http://www.fabioz.com/pydev/updates_old`_        
-	    
+        
         
 
 
@@ -83,7 +88,7 @@ Get zip releases
 
 :Containing Pydev and Pydev Extensions:    
     * `http://www.fabioz.com/pydev/zips`_
-	
+    
 
 Fast Install Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,8 +117,3 @@ There is a 'complete install guide' at `http://www.fabioz.com/pydev/manual_101_r
 so, if you have any problems in the install, that's the place you should check 
 (it also guides you through configuring pydev correctly).
 
-
-Upgrade from 0.9.6
-~~~~~~~~~~~~~~~~~~~
-
-If you have version 0.9.6 or earlier installed, you must remove it and all previous versions before installing the latest version.

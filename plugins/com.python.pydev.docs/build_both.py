@@ -17,7 +17,7 @@ else:
 #=======================================================================================================================
 # BuildFromRst
 #=======================================================================================================================
-def BuildFromRst(source_filename):
+def BuildFromRst(source_filename, is_new_homepage=False):
     print source_filename
     import os
     from docutils import core
@@ -39,8 +39,20 @@ def BuildFromRst(source_filename):
     if final.startswith('<div'):
         final = final[final.find('\n'):]
         final = final[:final.rfind('</div>')]
+    
+    postfix = '.contents.htm'
+    name = source_filename.split('.')[0]
+    if is_new_homepage:
+        f = open(name+postfix, 'r')
+        contents = f.read()
+        f.close()
+        final = contents.replace('<contents_area></contents_area>', '<contents_area>%s</contents_area>' % final)
         
-    f = open(source_filename.split('.')[0]+'.contents.htm', 'w')
+        #make the output html (and not htm)
+        postfix += 'l'
+    
+    
+    f = open(name+postfix, 'w')
     print >> f, final
     f.close()
 
@@ -48,15 +60,18 @@ def BuildFromRst(source_filename):
 #=======================================================================================================================
 # GenerateRstInDir
 #=======================================================================================================================
-def GenerateRstInDir(d):
+def GenerateRstInDir(d, is_new_homepage=False):
     for f in os.listdir(d):
         if f.endswith('.rst'):
-            BuildFromRst(f)
+            BuildFromRst(f, is_new_homepage)
     
     
 if __name__ == '__main__':
     os.chdir(os.path.join(this_script_dir, 'open_source'))
     GenerateRstInDir('.')
+    
+    os.chdir(os.path.join(this_script_dir, 'new_homepage'))
+    GenerateRstInDir('.', True)
     
     d1 = 'open_source/scripts/'
     d2 = 'new_homepage/scripts/'
