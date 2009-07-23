@@ -156,7 +156,9 @@ public interface IInterpreterManager {
     public boolean isConfigured();
 
     /**
-     * @return IPythonNature.INTERPRETER_TYPE_PYTHON or IPythonNature.INTERPRETER_TYPE_JYTHON 
+     * @return IPythonNature.INTERPRETER_TYPE_PYTHON or
+     *         IPythonNature.INTERPRETER_TYPE_JYTHON or
+     *         IPythonNature.INTERPRETER_TYPE_IRONPYTHON
      */
     public int getInterpreterType();
 

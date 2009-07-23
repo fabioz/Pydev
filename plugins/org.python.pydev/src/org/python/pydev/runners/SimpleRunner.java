@@ -78,7 +78,7 @@ public abstract class SimpleRunner {
                 if (interpreter != null){ //check if we have a default interpreter.
                     pythonPathEnvStr = makePythonPathEnvString(pythonNature, interpreter, manager);
                 }
-                env = createEnvWithPythonpath(pythonPathEnvStr, pythonNature);
+                env = createEnvWithPythonpath(pythonPathEnvStr, pythonNature, manager);
                 
             } catch (Exception e) {
                 PydevPlugin.log(e);
@@ -97,19 +97,21 @@ public abstract class SimpleRunner {
      * Same as the getEnvironment, but with a pre-specified pythonpath.
      */
     public static String[] createEnvWithPythonpath(String pythonPathEnvStr, String interpreter, IInterpreterManager manager, IPythonNature nature) throws CoreException {
-        String[] env = createEnvWithPythonpath(pythonPathEnvStr, nature);
+        String[] env = createEnvWithPythonpath(pythonPathEnvStr, nature, manager);
         IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
         env = info.updateEnv(env);
         return env;
     }
     
-    private static String[] createEnvWithPythonpath(String pythonPathEnvStr, IPythonNature nature) throws CoreException {
+    private static String[] createEnvWithPythonpath(String pythonPathEnvStr, IPythonNature nature, IInterpreterManager manager) throws CoreException {
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
         if(defaultPlugin != null){
             Map<String,String> env = getDefaultSystemEnv(defaultPlugin, nature);        
     
             env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
-            env.put("CLASSPATH", pythonPathEnvStr); //put the environment
+            if(manager.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_JYTHON){
+                env.put("CLASSPATH", pythonPathEnvStr); //put the environment
+            }
             return getMapEnvAsArray(env);
         }else{
             //should only happen in tests.

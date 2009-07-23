@@ -14,6 +14,7 @@ Multiline block comments considering the current indentation (and working with t
 Hover works correctly when the document is changed.
 The interactive console no longer uses the UI thread (so, it doesn't make eclipse halt anymore on slow requests to the shell)
 The interactive console save history now saves the contents in the same way they're written
+When creating a python run, the classpath was being set (and overridden), which should only happen in jython runs.
 
 
 After 1.4.6
