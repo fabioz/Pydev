@@ -1,118 +1,97 @@
 <doc>
 <contents_area>
-<h3>Installing with the update site</h3>
-<p>
-To install Pydev and Pydev Extensions using the Eclipse Update Manager, you need to use the 'Find and Install' menu, found 
-under the 'Help' item in the menu (as the image indicates).
-</p>
 
-<br/><p align="center"><IMG src="images/install_menu.png" border="1"/></p><br/>
 
+<p><strong>Note: Instructions are targeted at Eclipse 3.5</strong>, but contain notes about other versions.</p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#installing-with-the-update-site" id="id1">Installing with the update site</a></li>
+<li><a class="reference internal" href="#installing-with-the-zip-file" id="id2">Installing with the zip file</a></li>
+<li><a class="reference internal" href="#checking-the-installation" id="id3">Checking the installation</a></li>
+<li><a class="reference internal" href="#uninstalling" id="id4">Uninstalling</a></li>
+<li><a class="reference internal" href="#most-commom-problems" id="id5">Most commom problems</a></li>
+</ul>
+</div>
+<div class="section" id="installing-with-the-update-site">
+<h1><a class="toc-backref" href="#id1">Installing with the update site</a></h1>
+<p>To install Pydev and Pydev Extensions using the Eclipse Update Manager, you need to use the <strong>Help &gt; Install New Software...</strong>
+menu (note that in older versions, this would be the 'Find and Install' menu).</p>
+<div align="center" class="align-center"><img alt="images/install_menu.png" class="snap align-center" src="images/install_menu.png" /></div>
 <p>Then select 'Search for new features for install' (You will follow the same path even if
 you already have an older version installed).</p>
-
-<br/><p align="center"><IMG src="images/install_select_new.png" border="1"/></p><br/>
-
+<div align="center" class="align-center"><img alt="images/install_select_new.png" class="snap align-center" src="images/install_select_new.png" /></div>
 <p>In the next screen (below), click 'new remote site'</p>
-
-<br/><p align="center"><IMG src="images/update_sites.png" border="1"/></p><br/>
-
-<p>Set the 'Pydev Extensions' update site: http://www.fabioz.com/pydev/updates
-	<br/><br/>
-	<strong>NOTE:</strong> if you currently have the sourceforge update site, you're advised to remove it (some
-	reports pointed to some problems when having both).<br/><br/>
-	<strong>NOTE:</strong> The only difference between the sourceforge update site and this one is that the one at sourceforge only contains
-	the Pydev 'Open Source' version, and this one contains both..<br/><br/>
-    <strong>NOTE: To get versions before 1.4.3 use:</strong> <A href="http://www.fabioz.com/pydev/updates_old/">http://www.fabioz.com/pydev/updates_old/</A><br/><br/>
-    <strong>NOTE: To get nightly builds use:</strong> <A href="http://nightly.aptana.com/pydev/site.xml">http://nightly.aptana.com/pydev/site.xml</A> and <A href="http://nightly.aptana.com/pydev-pro/site.xml">http://nightly.aptana.com/pydev-pro/site.xml</A> 
-</p>
-
-<br/><p align="center"><IMG src="images/update_address.png" border="1"/></p><br/>
-
+<div align="center" class="align-center"><img alt="images/update_sites.png" class="snap align-center" src="images/update_sites.png" /></div>
+<p>Set the 'Pydev Extensions' update site: <a class="reference external" href="http://www.fabioz.com/pydev/updates">http://www.fabioz.com/pydev/updates</a></p>
+<blockquote>
+<blockquote>
+<p><strong>NOTE:</strong> if you currently have the sourceforge update site, you're advised to remove it (some
+reports pointed to some problems when having both).</p>
+<p><strong>NOTE:</strong> The only difference between the sourceforge update site and this one is that the one at sourceforge only contains
+the Pydev 'Open Source' version, and this one contains both.</p>
+</blockquote>
+<p><strong>NOTE: To get versions before 1.4.3 use:</strong> &lt;A href=&quot;<a class="reference external" href="http://www.fabioz.com/pydev/updates_old/">http://www.fabioz.com/pydev/updates_old/</a>&quot;&gt;http://www.fabioz.com/pydev/updates_old/&lt;/A&gt;</p>
+<p><strong>NOTE: To get nightly builds use:</strong> &lt;A href=&quot;<a class="reference external" href="http://nightly.aptana.com/pydev/site.xml">http://nightly.aptana.com/pydev/site.xml</a>&quot;&gt;http://nightly.aptana.com/pydev/site.xml&lt;/A&gt; and &lt;A href=&quot;<a class="reference external" href="http://nightly.aptana.com/pydev-pro/site.xml">http://nightly.aptana.com/pydev-pro/site.xml</a>&quot;&gt;http://nightly.aptana.com/pydev-pro/site.xml&lt;/A&gt;</p>
+</blockquote>
+<div align="center" class="align-center"><img alt="images/update_address.png" class="snap align-center" src="images/update_address.png" /></div>
 <p>Click 'Finish'. You should be presented with the screen below:</p>
-
-<br/><p align="center"><IMG src="images/found_features.png" border="1"/></p><br/>
-
-<p>Select both features and click 'next'... 
-	<br/><br/>
-	<strong>NOTE:</strong> if the features do not appear to you, you should restart Eclipse and try again (that's because
-	Eclipse caches the results, and sometimes it may have the wrong version in its cache -- which is only cleared when you 
-	restart Eclipse).
-</p>
-
-<br/><p align="center"><IMG src="images/update_license.png" border="1"/></p><br/>
-
+<div align="center" class="align-center"><img alt="images/found_features.png" class="snap align-center" src="images/found_features.png" /></div>
+<p>Select both features and click 'next'...</p>
+<blockquote>
+<strong>NOTE:</strong> if the features do not appear to you, you should restart Eclipse and try again (that's because
+Eclipse caches the results, and sometimes it may have the wrong version in its cache -- which is only cleared when you
+restart Eclipse).</blockquote>
+<div align="center" class="align-center"><img alt="images/update_license.png" class="snap align-center" src="images/update_license.png" /></div>
 <p>Now, you'll have to accept the license, click 'next' and in the next screen, review it and click 'finish'. Eclipse should automatically download
 the plugin contents and present you to a dialog asking if you want to restart (to which you should say <strong>yes</strong>).</p>
-
-
-
-
-<h3>Installing with the zip file</h3>
-
-<p>After downloading the zip file (from <a href="http://www.fabioz.com/pydev/zips">http://www.fabioz.com/pydev/zips</a>), you have to extract it 
-yourself on top of Eclipse. If you choose to do it, just make sure the plugins folder 
+</div>
+<div class="section" id="installing-with-the-zip-file">
+<h1><a class="toc-backref" href="#id2">Installing with the zip file</a></h1>
+<p>After downloading the zip file (from &lt;a href=&quot;<a class="reference external" href="http://www.fabioz.com/pydev/zips">http://www.fabioz.com/pydev/zips</a>&quot;&gt;http://www.fabioz.com/pydev/zips&lt;/a&gt;), you have to extract it
+yourself on top of Eclipse. If you choose to do it, just make sure the plugins folder
 is extracted on top of the Eclipse plugins folder. After that, restart it with the '-clean' flag, to
 make sure Eclipse finds out about it.</p>
-
-
-
-<h3>Checking the installation</h3>
-<p>
-You can verify if it is correctly installed going to the menu <strong>'help > about > plug in details'</strong> and 
-checking if there are at least 5 plugins with the 'plug-in Id' starting with <strong>'com.python.pydev'</strong> and at least other 5 starting with 
-<strong>'org.python.pydev'</strong> (and check if they have the version you got).
-</p>
-
-<h3>Uninstalling</h3>
-<p>
-If at any time you wish to stop using the Pydev extensions plugin (or any other Eclipse plugin), you can disable it by going to the menu 
-<strong>'help > software updates > manage configuration'</strong>, selecting the plugin and clicking 'disable', then, you have to restart Eclipse,
-go to the same place again and then click on 'remove' (note that you have a button in the menu that enables you to see the 'disabled' features.
-</p><br/>
-
-	
-<h3>Most commom problems</h3>
-<p>
-
-<strong>Corrupted install:</strong> Eclipse sometimes is not able to correctly get the plugin, but will do no checking
-	on whether it is really correct (no md5 checking), and when this happens, you'll usually get a ClassNotFoundException
-	(similar to the example below).
-
-<br/><br/>
-
-	When that happens, <strong>you should uninstall it and reinstall again</strong> with the update site... 
-	if that still fails, you could try to get the zip files, as it will at least give you a warning when it is corrupt.
-	
-	<br/>
-	<br/>
-	-- the chance of the files being corrupt in the server is pretty low, as that's something that's always checked 
-	in a new release -- but if you're suspicious about it, please contact me, so that I can double-check it.
-
-<br/><br/>
-
-	Also, there have been reports with that error where the only solution that
-	has been consistent has been <strong>removing all</strong> previous versions of pydev and then installing 
-	the latest version.
-	
-<br/><br/>
-<strong>EXAMPLE</strong><br/>
+</div>
+<div class="section" id="checking-the-installation">
+<h1><a class="toc-backref" href="#id3">Checking the installation</a></h1>
+<p>You can verify if it is correctly installed going to the menu <strong>'help &gt; about &gt; plug in details'</strong> and
+checking if there are at least 5 plugins with the 'plug-in Id' starting with <strong>'com.python.pydev'</strong> and at least other 5 starting with
+<strong>'org.python.pydev'</strong> (and check if they have the version you got).</p>
+</div>
+<div class="section" id="uninstalling">
+<h1><a class="toc-backref" href="#id4">Uninstalling</a></h1>
+<p>If at any time you wish to stop using the Pydev extensions plugin (or any other Eclipse plugin), you can disable it by going to the menu
+<strong>'help &gt; software updates &gt; manage configuration'</strong>, selecting the plugin and clicking 'disable', then, you have to restart Eclipse,
+go to the same place again and then click on 'remove' (note that you have a button in the menu that enables you to see the 'disabled' features.</p>
+</div>
+<div class="section" id="most-commom-problems">
+<h1><a class="toc-backref" href="#id5">Most commom problems</a></h1>
+<dl class="docutils">
+<dt><strong>Corrupted install:</strong> Eclipse sometimes is not able to correctly get the plugin, but will do no checking</dt>
+<dd><p class="first">on whether it is really correct (no md5 checking), and when this happens, you'll usually get a ClassNotFoundException
+(similar to the example below).</p>
+<p>When that happens, <strong>you should uninstall it and reinstall again</strong> with the update site...
+if that still fails, you could try to get the zip files, as it will at least give you a warning when it is corrupt.</p>
+<p>-- the chance of the files being corrupt in the server is pretty low, as that's something that's always checked
+in a new release -- but if you're suspicious about it, please contact me, so that I can double-check it.</p>
+<p class="last">Also, there have been reports with that error where the only solution that
+has been consistent has been <strong>removing all</strong> previous versions of pydev and then installing
+the latest version.</p>
+</dd>
+</dl>
+<p><strong>EXAMPLE</strong>
 Unable to create this part due to an internal error. Reason for the failure:
 The editor class could not be instantiated. This usually indicates that the
-editor's class name was mistyped in plugin.xml.
-<br/><br/>
-
-
-java.lang.ClassNotFoundException: org.python.pydev.editor.PyEdit <br/>
-at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:405)       <br/>
-at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:350)<br/>
-at org.eclipse.osgi.framework.adaptor.core.AbstractClassLoader.loadClass(AbstractClassLoader.java:78)<br/>
-at java.lang.ClassLoader.loadClass(ClassLoader.java:235)       <br/>
-at org.eclipse.osgi.framework.internal.core.BundleLoader.loadClass(BundleLoader.java:275)<br/>
-...
-	
-</p><br/>
-
+editor's class name was mistyped in plugin.xml.</p>
+<p>java.lang.ClassNotFoundException: org.python.pydev.editor.PyEdit
+at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:405)
+at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:350)
+at org.eclipse.osgi.framework.adaptor.core.AbstractClassLoader.loadClass(AbstractClassLoader.java:78)
+at java.lang.ClassLoader.loadClass(ClassLoader.java:235)
+at org.eclipse.osgi.framework.internal.core.BundleLoader.loadClass(BundleLoader.java:275)
+...</p>
+</div>
 </contents_area>
 
 

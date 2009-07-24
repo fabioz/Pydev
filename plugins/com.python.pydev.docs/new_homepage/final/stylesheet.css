@@ -15,6 +15,14 @@ p {
 	color: #303030;
 }
 
+
+img.snap {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 1px solid black;
+}
+
+
 .italic {
 	padding-right: 0px;
 	padding-left: 0px;
