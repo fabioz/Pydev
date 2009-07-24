@@ -45,18 +45,19 @@ def _GetStackStr(frame):
 def _InternalSetTrace(tracing_func):
     if TracingFunctionHolder._warn:
         frame = GetFrame()
-        if not frame.f_back.f_code.co_filename.lower().endswith('threading.py'):
+        if frame is not None and frame.f_back is not None:
+            if not frame.f_back.f_code.co_filename.lower().endswith('threading.py'):
             
-            message = \
-            '\nPYDEV DEBUGGER WARNING:' + \
-            '\nsys.settrace() should not be used when the debugger is being used.' + \
-            '\nThis may cause the debugger to stop working correctly.' + \
-            '%s' % _GetStackStr(frame.f_back)
-            
-            if message not in TracingFunctionHolder._warnings_shown:
-                #only warn about each message once...
-                TracingFunctionHolder._warnings_shown[message] = 1
-                sys.stderr.write('%s\n' % (message,))
+                message = \
+                '\nPYDEV DEBUGGER WARNING:' + \
+                '\nsys.settrace() should not be used when the debugger is being used.' + \
+                '\nThis may cause the debugger to stop working correctly.' + \
+                '%s' % _GetStackStr(frame.f_back)
+                
+                if message not in TracingFunctionHolder._warnings_shown:
+                    #only warn about each message once...
+                    TracingFunctionHolder._warnings_shown[message] = 1
+                    sys.stderr.write('%s\n' % (message,))
             
     TracingFunctionHolder._original_tracing(tracing_func)
 
