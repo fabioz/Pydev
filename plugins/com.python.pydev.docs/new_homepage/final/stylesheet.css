@@ -9,6 +9,16 @@ body {
 	color: #303030;
 }
 
+h1 {
+    margin-top: 25px;
+    font-size: 12pt;
+}
+
+h2 {
+    margin-top: 25px;
+    font-size: 11pt;
+}
+
 p {
 	margin: 2px 15px 7px;
 	font: 11px/1.5em Verdana;

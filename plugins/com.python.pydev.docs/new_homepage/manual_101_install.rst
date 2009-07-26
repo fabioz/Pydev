@@ -1,4 +1,4 @@
-**Note: Instructions are targeted at Eclipse 3.5**, but contain notes about other versions.
+**Note: Instructions are targeted at Eclipse 3.5**
 
 
 .. contents::
@@ -14,83 +14,154 @@ menu (note that in older versions, this would be the 'Find and Install' menu).
    :class: snap
    :align: center   
 
-Then select 'Search for new features for install' (You will follow the same path even if
-you already have an older version installed).
-
-.. image:: images/install_select_new.png
-   :class: snap
-   :align: center   
    
-In the next screen (below), click 'new remote site'
+In the next screen, **add all the update site(s) you want to work with** (if you want Pydev and Pydev Extensions, either
+you have to add an update site that contains both or add 2 update sites. **See below for a list with the** `available update sites`_).
 
 .. image:: images/update_sites.png
    :class: snap
    :align: center   
+   
+   
+.. _http://pydev.sourceforge.net/updates: http://pydev.sourceforge.net/updates
+.. _http://update.aptana.com/update/pydev/3.2: http://update.aptana.com/update/pydev/3.2
+.. _http://pydev.sourceforge.net/updates_old: http://pydev.sourceforge.net/updates_old
+.. _http://nightly.aptana.com/pydev/site.xml: http://nightly.aptana.com/pydev/site.xml
+.. _SourceForge download: http://sourceforge.net/project/showfiles.php?group_id=85796
+.. _http://www.fabioz.com/pydev/updates: http://www.fabioz.com/pydev/updates
+.. _http://www.fabioz.com/pydev/updates_old: http://www.fabioz.com/pydev/updates_old
+.. _http://nightly.aptana.com/pydev-pro/site.xml: http://nightly.aptana.com/pydev-pro/site.xml
+.. _http://update.aptana.com/update/pydev-pro/3.2: http://update.aptana.com/update/pydev-pro/3.2
+.. _http://www.fabioz.com/pydev/zips: http://www.fabioz.com/pydev/zips
 
-Set the 'Pydev Extensions' update site: http://www.fabioz.com/pydev/updates
-	
-	**NOTE:** if you currently have the sourceforge update site, you're advised to remove it (some
-	reports pointed to some problems when having both).
-	
-	**NOTE:** The only difference between the sourceforge update site and this one is that the one at sourceforge only contains
-	the Pydev 'Open Source' version, and this one contains both.
-	
-    **NOTE: To get versions before 1.4.3 use:** <A href="http://www.fabioz.com/pydev/updates_old/">http://www.fabioz.com/pydev/updates_old/</A>
+
+_`Available update sites`
+-------------------------------
+
     
-    **NOTE: To get nightly builds use:** <A href="http://nightly.aptana.com/pydev/site.xml">http://nightly.aptana.com/pydev/site.xml</A> and <A href="http://nightly.aptana.com/pydev-pro/site.xml">http://nightly.aptana.com/pydev-pro/site.xml</A> 
+    :Mirrors for 1.4.3 onwards:
+    
+        
+        :Containing only Pydev:        
+            * `http://pydev.sourceforge.net/updates`_
+            * `http://update.aptana.com/update/pydev/3.2`_
+    
+        :Containing Pydev and Pydev Extensions:
+            * `http://www.fabioz.com/pydev/updates`_
+        
+        :Containing only Pydev Extensions:    
+            * `http://update.aptana.com/update/pydev-pro/3.2`_
+        
+    :Nightly builds: 
+        
+        :Containing only Pydev:
+            * `http://nightly.aptana.com/pydev/site.xml`_
+        
+        :Containing only Pydev Extensions:
+            * `http://nightly.aptana.com/pydev-pro/site.xml`_
+    
+    :Before 1.4.3: 
+        
+        :Containing only Pydev:        
+            * `http://pydev.sourceforge.net/updates_old`_
+        
+        :Containing Pydev and Pydev Extensions:    
+            * `http://www.fabioz.com/pydev/updates_old`_        
+            
+
+After entering the update sites, select **-- All available sites --** and add a filter for **Pydev**, so that it 
+shows the contents of all the update sites that have Pydev (note that this is optional if you added 
+an update site that already contains both Pydev and Pydev Extensions), then select what you want to install and click 'Next'.
 
 
-.. image:: images/update_address.png
+.. image:: images/update_sites2.png
    :class: snap
    :align: center   
 
-Click 'Finish'. You should be presented with the screen below:
 
-.. image:: images/found_features.png
+Then 'Next' again to confirm your selection
+
+.. image:: images/update_sites3.png
    :class: snap
    :align: center   
 
-Select both features and click 'next'... 
-	
-	**NOTE:** if the features do not appear to you, you should restart Eclipse and try again (that's because
-	Eclipse caches the results, and sometimes it may have the wrong version in its cache -- which is only cleared when you 
-	restart Eclipse).
+And finally, read the license agreement and if you accept, select the accept radio button and click 'Finish'. 
 
 
-.. image:: images/update_license.png
+.. image:: images/update_sites4.png
    :class: snap
    :align: center   
+   
+At that point, Eclipse should automatically download the plugin contents and present you to a dialog asking 
+if you want to restart (to which you should say **yes**).
 
-Now, you'll have to accept the license, click 'next' and in the next screen, review it and click 'finish'. Eclipse should automatically download
-the plugin contents and present you to a dialog asking if you want to restart (to which you should say **yes**).
+Commom install problems
+------------------------
+   
+If you have any problem at this point with a message such as:
 
+    ::
+    
+        An error occurred while collecting items to be installed
+         No repository found containing:
+        org.python.pydev/osgi.bundle/1.4.7.2843
+         No repository found containing:
+        org.python.pydev.ast/osgi.bundle/1.4.7.2843
 
+that might indicate that the mirror you selected is having some network problem at that time, 
+so, please follow the same steps with another mirror.
 
 
 Installing with the zip file
 ==============================
 
-After downloading the zip file (from <a href="http://www.fabioz.com/pydev/zips">http://www.fabioz.com/pydev/zips</a>), you have to extract it 
-yourself on top of Eclipse. If you choose to do it, just make sure the plugins folder 
-is extracted on top of the Eclipse plugins folder. After that, restart it with the '-clean' flag, to
-make sure Eclipse finds out about it.
+The available locations for the zip files are:
+
+:Containing only Pydev:        
+    * `SourceForge download`_
+
+:Containing Pydev and Pydev Extensions:    
+    * `http://www.fabioz.com/pydev/zips`_
+    
+
+After downloading the zip file:
+
+**Eclipse 3.4 and 3.5**
+
+Extract the contents of the zip file in the **eclipse/dropins** folder and restart Eclipse.
+
+**Before Eclipse 3.4**
+
+Extract the contents of the zip file on top of Eclipse, making sure the plugins folder is extracted on top of the 
+**eclipse/plugins** folder and the features is on top of the **eclipse/features** folder.
+After that, restart Eclipse with the '-clean' flag, so that Eclipse finds out about it.
 
 
 
 Checking the installation
 ===========================
 
-You can verify if it is correctly installed going to the menu **'help > about > plug in details'** and 
-checking if there are at least 5 plugins with the 'plug-in Id' starting with **'com.python.pydev'** and at least other 5 starting with 
-**'org.python.pydev'** (and check if they have the version you got).
+You can verify if it is correctly installed going to the menu **'window > preferences'** and 
+checking if there is a **Pydev** item and under that a **Pydev Extensions** item.
 
 
 Uninstalling
 ==============
 
-If at any time you wish to stop using the Pydev extensions plugin (or any other Eclipse plugin), you can disable it by going to the menu 
-**'help > software updates > manage configuration'**, selecting the plugin and clicking 'disable', then, you have to restart Eclipse,
-go to the same place again and then click on 'remove' (note that you have a button in the menu that enables you to see the 'disabled' features.
+Follow the instructons below if at any time you wish to stop using the Pydev or Pydev extensions plugin 
+(or any other Eclipse plugin):
+
+**Eclipse 3.5**
+
+If you installed with the update site, go to the menu **help > about > installation details** then on the 
+**Installed Software** tab, select the plugins you want to uninstall and click **Uninstall**.
+
+If you installed with the zip file, just remove the com.python.pydev and org.python.pydev features and plugins.  
+
+**Before Eclipse 3.4**
+
+Go to the menu **help > software updates > manage configuration**, select the plugin and click 'disable', then, you have to restart Eclipse,
+go to the same place again and then click on 'remove' (note that you have a button in the menu that enables you to see the 'disabled' features).
 
 
 	
@@ -102,17 +173,11 @@ Most commom problems
 	on whether it is really correct (no md5 checking), and when this happens, you'll usually get a ClassNotFoundException
 	(similar to the example below).
 
-
-
 	When that happens, **you should uninstall it and reinstall again** with the update site... 
 	if that still fails, you could try to get the zip files, as it will at least give you a warning when it is corrupt.
 	
-	
-	
 	-- the chance of the files being corrupt in the server is pretty low, as that's something that's always checked 
 	in a new release -- but if you're suspicious about it, please contact me, so that I can double-check it.
-
-
 
 	Also, there have been reports with that error where the only solution that
 	has been consistent has been **removing all** previous versions of pydev and then installing 
