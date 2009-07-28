@@ -156,7 +156,8 @@ Follow the instructons below if at any time you wish to stop using the Pydev or 
 If you installed with the update site, go to the menu **help > about > installation details** then on the 
 **Installed Software** tab, select the plugins you want to uninstall and click **Uninstall**.
 
-If you installed with the zip file, just remove the com.python.pydev and org.python.pydev features and plugins.  
+If you installed with the zip file, just remove the com.python.pydev and org.python.pydev features and plugins from
+the dropins folder.  
 
 **Before Eclipse 3.4**
 
@@ -169,7 +170,7 @@ Most commom problems
 ======================
 
 
-**Corrupted install:** Eclipse sometimes is not able to correctly get the plugin, but will do no checking
+**Corrupted install:** Eclipse sometimes is not able to correctly get the plugin, from the update site but will do no checking
 	on whether it is really correct (no md5 checking), and when this happens, you'll usually get a ClassNotFoundException
 	(similar to the example below).
 
