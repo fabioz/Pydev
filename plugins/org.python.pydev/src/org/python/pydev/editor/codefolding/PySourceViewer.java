@@ -90,7 +90,9 @@ public class PySourceViewer extends ProjectionViewer {
             return markers;
         }
         
-        for(MarkerAnnotationAndPosition annotation:getMarkerIteratable()){
+        
+        for(Iterator<MarkerAnnotationAndPosition> it=getMarkerIterator();it.hasNext();){
+            MarkerAnnotationAndPosition annotation = it.next();
             
             Position position = annotation.position;
             int offset = position.getOffset();
@@ -115,7 +117,8 @@ public class PySourceViewer extends ProjectionViewer {
     /**
      * @return a class that iterates through the markers available in this source viewer
      */
-    public Iterable<MarkerAnnotationAndPosition> getMarkerIteratable(){
+    @SuppressWarnings("unchecked")
+    public Iterator<MarkerAnnotationAndPosition> getMarkerIterator(){
         final IAnnotationModel annotationModel = getAnnotationModel();
         //it may be null on external files, because I simply cannot make it get the org.python.copiedfromeclipsesrc.PydevFileEditorInput
         //(if it did, I could enhance it...). Instead, it returns a org.eclipse.ui.internal.editors.text.JavaFileEditorInput
@@ -123,67 +126,56 @@ public class PySourceViewer extends ProjectionViewer {
         if(annotationModel != null){
             final Iterator annotationIterator = annotationModel.getAnnotationIterator();
     
-            return new Iterable<MarkerAnnotationAndPosition>(){
-    
-                public Iterator<MarkerAnnotationAndPosition> iterator() {
-                    return new Iterator<MarkerAnnotationAndPosition>(){
-    
-                        private MarkerAnnotationAndPosition marker;
-    
-                        public boolean hasNext() {
-                            while(annotationIterator.hasNext()){
-                                if(marker != null){
-                                    return true;
-                                }
-                                
-                                while(annotationIterator.hasNext()){
-                                    Object object = annotationIterator.next();
-                                    if(object instanceof MarkerAnnotation){
-                                        MarkerAnnotation m = (MarkerAnnotation) object;
-                                        if(m.isMarkedDeleted()){
-                                            continue;
-                                        }
-                                        marker = new MarkerAnnotationAndPosition(m, annotationModel.getPosition(m));
-                                        return true;
-                                    }
-                                }
-                            }
-                            return false;
-                        }
-    
-                        public MarkerAnnotationAndPosition next() {
-                            hasNext();
-                            
-                            MarkerAnnotationAndPosition m = marker;
-                            marker = null;
-                            return m;
-                        }
-    
-                        public void remove() {
-                            throw new RuntimeException("not implemented");
+            return new Iterator<MarkerAnnotationAndPosition>(){
+
+                private MarkerAnnotationAndPosition marker;
+
+                public boolean hasNext() {
+                    while(annotationIterator.hasNext()){
+                        if(marker != null){
+                            return true;
                         }
                         
-                    };
+                        while(annotationIterator.hasNext()){
+                            Object object = annotationIterator.next();
+                            if(object instanceof MarkerAnnotation){
+                                MarkerAnnotation m = (MarkerAnnotation) object;
+                                if(m.isMarkedDeleted()){
+                                    continue;
+                                }
+                                marker = new MarkerAnnotationAndPosition(m, annotationModel.getPosition(m));
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+
+                public MarkerAnnotationAndPosition next() {
+                    hasNext();
+                    
+                    MarkerAnnotationAndPosition m = marker;
+                    marker = null;
+                    return m;
+                }
+
+                public void remove() {
+                    throw new RuntimeException("not implemented");
                 }
                 
             };
         }
-        return new Iterable<MarkerAnnotationAndPosition>(){
-            
-            public Iterator<MarkerAnnotationAndPosition> iterator() {
-                return new Iterator<MarkerAnnotationAndPosition>(){
-                    public boolean hasNext() {
-                        return false;
-                    }
+        return new Iterator<MarkerAnnotationAndPosition>(){
+            public boolean hasNext() {
+                return false;
+            }
 
-                    public MarkerAnnotationAndPosition next() {
-                        return null;
-                    }
+            public MarkerAnnotationAndPosition next() {
+                return null;
+            }
 
-                    public void remove() {
-                        throw new RuntimeException("not implemented");
-                    }
-                };
+            public void remove() {
+                throw new RuntimeException("not implemented");
             }
         };
     }

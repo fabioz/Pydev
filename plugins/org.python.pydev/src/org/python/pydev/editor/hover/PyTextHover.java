@@ -7,6 +7,7 @@
 package org.python.pydev.editor.hover;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
@@ -124,7 +125,8 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
      * Fills the buffer with the text for markers we're hovering over.
      */
     private void getMarkerHover(IRegion hoverRegion, PySourceViewer s) {
-        for(MarkerAnnotationAndPosition marker : s.getMarkerIteratable()){
+        for(Iterator<MarkerAnnotationAndPosition> it=s.getMarkerIterator();it.hasNext();){
+            MarkerAnnotationAndPosition marker = it.next();
             try {
                 int cStart = marker.position.offset;
                 int cEnd = cStart + marker.position.length;
