@@ -5,6 +5,7 @@ package com.python.pydev.analysis.organizeimports;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -208,7 +209,8 @@ public class OrganizeImports implements IOrganizeImports{
         ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = new ArrayList<MarkerAnnotationAndPosition>();
         
         //get the markers we are interested in (undefined variables)
-        for(MarkerAnnotationAndPosition m:s.getMarkerIteratable()){
+        for(Iterator<MarkerAnnotationAndPosition> it=s.getMarkerIterator();it.hasNext();){
+            MarkerAnnotationAndPosition m = it.next();
             IMarker marker = m.markerAnnotation.getMarker();
             try {
                 String type = marker.getType();

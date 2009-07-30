@@ -4,6 +4,7 @@
 package com.python.pydev.analysis.organizeimports;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
@@ -55,8 +56,6 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports{
         
         PySourceViewer s = edit.getPySourceViewer();
         
-        Iterable<MarkerAnnotationAndPosition> markers = s.getMarkerIteratable();
-
         ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>> unusedImportsMarkers = new ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>>();
         ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>> unusedWildImportsMarkers =  new ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>>();
         ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>> unresolvedImportsMarkers =  new ArrayList<Tuple<MarkerAnnotationAndPosition, ASTEntry>>();
@@ -64,8 +63,8 @@ public class OrganizeImportsFixesUnused implements IOrganizeImports{
         ArrayList<MarkerAnnotationAndPosition> undefinedVariablesMarkers = new ArrayList<MarkerAnnotationAndPosition>();
         
         //get the markers we are interested in and the related ast elements
-        
-        for (MarkerAnnotationAndPosition marker : markers) {
+        for(Iterator<MarkerAnnotationAndPosition> it=s.getMarkerIterator();it.hasNext();){
+            MarkerAnnotationAndPosition marker = it.next();
             try {
                 String type = marker.markerAnnotation.getMarker().getType();
                 if(type != null && type.equals(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER)){
