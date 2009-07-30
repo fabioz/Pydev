@@ -870,17 +870,18 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             reportAutoConfigProblem(operation.e);
                             
                         }else{
-                            String errorMsg = "Some error happened while getting info on the interpreter.\n\n" +
+                            String errorMsg = "Error getting info on interpreter.\n\n" +
                                         "Common reasons include:\n\n" +
-                                        "- Specifying an invalid interpreter" +
-                                        "(usually a link to the actual interpreter on Mac or Linux)\n" +
-                                        "- Having spaces in your Eclipse installation path.";
+                                        "- Using an unsupported version\n" +
+                                        "  (Python and Jython require at least version 2.1 and Iron Python 2.6).\n" +
+                                        "\n" +
+                                        "- Specifying an invalid interpreter\n" +
+                                        "  (usually a link to the actual interpreter on Mac or Linux)" +
+                                        "";
                             //show the user a message (so that it does not fail silently)...
-                            ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
-                                    errorMsg, 
-                                    PydevPlugin.makeStatus(IStatus.ERROR, "Check your error log for more details.\n\n" +
-                                        "More info can also be found at the bug report: http://sourceforge.net/tracker/index.php?func=detail&aid=1523582&group_id=85796&atid=577329", 
-                                    operation.e));
+                            ErrorDialog.openError(this.getShell(), "Unable to get info on the interpreter.", 
+                                    errorMsg,
+                                    PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.", operation.e));
                         }
                     }
                     
@@ -952,7 +953,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         	"Please create a new interpreter using the 'New' button.";
         ErrorDialog.openError(this.getShell(), "Unable to auto-configure.", 
                 errorMsg, 
-                PydevPlugin.makeStatus(IStatus.ERROR, "Unable to gather the needed info from the system.", 
+                PydevPlugin.makeStatus(IStatus.ERROR, 
+                        "Unable to gather the needed info from the system.\n" +
+                        "\n" +
+                        "This usually means that your interpreter is not in\n" +
+                        "the system PATH.", 
                         e));
     }
 
