@@ -74,9 +74,6 @@ if __name__ == '__main__':
     os.chdir(os.path.join(this_script_dir, 'new_homepage'))
     GenerateRstInDir('.', True)
     
-    d1 = 'open_source/scripts/'
-    d2 = 'new_homepage/scripts/'
-    
     sys.path.insert(0, os.path.join(this_script_dir, 'open_source', 'scripts'))
     sys.path.insert(0, os.path.join(this_script_dir, 'new_homepage', 'scripts'))
     sys.path.insert(0, '.')
