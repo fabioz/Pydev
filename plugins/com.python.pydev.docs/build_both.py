@@ -67,6 +67,7 @@ def GenerateRstInDir(d, is_new_homepage=False):
     
     
 if __name__ == '__main__':
+    this_script_dir = os.path.realpath(os.path.abspath(this_script_dir))
     os.chdir(os.path.join(this_script_dir, 'open_source'))
     GenerateRstInDir('.')
     
