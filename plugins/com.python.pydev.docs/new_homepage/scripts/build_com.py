@@ -1,3 +1,4 @@
+import os
 import sys
 import datetime
 
@@ -58,8 +59,7 @@ def template( template, contents, title, **kwargs ):
     try:
         contents = file( template, 'r' ).read()
     except IOError, e:
-        import os
-        raise RuntimeError(str(e)+'\nUnable to get contents. Current dir: '+os.curdir)
+        raise RuntimeError(str(e)+'\nUnable to get contents. Current dir: '+os.path.realpath(os.path.abspath(os.curdir)))
         
         
     toReplace = ['contents_area', 'right_area' , 'image_area',  'quote_area',
