@@ -88,12 +88,12 @@ if __name__ == '__main__':
     os.chdir(os.path.join(this_script_dir, 'open_source', 'scripts'))
     import build_org #@UnresolvedImport
     build_org.LAST_VERSION_TAG = LAST_VERSION_TAG
-    os.chdir('..')
+    os.chdir(os.path.join(this_script_dir, 'open_source'))
     build_org.DoIt()
     
-    os.chdir('..')
     os.chdir(os.path.join(this_script_dir, 'new_homepage', 'scripts'))
     import build_com #@UnresolvedImport
+    os.chdir(os.path.join(this_script_dir, 'new_homepage'))
     build_com.LAST_VERSION_TAG = LAST_VERSION_TAG
     build_com.DoIt()
     
