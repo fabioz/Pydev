@@ -103,14 +103,14 @@ def templateForAll(lst, first, last):
     
 
 def main():
-    template('template1.html     ', 'index'                     , 'Pydev Extensions'                )
-    template('template1.html     ', 'terms'                     , 'License'                         )
-    template('template1.html     ', 'download'                  , 'Download'                        )
-    template('template1.html     ', 'buy'                       , 'Buy'                             )
-    template('template1.html     ', 'buy_renew'                 , 'Renew'                           )
-    template('template1.html     ', 'manual'                    , 'Manual'                          )
-    template('template1.html     ', 'about'                     , 'About'                           )
-    template('template1.html     ', 'history'                   , 'Releases'                        )
+    template('template1.html', 'index'                     , 'Pydev Extensions'                )
+    template('template1.html', 'terms'                     , 'License'                         )
+    template('template1.html', 'download'                  , 'Download'                        )
+    template('template1.html', 'buy'                       , 'Buy'                             )
+    template('template1.html', 'buy_renew'                 , 'Renew'                           )
+    template('template1.html', 'manual'                    , 'Manual'                          )
+    template('template1.html', 'about'                     , 'About'                           )
+    template('template1.html', 'history'                   , 'Releases'                        )
     
     templateForAll(manual101, ('', 'manual','Root'), ('', 'manual_adv_features'   ,'Features'))
     
