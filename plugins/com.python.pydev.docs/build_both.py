@@ -68,15 +68,22 @@ def GenerateRstInDir(d, is_new_homepage=False):
     
 if __name__ == '__main__':
     this_script_dir = os.path.realpath(os.path.abspath(this_script_dir))
+    print 'Directory with this script:', this_script_dir
+    print 'Generating rst for open_source'
+    
     os.chdir(os.path.join(this_script_dir, 'open_source'))
     GenerateRstInDir('.')
     
+    print 'Generating rst for new_homepage'
     os.chdir(os.path.join(this_script_dir, 'new_homepage'))
     GenerateRstInDir('.', True)
     
     sys.path.insert(0, os.path.join(this_script_dir, 'open_source', 'scripts'))
     sys.path.insert(0, os.path.join(this_script_dir, 'new_homepage', 'scripts'))
     sys.path.insert(0, '.')
+    print 'PYTHONPATH changed. Using:'
+    for p in sys.path:
+        print '    - ', p
     
     os.chdir(os.path.join(this_script_dir, 'open_source', 'scripts'))
     import build_org #@UnresolvedImport
