@@ -41,7 +41,20 @@ What if it is not correct?
 	in a way that for some reason when getting the variables of one interpreter, it gathers the info from another
 	interpreter (thus mixing the interpreter and the actual libraries).
 	
-	If you're unable to find out what's going on, please ask in the users forum.
+	Usually running (from the command prompt) the file that gives that info for Pydev can help you discovering the
+	problem in your configuration (interpreterInfo.py):
+	
+		That file is usually located at: eclipse\plugins\org.python.pydev_$version$\PySrc\interpreterInfo.py,
+		but it can be at other location depending on how you installed it )
+	 
+		python.exe interpreterInfo.py
+		
+		java.exe -cp c:\path\to\jython.jar org.python.util.jython interpreterInfo.py 
+		
+		ipy.exe interpreterInfo.py
+		
+	If you're unable to find out what's going on, please ask in the users forum (giving the output obtained from
+	executing interpreterInfo.py in your machine).
 	
 	
 What if I add something new in my System PYTHONPATH after configuring it?

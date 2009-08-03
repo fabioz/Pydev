@@ -8,8 +8,8 @@ When reporting a bug, don't forget to give the following information:<br><br>
 - System (e.g windows XP)<br>
 - Eclipse version (e.g. 3.5)<br>
 - Pydev version (e.g. 1.4.7)<br>
-- Pydev error log (if any): go to window->show view->other->PDE Runtime->Error log. (if you have the SDK installed, otherwise,
-you have to find the log file at your_workspace/.metadata/.log)<br>
+- Pydev <strong>error log</strong> (if any): go to <strong>window > show view > other > PDE Runtime > Error log</strong>. (if you have the SDK installed, otherwise,
+you have to find the log file at <strong>your_workspace/.metadata/.log</strong>)<br>
 - Eclipse install location (e.g. D:\eclipse_3\352\eclipse)<br>
 - Project location where the bug appears (e.g. D:\eclipse\workspace\my project)<br>
 <br>
@@ -43,8 +43,10 @@ How do I get started with Pydev?
 --------------------------------------------------------------------------------------------------------------Answer
 
 Check the getting started manual at: <a href="http://fabioz.com/pydev/manual_101_root.html">http://fabioz.com/pydev/manual_101_root.html</a>
+<br/><br/>
+Also, there are some videos available at: <a href="http://www.youtube.com/user/pydev">http://www.youtube.com/user/pydev</a> which
+may help you in getting started.
 
-TODO: Add reference to videos.
 
 --------------------------------------------------------------------------------------------------------------Title
 How do I configure my PYTHONPATH?
@@ -53,41 +55,7 @@ How do I configure my PYTHONPATH?
 Please refer to the Getting Started Guide at 
 <a href="http://www.fabioz.com/pydev/manual_101_root.html">http://www.fabioz.com/pydev/manual_101_root.html</a>
 for up-to-date information on how to correctly install and configure your PYTHONPATH.
-
-
 <br><br>
-
-
---------------------------------------------------------------------------------------------------------------Title
-How do I configure Pydev to use JYTHON?
---------------------------------------------------------------------------------------------------------------Answer
-Well, Jython configuration is pretty much the same configuration used for Python. The main difference is that
-ALL additional jars you configure in a project must also be on your global PYTHONPATH. This is because of a bug 
-that makes Jython unable to get class definitions just defined in the sys.path and not in the classpath
-(you may have problems with code-completion if you don't do that). <br/><br/>
-
-This has already been reported as a Jython bug, and if you want more information on it, 
-you can check at the following mailing thread: 
-<a href="http://sourceforge.net/mailarchive/forum.php?thread_id=7986001&forum_id=5586">mail thread</a> <br/><br/>
-
---------------------------------------------------------------------------------------------------------------Title
-How do I configure Pydev to use IronPython?
---------------------------------------------------------------------------------------------------------------Answer
-
-TODO: Update this
-
---------------------------------------------------------------------------------------------------------------Title
-How do I reference Java projects with Jython?
---------------------------------------------------------------------------------------------------------------Answer
-Actually, Java projects cannot be directly referenced. You have to add the pydev nature to the java project and
-add your java output class folders to the project source folders, and only then add it as a project reference. <br/><br/>
-
-(to add the nature to a project, you have to open a python file within it with pydev).<br/><br/>
-
-Check the question: "How do I configure my PYTHONPATH?" for information on how to add source folders to the project
-pythonpath.
-
-TODO: Add better answer.
 
 
 --------------------------------------------------------------------------------------------------------------Title
@@ -181,7 +149,7 @@ is gotten with a python shell).
 How do I configure a python shell for experimenting with Python?
 --------------------------------------------------------------------------------------------------------------Answer
 Well, for that, you have to configure an external tool.
-Go to the menu->Run->External Tools and configure the location, working dir and don't forget to put the
+Go to the menu > Run > External Tools and configure the location, working dir and don't forget to put the
 -i argument so that you enter in interactive mode! <br/><br/>
 The picture below shows what I mean...<br/><br/>
 <IMG src="images/faq/conf_python_external.png" border="1" >
@@ -200,7 +168,7 @@ tool, so that you don't have to go through the menu every time!
 The Pydev builder is taking too much of my time, what can I do about it?
 --------------------------------------------------------------------------------------------------------------Answer
 Well, if you have PyLint active, you can disable it, as it is the process that takes most time when building.<br>
-Another alternative is disabling the builder altoghether. To do it you can go to window->preferences->pydev->builder 
+Another alternative is disabling the builder altoghether. To do it you can go to window > preferences > pydev > builder 
 and disable it. <br>
 NOTE: Disabling the builders may have many side-effects, such as code completion not working, pylint, tasks, etc. So,
 if you really want it, you can disable it, but do it with care.
@@ -221,6 +189,46 @@ Also note that you have to open a python file with Pydev in the project before i
 (the project python nature appears only after you do that).<br><br>
 
 
+--------------------------------------------------------------------------------------------------------------Title
+Why nothing shows in the Pydev Package Explorer?
+--------------------------------------------------------------------------------------------------------------Answer
+
+Usually this means that you have some misconfiguration in the Pydev Package Explorer working set selection or filters.<br/>
+<br/>
+Note: you can access the Pydev Package Explorer menu, with ctrl+F10 or by clicking in in the triangle
+that's upside down in the Pydev Package Explorer.<br/><br/>
+
+The usual checks are:<br/><br/>
+
+1. In the Pydev Package Explorer menu, the <strong>top level elements</strong> is pointing to working sets?<br/>
+ 
+	<ul>
+	If it is, do you have a working set? 
+		<ul>
+		If you don't have a working set and selected to show working sets, no elements are shown.
+		</ul>
+		<br/>
+	Does you working set actually contain elements?
+		<ul>
+		If no elements are contained, in your working set, no elements will be shown.
+		</ul>
+	</ul>
+		
+<br/><br/>
+
+2. In the Pydev Package Explorer menu, customize view, the content has both, Pydev Navigator Content and Resources
+checked?
+
+<br/><br/>
+
+3. In the Pydev Package Explorer menu, customize view, is it possible that the filters selected are hiding all
+your elements? 
+<br/><br/>
+
+If all of these are correct, please ask in the users forum, as it could be a bug (please check your error log
+and if there's something there, add it to your post -- see: <a href="#how_do_i_report_a_bug">How do I Report a Bug?</a>
+for details on getting the error log) 
+
 
 
 
@@ -236,7 +244,7 @@ use the 'new Pydev project' (but the way described below will still work).
 Well, you basically have to do a simple project and use create simple file / folder to create python modules.<br>
 <br>
 You may also have to associate the *.py with the Pydev editor (even though that is probably automatic).<br>
-Anyway, if you need it, go to window->preferences->workbench->file associations and associate *.py with Pydev.<br><br>
+Anyway, if you need it, go to window > preferences > workbench > file associations and associate *.py with Pydev.<br><br>
 p.s. Don't forget to put it into both of your PYTHONPATHs (enviroment and in the project properties).
 <br><br>
 
@@ -249,10 +257,10 @@ p.s. Don't forget to put it into both of your PYTHONPATHs (enviroment and in the
 --------------------------------------------------------------------------------------------------------------Title
 How do I run a module from within eclipse using Pydev (either Python or Jython)? 
 --------------------------------------------------------------------------------------------------------------Answer
-To do that, the easiest way is going to the Run menu (Run->Run As->Python or Jython). If it is not available in your current
-eclipse perspective, you can enable it by going to window->customize perspective->commands and checking the "Lauch" item
+To do that, the easiest way is going to the Run menu (Run > Run As > Python or Jython). If it is not available in your current
+eclipse perspective, you can enable it by going to window > customize perspective > commands and checking the "Lauch" item
 (in this way, you can go only with the keyboard).<br><br>
-Another way to run a module is right clicking the module in the navigator and choosing python->run (when a .py file is selected).
+Another way to run a module is right clicking the module in the navigator and choosing python > run (when a .py file is selected).
 
 
 --------------------------------------------------------------------------------------------------------------Title
