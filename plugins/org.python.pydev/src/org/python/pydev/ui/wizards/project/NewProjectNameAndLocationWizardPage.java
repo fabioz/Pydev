@@ -406,9 +406,9 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     /**
      * Returns whether the currently specified project
-     * content directory points to an exising project
+     * content directory points to an existing project
      */
-    private boolean isExistingProjectLocation() {
+    private boolean isDotProjectFileInLocation() {
         IPath path = getLocationPath();
         path = path.append(IProjectDescription.DESCRIPTION_FILE_NAME);
         return path.toFile().exists();
@@ -486,13 +486,14 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 //            return false;
 //        }
 
-        if (getProjectHandle().exists()) {
+        IProject projectHandle = getProjectHandle();
+        if (projectHandle.exists()) {
             setErrorMessage("Project already exists");
             return false;
         }
 
-        if (isExistingProjectLocation()) {
-            setErrorMessage("Project location already exists");
+        if (isDotProjectFileInLocation()) {
+            setErrorMessage(".project found in: "+getLocationPath().toOSString() +" (use import project).");
             return false;
         }
         

@@ -106,8 +106,14 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
         // get a project descriptor
         IPath defaultPath = Platform.getLocation();
         IPath newPath = projectPage.getLocationPath();
-        if (defaultPath.equals(newPath)){
+        if(defaultPath.equals(newPath)){
             newPath = null;
+        }else{
+            //The user entered the path and it's the same as it'd be if he chose the default path.
+            IPath withName = defaultPath.append(newProjectHandle.getName());
+            if(newPath.toFile().equals(withName.toFile())){
+                newPath = null;
+            }
         }
         
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
