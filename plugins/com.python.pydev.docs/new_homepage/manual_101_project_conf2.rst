@@ -3,10 +3,11 @@ Here you will learn to **further configure your project** and add Python informa
 
 The first thing to know about Pydev is that to use it to its 'full extent',
 you must have your python modules beneath a **source folder** (the source
-folders are the paths that are added to your pythonpath). 
-You can add a new source folder in the menu: File > new > other > pydev > source folder.
+folders are the paths that are added to your PYTHONPATH). 
 
-**NOTE:** You may use pydev without configuring that, for quick scripts, but some features such as code-completion and code analysis may not
+You can add a new source folder in the menu: **File > new > other > pydev > source folder**.
+
+**NOTE:** You may use pydev without configuring that, for quick scripts, but some features such as code analysis may not
 work at all (but you will still have syntax highlighting and the default editor actions).
 
 .. image:: images/new_source_folder.png
@@ -17,18 +18,21 @@ When you add a source folder to an existing project, it will 'automatically' add
 its nature to it).
 
 
-You may see which Python information your project has by going to the navigator (it must be the navigator and not the package explorer), rigth-clicking
-the project you want info on and selecting 'properties':
+You may see which Python information your project has by going to the Pydev Package Explorer, rigth-clicking
+the project you want info on and selecting 'properties' (or pressing Alt+Enter with the project selected):
 
 
 .. image:: images/navigator_rigth_click.png
    :class: snap
    :align: center
 
+
 The project properties allow you to see the **source folders** and the **external source folders** that will be added to 
-your **pythonpath**. The external source folders are useful if you have some external library or compiled extension that is used
-solely for one project, so that you don't have to add it to the system pythonpath, however, the information on such folders works as
-the system information works, it is gathered once and then 'set in stone', so, if you will change it, it is reccommended that you 
+your **PYTHONPATH**. 
+
+The external source folders are useful if you have some external library or compiled extension that is used
+solely for one project, so that you don't have to add it to the system PYTHONPATH, however, the information on such folders works as
+the system information works, it is gathered once and then 'set in stone', so, if you will change it, it is recommended that you 
 create a project for it and make a project reference to that project.
 
 
@@ -36,22 +40,45 @@ create a project for it and make a project reference to that project.
    :class: snap
    :align: center
 
-The 'force restore internal info' may be useful if you had an external library that changed and just want to update its information, or
-you believe that for some reason pydev did not succed in synchronizing with the latest code-changes you did.
+The **force restore internal info** may be useful if you had an external library that changed and just want to update its information, or
+you believe that for some reason pydev did not succeed in synchronizing with the latest code-changes you did.
 
 
-Also, you may change your project type as you wish. If you just added a new source folder to an existing project, you may change it from the
-default configuration (python) to a jython project in this screen.
+The **String Substitution Variables** can be used in conjunction with the **source folders**, **external
+source folders** and **run configurations**. From the example below, if a reference ${GOOGLE_APP_ENGINE}/lib was present 
+in the external source folders, it'd be resolved to D:\bin\google_app_engine122/lib.
+
+.. image:: images/project_properties_substitution.png
+   :class: snap
+   :align: center
+   
+
+Also, you may change your project type as you wish. E.g.: You can set an existing python project as a jython project in 
+the screen below.
+
+Note that here you can also set a different grammar version (you can have configured an interpreter that uses grammar
+2.6 and still use a 2.4 grammar -- this is done so that you can use newer interpreter while programming using
+an older grammar, which is useful on cases where you have to keep backward compatibility).
+
+The selection of the interpreter will define which interpreter will be used to create the default run configurations and
+the shells for code-completion purposes (to gather the forced builtins).
 
 .. image:: images/project_type.png
    :class: snap
    :align: center
 
-To reference another project, just go to the 'project references' page. Note that project references are not treated 
-recursively in Pydev, so, if project A references B, which references project C, then project C should be specified
-as a reference for project A and B.
+To reference another project, just go to the 'project references' page. 
 
-.. image:: images/project_refs2.png
+The referenced projects are the projects whose source folders are added to the PYTHONPATH for the 
+referrer project.
+
+This is very important so that code completion and run configurations work correctly. 
+
+Note that it'll get the configurations recursively, so, if a project A depends on B, which in turn depends on C, you
+just have to add a reference from A to B (and C will already be automatically referenced)
+
+
+.. image:: images/project_refs.png
    :class: snap
    :align: center
 
