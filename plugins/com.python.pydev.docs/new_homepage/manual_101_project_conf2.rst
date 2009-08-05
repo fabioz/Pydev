@@ -46,7 +46,7 @@ you believe that for some reason pydev did not succeed in synchronizing with the
 
 The **String Substitution Variables** can be used in conjunction with the **source folders**, **external
 source folders** and **run configurations**. From the example below, if a reference ${GOOGLE_APP_ENGINE}/lib was present 
-in the external source folders, it'd be resolved to D:\bin\google_app_engine122/lib.
+in the external source folders, it'd be resolved to D:\\bin\\google_app_engine122/lib.
 
 .. image:: images/project_properties_substitution.png
    :class: snap
