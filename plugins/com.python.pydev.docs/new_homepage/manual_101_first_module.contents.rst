@@ -16,7 +16,7 @@ versions of it may not have everything needed for this example (to do that, make
 
 A perspective 'defines' what appears in your window and which actions are enabled... If you want to add something (even some menu), you can
 go to the menu: window > customize perspective. To create our first module, we will use the default pydev perspective, as it already has the wizard shortcuts
-pre-defined in the 'file > new' menu 
+pre-defined in the **File > new** menu 
 
 
 
@@ -25,7 +25,7 @@ underneath it).
 
 
 
-So, let the 'src' folder selected and go to the menu: File > new > pydev package and fill the package name as below (the source folder should
+So, let the 'src' folder selected and go to the menu: **File > new > pydev package** and fill the package name as below (the source folder should
 be automatically filled)..
 
 .. image:: images/new_package.png
@@ -46,8 +46,12 @@ because of an eclipse bug, if it seems correct, you may have to remove the assoc
    :align: center
 
 
-Now, let's create the 'example' module. Let the folder /root/nested selected and go to the menu: File > new > pydev module and fill the
-module name as below (again, the other fields should be automatically filled).
+Now, let's create the 'example' module. Let the folder /root/nested selected and go to the menu: **File > new > pydev module** and fill the
+module name as below (again, the other fields should be automatically filled). 
+
+In this screen you may also select which should be the template used to create the new module (and the **Config...** link
+in the dialog can take you to the place where you can add/remove/edit those -- which are the templates under the **New Module**
+context.
 
 .. image:: images/new_module.png
    :class: snap
@@ -72,7 +76,9 @@ create a script with the code below to see where is the cache dir and check its 
 seeing if it gets correctly recreated in the next jython activation).
 
 **Code:**
+
 import sys
+
 print sys.cachedir
 
 
