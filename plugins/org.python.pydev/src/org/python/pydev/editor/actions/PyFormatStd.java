@@ -699,7 +699,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return the same buffer passed as a parameter
      */
     private FastStringBuffer trim(FastStringBuffer locBuf) {
-        while (locBuf.length() > 0 && locBuf.firstChar() == ' ') {
+        while (locBuf.length() > 0 && (locBuf.firstChar() == ' ' || locBuf.firstChar() == '\t')) {
             locBuf.deleteCharAt(0);
         }
         rtrim(locBuf);
@@ -712,7 +712,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
      * @return the same buffer passed as a parameter
      */
     private FastStringBuffer rtrim(FastStringBuffer locBuf) {
-        while (locBuf.length() > 0 && locBuf.lastChar() == ' ') {
+        while (locBuf.length() > 0 && (locBuf.lastChar() == ' ' || locBuf.lastChar() == '\t')) {
             locBuf.deleteLast();
         }
         return locBuf;

@@ -26,7 +26,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testSimpleOperator5();
+            n.testKeepTab();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -947,6 +947,13 @@ public class PyFormatStdTest extends TestCase {
         "";
         
         checkFormatResults(s, s1);
+    }
+    
+    public void testKeepTab() throws Exception{
+        String s = "" +
+        		"tmp = (\n" +
+        		"\t)";
+        checkFormatResults(s, s);
     }
     
 

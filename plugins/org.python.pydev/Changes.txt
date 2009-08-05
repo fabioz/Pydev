@@ -1,5 +1,8 @@
 
 After 1.4.7
+Fixed issue where a line with only tabs and a close parenthesis would have additional tabs entered on code-formatting.
+Many small usability improvements (editors improved)
+
 
 Pydev Extensions
 Created public API for starting/finishing debug server
