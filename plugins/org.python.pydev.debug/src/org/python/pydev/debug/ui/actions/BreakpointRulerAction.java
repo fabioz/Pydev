@@ -108,7 +108,7 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
                 return;
             }
 
-            map.put(IMarker.MESSAGE, "what's the message");
+            map.put(IMarker.MESSAGE, "Pydev breakpoint");
             map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
             map.put(IBreakpoint.ENABLED, new Boolean(true));
             map.put(IBreakpoint.ID, PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
