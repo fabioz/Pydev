@@ -1,8 +1,4 @@
-
 After 1.4.7
-Fixed issue where a line with only tabs and a close parenthesis would have additional tabs entered on code-formatting.
-A Pydev (Jython) project can coexist with a JDT project (and properly use its info -- only project references worked previously)
-Many small usability improvements (editors improved)
 
 
 Pydev Extensions
@@ -20,6 +16,9 @@ Hover works correctly when the document is changed.
 The interactive console no longer uses the UI thread (so, it doesn't make eclipse halt anymore on slow requests to the shell)
 The interactive console save history now saves the contents in the same way they're written
 When creating a python run, the classpath was being set (and overridden), which should only happen in jython runs.
+Fixed issue where a line with only tabs and a close parenthesis would have additional tabs entered on code-formatting.
+A Pydev (Jython) project can coexist with a JDT project (and properly use its info -- only project references worked previously)
+Many small usability improvements (editors improved)
 
 
 After 1.4.6
