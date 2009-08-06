@@ -38,17 +38,9 @@ Referenced projects
 The referenced projects are the projects whose source folders are added to the PYTHONPATH for the 
 referrer project.
 
-This is very important so that code completion and run configurations work correctly. 
+.. _next tutorial page: manual_101_project_conf2.html
 
-Note that it'll get the configurations recursively, so, if a project A depends on B, which in turn depends on C, you
-just have to add a reference from A to B (and C will already be automatically referenced)
-
-
-
-.. image:: images/project_refs.png
-   :class: snap
-   :align: center   
-
+The `next tutorial page`_ enters into more details on project references 
    
 Creating a Project from existing sources
 -----------------------------------------

@@ -82,3 +82,16 @@ just have to add a reference from A to B (and C will already be automatically re
    :class: snap
    :align: center
 
+Project reference for Jython users
+-----------------------------------
+
+Jython projects may reference Java (JDT) projects. To create that reference, it's not enough to just add the reference
+to the JDT project from the Pydev project, the JDT project must be **set as a Pydev project and its bin folders must
+be properly configured as source folders for Pydev**. 
+
+To do that, right-click the project and select **Pydev > Set as Pydev project** and add the **bin** folders as if they 
+were regular **Pydev source folders** (the ones containing your .class files -- the folders containing the .java classes 
+shouldn't be referenced in the Pydev config).
+
+**Note:** Before version **1.4.8**, Pydev did not handle a JDT project which had .py files correctly (even if the folders
+were properly configured)
