@@ -408,6 +408,11 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         
         //get the projects 1st
         if(project != null){
+            IModulesManager javaModulesManagerForProject = JavaProjectModulesManagerCreator.createJavaProjectModulesManagerIfPossible(project);
+            if(javaModulesManagerForProject!=null){
+                list.add(javaModulesManagerForProject);
+            }
+            
             HashSet<IProject> projs = new HashSet<IProject>();
             getProjectsRecursively(project, referenced, projs);
             addModuleManagers(list, projs);
