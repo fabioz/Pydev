@@ -460,7 +460,13 @@ class NetCommandFactory:
                 myId = str(id(curFrame))
                 #print "id is ", myId
                 
+                if curFrame.f_code is None:
+                    break #Iron Python sometimes does not have it!
+                
                 myName = curFrame.f_code.co_name #method name (if in method) or ? if global
+                if myName is None:
+                    break #Iron Python sometimes does not have it!
+                
                 #print "name is ", myName
                 
                 myFile = pydevd_file_utils.NormFileToClient(curFrame.f_code.co_filename)                
