@@ -609,12 +609,16 @@ public class PythonRunnerConfig {
             }
 
         }else{
+            //python or iron python
         
             cmdArgs.add(interpreter.toOSString());
             // Next option is for unbuffered stdout, otherwise Eclipse will not see any output until done
             cmdArgs.add("-u");
         
             addVmArgs(cmdArgs);
+            if(isDebug && isIronpython()){
+                addIronPythonDebugVmArgs(cmdArgs);
+            }
             
             addDebugArgs(cmdArgs, "python");
             
@@ -649,6 +653,15 @@ public class PythonRunnerConfig {
         String[] retVal = new String[cmdArgs.size()];
         cmdArgs.toArray(retVal);
         return retVal;
+    }
+
+    
+    private void addIronPythonDebugVmArgs(List<String> cmdArgs){
+        if(cmdArgs.contains("-X:Frames") || cmdArgs.contains("-X:FullFrames")){
+            return;
+        }
+        //The iron python debugger must have frames (preferably FullFrames), otherwise it won't work.
+        cmdArgs.add("-X:FullFrames"); 
     }
 
     /**
