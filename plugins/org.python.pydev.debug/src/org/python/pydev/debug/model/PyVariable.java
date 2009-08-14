@@ -129,15 +129,18 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
     public Object getAdapter(Class adapter) {
         AdapterDebug.print(this, adapter);
         
-        if (adapter.equals(ILaunch.class))
+        if (adapter.equals(ILaunch.class)){
             return target.getAdapter(adapter);
-        else if (adapter.equals(IPropertySource.class) ||
+            
+        }else if(adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)){
+            return this.target.getRunToLineTarget();
+
+        }else if (adapter.equals(IPropertySource.class) ||
                 adapter.equals(ITaskListResourceAdapter.class) ||
                 adapter.equals(org.eclipse.ui.IContributorResourceAdapter.class) ||
                 adapter.equals(org.eclipse.ui.IActionFilter.class) ||
                 adapter.equals(org.eclipse.ui.model.IWorkbenchAdapter.class)
                 || adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)
-                || adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)
                 ||    adapter.equals(IResource.class)
                 || adapter.equals(org.eclipse.core.resources.IFile.class)
                 )

@@ -614,5 +614,16 @@
   </extension>
 <!-- end console stuff -->
 
+
+	<!-- the adapter factory must be registered (otherwise the CNF cannot 'get it' - even if the objects themselves are
+	adaptable).
+    -->
+    <extension point="org.eclipse.core.runtime.adapters">
+         <factory class="org.python.pydev.debug.ui.PyEditRunToLineAdapterFactory" adaptableType="org.python.pydev.editor.PyEdit">
+			<adapter type="org.eclipse.debug.ui.actions.IRunToLineTarget"/>
+         </factory>
+    </extension>
+    
+    
 </plugin>
 

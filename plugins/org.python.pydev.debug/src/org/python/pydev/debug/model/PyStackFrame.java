@@ -266,10 +266,13 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
             return thread.getDebugTarget();
         }
         
+        if(adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)){
+            return this.target.getRunToLineTarget();
+        }
+        
         if (adapter.equals(IPropertySource.class) 
             || adapter.equals(ITaskListResourceAdapter.class)
             || adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)
-            || adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)
             ){
             return  super.getAdapter(adapter);
         }
@@ -318,7 +321,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 
     @Override
     public String toString() {
-        return "PyThread: "+this.id;
+        return "PyStackFrame: "+this.id;
     }
 
 }

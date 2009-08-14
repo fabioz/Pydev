@@ -17,6 +17,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_THREAD_KILL, \
                          CMD_THREAD_RUN, \
                          CMD_THREAD_SUSPEND, \
+                         CMD_RUN_TO_LINE, \
                          CMD_VERSION, \
                          GetGlobalDebugger, \
                          InternalChangeVariable, \
@@ -368,6 +369,16 @@ class PyDB:
                         t.additionalInfo.pydev_step_cmd = cmd_id
                         t.additionalInfo.pydev_state = STATE_RUN
                         
+                elif cmd_id == CMD_RUN_TO_LINE:
+                    #we received some command to make a single step
+                    thread_id, line, func_name = text.split('\t', 2)
+                    t = PydevdFindThreadById(thread_id)
+                    if t:
+                        t.additionalInfo.pydev_step_cmd = cmd_id
+                        t.additionalInfo.pydev_next_line = int(line)
+                        t.additionalInfo.pydev_func_name = func_name
+                        t.additionalInfo.pydev_state = STATE_RUN
+                        
                         
                 elif cmd_id == CMD_CHANGE_VARIABLE:
                     #the text is: thread\tstackframe\tFRAME|GLOBAL\tattribute_to_change\tvalue_to_change
@@ -549,15 +560,49 @@ class PyDB:
             
         elif info.pydev_step_cmd == CMD_STEP_OVER:
             info.pydev_step_stop = frame
-            frame.f_trace = self.trace_dispatch
+            if frame.f_trace is None:
+                frame.f_trace = self.trace_dispatch
             SetTraceForParents(frame, self.trace_dispatch)
+            
+        elif info.pydev_step_cmd == CMD_RUN_TO_LINE:
+            if frame.f_trace is None:
+                frame.f_trace = self.trace_dispatch
+            SetTraceForParents(frame, self.trace_dispatch)
+            
+            if event == 'line':
+                #If we're already in the correct context, we have to stop it now, because we can act only on
+                #line events -- if a return was the next statement it wouldn't work (so, we have this code
+                #repeated at pydevd_frame). 
+                stop = False
+                curr_func_name = frame.f_code.co_name
+                
+                #global context is set with an empty name
+                if curr_func_name in ('?', '<module>'):
+                    curr_func_name = ''
+                
+                if curr_func_name == info.pydev_func_name:
+                    line = info.pydev_next_line
+                    if frame.f_lineno == line:
+                        stop = True
+                    else:
+                        if frame.f_trace is None:
+                            frame.f_trace = self.trace_dispatch
+                        frame.f_lineno = line
+                        frame.f_trace = None
+                        stop = True
+                if stop:
+                    info.pydev_state = STATE_SUSPEND
+                    self.doWaitSuspend(thread, frame, event, arg)
+                    return
+
             
         elif info.pydev_step_cmd == CMD_STEP_RETURN:
             back_frame = frame.f_back
             if back_frame is not None:
                 #steps back to the same frame (in a return call it will stop in the 'back frame' for the user)
                 info.pydev_step_stop = frame
-                frame.f_trace = self.trace_dispatch
+                if frame.f_trace is None:
+                    frame.f_trace = self.trace_dispatch
                 SetTraceForParents(frame, self.trace_dispatch)
             else:
                 #No back frame?!? -- this happens in jython when we have some frame created from an awt event
@@ -567,11 +612,12 @@ class PyDB:
                 info.pydev_step_cmd = None
                 info.pydev_state = STATE_RUN
                 
-                
         del frame
         cmd = self.cmdFactory.makeThreadRunMessage(GetThreadId(thread), info.pydev_step_cmd)
         self.writer.addCommand(cmd)
-    
+            
+            
+            
     def trace_dispatch(self, frame, event, arg):
         ''' This is the callback used when we enter some context in the debugger. 
         
@@ -762,7 +808,9 @@ def usage(doExit=0):
 def SetTraceForParents(frame, dispatch_func):
     frame = frame.f_back
     while frame:
-        frame.f_trace = dispatch_func
+        if frame.f_trace is None:
+            frame.f_trace = dispatch_func
+            
         frame = frame.f_back
     del frame
 

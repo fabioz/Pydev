@@ -16,6 +16,7 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
+import org.python.pydev.debug.model.remote.RunToLineCommand;
 import org.python.pydev.debug.model.remote.StepCommand;
 import org.python.pydev.debug.model.remote.ThreadRunCommand;
 import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
@@ -157,6 +158,12 @@ public class PyThread extends PlatformObject implements IThread {
             target.postCommand(new StepCommand(target, AbstractDebuggerCommand.CMD_STEP_RETURN, id));
         }        
     }
+    
+    public void runToLine(int line, String funcName){
+        isStepping = true;
+        target.postCommand(new RunToLineCommand(target, AbstractDebuggerCommand.CMD_RUN_TO_LINE, id, line, funcName));
+    }
+
 
     public IStackFrame[] getStackFrames() throws DebugException {
         if(isSuspended && stack != null){
@@ -169,7 +176,7 @@ public class PyThread extends PlatformObject implements IThread {
         return (stack != null && stack.length > 0);
     }
 
-    public IStackFrame getTopStackFrame() throws DebugException {
+    public IStackFrame getTopStackFrame() {
         return stack == null ? null : stack[0];
     }
 
@@ -207,10 +214,12 @@ public class PyThread extends PlatformObject implements IThread {
         }else if (adapter.equals(IDebugTarget.class)){
             return target;
             
+        }else if(adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)){
+            return this.target.getRunToLineTarget();
+            
         }else if (adapter.equals(IPropertySource.class) 
                 || adapter.equals(ITaskListResourceAdapter.class)
                 || adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class)
-                || adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)
                 || adapter.equals(org.eclipse.ui.IContributorResourceAdapter.class)
                 || adapter.equals(org.eclipse.ui.model.IWorkbenchAdapter.class)
                 || adapter.equals(org.eclipse.ui.IActionFilter.class)
@@ -228,4 +237,5 @@ public class PyThread extends PlatformObject implements IThread {
     public String toString() {
         return "PyThread: "+this.id;
     }
+
 }

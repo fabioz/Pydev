@@ -89,6 +89,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      */
     private ValueModificationChecker modificationChecker;
 
+    private PyRunToLineTarget runToLineTarget;
+
     public AbstractDebugTarget() {
         modificationChecker = new ValueModificationChecker();
     }
@@ -460,7 +462,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             
             if (stopReason_i == AbstractDebuggerCommand.CMD_STEP_OVER ||
                 stopReason_i == AbstractDebuggerCommand.CMD_STEP_INTO ||
-                stopReason_i == AbstractDebuggerCommand.CMD_STEP_RETURN){
+                stopReason_i == AbstractDebuggerCommand.CMD_STEP_RETURN ||
+                stopReason_i == AbstractDebuggerCommand.CMD_RUN_TO_LINE){
                 reason = DebugEvent.STEP_END;
                 
             }else if (stopReason_i == AbstractDebuggerCommand.CMD_THREAD_SUSPEND){
@@ -517,6 +520,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     resumeReason = DebugEvent.STEP_RETURN;
                 else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO)
                     resumeReason = DebugEvent.STEP_INTO;
+                else if (raw_reason == AbstractDebuggerCommand.CMD_RUN_TO_LINE)
+                    resumeReason = DebugEvent.UNSPECIFIED;
                 else if (raw_reason == AbstractDebuggerCommand.CMD_THREAD_RUN)
                     resumeReason = DebugEvent.CLIENT_REQUEST;
                 else {
@@ -700,11 +705,14 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                 }
             }
             
+        } else if (adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class)){
+            return this.getRunToLineTarget();
+            
+            
         } else if (adapter.equals(IPropertySource.class)){
             return launch.getAdapter(adapter);
             
         } else if (adapter.equals(ITaskListResourceAdapter.class) 
-                || adapter.equals(org.eclipse.debug.ui.actions.IRunToLineTarget.class) 
                 || adapter.equals(org.eclipse.debug.ui.actions.IToggleBreakpointsTarget.class) 
                 ){
             return  super.getAdapter(adapter);
@@ -715,6 +723,13 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     }
 
     
+    public PyRunToLineTarget getRunToLineTarget(){
+        if(this.runToLineTarget == null){
+            this.runToLineTarget = new PyRunToLineTarget();
+        }
+        return this.runToLineTarget;
+    }
+
     //From IDebugElement
     public ILaunch getLaunch() {
         return launch;
