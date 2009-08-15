@@ -12,21 +12,21 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
  */
 public class StepCommand extends AbstractDebuggerCommand {
 
-    int command_id;
-    String thread_id;
+    int commandId;
+    String threadId;
     
     /**
      * 
-     * @param command_id CMD_STEP_INTO CMD_STEP_OVER CMD_STEP_RETURN
+     * @param commandId CMD_STEP_INTO CMD_STEP_OVER CMD_STEP_RETURN
      */
-    public StepCommand(AbstractDebugTarget debugger, int command_id, String thread_id) {
+    public StepCommand(AbstractDebugTarget debugger, int commandId, String threadId) {
         super(debugger);
-        this.command_id = command_id;
-        this.thread_id = thread_id;
+        this.commandId = commandId;
+        this.threadId = threadId;
     }
 
     public String getOutgoing() {
-        return makeCommand(command_id, sequence, thread_id);
+        return makeCommand(commandId, sequence, threadId);
     }
 
 }

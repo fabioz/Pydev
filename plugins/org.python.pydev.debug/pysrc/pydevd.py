@@ -18,6 +18,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_THREAD_RUN, \
                          CMD_THREAD_SUSPEND, \
                          CMD_RUN_TO_LINE, \
+                         CMD_RELOAD_CODE, \
                          CMD_VERSION, \
                          GetGlobalDebugger, \
                          InternalChangeVariable, \
@@ -380,6 +381,25 @@ class PyDB:
                         t.additionalInfo.pydev_state = STATE_RUN
                         
                         
+                elif cmd_id == CMD_RELOAD_CODE:
+                    #we received some command to make a reload of a module
+                    module_name = text.strip()
+                    from pydevd_reload import xreload
+                    if not DictContains(sys.modules, module_name):
+                        if '.' in module_name:
+                            new_module_name = module_name.split('.')[-1]
+                            if DictContains(sys.modules, new_module_name):
+                                module_name = new_module_name
+                    
+                    if not DictContains(sys.modules, module_name):
+                        sys.stderr.write('pydev debugger: Unable to find module to reload: "'+module_name+'".\n')
+                        sys.stderr.write('pydev debugger: This usually means you are trying to reload the __main__ module (which cannot be reloaded).\n')
+                            
+                    else:
+                        sys.stderr.write('pydev debugger: Reloading: '+module_name+'\n')
+                        xreload(sys.modules[module_name])
+                        
+                        
                 elif cmd_id == CMD_CHANGE_VARIABLE:
                     #the text is: thread\tstackframe\tFRAME|GLOBAL\tattribute_to_change\tvalue_to_change
                     try:
@@ -484,17 +504,21 @@ class PyDB:
                     #text is file\tline. Remove from breakpoints dictionary
                     file, line = text.split('\t', 1)
                     file = pydevd_file_utils.NormFileToServer(file)
-                    line = int(line)
-                    
                     try:
-                        del self.breakpoints[file][line] #remove the breakpoint in that line
-                        if DEBUG_TRACE_BREAKPOINTS > 0:
-                            sys.stderr.write('Removed breakpoint:%s\n' % (file,))
-                    except KeyError:
-                        #ok, it's not there...
-                        if DEBUG_TRACE_BREAKPOINTS > 0:
-                            #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
-                            sys.stderr.write("breakpoint not found: %s - %s\n" % (file, line))
+                        line = int(line)
+                    except ValueError:
+                        pass
+                    
+                    else:
+                        try:
+                            del self.breakpoints[file][line] #remove the breakpoint in that line
+                            if DEBUG_TRACE_BREAKPOINTS > 0:
+                                sys.stderr.write('Removed breakpoint:%s\n' % (file,))
+                        except KeyError:
+                            #ok, it's not there...
+                            if DEBUG_TRACE_BREAKPOINTS > 0:
+                                #Sometimes, when adding a breakpoint, it adds a remove command before (don't really know why)
+                                sys.stderr.write("breakpoint not found: %s - %s\n" % (file, line))
                             
                 elif cmd_id == CMD_EVALUATE_EXPRESSION or cmd_id == CMD_EXEC_EXPRESSION:
                     #command to evaluate the given expression

@@ -51,6 +51,7 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_WRITE_TO_CONSOLE = 116;
     static public final int CMD_CHANGE_VARIABLE = 117;
     static public final int CMD_RUN_TO_LINE = 118;
+    static public final int CMD_RELOAD_CODE = 119;
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;

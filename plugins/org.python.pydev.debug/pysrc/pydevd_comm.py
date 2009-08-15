@@ -94,6 +94,7 @@ CMD_EXEC_EXPRESSION = 115
 CMD_WRITE_TO_CONSOLE = 116
 CMD_CHANGE_VARIABLE = 117
 CMD_RUN_TO_LINE = 118
+CMD_RELOAD_CODE = 119
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -116,6 +117,8 @@ ID_TO_MEANING = {
     '115':'CMD_EXEC_EXPRESSION',
     '116':'CMD_WRITE_TO_CONSOLE',
     '117':'CMD_CHANGE_VARIABLE',
+    '118':'CMD_RUN_TO_LINE',
+    '119':'CMD_RELOAD_CODE',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',
@@ -124,7 +127,7 @@ ID_TO_MEANING = {
 MAX_IO_MSG_SIZE = 1000  #if the io is too big, we'll not send all (could make the debugger too non-responsive)
                         #this number can be changed if there's need to do so
 
-VERSION_STRING = "1.0"
+VERSION_STRING = "1.1"
 
 
 #--------------------------------------------------------------------------------------------------- UTILITIES
