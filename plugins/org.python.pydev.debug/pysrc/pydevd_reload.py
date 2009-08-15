@@ -8,7 +8,7 @@ patching classes, methods and functions in place.  This avoids the
 need to patch instances.  New objects are copied into the target
 namespace.
 
-Some of the many limitiations include:
+Some of the many limitations include:
 
 - Global mutable objects other than classes are simply replaced, not patched
 

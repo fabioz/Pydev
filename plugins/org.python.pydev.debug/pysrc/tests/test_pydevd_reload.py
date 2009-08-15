@@ -8,6 +8,7 @@ sys.path.append(os.path.split(os.path.split(__file__)[0])[0])
 
 SAMPLE_CODE = """
 class C:
+    attr = 42
     def foo(self):
         return 42
     @classmethod
@@ -62,17 +63,21 @@ class TestCase(unittest.TestCase):
     def testMet1(self):
         self.make_mod()
         import x #@UnresolvedImport -- this is the module we created at runtime.
+        from x import C as Foo #@UnresolvedImport
         C = x.C
         Cfoo = C.foo
         Cbar = C.bar
         Cstomp = C.stomp
         b = C()
         bfoo = b.foo
+        in_list = [C]
         self.assertEqual(b.foo(), 42)
         self.assertEqual(bfoo(), 42)
         self.assertEqual(Cfoo(b), 42)
         self.assertEqual(Cbar(), (42, 42))
         self.assertEqual(Cstomp(), (42, 42, 42))
+        self.assertEqual(in_list[0].attr, 42)
+        self.assertEqual(Foo.attr, 42)
         self.make_mod(repl="42", subst="24")
         xreload(x)
         self.assertEqual(b.foo(), 24)
@@ -80,6 +85,8 @@ class TestCase(unittest.TestCase):
         self.assertEqual(Cfoo(b), 24)
         self.assertEqual(Cbar(), (24, 24))
         self.assertEqual(Cstomp(), (24, 24, 24))
+        self.assertEqual(in_list[0].attr, 24)
+        self.assertEqual(Foo.attr, 24)
         
         
 #=======================================================================================================================
