@@ -20,6 +20,7 @@ Fixed issue where a line with only tabs and a close parenthesis would have addit
 A Pydev (Jython) project can coexist with a JDT project (and properly use its info -- only project references worked previously)
 Many small usability improvements (editors improved)
 Debugger jump to line
+Created auto-reload when code changes in the editor if inside debug context.
 
 
 After 1.4.6
