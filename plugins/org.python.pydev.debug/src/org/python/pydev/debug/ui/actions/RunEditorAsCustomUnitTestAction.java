@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -37,6 +38,8 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.pyunit.preferences.PyunitPrefsPage;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 
@@ -57,6 +60,8 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
         TreeSelectionDialog dialog = new TreeSelectionDialog(getShell(), new SelectTestLabelProvider(),
                 new SelectTestTreeContentProvider()){
 
+            RadioGroupFieldEditor verbosityEditor;
+            
             public boolean close(){
                 memento.writeSettings(getShell());
                 return super.close();
@@ -64,7 +69,11 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
 
             public Control createDialogArea(Composite parent){
                 memento.readSettings();
-                return super.createDialogArea(parent);
+                Control ret = super.createDialogArea(parent);
+                verbosityEditor= PyunitPrefsPage.createVerbosityEditor(parent);
+                verbosityEditor.setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+                verbosityEditor.load();
+                return ret;
             }
 
             protected Point getInitialSize(){
@@ -80,6 +89,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
              */
             @SuppressWarnings("unchecked")
             protected void computeResult() {
+                verbosityEditor.store();
                 IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
                 List<Object> list = selection.toList();
                 if(list.size() > 0){

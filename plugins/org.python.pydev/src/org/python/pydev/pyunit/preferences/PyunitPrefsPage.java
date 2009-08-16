@@ -45,19 +45,9 @@ public class PyunitPrefsPage extends FieldEditorPreferencePage
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-         RadioGroupFieldEditor verbosity_editor= new RadioGroupFieldEditor(
-                 PYUNIT_VERBOSITY, 
-                 "Verbosity", 
-                 1,
-                 new String[][] {
-                     {"Verbose - prints name of test as it runs", "2"},
-                     {"Quiet - prints '.' as each test runs", "1"},
-                     {"Silent - prints nothing", "0"},
-                 },
-                 p
-         );    
+         RadioGroupFieldEditor verbosityEditor= createVerbosityEditor(p);    
 
-         StringFieldEditor filter_editor = new StringFieldEditor( 
+         StringFieldEditor filterEditor = new StringFieldEditor( 
                  PYUNIT_TEST_FILTER, 
                  "Filter (regex)", 
                  p);
@@ -71,9 +61,23 @@ public class PyunitPrefsPage extends FieldEditorPreferencePage
         "Note: this filters on the method names of all <TestCase>s found\n" + 
         "      the string 'test' is automatically prepended to the regex\n";
          
-        addField(verbosity_editor);
-        addField(filter_editor);
+        addField(verbosityEditor);
+        addField(filterEditor);
         addField(new LabelFieldEditor("LabelFieldEditor", s, p));
+    }
+
+    public static RadioGroupFieldEditor createVerbosityEditor(Composite p){
+        return new RadioGroupFieldEditor(
+                 PYUNIT_VERBOSITY, 
+                 "Verbosity", 
+                 1,
+                 new String[][] {
+                     {"Verbose - prints name of test as it runs", "2"},
+                     {"Quiet - prints '.' as each test runs", "1"},
+                     {"Silent - prints nothing", "0"},
+                 },
+                 p
+         );
     }
 
     

@@ -21,6 +21,7 @@ A Pydev (Jython) project can coexist with a JDT project (and properly use its in
 Many small usability improvements (editors improved)
 Debugger jump to line
 Created auto-reload when code changes in the editor if inside debug context.
+Verbosity option added to run as unit-test.
 
 
 After 1.4.6
