@@ -36,9 +36,9 @@ try:
 except:
     #Python 3k does not have it
     xrange = range
-    
-    
-    
+
+
+
 #=======================================================================================================================
 # getopt code copied since gnu_getopt is not available on jython 2.1
 #=======================================================================================================================
@@ -197,13 +197,13 @@ def parse_cmdline():
     for opt, value in optlist:
         if opt in ("-v", "--verbosity"):
             verbosity = value
-            
+
         elif opt in ("-f", "--filter"):
             test_filter = value.split(',')
-                
+
         elif opt in ("-t", "--tests"):
             tests = value.split(',')
-                
+
     if type([]) != type(dirs):
         dirs = [dirs]
 
@@ -233,7 +233,7 @@ class PydevTestRunner:
         self.test_filter = self.__setup_test_filter(test_filter)
         self.verbosity = verbosity
         self.tests = tests
-        
+
 
     def __adjust_path(self):
         """ add the current file or directory to the python path """
@@ -323,7 +323,7 @@ class PydevTestRunner:
 
         return pyfiles
 
-    def __get_module_from_str(self, modname):
+    def __get_module_from_str(self, modname, print_exception):
         """ Import the module in the given import path.
             * Returns the "final" module, so importing "coilib40.subject.visu" 
             returns the "visu" module, not the "coilib40" as returned by __import__ """
@@ -333,8 +333,9 @@ class PydevTestRunner:
                 mod = getattr(mod, part)
             return mod
         except:
-            import traceback;traceback.print_exc()
-            sys.stderr.write('ERROR: Module: %s could not be imported.\n' % (modname,))
+            if print_exception:
+                import traceback;traceback.print_exc()
+                sys.stderr.write('ERROR: Module: %s could not be imported.\n' % (modname,))
             return None
 
     def find_modules_from_files(self, pyfiles):
@@ -347,21 +348,28 @@ class PydevTestRunner:
             system_paths.append(self.__importify(s, True))
 
 
-        new_imports = []
+        ret = []
         for imp in imports:
             if imp is None:
                 continue #can happen if a file is not a valid module
+            choices = []
             for s in system_paths:
                 if imp.startswith(s):
                     add = imp[len(s) + 1:]
-                    new_imports.append(add)
+                    if add:
+                        choices.append(add)
                     #sys.stdout.write(' ' + add + ' ')
-                    break
-            else:
-                sys.stdout.write('PYTHONPATH not found for file: %s\n' % imp)
 
-        imports = new_imports
-        ret = [self.__get_module_from_str(import_str) for import_str in imports if import_str is not None]
+            if not choices:
+                sys.stdout.write('PYTHONPATH not found for file: %s\n' % imp)
+            else:
+                for i, import_str in enumerate(choices):
+                    mod = self.__get_module_from_str(import_str, print_exception=i == len(choices) - 1)
+                    if mod is not None:
+                        ret.append(mod)
+                        break
+
+
         return ret
 
     def find_tests_from_modules(self, modules):
@@ -372,53 +380,53 @@ class PydevTestRunner:
         if self.tests:
             accepted_classes = {}
             accepted_methods = {}
-            
+
             for t in self.tests:
                 splitted = t.split('.')
                 if len(splitted) == 1:
                     accepted_classes[t] = t
-                    
+
                 elif len(splitted) == 2:
                     accepted_methods[t] = t
-                    
+
             #===========================================================================================================
             # GetTestCaseNames
             #===========================================================================================================
             class GetTestCaseNames:
                 """Yes, we need a class for that (cannot use outer context on jython 2.1)"""
-                    
+
                 def __init__(self, accepted_classes, accepted_methods):
                     self.accepted_classes = accepted_classes
                     self.accepted_methods = accepted_methods
-                        
+
                 def __call__(self, testCaseClass):
                     """Return a sorted sequence of method names found within testCaseClass"""
                     testFnNames = []
                     className = testCaseClass.__name__
-                    
+
                     if DictContains(self.accepted_classes, className):
                         for attrname in dir(testCaseClass):
                             #If a class is chosen, we select all the 'test' methods'
                             if attrname.startswith('test') and hasattr(getattr(testCaseClass, attrname), '__call__'):
                                 testFnNames.append(attrname)
-                                
+
                     else:
                         for attrname in dir(testCaseClass):
                             #If we have the class+method name, we must do a full check and have an exact match.
                             if DictContains(self.accepted_methods, className + '.' + attrname):
                                 if hasattr(getattr(testCaseClass, attrname), '__call__'):
                                     testFnNames.append(attrname)
-                                  
+
                     #sorted() is not available in jython 2.1
-                    testFnNames.sort()  
+                    testFnNames.sort()
                     return testFnNames
-            
-            
+
+
             loader.getTestCaseNames = GetTestCaseNames(accepted_classes, accepted_methods)
-                
-        
+
+
         ret.extend([loader.loadTestsFromModule(m) for m in modules])
-            
+
         return ret
 
 
@@ -427,13 +435,13 @@ class PydevTestRunner:
             the test case names that match """
         test_suite = []
         for test_obj in test_objs:
-            
+
             if isinstance(test_obj, unittest.TestSuite):
                 if test_obj._tests:
                     test_obj._tests = self.filter_tests(test_obj._tests)
                     if test_obj._tests:
                         test_suite.append(test_obj)
-                
+
             elif isinstance(test_obj, unittest.TestCase):
                 test_cases = []
                 for tc in test_objs:
@@ -452,22 +460,22 @@ class PydevTestRunner:
     def __match_tests(self, tests, test_case, test_method_name):
         if not tests:
             return 1
-        
+
         for t in tests:
             class_and_method = t.split('.')
             if len(class_and_method) == 1:
                 #only class name
                 if class_and_method[0] == test_case.__class__.__name__:
                     return 1
-                
+
             elif len(class_and_method) == 2:
                 if class_and_method[0] == test_case.__class__.__name__ and class_and_method[1] == test_method_name:
                     return 1
-                
+
         return 0
-                
-                
-        
+
+
+
 
     def __match(self, filter_list, name):
         """ returns whether a test name matches the test filter """
@@ -489,15 +497,15 @@ class PydevTestRunner:
         sys.stdout.write("done.\n")
         all_tests = self.find_tests_from_modules(modules)
         if self.test_filter or self.tests:
-            
+
             if self.test_filter:
                 sys.stdout.write('Test Filter: %s' % ([p.pattern for p in self.test_filter],))
-                
+
             if self.tests:
                 sys.stdout.write('Tests to run: %s' % (self.tests,))
-                
+
             all_tests = self.filter_tests(all_tests)
-            
+
         sys.stdout.write('\n')
         runner = unittest.TextTestRunner(stream=sys.stdout, descriptions=1, verbosity=verbosity)
         runner.run(unittest.TestSuite(all_tests))

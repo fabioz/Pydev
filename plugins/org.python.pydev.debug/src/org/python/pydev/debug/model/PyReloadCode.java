@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.debug.model.remote.ReloadCodeCommand;
 import org.python.pydev.editor.IPyEditListener;
@@ -29,9 +30,12 @@ public class PyReloadCode implements IPyEditListener{
             if(context instanceof PyStackFrame){
                 PyStackFrame stackFrame = (PyStackFrame) context;
                 try{
-                    String moduleName = edit.getPythonNature().resolveModule(file);
-                    stackFrame.getTarget().postCommand(
-                            new ReloadCodeCommand(stackFrame.getTarget(), moduleName));
+                    IPythonNature pythonNature = edit.getPythonNature();
+                    if(pythonNature != null){
+                        String moduleName = pythonNature.resolveModule(file);
+                        stackFrame.getTarget().postCommand(
+                                new ReloadCodeCommand(stackFrame.getTarget(), moduleName));
+                    }
                 }catch(MisconfigurationException e){
                     PydevPlugin.log(e);
                 }
