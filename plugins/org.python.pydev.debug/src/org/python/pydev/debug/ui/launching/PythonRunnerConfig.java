@@ -600,8 +600,10 @@ public class PythonRunnerConfig {
             addVmArgs(cmdArgs);
                 
             if (isDebug) {
-                cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); //TODO: the user should configure this -- we use it so that 
-                                                                                 //we can access the variables during debugging. 
+                //This was removed because it cannot be used. See: 
+                //http://bugs.jython.org/issue1438
+                //cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); 
+                
                 cmdArgs.add("org.python.util.jython");
                 addDebugArgs(cmdArgs, "jython");
             }else{
