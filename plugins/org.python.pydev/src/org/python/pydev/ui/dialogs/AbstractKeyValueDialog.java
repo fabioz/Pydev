@@ -231,11 +231,16 @@ public abstract class AbstractKeyValueDialog extends Dialog {
                 String file = handleBrowseButton();
                 if (file != null){
                     file = file.trim();
-                    valueField.setText(file);
+                    setValueField(file);
                 }
                 changesValidator.handleEvent(null); //Make it update the error message
             }
+
         });
+    }
+    
+    protected void setValueField(String value){
+        valueField.setText(value);
     }
     
 

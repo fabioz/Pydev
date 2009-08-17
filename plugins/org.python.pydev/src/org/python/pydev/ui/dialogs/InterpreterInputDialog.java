@@ -107,6 +107,11 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
         return file;
     }
     
-    
+    protected void setValueField(String file){
+        if(keyField.getText().trim().equals("")){
+            keyField.setText(file);
+        }
+        super.setValueField(file);
+    }
 	
 }
