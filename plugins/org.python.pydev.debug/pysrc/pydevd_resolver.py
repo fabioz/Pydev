@@ -251,9 +251,13 @@ class TupleResolver: #to enumerate tuples and lists
     def getDictionary(self, var):
         #return dict( [ (i, x) for i, x in enumerate(var) ] )
         # modified 'cause jython does not have enumerate support
+        l = len(var)
+        format = '%0'+str(int(len(str(l))))+'d'
+        
+        
         d = {}
-        for i, item in zip(range(len(var)), var):
-            d[ i ] = item
+        for i, item in zip(range(l), var):
+            d[ format % i ] = item
         d['__len__'] = len(var)
         return d
 

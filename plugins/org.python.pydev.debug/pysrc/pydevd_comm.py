@@ -578,7 +578,7 @@ class InternalGetVariable(InternalThreadCommand):
             if hasattr(keys, 'sort'):
                 keys.sort() #Python 3.0 does not have it
             else:
-                keys = sorted(keys) #Jython 2.1 does not have it
+                keys = sorted(keys, key=str) #Jython 2.1 does not have it (and all must be compared as strings).
             for k in keys:
                 xml += pydevd_vars.varToXML(valDict[k], str(k))
 
