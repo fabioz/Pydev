@@ -5,7 +5,7 @@ Pydev Extensions
 Created public API for starting/finishing debug server
 Import based on unresolved variables works correctly when the document is changed.
 Ignore error works correctly when the document is changed.
-
+No longer showing the replace button for the search
 
 Pydev
 Usability improvement on the preferences pages (editor, code-formatter, comment block and code-style showing examples)
