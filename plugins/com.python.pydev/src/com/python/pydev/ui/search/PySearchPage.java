@@ -62,7 +62,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
-public class PySearchPage extends DialogPage implements ISearchPage, IReplacePage{
+public class PySearchPage extends DialogPage implements ISearchPage{
 
     private static final int HISTORY_SIZE= 12;
     public static final String EXTENSION_POINT_ID= "com.python.pydev.ui.search.pySearchPage"; 
