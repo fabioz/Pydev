@@ -12,6 +12,9 @@ except:
     setattr(__builtin__, 'False', 0)
 
 
+MAX_ITEMS_TO_HANDLE = 500
+TOO_LARGE_MSG = 'Too large to show contents. Max items to show: ' + str(MAX_ITEMS_TO_HANDLE)
+TOO_LARGE_ATTR = 'Unable to handle:'
 
 #=======================================================================================================================
 # UnableToResolveVariableException
@@ -244,7 +247,7 @@ class TupleResolver: #to enumerate tuples and lists
             @param var: that's the original attribute
             @param attribute: that's the key passed in the dict (as a string)
         '''
-        if attribute == '__len__':
+        if attribute == '__len__' or attribute == TOO_LARGE_ATTR:
             return None
         return var[int(attribute)]
 
@@ -252,12 +255,16 @@ class TupleResolver: #to enumerate tuples and lists
         #return dict( [ (i, x) for i, x in enumerate(var) ] )
         # modified 'cause jython does not have enumerate support
         l = len(var)
-        format = '%0'+str(int(len(str(l))))+'d'
-        
-        
         d = {}
-        for i, item in zip(range(l), var):
-            d[ format % i ] = item
+        
+        if l < MAX_ITEMS_TO_HANDLE:
+            format = '%0' + str(int(len(str(l)))) + 'd'
+            
+            
+            for i, item in zip(range(l), var):
+                d[ format % i ] = item
+        else:
+            d[TOO_LARGE_ATTR] = TOO_LARGE_MSG
         d['__len__'] = len(var)
         return d
 

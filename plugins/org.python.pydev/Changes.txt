@@ -23,6 +23,7 @@ Debugger jump to line
 Created auto-reload when code changes in the editor if inside debug context.
 Verbosity option added to run as unit-test.
 No longer using respectJavaAccessibility=False for jython (see: http://bugs.jython.org/issue1438)
+When there are too many items to show, let the user know that pydev won't be able to show all those elements.
 
 
 After 1.4.6
