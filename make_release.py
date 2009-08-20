@@ -36,11 +36,12 @@ d:\bin\python261\python.exe --up-site
 '''
 
 #We have to update the versions on each release!
-VERSION = "1.4.7"
-VERSION_WITH_SVN = "1.4.7.2843"
+VERSION = "1.4.8"
+VERSION_WITH_SVN = "1.4.8.2881"
 
 ALL_VERSIONS_TO_CHECK = [
     VERSION_WITH_SVN,
+    "1.4.7.2843",
     "1.4.6.2788",
     "1.4.5.2727"
 ]
