@@ -121,70 +121,49 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
 //        btGetInfo.setLayoutData(data);
 
         
-        if(isInAptanaStudio()){
-            linkFieldEditor = new LinkFieldEditor("NOT_REALLY_USED_FIELD_EDITOR", "<a>Link:</a>", composite, new SelectionListener() {
-                public void widgetSelected(SelectionEvent e) {
-                    String id = "com.aptana.ide.intro.preferences.LicensePreferencePage";
-                    IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
-                    workbenchPreferenceContainer.openPage(id, null);
-                }
-
-                public void widgetDefaultSelected(SelectionEvent e) {
-                }
-            });
-            addField(linkFieldEditor);
-            
-        }else{
-        
-            String msg1 = "If you alredy received your license, please fill in your e-mail, paste the license you received and press 'Validate'.";
-            label = new Label(composite, SWT.NONE);
-            label.setText("\n\n"+WordUtils.wrap(msg1, 80));
-            data = new GridData(GridData.FILL_HORIZONTAL);
-            data.horizontalSpan = 2;
-            data.grabExcessHorizontalSpace = true;
-            label.setLayoutData(data);
-            
-            eMailFieldEditor = new StringFieldEditor(PydevExtensionInitializer.USER_EMAIL, "E-mail (or username):", composite);
-            licenseFieldEditor = new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE, "License Key:", composite);
-            addField(eMailFieldEditor);
-            addField(licenseFieldEditor);
-            
-            Button btValidate = new Button(composite, SWT.PUSH);
-            btValidate.setText("Validate");
-            btValidate.setFont( composite.getFont() );
-            btValidate.addSelectionListener(new ValidateButtonListener());        
-            data = new GridData(GridData.FILL_HORIZONTAL);
-            data.horizontalSpan = 2;
-            data.grabExcessHorizontalSpace = true;
-            btValidate.setLayoutData(data);
-            
-            
-            labelUser = new Label(composite, SWT.NONE);
-            data = new GridData(GridData.FILL_HORIZONTAL);
-            data.horizontalSpan = 2;
-            data.grabExcessHorizontalSpace = true;
-            labelUser.setLayoutData(data);
-            
-            labelExp = new Label(composite, SWT.NONE);
-            data = new GridData(GridData.FILL_HORIZONTAL);
-            data.horizontalSpan = 2;
-            data.grabExcessHorizontalSpace = true;
-            labelExp.setLayoutData(data);
-            
-            labelType = new Label(composite, SWT.NONE);
-            data = new GridData(GridData.FILL_HORIZONTAL);
-            data.horizontalSpan = 2;
-            data.grabExcessHorizontalSpace = true;
-            labelType.setLayoutData(data);
     
-            updateLicInfo();
-        }
-    }
+        String msg1 = "If you alredy received your license, please fill in your e-mail, paste the license you received and press 'Validate'.";
+        label = new Label(composite, SWT.NONE);
+        label.setText("\n\n"+WordUtils.wrap(msg1, 80));
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        label.setLayoutData(data);
+        
+        eMailFieldEditor = new StringFieldEditor(PydevExtensionInitializer.USER_EMAIL, "E-mail (or username):", composite);
+        licenseFieldEditor = new MultiStringFieldEditor(PydevExtensionInitializer.LICENSE, "License Key:", composite);
+        addField(eMailFieldEditor);
+        addField(licenseFieldEditor);
+        
+        Button btValidate = new Button(composite, SWT.PUSH);
+        btValidate.setText("Validate");
+        btValidate.setFont( composite.getFont() );
+        btValidate.addSelectionListener(new ValidateButtonListener());        
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        btValidate.setLayoutData(data);
+        
+        
+        labelUser = new Label(composite, SWT.NONE);
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        labelUser.setLayoutData(data);
+        
+        labelExp = new Label(composite, SWT.NONE);
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        labelExp.setLayoutData(data);
+        
+        labelType = new Label(composite, SWT.NONE);
+        data = new GridData(GridData.FILL_HORIZONTAL);
+        data.horizontalSpan = 2;
+        data.grabExcessHorizontalSpace = true;
+        labelType.setLayoutData(data);
 
-
-    private boolean isInAptanaStudio() {
-        //TODO: Detect whether we're in aptana studio correctly
-        return false;
+        updateLicInfo();
     }
 
 
@@ -193,18 +172,11 @@ public class MainExtensionsPreferencesPage extends FieldEditorPreferencePage imp
      */
     private void updateLicInfo() {
         try {
-            String licenseProvider = getFieldValue(PydevExtensionInitializer.LIC_PROVIDER);
             String expirationTimeString = getFieldValue(PydevExtensionInitializer.LIC_TIME);
             
             Calendar expTime;
-            if(PydevPlugin.isPydevLicenseProvider(licenseProvider)){
-                //OK, it's a Pydev license, so, the expiration date must be calculated...
-                expTime = PydevPlugin.getExpTime(expirationTimeString);
-            }else{
-                //Aptana license: it's OK, the expiration date is already correct
-                expTime = Calendar.getInstance();
-                expTime.setTimeInMillis(Long.parseLong(expirationTimeString));
-            }
+            //OK, it's a Pydev license, so, the expiration date must be calculated...
+            expTime = PydevPlugin.getExpTime(expirationTimeString);
             
             String formattedDate = PydevPlugin.formatDate(expTime);
             labelExp.setText("Expires at: " + formattedDate);

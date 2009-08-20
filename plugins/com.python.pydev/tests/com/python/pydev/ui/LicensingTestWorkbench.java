@@ -1,10 +1,8 @@
 package com.python.pydev.ui;
 
-import com.aptana.ide.core.ui.preferences.ApplicationPreferences;
-import com.aptana.ide.core.ui.preferences.IPreferenceConstants;
-import com.python.pydev.PydevPlugin;
-
 import junit.framework.TestCase;
+
+import com.python.pydev.PydevPlugin;
 
 public class LicensingTestWorkbench extends TestCase{
     
@@ -29,42 +27,6 @@ public class LicensingTestWorkbench extends TestCase{
         plugin.saveLicense(invalidPydev, "valid_pydev", "Pydev");
         plugin.checkValidStr();
         assertTrue(!plugin.checkValid());
-        
-        
-        //valid license
-        String validAptana = "" +
-        		"--begin-aptana-license--" +
-        		"10465823113475051543783567" +
-        		"91540800829455099504387745" +
-        		"87823149652493795939048273" +
-        		"42699848888392311428955832" +
-        		"13258739566850730919698017" +
-        		"96672194726139161693761588" +
-        		"48837436903613544035374426" +
-        		"31090631617826789465965549" +
-        		"27256288329425218289335717" +
-        		"58716786920917605249449235" +
-        		"36750516426478224703496554" +
-        		"17481608184332090735265" +
-        		"--end-aptana-license--" +
-        		"";
-        
-        plugin.saveLicense(validAptana, "asasaki", "Aptana");
-        plugin.checkValidStr();
-        assertTrue(plugin.checkValid());
-        
-        //let's see if it saved for Aptana...
-        assertEquals("asasaki", ApplicationPreferences.getInstance().getString(IPreferenceConstants.ACTIVATION_EMAIL_ADDRESS));
-        assertEquals(validAptana, ApplicationPreferences.getInstance().getString(IPreferenceConstants.ACTIVATION_KEY));
-        
-        
-        //expired license
-        String expiredAptana = "22983901328960548200186726172752019755391927862273541221817531927825394897692490551866553975351369337755911292721220479872921968921016134817557812147304787606042260500911113707788278292805637156469732836924511378606211568124640990571941177079604439414795160995140097715439323455782203014983181370468416294241";
-        plugin.saveLicense(expiredAptana, "joellelam2", "Aptana");
-        plugin.checkValidStr();
-        assertTrue(!plugin.checkValid());
-        assertEquals("joellelam2", ApplicationPreferences.getInstance().getString(IPreferenceConstants.ACTIVATION_EMAIL_ADDRESS));
-        assertEquals(expiredAptana, ApplicationPreferences.getInstance().getString(IPreferenceConstants.ACTIVATION_KEY));
         
     }
 

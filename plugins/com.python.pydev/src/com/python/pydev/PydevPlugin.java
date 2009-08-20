@@ -36,9 +36,6 @@ import org.python.pydev.core.bundle.BundleUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 
-import com.aptana.ide.core.licensing.ILicenseKey;
-import com.aptana.ide.core.ui.preferences.ApplicationPreferences;
-import com.aptana.ide.core.ui.preferences.IPreferenceConstants;
 import com.python.pydev.license.ClientEncryption;
 import com.python.pydev.util.PydevExtensionNotifier;
 
@@ -166,12 +163,6 @@ public class PydevPlugin extends AbstractUIPlugin {
      * @param licenseProvider "Aptana" or "Pydev"
      */
     public void saveLicense( String license, String emailOrUsername, String licenseProvider ) {    
-        if(isAptanaLicenseProvider(licenseProvider)){
-            //if it's an Aptana license, let's save it in the Aptana location too.
-            ApplicationPreferences.getInstance().setString(IPreferenceConstants.ACTIVATION_EMAIL_ADDRESS, emailOrUsername);
-            ApplicationPreferences.getInstance().setString(IPreferenceConstants.ACTIVATION_KEY, license);
-        }
-        
         getPreferenceStore().setValue(PydevExtensionInitializer.USER_EMAIL, emailOrUsername);
         
         Bundle bundle = Platform.getBundle("com.python.pydev");
@@ -204,10 +195,6 @@ public class PydevPlugin extends AbstractUIPlugin {
             return keyAndEmail;
         }
         
-        keyAndEmail = getLicenseKeyAndEmailFromAptana();
-        if(hasContentsForKeyAndEmail(keyAndEmail)){
-            return keyAndEmail;
-        }
 
         return null; //no contents available
     }
@@ -241,15 +228,6 @@ public class PydevPlugin extends AbstractUIPlugin {
             returnMsg = e.getMessage();
         }
         
-        
-        // Tries to validate the license from the Aptana preferences.
-        try {
-            if(tryToValidateKeyAndEmail(getLicenseKeyAndEmailFromAptana())){
-                return null; 
-            }
-        } catch (Exception e) {
-            returnMsg = e.getMessage();
-        }
         
         
         //if it got here, we were not able to validate!
@@ -298,14 +276,6 @@ public class PydevPlugin extends AbstractUIPlugin {
     }
 
     
-    /**
-     * @return a tuple with the key and the e-mail that should eb used to decrypt it from the pydev preferences.
-     */
-    private UserAndLicense getLicenseKeyAndEmailFromAptana() {
-        String email = ApplicationPreferences.getInstance().getString(IPreferenceConstants.ACTIVATION_EMAIL_ADDRESS);
-        String key = ApplicationPreferences.getInstance().getString(IPreferenceConstants.ACTIVATION_KEY);
-        return new UserAndLicense(email, key);
-    }
     
     /**
      * @return a tuple with the key and the e-mail that should be used to decrypt it from a file in the plugin location.
@@ -418,40 +388,6 @@ public class PydevPlugin extends AbstractUIPlugin {
                 
             }
             
-            //something went wrong when trying to decrypt it with the pydev license... let's go on and try to 
-            //decrypt it with the Aptana license
-            try {
-                ILicenseKey clientKey = com.aptana.ide.professional.licensing.LicensingUtilities.decrypt(encLicense, enteredEmail);
-                if(clientKey.getEmail() == null){
-                    //leave same exception... no email is available
-                }else{
-                    if(clientKey.isValid()){
-                        //note: number of clients hardcoded
-                        String licenseType = "Aptana";
-                        
-                        if(clientKey.isTrial()){
-                            licenseType += " trial";
-                        }else{
-                            licenseType += " pro";
-                        }
-                        if(!clientKey.isExpired()){
-                            PrefsToShow prefsToShow = new PrefsToShow(clientKey.getEmail(), clientKey.getExpiration().getTimeInMillis()+"", licenseType, "1", hideDetails, false);
-                            setPrefsToShow(prefsToShow, prefsStore);
-                            return true;
-                        }else{
-                            //change the exception to be thrown
-                            e = new InvalidLicenseException(StringUtils.format("The current %s license expired at: %s", licenseType, formatDate(clientKey.getExpiration())), true);
-                        }
-                    }else{
-                        //change the exception to be thrown
-                        e = new InvalidLicenseException("The current license information is not valid", true);
-                    }
-                }
-                
-            } catch (Exception e1) {
-                //something unexpected happened... just go on and throw the 'e' exception: it could've been already changed if it was an Aptana license.
-            }
-
             throw e;
         }
         
@@ -503,18 +439,13 @@ public class PydevPlugin extends AbstractUIPlugin {
         String licenseType=prefsToShow.licenseType;
         String devs=prefsToShow.devs;
         boolean hideDetails=prefsToShow.hideDetails;
-        boolean isPydevLicense=prefsToShow.isPydevLicense;
         
         prefsStore.setValue(PydevExtensionInitializer.USER_NAME, name);
         prefsStore.setValue(PydevExtensionInitializer.LIC_TIME, time);
         prefsStore.setValue(PydevExtensionInitializer.LIC_TYPE, licenseType);
         prefsStore.setValue(PydevExtensionInitializer.LIC_DEVS, devs);
 
-        if(isPydevLicense){
-            prefsStore.setValue(PydevExtensionInitializer.LIC_PROVIDER, "Pydev");
-        }else{
-            prefsStore.setValue(PydevExtensionInitializer.LIC_PROVIDER, "Aptana");
-        }
+        prefsStore.setValue(PydevExtensionInitializer.LIC_PROVIDER, "Pydev");
         
         if(hideDetails){
             prefsStore.setValue(PydevExtensionInitializer.USER_EMAIL, "Install validated for: "+name);
@@ -522,22 +453,6 @@ public class PydevPlugin extends AbstractUIPlugin {
         }
     }
 
-    
-    /**
-     * @param licenseProvider "Aptana", "Pydev" or null/empty -- which means Pydev
-     * @return true if the licenseProvider registered is Aptana (and not Pydev)
-     */
-    public static boolean isAptanaLicenseProvider(String licenseProvider) {
-        return !isPydevLicenseProvider(licenseProvider);
-    }
-
-    /**
-     * @param licenseProvider "Aptana", "Pydev" or null/empty -- which means Pydev
-     * @return true if the licenseProvider registered is Pydev (and not Aptana)
-     */
-    public static boolean isPydevLicenseProvider(String licenseProvider) {
-        return licenseProvider == null || licenseProvider.trim().length() == 0 || !licenseProvider.equals("Aptana");
-    }
 
     /**
      * @param date the date to be formatted to be shown to the user.
