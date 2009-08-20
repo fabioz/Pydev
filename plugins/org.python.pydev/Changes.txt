@@ -2,28 +2,28 @@ After 1.4.7
 
 
 Pydev Extensions
-Created public API for starting/finishing debug server
-Import based on unresolved variables works correctly when the document is changed.
-Ignore error works correctly when the document is changed.
-No longer showing the replace button for the search
+<li>Created public API for starting/finishing debug server</li>
+<li>Import based on unresolved variables works correctly when the document is changed</li>
+<li>Ignore error works correctly when the document is changed</li>
+<li>No longer showing the replace button for the search</li>
 
 Pydev
-Usability improvement on the preferences pages (editor, code-formatter, comment block and code-style showing examples)
-Pythonpath reported in the main tab was not correct for ironpython launch configs
-Main module tab in launch configuration was not appearing for jython
-Multiline block comments considering the current indentation (and working with tabs) 
-Hover works correctly when the document is changed.
-The interactive console no longer uses the UI thread (so, it doesn't make eclipse halt anymore on slow requests to the shell)
-The interactive console save history now saves the contents in the same way they're written
-When creating a python run, the classpath was being set (and overridden), which should only happen in jython runs.
-Fixed issue where a line with only tabs and a close parenthesis would have additional tabs entered on code-formatting.
-A Pydev (Jython) project can coexist with a JDT project (and properly use its info -- only project references worked previously)
-Many small usability improvements (editors improved)
-Debugger jump to line
-Created auto-reload when code changes in the editor if inside debug context.
-Verbosity option added to run as unit-test.
-No longer using respectJavaAccessibility=False for jython (see: http://bugs.jython.org/issue1438)
-When there are too many items to show, let the user know that pydev won't be able to show all those elements.
+<li>Debugger can jump to line</li>
+<li>Reloading module when code changes in the editor if inside debug session</li>
+<li>Usability improvement on the preferences pages (editor, code-formatter, comment block and code-style showing examples)</li>
+<li>Pythonpath reported in the main tab was not correct for ironpython launch configs</li>
+<li>Main module tab in launch configuration was not appearing for jython</li>
+<li>Multiline block comments considering the current indentation (and working with tabs) </li>
+<li>Hover works correctly when the document is changed</li>
+<li>The interactive console no longer uses the UI thread (so, it doesn't make eclipse halt anymore on slow requests to the shell)</li>
+<li>The interactive console save history now saves the contents in the same way they're written</li>
+<li>When creating a python run, the classpath was being set (and overridden), which should only happen in jython runs</li>
+<li>Fixed issue where a line with only tabs and a close parenthesis would have additional tabs entered on code-formatting</li>
+<li>A Pydev (Jython) project can coexist with a JDT project (and properly use its info -- only project references worked previously)</li>
+<li>Many small usability improvements (editors improved)</li>
+<li>Verbosity option added to run as unit-test</li>
+<li>No longer using respectJavaAccessibility=False for jython</li>
+<li>When there are too many items to show in the debugger, handle it gracefully</li>
 
 
 After 1.4.6
