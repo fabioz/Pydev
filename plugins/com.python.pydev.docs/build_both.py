@@ -10,7 +10,7 @@ for arg in args:
         version = arg[len('--version='):]
         LAST_VERSION_TAG = version
 else:
-    LAST_VERSION_TAG = '1.4.7' #Not specified (let's leave one there)
+    LAST_VERSION_TAG = '1.4.8' #Not specified (let's leave one there)
 
 
 

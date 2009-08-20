@@ -42,7 +42,30 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
 
 
 
-<h3>New Release: LAST_VERSION_TAG</h3>
+
+<h3>New Release: 1.4.8</h3>
+
+<ul>
+<li>Debugger can jump to line</li>
+<li>Reloading module when code changes in the editor if inside debug session</li>
+<li>Usability improvement on the preferences pages (editor, code-formatter, comment block and code-style showing examples)</li>
+<li>Pythonpath reported in the main tab was not correct for ironpython launch configs</li>
+<li>Main module tab in launch configuration was not appearing for jython</li>
+<li>Multiline block comments considering the current indentation (and working with tabs) </li>
+<li>Hover works correctly when the document is changed</li>
+<li>The interactive console no longer uses the UI thread (so, it doesn't make eclipse halt anymore on slow requests to the shell)</li>
+<li>The interactive console save history now saves the contents in the same way they're written</li>
+<li>When creating a python run, the classpath was being set (and overridden), which should only happen in jython runs</li>
+<li>Fixed issue where a line with only tabs and a close parenthesis would have additional tabs entered on code-formatting</li>
+<li>A Pydev (Jython) project can coexist with a JDT project (and properly use its info -- only project references worked previously)</li>
+<li>Many small usability improvements (editors improved)</li>
+<li>Verbosity option added to run as unit-test</li>
+<li>No longer using respectJavaAccessibility=False for jython</li>
+<li>When there are too many items to show in the debugger, handle it gracefully</li>
+</ul>
+
+
+<h3>New Release: 1.4.7</h3>
 
 <ul>
 <li><strong>Iron Python (2.6 or newer) support</strong></li>
@@ -102,57 +125,6 @@ If you want more details, check the <a href="http://www.fabioz.com/pydev">Pydev 
     
 
 
-
-<h3>New Release: 1.4.5</h3>
-
-<ul>
-<li>Better <strong>error handling</strong> in the grammar</li>
-
-<li><strong>Code Formatter</strong></li>
-<ul>
-    <li>Can be applied from context menu (recursively applied for folders)</li>
-    <li>Can trim whitespaces from the end of the lines</li>
-    <li>Can add new a line to the end of the file</li>
-    <li>Can automatically apply code-formatting on save</li>
-    <li>Fixed issues with unary operators and exponential</li>
-    <li>Fixed issues where parenthesis was lost if no closing parenthesis was available</li>
-</ul>
-
-
-<li><strong>Python 3.0</strong></li>
-<ul>
-    <li>Parser supporting unicode identifiers</li>
-    <li>Star expr recognized</li>
-</ul>
-
-
-<li>Python 3.1 version acknowledged (and proper grammar used)</li>
-<li><strong>Pydev package explorer</strong></li>
-<ul>
-<li>Can show working sets as top-level elements</li>
-<li>Folders without __init__.py are no longer shown as packages</li>
-</ul>
-
-<li><strong>Interactive console</strong></li>
-<ul>
-    <li>When waiting for user input, the prompt is not shown</li>
-    <li>Console initial commands compatible with Python 3.0</li>
-    <li>Timeout for starting console communication while the shell is not fully initilized</li>
-    <li>More info is available if connection fails</li>
-</ul>
-
-<li>Alt+R working (mnemonics set for pydev contributed menus)</li>
-<li>With Ctrl+2, matches will no longer take into acount the case</li>
-<li>Code completion: Can get args from docstring when '*' is present</li>
-<li>Better heuristics for automatic insertion of "self" and "import"</li>
-<li>Fixed problem configuring external jars and zip files</li>
-<li>Launch getting interpreter from project on default config</li>
-<li>After a parenthesis, 'n' indentation levels may be applied (patch by Radim Kubacki)</li>
-<li>.pyc files are now marked as derived (note that this will only happen when they're changed)</li>
-<li>Fixed debugger issue with Jython 2.5b3</li>
-<li>Jython: completions working for static members access</li>
-<li>Hover works on Eclipse 3.2</li>
-</ul>
 
 
 <br/>
