@@ -23,7 +23,9 @@ must be copied to the proper location)
 
 Generate P2: 
 pro_both: D:\bin\eclipse342\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_pro_both\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_both\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_both -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_both -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+
 pro_only: D:\bin\eclipse342\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_pro_only\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_only\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_only -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_pro_only -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+
 open:     D:\bin\eclipse342\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\temp_deployDir\backupOfProUpdateSite\updates_open\ -site file:W:\temp_deployDir\backupOfProUpdateSite\updates_open\site.xml -metadataRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_open -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\temp_deployDir\backupOfProUpdateSite\updates_open -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
 
 
@@ -35,6 +37,8 @@ Upload contents:
    and do release: E.g.: Pydev 1.3.7 -- details at http://alexandria.wiki.sourceforge.net/File+Release+System+-+Offering+Files+for+Download#upload
 
 Add contents to Aptana update site
+
+d:\bin\Python261\python.exe pydev_uploader.py -s W:\temp_deployDir\pydev_pro -d pydev-pro
 
 Stopped here:
    
