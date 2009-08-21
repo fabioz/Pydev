@@ -33,8 +33,9 @@ Upload contents:
 1. W:\temp_deployDir\updateSite\pydev to fabioz,pydev@web.sourceforge.net
 2. W:\temp_deployDir\updateSite\pydevPro to fabioz.com
 3. W:\temp_deployDir\updateSite\zipsPydevPro to fabioz.com
-4. W:\temp_deployDir\updateSite\zipsPydev to sourceforge: sftp: frs.sourceforge.net /incoming/f/fa/fabioz/uploads
-   and do release: E.g.: Pydev 1.3.7 -- details at http://alexandria.wiki.sourceforge.net/File+Release+System+-+Offering+Files+for+Download#upload
+4. W:\temp_deployDir\updateSite\zipsPydev to sourceforge: 
+    Create folder at: https://sourceforge.net/project/admin/explorer.php?group_id=85796
+    sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/Pydev 1.4.8 and add file: E.g.: Pydev 1.3.7
 
 Add contents to Aptana update site
 
