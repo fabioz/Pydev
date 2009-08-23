@@ -1,0 +1,40 @@
+Code Completion
+===============
+
+Context-Sensitive
+-----------------
+
+Current code completion (context-sensitive) features should be kept
+
+Additions:
+- completing on method returns (the method called should be analyzed to know what can it return).
+- local imports should be considered when doing the code completion - OK
+- make code completion for call-tips (inside parentesis):
+	- should happen right after a parentesis or after a comma inside a parentesis
+
+
+Not context-sensitive and Auto-import
+-------------------------------------
+
+The not context-sensitive code completion should work toghether with the auto-import feature. - OK
+
+What will it contain:
+- modules available - OK
+- classes defined in the global scope - OK
+- methods defined in the global scope - OK
+- pydoc should show in analyzed files
+- methods should have parameters by default
+- classes should have parameters by default because of constructor
+
+Concerns
+--------
+
+- user should be able to select the number of characters that should be in the activation token in order to get 
+the not context-sensitive completions
+- compiled modules (the tokens for compiled modules will not appear -- only the compiled modules themselves)
+
+
+
+
+
+

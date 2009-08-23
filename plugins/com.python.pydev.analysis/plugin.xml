@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.analysis.ui.AnalysisPreferencesPage"
+            category="org.python.pydev.prefs.extensions"
+            id="org.python.pydev.prefs.extensions.analysis"
+            name="Code Analysis"/>
+   </extension>
+   
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.analysis.ui.AutoImportsPreferencesPage"
+            category="org.python.pydev.prefs.extensions"
+            id="org.python.pydev.prefs.extensions.autoimports"
+            name="Auto Imports"/>
+   </extension>
+
+	<extension
+       id="pydev_analysis_problemmarker"
+       name="PyDev Problem"
+       point="org.eclipse.core.resources.markers">
+	   <super type="org.eclipse.core.resources.problemmarker"/>
+	   <persistent value="true"/>
+	</extension>
+	
+<!-- Adds ctrl+2+ - - d -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.builder.ClearAnalysisMarkersPyEditListener"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_builder">
+   		<!--Also does the ctx insensitive builder part (which was removed)-->
+   		<builder_participant class="com.python.pydev.analysis.builder.AnalysisBuilderVisitor"/>
+   </extension>
+   
+   <extension point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.python.pydev.analysis.AnalysisPreferenceInitializer"/>
+   </extension>
+
+   <extension point="org.python.pydev.parser.pydev_parser_observer">
+   		<parser_observer class="com.python.pydev.analysis.builder.AnalysisParserObserver"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_interpreter_observer">
+  		<interpreter_observer class="com.python.pydev.analysis.additionalinfo.builders.InterpreterObserver"/>
+   </extension>
+   
+   <extension point="org.python.pydev.pydev_ctrl_1">
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.AnalysisMarkersParticipants"/>
+   </extension>
+   
+   <extension point="org.python.pydev.pydev_ctrl_1">
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.DontAnalyzeFileMarkerParticipant"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_globals_browser">
+   		<globals_browser_participant class="com.python.pydev.analysis.actions.PyGlobalsBrowser"/>
+   </extension>
+<!-- Have an instance observing all the PyEdit editors -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.analysis.actions.AnalyzeOnRequestSetter"/>
+   </extension>
+<!-- organize imports participant -->
+   <extension point="org.python.pydev.pydev_organize_imports">
+		<organize_imports_participant class="com.python.pydev.analysis.organizeimports.OrganizeImports"/>
+   </extension>
+
+<extension point="org.eclipse.ui.actionSets">
+  <actionSet
+        label="Pydev Navigate"
+        visible="false"
+        id="com.python.pydev.navigate.actionSet">
+     <menu
+           label="P&amp;ydev"
+           id="pyGeneralMenu">
+        <separator name="pyNavigateGroup"/>
+     </menu>
+     <action
+           label="&amp;Globals Browser"
+           icon="icons/opentype.gif"
+           class="com.python.pydev.analysis.actions.PyGlobalsBrowserWorkbench"
+           tooltip="Pydev: Globals Browser"
+           menubarPath="pyGeneralMenu/pyNavigateGroup"
+           toolbarPath="pyNavigateGroup"
+           id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
+           definitionId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
+     </action>
+  </actionSet>
+</extension>
+<extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
+        <actionSet id="com.python.pydev.navigate.actionSet"/>
+    </perspectiveExtension>
+    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
+        <actionSet id="com.python.pydev.navigate.actionSet"/>
+    </perspectiveExtension>
+</extension>
+
+<!-- We cannot add another binding because Eclipse already has one
+<extension point="org.eclipse.ui.commands">
+      <command
+            name="Python Show Class Browser"
+            description="Show Class Browser"
+            categoryId="org.python.pydev.ui.category.source"
+            id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
+      </command>
+</extension>
+
+<extension point="org.eclipse.ui.bindings">
+      <key
+            sequence="Ctrl+Shift+T"
+            contextId="org.eclipse.ui.contexts.window"
+            commandId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+</extension>
+-->
+
+</plugin>

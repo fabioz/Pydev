@@ -1,0 +1,64 @@
+Ok, this is an introduction on how to configure pydev to work with turbogears.
+
+I still haven't used turbogears myself, so, in the end, this might be interesting for other users that are starting in the turbogears world themselves ;-)
+
+<strong>1st step</strong>: getting turbogears 
+
+OK: downloaded version 0.8.9, which seems to be the latest release
+
+<strong>2nd step</strong>: installing it
+
+Running setup.py install did some nice things for me... it downloaded setuptools automatically (as it was a pre-requisite) and then proceeded getting other dependencies (egg files) and installed all those without further problems (yeap, many dependencies there).
+
+Now, I still don't have docutils (which it says will make it more 'fun') nor a database, so, I'll get it before I proceed.
+
+It says to use easy_install to get docutils, but it needs some search to know exactly what it means (turns out to be a script installed in my computer at C:\bin\Python24\Scripts\easy_install.exe)
+
+Turns out it didn't do it's job:
+
+[C:\bin]c:\bin\Python24\Scripts\easy_install.exe docutils
+
+Searching for docutils
+Reading http://www.python.org/pypi/docutils/
+Reading http://docutils.sourceforge.net/
+Best match: docutils 0.4
+Downloading http://prdownloads.sourceforge.net/docutils/docutils-0.4.tar.gz?download
+Requesting redirect to (randomly selected) 'mesh' mirror
+error: No META HTTP-EQUIV="refresh" found in Sourceforge page at http://prdownloads.sourceforge.net/
+docutils/docutils-0.4.tar.gz?use_mirror=mesh
+
+So, I went on to get it myself and then proceeded to get pysqlite (http://pysqlite.org).
+
+So, now on to see how pydev looks... First, my interpreter configuration has become <strong>obsolete</strong>, so, all those libraries that were added later are not there... So, I just <strong>remove the interpreter and add it again</strong> (so, it should get all those new libraries -- version 1.2.0 of pydev and earlier had a 'cache' bug, so, you'd need to remove the interpreter, press apply and only after it proceed to add the interpreter again).
+
+Now, just to make sure pysqlite is there, create the following script to see if it works:
+from pysqlite2 import dbapi2 as sqlite
+con = sqlite.connect("mydb") 
+print con
+
+Ok, connection there, and a mydb file created, so, everything seems fine.
+
+I decided to go with the 20 minute-flash that turbogears has there...(now that I'm revising this, I'd advise against it and would go with the wiki tutorial, as the flash version hides too many things). It starts creating a project with tg_admin quickstart. So, I decided to create a new pydev project from eclipse before and placed it at d:\turbogears, and ran tg_admin quickstart from within that directory to get started.
+
+I called the project "wiki test" and it created all the structure without any problems, and starting it with wikitest-start.py actually started the server without any problems (http://localhost:8080/)
+
+Now, to configure pydev, you have to add the created folder d:\turbogears\wikitest as a source folder for the project (this would give you code-completion and code-analysis for that project. Details on how to do that can be found at http://fabioz.com/pydev/manual_101_project_conf2.html
+
+Ok, now on to the database creation: got some things mixed up here because the video didn't specify the dev.cfg changes (but the written one does, so, not such a big problem).
+
+Kid template editing: I'd reccomend having WTP (Web Tools Platform) to edit html files... surely makes things much nicer. 
+
+Interesting point: I've just now noted that turbogears spawns 2 shells when I run the server, I think that one is the http server and the other some auto-reloader, but this makes some things much harder:
+
+1. If you run it from inside pydev and kill the shell from the eclipse console, the other process will not die (and as you don't have Ctrl+C in that console, you will have to keep killing the other shell manually.
+
+2. You just won't be able to debug it from pydev, as that other shell will be the one that will actually serve the requests (altough you can do it with the remote debugger from pydev extensions).
+
+So, after checking its code a little I've seen: 
+if conf('autoreload.on', defaultOn): ... do the auto-reload stuff, so, you can set autoreload.on=False in the configurations and run it from pydev, so that you can debug it (but this way, you'll loose the auto-reloader stuff, so, I guess you'll have to decide: pydev regular debugger without auto-reload or pydev extensions remote debugger with the auto-reload (in this case, you could even run it from outside of Eclipse).
+
+So, I guess that's it. Configuring pydev to the point where you can use code-completion, debugger and code-analysis seems to work ok.
+
+Cheers,
+
+Fabio

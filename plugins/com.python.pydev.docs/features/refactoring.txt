@@ -1,0 +1,90 @@
+Refactoring notes:
+
+To do a rename, if there is only one 'global' definition of the class, all the occurrences may be 'safely' renamed, whereas
+when there is more than one 'global' definition of some thing, it may need more analysis to determine which can and which can't be renamed.
+
+-----------------------------------------------
+Ok, starting refactoring support in Pydev:
+
+1st thing: nowhere to look... The only places that says something about it (http://wiki.eclipse.org/index.php/Eclipse_FAQs) says I should look 
+into LTK (The Eclipse Language Toolkit). So there I go...
+
+Ok, found a Refactoring class (org.eclipse.ltk.core.refactoring.Refactoring)... Sounds good hum?
+Well, so, let's check its hierarchy to see what actually follows that implementation...
+Its hierarchy looks something as:
+
+Refactoring
+	- ProcessorBasedRefactoring
+		- CopyRefactoring
+		- DeletRefactoring
+		- MoveRefactoring
+		- RenameRefactoring
+		
+Ok, not so good... Apparently this is used only partially in Eclipse (looking closer, the Refactoring
+class itself was only added in 3.0), so, probably all the other jdt stuff does not use this, which
+is a sign that it may not be well supported -- especially because the whole jdt stuff still probably uses
+their old structure for that... I hope time proves me wrong).
+
+Anyway, it is still better than nothing. Or not? Sometimes I find that I can support my own stuff pretty
+well, but living up with non-expected things in Eclipse really gets in the way, and the time it takes
+for something being changed on a request is HUGE -- Reminds me of adding support for adding console
+evaluation while debugging... I've done the whole work, had it working and followed a feature request
+(they just would have to copy/paste, probably a 3 hour work for reviewing, etc, etc.) 
+and they didn't add it in 3.2 because they were finishing the interface... 
+So, more 6 months until it might be considered again... and at least a year from actually being in a final release.
+
+I guess that's the price you pay for becoming big and used everywhere ;-) 
+
+Ok, moving on... The first thing I want to add is a local rename. Seems the logical way of starting 
+refactoring support, as it appears the simplest one. No need to worry with global things -- maybe even
+a simple text-based approach would do it, but considering I want to check pre-conditions, post-conditions,
+preview, etc, also seems like a big step to take.
+
+Ok, RenameRefactoring: should not be subclassed... it appears it passes all things to a RenameProcessor, which
+is an abstract class... and there we go: JavaRenameProcessor (org.eclipse.jdt.internal.corext.refactoring.rename)
+which is also abstract and has about 9 subclasses -- I'm particularly interested in RenameLocalVariableProcessor
+(and whoever is creating it, as I still have no idea on how it integrates with any of the stuff I have).
+
+RefactoringExecutionStarter is a Factory class that goes into things and RenameJavaElementAction is the
+action we're interested in (apparently it starts the whole refactoring process). There are some interesting
+points about this class:
+It can be enabled/disabled depending on what you've got selected (it is a SelectionDispatchAction), so,
+if you have a name selected it will be available, otherwise, it won't (so, it appears or not on the
+context-sensitive menu in the jdt editor -- but not on the menu).
+Well, we want to start small, so, we'll just extend the rename refactoring action that pydev already has (and 
+that's basically a wrap for BRM), that has only the keybinding to Alt+Shift+R and a context-sensitive menu
+on PyEdit that will always let things 'on' (which does not mean that it will or not actually be available for
+refactoring later).
+
+Also, pydev already has an 'indirection' layer on this one (pydev extensions already extends it for providing
+the find definition action in the com.python.pydev.refactoring.refactorer.Refactorer class), so, we just need
+to extend it a little bit more... Basically set that we want to be able to do rename ;-)
+
+When setting that to true, we will receive the rename with a RefactoringRequest (that should have all the info
+we want when doing a refactoring).
+
+Ok, first thing seems to be that processor thing: so, let's do it:
+PyRenameLocalVariableProcessor (that is the counterpart of the java RenameLocalVariableProcessor class) and now
+here comes the first break on that structure... The interface for it is only provided in jdt, so, no LTK help on this
+one *sight*
+
+Ok, some more 15 minutes going up and down in the code, I'd say I need to create a wizard for that (actually, a
+org.eclipse.ltk.ui.refactoring.RefactoringWizard subclass... which will probably be close to 
+org.eclipse.jdt.internal.ui.refactoring.reorg.RenameRefactoringWizard but not the same...
+
+-- ok time for a break --
+
+Now, after pondering for some time, I decided I should follow the same model provided by Eclipse, especially because of
+the preview page and undo/redo support (which I still haven't touched, but I believe they provide it from the beggining...
+If not for those things, I'd probably roll my own).
+
+So, now that that's set, let's start ;-)
+
+5 hours later...
+
+First working version for renaming local variable working!
+
+
+
+
+

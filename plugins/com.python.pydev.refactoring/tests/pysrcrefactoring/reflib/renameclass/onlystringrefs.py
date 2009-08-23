@@ -1,0 +1,1 @@
+#comments where there is no code should not rename RenFoo

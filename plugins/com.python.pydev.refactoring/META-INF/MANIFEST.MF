@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Refactoring Plug-in
+Bundle-SymbolicName: com.python.pydev.refactoring; singleton:=true
+Bundle-Version: 0.9.7.1
+Bundle-Activator: com.python.pydev.refactoring.RefactoringPlugin
+Bundle-Vendor: Aptana
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.python.pydev,
+ com.python.pydev,
+ org.junit;resolution:=optional,
+ org.eclipse.search,
+ org.python.pydev.ast,
+ org.python.pydev.core,
+ org.python.pydev.parser,
+ org.eclipse.core.resources,
+ com.python.pydev.analysis,
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.ltk.ui.refactoring
+Eclipse-LazyStart: true
+Bundle-ClassPath: refactoring.jar,
+ retroweaver-rt.jar

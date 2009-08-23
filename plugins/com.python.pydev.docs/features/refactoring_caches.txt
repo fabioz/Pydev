@@ -1,0 +1,97 @@
+There are a number of important caches that are used for code-completion and refactoring.
+
+They are important in code-completion because it helps on finding info fast, but it is
+something central to refactoring, as an error in the cache may mean that the refactoring
+will not be well-succedded.
+
+Having this in mind, an option for checking if the indexes are correct should be added,
+and it should work on all the caches that are available.
+
+Also, if some file currently is not correctly parsed, a warning should be shown to the user
+making it clear that a specific file(s) is not parsed correctly, and thus the results of 
+the refactoring might not be 100% if that file is part of it.
+
+The caches available in pydev are:
+- ModulesManager: 
+	- modulesKeys: contains the current modules available
+	- cache: contains the ast for some modules in-memory
+	
+- AbstractAdditionalInterpreterInfo
+	- topLevelInitialsToInfo
+	- innerInitialsToInfo
+	
+Cases for inconsistencies in the caches (needs to be checked):
+	- If there is a package xxx/__init__.py and a module xxx.py in the same level, erasing
+	  one may remove the info from the cache for the other
+	- If the auto-build in not turned on
+	
+	
+Class structure:
+AbstractAdditionalInterpreterInfo (serialize: topLevelInitialsToInfo, serialize:innerInitialsToInfo -- initials to list of IInfo)
+	AbstractAdditionalDependencyInfo (serialize:completeIndex (only the keys) -- key is the module name and the value is a Set of the strings it contains -- gotten on runtime)
+		AdditionalProjectInterpreterInfo
+		AdditionalSystemInterpreterInfo
+
+Structure for the current caches:
+com.python.pydev.analysis
+
+	python.pydevsysteminfo <-- created with AdditionalSystemInterpreterInfo
+	jython.pydevsysteminfo
+	
+	/indexcache
+		base64.indexcache <-- AbstractAdditionalDependencyInfo (key is the module name and the value is a Set of the strings it contains)
+		bisect.indexcache
+		...
+
+
+org.eclipse.core.resources
+	/.projects
+		/project1
+			/com.python.pydev.analysis
+				AdditionalProjectInterpreterInfo.pydevinfo <-- created with AdditionalProjectInterpreterInfo
+				0.projectinfodelta
+				1.projectinfodelta
+				
+				/indexcache
+					package1.__init__.indexcache
+					package1.mod1.indexcache
+				
+			/org.python.pydev
+				0.astdelta
+				1.astdelta
+				asthelper.completions <-- created with ModulesManager
+				
+				
+One of the major changes for the cache structure is creating caches that will
+have one file for each module, instead of one file with multiple deltas, like
+some caches are currently.
+
+The new structure for the cache should be:
+com.python.pydev.analysis
+
+	python.pydevsysteminfo <-- this info does not change, so, there's no need to make it in deltas
+	jython.pydevsysteminfo
+	
+	/indexcache            <-- and this info is already in deltas
+		base64.indexcache
+		bisect.indexcache
+		...
+	
+org.eclipse.core.resources
+	/.projects
+		/project1
+			/com.python.pydev.analysis
+				AdditionalProjectInterpreterInfo.pydevinfo <-- this cache should be changed -- created with the AdditionalProjectInterpreterInfo
+				0.projectinfodelta
+				1.projectinfodelta
+				
+				/indexcache <-- ok
+					package1.__init__.indexcache
+					package1.mod1.indexcache
+				
+			/org.python.pydev <-- this cache contains the module keys, and it should be changed to have a structure similar to the indexcache
+				0.astdelta
+				1.astdelta
+				asthelper.completions
+				
+	

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+<!--- launcher -->
+<extension point="org.eclipse.debug.core.launchConfigurationTypes">
+	<launchConfigurationType
+        delegate="com.python.pydev.debug.ui.launching.PydevdServerLaunchConfigurationDelegate"
+        id="com.python.pydev.debug.pydevdServerLaunchConfigurationType"
+        modes="run"
+        name="Python Server"
+        public="false">
+	</launchConfigurationType>
+</extension>
+
+<extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+	<launchConfigurationTypeImage
+		icon="icons/start_debug_server.gif"
+		configTypeID="com.python.pydev.debug.pydevdServerLaunchConfigurationType"
+		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
+	</launchConfigurationTypeImage>
+</extension>
+
+
+<extension point="org.eclipse.ui.actionSets">
+  <actionSet
+        label="Pydev Debug"
+        visible="false"
+        id="com.python.pydev.debug.actionSet">
+     <menu
+           label="P&amp;ydev"
+           id="pyGeneralMenu">
+        <separator name="pyDebugGroup"/>
+     </menu>
+     <action
+           label="&amp;Start Debug Server"
+           icon="icons/start_debug_server.gif"
+           class="com.python.pydev.debug.actions.StartDebugServer"
+           tooltip="Pydev: start the pydev server"
+           menubarPath="pyGeneralMenu/pyDebugGroup"
+           toolbarPath="pyDebugGroup"
+           id="com.python.pydev.debug.actions.StartDebugServer">
+     </action>
+     <action
+           label="&amp;End Debug Server"
+           icon="icons/term_debug_server.gif"
+           class="com.python.pydev.debug.actions.EndDebugServer"
+           tooltip="Pydev: stop the debugger server"
+           menubarPath="pyGeneralMenu/pyDebugGroup"
+           toolbarPath="pyDebugGroup"
+           id="com.python.pydev.debug.actions.EndDebugServer">
+     </action>
+  </actionSet>
+</extension>
+
+<extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
+        <actionSet id="com.python.pydev.debug.actionSet"/>
+    </perspectiveExtension>
+</extension>
+
+<extension point="org.python.pydev.debug.pydev_debug_console_input_listener">
+  		<builder_participant class="com.python.pydev.debug.console.EvaluationConsoleInputListener"/>
+</extension>
+
+<extension point="org.python.pydev.pydev_debug_preferences_page">
+  		<debug_preferences_page_participant class="com.python.pydev.debug.ui.DebugPreferencesPageExt"/>
+</extension>
+
+<extension point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.python.pydev.debug.DebugPluginPrefsInitializer"/>
+</extension>
+
+</plugin>

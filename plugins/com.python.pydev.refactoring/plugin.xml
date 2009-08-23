@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension point="org.python.pydev.pydev_refactoring">
+  		<refactoring_participant class="com.python.pydev.refactoring.refactorer.Refactorer"/>
+   </extension>
+   <!--
+   <extension point="org.python.pydev.pydev_formatter">
+  		<refactoring_participant class="com.python.pydev.refactoring.visitors.Formatter"/>
+   </extension>
+   -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.refactoring.markoccurrences.MarkOccurrencesDispatcher"/>
+   </extension>
+   
+<!-- Initialize our preferences -->
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.python.pydev.refactoring.RefactoringPreferencesInitializer"/>
+   </extension>
+<!-- Mark Occurrences preferences -->
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
+            category="org.python.pydev.prefs.extensions"
+            id="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
+            name="Mark Occurrences"/>
+   </extension>
+
+<!-- Create the needed actions -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.refactoring.actions.ActionCreatorPyEditListener"/>
+   </extension>
+   
+   
+<!-- command: find references -->
+   <extension point="org.eclipse.ui.commands">
+      <command
+            description="Find all references"
+            id="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+            name="Find all references">
+      </command>
+   </extension>
+   <extension
+         id="org.python.pydev.refactoring.editorContribution"
+         name="editorContribution"
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="org.python.pydev.refactoring.editorContribution"
+            targetID="org.python.pydev.editor.PythonEditor">
+         <action
+               class="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+               definitionId="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+               id="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
+               label="Find all occurrences"/>
+      </editorContribution>
+   </extension>
+   <extension point="org.eclipse.ui.bindings">
+      <key
+            sequence="Ctrl+Shift+G"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="com.python.pydev.refactoring.actions.PyFindAllOccurrences"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+   <extension
+         id="com.python.pydev.refactoring.search.FindOccurrencesSearchResultPage"
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            class="com.python.pydev.refactoring.search.FindOccurrencesSearchResultPage"
+            id="com.python.pydev.refactoring.search.FindOccurrencesSearchResultPage"
+            label="Python Search Result"
+            searchResultClass="com.python.pydev.refactoring.search.FindOccurrencesSearchResult"/>
+   </extension>
+
+
+</plugin>

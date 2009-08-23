@@ -1,0 +1,114 @@
+<doc>
+<contents_area>
+
+	<p>
+		Well, let's see how refactoring works... and le's make it by example :-P
+	</p>
+
+		
+	<p>
+		As our 'base', we will use the example below:
+	</p>
+	<p align="center"><IMG src="images/refactor/refactor_base.png" border="1"/></p><br/>
+
+
+	<p>
+		<strong>Renaming</strong>: This refactoring is provided by Pydev Extensions and provides a 
+		<strong>preview</strong> and <strong>undo/redo</strong> (the others are provided by BRM and have undo/redo only for the current editor
+		-- which should be ok as they are refactorings that work only in the local scope).<br/>
+
+		<ul>
+			<li>Features: </li>		
+			<ul>
+				<li>Keybinding: <strong>Alt+Shift+R</strong></li>
+				<li>Supports <strong>preview</strong></li>
+				<li>Integrated in the editor (but not in the package explorer, so, it can rename a module, but only through an import to that module)</li>
+				<li>Supports <strong>undo/redo</strong> in the workspace</li>
+				<li>Rename class</li>
+				<li>Rename method</li>
+				<li>Rename attribute</li>
+				<li>Rename imports</li>
+				<li>Rename local variable</li>
+			</ul>	
+		</ul>	
+		Let's say we want to rename our 'newVar', and call it 'renamedVar'. To do that, mark it and press <strong>Alt+Shift+R</strong>
+		and set the name to 'renamedVar'
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_rename1.png" border="1"/></p><br/>
+
+	
+	<p>
+		That would give us the following result:
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_rename2.png" border="1"/></p><br/>
+	<hr/>
+
+	
+	
+	<p>
+		<strong>Extracting a method</strong>: Let's mark the '100+500' and press <strong>Alt+Shift+M</strong> (alternatively,
+		you could use a context menu: press the right button and select: refactoring > Extract Method). And set the name of the
+		new method to 'newMethod'.
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_extract_method1.png" border="1"/></p><br/>
+
+	
+	<p>
+		That would give us the following result:
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_extract_method2.png" border="1"/></p><br/>
+
+	<hr/>
+	<p>
+		<strong>Inlining a variable</strong>: Let's say that we are still not satisfied with that, we wouldn't like that 'var'
+		variable, so, we want to remove the reference to it and call the method directly. To do that, mark the 'var' and press
+		<strong>Alt+Shift+I</strong>.
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_inline1.png" border="1"/></p><br/>
+
+	
+	<p>
+		That would give us the following result:
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_inline2.png" border="1"/></p><br/>
+
+	
+	<hr/>
+	<p>
+		<strong>Extracting a variable</strong>: Ok, it just wasn't what we wanted, so, let's make the opposite refactoring,
+		let's extract a variable from the self.newMethod() call. Mark it and press <strong>Alt+Shift+L</strong> and set the
+		name to 'newVar'
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_extract_var1.png" border="1"/></p><br/>
+
+	
+	<p>
+		That would give us the following result:
+	</p>
+	<br/><p align="center"><IMG src="images/refactor/refactor_extract_var2.png" border="1"/></p><br/>
+
+	
+	<p>
+		And that's it for the refactoring... hope you enjoy it.
+	</p>
+
+</contents_area>
+
+
+
+<right_area>
+<p>Refactoring!</p>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area><strong>Pydev 101</strong></quote_area>
+
+<next>manual_adv_assistants</next>
+<prev>manual_adv_editor_prefs</prev>
+<title_next>(Content Assistants)</title_next>
+<title_prev>(Editor preferences)</title_prev>
+<root>manual_adv_features</root>
+</doc>

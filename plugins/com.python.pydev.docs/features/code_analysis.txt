@@ -1,0 +1,45 @@
+Lint feature
+=============
+
+Will always be active (altough the user may put all in ignore if he does not want to see the messages)
+
+
+Warnings
+--------
+
+- Unused import - OK
+- Unused variable - OK
+  (local, param - ignore when dummy / unused or some other user defined token)
+- Duplicated signature (method, class) - OK
+- Reimported module - OK
+- self not specified as first parameter - OK
+
+
+Errors
+------
+- Undefined variable - OK
+- Unexistant module - OK
+** Unexistant variable in some import (code analysis for token imports)
+
+Concerns
+--------
+- Markers should only be deleted when they are not used (instead of removing all and recreating all again). - OK
+- Unused imports may or may not be detected on __init__ - OK
+- Only files that are in the specified source folders should be analyzed - OK
+** Dependent modules should be re-analyzed after a module changes.
+- There should be a way to silent those warnings (with Ctrl+1) or even fix-them depending on the warning. - OK
+- Unused parameters on abstract methods should not be reported. - OK
+
+
+To do later
+-----------
+** Unreachable code
+** Member X not found.
+** Base class' __init__ not called.
+** Redefining X from outer scope.
+** Calling function with wrong number of arguments (considerando *args e **kwargs, claro).
+** Keyword argument does not exist:
+   def foo(a, b): pass
+
+   foo(x=1)
+

@@ -1,0 +1,8 @@
+1.4.4
+- Make code-completion support with external definition 
+    - Create .pydcomp (Pydev Completions) files resembling actual Python files
+- Pydev package explorer: show source folder inside source folder correctly. 
+   
+1.4.5
+- Show working set as top-level elements
+- Show flat view

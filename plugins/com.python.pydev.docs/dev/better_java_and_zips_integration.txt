@@ -1,0 +1,28 @@
+Some resources:
+
+http://www.eclipse.org/articles/article.php?file=Article-JavaCodeManipulation_AST/index.html
+
+Basically, we don't want to integrate java through a shell as it is now, but rather using the information that JDT already has.
+
+Places to change: 
+
+PythonPathHelper.getFromJar
+	needs to get the directory if a .class or .java file is found
+	needs to get .py/.pyc files if within a dir that has __init__.py/__init__.pyc file
+	if .pyc file we need to analyze it with a shell (and otherwise, statically analyze it)
+
+SystemModulesManager.onChangePythonpath
+	needs to take into account that some file originated from a zip file (from a package or from a python module
+	
+ModulesKey
+	needs to know from which zip file it originated
+
+ModulesManager.getModule(boolean acceptCompiledModule, String name, IPythonNature nature, boolean dontSearchInit)
+	needs to take into account that some module may be originated from a zip file (so, it must be created from that file
+	and not as a regular CompiledModule)
+	
+	For java modules, we'd get the dir and create a module that has a number of classes (one for each .class or .java of that dir)
+	
+	
+Some other things to take into account:
+	A source locator must be provided so that we can add breakpoints to it.

@@ -1,0 +1,157 @@
+<doc>
+<contents_area>
+
+<H3>Content Assistants</H3>
+
+<P>Some content assistants to make your life easier...</P>
+
+<P>They are ALL activated through <strong>Ctrl+1</strong>, but which one(s) will show depend on the context it is activated.</P>
+
+<p>
+Currently, there are 4 content assistants implemented in the Pydev 'Open Source' and 3 provided in the Pydev Extensions:
+</p>
+
+
+<p>
+<strong>Pydev Extensions</strong>
+<ul>
+<li>Make import for undefined token
+</li><li>Ignore error
+</li><li>Don't analyze module
+</li>
+</ul>
+</p>
+
+
+<p>
+<strong>Pydev 'Open Source'</strong>
+<ul>
+<li>Move import to global scope
+</li><li>Create docstring
+</li><li>Assign parameters to attributes
+</li><li>Assign result to new local variable (or field)
+</li><li>Surround code with try..except or try..finally
+</li>
+</ul>
+</p>
+
+<hr/>
+
+<p>
+<h2>Pydev Extensions content assistants</h2>
+</p>
+
+
+<h3>Make import for undefined token / Ignore error</h3>
+<p>
+Let's say that you have the code below, and that the code-analysis has just seen that the 'xmlreader' token was undefined 
+(this is important, as we cannot make this analysis before the token was generated). In this case, we have 2 options offered,
+one to fix that importing the token and another one saying that pydev should ignore that error. The example below shows it in action:
+<br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_fix_import1.png"/> <br/><br/>
+If we let the cursor at the undefined token line and press Ctrl+1, we get:
+<br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_fix_import2.png"/> 
+<br/><br/><strong>After</strong> choosing the second import we have:<br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_fix_import3.png"/>
+<br/><br/>
+Now, if we had chosen the third option (<strong>@UndefinedVariable</strong>), a note would have been entered in the code, 
+to warn Pydev Extensions to ignore that error, as pointed below...<br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_ignoreerror.png"/>
+</p>
+<br/>
+
+	
+	
+<h3>Don't analyze module</h3>
+<p>
+	Pydev Extensions can accept a 'note' to warn it not to make code-analysis at all in some module. In order to do
+	that' you can go to the first line of the module and press 'Ctrl+1' and choose the <strong>@PydevCodeAnalysisIgnore</strong> flag.
+	Doing that will add a note in the code to warn that this module should not be analyzed by Pydev Extensions.<br/><br/>
+	If you use automatically generated files, it might be useful to put that warning on those files, as it would not be 
+	useful to analyze those files. The example below shows the result of this action.<br/><br/>
+</p>
+
+<p>
+<img border="1" src="images/contentassist/ctrl_1_ignoremodule.png"/>
+<br/><br/><strong>After</strong> choosing choosing it, we have:<br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_ignoremodule2.png"/>
+</p>
+	
+<br/>
+<br/>
+<hr/>
+<br/>
+	
+<p>
+<h2>Pydev 'Open Source' content assistants</h2> 
+</p>
+<br/>
+	
+<h3>Move import to global scope</h3>
+<p>
+<strong>Before</strong><br/>
+<img border="1" src="images/contentassist/ctrl_1_make_import.png"/> <br/><br/><strong>After</strong><br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_compl_import.png"/>
+</p>
+
+
+<br/><hr/><br/>
+<h3>Create docstring</h3>
+<p>
+<strong>NOTE:</strong>Must be called in the 'def' line.<br/><br/>
+</p>
+<p>
+<strong>Before</strong><br/>
+</p>
+<p>
+<img border="1" src="images/contentassist/ctrl_1_make_docstring.png"/> <br/><br/><strong>After</strong><br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_compl_docstring.png"/>
+</p>
+
+<br/><hr/><br/>
+<h3>Assign result to new local variable (or field)</h3>
+<p>
+<strong>Before</strong><br/>
+<img border="1" src="images/contentassist/ctrl_1_make_assign.png"/> <br/><br/><strong>After</strong><br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_compl_assign.png"/>
+</p>
+
+<br/><hr/><br/>
+<h3>Assign parameters to attributes</h3>
+<p>
+<strong>Before</strong><br/>
+<img border="1" src="images/contentassist/ctrl_1_assign_to_attribs.png"/> <br/><br/><strong>After</strong><br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_assign_to_attribs2.png"/>
+</p>
+
+<br/><hr/><br/>
+<h3>Surround code with try..except or try..finally</h3> 
+<p>
+<strong>NOTE:</strong>Must have some code selected<br/><br/>
+<strong>Before</strong><br/>
+<img border="1" src="images/contentassist/ctrl_1_make_try_except.png"/> <br/><br/><strong>After</strong><br/><br/>
+<img border="1" src="images/contentassist/ctrl_1_compl_try_except.png"/>
+</p>
+
+
+</contents_area>
+
+
+
+<right_area>
+<p>Content assistants!</p>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area><strong>Pydev 101</strong></quote_area>
+
+<next>manual_adv_coverage</next>
+<title_next>(Code Coverage)</title_next>
+<prev>manual_adv_refactoring</prev>
+<title_prev>(Refactoring)</title_prev>
+<root>manual_adv_features</root>
+</doc>

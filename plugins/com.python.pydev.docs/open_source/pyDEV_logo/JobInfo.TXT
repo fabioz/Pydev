@@ -1,0 +1,10 @@
+Client Information
+   No information entered
+
+Application Information
+   Filename:           	E:...\libFabio\pyDEV_logo.cdr
+   Application:        	CorelDRAW
+   Version:            	Version 12
+   Page Size:          	210.0000 x 297.0000 millimeters
+   Page Orientation:   	Portrait
+

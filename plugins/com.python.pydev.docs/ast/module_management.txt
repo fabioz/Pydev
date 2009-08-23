@@ -1,0 +1,40 @@
+This plugin should provide all the information needed for managing asts.
+
+This will be provided in the following way:
+
+- Some object will be responsible for module resolution, so that the sources will be mapped to python modules.
+	Major concerns are: 
+	- modules may be created from python files;
+	- modules may be created from dlls;
+	- modules may be created from sources in other languages (java, dot net...);
+	- modules may be created from dlls in other languages (java, dot net...);
+
+		
+- Modules will be provided in many flavors, as follows:
+	- A common interface will be provided for all modules
+	- Modules may have very specific implementations (e.g. JavaModule)
+	- A factory will be provided for a module creation given available information to create it
+	
+	Some information that will have to be provided from this modules are:
+		- The global tokens (classes, methods and imports)
+
+	
+- Project Managers will work as module collections and may be queried about information regarding the modules.
+They will also be provided in many flavours, given their specific things. Namely:
+	- Static managers: Those should be the simpler managers, as they will not have to be
+	recreated dinamically (they will be set once and not changed thereafter)
+	- Dynamic managers: will have to work with deltas (each project will be associated with one of those)
+	
+	
+Saving data Implemented:
+    - the PythonNature serializes the ASTManager 
+        - it writes the info on the IProject.getWorkingLocation(PydevPlugin.getPluginID()) + asthelper.completions
+        
+        Actual data:
+        - contains the projectModulesManager - has the resolved modules (saves only the names and restores with the name pointing to empty modules - custom serialization)
+            - contains the pythonPathHelper - has the paths that constitutes the pythonpath
+        
+    - the InterpreterEditor (in the InterpreterPreferencesPage) serializes things with the InterpreterManager
+        - it writes the info on the getPreferenceStore() --> (IInterpreterManager.INTERPRETER_PATH)
+        
+		

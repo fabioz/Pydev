@@ -1,0 +1,19 @@
+Ok, let's see how to view the hierarchy...
+
+The process must be the following:
+- Know the current class
+- Find all the 'references' for that class
+- For each reference see if it appears in a class definition
+- etc.
+
+
+To display it we should always have:
+1. The current class we're seeing 
+2
+
+Examples to see better:
+CenterExample (how to center)
+TooltipExample
+NodeLinkExample
+LayoutExample
+

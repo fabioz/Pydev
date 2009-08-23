@@ -1,0 +1,162 @@
+<doc>
+<contents_area>
+
+<br/>
+<p>'Pydev Extensions' is a plugin that allows Python editing in Eclipse. 
+It works with <a class="a_link" href="http://www.eclipse.org/">Eclipse</a> and the
+<a class="a_link" href="http://pydev.sf.net">Pydev "Open Source"</a> version. See some of its features below</p>
+
+
+<br/>
+<hr/>
+
+<h3>Release Changes</h3>
+
+
+	<ul>
+		<li><h4>Release 1.4.8 <IMG src="images/new.png" border="0" /></h4></li>
+		<ul>
+		<li>Created public API for starting/finishing debug server</li>
+		<li>Import based on unresolved variables works correctly when the document is changed</li>
+		<li>Ignore error works correctly when the document is changed</li>
+		<li>No longer showing the replace button for the search</li>
+	    </ul>
+    </ul>
+		
+	<ul>
+		<li><h4>Release 1.4.7</h4></li>
+		<ul>
+			<li>Iron Python support (version 2.6 upwards)</li>
+			<li>The interactive console can be used on the remote debugger</li>
+			<li>Remote debugger properly redirects contents from the server on multiple runs.</li>
+			<li>Providing context-independent completions when other completions are not available (until now, it only gave those completions for method parameters)</li>
+			<li>The number of chars required to show the context-insensitive completion can now be customized.</li>
+			<li>Fixed problem with Eclipse 3.5: "Invalid Thread Access" when trying to rename a class</li>
+	    </ul>
+    </ul>
+
+	<ul>
+		<li><h4>Release 1.4.6</h4></li>
+		<ul>
+			<li>Auto-import for from __future__ import with_statement will add a 'with' token instead of a with_statement token</li>
+			<li>Globals browser improved (only for Eclipse 3.3 onwards, older versions will have the old interface):</li>
+		    <ul>
+			    <li>Can filter with working sets</li>
+			    <li>Can match based on module names. E.g.: django.A would match all the django classes/methods/attributes starting with 'A'</li>
+		    </ul>
+	    </ul>
+    </ul>
+
+
+	<ul>
+		<li><h4>Release 1.4.5</h4></li>
+		<ul>
+			<li>Derived resources are no longer analyzed</li>
+			<li>No longer giving spurios warnings when file being analyzed is removed</li>
+		</ul>
+	</ul>
+		
+	Check the <a href="history.html">Releases History</a> for info on previous versions.
+
+<br/>
+<br/>
+<br/>
+<hr/>
+	
+<h3>Some feature-highlights</h3>
+<ul>
+<li><a href="manual_adv_refactoring.html"><strong>Rename refactoring</strong></a>: renames all occurrences for some token in your workspace -- with preview and undo/redo (<strong>1.2.6</strong>)</li>
+<li><strong>Support for python 2.5</strong> (<strong>1.2.3</strong>)</li>
+<li><a href="manual_adv_markoccurrences.html"><strong>Mark Occurrences</strong></a> is able to highlight all the occurrences of some token in a file (<strong>1.0.7</strong>)</li>
+<li><a href="manual_adv_renameoccurrences.html"><strong>Rename Occurrences</strong></a>: renames all the occurrences of some token in a file (<strong>Ctrl+2+R</strong> -- <strong>1.0.7</strong>)</li>
+<li><a href="manual_adv_interactive_console.html"><strong>Interactive Console</strong> binded to the Pydev Editor</a> (<strong>1.0.4</strong>)
+</li><li><strong><a href="manual_adv_open_decl_quick.html">Open Definition Quick-outline</a></strong> (<strong>1.0.3</strong>)
+</li><li><strong><a href="manual_adv_debug_console.html">Debug console</a></strong> (<strong>1.0.2</strong> -- allows interactive probing in suspended mode) <a href="manual_adv_debug_console.html"></a>
+</li><li ><strong><a href="manual_adv_complnoctx.html">Code completion with auto-import</a></strong>
+</li><li ><strong><a href="manual_adv_code_analysis.html">Code analysis</a></strong> (PyLint replacement, but much faster)
+</li><li ><strong><a href="manual_adv_assistants.html">Quick-Fix</a></strong> for problems found in code analysis
+</li><li ><strong><a href="manual_adv_gotodef.html">Go to definition</a></strong> (Bycicle Repair Man replacement, but much more reliable)
+</li><li ><strong><a href="manual_adv_remote_debugger.html">Debug server</a></strong> (allows debugging scripts not lauched from within Eclipse)
+</li><li ><strong><a href="manual_adv_complauto.html">Keywords presented as auto-completions</a></strong> as you type
+</li><li ><strong><a href="manual_adv_quick_outline.html">Quick-outline</a></strong>
+</li>
+</ul>
+
+
+	<ul>
+		<br/>
+		<li><strong>Screencasts</strong> demonstrating pydev and pydev extensions may be found at <a href="http://showmedo.com/videos/series?name=PyDevEclipseList">ShowMeDo.com</a>.</li>
+		<br/>
+		<li><strong>NOTE</strong>: Pydev <strong>1.2.0</strong> and onward only <strong>support Eclipse 3.2</strong>, so, if you're using <strong>Eclipse 3.1</strong>, 
+		please keep to <strong>version 1.1.0</strong>. 
+		</li>
+
+		<br/>
+		<li>This is not the complete list of features. Check the <a class="a_link" href="manual_adv_features.html">Features Matrix</a> for that.
+		</li>
+	</ul>
+	
+<br/>
+<br/>
+<hr/>
+
+
+
+
+
+
+<h3>Evaluating Pydev Extensions</h3>
+
+<p><strong>You can <a class="a_link" href="download.html">download</a> the plugin and evaluate it with full functionalities 
+for 30 days without requiring a license. </strong>
+The only difference between the licensed and the unlicensed version is that you'll get a message first at 30 mins and then after each 2 hours
+saying that it is an unlicensed version (you have to license it to remove that message).</p>
+<br/>
+<br/>
+</contents_area>
+
+
+
+<right_area>
+<p class="italic">"Personally, the pleasure I take in
+    developping software is half linked to the language, half to the
+    programming tools.
+    
+    With Pydev, I've got everything."</p>
+<p>
+    Franck Perez
+</p>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+<p class="italic">
+"Pydev is a core tool in our development process, and is a major reason
+why Python has become viable for us as a production language.  I look
+forward to each new release of Pydev as it is continually evolving into
+a more and more powerful development environment.  With the addition of
+Pydev Extensions, the potential for future improvements is exciting!"
+</p>
+<p>
+	Eric Wittmann, Zoundry LLC.
+</p>
+<br/>
+<br/>
+<br/>
+<br/>
+</right_area>
+
+
+<image_area></image_area>
+
+
+<quote_area></quote_area>
+</doc>

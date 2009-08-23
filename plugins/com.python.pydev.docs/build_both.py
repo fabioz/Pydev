@@ -1,0 +1,100 @@
+import os
+import sys
+
+args = sys.argv[1:]
+this_script_path = sys.argv[0]
+this_script_dir = os.path.split(this_script_path)[0]
+
+for arg in args:
+    if arg.startswith('--version='):
+        version = arg[len('--version='):]
+        LAST_VERSION_TAG = version
+else:
+    LAST_VERSION_TAG = '1.4.8' #Not specified (let's leave one there)
+
+
+
+#=======================================================================================================================
+# BuildFromRst
+#=======================================================================================================================
+def BuildFromRst(source_filename, is_new_homepage=False):
+    print source_filename
+    import os
+    from docutils import core
+    
+    # dict of default settings to override (same as in the cmdline params, but as attribute names:
+    #   "--embed-stylesheet" => "embed_stylesheet"
+    settings_overrides = {}
+    
+    import os
+    # publish as html
+    ret = core.publish_file(
+        writer_name='html',
+        source_path=source_filename,
+        destination_path=os.tempnam(),
+        settings_overrides=settings_overrides,
+    )
+    
+    final = ret[ret.find('<body>')+6: ret.find('</body>')].strip()
+    if final.startswith('<div'):
+        final = final[final.find('\n'):]
+        final = final[:final.rfind('</div>')]
+    
+    postfix = '.contents.htm'
+    name = source_filename.split('.')[0]
+    if is_new_homepage:
+        f = open(name+postfix, 'r')
+        contents = f.read()
+        f.close()
+        final = contents.replace('<contents_area></contents_area>', '<contents_area>%s</contents_area>' % final)
+        
+        #make the output html (and not htm)
+        postfix += 'l'
+    
+    
+    f = open(name+postfix, 'w')
+    print >> f, final
+    f.close()
+
+
+#=======================================================================================================================
+# GenerateRstInDir
+#=======================================================================================================================
+def GenerateRstInDir(d, is_new_homepage=False):
+    for f in os.listdir(d):
+        if f.endswith('.rst'):
+            BuildFromRst(f, is_new_homepage)
+    
+    
+if __name__ == '__main__':
+    this_script_dir = os.path.realpath(os.path.abspath(this_script_dir))
+    print 'Directory with this script:', this_script_dir
+    print 'Generating rst for open_source'
+    
+    os.chdir(os.path.join(this_script_dir, 'open_source'))
+    GenerateRstInDir('.')
+    
+    print 'Generating rst for new_homepage'
+    os.chdir(os.path.join(this_script_dir, 'new_homepage'))
+    GenerateRstInDir('.', True)
+    
+    sys.path.insert(0, os.path.join(this_script_dir, 'open_source', 'scripts'))
+    sys.path.insert(0, os.path.join(this_script_dir, 'new_homepage', 'scripts'))
+    sys.path.insert(0, '.')
+    print 'PYTHONPATH changed. Using:'
+    for p in sys.path:
+        print '    - ', p
+    
+    os.chdir(os.path.join(this_script_dir, 'open_source', 'scripts'))
+    import build_org #@UnresolvedImport
+    build_org.LAST_VERSION_TAG = LAST_VERSION_TAG
+    os.chdir(os.path.join(this_script_dir, 'open_source'))
+    build_org.DoIt()
+    
+    os.chdir(os.path.join(this_script_dir, 'new_homepage', 'scripts'))
+    import build_com #@UnresolvedImport
+    os.chdir(os.path.join(this_script_dir, 'new_homepage'))
+    build_com.LAST_VERSION_TAG = LAST_VERSION_TAG
+    build_com.DoIt()
+    
+    sys.stdout.write('finished both\n')

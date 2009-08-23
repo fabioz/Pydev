@@ -1,0 +1,8 @@
+Currently, one of the slowest things in the creation of the interpreter info is
+generating the context-insensitive caches (indexes).
+
+It should contain:
+- classes
+- functions
+- class attributes 
+- instance attributes 

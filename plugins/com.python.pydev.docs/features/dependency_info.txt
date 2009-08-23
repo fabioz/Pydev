@@ -1,0 +1,39 @@
+Calculating dependency info must be very strict about the dependent modules that it gets.
+
+An initial experiment that got dependency info in the way described below has not worked very well.
+
+Initial experiment
+------------------
+
+During code analysis, all the imports were analyzed to point to the real module it pointed to.
+
+When the module could not be resolved, all dotted paths resultant from that module were added as dependencies,
+because as soon as it is created, the module should be re-analyzed to solve the error encountered by the lack
+of that dependency.
+
+For getting the modules that were dependent on some module, each module was queried to see if it did have some
+import on that module. This was done recursively until each module got its dependents.
+
+This initial experiment did not work because too many dependencies were generated, even for very small changes,
+because of its 'naive' implementation.
+
+
+Second chance
+-------------
+
+A second experiment will be done with better heuristics for getting the needed info, and will allow us to get
+dependencies not only for some module, but according to some generated delta in a module.
+
+What we want to achieve by doing this is:
+
+- if we have a module with a 'class A' and the class is removed later, we should be able to get the
+dependencies only on the users of tokens that depend on 'class A'.
+
+- if we have a module foo, if we remove it, we should be able to get dependencies on the token for the module 'foo'
+and on all its tokens.
+
+- if a module depends on some token 'A' that was not resolved, as soon as any token 'A' is created, the module
+should be reanalyzed to see if it appears on its namespace because of that change.
+
+
+... to continue...
