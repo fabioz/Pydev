@@ -76,9 +76,9 @@ if __name__ == '__main__':
     
     sys.path.insert(0, os.path.join(this_script_dir, 'merged_homepage', 'scripts'))
     sys.path.insert(0, '.')
-    print 'PYTHONPATH changed. Using:'
-    for p in sys.path:
-        print '    - ', p
+#    print 'PYTHONPATH changed. Using:'
+#    for p in sys.path:
+#        print '    - ', p
     
     os.chdir(os.path.join(this_script_dir, 'merged_homepage', 'scripts'))
     import build_merged #@UnresolvedImport

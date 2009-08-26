@@ -119,6 +119,7 @@ def main():
     templateForAll(manualAdv, ('', 'manual','Root'), ('', 'manual_adv_features','Features'), if_not_specified_in_file=dict(root='manual_adv_features'))
     
     template('templateManual.html', 'manual_adv_keybindings'    , 'Keybindings'                     )
+    template('templateManual.html', 'faq'    , 'FAQ'                     )
     
     templateForAll(manualArticles   , ('', 'manual','Root'), ('', 'manual_articles'   ,'Articles'))
     templateForAll(manualScreencasts, ('', 'manual','Root'), ('', 'manual_screencasts','Screencasts'))
@@ -127,8 +128,14 @@ def getDict(**kwargs):
     return kwargs
 
 def DoIt():
+    import faqbuild
+    faqbuild.Generate('scripts/_new_faq.template', 'faq.contents.html')
+    sys.stdout.write('Built faq\n')
+    
     main()
-    sys.stdout.write('built com\n')
+    sys.stdout.write('Built homepage\n')
 
 if __name__ == '__main__':
+    
+    
     DoIt()
