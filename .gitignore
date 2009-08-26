@@ -1,2 +1,5 @@
 .hg
 .hgignore
+.metadata
+plugins/com.python.pydev.docs/merged_homepage/final/*.*
+git-kdiff3
