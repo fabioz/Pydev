@@ -1,0 +1,227 @@
+<doc>
+<contents_area>
+
+
+<p><strong>Note: Instructions are targeted at Eclipse 3.5</strong></p>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#installing-with-the-update-site" id="id2">Installing with the update site</a><ul>
+<li><a class="reference internal" href="#id1" id="id3">Available update sites</a></li>
+<li><a class="reference internal" href="#commom-install-problems" id="id4">Commom install problems</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installing-with-the-zip-file" id="id5">Installing with the zip file</a></li>
+<li><a class="reference internal" href="#checking-the-installation" id="id6">Checking the installation</a></li>
+<li><a class="reference internal" href="#uninstalling" id="id7">Uninstalling</a></li>
+<li><a class="reference internal" href="#corrupted-install" id="id8">Corrupted install</a></li>
+</ul>
+</div>
+<div class="section" id="installing-with-the-update-site">
+<h1><a class="toc-backref" href="#id2">Installing with the update site</a></h1>
+<p>To install Pydev and Pydev Extensions using the Eclipse Update Manager, you need to use the <strong>Help &gt; Install New Software...</strong>
+menu (note that in older versions, this would be the 'Find and Install' menu).</p>
+<div align="center" class="align-center"><img alt="images/install_menu.png" class="snap align-center" src="images/install_menu.png" /></div>
+<p>In the next screen, <strong>add all the update site(s) you want to work with</strong> (if you want Pydev and Pydev Extensions, either
+you have to add an update site that contains both or add 2 update sites. <strong>See below for a list with the</strong> <a class="reference internal" href="#available-update-sites">available update sites</a>).</p>
+<div align="center" class="align-center"><img alt="images/update_sites.png" class="snap align-center" src="images/update_sites.png" /></div>
+<div class="section" id="id1">
+<h2><a class="toc-backref" href="#id3"><span class="target" id="available-update-sites">Available update sites</span></a></h2>
+<blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">Mirrors for 1.4.3 onwards:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><table class="first docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">Containing only Pydev:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://pydev.sourceforge.net/updates">http://pydev.sourceforge.net/updates</a></li>
+<li><a class="reference external" href="http://update.aptana.com/update/pydev/3.2">http://update.aptana.com/update/pydev/3.2</a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Containing Pydev and Pydev Extensions:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.fabioz.com/pydev/updates">http://www.fabioz.com/pydev/updates</a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Containing only Pydev Extensions:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://update.aptana.com/update/pydev-pro/3.2">http://update.aptana.com/update/pydev-pro/3.2</a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Nightly builds:</th><td class="field-body"><table class="first docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">Containing only Pydev:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://nightly.aptana.com/pydev/site.xml">http://nightly.aptana.com/pydev/site.xml</a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Containing only Pydev Extensions:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://nightly.aptana.com/pydev-pro/site.xml">http://nightly.aptana.com/pydev-pro/site.xml</a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Before 1.4.3:</th><td class="field-body"><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">Containing only Pydev:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://pydev.sourceforge.net/updates_old">http://pydev.sourceforge.net/updates_old</a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Containing Pydev and Pydev Extensions:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.fabioz.com/pydev/updates_old">http://www.fabioz.com/pydev/updates_old</a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>After entering the update sites, select <strong>-- All available sites --</strong> and add a filter for <strong>Pydev</strong>, so that it
+shows the contents of all the update sites that have Pydev (note that this is optional if you added
+an update site that already contains both Pydev and Pydev Extensions), then select what you want to install and click 'Next'.</p>
+<div align="center" class="align-center"><img alt="images/update_sites2.png" class="snap align-center" src="images/update_sites2.png" /></div>
+<p>Then 'Next' again to confirm your selection</p>
+<div align="center" class="align-center"><img alt="images/update_sites3.png" class="snap align-center" src="images/update_sites3.png" /></div>
+<p>And finally, read the license agreement and if you accept, select the accept radio button and click 'Finish'.</p>
+<div align="center" class="align-center"><img alt="images/update_sites4.png" class="snap align-center" src="images/update_sites4.png" /></div>
+<p>At that point, Eclipse should automatically download the plugin contents and present you to a dialog asking
+if you want to restart (to which you should say <strong>yes</strong>).</p>
+</div>
+<div class="section" id="commom-install-problems">
+<h2><a class="toc-backref" href="#id4">Commom install problems</a></h2>
+<p>If you have any problem at this point with a message such as:</p>
+<blockquote>
+<pre class="literal-block">
+An error occurred while collecting items to be installed
+ No repository found containing:
+org.python.pydev/osgi.bundle/1.4.7.2843
+ No repository found containing:
+org.python.pydev.ast/osgi.bundle/1.4.7.2843
+</pre>
+</blockquote>
+<p>that might indicate that the mirror you selected is having some network problem at that time,
+so, please follow the same steps with another mirror.</p>
+</div>
+</div>
+<div class="section" id="installing-with-the-zip-file">
+<h1><a class="toc-backref" href="#id5">Installing with the zip file</a></h1>
+<p>The available locations for the zip files are:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">Containing only Pydev:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://sourceforge.net/project/showfiles.php?group_id=85796">SourceForge download</a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Containing Pydev and Pydev Extensions:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.fabioz.com/pydev/zips">http://www.fabioz.com/pydev/zips</a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>After downloading the zip file:</p>
+<p><strong>Eclipse 3.4 and 3.5</strong></p>
+<p>Extract the contents of the zip file in the <strong>eclipse/dropins</strong> folder and restart Eclipse.</p>
+<p><strong>Before Eclipse 3.4</strong></p>
+<p>Extract the contents of the zip file on top of Eclipse, making sure the plugins folder is extracted on top of the
+<strong>eclipse/plugins</strong> folder and the features is on top of the <strong>eclipse/features</strong> folder.
+After that, restart Eclipse with the '-clean' flag, so that Eclipse finds out about it.</p>
+</div>
+<div class="section" id="checking-the-installation">
+<h1><a class="toc-backref" href="#id6">Checking the installation</a></h1>
+<p>You can verify if it is correctly installed going to the menu <strong>'window &gt; preferences'</strong> and
+checking if there is a <strong>Pydev</strong> item and under that a <strong>Pydev Extensions</strong> item.</p>
+</div>
+<div class="section" id="uninstalling">
+<h1><a class="toc-backref" href="#id7">Uninstalling</a></h1>
+<p>Follow the instructons below if at any time you wish to stop using the Pydev or Pydev extensions plugin
+(or any other Eclipse plugin):</p>
+<p><strong>Eclipse 3.5</strong></p>
+<p>If you installed with the update site, go to the menu <strong>help &gt; about &gt; installation details</strong> then on the
+<strong>Installed Software</strong> tab, select the plugins you want to uninstall and click <strong>Uninstall</strong>.</p>
+<p>If you installed with the zip file, just remove the com.python.pydev and org.python.pydev features and plugins from
+the dropins folder.</p>
+<p><strong>Before Eclipse 3.4</strong></p>
+<p>Go to the menu <strong>help &gt; software updates &gt; manage configuration</strong>, select the plugin and click 'disable', then, you have to restart Eclipse,
+go to the same place again and then click on 'remove' (note that you have a button in the menu that enables you to see the 'disabled' features).</p>
+</div>
+<div class="section" id="corrupted-install">
+<h1><a class="toc-backref" href="#id8">Corrupted install</a></h1>
+<blockquote>
+<p>Eclipse sometimes is not able to correctly get the plugin, from the update site but will do no checking
+on whether it is really correct (no md5 checking), and when this happens, you'll usually get a ClassNotFoundException
+(similar to the example below).</p>
+<p>When that happens, <strong>you should uninstall it and reinstall again</strong> with the update site...
+if that still fails, you could try to get the zip files, as it will at least give you a warning when it is corrupt.</p>
+<p>Note that the chance of the files being corrupt in the server is pretty low, as that's something that's always checked
+in a new release -- but if you're suspicious about it, please contact me, so that I can double-check it.</p>
+<p>Also, there have been reports with that error where the only solution that
+has been consistent has been <strong>removing all</strong> previous versions of pydev and then installing
+the latest version.</p>
+</blockquote>
+<p><strong>EXAMPLE</strong></p>
+<blockquote>
+<p>Unable to create this part due to an internal error. Reason for the failure:
+The editor class could not be instantiated. This usually indicates that the
+editor's class name was mistyped in plugin.xml.</p>
+<p>java.lang.ClassNotFoundException: org.python.pydev.editor.PyEdit
+at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:405)
+at org.eclipse.osgi.framework.internal.core.BundleLoader.findClass(BundleLoader.java:350)
+at org.eclipse.osgi.framework.adaptor.core.AbstractClassLoader.loadClass(AbstractClassLoader.java:78)
+at java.lang.ClassLoader.loadClass(ClassLoader.java:235)
+at org.eclipse.osgi.framework.internal.core.BundleLoader.loadClass(BundleLoader.java:275)
+...</p>
+</blockquote>
+</div>
+</contents_area>
+
+
+
+<right_area>
+<p>Getting started with Pydev!</p>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area><strong>Pydev 101</strong></quote_area>
+
+<next>manual_101_interpreter</next>
+<prev>manual_101_root</prev>
+<root>manual_101_root</root>
+<title_next>(Config Interpreter)</title_next>
+<title_prev>(Manual Root)</title_prev>
+</doc>
