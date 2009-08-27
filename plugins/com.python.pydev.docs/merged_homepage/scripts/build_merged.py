@@ -108,20 +108,22 @@ def templateForAll(lst, first, last, if_not_specified_in_file={}):
     
 
 def main():
-    template('template1.html', 'index'                     , 'Pydev Extensions'                )
-    template('template1.html', 'download'                  , 'Download'                        )
-    template('template1.html', 'manual'                    , 'Manual'                          )
-    template('template1.html', 'about'                     , 'About'                           )
-    template('template1.html', 'history'                   , 'Releases'                        )
+    template('template1.html', 'index'                     , 'Pydev Extensions'          )
+    template('template1.html', 'download'                  , 'Download'                  )
+    template('template1.html', 'developers'                , 'Developers'                )
+    template('template1.html', 'manual'                    , 'Manual'                    )
+    template('template1.html', 'about'                     , 'About'                     )
+    template('template1.html', 'history_pydev'             , 'Pydev Releases'            )
+    template('template1.html', 'history_pydev_extensions'  , 'Pydev Extensions Releases' )
     
     templateForAll(manual101, ('', 'manual','Root'), ('', 'manual_adv_features'   ,'Features'))
     
     templateForAll(manualAdv, ('', 'manual','Root'), ('', 'manual_adv_features','Features'), if_not_specified_in_file=dict(root='manual_adv_features'))
     
-    template('templateManual.html', 'manual_adv_keybindings'    , 'Keybindings'                     )
-    template('templateManual.html', 'faq'    , 'FAQ'                     )
+    template('template1.html', 'manual_adv_keybindings'    , 'Keybindings'                )
+    template('template1.html', 'faq'    , 'FAQ'                     )
+    template('template1.html', 'screenshots'    , 'Screenshots'                     )
     
-    templateForAll(manualArticles   , ('', 'manual','Root'), ('', 'manual_articles'   ,'Articles'))
     templateForAll(manualScreencasts, ('', 'manual','Root'), ('', 'manual_screencasts','Screencasts'))
 
 def getDict(**kwargs):

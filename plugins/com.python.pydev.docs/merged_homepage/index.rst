@@ -2,19 +2,50 @@ What is Pydev?
 =================
 
 .. _Features Matrix: manual_adv_features.html
+.. _History for Pydev Extensions: history_pydev_extensions.html
+.. _History for Pydev: history_pydev.html
 
-Pydev is a plugin that enables users to use **Eclipse** for **Python**, **Jython** and **Iron Python** development 
--- making Eclipse a first class **Python IDE** --
-It comes with many goodies such as code completion, syntax highlighting, syntax analysis, 
-refactor, debug, code analysis, tokens browser, local renames, interactive console and many others. If you want more details on
-the provided features, you can check `Features Matrix`_.
+Pydev is a plugin that enables users to use **Eclipse** for **Python**, **Jython** and **Iron Python** development, making Eclipse a first class **Python IDE**.
 
-TODO: Talk about the merge from pydev extensions
+It comes with many goodies such as:
+
+ * code completion
+ * code completion with auto import
+ * syntax highlighting
+ * syntax analysis
+ * code analysis
+ * go to definition
+ * refactor
+ * mark occurrences
+ * debug
+ * tokens browser
+ * local renames
+ * interactive console
+ * **and many others** 
+
+If you want more details on the provided features, you can check `Features Matrix`_.
+
+
+Release 1.5.0
+===============
+
+**Pydev Extensions is now Open Source!**
+
+
+What happened to Pydev Extensions?
+====================================
+
+
+Pydev Extensions is now merged with Pydev, and its once closed source code has become open source. Thus,
+there is no more Pydev Extensions, only the open source Pydev, with all the capabilities of Pydev Extensions
+incorporated.
 
 
 
-<hr/>
+Releases History:
+==================
 
+ * `History for Pydev`_
+ * `History for Pydev Extensions`_
 
-
-
+ 
