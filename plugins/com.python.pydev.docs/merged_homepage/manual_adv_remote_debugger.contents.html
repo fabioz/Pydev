@@ -3,13 +3,13 @@
 
 	<h3>Remote Debugger</h3>
 	<p>	
-		In Pydev Extensions you can debug a remote program (a file that is not launched from within Eclipse). 
+		In Pydev you can debug a remote program (a file that is not launched from within Eclipse). 
 	</p>
 	
 	<p>
 		The steps to debug an external program are:
 		<ul>
-			<li>Start the remote debugger server (in Pydev Extensions)</li>
+			<li>Start the remote debugger server</li>
 			<li>Go to the debug perspective</li>
 			<li>Start the external program with the file 'pydevd.py' in its pythonpath</li>
 			<li>Call pydevd.settrace()</li>
@@ -48,7 +48,7 @@
 	<p>
 		<strong>4. Call pydevd.settrace()</strong>: Now that the pydevd.py module is already on your pythonpath, you can use the 
 		template provided: 'pydevd' to make the call: import pydevd;pydevd.settrace(). When that call is reached, it will automatically 
-		suspend the execution and show the debugger (in Pydev Extensions).
+		suspend the execution and show the debugger.
 	</p>
 <br/><p align="center"><IMG src="images/debugger/remotedebugger3.png" border="1"/></p>
 <br/><p align="center"><strong>Image:</strong> pydevd.settrace called</p>
@@ -65,7 +65,7 @@
 		E.g.: <strong>pydevd.settrace(stdoutToServer=True, stderrToServer=True)</strong>
 	</p>
 	<p>
-		<strong>NOTE 3</strong>: You can have the running program in one machine and Pydev Extensions on another machine,
+		<strong>NOTE 3</strong>: You can have the running program in one machine and Pydev on another machine,
 		but if the paths are not exactly the same, some adjustments have to be done in the target machine:<br/>
 		Aside from passing the files in eclipse/plugins/org.python.pydev.debug_x.x.x/pysrc to your target machine, the 
 		file <strong>pydevd_file_utils.py</strong> must be edited to make the path translations from the client

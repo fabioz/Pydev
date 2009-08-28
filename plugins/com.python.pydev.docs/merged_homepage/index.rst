@@ -19,11 +19,10 @@ It comes with many goodies such as:
  * mark occurrences
  * debug
  * tokens browser
- * local renames
  * interactive console
- * **and many others** 
+ * **and many others**:
 
-If you want more details on the provided features, you can check `Features Matrix`_.
+For more details on the provided features, check the `Features Matrix`_.
 
 
 Release 1.5.0

@@ -108,7 +108,7 @@ def templateForAll(lst, first, last, if_not_specified_in_file={}):
     
 
 def main():
-    template('template1.html', 'index'                     , 'Pydev Extensions'          )
+    template('template1.html', 'index'                     , 'Pydev'          )
     template('template1.html', 'download'                  , 'Download'                  )
     template('template1.html', 'developers'                , 'Developers'                )
     template('template1.html', 'manual'                    , 'Manual'                    )

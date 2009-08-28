@@ -42,7 +42,7 @@ Yes (note that some previous versions had a bug in which it didn't work if the E
 How do I get started with Pydev?
 --------------------------------------------------------------------------------------------------------------Answer
 
-Check the getting started manual at: <a href="http://fabioz.com/pydev/manual_101_root.html">http://fabioz.com/pydev/manual_101_root.html</a>
+Check the getting started manual at: <a href="http://pydev.org/manual_101_root.html">http://pydev.org/manual_101_root.html</a>
 <br/><br/>
 Also, there are some videos available at: <a href="http://www.youtube.com/user/pydev">http://www.youtube.com/user/pydev</a> which
 may help you in getting started.
@@ -53,7 +53,7 @@ How do I configure my PYTHONPATH?
 --------------------------------------------------------------------------------------------------------------Answer
 
 Please refer to the Getting Started Guide at 
-<a href="http://www.fabioz.com/pydev/manual_101_root.html">http://www.fabioz.com/pydev/manual_101_root.html</a>
+<a href="http://pydev.org/manual_101_root.html">http://pydev.org/manual_101_root.html</a>
 for up-to-date information on how to correctly install and configure your PYTHONPATH.
 <br><br>
 
@@ -401,7 +401,7 @@ Petru Lauric<br/>
 OK, I know that many features are available, but I just don't know how can I access them through my keyboard!!
 --------------------------------------------------------------------------------------------------------------Answer
 
-Please refer to: <a href="http://www.fabioz.com/pydev/manual_adv_keybindings.html">http://www.fabioz.com/pydev/manual_adv_keybindings.html</a>
+Please refer to: <a href="http://pydev.org/manual_adv_keybindings.html">http://pydev.org/manual_adv_keybindings.html</a>
 for up-to-date info on the most useful keybindings provided by Pydev and Eclipse.
 
 <br><br>

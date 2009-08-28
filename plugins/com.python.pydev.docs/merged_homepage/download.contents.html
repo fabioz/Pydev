@@ -12,16 +12,14 @@
 <li><a class="reference internal" href="#requirements" id="id3">Requirements</a></li>
 <li><a class="reference internal" href="#urls-to-use-when-updating-with-the-eclipse-update-manager" id="id4">Urls to use when updating with the Eclipse update manager</a></li>
 <li><a class="reference internal" href="#get-zip-releases" id="id5">Get zip releases</a></li>
-<li><a class="reference internal" href="#fast-install-instructions" id="id6">Fast Install Instructions</a></li>
-<li><a class="reference internal" href="#complete-install" id="id7">Complete Install</a></li>
 </ul>
 </div>
 </div>
 <div class="section" id="notes">
 <h1><a class="toc-backref" href="#id2">Notes</a></h1>
 <ul class="simple">
-<li>The Pydev Extensions version must always be accompanied by the same version of the Pydev &quot;Open Source&quot; version.</li>
-<li>If you already have the matching Open Source version installed, it will not appear in the Eclipse update manager.</li>
+<li>If you previously used the separate version of Pydev Extensions, it should be uninstalled before getting
+the newest Pydev version (which incorporated its features).</li>
 </ul>
 </div>
 <div class="section" id="requirements">
@@ -33,9 +31,16 @@
 <li><a class="reference external" href="http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython">Iron Python</a> <strong>(2.6 or newer)</strong></li>
 </ul>
 <p>and</p>
+<ul>
+<li><p class="first"><a class="reference external" href="http://aptana.com/studio">Aptana Studio</a> or <a class="reference external" href="http://www.eclipse.org">Eclipse (3.2 to 3.5)</a></p>
+<blockquote>
 <ul class="simple">
-<li><a class="reference external" href="http://www.eclipse.org">Eclipse 3.2, 3.3, 3.4 or 3.5</a> -- <a class="reference external" href="http://www.python.org">Python</a> and <a class="reference external" href="http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython">Iron Python</a> require only the <a class="reference external" href="http://download.eclipse.org/eclipse/downloads/">Platform Runtime Binary</a> (download around 45-50 MB), and <a class="reference external" href="http://www.jython.org">Jython</a> also requires <a class="reference external" href="http://www.eclipse.org/jdt/">JDT</a>.</li>
-<li><a class="reference external" href="http://www.javasoft.com">Java</a> 1.4 or higher</li>
+<li><a class="reference external" href="http://www.python.org">Python</a> and <a class="reference external" href="http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython">Iron Python</a> require only the <a class="reference external" href="http://download.eclipse.org/eclipse/downloads/">Platform Runtime Binary</a> (download around 45-50 MB), and <a class="reference external" href="http://www.jython.org">Jython</a> also requires <a class="reference external" href="http://www.eclipse.org/jdt/">JDT</a>.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><a class="reference external" href="http://www.javasoft.com">Java</a> 1.4 or higher</p>
+</li>
 </ul>
 </div>
 <div class="section" id="urls-to-use-when-updating-with-the-eclipse-update-manager">
@@ -44,72 +49,15 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name" colspan="2">Mirrors for 1.4.3 onwards:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><table class="first docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name" colspan="2">Containing only Pydev:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<tr class="field"><th class="field-name">Mirrors:</th><td class="field-body"><ul class="first simple">
 <li><a class="reference external" href="http://pydev.sourceforge.net/updates">http://pydev.sourceforge.net/updates</a></li>
-<li><a class="reference external" href="http://update.aptana.com/update/pydev/3.2">http://update.aptana.com/update/pydev/3.2</a></li>
+<li><a class="reference external" href="http://pydev.org/updates">http://pydev.org/updates</a></li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name" colspan="2">Containing Pydev and Pydev Extensions:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><a class="reference external" href="http://www.fabioz.com/pydev/updates">http://www.fabioz.com/pydev/updates</a></li>
+<tr class="field"><th class="field-name">Nightly builds:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://nightly.aptana.com/pydev">http://nightly.aptana.com/pydev</a></li>
 </ul>
-</td>
-</tr>
-<tr class="field"><th class="field-name" colspan="2">Containing only Pydev Extensions:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://update.aptana.com/update/pydev-pro/3.2">http://update.aptana.com/update/pydev-pro/3.2</a></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-<tr class="field"><th class="field-name">Nightly builds:</th><td class="field-body"><table class="first docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name" colspan="2">Containing only Pydev:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><a class="reference external" href="http://nightly.aptana.com/pydev/site.xml">http://nightly.aptana.com/pydev/site.xml</a></li>
-</ul>
-</td>
-</tr>
-<tr class="field"><th class="field-name" colspan="2">Containing only Pydev Extensions:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://nightly.aptana.com/pydev-pro/site.xml">http://nightly.aptana.com/pydev-pro/site.xml</a></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-<tr class="field"><th class="field-name">Before 1.4.3:</th><td class="field-body"><table class="first last docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name" colspan="2">Containing only Pydev:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><a class="reference external" href="http://pydev.sourceforge.net/updates_old">http://pydev.sourceforge.net/updates_old</a></li>
-</ul>
-</td>
-</tr>
-<tr class="field"><th class="field-name" colspan="2">Containing Pydev and Pydev Extensions:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://www.fabioz.com/pydev/updates_old">http://www.fabioz.com/pydev/updates_old</a></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
 </td>
 </tr>
 </tbody>
@@ -117,44 +65,9 @@
 </div>
 <div class="section" id="get-zip-releases">
 <h1><a class="toc-backref" href="#id5">Get zip releases</a></h1>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name" colspan="2">Containing only Pydev:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><a class="reference external" href="http://sourceforge.net/project/showfiles.php?group_id=85796">SourceForge download</a></li>
+<ul class="simple">
+<li><a class="reference external" href="http://sourceforge.net/projects/pydev/files/">SourceForge download</a></li>
 </ul>
-</td>
-</tr>
-<tr class="field"><th class="field-name" colspan="2">Containing Pydev and Pydev Extensions:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://www.fabioz.com/pydev/zips">http://www.fabioz.com/pydev/zips</a></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="fast-install-instructions">
-<h1><a class="toc-backref" href="#id6">Fast Install Instructions</a></h1>
-<p><strong>Update Manager</strong></p>
-<blockquote>
-Go to the update manager (inside the help menu) and add one of the urls
-specified above and follow the wizard (Eclipse should do the rest)</blockquote>
-<p><strong>Zip File</strong></p>
-<blockquote>
-<p>An alternative is just getting the zip file and extracting it yourself in eclipse.</p>
-<p>For <strong>Eclipse 3.2 and 3.3</strong>, you have to make sure the plugins folder
-is extracted on top of the Eclipse plugins folder and <strong>restart with '-clean'</strong>.</p>
-<p>For <strong>Eclipse 3.4 and 3.5</strong>, you can extract it in the '<strong>dropins</strong>' folder (and restart Eclipse).</p>
-</blockquote>
-</div>
-<div class="section" id="complete-install">
-<h1><a class="toc-backref" href="#id7">Complete Install</a></h1>
-<p>There is a 'complete install guide' at <a class="reference external" href="http://www.fabioz.com/pydev/manual_101_root.html">http://www.fabioz.com/pydev/manual_101_root.html</a>
-so, if you have any problems in the install, that's the place you should check
-(it also guides you through configuring pydev correctly).</p>
 </div>
 </contents_area>
 
@@ -166,24 +79,35 @@ so, if you have any problems in the install, that's the place you should check
 
 <p><strong>Update Manager</strong> </p>
 
-<p> Go to the update manager (help > Software Updates > Find and Install > Search for new feature to install),
-	add: <A href="http://www.fabioz.com/pydev/updates/">http://www.fabioz.com/pydev/updates/</A> (or another of the specified urls) 
-	as a 'remote site' and let Eclipse 'finish' it for you.</p>
+<p> Go to the update manager (Help > Install New Software),
+	add: 
+	<br>
+	<br>
+	<A href="http://pydev.org/updates">http://pydev.org/updates</A> 
+	<br>
+	<br>
+	(or another of the specified urls) 
+	and follow the Eclipse steps.</p>
 <br/>
-<p><strong>Zip file</strong></p>
 
-<p>After downloading the zip file, you have to extract it 
-yourself on top of Eclipse. If you choose to do it, just make sure the plugins folder 
-is extracted on top of the Eclipse plugins folder. After that, restart it with the '-clean' flag, to
-make sure Eclipse finds out about it.</p>
+<p><strong>Zip File</strong></p>
+
+<p>An alternative is just getting the zip file and extracting it yourself in eclipse.</p>
+
+<p>For <strong>Eclipse 3.4 and 3.5</strong>, you can extract it in the '<strong>dropins</strong>' folder (and restart Eclipse).</p>
+
+<p>For <strong>Eclipse 3.2 and 3.3</strong>, you have to make sure the plugins folder
+is extracted on top of the Eclipse plugins folder and <strong>restart with '-clean'</strong>.</p>
+
+
+
+
 <br/>
 
-<br/>
-<h3>'Complete Install':</h3>
+<h3>Complete Install</a></h3>
+<p>Check the <a class="reference external" href="manual_101_root.html">Getting started guide</a>, 
+which guides you from installing Pydev to debugging your first program</p>
 
-<p>
-A complete <a href="manual_101_install.html">step-by-step</a> on how to install pydev can be found at the <a href="manual_101_install.html">Getting Started session of the manual</a>.
-</p>
 </right_area>
 
 <image_area>download.png</image_area>

@@ -15,8 +15,7 @@ menu (note that in older versions, this would be the 'Find and Install' menu).
    :align: center   
 
    
-In the next screen, **add all the update site(s) you want to work with** (if you want Pydev and Pydev Extensions, either
-you have to add an update site that contains both or add 2 update sites. **See below for a list with the** `available update sites`_).
+In the next screen, add the update site(s) you want to work with (**See below for a list with the** `available update sites`_).
 
 .. image:: images/update_sites.png
    :class: snap
@@ -24,54 +23,30 @@ you have to add an update site that contains both or add 2 update sites. **See b
    
    
 .. _http://pydev.sourceforge.net/updates: http://pydev.sourceforge.net/updates
-.. _http://update.aptana.com/update/pydev/3.2: http://update.aptana.com/update/pydev/3.2
-.. _http://pydev.sourceforge.net/updates_old: http://pydev.sourceforge.net/updates_old
-.. _http://nightly.aptana.com/pydev/site.xml: http://nightly.aptana.com/pydev/site.xml
-.. _SourceForge download: http://sourceforge.net/project/showfiles.php?group_id=85796
-.. _http://www.fabioz.com/pydev/updates: http://www.fabioz.com/pydev/updates
-.. _http://www.fabioz.com/pydev/updates_old: http://www.fabioz.com/pydev/updates_old
-.. _http://nightly.aptana.com/pydev-pro/site.xml: http://nightly.aptana.com/pydev-pro/site.xml
-.. _http://update.aptana.com/update/pydev-pro/3.2: http://update.aptana.com/update/pydev-pro/3.2
-.. _http://www.fabioz.com/pydev/zips: http://www.fabioz.com/pydev/zips
+.. _http://pydev.org/updates: http://pydev.org/updates
+.. _http://nightly.aptana.com/pydev: http://nightly.aptana.com/pydev
+.. _SourceForge download: http://sourceforge.net/projects/pydev/files/
 
 
 _`Available update sites`
 -------------------------------
 
     
-    :Mirrors for 1.4.3 onwards:
-    
-        
-        :Containing only Pydev:        
-            * `http://pydev.sourceforge.net/updates`_
-            * `http://update.aptana.com/update/pydev/3.2`_
-    
-        :Containing Pydev and Pydev Extensions:
-            * `http://www.fabioz.com/pydev/updates`_
-        
-        :Containing only Pydev Extensions:    
-            * `http://update.aptana.com/update/pydev-pro/3.2`_
-        
-    :Nightly builds: 
-        
-        :Containing only Pydev:
-            * `http://nightly.aptana.com/pydev/site.xml`_
-        
-        :Containing only Pydev Extensions:
-            * `http://nightly.aptana.com/pydev-pro/site.xml`_
-    
-    :Before 1.4.3: 
-        
-        :Containing only Pydev:        
-            * `http://pydev.sourceforge.net/updates_old`_
-        
-        :Containing Pydev and Pydev Extensions:    
-            * `http://www.fabioz.com/pydev/updates_old`_        
-            
 
-After entering the update sites, select **-- All available sites --** and add a filter for **Pydev**, so that it 
-shows the contents of all the update sites that have Pydev (note that this is optional if you added 
-an update site that already contains both Pydev and Pydev Extensions), then select what you want to install and click 'Next'.
+:Mirrors:
+
+    * `http://pydev.sourceforge.net/updates`_
+    * `http://pydev.org/updates`_
+    
+:Nightly builds: 
+    
+    * `http://nightly.aptana.com/pydev`_
+      
+      
+
+After entering the update sites, select the update site you entered or 
+select "All available sites" and add a filter for Pydev, so that it 
+shows the contents of all the update sites that have Pydev, then select what you want to install and click 'Next'.
 
 
 .. image:: images/update_sites2.png
@@ -117,11 +92,7 @@ Installing with the zip file
 
 The available locations for the zip files are:
 
-:Containing only Pydev:        
-    * `SourceForge download`_
-
-:Containing Pydev and Pydev Extensions:    
-    * `http://www.fabioz.com/pydev/zips`_
+* `SourceForge download`_
     
 
 After downloading the zip file:
@@ -142,13 +113,13 @@ Checking the installation
 ===========================
 
 You can verify if it is correctly installed going to the menu **'window > preferences'** and 
-checking if there is a **Pydev** item and under that a **Pydev Extensions** item.
+checking if there is a **Pydev** item under that.
 
 
 Uninstalling
 ==============
 
-Follow the instructons below if at any time you wish to stop using the Pydev or Pydev extensions plugin 
+Follow the instructons below if at any time you wish to stop using the Pydev plugin 
 (or any other Eclipse plugin):
 
 **Eclipse 3.5**
@@ -178,7 +149,7 @@ Corrupted install
 	if that still fails, you could try to get the zip files, as it will at least give you a warning when it is corrupt.
 	
 	Note that the chance of the files being corrupt in the server is pretty low, as that's something that's always checked 
-	in a new release -- but if you're suspicious about it, please contact me, so that I can double-check it.
+	in a new release -- but if you're suspicious about it, please ask in the forum, so that it can be double-checked.
 
 	Also, there have been reports with that error where the only solution that
 	has been consistent has been **removing all** previous versions of pydev and then installing 

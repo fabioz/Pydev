@@ -8,25 +8,16 @@
 <P>They are ALL activated through <strong>Ctrl+1</strong>, but which one(s) will show depend on the context it is activated.</P>
 
 <p>
-Currently, there are 4 content assistants implemented in the Pydev 'Open Source' and 3 provided in the Pydev Extensions:
+Currently, there are 7 content assistants in the Pydev:
 </p>
 
 
 <p>
-<strong>Pydev Extensions</strong>
 <ul>
 <li>Make import for undefined token
 </li><li>Ignore error
 </li><li>Don't analyze module
-</li>
-</ul>
-</p>
-
-
-<p>
-<strong>Pydev 'Open Source'</strong>
-<ul>
-<li>Move import to global scope
+</li><li>Move import to global scope
 </li><li>Create docstring
 </li><li>Assign parameters to attributes
 </li><li>Assign result to new local variable (or field)
@@ -35,10 +26,11 @@ Currently, there are 4 content assistants implemented in the Pydev 'Open Source'
 </ul>
 </p>
 
+
 <hr/>
 
 <p>
-<h2>Pydev Extensions content assistants</h2>
+<h2>Content assistants</h2>
 </p>
 
 
@@ -56,7 +48,7 @@ If we let the cursor at the undefined token line and press Ctrl+1, we get:
 <img border="1" src="images/contentassist/ctrl_1_fix_import3.png"/>
 <br/><br/>
 Now, if we had chosen the third option (<strong>@UndefinedVariable</strong>), a note would have been entered in the code, 
-to warn Pydev Extensions to ignore that error, as pointed below...<br/><br/>
+to warn Pydev to ignore that error, as pointed below...<br/><br/>
 <img border="1" src="images/contentassist/ctrl_1_ignoreerror.png"/>
 </p>
 <br/>
@@ -65,9 +57,9 @@ to warn Pydev Extensions to ignore that error, as pointed below...<br/><br/>
 	
 <h3>Don't analyze module</h3>
 <p>
-	Pydev Extensions can accept a 'note' to warn it not to make code-analysis at all in some module. In order to do
+	Pydev can accept a 'note' to warn it not to make code-analysis at all in some module. In order to do
 	that' you can go to the first line of the module and press 'Ctrl+1' and choose the <strong>@PydevCodeAnalysisIgnore</strong> flag.
-	Doing that will add a note in the code to warn that this module should not be analyzed by Pydev Extensions.<br/><br/>
+	Doing that will add a note in the code to warn that this module should not be analyzed by Pydev.<br/><br/>
 	If you use automatically generated files, it might be useful to put that warning on those files, as it would not be 
 	useful to analyze those files. The example below shows the result of this action.<br/><br/>
 </p>
