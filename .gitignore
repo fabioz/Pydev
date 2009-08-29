@@ -38,3 +38,16 @@ plugins/org.python.pydev.runalltests/bin/
 plugins/org.python.pydev/.pydevproject
 plugins/org.python.pydev/bin/
 *.pyc
+*.idx
+*.orig
+CVS
+.svn
+indexcache
+*.pyc
+*.class
+*.astdelta
+Thumbs.db
+.cvsignore
+*.pydevinfo
+*.pydevsysteminfo
+*.pkc
