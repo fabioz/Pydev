@@ -21,7 +21,6 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.ui.UIConstants;
 
-import com.python.pydev.PydevPlugin;
 import com.python.pydev.analysis.additionalinfo.IInfo;
 
 /**
@@ -45,7 +44,6 @@ public class AnalysisPlugin extends AbstractUIPlugin {
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        PydevPlugin.getDefault().checkValid();
     }
 
     /**

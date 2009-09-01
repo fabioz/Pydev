@@ -26,7 +26,6 @@ public class CodecompletionPlugin extends AbstractUIPlugin {
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        com.python.pydev.PydevPlugin.getDefault().checkValid();
     }
 
     /**

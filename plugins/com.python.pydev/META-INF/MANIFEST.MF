@@ -32,9 +32,7 @@ Bundle-ClassPath: pydev.jar,
  activation.jar
 Export-Package: com.python.pydev,
  com.python.pydev.actions,
- com.python.pydev.license.defaults,
  com.python.pydev.refactoring,
- com.python.pydev.ui,
  com.python.pydev.ui.hierarchy,
  com.python.pydev.ui.search,
  com.python.pydev.util

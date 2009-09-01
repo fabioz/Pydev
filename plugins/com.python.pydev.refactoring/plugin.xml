@@ -22,7 +22,7 @@
    <extension point="org.eclipse.ui.preferencePages">
       <page
             class="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
-            category="org.python.pydev.prefs.extensions"
+            category="org.python.pydev.prefs.editor"
             id="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
             name="Mark Occurrences"/>
    </extension>

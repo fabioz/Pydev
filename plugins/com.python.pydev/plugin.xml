@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            class="com.python.pydev.ui.MainExtensionsPreferencesPage"
-            category="org.python.pydev.prefs"
-            id="org.python.pydev.prefs.extensions"
-            name="PyDev Extensions"/>
-   </extension>
 
    <extension point="org.python.pydev.pydev_quick_outline">
    		<quick_outline_participant class="com.python.pydev.actions.PyShowOutline"/>

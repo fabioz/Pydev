@@ -4,7 +4,7 @@
    <extension point="org.eclipse.ui.preferencePages">
       <page
             class="com.python.pydev.analysis.ui.AnalysisPreferencesPage"
-            category="org.python.pydev.prefs.extensions"
+            category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.extensions.analysis"
             name="Code Analysis"/>
    </extension>
@@ -12,7 +12,7 @@
    <extension point="org.eclipse.ui.preferencePages">
       <page
             class="com.python.pydev.analysis.ui.AutoImportsPreferencesPage"
-            category="org.python.pydev.prefs.extensions"
+            category="org.python.pydev.prefs.editor"
             id="org.python.pydev.prefs.extensions.autoimports"
             name="Auto Imports"/>
    </extension>
