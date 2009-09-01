@@ -1,7 +1,12 @@
-set path=%path%;W:\eclipse_341_clean\plugins\org.apache.ant_1.7.0.v200803061910\bin
+set path=%path%;W:\eclipse_350_clean\plugins\org.apache.ant_1.7.1.v20090120-1145\bin
 set JAVA_HOME=D:\bin\jdk_1_5_09
 w:
-cd W:\temp_buildDir
-svn co http://svn.aptana.local/svn/pydev/trunk pydev
-cd pydev\builders\org.python.pydev.build
-ant -DbuildDirectory=W:/temp_buildDir/pydev -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -Ddeploy.dir=w:/temp_deployDir/pydev -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_341_clean
+cd W:\git_build_dir
+git clone git://github.com/aptana/Pydev.git
+cd Pydev
+git pull
+git checkout
+git clean -f
+cd builders\org.python.pydev.build
+set GIT_EXECUTABLE="C:\Program Files\Git\bin\git.exe"
+ant -DbuildDirectory=W:/git_build_dir/Pydev -Dbaseos=win32 -Dbasews=win32 -Dgit.executable=%GIT_EXECUTABLE% -Dbasearch=x86 -Ddeploy.dir=w:/git_deploy_dir/Pydev -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_350_clean
