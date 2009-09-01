@@ -11,16 +11,45 @@
 	<description>
             Builds the PyDev feature
     </description>
+	
+	
+	
+	<macrodef name = "git">
+	    <attribute name = "command" />
+	    <attribute name = "dir" default = "" />
+	    <element name = "args" optional = "true" />
+	    <sequential>
+	        <echo message = "git @{command}" />
+	        <exec executable = "git" dir = "@{dir}">
+	            <arg value = "@{command}" />
+	            <args/>
+	        </exec>
+	    </sequential>
+	</macrodef>
+
+	<macrodef name = "git-clone-pull">
+	    <attribute name = "repository" />
+	    <attribute name = "dest" />
+	    <sequential>
+	        <git command = "clone">
+	            <args>
+	                <arg value = "@{repository}" />
+	                <arg value = "@{dest}" />
+	            </args>
+	        </git>
+	        <git command = "pull" dir = "@{dest}" />
+	    </sequential>
+	</macrodef>
+	
+	
+	
 
 	<property file="build_local.properties" />
 	<!-- Set is.windows property IF the OS is from the Windows family -->
 	<condition property="is.windows" value="true">
 		<os family="windows" />
 	</condition>
-	<path id="svn.classpath">
-		<fileset dir="lib" includes="*.jar" />
-	</path>
-	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svn.classpath" />
+	
 
 	<!-- ================================= 
           target: build              
@@ -80,6 +109,12 @@
 		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
 		<delete dir="${p2.repo.dir}" failonerror="false" />
 		<!-- Do an svn revert of the build directory -->
+		<git command = "checkout" dir="${buildDirectory}">
+		    <args>
+		        <arg value = "git://github.com/aptana/Pydev.git" />
+		        <arg value = "-f" />
+		    </args>
+		</git>
 		<svn>
 			<revert recurse="true" dir="${buildDirectory}" />
 		</svn>
