@@ -289,9 +289,13 @@
 			<fileset dir="${p2.repo.dir}" />
 		</copy>
 		
-       <zip destfile="${deploy.dir}/${topLevelElementId}-${version.full}-sources.zip" basedir="${buildDirectory}" includes="features/**, plugins/**" 
-            excludes="**/temp.folder/**,**/bin/**,**/emails_to_announce.txt,**/*.jpage,**/cachedir,**/*.indexcache,**/*.pyc,**/*.class,**/out/**,**/org.python.pydev.releng/**,**/com.python.pydev.docs/**,**/org.python.pydev.runalltests/**,**/org.python.pydev.site/**,*.jar.args,.settings"
-            filesonly="true">
+       <zip 
+       	 destfile="${deploy.dir}/${topLevelElementId}-${version.full}-sources.zip" 
+       	 basedir="${buildDirectory}" 
+       	 includes="features/**, plugins/**" 
+         excludes="**/temp.folder/**,**/bin/**,**/emails_to_announce.txt,**/*.jpage,**/cachedir,**/*.indexcache,**/*.pyc,**/*.class,**/out/**,**/org.python.pydev.releng/**,**/com.python.pydev.docs/**,**/org.python.pydev.runalltests/**,**/org.python.pydev.site/**,**.jar.args,.settings,plugins/com.python.pydev/pydev.jar"
+         filesonly="true">
+       	
         </zip>
 	</target>
 
