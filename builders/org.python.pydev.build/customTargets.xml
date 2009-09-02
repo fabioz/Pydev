@@ -293,7 +293,7 @@
        	 destfile="${deploy.dir}/${topLevelElementId}-${version.full}-sources.zip" 
        	 basedir="${buildDirectory}" 
        	 includes="features/**, plugins/**" 
-         excludes="**/temp.folder/**,**/bin/**,**/emails_to_announce.txt,**/*.jpage,**/cachedir,**/*.indexcache,**/*.pyc,**/*.class,**/out/**,**/org.python.pydev.releng/**,**/com.python.pydev.docs/**,**/org.python.pydev.runalltests/**,**/org.python.pydev.site/**,**.jar.args,.settings,plugins/com.python.pydev/pydev.jar"
+         excludes="**/temp.folder/**,**/bin/**,**/emails_to_announce.txt,**/*.jpage,**/cachedir,**/*.indexcache,**/*.pyc,**/*.class,**/out/**,**/org.python.pydev.releng/**,**/com.python.pydev.docs/**,**/com.python.pydev.runalltests/**,**/org.python.pydev.runalltests/**,**/org.python.pydev.site/**,**/**.jar.args,.settings,**/**pydev.jar,**/**parser.jar,**/**pydev-jython.jar,**/**refactoring.jar,**/**pydev-debug.jar,**/**analysis.jar,**/**core.jar,**/**customizations.jar,**/**codecompletion.jar,**/**fastparser.jar,**/**ast.jar"
          filesonly="true">
        	
         </zip>
