@@ -105,7 +105,6 @@
 		</replaceregexp>
 
 		<replaceregexp file="${buildDirectory}/features/org.python.pydev.feature/feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
-		<replaceregexp file="${buildDirectory}/features/com.python.pydev.extensions/feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
 			
 		<replaceregexp file="${buildDirectory}/plugins/org.python.pydev/src/org/python/pydev/plugin/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
 		<replaceregexp file="${buildDirectory}/plugins/com.python.pydev/src/com/python/pydev/PydevPlugin.java" match='public static final String version =(.*)"' replace='public static final String version ="${version.full}"' byline="true" />
