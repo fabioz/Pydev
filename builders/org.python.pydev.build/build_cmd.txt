@@ -4,9 +4,9 @@ w:
 cd W:\git_build_dir
 git clone git://github.com/aptana/Pydev.git
 cd Pydev
-git pull
+git clean -f -d
 git checkout
-git clean -f
+git pull
 cd builders\org.python.pydev.build
 set GIT_EXECUTABLE="C:\Program Files\Git\bin\git.exe"
 ant -DbuildDirectory=W:/git_build_dir/Pydev -Dbaseos=win32 -Dbasews=win32 -Dgit.executable=%GIT_EXECUTABLE% -Dbasearch=x86 -Ddeploy.dir=w:/git_deploy_dir/Pydev -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_350_clean
