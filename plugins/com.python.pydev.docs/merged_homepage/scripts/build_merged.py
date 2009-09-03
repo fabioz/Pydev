@@ -81,6 +81,9 @@ def template( template, contents, title, **kwargs ):
     contents = contents.replace('%(date)s',          datetime.datetime.now().strftime('%d %B %Y'))
     contents = contents.replace('LAST_VERSION_TAG',  LAST_VERSION_TAG) #@UndefinedVariable
     
+    #If a page didn't specify the image properly, just remove the image declaration.
+    contents = contents.replace('<p><IMG src="images/" border="0" alt=""/></p>', '')
+    
     file( target_file, 'w' ).write( contents ) 
 
 def getContents(contents_file, tag):

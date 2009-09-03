@@ -55,11 +55,9 @@
 </node>
 <node CREATED="1251066104785" ID="Freemind_Link_1737458939" MODIFIED="1251066107207" POSITION="right" TEXT="About"/>
 <node CREATED="1251341740565" ID="Freemind_Link_554662134" MODIFIED="1251341743893" POSITION="left" TEXT="TODO">
-<node CREATED="1251341756986" ID="Freemind_Link_1787125953" MODIFIED="1251341767830" TEXT="Remove references to closed source license"/>
 <node CREATED="1251341768533" ID="Freemind_Link_1852173616" MODIFIED="1251341780096" TEXT="Create part with license"/>
 <node CREATED="1251342013549" ID="Freemind_Link_1694780400" MODIFIED="1251342027205" TEXT="Keybindings considering Ctrl+2+?"/>
 <node CREATED="1251342082065" ID="Freemind_Link_531832591" MODIFIED="1251342094346" TEXT="Update site: new references at pydev.org?"/>
-<node CREATED="1251342097111" ID="Freemind_Link_1817440229" MODIFIED="1251342110596" TEXT="Remove licensing from build"/>
 <node CREATED="1251342126846" ID="Freemind_Link_281935157" MODIFIED="1251342132533" TEXT="Update the screenshots"/>
 </node>
 <node CREATED="1251504962093" ID="Freemind_Link_1409642677" MODIFIED="1251504974046" POSITION="left" TEXT="Next steps to work on:">
