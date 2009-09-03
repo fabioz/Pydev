@@ -5,7 +5,7 @@ Hi All,
 
 Pydev and Pydev Extensions VERSION have been released
 
-Details on Pydev Extensions: http://www.fabioz.com/pydev
+Details on Pydev Extensions: http://pydev.org
 Details on Pydev: http://pydev.sf.net 
 Details on its development: http://pydev.blogspot.com
 
@@ -36,9 +36,6 @@ Software Developer
 Aptana
 http://aptana.com/python
 
-Pydev Extensions
-http://www.fabioz.com/pydev
-
 Pydev - Python Development Environment for Eclipse
-http://pydev.sf.net
+http://pydev.org
 http://pydev.blogspot.com

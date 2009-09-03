@@ -31,8 +31,8 @@ open:     D:\bin\eclipse342\eclipse.exe -application org.eclipse.equinox.p2.meta
 
 Upload contents:
 1. W:\temp_deployDir\updateSite\pydev to fabioz,pydev@web.sourceforge.net
-2. W:\temp_deployDir\updateSite\pydevPro to fabioz.com
-3. W:\temp_deployDir\updateSite\zipsPydevPro to fabioz.com
+2. W:\temp_deployDir\updateSite\pydevPro to pydev.org
+3. W:\temp_deployDir\updateSite\zipsPydevPro to pydev.org
 4. W:\temp_deployDir\updateSite\zipsPydev to sourceforge: 
     Create folder at: https://sourceforge.net/project/admin/explorer.php?group_id=85796
     sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/Pydev 1.4.8 and add file: E.g.: Pydev 1.3.7
@@ -45,7 +45,7 @@ Stopped here:
    
 Update homepage:
 1. W:\pydev_pro\plugins\com.python.pydev.docs\open_source\final to fabioz,pydev@web.sourceforge.net
-2. W:\pydev_pro\plugins\com.python.pydev.docs\new_homepage\final to fabioz.com
+2. W:\pydev_pro\plugins\com.python.pydev.docs\new_homepage\final to pydev.org
 
 
 Tag repository: e.g.: pydev_1_4_7

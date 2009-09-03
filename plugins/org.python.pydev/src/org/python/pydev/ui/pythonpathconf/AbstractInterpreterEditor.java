@@ -429,7 +429,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             }
 
             public void widgetSelected(SelectionEvent e) {
-                Program.launch("http://fabioz.com/pydev/manual_101_interpreter.html");
+                Program.launch("http://pydev.org/manual_101_interpreter.html");
             }}
         );
         

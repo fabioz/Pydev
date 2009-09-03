@@ -349,7 +349,7 @@ public class InterpreterInfo implements IInterpreterInfo{
                                 "Select the folders to be added to the SYSTEM pythonpath!\n" +
                                 "\n" +
                                 "IMPORTANT: The folders for your PROJECTS should NOT be added here, but in your project configuration.\n\n" +
-                                "Check:http://fabioz.com/pydev/manual_101_interpreter.html for more details.");
+                                "Check:http://pydev.org/manual_101_interpreter.html for more details.");
                         dialog.setInitialSelections(l.toArray(new String[0]));
                         int i = dialog.open();
                         if(i == Window.OK){
