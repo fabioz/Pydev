@@ -6,7 +6,7 @@ cd W:\git_build_dir
 git clone git://github.com/aptana/Pydev.git
 cd Pydev
 git clean -f -d
-git checkout
+git checkout -f
 git pull
 cd builders\org.python.pydev.build
 set GIT_EXECUTABLE="C:\Program Files\Git\bin\git.exe"
