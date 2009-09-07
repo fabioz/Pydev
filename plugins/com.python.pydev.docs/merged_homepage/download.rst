@@ -49,7 +49,6 @@ Urls to use when updating with the Eclipse update manager
 
 :Mirrors:
 
-    * `http://pydev.sourceforge.net/updates`_
     * `http://pydev.org/updates`_
     
 :Nightly builds: 
