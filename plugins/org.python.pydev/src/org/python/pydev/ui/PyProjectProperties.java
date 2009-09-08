@@ -7,7 +7,6 @@
 package org.python.pydev.ui;
 
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
@@ -32,7 +31,6 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.dialogs.MapOfStringsInputDialog;
 import org.python.pydev.ui.dialogs.ProjectFolderSelectionDialog;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
 
@@ -59,7 +57,7 @@ public class PyProjectProperties extends PropertyPage {
     /**
      * Variables are edited here 
      */
-    private TreeWithAddRemove treeVariables;
+    private TabVariables tabVariables;
     
     /**
      * Yes: things are tab-separated
@@ -103,7 +101,7 @@ public class PyProjectProperties extends PropertyPage {
                 
                 createTabProjectSourceFolders(nature.getProjectSourcePath(false));
                 createTabExternalSourceFolders(nature.getProjectExternalSourcePath(false));
-                createTabVariables(nature.getVariableSubstitution());
+                tabVariables = new TabVariables(tabFolder, nature.getVariableSubstitution());
                 
                 createRestoreButton(topComp);
             } catch (Exception e) {
@@ -130,75 +128,6 @@ public class PyProjectProperties extends PropertyPage {
         });
     }
 
-    
-    private void createTabVariables(Map<String, String> variables){
-        if(variables == null){
-            variables = new HashMap<String, String>();
-        }
-        TabItem tabItem = new TabItem(tabFolder, SWT.None);
-        tabItem.setText("String Substitution Variables");
-        tabItem.setImage(PydevPlugin.getImageCache().get(UIConstants.VARIABLE_ICON));
-        Composite topComp = new Composite(tabFolder, SWT.None);
-        topComp.setLayout(new GridLayout(1, false));
-        
-        
-        GridData gd;
-        GridData data;
-        Label l2;
-        l2 = new Label(topComp, SWT.None);
-        l2.setText("String substitution variables are used to resolve:\n" +
-        		"  - source folders\n" +
-        		"  - external libraries\n" +
-        		"  - main module in launch configuration"
-        );
-        
-        gd = new GridData();
-        gd.grabExcessHorizontalSpace = true;
-        gd.grabExcessVerticalSpace = false;
-        l2.setLayoutData(gd);
-        
-        final Map<String, String> vars = variables; 
-        
-        treeVariables = new TreeWithAddRemove(topComp, 0, vars) {
-
-            @Override
-            protected String getImageConstant() {
-                return UIConstants.VARIABLE_ICON;
-            }
-            
-            @Override
-            protected void handleAddButtonSelected(int nButton){
-                if(nButton == 0){
-                    addItemWithDialog(new MapOfStringsInputDialog(getShell(), "Variable", "Enter the variable name/value.", vars));
-                    
-                }else{
-                    throw new AssertionError("Unexpected (only 0 should be available)");
-                }
-            }
-
-            
-            @Override
-            protected String getButtonLabel(int i) {
-                if(i != 0){
-                    throw new RuntimeException("Expected only i==0. Received: "+i);
-                }
-                return "Add variable";
-            }
-            
-            
-            @Override
-            protected int getNumberOfAddButtons(){
-                return 1;
-            }
-        };
-        
-        data = new GridData(GridData.FILL_BOTH);
-        data.grabExcessHorizontalSpace = true;
-        data.grabExcessVerticalSpace = true;
-        treeVariables.setLayoutData(data);
-        
-        tabItem.setControl(topComp);
-    }
     
 
     private void createTabExternalSourceFolders(String externalSourcePath){
@@ -389,7 +318,7 @@ public class PyProjectProperties extends PropertyPage {
                 
                 String newSourcePath = StringUtils.leftAndRightTrim(treeSourceFolders.getTreeItemsAsStr(), '|');
                 String newExternalSourcePath = StringUtils.leftAndRightTrim(treeExternalLibs.getTreeItemsAsStr(), '|');
-                Map<String, String> newVariableSubstitution = treeVariables.getTreeItemsAsMap();
+                Map<String, String> newVariableSubstitution = tabVariables.getTreeItemsAsMap();
                 
                 
                 
