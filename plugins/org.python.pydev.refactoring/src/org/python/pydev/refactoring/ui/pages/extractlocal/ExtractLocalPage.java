@@ -34,11 +34,11 @@ public class ExtractLocalPage extends PyDevInputWizardPage {
     }
 
     public void setupComposite() {
-        if (extractComposite != null) {
+        if(extractComposite != null){
             extractComposite.dispose();
             extractComposite = null;
         }
-        
+
         extractComposite = new ExtractLocalComposite(this, parent, requestProcessor.getScopeAdapter());
 
         extractComposite.registerListeners(this);
@@ -57,7 +57,7 @@ public class ExtractLocalPage extends PyDevInputWizardPage {
         setErrorMessage(null);
         extractComposite.validate();
         setPageComplete(getErrorMessage() == null);
-        if (isPageComplete()) {
+        if(isPageComplete()){
             applySettings();
         }
     }

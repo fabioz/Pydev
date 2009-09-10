@@ -60,7 +60,7 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
     }
 
     private void initRenamedMap() {
-        for (String variable : deducer.getParameters()) {
+        for(String variable:deducer.getParameters()){
             this.renameMap.put(variable, variable);
         }
 
@@ -88,8 +88,8 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 
     public List<ExtractMethodRequest> getRefactoringRequests() {
         List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
-        requests.add(new ExtractMethodRequest(this.methodName, this.selection, this.scopeAdapter, this.parsedSelection, parameterOrder,
-                deducer.getReturns(), this.renameMap, this.offsetStrategy, this.endLineDelim));
+        requests.add(new ExtractMethodRequest(this.methodName, this.selection, this.scopeAdapter, this.parsedSelection, parameterOrder, deducer.getReturns(), this.renameMap, this.offsetStrategy,
+                this.endLineDelim));
         return requests;
     }
 

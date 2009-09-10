@@ -63,10 +63,10 @@ public class ExtractLocalComposite extends Composite {
 
     public boolean validate() {
         NameValidator nameValidator = new NameValidator(scopeAdapter);
-        try {
+        try{
             nameValidator.validateVariableName(getVariableName());
             nameValidator.validateUniqueVariable(getVariableName());
-        } catch (Throwable e) {
+        }catch(Throwable e){
             page.setErrorMessage(e.getMessage());
         }
 

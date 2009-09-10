@@ -32,10 +32,10 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
     private ITextEditor targetEditor;
 
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-        if (targetEditor instanceof ITextEditor) {
-            if (targetEditor.getEditorInput() instanceof FileEditorInput) {
+        if(targetEditor instanceof ITextEditor){
+            if(targetEditor.getEditorInput() instanceof FileEditorInput){
                 this.targetEditor = (ITextEditor) targetEditor;
-            } else {
+            }else{
                 this.targetEditor = null;
             }
         }
@@ -48,15 +48,15 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         return IDE.saveAllEditors(new IResource[] { workspaceRoot }, true);
     }
-    
+
     private void setupRefactoring() throws MisconfigurationException {
         IPythonNature nature = null;
-        if (targetEditor instanceof IPyEdit) {
+        if(targetEditor instanceof IPyEdit){
             nature = ((IPyEdit) targetEditor).getPythonNature();
         }
         RefactoringInfo info = new RefactoringInfo(targetEditor, nature);
         this.refactoring = this.createRefactoring(info);
-        
+
         // Example showing errors: MessageDialog.openError(getShell(), Messages.errorTitle, msg);
     }
 
@@ -66,20 +66,20 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
         }catch(MisconfigurationException e){
             Log.log(e);
         }
-        
+
         PythonRefactoringWizard wizard = new PythonRefactoringWizard(this.refactoring, targetEditor);
         wizard.run();
-        
+
         targetEditor.getDocumentProvider().changed(targetEditor.getEditorInput());
     }
 
     public void run(IAction action) {
         /* TODO: check if inline is necessary */
-        if (saveAll()) {
+        if(saveAll()){
             this.openWizard(action);
         }
     }
-    
+
     /**
      * Create a refactoring.
      * 

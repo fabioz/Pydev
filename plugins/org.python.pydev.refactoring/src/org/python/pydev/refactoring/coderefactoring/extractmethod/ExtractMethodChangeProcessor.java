@@ -23,7 +23,7 @@ public class ExtractMethodChangeProcessor extends AbstractFileChangeProcessor<Ex
 
     @Override
     protected void processEdit() {
-        for (ExtractMethodRequest req : requestProcessor.getRefactoringRequests()) {
+        for(ExtractMethodRequest req:requestProcessor.getRefactoringRequests()){
             processExtraction(req);
         }
     }
@@ -31,7 +31,7 @@ public class ExtractMethodChangeProcessor extends AbstractFileChangeProcessor<Ex
     private void processExtraction(ExtractMethodRequest req) {
         ExtractMethodEdit extractMethodEdit = new ExtractMethodEdit(req);
         ExtractCallEdit extractCallEdit = new ExtractCallEdit(req);
-        
+
         registerEdit(extractMethodEdit, Messages.extractMethodChangeName);
         registerEdit(extractCallEdit, Messages.extractMethodReplaceWithCall);
     }

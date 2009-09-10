@@ -91,8 +91,7 @@ public class ExtractMethodComposite extends Composite {
         this.page = page;
         this.scopeAdapter = scope;
 
-        this.strategyProvider = new OffsetStrategyProvider(scopeAdapter, IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN
-                | IOffsetStrategy.END);
+        this.strategyProvider = new OffsetStrategyProvider(scopeAdapter, IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
 
         createComposite(hasArguments);
     }
@@ -102,7 +101,7 @@ public class ExtractMethodComposite extends Composite {
 
         createFunctionName(this);
 
-        if (hasArguments) {
+        if(hasArguments){
             createArguments(this);
         }
 
@@ -196,10 +195,10 @@ public class ExtractMethodComposite extends Composite {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int selectionIndex = argumentsTable.getSelectionIndex();
-                if (argumentsTable.getSelectionCount() == 1 && selectionIndex != argumentsTable.getItemCount()) {
+                if(argumentsTable.getSelectionCount() == 1 && selectionIndex != argumentsTable.getItemCount()){
 
                     TableItem item = argumentsTable.getSelection()[0];
-                    if (item instanceof SimpleTableItem) {
+                    if(item instanceof SimpleTableItem){
                         SimpleTableItem tableItem = (SimpleTableItem) item;
 
                         new SimpleTableItem(argumentsTable, tableItem.getOriginalName(), tableItem.getText(), selectionIndex + 2);
@@ -221,10 +220,10 @@ public class ExtractMethodComposite extends Composite {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int selectionIndex = argumentsTable.getSelectionIndex();
-                if (argumentsTable.getSelectionCount() == 1 && selectionIndex > 0) {
+                if(argumentsTable.getSelectionCount() == 1 && selectionIndex > 0){
 
                     TableItem item = argumentsTable.getSelection()[0];
-                    if (item instanceof SimpleTableItem) {
+                    if(item instanceof SimpleTableItem){
                         SimpleTableItem tableItem = (SimpleTableItem) item;
 
                         new SimpleTableItem(argumentsTable, tableItem.getOriginalName(), tableItem.getText(), selectionIndex - 1);
@@ -269,15 +268,15 @@ public class ExtractMethodComposite extends Composite {
                 Rectangle area = argumentsTable.getClientArea();
                 Point preferredSize = argumentsTable.computeSize(SWT.DEFAULT, SWT.DEFAULT);
                 int width = area.width - 2 * argumentsTable.getBorderWidth();
-                if (preferredSize.y > area.height + argumentsTable.getHeaderHeight()) {
+                if(preferredSize.y > area.height + argumentsTable.getHeaderHeight()){
                     Point vBarSize = argumentsTable.getVerticalBar().getSize();
                     width -= vBarSize.x;
                 }
                 Point oldSize = argumentsTable.getSize();
-                if (oldSize.x > area.width) {
+                if(oldSize.x > area.width){
                     nameColumn.setWidth(width);
                     argumentsTable.setSize(area.width, area.height);
-                } else {
+                }else{
                     argumentsTable.setSize(area.width, area.height);
                     nameColumn.setWidth(width);
                 }
@@ -366,10 +365,9 @@ public class ExtractMethodComposite extends Composite {
         functionNameEdit.getEdit().addListener(SWT.Modify, page);
         functionNameEdit.getEdit().addListener(SWT.Modify, signatureListener);
 
-        ButtonActivationListener buttonActivationListener = new ButtonActivationListener(getArgumentsTable(), getUpButton(),
-                getDownButton(), getEditButton());
+        ButtonActivationListener buttonActivationListener = new ButtonActivationListener(getArgumentsTable(), getUpButton(), getDownButton(), getEditButton());
 
-        if (argumentsTable != null) {
+        if(argumentsTable != null){
             cellEditorListener = new TableCellEditorListener(page, argumentsTable);
 
             argumentsTable.addListener(SWT.MouseDoubleClick, cellEditorListener);
@@ -386,7 +384,7 @@ public class ExtractMethodComposite extends Composite {
         methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-                if (!sel.isEmpty()) {
+                if(!sel.isEmpty()){
                     page.validate();
                 }
             }
@@ -395,7 +393,7 @@ public class ExtractMethodComposite extends Composite {
     }
 
     public void initTable(List<String> arguments) {
-        for (String argument : arguments) {
+        for(String argument:arguments){
             new SimpleTableItem(getArgumentsTable(), argument);
         }
     }
@@ -411,7 +409,7 @@ public class ExtractMethodComposite extends Composite {
     public int getOffsetStrategy() {
         IStructuredSelection sel = (IStructuredSelection) methodInsertionComb.getSelection();
 
-        if (!sel.isEmpty()) {
+        if(!sel.isEmpty()){
             OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
             return elem.getStrategy();
         }
@@ -419,15 +417,15 @@ public class ExtractMethodComposite extends Composite {
     }
 
     public boolean validate() {
-        if (argumentsTable != null) {
+        if(argumentsTable != null){
             VariableCellValidator cellValidator = new VariableCellValidator(this.page, getArgumentsTable(), scopeAdapter);
             cellValidator.validate();
         }
         NameValidator nameValidator = new NameValidator(scopeAdapter);
-        try {
+        try{
             nameValidator.validateMethodName(getFunctionName());
             nameValidator.validateUniqueFunction(getFunctionName());
-        } catch (Throwable e) {
+        }catch(Throwable e){
             page.setErrorMessage(e.getMessage());
         }
 

@@ -30,16 +30,16 @@ public class BeginOffset extends AbstractOffsetStrategy {
         if(nodeHelper.isClassDef(node)){
             ClassDef classNode = (ClassDef) node;
             Str strNode = NodeUtils.getNodeDocStringNode(node);
-            
+
             if(strNode != null){
-                return NodeUtils.getLineEnd(strNode) -1;
+                return NodeUtils.getLineEnd(strNode) - 1;
             }
-            
+
             FindLastLineVisitor findLastLineVisitor = new FindLastLineVisitor();
-            try {
+            try{
                 classNode.name.accept(findLastLineVisitor);
                 if(classNode.bases != null){
-                    for (SimpleNode n : classNode.bases) {
+                    for(SimpleNode n:classNode.bases){
                         n.accept(findLastLineVisitor);
                     }
                 }
@@ -47,18 +47,18 @@ public class BeginOffset extends AbstractOffsetStrategy {
                 SpecialStr lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
                 if(lastSpecialStr != null && (lastSpecialStr.str.equals(":") || lastSpecialStr.str.equals(")"))){
                     //it was an from xxx import (euheon, utehon)
-                    return lastSpecialStr.beginLine-1;
+                    return lastSpecialStr.beginLine - 1;
                 }else{
-                    return lastNode.beginLine-1;
+                    return lastNode.beginLine - 1;
                 }
-            } catch (Exception e) {
+            }catch(Exception e){
                 Log.log(e);
             }
 
         }
-        
+
         int startLine = adapter.getNodeFirstLine() - 1;
-        if (startLine < 0){
+        if(startLine < 0){
             startLine = 0;
         }
         return startLine;
@@ -66,9 +66,9 @@ public class BeginOffset extends AbstractOffsetStrategy {
 
     @Override
     protected int getLineIndendation() throws BadLocationException {
-        if (adapter.getNodeBodyIndent() == 0)
+        if(adapter.getNodeBodyIndent() == 0)
             return 0;
-        else {
+        else{
             return doc.getLineLength(getLine());
         }
     }

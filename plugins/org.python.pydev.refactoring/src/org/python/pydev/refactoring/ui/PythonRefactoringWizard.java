@@ -36,27 +36,25 @@ public class PythonRefactoringWizard extends RefactoringWizard {
     @Override
     protected void addUserInputPages() {
         this.getShell().setMinimumSize(640, 480);
-        for (IWizardPage page : refactoring.getPages()) {
+        for(IWizardPage page:refactoring.getPages()){
             addPage(page);
         }
     }
 
     public void run() {
-        try {
+        try{
             RefactoringWizardOpenOperation op = new RefactoringWizardOpenOperation(this);
-            
+
             op.run(getShell(), refactoring.getName());
-        } catch (InterruptedException e) {
+        }catch(InterruptedException e){
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Looks for an usable shell
      */
     public Shell getShell() {
-        return targetEditor != null
-            ? targetEditor.getSite().getShell()
-            : PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        return targetEditor != null ? targetEditor.getSite().getShell() : PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
     }
 }

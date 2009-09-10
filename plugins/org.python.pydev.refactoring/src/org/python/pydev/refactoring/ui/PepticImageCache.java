@@ -23,26 +23,26 @@ public class PepticImageCache {
     private Image missing = null;
 
     public void dispose() {
-        for (Image image : imageHash.values()) {
+        for(Image image:imageHash.values()){
             image.dispose();
         }
-        if (missing != null) {
+        if(missing != null){
             missing.dispose();
         }
     }
 
     public Image get(String key) {
         Image image = imageHash.get(key);
-        if (image == null) {
+        if(image == null){
             ImageDescriptor desc;
             /* FIXME: Why catching these exceptions */
-            try {
+            try{
                 desc = getDescriptor(key);
                 image = desc.createImage();
                 imageHash.put(key, image);
-            } catch (NoClassDefFoundError e) {
+            }catch(NoClassDefFoundError e){
                 return null;
-            } catch (UnsatisfiedLinkError e) {
+            }catch(UnsatisfiedLinkError e){
                 return null;
             }
         }

@@ -26,7 +26,7 @@ public class CompositeChangeProcessor implements IChangeProcessor {
 
     public Change createChange() {
         CompositeChange change = new CompositeChange(name);
-        for (IChangeProcessor processor : processors) {
+        for(IChangeProcessor processor:processors){
             change.add(processor.createChange());
         }
 

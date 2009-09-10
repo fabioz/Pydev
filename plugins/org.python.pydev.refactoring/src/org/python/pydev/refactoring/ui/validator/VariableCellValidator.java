@@ -34,10 +34,10 @@ public class VariableCellValidator {
     private boolean hasUniqueArguments() {
         TableItem[] items = table.getItems();
 
-        for (TableItem outer : items) {
-            for (TableItem inner : items) {
-                if (outer != inner) {
-                    if (outer.getText().equals(inner.getText())) {
+        for(TableItem outer:items){
+            for(TableItem inner:items){
+                if(outer != inner){
+                    if(outer.getText().equals(inner.getText())){
                         page.setErrorMessage("Variable name " + outer.getText() + " was already used");
                         return false;
                     }
@@ -50,14 +50,14 @@ public class VariableCellValidator {
     private void validateArguments() {
         NameValidator validator = new NameValidator(this.scope);
         TableItem[] items = table.getItems();
-        for (TableItem item : items) {
-            if (item instanceof SimpleTableItem) {
+        for(TableItem item:items){
+            if(item instanceof SimpleTableItem){
                 SimpleTableItem variableItem = (SimpleTableItem) item;
-                if (variableItem.hasNewName()) {
-                    try {
+                if(variableItem.hasNewName()){
+                    try{
                         validator.validateVariableName(item.getText());
                         validator.validateUniqueVariable(item.getText());
-                    } catch (Throwable e) {
+                    }catch(Throwable e){
                         page.setErrorMessage(e.getMessage());
                     }
                 }

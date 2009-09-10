@@ -22,14 +22,12 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 
-
-public class ClassDefAdapterFromTokens implements IClassDefAdapter{
+public class ClassDefAdapterFromTokens implements IClassDefAdapter {
 
     private List<IToken> tokens;
     private String parentName;
     private String endLineDelim;
     private ModuleAdapter module;
-
 
     public ClassDefAdapterFromTokens(ModuleAdapter module, String parentName, List<IToken> tokens, String endLineDelim) {
         this.module = module;
@@ -38,43 +36,36 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
         this.endLineDelim = endLineDelim;
     }
 
-
     public List<SimpleAdapter> getAssignedVariables() {
         throw new RuntimeException("Not implemented");
     }
-
 
     public List<SimpleAdapter> getAttributes() {
         throw new RuntimeException("Not implemented");
     }
 
-
     public List<String> getBaseClassNames() {
         return new ArrayList<String>();
     }
-
 
     public List<IClassDefAdapter> getBaseClasses() {
         return new ArrayList<IClassDefAdapter>();
     }
 
-
     public FunctionDefAdapter getFirstInit() {
         return null;
     }
 
-
     public List<FunctionDefAdapter> getFunctions() {
         return getFunctionsInitFiltered();
     }
-
 
     public List<FunctionDefAdapter> getFunctionsInitFiltered() {
         ArrayList<FunctionDefAdapter> ret = new ArrayList<FunctionDefAdapter>();
         for(IToken tok:this.tokens){
             if(tok.getType() == IToken.TYPE_FUNCTION || tok.getType() == IToken.TYPE_BUILTIN || tok.getType() == IToken.TYPE_UNKNOWN){
                 String args = tok.getArgs();
-                
+
                 List<exprType> arguments = new ArrayList<exprType>();
                 boolean useAnyArgs = false;
                 if(args.length() > 0){
@@ -90,17 +81,16 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
                 }else{
                     useAnyArgs = true;
                 }
-                
-                argumentsType functionArguments = new argumentsType(arguments.toArray(new exprType[0]), null, null, null,
-                        null, null, null, null, null, null);
+
+                argumentsType functionArguments = new argumentsType(arguments.toArray(new exprType[0]), null, null, null, null, null, null, null, null, null);
                 if(useAnyArgs){
                     Name name = new Name("self", Name.Store, false);
                     name.addSpecial(new SpecialStr(",", -1, -1), true);
-                    functionArguments.args = new exprType[]{name};
+                    functionArguments.args = new exprType[] { name };
                     functionArguments.vararg = new NameTok("args", NameTok.VarArg);
                     functionArguments.kwarg = new NameTok("kwrgs", NameTok.KwArg);
                 }
-//                System.out.println(tok.getRepresentation()+tok.getArgs());
+                //                System.out.println(tok.getRepresentation()+tok.getArgs());
                 FunctionDef functionDef = new FunctionDef(new NameTok(tok.getRepresentation(), NameTok.FunctionName), functionArguments, null, null, null);
                 ret.add(new FunctionDefAdapter(this.getModule(), null, functionDef, endLineDelim));
             }
@@ -108,101 +98,81 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter{
         return ret;
     }
 
-
     public int getNodeBodyIndent() {
         throw new RuntimeException("Not implemented");
     }
-
 
     public List<PropertyAdapter> getProperties() {
         throw new RuntimeException("Not implemented");
     }
 
-
     public boolean hasAttributes() {
         throw new RuntimeException("Not implemented");
     }
-
 
     public boolean hasBaseClass() {
         return false;
     }
 
-
     public boolean hasFunctions() {
         throw new RuntimeException("Not implemented");
     }
-
 
     public boolean hasFunctionsInitFiltered() {
         return this.tokens.size() > 0;
     }
 
-
     public boolean hasInit() {
         throw new RuntimeException("Not implemented");
     }
-
 
     public boolean isNested() {
         throw new RuntimeException("Not implemented");
     }
 
-
     public boolean isNewStyleClass() {
         throw new RuntimeException("Not implemented");
     }
-
 
     public String getName() {
         return parentName;
     }
 
-
     public String getParentName() {
         throw new RuntimeException("Not implemented");
     }
-
 
     public ClassDef getASTNode() {
         throw new RuntimeException("Not implemented");
     }
 
-
     public SimpleNode getASTParent() {
         throw new RuntimeException("Not implemented");
     }
-
 
     public ModuleAdapter getModule() {
         return this.module;
     }
 
-
     public int getNodeFirstLine() {
         return 0;
     }
-
 
     public int getNodeIndent() {
         return 0;
     }
 
-
     public int getNodeLastLine() {
         return 0;
     }
-
 
     public AbstractNodeAdapter<? extends SimpleNode> getParent() {
         return null;
     }
 
-
     public SimpleNode getParentNode() {
         return null;
     }
-
 
     public boolean isModule() {
         return false;

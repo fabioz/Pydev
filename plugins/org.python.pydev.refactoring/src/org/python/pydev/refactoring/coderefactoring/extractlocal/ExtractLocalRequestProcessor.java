@@ -20,7 +20,7 @@ import org.python.pydev.refactoring.core.request.IRequestProcessor;
 public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLocalRequest> {
 
     private String variableName;
-    
+
     private RefactoringInfo info;
 
     private exprType expression;

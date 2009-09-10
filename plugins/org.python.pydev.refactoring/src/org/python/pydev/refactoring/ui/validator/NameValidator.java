@@ -17,9 +17,8 @@ import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 public class NameValidator {
 
     // match invalid keywords (Python pocket reference)
-    private final String[] keywords = { "and", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except", "exec",
-            "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "not", "or", "pass", "print", "raise", "return",
-            "try", "while", "yield" };
+    private final String[] keywords = { "and", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is",
+            "lambda", "not", "or", "pass", "print", "raise", "return", "try", "while", "yield" };
 
     private final String nameRegExp = "[a-zA-Z_][a-zA-Z_0-9]*";
 
@@ -33,26 +32,26 @@ public class NameValidator {
     }
 
     public void validateUniqueVariable(String name) throws Throwable {
-        if (scopeNode.alreadyUsedName(name)) {
+        if(scopeNode.alreadyUsedName(name)){
             throw new Exception("Variable name '" + name + "' is already used");
         }
     }
 
     public void validateVariableName(String name) throws Throwable {
-        if (!name.matches(nameRegExp)) {
+        if(!name.matches(nameRegExp)){
             throw new Exception("'" + name + "' is not a valid variable name");
         }
         validateNotKeyword(name);
     }
 
     private void validateNotKeyword(String name) throws Exception {
-        if (this.keywordList.contains(name)) {
+        if(this.keywordList.contains(name)){
             throw new Exception("'" + name + "' is a reserved word");
         }
     }
 
     public void validateMethodName(String name) throws Throwable {
-        if (!name.matches(nameRegExp)) {
+        if(!name.matches(nameRegExp)){
             throw new Exception("'" + name + "' is not a valid function name");
         }
         validateNotKeyword(name);
@@ -61,9 +60,9 @@ public class NameValidator {
     public void validateUniqueFunction(String name) throws Exception {
         AbstractScopeNode<?> parentAdapter = scopeNode.getParent();
 
-        if (parentAdapter != null) {
-            for (FunctionDefAdapter function : parentAdapter.getFunctions()) {
-                if (function.getName().compareTo(name) == 0) {
+        if(parentAdapter != null){
+            for(FunctionDefAdapter function:parentAdapter.getFunctions()){
+                if(function.getName().compareTo(name) == 0){
                     throw new Exception("Function name '" + name + "' is already used");
                 }
             }

@@ -67,8 +67,8 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
      * The SourceViewer will ignore double-clicks and any other configuration behaviors inside any partition not declared here
      */
     public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-        return new String[] { IDocument.DEFAULT_CONTENT_TYPE, IPythonPartitions.PY_COMMENT, IPythonPartitions.PY_SINGLELINE_STRING1,
-                IPythonPartitions.PY_SINGLELINE_STRING2, IPythonPartitions.PY_MULTILINE_STRING1, IPythonPartitions.PY_MULTILINE_STRING2 };
+        return new String[] { IDocument.DEFAULT_CONTENT_TYPE, IPythonPartitions.PY_COMMENT, IPythonPartitions.PY_SINGLELINE_STRING1, IPythonPartitions.PY_SINGLELINE_STRING2,
+                IPythonPartitions.PY_MULTILINE_STRING1, IPythonPartitions.PY_MULTILINE_STRING2 };
     }
 
     @Override
@@ -93,7 +93,7 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
      * @return PyAutoIndentStrategy which deals with spaces/tabs
      */
     public PyAutoIndentStrategy getPyAutoIndentStrategy() {
-        if (autoIndentStrategy == null) {
+        if(autoIndentStrategy == null){
             autoIndentStrategy = new PyAutoIndentStrategy();
         }
         return autoIndentStrategy;
@@ -110,16 +110,16 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
         int tabWidth = prefs.getInt(PydevEditorPrefs.TAB_WIDTH);
         FastStringBuffer spaces = new FastStringBuffer(8);
 
-        for (int i = 0; i < tabWidth; i++) {
+        for(int i = 0; i < tabWidth; i++){
             spaces.append(" ");
         }
 
         boolean spacesFirst = prefs.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS) && !(getPyAutoIndentStrategy()).getIndentPrefs().getForceTabs();
 
-        if (spacesFirst) {
+        if(spacesFirst){
             indentPrefixes[0] = spaces.toString();
             indentPrefixes[1] = "\t";
-        } else {
+        }else{
             indentPrefixes[0] = "\t";
             indentPrefixes[1] = spaces.toString();
         }
@@ -146,7 +146,7 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
      *      java.lang.String)
      */
     public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
-        if (contentType.equals(IDocument.DEFAULT_CONTENT_TYPE))
+        if(contentType.equals(IDocument.DEFAULT_CONTENT_TYPE))
             return new PyDoubleClickStrategy();
         else
             return super.getDoubleClickStrategy(sourceViewer, contentType);
@@ -163,7 +163,7 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
 
     public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
 
-        if (reconciler == null) {
+        if(reconciler == null){
             reconciler = new PresentationReconciler();
             reconciler.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
 
@@ -186,8 +186,7 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
             reconciler.setRepairer(dr, IPythonPartitions.PY_COMMENT);
 
             // Backquotes have uniform color
-            backquotesScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.BACKQUOTES_COLOR, preferences
-                    .getInt(PydevEditorPrefs.BACKQUOTES_STYLE));
+            backquotesScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.BACKQUOTES_COLOR, preferences.getInt(PydevEditorPrefs.BACKQUOTES_STYLE));
             dr = new DefaultDamagerRepairer(backquotesScanner);
             reconciler.setDamager(dr, IPythonPartitions.PY_BACKQUOTES);
             reconciler.setRepairer(dr, IPythonPartitions.PY_BACKQUOTES);
@@ -220,14 +219,14 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
             int start = -1;
             // Loop over all characters of information text
             // These will have to be tailored for the appropriate Python
-            for (int i = 0; i < infoText.length(); i++) {
-                switch (infoText.charAt(i)) {
+            for(int i = 0; i < infoText.length(); i++){
+                switch(infoText.charAt(i)){
                 case '<':
                     // Remember start of tag
                     start = i;
                     break;
                 case '>':
-                    if (start >= 0) {
+                    if(start >= 0){
                         // We have found a tag and create a new style range
                         StyleRange range = new StyleRange(start, i - start + 1, null, null, SWT.BOLD);
                         // Add this style range to the presentation
@@ -260,7 +259,7 @@ public class PyPreviewConfiguration extends SourceViewerConfiguration {
     // assumes that that editor colorCache has been updated with the
     // new named color
     public void updateSyntaxColorAndStyle() {
-        if (reconciler != null) {
+        if(reconciler != null){
             // always update all (too much work in keeping this synchronized by
             // type)
             codeScanner.updateColors();

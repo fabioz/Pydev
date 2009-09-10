@@ -69,20 +69,19 @@ public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest>
         addGroup(editGroup);
         registerEditInGroup(edit, editGroup);
     }
-    
+
     protected void registerEdit(List<AbstractTextEdit> edits, String message) {
         TextEditGroup group = new TextEditGroup(message);
         addGroup(group);
-        
-        for (AbstractTextEdit edit : edits) {
+
+        for(AbstractTextEdit edit:edits){
             registerEditInGroup(edit, group);
         }
     }
-    
-    private void registerEditInGroup(AbstractTextEdit edit,
-            TextEditGroup editGroup) {
+
+    private void registerEditInGroup(AbstractTextEdit edit, TextEditGroup editGroup) {
         TextEdit textEdit = edit.getEdit();
-        editGroup.addTextEdit(textEdit);    
+        editGroup.addTextEdit(textEdit);
         addEdit(textEdit);
     }
 }

@@ -57,7 +57,7 @@ public class IndentVisitor extends VisitorBase {
     }
 
     public void visit(SimpleNode node) throws Exception {
-        if (node != null)
+        if(node != null)
             node.accept(this);
     }
 

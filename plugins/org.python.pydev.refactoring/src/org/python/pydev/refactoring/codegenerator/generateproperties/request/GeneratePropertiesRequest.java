@@ -33,8 +33,8 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 
     private String endLineDelim;
 
-    public GeneratePropertiesRequest(IClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties,
-            int offsetMethodStrategy, int offsetPropertyStrategy, int accessModifier, String endLineDelim) {
+    public GeneratePropertiesRequest(IClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties, int offsetMethodStrategy, int offsetPropertyStrategy,
+            int accessModifier, String endLineDelim) {
         this.state = new SelectionState();
         this.classAdapter = classAdapter;
         this.attributeAdapter = attributeAdapter;
@@ -50,8 +50,8 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
     }
 
     private void initialize(List<PropertyTextAdapter> properties) {
-        for (PropertyTextAdapter propertyAdapter : properties) {
-            switch (propertyAdapter.getType()) {
+        for(PropertyTextAdapter propertyAdapter:properties){
+            switch(propertyAdapter.getType()){
             case (PropertyTextAdapter.GETTER):
                 state.addSelection(SelectionState.GETTER);
                 break;

@@ -121,18 +121,18 @@ public class Messages {
     public static String extractMethodDownButton;
 
     public static String extractMethodSelectionPreviewLabel;
-    
+
     public static String extractLocalLabel;
-    
+
     public static String extractMethodLabel;
-    
+
     public static String overrideMethodsLabel;
-    
+
     public static String constructorFieldLabel;
-    
+
     public static String generatePropertiesLabel;
 
-    static {
+    static{
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);
     }
 }

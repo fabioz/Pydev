@@ -23,7 +23,7 @@ public class ConstructorFieldChangeProcessor extends AbstractFileChangeProcessor
 
     @Override
     protected void processEdit() {
-        for (ConstructorFieldRequest req : requestProcessor.getRefactoringRequests()) {
+        for(ConstructorFieldRequest req:requestProcessor.getRefactoringRequests()){
             ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(req);
 
             registerEdit(constructorEdit, Messages.constructorFieldConstructor);

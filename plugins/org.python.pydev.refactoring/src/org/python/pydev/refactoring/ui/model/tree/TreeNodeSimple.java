@@ -47,9 +47,9 @@ public class TreeNodeSimple<T extends INodeAdapter> implements ITreeNode {
     }
 
     public String getImageName() {
-        if (getAdapter() instanceof PropertyTextAdapter)
+        if(getAdapter() instanceof PropertyTextAdapter)
             return ITreeNode.NODE_METHOD;
-        else {
+        else{
             return ITreeNode.NODE_ATTRIBUTE;
         }
     }

@@ -58,13 +58,13 @@ public class SourcePrinter {
     }
 
     protected java.util.List<commentType> extractComments(java.util.List<Object> specials) {
-        if (specials == null)
+        if(specials == null)
             return null;
 
         java.util.List<commentType> comments = new ArrayList<commentType>();
 
-        for (Object node : specials) {
-            if (node instanceof commentType) {
+        for(Object node:specials){
+            if(node instanceof commentType){
                 commentType comment = (commentType) node;
                 comments.add(comment);
             }
@@ -74,19 +74,19 @@ public class SourcePrinter {
     }
 
     protected java.util.List<commentType> extractComments(java.util.List<Object> specials, SimpleNode firstBodyNode, boolean before) {
-        if (specials == null)
+        if(specials == null)
             return null;
 
         java.util.List<commentType> comments = new ArrayList<commentType>();
 
-        for (commentType comment : extractComments(specials)) {
-            if (firstBodyNode != null) {
+        for(commentType comment:extractComments(specials)){
+            if(firstBodyNode != null){
 
-                if (before) {
-                    if (comment.beginLine < firstBodyNode.beginLine)
+                if(before){
+                    if(comment.beginLine < firstBodyNode.beginLine)
                         comments.add(comment);
-                } else {
-                    if (comment.beginLine >= firstBodyNode.beginLine)
+                }else{
+                    if(comment.beginLine >= firstBodyNode.beginLine)
                         comments.add(comment);
                 }
 
@@ -113,9 +113,9 @@ public class SourcePrinter {
     }
 
     public boolean hasCommentsAfter(SimpleNode node) {
-        if (node == null)
+        if(node == null)
             return false;
-        if (node.specialsAfter == null)
+        if(node.specialsAfter == null)
             return false;
 
         java.util.List<commentType> comments = extractComments(node.specialsAfter);
@@ -140,7 +140,7 @@ public class SourcePrinter {
     }
 
     public boolean isPrettyPrint(SimpleNode node) {
-        return (nodeHelper.isFunctionOrClassDef(node) || isPrettyPrintControlStatement(node));
+        return(nodeHelper.isFunctionOrClassDef(node) || isPrettyPrintControlStatement(node));
     }
 
     public boolean isPrettyPrintControlStatement(SimpleNode node) {
@@ -148,7 +148,7 @@ public class SourcePrinter {
     }
 
     public boolean isSameLine(SimpleNode node1, SimpleNode node2) {
-        return (getStartLine(node1) == getStartLine(node2));
+        return(getStartLine(node1) == getStartLine(node2));
     }
 
     public void outdent() {
@@ -156,7 +156,7 @@ public class SourcePrinter {
     }
 
     public void prettyPrintAfter(SimpleNode node, SimpleNode lastNode) {
-        if (!inCall() && isPrettyPrint(node) && isPrettyPrint(lastNode)) {
+        if(!inCall() && isPrettyPrint(node) && isPrettyPrint(lastNode)){
             printNewlineAndIndentation();
         }
     }
@@ -202,10 +202,10 @@ public class SourcePrinter {
     }
 
     public void printAssignmentOperator(boolean spaceBefore, boolean spaceAfter) {
-        if (spaceBefore)
+        if(spaceBefore)
             printSpace();
         print(syntaxHelper.getOperatorAssignment());
-        if (spaceAfter)
+        if(spaceAfter)
             printSpace();
     }
 
@@ -249,7 +249,7 @@ public class SourcePrinter {
     public void printBinOp(int opType, boolean spaceBefore, boolean spaceAfter) {
         String op;
 
-        switch (opType) {
+        switch(opType){
         case operatorType.Add:
             op = syntaxHelper.getOperatorAdd();
             break;
@@ -291,17 +291,17 @@ public class SourcePrinter {
             break;
         }
 
-        if (spaceBefore)
+        if(spaceBefore)
             printSpace();
         print(op);
-        if (spaceAfter)
+        if(spaceAfter)
             printSpace();
     }
 
     public void printBoolOp(int op) {
 
         printSpace();
-        switch (op) {
+        switch(op){
         case BoolOp.And:
             print(syntaxHelper.getOperatorBoolAnd());
             break;
@@ -322,25 +322,25 @@ public class SourcePrinter {
 
     protected void printComment(SimpleNode node, java.util.List<commentType> comments) {
 
-        if (comments == null)
+        if(comments == null)
             return;
 
         boolean wasOnSameLine = false;
 
-        for (Iterator<commentType> iter = comments.iterator(); iter.hasNext();) {
+        for(Iterator<commentType> iter = comments.iterator(); iter.hasNext();){
             commentType comment = iter.next();
             String commentText = comment.id.trim();
 
-            if (isSameLine(node, comment)) {
+            if(isSameLine(node, comment)){
                 printBeforeComment();
                 wasOnSameLine = true;
-            } else {
+            }else{
                 printNewlineAndIndentation();
             }
 
             print(commentText);
 
-            if (isCommentBefore(node, comment) && (!wasOnSameLine)) {
+            if(isCommentBefore(node, comment) && (!wasOnSameLine)){
                 printNewlineAndIndentation();
             }
 
@@ -349,29 +349,29 @@ public class SourcePrinter {
     }
 
     public void printCommentAfter(SimpleNode node) {
-        if (!(isIgnoreComments(node))) {
-            if (!(nodeHelper.isControlStatement(node)))
+        if(!(isIgnoreComments(node))){
+            if(!(nodeHelper.isControlStatement(node)))
                 printComment(node, extractComments(node.specialsAfter));
         }
     }
 
     public void printCommentBeforeBody(SimpleNode node, SimpleNode firstBodyNode) {
-        if (!(isIgnoreComments(node)))
+        if(!(isIgnoreComments(node)))
             printComment(node, extractComments(node.specialsAfter, firstBodyNode, true));
     }
 
     public void printCommentAfterBody(SimpleNode node, SimpleNode firstBodyNode) {
-        if (!isIgnoreComments(node))
+        if(!isIgnoreComments(node))
             printComment(node, extractComments(node.specialsAfter, firstBodyNode, false));
     }
 
     public void printCommentBefore(SimpleNode node) {
-        if (!isIgnoreComments(node))
+        if(!isIgnoreComments(node))
             printComment(node, extractComments(node.specialsBefore));
     }
 
     public void printCompOp(int opType) {
-        switch (opType) {
+        switch(opType){
         case cmpopType.Eq:
             print(syntaxHelper.getOperatorEqual());
             break;
@@ -414,10 +414,10 @@ public class SourcePrinter {
     }
 
     public void printDestinationOperator(boolean withSpaceBefore, boolean withSpaceAfter) {
-        if (withSpaceBefore)
+        if(withSpaceBefore)
             printSpace();
         print(syntaxHelper.getOperatorDestination());
-        if (withSpaceAfter)
+        if(withSpaceAfter)
             printSpace();
     }
 
@@ -460,7 +460,7 @@ public class SourcePrinter {
     public void printListSeparator() {
         print(syntaxHelper.getListSeparator());
     }
-    
+
     public void printListSeparator(String separatorStr) {
         if(separatorStr == null){
             printListSeparator();
@@ -491,10 +491,10 @@ public class SourcePrinter {
     }
 
     protected void printStatement(String statement, boolean spaceBefore, boolean spaceAfter) {
-        if (spaceBefore)
+        if(spaceBefore)
             print(syntaxHelper.beforeStatement());
         print(statement);
-        if (spaceAfter)
+        if(spaceAfter)
             print(syntaxHelper.afterStatement());
     }
 
@@ -559,10 +559,10 @@ public class SourcePrinter {
     }
 
     public void printStatementIf(SimpleNode node, boolean spaceBefore, boolean spaceAfter) {
-        if (!isDisabledIfPrinting()){
+        if(!isDisabledIfPrinting()){
             printStatement("if", spaceBefore, spaceAfter);
         }else{
-            
+
             if(node != null){
                 for(Object o:node.specialsBefore){
                     if(o instanceof SpecialStr){
@@ -574,7 +574,7 @@ public class SourcePrinter {
                     }
                 }
             }
-            
+
             setDisabledIfPrinting(false);
         }
     }
@@ -624,10 +624,10 @@ public class SourcePrinter {
     }
 
     public void printStr(Str node) {
-        if (node.unicode)
+        if(node.unicode)
             print("u");
         // u and r don't exclude themself (but u before r)
-        if (node.raw)
+        if(node.raw)
             print("r");
         printStrQuote(node);
         print(node.s);
@@ -635,7 +635,7 @@ public class SourcePrinter {
     }
 
     public void printStrQuote(Str node) {
-        switch (node.type) {
+        switch(node.type){
         case (str_typeType.SingleDouble):
             printDoubleQuote();
             break;
@@ -652,19 +652,19 @@ public class SourcePrinter {
     }
 
     public void printTripeDoubleQuote() {
-        for (int i = 0; i < 3; i++)
+        for(int i = 0; i < 3; i++)
             printDoubleQuote();
     }
 
     public void printTripeSingleQuote() {
-        for (int i = 0; i < 3; i++)
+        for(int i = 0; i < 3; i++)
             printSingleQuote();
     }
 
     public void printUnaryOp(int opType) {
         String op;
 
-        switch (opType) {
+        switch(opType){
         case unaryopType.Invert:
             op = syntaxHelper.getOperatorInvert();
             break;
@@ -683,7 +683,7 @@ public class SourcePrinter {
         }
 
         print(op);
-        if (opType == unaryopType.Not)
+        if(opType == unaryopType.Not)
             printSpace();
 
     }
@@ -705,26 +705,26 @@ public class SourcePrinter {
     }
 
     public boolean hasSpecialBefore(SimpleNode n, String match) {
-        if (n == null)
+        if(n == null)
             return false;
         return checkSpecialStr(n.getSpecialsBefore(), match);
     }
 
     public boolean hasSpecialAfter(SimpleNode n, String match) {
-        if (n == null)
+        if(n == null)
             return false;
         return checkSpecialStr(n.getSpecialsAfter(), match);
     }
 
     public boolean checkSpecialStr(List<Object> specials, String pattern) {
-        for (Object object : specials) {
-            if (object instanceof SpecialStr) {
+        for(Object object:specials){
+            if(object instanceof SpecialStr){
                 SpecialStr str = (SpecialStr) object;
-                if (str.str.compareTo(pattern) == 0){
+                if(str.str.compareTo(pattern) == 0){
                     return true;
                 }
 
-            } else if (object instanceof String) {
+            }else if(object instanceof String){
                 String text = (String) object;
                 if(text.compareTo(pattern) == 0){
                     return true;
@@ -735,23 +735,23 @@ public class SourcePrinter {
     }
 
     public void openParentheses(SimpleNode n) {
-        if (needsParentheses(n)) {
+        if(needsParentheses(n)){
             printBeforeTuple();
         }
     }
 
     public void closeParentheses(SimpleNode n) {
-        if (needsParentheses(n)) {
+        if(needsParentheses(n)){
             printAfterTuple();
         }
     }
 
     protected boolean needsParentheses(SimpleNode n) {
-        return (inCall() || hasParentheses(n));
+        return(inCall() || hasParentheses(n));
     }
 
     protected boolean needsBracket(SimpleNode n) {
-        return (hasBracket(n) || nodeHelper.isList(n));
+        return(hasBracket(n) || nodeHelper.isList(n));
     }
 
     protected boolean hasParentheses(SimpleNode n) {
@@ -763,13 +763,13 @@ public class SourcePrinter {
     }
 
     public void closeBracket(SimpleNode n) {
-        if (needsBracket(n)) {
+        if(needsBracket(n)){
             printAfterList();
         }
     }
 
     public void openBracket(SimpleNode n) {
-        if (needsBracket(n)) {
+        if(needsBracket(n)){
             printBeforeList();
         }
     }

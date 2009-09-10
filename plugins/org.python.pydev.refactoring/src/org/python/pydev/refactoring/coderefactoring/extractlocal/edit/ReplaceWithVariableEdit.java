@@ -26,7 +26,7 @@ public class ReplaceWithVariableEdit extends AbstractReplaceEdit {
     public ReplaceWithVariableEdit(ExtractLocalRequest req) {
         super(req);
         this.variableName = req.getVariableName();
-        
+
         ITextSelection selection = req.getRefactoringInfo().getExtendedSelection();
         this.offset = selection.getOffset();
 

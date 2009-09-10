@@ -164,7 +164,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         methodInsertionComb.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-                if (!sel.isEmpty()) {
+                if(!sel.isEmpty()){
                     OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
                     requestProcessor.setMethodDestination(elem.getStrategy());
                 }
@@ -207,6 +207,6 @@ public class ConstructorFieldPage extends UserInputWizardPage {
 
     @Override
     public boolean canFlipToNextPage() {
-        return (treeViewer.getCheckedElements().length > 0);
+        return(treeViewer.getCheckedElements().length > 0);
     }
 }

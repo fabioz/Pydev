@@ -28,8 +28,7 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
 
     private String endLineDelim;
 
-    public OverrideMethodsRequest(IClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method,
-            boolean generateMethodComments, String baseClassName, String endLineDelim) {
+    public OverrideMethodsRequest(IClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method, boolean generateMethodComments, String baseClassName, String endLineDelim) {
         this.baseClassName = baseClassName;
         this.classAdapter = classAdapter;
         this.offsetStrategy = offsetStrategy;

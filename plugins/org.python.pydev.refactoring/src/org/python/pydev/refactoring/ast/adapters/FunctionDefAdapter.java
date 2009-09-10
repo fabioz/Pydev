@@ -51,7 +51,7 @@ public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
     }
 
     public List<FunctionDefAdapter> getFunctions() {
-        if (this.functions == null) {
+        if(this.functions == null){
             LocalFunctionDefVisitor visitor = null;
             visitor = VisitorFactory.createContextVisitor(LocalFunctionDefVisitor.class, this.getASTNode(), getModule(), this);
 
@@ -61,8 +61,7 @@ public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
     }
 
     public List<SimpleAdapter> getAssignedVariables() {
-        ScopeAssignedVisitor visitor = VisitorFactory
-                .createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(), this);
+        ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(), this);
         return visitor.getAll();
     }
 }

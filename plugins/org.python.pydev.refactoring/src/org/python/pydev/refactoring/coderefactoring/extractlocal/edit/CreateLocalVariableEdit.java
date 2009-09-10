@@ -21,7 +21,7 @@ import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 public class CreateLocalVariableEdit extends AbstractInsertEdit {
 
     private RefactoringInfo info;
-    
+
     private String variableName;
 
     private exprType expression;
@@ -36,11 +36,11 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
     @Override
     protected SimpleNode getEditNode() {
         exprType variable = new Name(variableName, expr_contextType.Store, false);
-        exprType[] target = {variable};
-        
+        exprType[] target = { variable };
+
         return new Assign(target, expression);
     }
-    
+
     @Override
     public int getOffset() {
         PySelection selection = new PySelection(info.getDocument(), info.getExtendedSelection());

@@ -21,7 +21,6 @@ public class SelectionException extends Exception {
 
     @Override
     public String getMessage() {
-        return "Selection may not contain a(n) " + node.getClass().getSimpleName() + " statement (Line " + node.beginLine + ","
-                + node.beginColumn + ")";
+        return "Selection may not contain a(n) " + node.getClass().getSimpleName() + " statement (Line " + node.beginLine + "," + node.beginColumn + ")";
     }
 }

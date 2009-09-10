@@ -55,7 +55,7 @@ public abstract class AbstractTextEdit {
         source = source.trim();
         indented.append(source);
         indented.append(newLineDelim);
-        if (nodeHelper.isFunctionDef(node))
+        if(nodeHelper.isFunctionDef(node))
             indented.append(newLineDelim);
 
         return indented.toString();
@@ -67,7 +67,7 @@ public abstract class AbstractTextEdit {
 
     protected String getIndentation(int indent) {
         FastStringBuffer buf = new FastStringBuffer();
-        while (indent > 1) {
+        while(indent > 1){
             buf.append(WHITESPACE);
             indent--;
         }

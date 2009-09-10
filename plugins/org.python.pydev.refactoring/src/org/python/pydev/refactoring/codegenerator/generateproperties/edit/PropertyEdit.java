@@ -70,24 +70,24 @@ public class PropertyEdit extends AbstractInsertEdit {
 
         String propertyName = getCapitalString(attributeName);
 
-        if (state.isGetter()) {
+        if(state.isGetter()){
             args.add(new Name(GET + propertyName, Name.Load, false));
-        } else {
+        }else{
             args.add(noneName());
         }
-        if (state.isSetter()) {
+        if(state.isSetter()){
             args.add(new Name(SET + propertyName, Name.Load, false));
-        } else {
+        }else{
             args.add(noneName());
         }
-        if (state.isDelete()) {
+        if(state.isDelete()){
             args.add(new Name(DEL + propertyName, Name.Load, false));
-        } else {
+        }else{
             args.add(noneName());
         }
-        if (state.isDocstring()) {
+        if(state.isDocstring()){
             args.add(new Str(propertyName + "'s Docstring", str_typeType.SingleDouble, false, false, false));
-        } else {
+        }else{
             args.add(noneName());
         }
         return args;

@@ -49,8 +49,8 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
         for(stmtType b:this.classDef.body){
             if(b instanceof FunctionDef){
                 FunctionDef functionDef = (FunctionDef) b;
-                if(((NameTok)functionDef.name).id.equals("__init__")){
-                    return new FunctionDefAdapter(module, null, (FunctionDef)b, endLineDelim);
+                if(((NameTok) functionDef.name).id.equals("__init__")){
+                    return new FunctionDefAdapter(module, null, (FunctionDef) b, endLineDelim);
                 }
             }
         }
@@ -61,7 +61,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
         ArrayList<FunctionDefAdapter> ret = new ArrayList<FunctionDefAdapter>();
         for(stmtType b:this.classDef.body){
             if(b instanceof FunctionDef){
-                ret.add(new FunctionDefAdapter(module, null, (FunctionDef)b, endLineDelim));
+                ret.add(new FunctionDefAdapter(module, null, (FunctionDef) b, endLineDelim));
             }
         }
         return ret;
@@ -72,7 +72,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
         for(stmtType b:this.classDef.body){
             if(b instanceof FunctionDef){
                 FunctionDef functionDef = (FunctionDef) b;
-                if(((NameTok)functionDef.name).id.equals("__init__")){
+                if(((NameTok) functionDef.name).id.equals("__init__")){
                     continue;
                 }
                 ret.add(new FunctionDefAdapter(module, null, functionDef, endLineDelim));
@@ -118,7 +118,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
     }
 
     public String getName() {
-        return ((NameTok)this.classDef.name).id;
+        return ((NameTok) this.classDef.name).id;
     }
 
     public String getParentName() {

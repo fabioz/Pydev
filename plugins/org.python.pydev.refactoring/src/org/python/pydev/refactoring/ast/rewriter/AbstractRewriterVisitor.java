@@ -116,20 +116,20 @@ public abstract class AbstractRewriterVisitor extends VisitorBase {
     public abstract Object visitKeywordType(keywordType node) throws Exception;
 
     protected SimpleNode visitNode(SimpleNode node) throws Exception {
-        if (node == null)
+        if(node == null)
             return null;
 
-        if (node instanceof suiteType) {
+        if(node instanceof suiteType){
             node = (SimpleNode) visitSuiteType((suiteType) node);
-        } else if (node instanceof decoratorsType) {
+        }else if(node instanceof decoratorsType){
             visitDecoratorsType((decoratorsType) node);
-        } else if (node instanceof keywordType) {
+        }else if(node instanceof keywordType){
             node = (SimpleNode) visitKeywordType((keywordType) node);
-        } else if (node instanceof argumentsType) {
+        }else if(node instanceof argumentsType){
             node = (SimpleNode) visitArgumentsType((argumentsType) node);
-        } else if (node instanceof aliasType) {
+        }else if(node instanceof aliasType){
             node = (SimpleNode) visitAliasType((aliasType) node);
-        } else
+        }else
             node.accept(this);
 
         setPreviousNode(node);

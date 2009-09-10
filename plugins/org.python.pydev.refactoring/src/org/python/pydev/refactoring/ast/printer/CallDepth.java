@@ -18,7 +18,7 @@ public class CallDepth {
 
     public void leaveCall() {
         nestedCallDepth--;
-        if (nestedCallDepth < 0)
+        if(nestedCallDepth < 0)
             nestedCallDepth = 0;
     }
 
@@ -36,6 +36,6 @@ public class CallDepth {
     }
 
     public boolean isCallDepthEnabled() {
-        return (savedNestedCallDepth == nestedCallDepth);
+        return(savedNestedCallDepth == nestedCallDepth);
     }
 }

@@ -46,14 +46,14 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
     private List<ConstructorFieldRequest> generateRequests() {
         List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();
         List<ITreeNode> nodes = new ArrayList<ITreeNode>();
-        for (Object o : checked) {
+        for(Object o:checked){
             nodes.add((ITreeNode) o);
         }
 
         Iterator<ITreeNode> iter = nodes.iterator();
-        while (iter.hasNext()) {
+        while(iter.hasNext()){
             ITreeNode node = iter.next();
-            if (node instanceof TreeNodeClassField) {
+            if(node instanceof TreeNodeClassField){
                 addRequest(requests, iter, node);
             }
         }
@@ -64,14 +64,14 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
     private void addRequest(List<ConstructorFieldRequest> requests, Iterator<ITreeNode> iter, ITreeNode node) {
         List<INodeAdapter> fields = new ArrayList<INodeAdapter>();
         ITreeNode field = iter.next();
-        while (field instanceof TreeNodeField) {
+        while(field instanceof TreeNodeField){
             fields.add(field.getAdapter());
-            if (iter.hasNext())
+            if(iter.hasNext())
                 field = iter.next();
             else
                 break;
         }
-        if (fields.size() > 0) {
+        if(fields.size() > 0){
             ClassDefAdapter clazz = (ClassDefAdapter) node.getAdapter();
             ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy, endLineDelim);
             requests.add(request);

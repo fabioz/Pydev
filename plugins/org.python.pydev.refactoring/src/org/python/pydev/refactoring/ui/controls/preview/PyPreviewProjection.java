@@ -18,8 +18,7 @@ public class PyPreviewProjection extends ProjectionViewer {
 
     private PyPreviewConfiguration editConfiguration;
 
-    public PyPreviewProjection(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview,
-            int styles) {
+    public PyPreviewProjection(Composite parent, IVerticalRuler ruler, IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles) {
         super(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
     }
 
@@ -49,7 +48,7 @@ public class PyPreviewProjection extends ProjectionViewer {
      */
     public void doOperation(int operation) {
         super.doOperation(operation);
-        if (getTextWidget() == null)
+        if(getTextWidget() == null)
             return;
 
     }

@@ -56,7 +56,7 @@ public class MethodEdit extends AbstractInsertEdit {
         exprType starargs = null;
         exprType kwargs = null;
 
-        if (origin.args != null) {
+        if(origin.args != null){
             args = extractArgs(origin.args);
             starargs = extractStarargs(origin.args);
             kwargs = extractKwargs(origin.args);
@@ -69,7 +69,7 @@ public class MethodEdit extends AbstractInsertEdit {
 
     private exprType extractKwargs(argumentsType argType) {
         NameTok kwarg = (NameTok) argType.kwarg;
-        if (kwarg != null)
+        if(kwarg != null)
             return new Name("**" + kwarg.id, Name.Load, false);
         else
             return null;
@@ -77,7 +77,7 @@ public class MethodEdit extends AbstractInsertEdit {
 
     private exprType extractStarargs(argumentsType argType) {
         NameTok vararg = (NameTok) argType.vararg;
-        if (vararg != null)
+        if(vararg != null)
             return new Name("*" + vararg.id, Name.Load, false);
         else
             return null;

@@ -28,16 +28,16 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
     private List<IClassDefAdapter> classes;
 
     protected AbstractScopeNode() {
-        
+
     }
+
     public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<? extends SimpleNode> parent, T node, String endLineDelim) {
         super(module, parent, node, endLineDelim);
     }
 
     public List<FunctionDefAdapter> getFunctions() {
-        if (functions == null) {
-            LocalFunctionDefVisitor visitor = VisitorFactory.createContextVisitor(LocalFunctionDefVisitor.class, getASTNode(), getModule(),
-                    this);
+        if(functions == null){
+            LocalFunctionDefVisitor visitor = VisitorFactory.createContextVisitor(LocalFunctionDefVisitor.class, getASTNode(), getModule(), this);
             functions = visitor.getAll();
         }
 
@@ -45,7 +45,7 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
     }
 
     public List<IClassDefAdapter> getClasses() {
-        if (this.classes == null) {
+        if(this.classes == null){
             ClassDefVisitor visitor = null;
             visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, this.getASTNode(), getModule(), this);
 
@@ -55,26 +55,24 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
     }
 
     public List<SimpleAdapter> getAssignedVariables() {
-        if (assignedVariables == null) {
-            ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(),
-                    this);
+        if(assignedVariables == null){
+            ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(), this);
             assignedVariables = visitor.getAll();
         }
         return assignedVariables;
     }
 
     public List<SimpleAdapter> getUsedVariables() {
-        if (usedVariables == null) {
-            ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, getASTNode(),
-                    this.getModule(), this);
+        if(usedVariables == null){
+            ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class, getASTNode(), this.getModule(), this);
             usedVariables = visitor.getAll();
         }
         return usedVariables;
     }
 
     public boolean alreadyUsedName(String newName) {
-        for (SimpleAdapter adapter : this.getUsedVariables()) {
-            if (adapter.getName().compareTo(newName) == 0) {
+        for(SimpleAdapter adapter:this.getUsedVariables()){
+            if(adapter.getName().compareTo(newName) == 0){
                 return true;
             }
         }

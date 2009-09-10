@@ -32,9 +32,9 @@ public class OverrideMethodsRefactoring extends AbstractPythonRefactoring {
 
     public OverrideMethodsRefactoring(RefactoringInfo req) {
         super(req);
-        try {
+        try{
             initWizard();
-        } catch (Throwable e) {
+        }catch(Throwable e){
             PydevPlugin.log(e);
             status.addInfo(Messages.infoFixCode);
         }
@@ -58,7 +58,7 @@ public class OverrideMethodsRefactoring extends AbstractPythonRefactoring {
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         IClassDefAdapter rootClass = this.info.getScopeClass();
 
-        if (rootClass == null) {
+        if(rootClass == null){
             status.addFatalError(Messages.overrideMethodsUnavailable);
         }
 

@@ -31,9 +31,9 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 
     public GeneratePropertiesRefactoring(RefactoringInfo req) {
         super(req);
-        try {
+        try{
             initWizard();
-        } catch (Throwable e) {
+        }catch(Throwable e){
             status.addInfo(Messages.infoFixCode);
         }
     }
@@ -56,9 +56,9 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         List<IClassDefAdapter> classes = this.info.getClasses();
 
-        if (classes.size() > 0) {
-            for (IClassDefAdapter adapter : classes) {
-                if (adapter.getAttributes().size() > 0) {
+        if(classes.size() > 0){
+            for(IClassDefAdapter adapter:classes){
+                if(adapter.getAttributes().size() > 0){
                     return super.checkInitialConditions(pm);
                 }
             }

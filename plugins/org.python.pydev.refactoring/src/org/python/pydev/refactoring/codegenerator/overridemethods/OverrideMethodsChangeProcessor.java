@@ -23,7 +23,7 @@ public class OverrideMethodsChangeProcessor extends AbstractFileChangeProcessor<
 
     @Override
     protected void processEdit() {
-        for (OverrideMethodsRequest req : requestProcessor.getRefactoringRequests()) {
+        for(OverrideMethodsRequest req:requestProcessor.getRefactoringRequests()){
             MethodEdit methodEdit = new MethodEdit(req);
             registerEdit(methodEdit, Messages.overrideMethodsMethods);
         }

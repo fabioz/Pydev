@@ -58,15 +58,15 @@ public class ParameterReturnDeduce {
      */
     private void deduceParameters(List<SimpleAdapter> before, List<SimpleAdapter> selected) {
         Set<String> globarVarNames = new HashSet<String>(moduleAdapter.getGlobarVarNames());
-        
-        for (SimpleAdapter adapter : before) {
-            if (adapter.getASTNode() instanceof Name) {
+
+        for(SimpleAdapter adapter:before){
+            if(adapter.getASTNode() instanceof Name){
                 Name variable = (Name) adapter.getASTNode();
                 if(globarVarNames.contains(variable.id)){
                     continue;
                 }
-                if (isUsed(variable.id, selected)) {
-                    if (!parameters.contains(variable.id)) {
+                if(isUsed(variable.id, selected)){
+                    if(!parameters.contains(variable.id)){
                         parameters.add(variable.id);
                     }
                 }
@@ -75,10 +75,10 @@ public class ParameterReturnDeduce {
     }
 
     private void deduceReturns(List<SimpleAdapter> after, List<SimpleAdapter> selected) {
-        for (SimpleAdapter adapter : after) {
-            if (adapter.getASTNode() instanceof Name) {
+        for(SimpleAdapter adapter:after){
+            if(adapter.getASTNode() instanceof Name){
                 Name variable = (Name) adapter.getASTNode();
-                if (isStored(variable.id, selected)) {
+                if(isStored(variable.id, selected)){
                     returns.add(variable.id);
                 }
             }
@@ -88,25 +88,24 @@ public class ParameterReturnDeduce {
     private void extractBeforeAfterVariables(List<SimpleAdapter> selectedVariables, List<SimpleAdapter> before, List<SimpleAdapter> after) {
         List<SimpleAdapter> scopeVariables = scopeAdapter.getUsedVariables();
 
-        if (selectedVariables.size() < 1)
+        if(selectedVariables.size() < 1)
             return;
 
         SimpleAdapter firstSelectedVariable = selectedVariables.get(0);
         SimpleAdapter lastSelectedVariable = selectedVariables.get(selectedVariables.size() - 1);
 
-        for (SimpleAdapter adapter : scopeVariables) {
-            if (isBeforeSelectedLine(firstSelectedVariable, adapter) || isBeforeOnSameLine(firstSelectedVariable, adapter)) {
+        for(SimpleAdapter adapter:scopeVariables){
+            if(isBeforeSelectedLine(firstSelectedVariable, adapter) || isBeforeOnSameLine(firstSelectedVariable, adapter)){
                 before.add(adapter);
-                
-            } else if (isAfterSelectedLine(lastSelectedVariable, adapter) || isAfterOnSameLine(lastSelectedVariable, adapter)) {
+
+            }else if(isAfterSelectedLine(lastSelectedVariable, adapter) || isAfterOnSameLine(lastSelectedVariable, adapter)){
                 after.add(adapter);
             }
         }
     }
 
     private boolean isAfterOnSameLine(SimpleAdapter lastSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() == lastSelectedVariable.getNodeFirstLine()
-                && (adapter.getNodeIndent() > lastSelectedVariable.getNodeIndent());
+        return adapter.getNodeFirstLine() == lastSelectedVariable.getNodeFirstLine() && (adapter.getNodeIndent() > lastSelectedVariable.getNodeIndent());
     }
 
     private boolean isAfterSelectedLine(SimpleAdapter lastSelectedVariable, SimpleAdapter adapter) {
@@ -114,8 +113,7 @@ public class ParameterReturnDeduce {
     }
 
     private boolean isBeforeOnSameLine(SimpleAdapter firstSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() == firstSelectedVariable.getNodeFirstLine()
-                && (adapter.getNodeIndent() < firstSelectedVariable.getNodeIndent());
+        return adapter.getNodeFirstLine() == firstSelectedVariable.getNodeFirstLine() && (adapter.getNodeIndent() < firstSelectedVariable.getNodeIndent());
     }
 
     private boolean isBeforeSelectedLine(SimpleAdapter firstSelectedVariable, SimpleAdapter adapter) {
@@ -126,11 +124,11 @@ public class ParameterReturnDeduce {
      * Fix (fabioz): to check if it is used, it must be in a load context
      */
     private boolean isUsed(String var, List<SimpleAdapter> scopeVariables) {
-        for (SimpleAdapter adapter : scopeVariables) {
+        for(SimpleAdapter adapter:scopeVariables){
             SimpleNode astNode = adapter.getASTNode();
-            if (astNode instanceof Name) {
+            if(astNode instanceof Name){
                 Name scopeVar = (Name) astNode;
-                if ((scopeVar.ctx == Name.Load || scopeVar.ctx == Name.AugLoad) && scopeVar.id.equals(var)) {
+                if((scopeVar.ctx == Name.Load || scopeVar.ctx == Name.AugLoad) && scopeVar.id.equals(var)){
                     return true;
                 }
             }
@@ -142,16 +140,16 @@ public class ParameterReturnDeduce {
         boolean isStored = false;
         // must traverse all variables, because a
         // variable may be used in other context!
-        for (SimpleAdapter adapter : scopeVariables) {
+        for(SimpleAdapter adapter:scopeVariables){
             SimpleNode astNode = adapter.getASTNode();
-            if (astNode instanceof Name) {
+            if(astNode instanceof Name){
                 Name scopeVar = (Name) astNode;
-                if (scopeVar.id.equals(var)) {
+                if(scopeVar.id.equals(var)){
                     isStored = (scopeVar.ctx == Name.Store || scopeVar.ctx == Name.AugStore);
                 }
             }
 
-            if (isStored)
+            if(isStored)
                 break;
         }
         return isStored;

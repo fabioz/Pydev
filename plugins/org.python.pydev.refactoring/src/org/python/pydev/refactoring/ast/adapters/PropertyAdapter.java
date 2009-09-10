@@ -27,9 +27,9 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
 
     public PropertyAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, SimpleNode node, String endLineDelim) {
         super(module, parent, node, endLineDelim);
-        if (nodeHelper.isAssign(getASTNode())) {
+        if(nodeHelper.isAssign(getASTNode())){
             initByAssign();
-        } else {
+        }else{
             // functiondef not supported yet
         }
     }
@@ -41,30 +41,30 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
         doc = null;
 
         exprType[] args = getPropertyArgs();
-        for (int i = 0; i < args.length; i++) {
+        for(int i = 0; i < args.length; i++){
             setMethod(args[i], i);
         }
-        
-        for (keywordType keyword : getValue().keywords) {
+
+        for(keywordType keyword:getValue().keywords){
             setKeyword(keyword);
         }
-        if (getter == null)
+        if(getter == null)
             getter = createNone();
-        if (setter == null)
+        if(setter == null)
             setter = createNone();
-        if (delete == null)
+        if(delete == null)
             delete = createNone();
 
     }
 
     private void setKeyword(keywordType kw) {
-        if (nodeHelper.isFGet(kw)) {
+        if(nodeHelper.isFGet(kw)){
             this.getter = (Name) kw.value;
-        } else if (nodeHelper.isFSet(kw)) {
+        }else if(nodeHelper.isFSet(kw)){
             this.setter = (Name) kw.value;
-        } else if (nodeHelper.isFDel(kw)) {
+        }else if(nodeHelper.isFDel(kw)){
             this.delete = (Name) kw.value;
-        } else if (nodeHelper.isKeywordStr(kw)) {
+        }else if(nodeHelper.isKeywordStr(kw)){
             this.doc = kw;
         }
     }
@@ -74,11 +74,11 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
     }
 
     private void setMethod(exprType expr, int i) {
-        if (nodeHelper.isStr(expr)) {
+        if(nodeHelper.isStr(expr)){
             doc = expr;
-        } else if (nodeHelper.isName(expr)) {
+        }else if(nodeHelper.isName(expr)){
             Name name = (Name) expr;
-            switch (i) {
+            switch(i){
             case 0:
                 getter = name;
                 break;
@@ -89,7 +89,7 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
                 delete = name;
                 break;
             case 3:
-                if (!(nodeHelper.isNone(name)))
+                if(!(nodeHelper.isNone(name)))
                     doc = name;
                 break;
             }
@@ -106,11 +106,11 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
     }
 
     public boolean hasSetter() {
-        return (!(nodeHelper.isNone(setter)));
+        return(!(nodeHelper.isNone(setter)));
     }
 
     public boolean hasDelete() {
-        return (!(nodeHelper.isNone(delete)));
+        return(!(nodeHelper.isNone(delete)));
     }
 
     public boolean hasDocString() {
@@ -118,7 +118,7 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
     }
 
     public boolean hasGetter() {
-        return (!(nodeHelper.isNone(getter)));
+        return(!(nodeHelper.isNone(getter)));
     }
 
     private Assign getAssign() {

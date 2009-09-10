@@ -25,9 +25,9 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
     protected NodeHelper nodeHelper;
 
     protected AbstractNodeAdapter() {
-        
+
     }
-    
+
     public AbstractNodeAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, T node, String endLineDelim) {
         init(module, parent, node, endLineDelim);
     }
@@ -38,7 +38,7 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
         this.adaptee = node;
         this.nodeHelper = new NodeHelper(endLineDelim);
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -142,10 +142,9 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof AbstractNodeAdapter) {
+        if(obj instanceof AbstractNodeAdapter){
             AbstractNodeAdapter<?> adapter = (AbstractNodeAdapter<?>) obj;
-            return ((getNodeFirstLine() == adapter.getNodeFirstLine()) && (getNodeIndent() == adapter.getNodeIndent()) && (getModule()
-                    .equals(adapter.getModule())));
+            return((getNodeFirstLine() == adapter.getNodeFirstLine()) && (getNodeIndent() == adapter.getNodeIndent()) && (getModule().equals(adapter.getModule())));
         }
         return false;
     }

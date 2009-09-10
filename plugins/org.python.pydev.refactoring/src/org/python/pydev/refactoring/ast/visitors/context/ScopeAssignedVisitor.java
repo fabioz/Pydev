@@ -35,7 +35,7 @@ public class ScopeAssignedVisitor extends AbstractContextVisitor<SimpleAdapter> 
     @Override
     protected void registerInContext(SimpleNode node) {
         String varName = nodeHelper.getName(node);
-        if (!(globalVars.contains(varName))) {
+        if(!(globalVars.contains(varName))){
             globalVars.add(varName);
             super.registerInContext(node);
         }
@@ -54,7 +54,7 @@ public class ScopeAssignedVisitor extends AbstractContextVisitor<SimpleAdapter> 
 
     @Override
     public Object visitName(Name node) throws Exception {
-        if (nodeHelper.isAssign(stack.peek()))
+        if(nodeHelper.isAssign(stack.peek()))
             registerInContext(node);
         return null;
     }

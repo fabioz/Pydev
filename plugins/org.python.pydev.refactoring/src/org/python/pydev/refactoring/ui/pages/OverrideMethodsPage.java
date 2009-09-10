@@ -174,7 +174,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
         insertionPointCmb.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(SelectionChangedEvent event) {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-                if (!sel.isEmpty()) {
+                if(!sel.isEmpty()){
                     OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
                     requestProcessor.setInsertionPoint(elem.getStrategy());
                 }
@@ -218,7 +218,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
 
     @Override
     public boolean canFlipToNextPage() {
-        return (treeViewer.getCheckedElements().length > 0);
+        return(treeViewer.getCheckedElements().length > 0);
     }
 
 }

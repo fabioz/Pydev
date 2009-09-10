@@ -30,13 +30,13 @@ public class AlignHelper {
 
     public void outdent() {
         alignment -= alignmentSteps;
-        if (alignment < 0)
+        if(alignment < 0)
             alignment = 0;
     }
 
     public String getAlignment() {
         StringBuilder s = new StringBuilder();
-        for (int i = 0; i < alignment; i++)
+        for(int i = 0; i < alignment; i++)
             s.append(alignmentSeparator);
         return s.toString();
     }

@@ -56,9 +56,8 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getAttributes()
      */
     public List<SimpleAdapter> getAttributes() {
-        if (attributes == null) {
-            LocalAttributeVisitor visitor = VisitorFactory.createContextVisitor(LocalAttributeVisitor.class, getASTNode(), getModule(),
-                    this);
+        if(attributes == null){
+            LocalAttributeVisitor visitor = VisitorFactory.createContextVisitor(LocalAttributeVisitor.class, getASTNode(), getModule(), this);
             attributes = visitor.getAll();
         }
         return attributes;
@@ -68,7 +67,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getProperties()
      */
     public List<PropertyAdapter> getProperties() {
-        if (properties == null) {
+        if(properties == null){
             PropertyVisitor visitor = VisitorFactory.createContextVisitor(PropertyVisitor.class, getASTNode(), getModule(), this);
             properties = visitor.getAll();
         }
@@ -80,8 +79,8 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
      */
     public List<FunctionDefAdapter> getFunctionsInitFiltered() {
         List<FunctionDefAdapter> functionsFiltered = new ArrayList<FunctionDefAdapter>();
-        for (FunctionDefAdapter adapter : getFunctions()) {
-            if (!(adapter.isInit())) {
+        for(FunctionDefAdapter adapter:getFunctions()){
+            if(!(adapter.isInit())){
                 functionsFiltered.add(adapter);
             }
         }
@@ -131,15 +130,15 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#hasInit()
      */
     public boolean hasInit() {
-        return (getFirstInit() != null);
+        return(getFirstInit() != null);
     }
 
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getFirstInit()
      */
     public FunctionDefAdapter getFirstInit() {
-        for (FunctionDefAdapter func : getFunctions()) {
-            if (func.isInit()) {
+        for(FunctionDefAdapter func:getFunctions()){
+            if(func.isInit()){
                 return func;
             }
         }
@@ -150,8 +149,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getAssignedVariables()
      */
     public List<SimpleAdapter> getAssignedVariables() {
-        ScopeAssignedVisitor visitor = VisitorFactory
-                .createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(), this);
+        ScopeAssignedVisitor visitor = VisitorFactory.createContextVisitor(ScopeAssignedVisitor.class, getASTNode(), this.getModule(), this);
         return visitor.getAll();
     }
 
@@ -159,8 +157,8 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#isNewStyleClass()
      */
     public boolean isNewStyleClass() {
-        for (String base : getBaseClassNames()) {
-            if (base.compareTo(OBJECT) == 0) {
+        for(String base:getBaseClassNames()){
+            if(base.compareTo(OBJECT) == 0){
                 return true;
             }
         }

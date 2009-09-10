@@ -46,9 +46,8 @@ public class RefactoringInfo {
 
     private AbstractScopeNode<?> scopeAdapter;
 
-    public RefactoringInfo(ITextEditor edit, IPythonNature nature)  {
-        this(((IFileEditorInput) edit.getEditorInput()).getFile(), edit.getDocumentProvider().getDocument(edit.getEditorInput()),
-                (ITextSelection) edit.getSelectionProvider().getSelection(), nature);
+    public RefactoringInfo(ITextEditor edit, IPythonNature nature) {
+        this(((IFileEditorInput) edit.getEditorInput()).getFile(), edit.getDocumentProvider().getDocument(edit.getEditorInput()), (ITextSelection) edit.getSelectionProvider().getSelection(), nature);
     }
 
     public RefactoringInfo(IFile sourceFile, IDocument doc, ITextSelection selection, IPythonNature nature) {
@@ -60,18 +59,18 @@ public class RefactoringInfo {
     }
 
     private void initInfo(ITextSelection selection, ITextSelection userSelection) {
-        if (this.nature != null) {
+        if(this.nature != null){
             this.moduleManager = new PythonModuleManager(nature);
         }
 
         File realFile = null;
-        if (sourceFile != null) {
+        if(sourceFile != null){
             realFile = sourceFile.getRawLocation().toFile();
         }
 
-        try {
+        try{
             this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature);
-        } catch (ParseException e) {
+        }catch(ParseException e){
             throw new RuntimeException(e);
         }
 
@@ -96,12 +95,11 @@ public class RefactoringInfo {
     }
 
     public ITextSelection getExtendedSelection() {
-        if (this.extendedSelection == null) {
+        if(this.extendedSelection == null){
             this.extendedSelection = new TextSelection(this.doc, this.getUserSelection().getOffset(), this.userSelection.getLength());
 
-            if (getScopeAdapter() != null) {
-                this.extendedSelection = moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(getScopeAdapter(),
-                        this.extendedSelection));
+            if(getScopeAdapter() != null){
+                this.extendedSelection = moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(getScopeAdapter(), this.extendedSelection));
             }
 
         }
@@ -120,10 +118,10 @@ public class RefactoringInfo {
         ModuleAdapter parsedAdapter = null;
         String source = normalizeSourceSelection(getScopeAdapter(), this.userSelection);
 
-        if (this.userSelection != null && source.length() > 0) {
-            try {
+        if(this.userSelection != null && source.length() > 0){
+            try{
                 parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
-            } catch (ParseException e) {
+            }catch(ParseException e){
                 /* Parse Exception means the current selection is invalid, discard and return null */
             }
         }
@@ -135,11 +133,11 @@ public class RefactoringInfo {
 
         String source = normalizeSourceSelection(scopeNode, this.getExtendedSelection());
 
-        if (this.getExtendedSelection() != null && source.length() > 0) {
+        if(this.getExtendedSelection() != null && source.length() > 0){
 
-            try {
+            try{
                 parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
-            } catch (ParseException e) {
+            }catch(ParseException e){
                 /* Parse Exception means the current selection is invalid, discard and return null */
             }
         }
@@ -149,16 +147,16 @@ public class RefactoringInfo {
     public String normalizeSourceSelection(AbstractScopeNode<?> scopeNode, ITextSelection selection) {
         String selectedText = "";
 
-        if (selection.getText() != null) {
+        if(selection.getText() != null){
             selectedText = selection.getText().trim();
         }
-        if (selectedText.length() == 0) {
+        if(selectedText.length() == 0){
             return "";
         }
 
-        try {
+        try{
             return normalizeBlockIndentation(selection, selectedText);
-        } catch (Throwable e) {
+        }catch(Throwable e){
             /* TODO: uncommented empty exception catch all */
         }
         return selectedText;
@@ -167,26 +165,26 @@ public class RefactoringInfo {
 
     private String normalizeBlockIndentation(ITextSelection selection, String selectedText) throws Throwable {
         String[] lines = selectedText.split("\\n");
-        if (lines.length < 2) {
+        if(lines.length < 2){
             return selectedText;
         }
 
         String firstLine = doc.get(doc.getLineOffset(selection.getStartLine()), doc.getLineLength(selection.getStartLine()));
         String lineDelimiter = TextUtilities.getDefaultLineDelimiter(doc);
-        
+
         String indentation = "";
         int bodyIndent = 0;
-        while (firstLine.startsWith(" ")) {
+        while(firstLine.startsWith(" ")){
             indentation += " ";
             firstLine = firstLine.substring(1);
             bodyIndent += 1;
         }
-        if (bodyIndent > 0) {
+        if(bodyIndent > 0){
             FastStringBuffer selectedCode = new FastStringBuffer();
-            for (String line : lines) {
-                if (line.startsWith(indentation)) {
+            for(String line:lines){
+                if(line.startsWith(indentation)){
                     selectedCode.append(line.substring(bodyIndent) + lineDelimiter);
-                } else {
+                }else{
                     selectedCode.append(line + lineDelimiter);
                 }
 
@@ -209,15 +207,14 @@ public class RefactoringInfo {
     }
 
     public AbstractScopeNode<?> getScopeAdapter() {
-        if (scopeAdapter == null) {
+        if(scopeAdapter == null){
             scopeAdapter = moduleAdapter.getScopeAdapter(getUserSelection());
         }
         return scopeAdapter;
     }
 
     public boolean isSelectionExtensionRequired() {
-        return !(this.getUserSelection().getOffset() == this.getExtendedSelection().getOffset() && this.getUserSelection().getLength() == this
-                .getExtendedSelection().getLength());
+        return !(this.getUserSelection().getOffset() == this.getExtendedSelection().getOffset() && this.getUserSelection().getLength() == this.getExtendedSelection().getLength());
     }
 
     public String getNewLineDelim() {

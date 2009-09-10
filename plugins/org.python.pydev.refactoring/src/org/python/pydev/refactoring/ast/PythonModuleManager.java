@@ -50,7 +50,7 @@ public class PythonModuleManager {
 
     public Set<ModuleAdapter> resolveModule(File currentFile, FQIdentifier identifier) {
 
-        if (identifier == null || currentFile == null || (!(currentFile.exists())) || identifier.getProbableModuleName().length() == 0)
+        if(identifier == null || currentFile == null || (!(currentFile.exists())) || identifier.getProbableModuleName().length() == 0)
             return new HashSet<ModuleAdapter>();
 
         SortedMap<ModulesKey, ModulesKey> modulesStartingWith = resolveModules(identifier);
@@ -61,15 +61,15 @@ public class PythonModuleManager {
 
     private Set<ModuleAdapter> extractModuleAdapter(SortedMap<ModulesKey, ModulesKey> modulesStartingWith) {
         Set<ModuleAdapter> resolvedModules = new HashSet<ModuleAdapter>();
-        for (ModulesKey key : modulesStartingWith.keySet()) {
-            try {
-                if (key.file != null) {
+        for(ModulesKey key:modulesStartingWith.keySet()){
+            try{
+                if(key.file != null){
                     ModuleAdapter moduleAdapter = getModuleAdapterFromFile(key.file);
-                    if (moduleAdapter != null) {
+                    if(moduleAdapter != null){
                         resolvedModules.add(moduleAdapter);
                     }
                 }
-            } catch (Throwable e) {
+            }catch(Throwable e){
             }
         }
         return resolvedModules;
@@ -78,19 +78,18 @@ public class PythonModuleManager {
     private SortedMap<ModulesKey, ModulesKey> resolveModules(FQIdentifier identifier) {
         SortedMap<ModulesKey, ModulesKey> modulesStartingWith = moduleManager.getAllModulesStartingWith(identifier.getProbableModuleName());
 
-        if (modulesStartingWith.size() == 0)
+        if(modulesStartingWith.size() == 0)
             modulesStartingWith = moduleManager.getAllModulesStartingWith(identifier.getModule());
         return modulesStartingWith;
     }
-    
-    
+
     /**
      * Creates an adapter for a given file.
      */
     private ModuleAdapter getModuleAdapterFromFile(File file) throws Throwable {
-        if (file != null && !file.getName().equals(INIT) && file.exists()) {
+        if(file != null && !file.getName().equals(INIT) && file.exists()){
             IDocument doc = getDocFromFile(file);
-            if (doc != null && doc.getLength() > 0) {
+            if(doc != null && doc.getLength() > 0){
                 return VisitorFactory.createModuleAdapter(this, file, doc, nature);
             }
         }
@@ -102,51 +101,49 @@ public class PythonModuleManager {
      * on the actual document from the user
      */
     public static boolean TESTING = false;
-    
-    public static IDocument getDocFromFile(File file)  {
+
+    public static IDocument getDocFromFile(File file) {
         boolean loadIfNotInWorkspace = true;
         if(TESTING){
             loadIfNotInWorkspace = false;
         }
         IDocument doc = null;
-        try {
+        try{
             doc = REF.getDocFromFile(file, loadIfNotInWorkspace);
-        } catch (IOException e1) {
+        }catch(IOException e1){
             //ignore (will remain null)
         }
         if(doc == null){
-            try {
+            try{
                 doc = new Document(getFileContent(new FileInputStream(file)));
-            } catch (FileNotFoundException e) {
+            }catch(FileNotFoundException e){
                 return null;
             }
         }
         return doc;
     }
-    
+
     private static String getFileContent(InputStream stream) {
         if(!TESTING){
             throw new RuntimeException("Should only call this method in tests.");
         }
-        try {
+        try{
             StringBuilder contentBuilder = new StringBuilder();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
 
             String line;
-            while ((line = bufferedReader.readLine()) != null) {
+            while((line = bufferedReader.readLine()) != null){
                 contentBuilder.append(line).append('\n');
             }
             return contentBuilder.toString();
-        } catch (IOException e) {
+        }catch(IOException e){
         }
         return "";
     }
 
-
     public void setIModuleManager(IModulesManager moduleManager) {
         this.moduleManager = moduleManager;
     }
-
 
     public IModulesManager getIModuleManager() {
         return moduleManager;

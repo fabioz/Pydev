@@ -27,9 +27,9 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public void visit(SimpleNode node) throws Exception {
-        if (nodeHelper.isClassDef(node))
+        if(nodeHelper.isClassDef(node))
             return;
-        if (nodeHelper.isFunctionDef(node))
+        if(nodeHelper.isFunctionDef(node))
             return;
 
         super.visit(node);
@@ -37,9 +37,9 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public void traverse(SimpleNode node) throws Exception {
-        if (nodeHelper.isClassDef(node))
+        if(nodeHelper.isClassDef(node))
             return;
-        if (nodeHelper.isFunctionDef(node))
+        if(nodeHelper.isFunctionDef(node))
             return;
 
         super.traverse(node);
@@ -80,7 +80,7 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public Object visitName(Name node) throws Exception {
-        if (node.id.compareTo(NodeHelper.KEYWORD_SELF) == 0)
+        if(node.id.compareTo(NodeHelper.KEYWORD_SELF) == 0)
             return null;
 
         registerInContext(node);

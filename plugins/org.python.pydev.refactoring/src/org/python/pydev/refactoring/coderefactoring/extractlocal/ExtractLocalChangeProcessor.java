@@ -23,7 +23,7 @@ public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<Ext
 
     @Override
     protected void processEdit() {
-        for (ExtractLocalRequest req : requestProcessor.getRefactoringRequests()) {
+        for(ExtractLocalRequest req:requestProcessor.getRefactoringRequests()){
             processExtraction(req);
         }
     }
@@ -31,7 +31,7 @@ public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<Ext
     private void processExtraction(ExtractLocalRequest req) {
         CreateLocalVariableEdit createLocalVariableEdit = new CreateLocalVariableEdit(req);
         ReplaceWithVariableEdit replaceWithVariableEdit = new ReplaceWithVariableEdit(req);
-        
+
         registerEdit(createLocalVariableEdit, Messages.extractLocalCreateLocalVariable);
         registerEdit(replaceWithVariableEdit, Messages.extractLocalReplaceWithVariable);
     }

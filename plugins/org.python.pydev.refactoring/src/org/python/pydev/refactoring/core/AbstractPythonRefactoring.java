@@ -46,12 +46,11 @@ public abstract class AbstractPythonRefactoring extends Refactoring {
     @Override
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         IChangeProcessor changeProcessor = new CompositeChangeProcessor(getName(), getChangeProcessors());
-        
+
         return changeProcessor.createChange();
     }
 
     protected abstract List<IChangeProcessor> getChangeProcessors();
-
 
     public Collection<IWizardPage> getPages() {
         return pages;

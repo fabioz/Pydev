@@ -39,9 +39,8 @@ public class ExtractMethodRequest implements IRefactoringRequest {
 
     private String endLineDelim;
 
-    public ExtractMethodRequest(String methodName, ITextSelection selection, AbstractScopeNode<?> scopeAdapter,
-            ModuleAdapter parsedSelection, List<String> callParameters, List<String> returnVariables, Map<String, String> renamedVariables,
-            int offsetStrategy, String endLineDelim) {
+    public ExtractMethodRequest(String methodName, ITextSelection selection, AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, List<String> callParameters,
+            List<String> returnVariables, Map<String, String> renamedVariables, int offsetStrategy, String endLineDelim) {
         this.methodName = methodName;
         this.selection = selection;
         this.scopeAdapter = scopeAdapter;
@@ -80,7 +79,7 @@ public class ExtractMethodRequest implements IRefactoringRequest {
 
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         IASTNodeAdapter<? extends SimpleNode> offsetNode = scopeAdapter;
-        while (offsetNode instanceof FunctionDefAdapter)
+        while(offsetNode instanceof FunctionDefAdapter)
             offsetNode = offsetNode.getParent();
 
         return offsetNode;

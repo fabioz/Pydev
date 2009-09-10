@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.python.pydev.parser.jython.ast.ClassDef;
 
-public interface IClassDefAdapter extends INodeAdapter, IASTNodeAdapter<ClassDef>{
+public interface IClassDefAdapter extends INodeAdapter, IASTNodeAdapter<ClassDef> {
 
     public abstract List<String> getBaseClassNames();
 

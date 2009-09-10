@@ -35,11 +35,11 @@ public class ExtractLocalRequest implements IRefactoringRequest {
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return info.getScopeAdapter();
     }
-    
+
     public String getNewLineDelim() {
         return info.getNewLineDelim();
     }
-    
+
     public RefactoringInfo getRefactoringInfo() {
         return info;
     }
@@ -47,7 +47,7 @@ public class ExtractLocalRequest implements IRefactoringRequest {
     public String getVariableName() {
         return variableName;
     }
-    
+
     public exprType getExpression() {
         return expression;
     }

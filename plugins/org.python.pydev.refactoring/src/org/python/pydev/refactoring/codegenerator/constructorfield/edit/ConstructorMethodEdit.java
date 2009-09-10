@@ -71,38 +71,36 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
     }
 
     private void initAttributes(List<stmtType> body) {
-        for (INodeAdapter adapter : attributes) {
+        for(INodeAdapter adapter:attributes){
             Assign initParam = initAttribute(adapter);
             body.add(initParam);
         }
     }
 
     private void constructorCalls(List<IClassDefAdapter> bases, List<stmtType> body) {
-        for (IClassDefAdapter base : bases) {
+        for(IClassDefAdapter base:bases){
             Expr init = extractConstructorInit(base);
-            if (init != null)
+            if(init != null)
                 body.add(init);
         }
     }
 
     private Assign initAttribute(INodeAdapter adapter) {
-        exprType target = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(adapter.getName(), NameTok.Attrib),
-                Attribute.Store);
+        exprType target = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(adapter.getName(), NameTok.Attrib), Attribute.Store);
         Assign initParam = new Assign(new exprType[] { target }, new Name(nodeHelper.getPublicAttr(adapter.getName()), Name.Load, false));
         return initParam;
     }
 
     private Expr extractConstructorInit(IClassDefAdapter base) {
         FunctionDefAdapter init = base.getFirstInit();
-        if (init != null) {
-            if (!init.getArguments().hasOnlySelf()) {
-                Attribute classInit = new Attribute(
-                        new Name(moduleAdapter.getBaseContextName(this.classAdapter, base.getName()), Name.Load, false), new NameTok(
-                                NodeHelper.KEYWORD_INIT, NameTok.Attrib), Attribute.Load);
+        if(init != null){
+            if(!init.getArguments().hasOnlySelf()){
+                Attribute classInit = new Attribute(new Name(moduleAdapter.getBaseContextName(this.classAdapter, base.getName()), Name.Load, false), new NameTok(NodeHelper.KEYWORD_INIT,
+                        NameTok.Attrib), Attribute.Load);
                 List<exprType> constructorParameters = init.getArguments().getSelfFilteredArgs();
 
                 Name selfArg = new Name(NodeHelper.KEYWORD_SELF, Name.Load, false);
-                if (constructorParameters.size() > 0 || init.getArguments().hasVarArg() || init.getArguments().hasKwArg()) {
+                if(constructorParameters.size() > 0 || init.getArguments().hasVarArg() || init.getArguments().hasKwArg()){
                     selfArg.getSpecialsAfter().add(new SpecialStr(",", 0, 0));
                 }
                 constructorParameters.add(0, selfArg);
@@ -111,10 +109,10 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
                 Name varArg = null;
                 Name kwArg = null;
 
-                if (init.getArguments().hasVarArg())
+                if(init.getArguments().hasVarArg())
                     varArg = new Name(VAR_ARG, Name.Load, false);
 
-                if (init.getArguments().hasKwArg())
+                if(init.getArguments().hasKwArg())
                     kwArg = new Name(KW_ARG, Name.Load, false);
 
                 Call initCall = new Call(classInit, argExp, null, varArg, kwArg);
@@ -130,16 +128,16 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 
         SortedSet<String> argsNames = new TreeSet<String>();
 
-        for (IClassDefAdapter baseClass : bases) {
+        for(IClassDefAdapter baseClass:bases){
             FunctionDefAdapter init = baseClass.getFirstInit();
-            if (init != null) {
-                if (!init.getArguments().hasOnlySelf()) {
+            if(init != null){
+                if(!init.getArguments().hasOnlySelf()){
                     argsNames.addAll(init.getArguments().getSelfFilteredArgNames());
                 }
-                if (varArg == null && init.getArguments().hasVarArg())
+                if(varArg == null && init.getArguments().hasVarArg())
                     varArg = new NameTok(VAR_ARG, NameTok.VarArg);
 
-                if (kwArg == null && init.getArguments().hasKwArg())
+                if(kwArg == null && init.getArguments().hasKwArg())
                     kwArg = new NameTok(KW_ARG, NameTok.KwArg);
             }
         }
@@ -154,7 +152,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
         List<exprType> argsExprList = new ArrayList<exprType>();
         Name selfArg = new Name(NodeHelper.KEYWORD_SELF, Name.Param, false);
         argsExprList.add(selfArg);
-        for (String parameter : argsNames) {
+        for(String parameter:argsNames){
             argsExprList.add(new Name(parameter.trim(), Name.Param, false));
         }
 
@@ -163,7 +161,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
     }
 
     private void addOwnArguments(SortedSet<String> argsNames) {
-        for (INodeAdapter adapter : attributes) {
+        for(INodeAdapter adapter:attributes){
             argsNames.add(nodeHelper.getPublicAttr(adapter.getName()));
         }
     }

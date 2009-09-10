@@ -23,9 +23,9 @@ public class GenerateDocstringAction extends PyAction {
 
     public void run(IAction action) {
         GenerateDocstringOperation op = new GenerateDocstringOperation(getPyEdit());
-        try {
+        try{
             PydevPlugin.getWorkspace().run(op, new NullProgressMonitor());
-        } catch (CoreException e) {
+        }catch(CoreException e){
             PepticLog.logError(e);
         }
     }

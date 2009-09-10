@@ -59,11 +59,11 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
     }
 
     private SimpleNode initSubstituteCall(Call methodCall) {
-        if (returnVariables.size() == 0) {
+        if(returnVariables.size() == 0){
             return methodCall;
-        } else {
+        }else{
             List<exprType> returnExpr = new ArrayList<exprType>();
-            for (String returnVar : returnVariables) {
+            for(String returnVar:returnVariables){
                 returnExpr.add(new Name(returnVar, Name.Store, false));
             }
 
@@ -73,16 +73,16 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
 
     private List<exprType> initCallArguments() {
         List<exprType> argsList = new ArrayList<exprType>();
-        for (String parameter : callParameters) {
+        for(String parameter:callParameters){
             argsList.add(new Name(parameter, Name.Load, false));
         }
         return argsList;
     }
 
     private exprType createCallAttribute() {
-        if (this.offsetAdapter instanceof IClassDefAdapter) {
+        if(this.offsetAdapter instanceof IClassDefAdapter){
             return new Attribute(new Name("self", Name.Load, false), new NameTok(this.methodName, NameTok.Attrib), Attribute.Load);
-        } else {
+        }else{
             return new Name(this.methodName, Name.Load, false);
         }
     }
