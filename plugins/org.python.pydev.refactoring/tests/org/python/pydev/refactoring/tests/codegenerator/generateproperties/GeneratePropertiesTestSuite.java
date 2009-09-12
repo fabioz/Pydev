@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
 
 package org.python.pydev.refactoring.tests.codegenerator.generateproperties;
@@ -13,17 +14,21 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class GeneratePropertiesTestSuite extends AbstractIOTestSuite {
 
-    public static Test suite() {
-        TESTDIR = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "generateproperties";
-        GeneratePropertiesTestSuite testSuite = new GeneratePropertiesTestSuite();
+	public GeneratePropertiesTestSuite(String name) {
+		super(name);
+	}
 
-        testSuite.createTests();
+	public static Test suite() {
+		String testdir = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "generateproperties";
+		GeneratePropertiesTestSuite testSuite = new GeneratePropertiesTestSuite("Generate Properties");
 
-        return testSuite;
-    }
+		testSuite.createTests(testdir);
 
-    @Override
-    protected IInputOutputTestCase createTestCase(String testCaseName) {
-        return new GeneratePropertiesTestCase(testCaseName);
-    }
+		return testSuite;
+	}
+
+	@Override
+	protected IInputOutputTestCase createTestCase(String testCaseName) {
+		return new GeneratePropertiesTestCase(testCaseName);
+	}
 }

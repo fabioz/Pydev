@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -25,27 +26,22 @@ import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
 public class ExtractCallEdit extends AbstractReplaceEdit {
 
     private String methodName;
-
     private int offset;
-
     private IASTNodeAdapter<?> offsetAdapter;
-
     private int replaceLength;
-
     private List<String> callParameters;
-
     private List<String> returnVariables;
 
     public ExtractCallEdit(ExtractMethodRequest req) {
         super(req);
-        this.methodName = req.getMethodName();
-        this.offset = req.getSelection().getOffset();
+        this.methodName = req.methodName;
+        this.offset = req.selection.getOffset();
 
-        this.replaceLength = req.getSelection().getLength();
+        this.replaceLength = req.selection.getLength();
         this.offsetAdapter = req.getOffsetNode();
 
-        this.callParameters = req.getParameters();
-        this.returnVariables = req.getReturnVariables();
+        this.callParameters = req.parameters;
+        this.returnVariables = req.returnVariables;
     }
 
     @Override

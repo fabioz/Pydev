@@ -18,13 +18,9 @@ import org.python.pydev.refactoring.ast.visitors.context.ScopeAssignedVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.ScopeVariablesVisitor;
 
 public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNodeAdapter<T> {
-
     private List<SimpleAdapter> usedVariables;
-
     private List<SimpleAdapter> assignedVariables;
-
     private List<FunctionDefAdapter> functions;
-
     private List<IClassDefAdapter> classes;
 
     protected AbstractScopeNode() {
@@ -37,7 +33,11 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
 
     public List<FunctionDefAdapter> getFunctions() {
         if(functions == null){
-            LocalFunctionDefVisitor visitor = VisitorFactory.createContextVisitor(LocalFunctionDefVisitor.class, getASTNode(), getModule(), this);
+            T node = getASTNode();
+            ModuleAdapter module = getModule();
+            assert (node != null);
+            assert (module != null);
+            LocalFunctionDefVisitor visitor = VisitorFactory.createContextVisitor(LocalFunctionDefVisitor.class, node, module, this);
             functions = visitor.getAll();
         }
 
@@ -46,8 +46,7 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
 
     public List<IClassDefAdapter> getClasses() {
         if(this.classes == null){
-            ClassDefVisitor visitor = null;
-            visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, this.getASTNode(), getModule(), this);
+            ClassDefVisitor visitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, this.getASTNode(), getModule(), this);
 
             this.classes = visitor.getAll();
         }
@@ -78,5 +77,4 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
         }
         return false;
     }
-
 }

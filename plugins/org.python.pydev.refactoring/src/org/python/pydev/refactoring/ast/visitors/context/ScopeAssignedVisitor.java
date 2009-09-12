@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -54,8 +55,9 @@ public class ScopeAssignedVisitor extends AbstractContextVisitor<SimpleAdapter> 
 
     @Override
     public Object visitName(Name node) throws Exception {
-        if(nodeHelper.isAssign(stack.peek()))
+        if(nodeHelper.isAssign(stack.peek())){
             registerInContext(node);
+        }
         return null;
     }
 

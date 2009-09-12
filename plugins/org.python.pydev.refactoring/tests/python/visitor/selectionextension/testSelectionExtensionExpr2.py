@@ -1,22 +1,14 @@
 class A:
     def test(self):
-        print "Initializing A"
-        anAttribute = "hello"  
+        print ##|"Initializing A"
+##|        attribute = "hello"  
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
 a.test()
 
-##c
-'''
-<config>
-  <offset>43</offset>
-  <selectionLength>17</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
-
 ##r
+
 "Initializing A"

@@ -14,27 +14,32 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.wizard.IWizardPage;
+import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.python.pydev.core.IPyEdit;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
-import org.python.pydev.refactoring.core.RefactoringInfo;
-import org.python.pydev.refactoring.ui.PythonRefactoringWizard;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.refactoring.ui.core.PythonRefactoringWizard;
 
 public abstract class AbstractRefactoringAction extends Action implements IEditorActionDelegate {
-    private AbstractPythonRefactoring refactoring;
-    private ITextEditor targetEditor;
+    protected AbstractPythonRefactoring refactoring;
+    protected PyEdit targetEditor;
 
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         if(targetEditor instanceof ITextEditor){
             if(targetEditor.getEditorInput() instanceof FileEditorInput){
-                this.targetEditor = (ITextEditor) targetEditor;
+                if(targetEditor instanceof PyEdit){
+                    this.targetEditor = (PyEdit) targetEditor;
+                }else{
+                    throw new RuntimeException("Editor was not a PyEdit(or), should not happen.");
+                }
             }else{
                 this.targetEditor = null;
             }
@@ -44,49 +49,50 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
     public void selectionChanged(IAction action, ISelection selection) {
     }
 
-    private static boolean saveAll() {
+    /**
+     * Save all dirty editors in the workbench.. Opens a dialog to prompt the
+     * user. Return true if successful. Return false if the user has canceled
+     * the command.
+     * 
+     * @return <code>true</code> if the command succeeded, and
+     *         <code>false</code> if the operation was canceled by the user or
+     *         an error occurred while saving
+     */
+    protected static boolean saveAll() {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         return IDE.saveAllEditors(new IResource[] { workspaceRoot }, true);
     }
 
-    private void setupRefactoring() throws MisconfigurationException {
-        IPythonNature nature = null;
-        if(targetEditor instanceof IPyEdit){
-            nature = ((IPyEdit) targetEditor).getPythonNature();
-        }
-        RefactoringInfo info = new RefactoringInfo(targetEditor, nature);
-        this.refactoring = this.createRefactoring(info);
-
-        // Example showing errors: MessageDialog.openError(getShell(), Messages.errorTitle, msg);
+    protected int getWizardFlags() {
+        return RefactoringWizard.WIZARD_BASED_USER_INTERFACE;
     }
 
-    private void openWizard(IAction action) {
+    public void run(IAction action) {
+        boolean allFilesSaved = saveAll();
+        if(!allFilesSaved){
+            return;
+        }
+
+        RefactoringInfo info;
         try{
-            this.setupRefactoring();
+            info = new RefactoringInfo(this.targetEditor);
+            PythonRefactoringWizard wizard = new PythonRefactoringWizard(this.createRefactoring(info), this.targetEditor, this.createPage(info), this.getWizardFlags());
+            
+            wizard.run();
+            
+            this.targetEditor.getDocumentProvider().changed(this.targetEditor.getEditorInput());
         }catch(MisconfigurationException e){
             Log.log(e);
         }
 
-        PythonRefactoringWizard wizard = new PythonRefactoringWizard(this.refactoring, targetEditor);
-        wizard.run();
-
-        targetEditor.getDocumentProvider().changed(targetEditor.getEditorInput());
-    }
-
-    public void run(IAction action) {
-        /* TODO: check if inline is necessary */
-        if(saveAll()){
-            this.openWizard(action);
-        }
     }
 
     /**
      * Create a refactoring.
      * 
      * Has to be implemented in the subclass
-     * 
-     * @param info 
-     * @return
      */
     protected abstract AbstractPythonRefactoring createRefactoring(RefactoringInfo info);
+
+    protected abstract IWizardPage createPage(RefactoringInfo info);
 }

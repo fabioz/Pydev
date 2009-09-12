@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -10,6 +11,7 @@ package org.python.pydev.refactoring.ast.adapters;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.LocalAttributeVisitor;
@@ -41,7 +43,7 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
     /* (non-Javadoc)
      * @see org.python.pydev.refactoring.ast.adapters.IClassDefAdapter#getBaseClasses()
      */
-    public List<IClassDefAdapter> getBaseClasses() {
+    public List<IClassDefAdapter> getBaseClasses() throws MisconfigurationException {
         return getModule().getBaseClasses(this);
     }
 

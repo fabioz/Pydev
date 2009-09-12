@@ -76,8 +76,9 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
             return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node, moduleAdapter.getEndLineDelimiter());
         }else if(nodeHelper.isFunctionDef(node)){
             return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node, moduleAdapter.getEndLineDelimiter());
-        }else
+        }else{
             return new SimpleAdapter(moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
+        }
     }
 
     protected abstract T createAdapter(AbstractScopeNode<?> parent, SimpleNode node);
@@ -97,16 +98,18 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 
     protected boolean isInClassDef() {
         for(SimpleNode node:stack){
-            if(nodeHelper.isClassDef(node))
+            if(nodeHelper.isClassDef(node)){
                 return true;
+            }
         }
         return false;
     }
 
     protected boolean isInFunctionDef() {
         for(SimpleNode node:stack){
-            if(nodeHelper.isFunctionDef(node))
+            if(nodeHelper.isFunctionDef(node)){
                 return true;
+            }
         }
         return false;
     }
@@ -151,8 +154,9 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
     public void traverse(SimpleNode node) throws Exception {
         if(nodeHelper.isFunctionDef(node)){
             traverse((FunctionDef) node);
-        }else
+        }else{
             node.traverse(this);
+        }
     }
 
     @Override
@@ -161,14 +165,16 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
     }
 
     public void visit(SimpleNode node) throws Exception {
-        if(node == null)
+        if(node == null){
             return;
+        }
         node.accept(this);
     }
 
     protected void visit(SimpleNode[] body) throws Exception {
-        if(body == null)
+        if(body == null){
             return;
+        }
         for(SimpleNode node:body){
             visit(node);
         }

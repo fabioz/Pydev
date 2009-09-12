@@ -1,23 +1,24 @@
-class foo:
+class Foo:
     
-    fooAttr = 3
-    class nested:
-        self.nestAttr = 3
+    foo_attr = 3
+    class Nested:
+        self.nest_attr = 3
         
-    def fooMeth():
-        self.fooMethAttr = 3
+    def foo_meth():
+        self.foo_meth_attr = 3
     print "bar"
     
-class bar:
-    barAttr = "bar"
+class Bar:
+    bar_attr = "bar"
     print "foo"
 
 ##r
+
 # 4
-# foo fooAttr
-# nested nestAttr
-# foo fooMethAttr
-# bar barAttr
+# Foo foo_attr
+# Nested nest_attr
+# Foo foo_meth_attr
+# Bar bar_attr
 # 2
-# foo fooAttr
-# foo fooMethAttr
+# Foo foo_attr
+# Foo foo_meth_attr

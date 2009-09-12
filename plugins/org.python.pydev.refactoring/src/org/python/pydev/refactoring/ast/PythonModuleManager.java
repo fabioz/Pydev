@@ -43,6 +43,12 @@ public class PythonModuleManager {
 
     private transient IPythonNature nature;
 
+    /**
+     * If we're testing, we want to return docs only with \n, otherwise, we want it to be based
+     * on the actual document from the user
+     */
+    private static boolean testingFlag = false;
+
     public PythonModuleManager(IPythonNature nature) {
         this.nature = nature;
         this.moduleManager = nature.getAstManager().getModulesManager();
@@ -50,8 +56,9 @@ public class PythonModuleManager {
 
     public Set<ModuleAdapter> resolveModule(File currentFile, FQIdentifier identifier) {
 
-        if(identifier == null || currentFile == null || (!(currentFile.exists())) || identifier.getProbableModuleName().length() == 0)
+        if(identifier == null || currentFile == null || !currentFile.exists() || identifier.getProbableModuleName().length() == 0){
             return new HashSet<ModuleAdapter>();
+        }
 
         SortedMap<ModulesKey, ModulesKey> modulesStartingWith = resolveModules(identifier);
 
@@ -78,8 +85,9 @@ public class PythonModuleManager {
     private SortedMap<ModulesKey, ModulesKey> resolveModules(FQIdentifier identifier) {
         SortedMap<ModulesKey, ModulesKey> modulesStartingWith = moduleManager.getAllModulesStartingWith(identifier.getProbableModuleName());
 
-        if(modulesStartingWith.size() == 0)
+        if(modulesStartingWith.size() == 0){
             modulesStartingWith = moduleManager.getAllModulesStartingWith(identifier.getModule());
+        }
         return modulesStartingWith;
     }
 
@@ -96,17 +104,9 @@ public class PythonModuleManager {
         return null;
     }
 
-    /**
-     * If we're testing, we want to return docs only with \n, otherwise, we want it to be based
-     * on the actual document from the user
-     */
-    public static boolean TESTING = false;
-
     public static IDocument getDocFromFile(File file) {
-        boolean loadIfNotInWorkspace = true;
-        if(TESTING){
-            loadIfNotInWorkspace = false;
-        }
+        boolean loadIfNotInWorkspace = !testingFlag;
+
         IDocument doc = null;
         try{
             doc = REF.getDocFromFile(file, loadIfNotInWorkspace);
@@ -124,7 +124,7 @@ public class PythonModuleManager {
     }
 
     private static String getFileContent(InputStream stream) {
-        if(!TESTING){
+        if(!testingFlag){
             throw new RuntimeException("Should only call this method in tests.");
         }
         try{
@@ -147,5 +147,13 @@ public class PythonModuleManager {
 
     public IModulesManager getIModuleManager() {
         return moduleManager;
+    }
+
+    public static boolean isTesting() {
+        return testingFlag;
+    }
+
+    public static void setTesting(boolean testingFlag) {
+        PythonModuleManager.testingFlag = testingFlag;
     }
 }

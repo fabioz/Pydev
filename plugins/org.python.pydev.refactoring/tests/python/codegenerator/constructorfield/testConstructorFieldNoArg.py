@@ -8,16 +8,16 @@ class B(A):
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"  
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 b = B()
-b.myMethod()
+b.my_method()
 
 ##c
-'''
+
 <config>
   <classSelection>1</classSelection>
   <attributeSelection>
@@ -25,7 +25,7 @@ b.myMethod()
   </attributeSelection>
   <offsetStrategy>1</offsetStrategy>
 </config>
-'''
+
 
 ##r no parameters required for base class initialization
 class A:
@@ -34,18 +34,18 @@ class A:
 
 class B(A):
 
-    def __init__(self, anAttribute):
-        self.anAttribute = anAttribute
+    def __init__(self, attribute):
+        self.attribute = attribute
 
     try:
         print "foo"
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"  
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 b = B()
-b.myMethod()
+b.my_method()

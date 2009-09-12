@@ -1,5 +1,5 @@
 class A:
-    def __init__(self, **someDict):
+    def __init__(self, **opts):
         print "foo"
 
 class B(A):
@@ -8,16 +8,16 @@ class B(A):
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 b = B()
-b.myMethod()
+b.my_method()
 
 ##c
-'''
+
 <config>
   <classSelection>1</classSelection>
   <attributeSelection>
@@ -25,28 +25,28 @@ b.myMethod()
   </attributeSelection>
   <offsetStrategy>2</offsetStrategy>
 </config>
-'''
 
-##r Again any kwArg's of a superclass init-method must be called kwArg (same as for varArg)
+
+##r Again any kwargs of a superclass init-method must be called with kwargs (same as for vararg)
 class A:
-    def __init__(self, **someDict):
+    def __init__(self, **opts):
         print "foo"
 
 class B(A):
 
-    def __init__(self, anAttribute, **kwArg):
-        A.__init__(self, kwArg)
-        self.anAttribute = anAttribute
+    def __init__(self, attribute, **kwargs):
+        A.__init__(self, kwargs)
+        self.attribute = attribute
 
     try:
         print "foo"
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 b = B()
-b.myMethod()
+b.my_method()

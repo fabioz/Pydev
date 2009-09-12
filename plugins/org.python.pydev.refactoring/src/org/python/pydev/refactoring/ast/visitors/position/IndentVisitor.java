@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -42,7 +43,9 @@ public class IndentVisitor extends VisitorBase {
     }
 
     private void handleDefault(SimpleNode node) {
-        this.indent = node.beginColumn;
+        // For a node that is indented one level, beginColumn is 5 (assuming an
+        // indentation of 4 spaces), so subtract 1.
+        this.indent = node.beginColumn - 1;
     }
 
     @Override
@@ -57,8 +60,9 @@ public class IndentVisitor extends VisitorBase {
     }
 
     public void visit(SimpleNode node) throws Exception {
-        if(node != null)
+        if(node != null){
             node.accept(this);
+        }
     }
 
     public Object visitAssert(Assert node) throws Exception {

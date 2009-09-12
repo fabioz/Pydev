@@ -1,5 +1,5 @@
 class A:
-    def foo(self, *someVarArg):
+    def foo(self, *args):
         print "foo"
 
 class B(A):
@@ -8,29 +8,29 @@ class B(A):
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
-a.myMethod()
+a.my_method()
 
 ##c
-'''
+
 <config>
   <classSelection>0</classSelection>
   <methodSelection>
-    <string>foo</string>
+    <int>0</int>
   </methodSelection>
   <offsetStrategy>4</offsetStrategy>
   <editClass>1</editClass>
 </config>
-'''
 
 ##r
+
 class A:
-    def foo(self, *someVarArg):
+    def foo(self, *args):
         print "foo"
 
 class B(A):
@@ -39,14 +39,14 @@ class B(A):
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
 
-    def foo(self, *someVarArg):
-        return A.foo(self, *someVarArg)
+    def foo(self, *args):
+        return A.foo(self, *args)
 
         
 a = A()
-a.myMethod()
+a.my_method()

@@ -11,16 +11,16 @@ import org.python.pydev.refactoring.tests.core.AbstractRewriterTestCase;
  */
 public class RewriterTestCase extends AbstractRewriterTestCase {
 
-    public RewriterTestCase(String name) {
-        super(name);
-    }
+	public RewriterTestCase(String name) {
+		super(name);
+	}
 
-    public RewriterTestCase(String name, boolean ignoreEmptyLines) {
-        super(name, ignoreEmptyLines);
-    }
+	public RewriterTestCase(String name, boolean ignoreEmptyLines) {
+		super(name, ignoreEmptyLines);
+	}
 
-    public void runTest() throws Throwable {
-        super.runRewriter();
-        assertEquals(getExpected(), getGenerated());
-    }
+	public void runTest() throws Throwable {
+		super.runRewriter();
+		assertEquals(getExpected(), getGenerated());
+	}
 }

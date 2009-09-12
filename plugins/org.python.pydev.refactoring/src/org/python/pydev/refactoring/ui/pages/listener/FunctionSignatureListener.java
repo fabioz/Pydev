@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -16,16 +17,16 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.python.pydev.refactoring.ui.controls.LabeledEdit;
-import org.python.pydev.refactoring.ui.model.table.SimpleTableItem;
+import org.python.pydev.refactoring.ui.core.LabeledEdit;
+import org.python.pydev.refactoring.ui.pages.core.SimpleTableItem;
 
 public class FunctionSignatureListener implements Listener {
 
-    private final String METHODDEF = "def ";
+    private static final String METHODDEF = "def ";
 
-    private final String OPENBRACKET = "(";
+    private static final String OPENBRACKET = "(";
 
-    private final String CLOSEBRACKET = ")";
+    private static final String CLOSEBRACKET = ")";
 
     private Table argumentTable;
 
@@ -67,8 +68,9 @@ public class FunctionSignatureListener implements Listener {
                 TableItem item = iter.next();
                 if(item instanceof SimpleTableItem){
                     signature.append(item.getText());
-                    if(iter.hasNext())
+                    if(iter.hasNext()){
                         signature.append(", ");
+                    }
                 }
             }
         }

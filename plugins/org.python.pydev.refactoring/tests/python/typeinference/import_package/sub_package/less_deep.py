@@ -1,0 +1,2 @@
+class LessDeep(object):
+    pass

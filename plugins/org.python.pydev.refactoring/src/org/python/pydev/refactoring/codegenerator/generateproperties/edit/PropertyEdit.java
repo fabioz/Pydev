@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -21,80 +22,71 @@ import org.python.pydev.refactoring.codegenerator.generateproperties.request.Gen
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.SelectionState;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 
+/**
+ * Creates the property:
+ * 
+ * <pre>
+ *    attribute = property(get_attribute, set_attribute, del_attribute, "attribute's docstring")
+ * </pre>
+ */
 public class PropertyEdit extends AbstractInsertEdit {
 
-    private static final String SET = "set";
+    private static final Name NONE = new Name("None", Name.Load, true);
+    private static final Name PROPERTY = new Name("property", Name.Load, false);
 
-    private static final String DEL = "del";
-
-    private static final String NONE = "None";
-
-    private static final String GET = "get";
-
-    private static final String PROPERTY = "property";
+    private GeneratePropertiesRequest request;
 
     private String attributeName;
+    private String propertyName;
 
     private SelectionState state;
 
     private int offsetStrategy;
 
-    private int accessModifier;
-
     public PropertyEdit(GeneratePropertiesRequest req) {
         super(req);
-        this.attributeName = nodeHelper.getPublicAttr(req.getAttributeName());
-        state = req.getSelectionState();
-        this.offsetStrategy = req.getPropertyOffsetStrategy();
-        this.accessModifier = req.getAccessModifier();
+        this.request = req;
+        this.attributeName = req.getAttributeName();
+        this.propertyName = req.getPropertyName();
+        this.state = req.getSelectionState();
+        this.offsetStrategy = req.offsetPropertyStrategy;
     }
 
     @Override
     protected SimpleNode getEditNode() {
-        exprType[] targets = initProperty();
-        List<exprType> args = getPropertyArgs();
-        Call property = new Call(new Name(PROPERTY, Name.Load, false), args.toArray(new exprType[0]), null, null, null);
+        exprType[] target = new exprType[] { new Name(propertyName, Name.Store, false) };
+        Call property = createPropertyCall();
 
-        return new Assign(targets, property);
+        return new Assign(target, property);
     }
 
-    private exprType[] initProperty() {
-        exprType[] targets = new exprType[1];
-        String propertyName = nodeHelper.getAccessName(attributeName, accessModifier);
-        targets[0] = new Name(propertyName, Name.Store, false);
-        return targets;
+    private Call createPropertyCall() {
+        exprType[] args = createPropertyArguments();
+        Call property = new Call(PROPERTY, args, null, null, null);
+        return property;
     }
 
-    private List<exprType> getPropertyArgs() {
+    private exprType[] createPropertyArguments() {
         List<exprType> args = new ArrayList<exprType>();
 
-        String propertyName = getCapitalString(attributeName);
-
-        if(state.isGetter()){
-            args.add(new Name(GET + propertyName, Name.Load, false));
-        }else{
-            args.add(noneName());
-        }
-        if(state.isSetter()){
-            args.add(new Name(SET + propertyName, Name.Load, false));
-        }else{
-            args.add(noneName());
-        }
-        if(state.isDelete()){
-            args.add(new Name(DEL + propertyName, Name.Load, false));
-        }else{
-            args.add(noneName());
-        }
+        addArgument(args, state.isGetter(), "get");
+        addArgument(args, state.isSetter(), "set");
+        addArgument(args, state.isDelete(), "del");
         if(state.isDocstring()){
-            args.add(new Str(propertyName + "'s Docstring", str_typeType.SingleDouble, false, false, false));
+            args.add(new Str(propertyName + "'s docstring", str_typeType.SingleDouble, false, false, false));
         }else{
-            args.add(noneName());
+            args.add(NONE);
         }
-        return args;
+
+        return args.toArray(new exprType[args.size()]);
     }
 
-    private Name noneName() {
-        return new Name(NONE, Name.Load, false);
+    private void addArgument(List<exprType> args, boolean isAvailable, String accessType) {
+        if(isAvailable){
+            args.add(new Name(request.getAccessorName(accessType, attributeName), Name.Load, false));
+        }else{
+            args.add(NONE);
+        }
     }
 
     @Override

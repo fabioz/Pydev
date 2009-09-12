@@ -8,72 +8,60 @@
 
 package org.python.pydev.refactoring.coderefactoring.extractlocal;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
-import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
-import org.python.pydev.refactoring.core.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
+import org.python.pydev.refactoring.core.validator.NameValidator;
 import org.python.pydev.refactoring.messages.Messages;
-import org.python.pydev.refactoring.ui.pages.extractlocal.ExtractLocalPage;
+import org.python.pydev.refactoring.utils.ListUtils;
 
 public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
-
     private ExtractLocalRequestProcessor requestProcessor;
-
-    private IChangeProcessor changeProcessor;
 
     public ExtractLocalRefactoring(RefactoringInfo info) {
         super(info);
 
-        try{
-            initWizard();
-        }catch(Throwable e){
-            status.addInfo(Messages.infoFixCode + " Error-Message: " + e.getLocalizedMessage());
-        }
-    }
-
-    private void initWizard() throws Throwable {
         this.requestProcessor = new ExtractLocalRequestProcessor(info);
-        this.pages.add(new ExtractLocalPage(getName(), this.requestProcessor));
     }
 
     @Override
     protected List<IChangeProcessor> getChangeProcessors() {
-        List<IChangeProcessor> processors = new ArrayList<IChangeProcessor>();
-        this.changeProcessor = new ExtractLocalChangeProcessor(getName(), this.info, this.requestProcessor);
-        processors.add(changeProcessor);
-        return processors;
+        IChangeProcessor changeProcessor = new ExtractLocalChangeProcessor(getName(), this.info, this.requestProcessor);
+        return ListUtils.wrap(changeProcessor);
     }
 
     @Override
-    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-        List<ModuleAdapter> selections = new LinkedList<ModuleAdapter>();
+    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
+        List<Tuple<ITextSelection, ModuleAdapter>> selections = new LinkedList<Tuple<ITextSelection, ModuleAdapter>>();
 
         /* Use different approaches to find a valid selection */
-        selections.add(info.getParsedUserSelection());
-        selections.add(info.getParsedExtendedSelection());
-        selections.add(getParsedMultilineSelection(info.getUserSelection()));
+        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getUserSelection(), info.getParsedUserSelection()));
+        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getExtendedSelection(), info.getParsedExtendedSelection()));
+        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getUserSelection(), getParsedMultilineSelection(info.getUserSelection())));
 
         /* Find a valid selection */
+        ITextSelection selection = null;
         exprType expression = null;
-        for(ModuleAdapter selection:selections){
+        for(Tuple<ITextSelection, ModuleAdapter> s:selections){
             /* Is selection valid? */
-            if(selection != null){
-                expression = extractExpression(selection);
+            if(s != null){
+                expression = extractExpression(s.o2);
+                selection = s.o1;
                 if(expression != null){
                     break;
                 }
@@ -85,6 +73,7 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
             status.addFatalError(Messages.extractLocalNoExpressionSelected);
         }
 
+        requestProcessor.setSelection(selection);
         requestProcessor.setExpression(expression);
 
         return status;
@@ -117,4 +106,27 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
     public String getName() {
         return Messages.extractLocalLabel;
     }
+
+    public ExtractLocalRequestProcessor getRequestProcessor() {
+        return requestProcessor;
+    }
+
+    /**
+     * Checks if a given variable name is valid or not. Using invalid
+     * identifiers (e.g. special chars) or already used variable names
+     * aren't allowed and would result in a fatal status
+     * 
+     * @param variableName
+     * @return status
+     */
+    public RefactoringStatus checkVarName(String variableName) {
+        RefactoringStatus status = new RefactoringStatus();
+
+        NameValidator nameValidator = new NameValidator(status, info.getScopeAdapter());
+        nameValidator.validateVariableName(variableName);
+        nameValidator.validateUniqueVariable(variableName);
+
+        return status;
+    }
+
 }

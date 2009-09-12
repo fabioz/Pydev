@@ -6,8 +6,8 @@ class B:
     def __init__(self):
         print "B" 
         
-    def simpleMeth(self):
-        print "simpleMeth B"
+    def simple_meth(self):
+        print "simple_meth B"
         
 class C(A, B):
     def __init__(self):
@@ -18,8 +18,8 @@ class D(B):
         self.a = 2
         print "D"
     
-    def simpleMeth(self):
-        print "simpleMeth D"
+    def simple_meth(self):
+        print "simple_meth D"
     
         
 class E(D, B):
@@ -29,7 +29,7 @@ class E(D, B):
         
 e = E()
 d = D()
-d.simpleMeth()
+d.simple_meth()
         
 ##r
 # A

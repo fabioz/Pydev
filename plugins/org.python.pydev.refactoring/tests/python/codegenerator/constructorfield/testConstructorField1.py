@@ -1,15 +1,15 @@
 class A:
     print "Initializing A"
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
-a.myMethod()
+a.my_method()
 
 ##c
-'''
+
 <config>
   <classSelection>0</classSelection>
   <attributeSelection>
@@ -17,19 +17,19 @@ a.myMethod()
   </attributeSelection>
   <offsetStrategy>1</offsetStrategy>
 </config>
-'''
+
 
 ##r
 class A:
 
-    def __init__(self, anAttribute):
-        self.anAttribute = anAttribute
+    def __init__(self, attribute):
+        self.attribute = attribute
 
     print "Initializing A"
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
-a.myMethod()
+a.my_method()

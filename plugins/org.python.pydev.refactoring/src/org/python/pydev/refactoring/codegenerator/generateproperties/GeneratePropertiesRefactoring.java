@@ -13,15 +13,12 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
-import org.python.pydev.refactoring.core.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
-import org.python.pydev.refactoring.ui.model.generateproperties.PropertyTreeProvider;
-import org.python.pydev.refactoring.ui.pages.GeneratePropertiesPage;
 
 public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
 
@@ -39,10 +36,8 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
     }
 
     private void initWizard() throws Throwable {
-        PropertyTreeProvider provider = new PropertyTreeProvider(info.getClasses());
         this.requestProcessor = new GeneratePropertiesRequestProcessor(this.info.getNewLineDelim());
         this.changeProcessor = new GeneratePropertiesChangeProcessor(getName(), this.info, this.requestProcessor);
-        this.pages.add(new GeneratePropertiesPage(getName(), provider, requestProcessor));
     }
 
     @Override
@@ -53,14 +48,12 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
     }
 
     @Override
-    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
         List<IClassDefAdapter> classes = this.info.getClasses();
 
-        if(classes.size() > 0){
-            for(IClassDefAdapter adapter:classes){
-                if(adapter.getAttributes().size() > 0){
-                    return super.checkInitialConditions(pm);
-                }
+        for(IClassDefAdapter adapter:classes){
+            if(!adapter.getAttributes().isEmpty()){
+                return super.checkInitialConditions(pm);
             }
         }
         status.addFatalError(Messages.generatePropertiesUnavailable);
@@ -71,5 +64,9 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
     @Override
     public String getName() {
         return Messages.generatePropertiesLabel;
+    }
+
+    public GeneratePropertiesRequestProcessor getRequestProcessor() {
+        return requestProcessor;
     }
 }

@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
 
 package org.python.pydev.refactoring.tests.coderefactoring.extractmethod;
@@ -12,9 +13,10 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
+import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -23,7 +25,7 @@ import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ExtractCa
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ExtractMethodEdit;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
-import org.python.pydev.refactoring.core.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
@@ -31,86 +33,82 @@ import com.thoughtworks.xstream.XStream;
 
 public class ExtractMethodTestCase extends AbstractIOTestCase {
 
-    public ExtractMethodTestCase(String name) {
-        super(name);
-    }
+	private static final int EXTENSION = 4;
 
-    @Override
-    public void runTest() throws Throwable {
-        REF.IN_TESTS = true;
-        MockupExtractMethodConfig config = initConfig();
+	public ExtractMethodTestCase(String name) {
+		super(name);
+	}
 
-        IDocument doc = new Document(getSource());
-        Module astModule = VisitorFactory.getRootNode(doc);
-        String name = getFile().getName();
-        name = name.substring(0, name.length()-4);
-        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, new SourceModule(name, getFile(), astModule, null), new PythonNatureStub());
+	@Override
+	public void runTest() throws Throwable {
+	    REF.IN_TESTS = true;
+		MockupExtractMethodConfig config = initConfig();
 
-        ITextSelection selection = new TextSelection(doc, config.getOffset(), config.getSelectionLength());
+		IDocument doc = new Document(data.source);
+		Module astModule = VisitorFactory.getRootNode(doc);
+		String name = data.file.getName();
+		name = name.substring(0, name.length() - EXTENSION);
+		ModuleAdapter module = new ModuleAdapter(null, data.file, doc, astModule, new PythonNatureStub());
 
-        RefactoringInfo info = new RefactoringInfo(null, doc, selection, null);
+		ITextSelection selection = new TextSelection(doc, data.sourceSelection.getOffset(), data.sourceSelection.getLength());
 
-        MockupExtractMethodRequestProcessor requestProcessor = setupRequestProcessor(config, module, info);
+		RefactoringInfo info = new RefactoringInfo(doc, selection);
 
-        IDocument refactoringDoc = applyExtractMethod(info, requestProcessor);
+		MockupExtractMethodRequestProcessor requestProcessor = setupRequestProcessor(config, module, info);
 
-        this.setTestGenerated(refactoringDoc.get());
-        assertEquals(getExpected(), getGenerated());
-        REF.IN_TESTS = false;
-    }
+		IDocument refactoringDoc = applyExtractMethod(info, requestProcessor);
 
-    private IDocument applyExtractMethod(RefactoringInfo info, MockupExtractMethodRequestProcessor requestProcessor)
-            throws BadLocationException {
-        ExtractMethodRequest req = requestProcessor.getRefactoringRequests().get(0);
+		this.setTestGenerated(refactoringDoc.get());
+		assertEquals(getExpected(), getGenerated());
+		REF.IN_TESTS = false;
+	}
 
-        ExtractMethodEdit extractMethodEdit = new ExtractMethodEdit(req);
-        ExtractCallEdit extractCallEdit = new ExtractCallEdit(req);
+	private IDocument applyExtractMethod(RefactoringInfo info, MockupExtractMethodRequestProcessor requestProcessor)
+			throws BadLocationException, MalformedTreeException, MisconfigurationException {
+		ExtractMethodRequest req = requestProcessor.getRefactoringRequests().get(0);
 
-        MultiTextEdit edit = new MultiTextEdit();
-        edit.addChild(extractMethodEdit.getEdit());
-        edit.addChild(extractCallEdit.getEdit());
+		ExtractMethodEdit extractMethodEdit = new ExtractMethodEdit(req);
+		ExtractCallEdit extractCallEdit = new ExtractCallEdit(req);
 
-        IDocument refactoringDoc = new Document(getSource());
-        edit.apply(refactoringDoc);
-        return refactoringDoc;
-    }
+		MultiTextEdit edit = new MultiTextEdit();
+		edit.addChild(extractMethodEdit.getEdit());
+		edit.addChild(extractCallEdit.getEdit());
 
-    private MockupExtractMethodRequestProcessor setupRequestProcessor(MockupExtractMethodConfig config, ModuleAdapter module,
-            RefactoringInfo info) {
-        ModuleAdapter parsedSelection = info.getParsedExtendedSelection();
+		IDocument refactoringDoc = new Document(data.source);
+		edit.apply(refactoringDoc);
+		return refactoringDoc;
+	}
 
-        AbstractScopeNode<?> scope = module.getScopeAdapter(info.getExtendedSelection());
-        ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, info.getExtendedSelection(), module);
+	private MockupExtractMethodRequestProcessor setupRequestProcessor(MockupExtractMethodConfig config, ModuleAdapter module,
+			RefactoringInfo info) {
+		ModuleAdapter parsedSelection = info.getParsedExtendedSelection();
 
-        SortedMap<String, String> renameMap = new TreeMap<String, String>();
-        for (String variable : deducer.getParameters()) {
-            String newName = variable;
-            if (config.getRenameMap().containsKey(variable)) {
-                newName = config.getRenameMap().get(variable);
-            }
-            renameMap.put(variable, newName);
-        }
+		AbstractScopeNode<?> scope = module.getScopeAdapter(info.getExtendedSelection());
+		ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, info.getExtendedSelection(), module);
 
-        return new MockupExtractMethodRequestProcessor(scope, info.getExtendedSelection(), parsedSelection, deducer, renameMap, config
-                .getOffsetStrategy());
-    }
+		SortedMap<String, String> renameMap = new TreeMap<String, String>();
+		for (String variable : deducer.getParameters()) {
+			String newName = variable;
+			if (config.getRenameMap().containsKey(variable)) {
+				newName = config.getRenameMap().get(variable);
+			}
+			renameMap.put(variable, newName);
+		}
 
-    private MockupExtractMethodConfig initConfig() {
-        MockupExtractMethodConfig config = null;
-        XStream xstream = new XStream();
-        xstream.alias("config", MockupExtractMethodConfig.class);
+		return new MockupExtractMethodRequestProcessor(scope, info.getExtendedSelection(), parsedSelection, deducer, renameMap, config
+				.getOffsetStrategy());
+	}
 
-        if (getConfig().length() > 0) {
-            config = (MockupExtractMethodConfig) xstream.fromXML(getConfig());
-        } else {
-            fail("Could not unserialize configuration");
-        }
-        return config;
-    }
+	private MockupExtractMethodConfig initConfig() {
+		MockupExtractMethodConfig config = null;
+		XStream xstream = new XStream();
+		xstream.alias("config", MockupExtractMethodConfig.class);
 
-    @Override
-    public String getExpected() {
-        return getResult();
-    }
-
+		if (data.config.length() > 0) {
+			config = (MockupExtractMethodConfig) xstream.fromXML(data.config);
+		} else {
+			config = new MockupExtractMethodConfig();
+		}
+		return config;
+	}
 }

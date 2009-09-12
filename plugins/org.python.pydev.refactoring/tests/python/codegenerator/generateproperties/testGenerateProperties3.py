@@ -1,19 +1,19 @@
 class A(object):
 
-    def __init__(self, anAttribute):
-        self.anAttribute = anAttribute
+    def __init__(self, attribute):
+        self.attribute = attribute
 
     print "Initializing A"
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
-a.myMethod()
+a.my_method()
 
 ##c
-'''
+
 <config>
   <classSelection>0</classSelection>
   <attributeSelection>
@@ -27,29 +27,28 @@ a.myMethod()
   </methodSelection>
   <accessModifier>1</accessModifier>
 </config>
-'''
 
 ##r
+
 class A(object):
 
-    def __init__(self, anAttribute):
-        self.anAttribute = anAttribute
+    def __init__(self, attribute):
+        self.attribute = attribute
 
-    def getAnAttribute(self):
-        return self.__anAttribute
+    def get_attribute(self):
+        return self.__attribute
 
 
-    def delAnAttribute(self):
-        del self.__anAttribute
+    def del_attribute(self):
+        del self.__attribute
 
 
     print "Initializing A"
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
-
-    anAttribute = property(getAnAttribute, None, delAnAttribute, None)
+    def my_method(self):
+        print self.attribute
+    attribute = property(get_attribute, None, del_attribute, None)
         
 a = A()
-a.myMethod()
+a.my_method()

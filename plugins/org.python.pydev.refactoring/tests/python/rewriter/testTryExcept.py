@@ -24,6 +24,7 @@ finally:
     print "foo"
 
 ##r
+
 import sys
 ## NOTE: try except finally is supported by Python 2.5!
 try:

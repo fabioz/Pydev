@@ -15,6 +15,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.ControlAdapter;
@@ -38,17 +39,16 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
+import org.python.pydev.refactoring.core.model.OffsetStrategyModel;
+import org.python.pydev.refactoring.core.model.OffsetStrategyProvider;
+import org.python.pydev.refactoring.core.validator.NameValidator;
 import org.python.pydev.refactoring.messages.Messages;
-import org.python.pydev.refactoring.ui.controls.LabeledEdit;
-import org.python.pydev.refactoring.ui.model.OffsetStrategyModel;
-import org.python.pydev.refactoring.ui.model.OffsetStrategyProvider;
-import org.python.pydev.refactoring.ui.model.table.SimpleTableItem;
+import org.python.pydev.refactoring.ui.core.LabeledEdit;
+import org.python.pydev.refactoring.ui.pages.core.SimpleTableItem;
 import org.python.pydev.refactoring.ui.pages.listener.ButtonActivationListener;
 import org.python.pydev.refactoring.ui.pages.listener.FunctionSignatureListener;
 import org.python.pydev.refactoring.ui.pages.listener.IValidationPage;
 import org.python.pydev.refactoring.ui.pages.listener.TableCellEditorListener;
-import org.python.pydev.refactoring.ui.validator.NameValidator;
-import org.python.pydev.refactoring.ui.validator.VariableCellValidator;
 
 public class ExtractMethodComposite extends Composite {
 
@@ -166,8 +166,8 @@ public class ExtractMethodComposite extends Composite {
         createArgumentsTable(argumentsComposite);
     }
 
-    private void createArgumentsButton(Composite ArgumentsTableComposite) {
-        Composite argumentsButtonComposite = new Composite(ArgumentsTableComposite, SWT.NONE);
+    private void createArgumentsButton(Composite argumentsTableComposite) {
+        Composite argumentsButtonComposite = new Composite(argumentsTableComposite, SWT.NONE);
         GridLayout compositeLayout = new GridLayout();
         compositeLayout.makeColumnsEqualWidth = true;
         FormData compositeLData = new FormData(0, 0);
@@ -287,8 +287,8 @@ public class ExtractMethodComposite extends Composite {
         return argumentsComposite;
     }
 
-    private void createArgumentsLabel(Composite ArgumentsComposite) {
-        argumentsLabel = new Label(ArgumentsComposite, SWT.NONE);
+    private void createArgumentsLabel(Composite argumentsComposite) {
+        argumentsLabel = new Label(argumentsComposite, SWT.NONE);
         GridData labelLData = new GridData();
         labelLData.grabExcessHorizontalSpace = true;
         labelLData.horizontalAlignment = GridData.FILL;
@@ -421,16 +421,16 @@ public class ExtractMethodComposite extends Composite {
             VariableCellValidator cellValidator = new VariableCellValidator(this.page, getArgumentsTable(), scopeAdapter);
             cellValidator.validate();
         }
-        NameValidator nameValidator = new NameValidator(scopeAdapter);
-        try{
-            nameValidator.validateMethodName(getFunctionName());
-            nameValidator.validateUniqueFunction(getFunctionName());
-        }catch(Throwable e){
-            page.setErrorMessage(e.getMessage());
+
+        RefactoringStatus status = new RefactoringStatus();
+        NameValidator nameValidator = new NameValidator(status, scopeAdapter);
+        nameValidator.validateMethodName(getFunctionName());
+        nameValidator.validateUniqueFunction(getFunctionName());
+
+        if(status.hasError()){
+            page.setErrorMessage(status.getMessageMatchingSeverity(RefactoringStatus.WARNING));
         }
 
-        return page.getErrorMessage() == null;
-
+        return !status.hasError();
     }
-
 }

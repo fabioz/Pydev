@@ -12,7 +12,7 @@ class Echo(DatagramProtocol):
 
     
     def datagramReceived(self, data, (host, port)):
-        if (port > 80):
+      ##|  if (port > 80):
             print "bigger than 80"
             print "received %r from %s:%d" % (data, host, port)
         elif(port == 9999):
@@ -20,29 +20,21 @@ class Echo(DatagramProtocol):
             print "cool hm"
         else:
             print "wow it works"
-            var = host+":"+port
+            var = host+":"+##|port
         self.transport.write(data, (host, port))
         print var
 
 reactor.listenUDP(9999, Echo())
 reactor.run()
 
-##c selection starts somewhere before the "while"-node, still have to normalize selected code in order to parse it
-'''
-<config>
-  <offset>353</offset>
-  <selectionLength>275</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
+##r selection starts somewhere before the "while"-node, still have to normalize selected code in order to parse it
 
-##r
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
 class Echo(DatagramProtocol):
 
-    def pepticMethod(self, data, host, port):
+    def extracted_method(self, data, host, port):
         if (port > 80):
             print "bigger than 80"
             print "received %r from %s:%d" % (data, host, port)
@@ -64,7 +56,7 @@ class Echo(DatagramProtocol):
 
     
     def datagramReceived(self, data, (host, port)):
-        var = self.pepticMethod(data, host, port)
+        var = self.extracted_method(data, host, port)
         self.transport.write(data, (host, port))
         print var
 

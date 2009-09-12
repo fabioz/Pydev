@@ -39,7 +39,7 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
-import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
+import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
 
 public class NodeHelper {
 
@@ -50,27 +50,16 @@ public class NodeHelper {
     }
 
     private static final String KEYWORD_FDEL = "fdel";
-
     private static final String KEYWORD_FSET = "fset";
-
     private static final String KEYWORD_FGET = "fget";
-
     private static final String EMPTY = "";
-
     public static final String KEYWORD_INIT = "__init__";
-
     private static final String KEYWORD_NONE = "None";
-
     private static final String KEYWORD_PROPERTY = "property";
-
     public static final String KEYWORD_SELF = "self";
-
     private static final String PREFIX_PRIVATE = "__";
-
     public static final int ACCESS_PUBLIC = 1;
-
     public static final int ACCESS_PSEUDO = 2;
-
     public static final int ACCESS_PRIVATE = 3;
 
     public String getAccessName(String name, int modifier) {
@@ -85,22 +74,26 @@ public class NodeHelper {
     }
 
     private String getFromName(SimpleNode node) {
-        if(!isName(node))
+        if(!isName(node)){
             return EMPTY;
+        }
         return ((Name) node).id;
     }
 
     private String getFromNameTok(SimpleNode node) {
-        if(node == null)
+        if(node == null){
             return "";
-        if(!isNameTok(node))
+        }
+        if(!isNameTok(node)){
             return EMPTY;
+        }
         return ((NameTok) node).id;
     }
 
     private String getFromStr(SimpleNode node) {
-        if(!isStr(node))
+        if(!isStr(node)){
             return EMPTY;
+        }
         return ((Str) node).s;
     }
 
@@ -120,8 +113,9 @@ public class NodeHelper {
     }
 
     public int getLineEnd(SimpleNode node) {
-        if(node == null)
+        if(node == null){
             return 0;
+        }
         if(isStr(node)){
             String s = ((Str) node).s;
             int found = 0;
@@ -147,13 +141,14 @@ public class NodeHelper {
             return getName(((ClassDef) node).name);
         }else if(isFunctionDef(node)){
             return getName(((FunctionDef) node).name);
-        }else if(isCall(node))
+        }else if(isCall(node)){
             return getName(((Call) node).func);
-        else if(isAttribute(node)){
+        }else if(isAttribute(node)){
             String attributeName = RewriterVisitor.createSourceFromAST(node, true, endLineDelimiter);
             int subscriptOffset = attributeName.indexOf("[");
-            if(subscriptOffset > 0)
+            if(subscriptOffset > 0){
                 attributeName = attributeName.substring(0, subscriptOffset - 1);
+            }
 
             return attributeName.trim();
         }
@@ -167,8 +162,9 @@ public class NodeHelper {
     }
 
     private int getPropertyMethods(exprType[] args) {
-        if(args == null || args.length == 0)
+        if(args == null || args.length == 0){
             return 0;
+        }
 
         int propertyMethods = args.length;
         exprType lastExpr = args[args.length - 1];
@@ -228,11 +224,11 @@ public class NodeHelper {
     }
 
     public boolean isConstant(String id) {
-        return id.toUpperCase().compareTo(id) == 0;
+        return id.toUpperCase().equals(id);
     }
 
     public boolean isContextNameParentName(String contextName, SimpleNode node) {
-        return contextName.compareTo(getName(node)) == 0;
+        return contextName.equals(getName(node));
     }
 
     public boolean isControlStatement(SimpleNode node) {
@@ -244,19 +240,19 @@ public class NodeHelper {
     }
 
     public boolean isEmptyList(SimpleNode[] list) {
-        return((list == null) || (list.length == 0));
+        return (list == null) || (list.length == 0);
     }
 
     public boolean isFDel(keywordType kw) {
-        return isKeywordName(kw, KEYWORD_FDEL) && (!(isNone(kw.value)));
+        return isKeywordName(kw, KEYWORD_FDEL) && !(isNone(kw.value));
     }
 
     public boolean isFGet(keywordType kw) {
-        return isKeywordName(kw, KEYWORD_FGET) && (!(isNone(kw.value)));
+        return isKeywordName(kw, KEYWORD_FGET) && !(isNone(kw.value));
     }
 
     public boolean isFilledList(SimpleNode[] list) {
-        return(!isEmptyList(list));
+        return !isEmptyList(list);
     }
 
     public boolean isForStatement(SimpleNode node) {
@@ -264,11 +260,11 @@ public class NodeHelper {
     }
 
     public boolean isFSet(keywordType kw) {
-        return isKeywordName(kw, KEYWORD_FSET) && (!(isNone(kw.value)));
+        return isKeywordName(kw, KEYWORD_FSET) && !(isNone(kw.value));
     }
 
     public boolean isFullyQualified(SimpleNode contextNode, SimpleNode parent) {
-        return(isContextNameParentName(getName(contextNode), parent) || isSelf(getName(contextNode)));
+        return isContextNameParentName(getName(contextNode), parent) || isSelf(getName(contextNode));
     }
 
     public boolean isFunctionArgument(SimpleNode node) {
@@ -288,7 +284,7 @@ public class NodeHelper {
     }
 
     public boolean isInit(SimpleNode node) {
-        return isFunctionDef(node) && (getName(node).compareTo(KEYWORD_INIT) == 0);
+        return isFunctionDef(node) && getName(node).equals(KEYWORD_INIT);
     }
 
     public boolean isKeyword(SimpleNode node) {
@@ -296,11 +292,11 @@ public class NodeHelper {
     }
 
     private boolean isKeywordName(keywordType kw, String name) {
-        return (getName(kw.arg).compareTo(name) == 0) && isName(kw.value);
+        return getName(kw.arg).equals(name) && isName(kw.value);
     }
 
     public boolean isKeywordStr(keywordType kw) {
-        return (getName(kw.arg).compareTo("doc") == 0) && isStr(kw.value);
+        return getName(kw.arg).equals("doc") && isStr(kw.value);
     }
 
     public boolean isLambda(SimpleNode node) {
@@ -320,7 +316,7 @@ public class NodeHelper {
     }
 
     public boolean isNone(SimpleNode node) {
-        return(isName(node) && KEYWORD_NONE.compareTo(getName(node)) == 0);
+        return isName(node) && KEYWORD_NONE.equals(getName(node));
     }
 
     public boolean isPrivate(SimpleNode node) {
@@ -332,14 +328,14 @@ public class NodeHelper {
     }
 
     public boolean isProperty(Call node) {
-        return getName(node).compareTo(KEYWORD_PROPERTY) == 0 && isValidPropertyCall(node);
+        return getName(node).equals(KEYWORD_PROPERTY) && isValidPropertyCall(node);
     }
 
     public boolean isPropertyAssign(Assign node) throws Exception {
         if(isFilledList(node.targets) && node.targets.length == 1){
             if(isName(node.targets[0])){
                 if(isCall(node.value)){
-                    return(isProperty((Call) node.value));
+                    return isProperty((Call) node.value);
                 }
             }
         }
@@ -347,7 +343,7 @@ public class NodeHelper {
     }
 
     public boolean isPropertyDecorator(decoratorsType dec) {
-        return getName(dec.func).compareTo(KEYWORD_PROPERTY) == 0;
+        return getName(dec.func).equals(KEYWORD_PROPERTY);
     }
 
     private boolean isPropertyVar(keywordType kw) {
@@ -355,7 +351,7 @@ public class NodeHelper {
     }
 
     public boolean isSelf(String id) {
-        return KEYWORD_SELF.compareTo(id) == 0;
+        return KEYWORD_SELF.equals(id);
     }
 
     public boolean isSpecialStr(Object o) {
@@ -387,8 +383,9 @@ public class NodeHelper {
         keywordType[] kws = node.keywords;
         int len = args.length + kws.length;
 
-        if(len > 4)
+        if(len > 4){
             return false;
+        }
 
         return validatePropertyArguments(node);
 
@@ -401,8 +398,9 @@ public class NodeHelper {
 
             for(keywordType kw:keywords){
                 valid = isKeywordStr(kw) || isPropertyVar(kw);
-                if(!(valid))
+                if(!(valid)){
                     return false;
+                }
             }
             return true;
         }
@@ -430,11 +428,13 @@ public class NodeHelper {
 
             int propertyMethods = getPropertyMethods(args);
 
-            if(propertyMethods == 0)
+            if(propertyMethods == 0){
                 return true;
+            }
             for(int i = 0; i < propertyMethods; i++){
-                if(isName(args[i]))
+                if(isName(args[i])){
                     return true;
+                }
             }
         }
 
@@ -457,13 +457,74 @@ public class NodeHelper {
 
     public boolean hasSelfArgument(exprType[] args) {
         for(exprType arg:args){
-            if(isSelf(getName(arg)))
+            if(isSelf(getName(arg))){
                 return true;
+            }
         }
         return false;
     }
 
     public boolean isModule(SimpleNode node) {
         return node instanceof Module;
+    }
+
+    /**
+     * Pretty-print the given AST node to stdout.
+     * 
+     * @param node
+     */
+    public static void prettyPrint(SimpleNode node) {
+        System.out.println(getPrettyPrinted(node));
+    }
+
+    /**
+     * Returns a pretty-printed given ast
+     * 
+     * @param node top-level node 
+     * @return string containing the human-readable ast
+     */
+    public static String getPrettyPrinted(SimpleNode node) {
+        String str = node.toString();
+
+        StringBuffer out = new StringBuffer();
+
+        int level = 0;
+        boolean skipSpace = false;
+
+        for(int i = 0; i < str.length(); i++){
+            char c = str.charAt(i);
+
+            if(c == '['){
+                out.append("");
+                out.append("\n");
+                level++;
+                printIdent(out, level);
+            }else if(c == ','){
+                out.append(c);
+                out.append("\n");
+                printIdent(out, level);
+                skipSpace = true;
+
+            }else if(c == ' ' && skipSpace){
+                skipSpace = false;
+            }else if(c == ']'){
+                level--;
+                out.append("\n");
+                printIdent(out, level);
+                //out.append("]");
+            }else if(c == '='){
+                out.append(" = ");
+            }else{
+                out.append(c);
+            }
+        }
+
+        return out.toString();
+    }
+
+    private static void printIdent(StringBuffer out, int level) {
+        for(int i = 0; i < level; i++){
+            out.append("|   ");
+        }
     }
 }

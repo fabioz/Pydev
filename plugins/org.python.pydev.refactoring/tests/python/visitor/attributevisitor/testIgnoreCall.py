@@ -2,36 +2,37 @@ from somepackage import bla as bar
 import gtk
 import md5 as hash
 
-class foo:
+class Foo:
     
-    fooAttr = 3
-    class nested:
-        self.nestAttr = 3
+    foo_attr = 3
+    class Nested:
+        self.nest_attr = 3
     print hash.blocksize()
     button = gtk.Button()
-    # must ignore self.fooMeth but detect methAssign
-    methAssign = self.fooMeth()
+    # must ignore self.foo_meth but detect meth_assign
+    meth_assign = self.foo_meth()
     gtk.Image()
-    bar.moduleCall
+    bar.module_call
         
-    def fooMeth():
-        self.fooMethAttr = 3
+    def foo_meth():
+        self.foo_meth_attr = 3
     print "bar"
     
 class bar:
-    barAttr = "bar"
+    bar_attr = "bar"
     print "foo"
 
 ##r
+
 # 6
-# foo fooAttr
-# nested nestAttr
-# foo button
-# foo methAssign
-# foo fooMethAttr
-# bar barAttr
+# Foo foo_attr
+# Nested nest_attr
+# Foo button
+# Foo meth_assign
+# Foo foo_meth_attr
+# bar bar_attr
 # 4
-# foo fooAttr
-# foo button
-# foo methAssign
-# foo fooMethAttr
+# Foo foo_attr
+# Foo button
+# Foo meth_assign
+# Foo foo_meth_attr

@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -26,15 +27,16 @@ public class LocalAttributeVisitor extends GlobalAttributeVisitor {
         if(nodeHelper.isClassDef(node)){
             ClassDef classDef = (ClassDef) node;
             visit(classDef.body);
-        }else
+        }else{
             super.traverse(node);
+        }
     }
 
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
-        if(inLocalScope)
+        if(inLocalScope){
             return null;
-        else{
+        }else{
             inLocalScope = true;
             return super.visitClassDef(node);
         }

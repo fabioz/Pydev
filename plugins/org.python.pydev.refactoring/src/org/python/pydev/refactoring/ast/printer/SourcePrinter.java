@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -26,40 +27,27 @@ import org.python.pydev.parser.jython.ast.unaryopType;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 
 public class SourcePrinter {
-
     private boolean disabledIfPrinting;
-
     private final SyntaxHelper syntaxHelper;
-
     private boolean ignoreComments;
-
     private final NodeHelper nodeHelper;
-
     private final PrintWriter output;
-
     private final CallDepth callDepth;
 
-    private String newLineDelim;
-
     public SourcePrinter(PrintWriter output, String newLineDelim) {
-        this(output, new SyntaxHelper(newLineDelim), new CallDepth(), false);
-        this.newLineDelim = newLineDelim;
-    }
-
-    public SourcePrinter(PrintWriter output, SyntaxHelper formatHelper, CallDepth callDepth, boolean ignoreComments) {
         this.output = output;
-        this.syntaxHelper = formatHelper;
-        this.callDepth = callDepth;
-        this.ignoreComments = ignoreComments;
+        this.syntaxHelper = new SyntaxHelper(newLineDelim);
+        this.callDepth = new CallDepth();
+        this.ignoreComments = false;
 
         this.disabledIfPrinting = false;
         this.nodeHelper = new NodeHelper(newLineDelim);
-
     }
 
     protected java.util.List<commentType> extractComments(java.util.List<Object> specials) {
-        if(specials == null)
+        if(specials == null){
             return null;
+        }
 
         java.util.List<commentType> comments = new ArrayList<commentType>();
 
@@ -74,8 +62,9 @@ public class SourcePrinter {
     }
 
     protected java.util.List<commentType> extractComments(java.util.List<Object> specials, SimpleNode firstBodyNode, boolean before) {
-        if(specials == null)
+        if(specials == null){
             return null;
+        }
 
         java.util.List<commentType> comments = new ArrayList<commentType>();
 
@@ -83,11 +72,13 @@ public class SourcePrinter {
             if(firstBodyNode != null){
 
                 if(before){
-                    if(comment.beginLine < firstBodyNode.beginLine)
+                    if(comment.beginLine < firstBodyNode.beginLine){
                         comments.add(comment);
+                    }
                 }else{
-                    if(comment.beginLine >= firstBodyNode.beginLine)
+                    if(comment.beginLine >= firstBodyNode.beginLine){
                         comments.add(comment);
+                    }
                 }
 
             }
@@ -113,10 +104,12 @@ public class SourcePrinter {
     }
 
     public boolean hasCommentsAfter(SimpleNode node) {
-        if(node == null)
+        if(node == null){
             return false;
-        if(node.specialsAfter == null)
+        }
+        if(node.specialsAfter == null){
             return false;
+        }
 
         java.util.List<commentType> comments = extractComments(node.specialsAfter);
         return (comments != null) && (comments.size() > 0);
@@ -190,27 +183,29 @@ public class SourcePrinter {
     }
 
     public void printAfterDict() {
-        print(syntaxHelper.afterDict());
+        print(SyntaxHelper.DICT_CLOSE);
     }
 
     public void printAfterList() {
-        print(syntaxHelper.afterList());
+        print(SyntaxHelper.LIST_CLOSE);
     }
 
     public void printAfterTuple() {
-        print(syntaxHelper.afterTuple());
+        print(SyntaxHelper.PARENTHESE_CLOSE);
     }
 
     public void printAssignmentOperator(boolean spaceBefore, boolean spaceAfter) {
-        if(spaceBefore)
+        if(spaceBefore){
             printSpace();
-        print(syntaxHelper.getOperatorAssignment());
-        if(spaceAfter)
+        }
+        print(SyntaxHelper.EQUAL);
+        if(spaceAfter){
             printSpace();
+        }
     }
 
     public void printAttributeSeparator() {
-        print(syntaxHelper.getAttributeSeparator());
+        print(SyntaxHelper.DOT);
     }
 
     public void printBeforeAndAfterCmpOp() {
@@ -218,16 +213,16 @@ public class SourcePrinter {
     }
 
     public void printBeforeComment() {
-        print(syntaxHelper.afterStatement());
+        print(SyntaxHelper.ONE_SPACE);
     }
 
     public void printBeforeDecorator() {
-        print(syntaxHelper.getAtSymbol());
+        print(SyntaxHelper.AT_SYMBOL);
 
     }
 
     public void printBeforeDict() {
-        print(syntaxHelper.beforeDict());
+        print(SyntaxHelper.DICT_OPEN);
     }
 
     public void printBeforeKwArg() {
@@ -235,11 +230,11 @@ public class SourcePrinter {
     }
 
     public void printBeforeList() {
-        print(syntaxHelper.beforeList());
+        print(SyntaxHelper.LIST_OPEN);
     }
 
     public void printBeforeTuple() {
-        print(syntaxHelper.beforeTuple());
+        print(SyntaxHelper.PARENTHESE_OPEN);
     }
 
     public void printBeforeVarArg() {
@@ -251,51 +246,53 @@ public class SourcePrinter {
 
         switch(opType){
         case operatorType.Add:
-            op = syntaxHelper.getOperatorAdd();
+            op = SyntaxHelper.OP_ADD;
             break;
         case operatorType.BitAnd:
-            op = syntaxHelper.getOperatorBitAnd();
+            op = SyntaxHelper.OP_BITWISE_AND;
             break;
         case operatorType.BitOr:
-            op = syntaxHelper.getOperatorBitOr();
+            op = SyntaxHelper.OP_BITWISE_OR;
             break;
         case operatorType.BitXor:
-            op = syntaxHelper.getOperatorBitXor();
+            op = SyntaxHelper.OP_BITWISE_XOR;
             break;
         case operatorType.Div:
-            op = syntaxHelper.getOperatorDiv();
+            op = SyntaxHelper.OP_DIV;
             break;
         case operatorType.FloorDiv:
-            op = syntaxHelper.getOperatorFloorDiv();
+            op = SyntaxHelper.OP_FLOORDIV;
             break;
         case operatorType.LShift:
-            op = syntaxHelper.getOperatorShiftLeft();
+            op = SyntaxHelper.OP_LSHIFT;
             break;
         case operatorType.Mod:
-            op = syntaxHelper.getOperatorMod();
+            op = SyntaxHelper.OP_MOD;
             break;
         case operatorType.Mult:
-            op = syntaxHelper.getOperatorMult();
+            op = SyntaxHelper.STAR;
             break;
         case operatorType.Pow:
-            op = syntaxHelper.getOperatorPow();
+            op = SyntaxHelper.OP_POWER;
             break;
         case operatorType.RShift:
-            op = syntaxHelper.getOperatorShiftRight();
+            op = SyntaxHelper.OP_RSHIFT;
             break;
         case operatorType.Sub:
-            op = syntaxHelper.getOperatorSub();
+            op = SyntaxHelper.OP_SUB;
             break;
         default:
             op = "<undef_binop>";
             break;
         }
 
-        if(spaceBefore)
+        if(spaceBefore){
             printSpace();
+        }
         print(op);
-        if(spaceAfter)
+        if(spaceAfter){
             printSpace();
+        }
     }
 
     public void printBoolOp(int op) {
@@ -303,10 +300,10 @@ public class SourcePrinter {
         printSpace();
         switch(op){
         case BoolOp.And:
-            print(syntaxHelper.getOperatorBoolAnd());
+            print(SyntaxHelper.OP_BOOL_AND);
             break;
         case BoolOp.Or:
-            print(syntaxHelper.getOperatorBoolOr());
+            print(SyntaxHelper.OP_BOOL_OR);
             break;
         default:
             print("<undef_boolop>");
@@ -322,8 +319,9 @@ public class SourcePrinter {
 
     protected void printComment(SimpleNode node, java.util.List<commentType> comments) {
 
-        if(comments == null)
+        if(comments == null){
             return;
+        }
 
         boolean wasOnSameLine = false;
 
@@ -350,57 +348,61 @@ public class SourcePrinter {
 
     public void printCommentAfter(SimpleNode node) {
         if(!(isIgnoreComments(node))){
-            if(!(nodeHelper.isControlStatement(node)))
+            if(!(nodeHelper.isControlStatement(node))){
                 printComment(node, extractComments(node.specialsAfter));
+            }
         }
     }
 
     public void printCommentBeforeBody(SimpleNode node, SimpleNode firstBodyNode) {
-        if(!(isIgnoreComments(node)))
+        if(!(isIgnoreComments(node))){
             printComment(node, extractComments(node.specialsAfter, firstBodyNode, true));
+        }
     }
 
     public void printCommentAfterBody(SimpleNode node, SimpleNode firstBodyNode) {
-        if(!isIgnoreComments(node))
+        if(!isIgnoreComments(node)){
             printComment(node, extractComments(node.specialsAfter, firstBodyNode, false));
+        }
     }
 
     public void printCommentBefore(SimpleNode node) {
-        if(!isIgnoreComments(node))
+        if(!isIgnoreComments(node)){
             printComment(node, extractComments(node.specialsBefore));
+        }
     }
 
     public void printCompOp(int opType) {
         switch(opType){
         case cmpopType.Eq:
-            print(syntaxHelper.getOperatorEqual());
+            print(SyntaxHelper.OP_EQUAL_VALUE);
             break;
         case cmpopType.Gt:
-            print(syntaxHelper.getOperatorGt());
+            print(SyntaxHelper.OP_GT);
             break;
         case cmpopType.GtE:
-            print(syntaxHelper.getOperatorGtEqual());
+            print(SyntaxHelper.OP_GT_EQUAL);
             break;
         case cmpopType.In:
-            print(syntaxHelper.getOperatorIn());
+            print(SyntaxHelper.OP_IN);
             break;
         case cmpopType.Is:
-            print(syntaxHelper.getOperatorIs());
+            print(SyntaxHelper.OP_IS);
             break;
         case cmpopType.IsNot:
-            print(syntaxHelper.getOperatorIsNot());
+            print(SyntaxHelper.OP_IS_NOT);
             break;
         case cmpopType.Lt:
-            print(syntaxHelper.getOperatorLt());
+            print(SyntaxHelper.OP_LT);
             break;
         case cmpopType.LtE:
-            print(syntaxHelper.getOperatorLtEqual());
+            print(SyntaxHelper.OP_LT_EQUAL);
             break;
         case cmpopType.NotEq:
-            print(syntaxHelper.getOperatorNotEqual());
+            print(SyntaxHelper.OP_NOT_EQUAL);
             break;
         case cmpopType.NotIn:
-            print(syntaxHelper.getOperatorNotIn());
+            print(SyntaxHelper.OP_NOT_IN);
             break;
         default:
             print("<undef_compop>");
@@ -414,11 +416,13 @@ public class SourcePrinter {
     }
 
     public void printDestinationOperator(boolean withSpaceBefore, boolean withSpaceAfter) {
-        if(withSpaceBefore)
+        if(withSpaceBefore){
             printSpace();
-        print(syntaxHelper.getOperatorDestination());
-        if(withSpaceAfter)
+        }
+        print(SyntaxHelper.OP_RSHIFT);
+        if(withSpaceAfter){
             printSpace();
+        }
     }
 
     public void printDictBeforeValue() {
@@ -427,7 +431,7 @@ public class SourcePrinter {
     }
 
     public void printDoubleDot() {
-        print(syntaxHelper.getDoubleDot());
+        print(SyntaxHelper.DOUBLEDOT);
 
     }
 
@@ -437,11 +441,11 @@ public class SourcePrinter {
     }
 
     protected void printDoubleQuote() {
-        print(syntaxHelper.getDoubleQuote());
+        print(SyntaxHelper.QUOTE_DOUBLE);
     }
 
     public void printEllipsis() {
-        print(syntaxHelper.getEllipsis());
+        print(SyntaxHelper.ELLIPSIS);
     }
 
     public void printFunctionDef() {
@@ -458,19 +462,11 @@ public class SourcePrinter {
     }
 
     public void printListSeparator() {
-        print(syntaxHelper.getListSeparator());
-    }
-
-    public void printListSeparator(String separatorStr) {
-        if(separatorStr == null){
-            printListSeparator();
-        }else{
-            print(separatorStr);
-        }
+        print(SyntaxHelper.LIST_SEPERATOR);
     }
 
     public void printNewlineAndIndentation() {
-        print(syntaxHelper.getNewLine());
+        print(syntaxHelper.defaultLineDelimiter);
         print(syntaxHelper.getAlignment());
     }
 
@@ -479,11 +475,11 @@ public class SourcePrinter {
     }
 
     protected void printSingleQuote() {
-        print(syntaxHelper.getSingleQuote());
+        print(SyntaxHelper.QUOTE_SINGLE);
     }
 
     protected void printSpace() {
-        print(syntaxHelper.getSpace());
+        print(SyntaxHelper.ONE_SPACE);
     }
 
     protected void printStatement(String statement) {
@@ -491,11 +487,13 @@ public class SourcePrinter {
     }
 
     protected void printStatement(String statement, boolean spaceBefore, boolean spaceAfter) {
-        if(spaceBefore)
-            print(syntaxHelper.beforeStatement());
+        if(spaceBefore){
+            print(SyntaxHelper.ONE_SPACE);
+        }
         print(statement);
-        if(spaceAfter)
-            print(syntaxHelper.afterStatement());
+        if(spaceAfter){
+            print(SyntaxHelper.ONE_SPACE);
+        }
     }
 
     public void printStatementAs() {
@@ -624,11 +622,13 @@ public class SourcePrinter {
     }
 
     public void printStr(Str node) {
-        if(node.unicode)
+        if(node.unicode){
             print("u");
+        }
         // u and r don't exclude themself (but u before r)
-        if(node.raw)
+        if(node.raw){
             print("r");
+        }
         printStrQuote(node);
         print(node.s);
         printStrQuote(node);
@@ -648,17 +648,21 @@ public class SourcePrinter {
         case (str_typeType.TripleSingle):
             printTripeSingleQuote();
             break;
+        default:
+            throw new RuntimeException("Unknown node");
         }
     }
 
     public void printTripeDoubleQuote() {
-        for(int i = 0; i < 3; i++)
+        for(int i = 0; i < 3; i++){
             printDoubleQuote();
+        }
     }
 
     public void printTripeSingleQuote() {
-        for(int i = 0; i < 3; i++)
+        for(int i = 0; i < 3; i++){
             printSingleQuote();
+        }
     }
 
     public void printUnaryOp(int opType) {
@@ -666,16 +670,16 @@ public class SourcePrinter {
 
         switch(opType){
         case unaryopType.Invert:
-            op = syntaxHelper.getOperatorInvert();
+            op = SyntaxHelper.OP_UINVERT;
             break;
         case unaryopType.Not:
-            op = syntaxHelper.getOperatorNot();
+            op = SyntaxHelper.OP_UNOT;
             break;
         case unaryopType.UAdd:
-            op = syntaxHelper.getOperatorUAdd();
+            op = SyntaxHelper.OP_UADD;
             break;
         case unaryopType.USub:
-            op = syntaxHelper.getOperatorUSub();
+            op = SyntaxHelper.OP_USUB;
             break;
         default:
             op = "<undef_unaryop>";
@@ -683,8 +687,9 @@ public class SourcePrinter {
         }
 
         print(op);
-        if(opType == unaryopType.Not)
+        if(opType == unaryopType.Not){
             printSpace();
+        }
 
     }
 
@@ -697,7 +702,7 @@ public class SourcePrinter {
     }
 
     public void printReprQuote() {
-        print(syntaxHelper.getReprQuote());
+        print(SyntaxHelper.REPR_QUOTE);
     }
 
     public NodeHelper getNodeHelper() {
@@ -705,14 +710,16 @@ public class SourcePrinter {
     }
 
     public boolean hasSpecialBefore(SimpleNode n, String match) {
-        if(n == null)
+        if(n == null){
             return false;
+        }
         return checkSpecialStr(n.getSpecialsBefore(), match);
     }
 
     public boolean hasSpecialAfter(SimpleNode n, String match) {
-        if(n == null)
+        if(n == null){
             return false;
+        }
         return checkSpecialStr(n.getSpecialsAfter(), match);
     }
 
@@ -720,15 +727,11 @@ public class SourcePrinter {
         for(Object object:specials){
             if(object instanceof SpecialStr){
                 SpecialStr str = (SpecialStr) object;
-                if(str.str.compareTo(pattern) == 0){
-                    return true;
-                }
+                return(str.str.compareTo(pattern) == 0);
 
             }else if(object instanceof String){
                 String text = (String) object;
-                if(text.compareTo(pattern) == 0){
-                    return true;
-                }
+                return(text.compareTo(pattern) == 0);
             }
         }
         return false;
@@ -755,11 +758,11 @@ public class SourcePrinter {
     }
 
     protected boolean hasParentheses(SimpleNode n) {
-        return hasSpecialBefore(n, getSyntaxhelper().beforeTuple());
+        return hasSpecialBefore(n, SyntaxHelper.PARENTHESE_OPEN);
     }
 
     boolean hasBracket(SimpleNode n) {
-        return hasSpecialBefore(n, getSyntaxhelper().beforeList());
+        return hasSpecialBefore(n, SyntaxHelper.LIST_OPEN);
     }
 
     public void closeBracket(SimpleNode n) {
@@ -789,5 +792,4 @@ public class SourcePrinter {
     public boolean inCall() {
         return callDepth.inCall();
     }
-
 }

@@ -15,17 +15,12 @@ import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
 import org.python.pydev.refactoring.ast.visitors.position.LastLineVisitor;
 
 public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTNodeAdapter<T> {
-
     private ModuleAdapter module;
-
     private AbstractScopeNode<? extends SimpleNode> parent;
-
     private T adaptee;
-
     protected NodeHelper nodeHelper;
 
     protected AbstractNodeAdapter() {
-
     }
 
     public AbstractNodeAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, T node, String endLineDelim) {
@@ -141,11 +136,46 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof AbstractNodeAdapter){
-            AbstractNodeAdapter<?> adapter = (AbstractNodeAdapter<?>) obj;
-            return((getNodeFirstLine() == adapter.getNodeFirstLine()) && (getNodeIndent() == adapter.getNodeIndent()) && (getModule().equals(adapter.getModule())));
-        }
-        return false;
+    public String toString() {
+        return "Adapter of " + adaptee;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((adaptee == null) ? 0 : adaptee.hashCode());
+        result = prime * result + ((module == null) ? 0 : module.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj){
+            return true;
+        }
+        if(obj == null){
+            return false;
+        }
+        if(getClass() != obj.getClass()){
+            return false;
+        }
+        final AbstractNodeAdapter other = (AbstractNodeAdapter) obj;
+        if(adaptee == null){
+            if(other.adaptee != null){
+                return false;
+            }
+        }else if(!adaptee.equals(other.adaptee)){
+            return false;
+        }
+        if(module == null){
+            if(other.module != null){
+                return false;
+            }
+        }else if(!module.equals(other.module)){
+            return false;
+        }
+        return true;
+    }
+
 }

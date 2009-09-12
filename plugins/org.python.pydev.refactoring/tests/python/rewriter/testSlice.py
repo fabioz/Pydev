@@ -13,7 +13,9 @@ print k[1::3]
 print k[2:1:2]
 foostring = "python"
 print foostring[2:3]
+
 ##r
+
 print "slices:"
 l = [1, 2, 3]
 k = range(9)

@@ -1,18 +1,10 @@
 hello = "foo"
-print hello
+##|print hello##|
 
-##c extract method from module body
-'''
-<config>
-  <offset>14</offset>
-  <selectionLength>11</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
+##r extract method from module body
 
-##r
-def pepticMethod(hello):
+def extracted_method(hello):
     print hello
 
 hello = "foo"
-pepticMethod(hello)
+extracted_method(hello)

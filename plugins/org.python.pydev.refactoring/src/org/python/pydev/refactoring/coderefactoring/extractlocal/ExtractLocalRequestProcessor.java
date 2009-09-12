@@ -8,45 +8,40 @@
 
 package org.python.pydev.refactoring.coderefactoring.extractlocal;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
-import org.python.pydev.refactoring.core.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
+import org.python.pydev.refactoring.utils.ListUtils;
 
 public class ExtractLocalRequestProcessor implements IRequestProcessor<ExtractLocalRequest> {
 
-    private String variableName;
-
     private RefactoringInfo info;
-
+    private ITextSelection selection;
     private exprType expression;
-
-    private AbstractScopeNode<?> scopeAdapter;
+    private String variableName;
 
     public ExtractLocalRequestProcessor(RefactoringInfo info) {
         this.info = info;
-        this.scopeAdapter = info.getScopeAdapter();
     }
 
     public List<ExtractLocalRequest> getRefactoringRequests() {
-        List<ExtractLocalRequest> requests = new ArrayList<ExtractLocalRequest>();
-        requests.add(new ExtractLocalRequest(info, expression, variableName));
-        return requests;
+        return ListUtils.wrap(new ExtractLocalRequest(info, selection, expression, variableName));
     }
 
-    public void setVariableName(String variableName) {
-        this.variableName = variableName;
+    public void setSelection(ITextSelection selection) {
+        this.selection = selection;
     }
 
     public void setExpression(exprType expression) {
         this.expression = expression;
     }
 
-    public AbstractScopeNode<?> getScopeAdapter() {
-        return scopeAdapter;
+    public void setVariableName(String variableName) {
+        this.variableName = variableName;
     }
+
 }

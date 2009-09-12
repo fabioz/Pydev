@@ -9,78 +9,62 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
+import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.codegenerator.overridemethods.edit.MethodEdit;
-import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
-import org.python.pydev.refactoring.tests.CompletionEnvironmentSetupHelper;
+import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 import com.thoughtworks.xstream.XStream;
 
 public class OverrideMethodsTestCase extends AbstractIOTestCase {
 
-    private CompletionEnvironmentSetupHelper setupHelper;
+	public OverrideMethodsTestCase(String name) {
+		super(name);
+	}
 
-    public OverrideMethodsTestCase(String name) {
-        super(name);
-    }
+	@Override
+	public void runTest() throws Throwable {
+		MockupOverrideMethodsConfig config = initConfig();
 
-    @Override
-    public void runTest() throws Throwable {
-        setupHelper = new CompletionEnvironmentSetupHelper();
-        setupHelper.setupEnv();
-        try{
-            MockupOverrideMethodsConfig config = initConfig();
-    
-            MockupOverrideMethodsRequestProcessor requestProcessor = setupRequestProcessor(config);
-    
-            IDocument refactoringDoc = applyOverrideMethod(requestProcessor);
-    
-            this.setTestGenerated(refactoringDoc.get());
-            
-            assertEquals(getExpected(), getGenerated());
-        }finally{
-            setupHelper.tearDownEnv();
-        }
-    }
+		MockupOverrideMethodsRequestProcessor requestProcessor = setupRequestProcessor(config);
 
-    private IDocument applyOverrideMethod(MockupOverrideMethodsRequestProcessor requestProcessor) throws BadLocationException {
-        List<OverrideMethodsRequest> refactoringRequests = requestProcessor.getRefactoringRequests();
-        IDocument refactoringDoc = new Document(getSource());
-        for(OverrideMethodsRequest refactoringRequest:refactoringRequests){
-            MethodEdit methodEdit = new MethodEdit(refactoringRequest);
-    
-            methodEdit.getEdit().apply(refactoringDoc);
-        }
-        return refactoringDoc;
-    }
+		IDocument refactoringDoc = applyOverrideMethod(requestProcessor);
 
-    private MockupOverrideMethodsRequestProcessor setupRequestProcessor(MockupOverrideMethodsConfig config) throws Throwable {
-        ModuleAdapter module = setupHelper.createModuleAdapter(this);
-        List<IClassDefAdapter> classes = module.getClasses();
-        assertTrue(classes.size() > 0);
+		this.setTestGenerated(refactoringDoc.get());
+		assertEquals(getExpected(), getGenerated());
+	}
 
-        MockupOverrideMethodsRequestProcessor requestProcessor = new MockupOverrideMethodsRequestProcessor(module, config);
-        return requestProcessor;
-    }
+	private IDocument applyOverrideMethod(MockupOverrideMethodsRequestProcessor requestProcessor) throws BadLocationException, MalformedTreeException, MisconfigurationException {
+		MethodEdit methodEdit = new MethodEdit(requestProcessor.getRefactoringRequests().get(0));
 
-    private MockupOverrideMethodsConfig initConfig() {
-        MockupOverrideMethodsConfig config = null;
-        XStream xstream = new XStream();
-        xstream.alias("config", MockupOverrideMethodsConfig.class);
+		IDocument refactoringDoc = new Document(data.source);
+		methodEdit.getEdit().apply(refactoringDoc);
+		return refactoringDoc;
+	}
 
-        if (getConfig().length() > 0) {
-            config = (MockupOverrideMethodsConfig) xstream.fromXML(getConfig());
-        } else {
-            fail("Could not unserialize configuration");
-        }
-        return config;
-    }
+	private MockupOverrideMethodsRequestProcessor setupRequestProcessor(MockupOverrideMethodsConfig config) throws Throwable {
+		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		List<IClassDefAdapter> classes = module.getClasses();
+		assertTrue(classes.size() > 0);
 
-    @Override
-    public String getExpected() {
-        return getResult();
-    }
+		MockupOverrideMethodsRequestProcessor requestProcessor = new MockupOverrideMethodsRequestProcessor(module, config);
+		return requestProcessor;
+	}
 
+	private MockupOverrideMethodsConfig initConfig() {
+		MockupOverrideMethodsConfig config = null;
+		XStream xstream = new XStream();
+		xstream.alias("config", MockupOverrideMethodsConfig.class);
+
+		if (data.config.length() > 0) {
+			config = (MockupOverrideMethodsConfig) xstream.fromXML(data.config);
+		} else {
+			fail("Could not unserialize configuration");
+		}
+		return config;
+	}
 }

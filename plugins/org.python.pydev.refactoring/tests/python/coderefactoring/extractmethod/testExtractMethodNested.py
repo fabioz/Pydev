@@ -2,38 +2,30 @@ class A:
     bar = 123
     def foo(self):
         barfoo = 234
-        def barMeth(self):
-            print barfoo          
+        def bar_method(self):
+  ##|          print barfoo##|          
         print "foo"
         print self.bar
-        barMeth(self)
+        bar_method(self)
         
 a = A()
 a.foo()
 
-##c
-'''
-<config>
-  <offset>92</offset>
-  <selectionLength>22</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
-
 ##r
+
 class A:
 
-    def pepticMethod():
+    def extracted_method():
         print barfoo
 
     bar = 123
     def foo(self):
         barfoo = 234
-        def barMeth(self):
-            self.pepticMethod()          
+        def bar_method(self):
+            self.extracted_method()          
         print "foo"
         print self.bar
-        barMeth(self)
+        bar_method(self)
         
 a = A()
 a.foo()

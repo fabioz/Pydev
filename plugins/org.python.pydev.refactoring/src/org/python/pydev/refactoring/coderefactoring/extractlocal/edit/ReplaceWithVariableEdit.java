@@ -17,21 +17,14 @@ import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
 
 public class ReplaceWithVariableEdit extends AbstractReplaceEdit {
 
+    private ITextSelection selection;
     private String variableName;
-
-    private int offset;
-
-    private int replaceLength;
 
     public ReplaceWithVariableEdit(ExtractLocalRequest req) {
         super(req);
-        this.variableName = req.getVariableName();
 
-        ITextSelection selection = req.getRefactoringInfo().getExtendedSelection();
-        this.offset = selection.getOffset();
-
-        this.replaceLength = selection.getLength();
-        this.offsetAdapter = req.getOffsetNode();
+        this.selection = req.selection;
+        this.variableName = req.variableName;
     }
 
     @Override
@@ -47,12 +40,12 @@ public class ReplaceWithVariableEdit extends AbstractReplaceEdit {
 
     @Override
     public int getOffset() {
-        return offset;
+        return selection.getOffset();
     }
 
     @Override
     protected int getReplaceLength() {
-        return replaceLength;
+        return selection.getLength();
     }
 
 }

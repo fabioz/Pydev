@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
 
 package org.python.pydev.refactoring.tests.visitors;
@@ -16,17 +17,21 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
  */
 public class ClassVisitorTestSuite extends AbstractIOTestSuite {
 
-    public static Test suite() {
-        TESTDIR = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "classvisitor";
-        ClassVisitorTestSuite testSuite = new ClassVisitorTestSuite();
+	public ClassVisitorTestSuite(String name) {
+		super(name);
+	}
 
-        testSuite.createTests();
+	public static Test suite() {
+		String testdir = "tests" + File.separator + "python" + File.separator + "visitor" + File.separator + "classvisitor";
+		ClassVisitorTestSuite testSuite = new ClassVisitorTestSuite("Class Visitor");
 
-        return testSuite;
-    }
+		testSuite.createTests(testdir);
 
-    @Override
-    protected IInputOutputTestCase createTestCase(String testCaseName) {
-        return new ClassVisitorTestCase(testCaseName);
-    }
+		return testSuite;
+	}
+
+	@Override
+	protected IInputOutputTestCase createTestCase(String testCaseName) {
+		return new ClassVisitorTestCase(testCaseName);
+	}
 }

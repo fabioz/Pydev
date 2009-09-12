@@ -1,14 +1,12 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
  */
 
 package org.python.pydev.refactoring.codegenerator.generateproperties.edit;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -23,51 +21,57 @@ import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.GeneratePropertiesRequest;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 
+/**
+ * Creates the setter function:
+ * 
+ * <pre>
+ *    def set_attribute(self, value):
+ *        self._attribute = value
+ * </pre>
+ */
 public class SetterMethodEdit extends AbstractInsertEdit {
-
-    private static final String SET = "set";
 
     private static final String VALUE = "value";
 
     private String attributeName;
+    private String accessorName;
 
     private int offsetStrategy;
 
     public SetterMethodEdit(GeneratePropertiesRequest req) {
         super(req);
-        this.attributeName = nodeHelper.getPublicAttr(req.getAttributeName());
-        this.offsetStrategy = req.getMethodOffsetStrategy();
+        this.attributeName = req.getAttributeName();
+        this.accessorName = req.getAccessorName("set", attributeName);
+
+        this.offsetStrategy = req.offsetMethodStrategy;
     }
 
     @Override
     protected SimpleNode getEditNode() {
-        argumentsType args = initArguments();
-        Assign assign = initSetAssignment();
-        List<stmtType> body = initBody(assign);
+        NameTok functionName = new NameTok(accessorName, NameTok.FunctionName);
+        argumentsType args = createArguments();
+        stmtType[] body = createBody();
 
-        return new FunctionDef(new NameTok(SET + getCapitalString(attributeName), NameTok.FunctionName), args, body.toArray(new stmtType[0]), null, null);
+        return new FunctionDef(functionName, args, body, null, null);
     }
 
-    private List<stmtType> initBody(Assign assign) {
-        List<stmtType> body = new ArrayList<stmtType>();
-        body.add(assign);
-        return body;
+    private argumentsType createArguments() {
+        Name self = new Name(NodeHelper.KEYWORD_SELF, Name.Param, false);
+        Name value = new Name(VALUE, Name.Param, false);
+        exprType[] params = new exprType[] { self, value };
+
+        return new argumentsType(params, null, null, null, null, null, null, null, null, null);
     }
 
-    private Assign initSetAssignment() {
-        exprType[] targets = new exprType[1];
-        targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(nodeHelper.getPrivateAttr(attributeName), NameTok.Attrib), Attribute.Store);
+    private stmtType[] createBody() {
+        Name self = new Name(NodeHelper.KEYWORD_SELF, Name.Load, false);
+        NameTok name = new NameTok(nodeHelper.getPrivateAttr(attributeName), NameTok.Attrib);
+        Attribute attribute = new Attribute(self, name, Attribute.Store);
 
-        Assign assign = new Assign(targets, new Name(VALUE, Name.Load, false));
-        return assign;
-    }
+        Name value = new Name(VALUE, Name.Load, false);
+        Assign assign = new Assign(new exprType[] { attribute }, value);
 
-    private argumentsType initArguments() {
-        exprType[] params = new exprType[2];
-        params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param, false));
-        params[1] = (new Name(VALUE, Name.Param, false));
-        argumentsType args = new argumentsType(params, null, null, null, null, null, null, null, null, null);
-        return args;
+        return new stmtType[] { assign };
     }
 
     @Override

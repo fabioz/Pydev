@@ -7,38 +7,38 @@ class Rectangle(object):
             b = bla()
             print "foo nested class"
 
-    a = Foo() 
-    a.foo()          
+    a = Foo()
+    a.foo()
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.color = "red"
-        localBorder = "bold"
-    def getArea(self):
+        local_border = "bold"
+    def get_area(self):
         return self.width * self.height
     
-    def setArea(self, value):
+    def set_area(self, value):
         self.width = sqrt(value)
         self.height = sqrt(value)
     
-    def delArea(self):
+    def del_area(self):
         del self.area
         
-    def getFoo(self):
+    def get_foo(self):
         return 1
     
-    def setFoo(self, value):
+    def set_foo(self, value):
         return
     
-    def delFoo(self):
+    def del_foo(self):
         return
    
     empty = property()
-    area = property(getArea, doc='area of the rectangle')
-    completeproperty = property(getArea, setArea, delArea, doc='area of the rectangle')
+    area = property(get_area, doc='area of the rectangle')
+    completeproperty = property(get_area, set_area, del_area, doc='area of the rectangle')
     invalidproperty1 = property(None, None, None, docfoo=None)
     invalidproperty2 = property(None, None, None, docfoo="test")
-    invalidproperty3 = Property(getFoo, setFoo, delFoo, "test")
+    invalidproperty3 = Property(get_foo, set_foo, del_foo, "test")
     fakeproperty = property(None, None, None, None)
     fakeproperty2 = property(None, None, None, "docstring")
     fakeproperty3 = property(None)
@@ -49,27 +49,28 @@ class Rectangle(object):
     fakeProperty7 = property(None, None, None, docfoo)
     fakeproperty8 = property(None, None, None, doc="docfoo")
     
-    simpleproperty0 = property(getFoo, None, None, None)
-    simpleproperty1 = property(getFoo, None, None, "docstring")
-    simpleproperty2 = property(None, setFoo, None, "docstring")
-    simpleproperty3 = property(None, setFoo, delFoo, "docstring")
-    simpleproperty4 = property(None, None, delFoo, "docstring")
-    simpleproperty5 = property(getFoo, setFoo, delFoo)
-    simpleproperty6 = property(getFoo, setFoo)
-    simpleproperty7 = property(getFoo)
-    simpleProperty8 = property(getFoo, None, delFoo)
-    simpleProperty9 = property(getFoo, None, delFoo, "docstring")
+    simpleproperty0 = property(get_foo, None, None, None)
+    simpleproperty1 = property(get_foo, None, None, "docstring")
+    simpleproperty2 = property(None, set_foo, None, "docstring")
+    simpleproperty3 = property(None, set_foo, del_foo, "docstring")
+    simpleproperty4 = property(None, None, del_foo, "docstring")
+    simpleproperty5 = property(get_foo, set_foo, del_foo)
+    simpleproperty6 = property(get_foo, set_foo)
+    simpleproperty7 = property(get_foo)
+    simpleProperty8 = property(get_foo, None, del_foo)
+    simpleProperty9 = property(get_foo, None, del_foo, "docstring")
     
-    simpleProperty10 = property(getFoo, fset=setFoo, doc="test")
-    simpleProperty11 = property(fget=getFoo, fset=setFoo, fdel=delFoo, doc="test")
+    simpleProperty10 = property(get_foo, fset=set_foo, doc="test")
+    simpleProperty11 = property(fget=get_foo, fset=set_foo, fdel=del_foo, doc="test")
     
     
     
-myRectangle = Rectangle(10, 15)
-print myRectangle.width
-print myRectangle.area
+rect = Rectangle(10, 15)
+print rect.width
+print rect.area
 
 ##r
+
 # 23
 # Rectangle empty false false false false false
 # Rectangle area false true false false true

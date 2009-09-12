@@ -572,6 +572,9 @@ public class PyParser implements IPyParser {
             //If empty, don't bother to parse!
             return new Tuple<SimpleNode, Throwable>(new Module(new stmtType[0]), null);
         }
+        if(!startDoc.endsWith("\n") && !startDoc.endsWith("\r")){
+            startDoc+="\n";
+        }
         
         if(info.initial == null){
             info.initial = startDoc;

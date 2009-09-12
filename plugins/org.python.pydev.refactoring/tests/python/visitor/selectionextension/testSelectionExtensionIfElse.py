@@ -21,9 +21,9 @@ class Echo(protocol.DatagramProtocol):
             print "bigger than 80"
             print "received %r from %s:%d" % (data, host, port)
         elif(port == 9999):
-            print "is 9999"
+    ##|        print "is 9999"
             print "cool hm"
-        else:
+       ##| else:
             print "wow it works"
             var = a*a
         self.transport.write(data, (host, port))
@@ -31,14 +31,7 @@ class Echo(protocol.DatagramProtocol):
 reactor.listenUDP(9999, Echo())
 reactor.run()
 
-##c selection starts somewhere before the "while"-node, still have to normalize selected code in order to parse it
-'''
-<config>
-  <offset>595</offset>
-  <selectionLength>59</selectionLength>
-</config>
-'''
+##r selection starts somewhere before the "while"-node, still have to normalize selected code in order to parse it
 
-##r
 print "is 9999"
 print "cool hm"

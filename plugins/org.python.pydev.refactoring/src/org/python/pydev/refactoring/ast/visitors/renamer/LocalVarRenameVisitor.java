@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -31,11 +32,13 @@ public class LocalVarRenameVisitor extends VisitorBase {
     }
 
     public void visit(SimpleNode node) throws Exception {
-        if(node == null)
+        if(node == null){
             return;
+        }
 
-        if(nodeHelper.isFunctionOrClassDef(node))
+        if(nodeHelper.isFunctionOrClassDef(node)){
             return;
+        }
 
         node.accept(this);
     }

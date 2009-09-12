@@ -6,7 +6,9 @@ b = r'c:/dir1\file'
 ur'test'
 uR'test'
 UR'test'
+
 ##r
+
 "normal string"
 # unicode/raw
 u"unicode string"

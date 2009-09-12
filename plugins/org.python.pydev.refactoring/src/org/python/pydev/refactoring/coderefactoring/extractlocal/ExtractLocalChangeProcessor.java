@@ -8,11 +8,12 @@
 
 package org.python.pydev.refactoring.coderefactoring.extractlocal;
 
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.edit.CreateLocalVariableEdit;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.edit.ReplaceWithVariableEdit;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
-import org.python.pydev.refactoring.core.RefactoringInfo;
-import org.python.pydev.refactoring.core.change.AbstractFileChangeProcessor;
+import org.python.pydev.refactoring.core.base.AbstractFileChangeProcessor;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 
@@ -22,13 +23,13 @@ public class ExtractLocalChangeProcessor extends AbstractFileChangeProcessor<Ext
     }
 
     @Override
-    protected void processEdit() {
+    protected void processEdit() throws MisconfigurationException {
         for(ExtractLocalRequest req:requestProcessor.getRefactoringRequests()){
             processExtraction(req);
         }
     }
 
-    private void processExtraction(ExtractLocalRequest req) {
+    private void processExtraction(ExtractLocalRequest req) throws MisconfigurationException {
         CreateLocalVariableEdit createLocalVariableEdit = new CreateLocalVariableEdit(req);
         ReplaceWithVariableEdit replaceWithVariableEdit = new ReplaceWithVariableEdit(req);
 

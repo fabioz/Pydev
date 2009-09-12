@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -23,7 +24,7 @@ public class FunctionDefAdapter extends AbstractScopeNode<FunctionDef> {
 
     public FunctionDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, FunctionDef node, String endLineDelim) {
         super(module, parent, node, endLineDelim);
-        this.arguments = new FunctionArgAdapter(module, this, getASTNode().args, endLineDelim);
+        this.arguments = new FunctionArgAdapter(getModule(), this, getASTNode().args, endLineDelim);
         this.functions = null;
     }
 

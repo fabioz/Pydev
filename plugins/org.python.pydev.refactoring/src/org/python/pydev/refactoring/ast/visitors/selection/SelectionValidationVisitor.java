@@ -21,7 +21,6 @@ import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.Yield;
 
 public class SelectionValidationVisitor extends VisitorBase {
-
     private Class<?>[] invalidNode = new Class<?>[] { Break.class, ClassDef.class, Continue.class, FunctionDef.class, ImportFrom.class, Import.class, Pass.class, Return.class, Yield.class };
 
     @Override

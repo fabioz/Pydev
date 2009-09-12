@@ -29,48 +29,34 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
+import org.python.pydev.refactoring.codegenerator.overridemethods.OverrideMethodsRefactoring;
 import org.python.pydev.refactoring.codegenerator.overridemethods.OverrideMethodsRequestProcessor;
+import org.python.pydev.refactoring.core.model.OffsetStrategyModel;
+import org.python.pydev.refactoring.core.model.OffsetStrategyProvider;
+import org.python.pydev.refactoring.core.model.overridemethods.ClassMethodsTreeProvider;
 import org.python.pydev.refactoring.messages.Messages;
-import org.python.pydev.refactoring.ui.model.OffsetStrategyModel;
-import org.python.pydev.refactoring.ui.model.OffsetStrategyProvider;
-import org.python.pydev.refactoring.ui.model.overridemethods.ClassMethodsTreeProvider;
-import org.python.pydev.refactoring.ui.model.tree.TreeLabelProvider;
+import org.python.pydev.refactoring.ui.core.TreeLabelProvider;
 
 public class OverrideMethodsPage extends UserInputWizardPage {
-
+    private static final String PAGE_NAME = "OverrideMethodsPage";
     private final OffsetStrategyProvider strategyProvider;
-
     private Composite mainComp = null;
-
     private Composite buttonComp = null;
-
     private Button selectAll = null;
-
     private Button deselectAll = null;
-
     private CLabel cLabel = null;
-
     private Composite treeComp = null;
-
     private Composite comboComp = null;
-
     private ComboViewer insertionPointCmb = null;
-
     private CLabel insertionPointLbl = null;
-
     private ContainerCheckedTreeViewer treeViewer = null;
-
     private ClassMethodsTreeProvider classProvider;
-
-    private OverrideMethodsRequestProcessor requestProcessor;
-
     private ILabelProvider labelProvider;
 
-    public OverrideMethodsPage(String name, ClassMethodsTreeProvider provider, OverrideMethodsRequestProcessor requestProcessor) {
-        super(name);
-        this.setTitle(name);
+    public OverrideMethodsPage(ClassMethodsTreeProvider provider) {
+        super(PAGE_NAME);
+
         this.classProvider = provider;
-        this.requestProcessor = requestProcessor;
         this.labelProvider = new TreeLabelProvider();
 
         this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
@@ -129,8 +115,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
         selectAll.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(true);
-                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
-                OverrideMethodsPage.this.getWizard().getContainer().updateButtons();
+                processSelectionChange();
             }
         });
         deselectAll = new Button(buttonComp, SWT.NONE);
@@ -139,8 +124,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
         deselectAll.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(false);
-                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
-                OverrideMethodsPage.this.getWizard().getContainer().updateButtons();
+                processSelectionChange();
             }
         });
     }
@@ -176,11 +160,11 @@ public class OverrideMethodsPage extends UserInputWizardPage {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
                 if(!sel.isEmpty()){
                     OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
-                    requestProcessor.setInsertionPoint(elem.getStrategy());
+                    getRequestProcessor().setInsertionPoint(elem.getStrategy());
                 }
             }
         });
-        requestProcessor.setInsertionPoint(strategyProvider.get(0).getStrategy());
+        getRequestProcessor().setInsertionPoint(strategyProvider.get(0).getStrategy());
         insertionPointCmb.getCombo().select(0);
     }
 
@@ -188,8 +172,7 @@ public class OverrideMethodsPage extends UserInputWizardPage {
         treeViewer = new ContainerCheckedTreeViewer(treeComp);
         treeViewer.addCheckStateListener(new ICheckStateListener() {
             public void checkStateChanged(CheckStateChangedEvent event) {
-                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
-                OverrideMethodsPage.this.getWizard().getContainer().updateButtons();
+                processSelectionChange();
             }
         });
 
@@ -221,4 +204,16 @@ public class OverrideMethodsPage extends UserInputWizardPage {
         return(treeViewer.getCheckedElements().length > 0);
     }
 
+    protected OverrideMethodsRequestProcessor getRequestProcessor() {
+        return getOverrideMethodsRefactoring().getRequestProcessor();
+    }
+
+    private OverrideMethodsRefactoring getOverrideMethodsRefactoring() {
+        return (OverrideMethodsRefactoring) getRefactoring();
+    }
+
+    private void processSelectionChange() {
+        getRequestProcessor().setCheckedElements(treeViewer.getCheckedElements());
+        getContainer().updateButtons();
+    }
 }

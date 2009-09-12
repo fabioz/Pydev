@@ -8,22 +8,23 @@
 
 package org.python.pydev.refactoring.coderefactoring.extractlocal.request;
 
+import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
-import org.python.pydev.refactoring.core.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class ExtractLocalRequest implements IRefactoringRequest {
 
-    private RefactoringInfo info;
+    public final RefactoringInfo info;
+    public final ITextSelection selection;
+    public final exprType expression;
+    public final String variableName;
 
-    private String variableName;
-
-    private exprType expression;
-
-    public ExtractLocalRequest(RefactoringInfo info, exprType expression, String variableName) {
+    public ExtractLocalRequest(RefactoringInfo info, ITextSelection selection, exprType expression, String variableName) {
         this.info = info;
+        this.selection = selection;
         this.expression = expression;
         this.variableName = variableName;
     }
@@ -38,17 +39,5 @@ public class ExtractLocalRequest implements IRefactoringRequest {
 
     public String getNewLineDelim() {
         return info.getNewLineDelim();
-    }
-
-    public RefactoringInfo getRefactoringInfo() {
-        return info;
-    }
-
-    public String getVariableName() {
-        return variableName;
-    }
-
-    public exprType getExpression() {
-        return expression;
     }
 }

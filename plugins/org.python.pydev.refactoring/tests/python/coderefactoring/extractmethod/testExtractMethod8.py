@@ -1,30 +1,22 @@
 class A:
     def test(self):
         a = 1
-        while (a < 2):
-            a += 1
+     ##|   while (a < 2):
+            a += 1##|
         var = a * a
         print var
             
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
 a.test()
 
-##c selection starts somewhere before the "while"-node, still have to normalize selected code in order to parse it
-'''
-<config>
-  <offset>48</offset>
-  <selectionLength>36</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
+##r selection starts somewhere before the "while"-node, still have to normalize selected code in order to parse it
 
-##r
 class A:
 
-    def pepticMethod(self, a):
+    def extracted_method(self, a):
         while (a < 2):
             a += 1
         
@@ -32,12 +24,12 @@ class A:
 
     def test(self):
         a = 1
-        a = self.pepticMethod(a)
+        a = self.extracted_method(a)
         var = a * a
         print var
             
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
 a.test()

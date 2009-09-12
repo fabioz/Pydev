@@ -1,38 +1,30 @@
 class A:
     def test(self):
-        a = 5
-        var = a * a
+        ##|a = 5
+        var = a * a##|
         print var
             
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
 a.test()
 
-##c selection starts at the first char
-'''
-<config>
-  <offset>37</offset>
-  <selectionLength>25</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
+##r selection starts at the first char
 
-##r
 class A:
 
-    def pepticMethod(self):
+    def extracted_method(self):
         a = 5
         var = a * a
         return var
 
     def test(self):
-        var = self.pepticMethod()
+        var = self.extracted_method()
         print var
             
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
 a.test()

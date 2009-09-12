@@ -9,6 +9,7 @@ import java.util.Iterator;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.exprType;
 
 /**
  * This class is used as a helper to write special tokens, such as comments and other literals.
@@ -20,6 +21,7 @@ public class AuxSpecials {
     private PrettyPrinterPrefs prefs;
     private int writeSpecialsUntilLine=-1;
     private int writeSpecialsFromLine=-1;
+    private boolean writeCommentsBeforeEnabled = true;
 
     public AuxSpecials(WriteState state, PrettyPrinterPrefs prefs) {
         this.state = state;
@@ -30,26 +32,33 @@ public class AuxSpecials {
         writeSpecialsBefore(node, null, null, true);
     }
     public void writeSpecialsBefore(SimpleNode node, String[] ignore, String[] write, boolean writeComments) throws IOException {
-        if(node.specialsBefore == null){
+        writeSpecialsBefore(node, ignore, write, writeComments, true);
+    }
+    public void writeSpecialsBefore(SimpleNode node, String[] ignore, String[] write, boolean writeComments, boolean writeNoComents) throws IOException {
+        if(node == null||node.specialsBefore == null){
             return;
         }
         for (Object c : node.specialsBefore){
             if(c instanceof commentType){
-                if(writeComments){
+                if(writeComments && this.writeCommentsBeforeEnabled){
                     state.write(((commentType)c).id);
                     state.writeNewLine();
                     state.writeIndent();
                 }
             }else if(c instanceof String){
-                String str = (String) c;
-                if(canWrite(str, ignore, write)){
-                    state.write(prefs.getReplacement(str));
+                if(writeNoComents){
+                    String str = (String) c;
+                    if(canWrite(str, ignore, write)){
+                        state.write(prefs.getReplacement(str));
+                    }
                 }
             }else if(c instanceof SpecialStr){
-                SpecialStr s = (SpecialStr) c;
-                String str = s.str;
-                if(canWrite(str, ignore, write)){
-                    state.write(prefs.getReplacement(str));
+                if(writeNoComents){
+                    SpecialStr s = (SpecialStr) c;
+                    String str = s.str;
+                    if(canWrite(str, ignore, write)){
+                        state.write(prefs.getReplacement(str));
+                    }
                 }
             }else{
                 throw new RuntimeException("Unexpected special: "+node);
@@ -125,7 +134,11 @@ public class AuxSpecials {
                 int beginColForComment = c.beginColumn; //1-based
                 if(beginColForComment-1 < indentLen){
                     //leave the comment in the old indent.
-                    state.erase(state.getIndentChars(indentLen - (beginColForComment-1)));
+                    int diff = indentLen - (beginColForComment-1);
+                    if(diff >= indentLen){
+                        //Only do that if we have some indentation there
+                        state.erase(state.getIndentChars(diff));
+                    }
                 }
                 
                 
@@ -182,6 +195,24 @@ public class AuxSpecials {
             }
         }
     }
+    
+    public void writeComentsBefore(SimpleNode node) throws IOException {
+        if(node.specialsBefore == null){
+            return;
+        }
+        for (Object o : node.specialsBefore){
+            if(o instanceof commentType){
+                commentType type = (commentType) o;
+                if(type.beginColumn == 1 && state.lastIsIndent()){
+                    state.eraseIndent();
+                }
+                state.write(type.id);
+                state.writeNewLine();
+                state.writeIndent();
+            }
+        }    
+    }
+
     public boolean hasCommentsAfter(SimpleNode node) {
         if(node.specialsAfter != null){
             for (Object o : node.specialsAfter){
@@ -244,6 +275,11 @@ public class AuxSpecials {
     public void setWriteSpecialsFromLine(int line) {
         this.writeSpecialsFromLine = line;
     }
+
+    public void setWriteCommentsBeforeEnabled(boolean enable) {
+        writeCommentsBeforeEnabled  = enable;
+    }
+
     
     
 

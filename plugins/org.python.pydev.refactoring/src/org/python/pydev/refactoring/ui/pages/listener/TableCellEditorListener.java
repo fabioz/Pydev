@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -17,7 +18,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.refactoring.ui.model.table.SimpleTableItem;
+import org.python.pydev.refactoring.ui.pages.core.SimpleTableItem;
 
 public class TableCellEditorListener extends Observable implements Listener {
 
@@ -40,8 +41,10 @@ public class TableCellEditorListener extends Observable implements Listener {
         editor.grabHorizontal = true;
 
         Rectangle clientArea = table.getClientArea();
-        if(table.getSelection().length != 1)
+        if(table.getSelection().length != 1){
             return;
+        }
+
         Rectangle bounds = table.getSelection()[0].getBounds();
         Point pt = new Point(bounds.x, bounds.y);
         int index = table.getTopIndex();
@@ -97,8 +100,9 @@ public class TableCellEditorListener extends Observable implements Listener {
                 }
                 if(e.detail == SWT.TRAVERSE_RETURN || e.detail == SWT.TRAVERSE_ESCAPE){
                     text.dispose();
-                    if(e.detail == SWT.TRAVERSE_ESCAPE)
+                    if(e.detail == SWT.TRAVERSE_ESCAPE){
                         e.doit = false;
+                    }
                 }
             }
         }

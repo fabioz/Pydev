@@ -1,7 +1,7 @@
 ble = "abc"
-def simpleYield(foo, bar=5.0, mar=ble, *arg, **args):
+def simple_yield(foo, bar=5.0, mar=ble, *args, **kwargs):
     # this is a yield
     yield ("yield") # foo
     yield "yield"
 
-print "foo", simpleYield(1, 3.0)
+print "foo", simple_yield(1, 3.0)

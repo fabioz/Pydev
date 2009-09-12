@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
 
 package org.python.pydev.refactoring.tests.adapter;
@@ -12,19 +13,24 @@ import org.python.pydev.refactoring.tests.core.AbstractIOTestSuite;
 import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class ClassDefAdapterTestSuite extends AbstractIOTestSuite {
+	
+	public ClassDefAdapterTestSuite(String name) {
+		super(name);
+		// TODO Auto-generated constructor stub
+	}
 
-    public static Test suite() {
-        TESTDIR = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "classdef";
-        ClassDefAdapterTestSuite testSuite = new ClassDefAdapterTestSuite();
+	public static Test suite() {
+		String testdir = "tests" + File.separator + "python" + File.separator + "adapter" + File.separator + "classdef";
+		ClassDefAdapterTestSuite testSuite = new ClassDefAdapterTestSuite("ClassDef Adapter");
 
-        testSuite.createTests();
+		testSuite.createTests(testdir);
         testSuite.addTest(new HierarchyTestCase("testHierarchyWithBuiltins"));
 
-        return testSuite;
-    }
+		return testSuite;
+	}
 
-    @Override
-    protected IInputOutputTestCase createTestCase(String testCaseName) {
-        return new ClassDefAdapterTestCase(testCaseName);
-    }
+	@Override
+	protected IInputOutputTestCase createTestCase(String testCaseName) {
+		return new ClassDefAdapterTestCase(testCaseName);
+	}
 }

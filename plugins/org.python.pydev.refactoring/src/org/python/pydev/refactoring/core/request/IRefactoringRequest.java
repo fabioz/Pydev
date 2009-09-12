@@ -12,9 +12,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
 public interface IRefactoringRequest {
+    IASTNodeAdapter<? extends SimpleNode> getOffsetNode();
 
-    public abstract IASTNodeAdapter<? extends SimpleNode> getOffsetNode();
-
-    public abstract String getNewLineDelim();
-
+    String getNewLineDelim();
 }

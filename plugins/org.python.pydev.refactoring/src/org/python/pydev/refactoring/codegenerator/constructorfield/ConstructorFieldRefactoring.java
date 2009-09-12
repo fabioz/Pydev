@@ -13,36 +13,22 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.core.AbstractPythonRefactoring;
-import org.python.pydev.refactoring.core.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
-import org.python.pydev.refactoring.ui.model.constructorfield.ClassFieldTreeProvider;
-import org.python.pydev.refactoring.ui.pages.ConstructorFieldPage;
 
 public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
-
     private ConstructorFieldRequestProcessor requestProcessor;
-
     private IChangeProcessor changeProcessor;
 
     public ConstructorFieldRefactoring(RefactoringInfo req) {
         super(req);
-        try{
-            initWizard();
-        }catch(Throwable e){
-            status.addInfo(Messages.infoFixCode);
-        }
-    }
 
-    private void initWizard() throws Throwable {
-        ClassFieldTreeProvider provider = new ClassFieldTreeProvider(info.getScopeClass());
         this.requestProcessor = new ConstructorFieldRequestProcessor(this.info.getNewLineDelim());
         this.changeProcessor = new ConstructorFieldChangeProcessor(getName(), this.info, this.requestProcessor);
-        this.pages.add(new ConstructorFieldPage(getName(), provider, requestProcessor));
     }
 
     @Override
@@ -53,7 +39,7 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
     }
 
     @Override
-    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+    public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
         IClassDefAdapter rootClass = this.info.getScopeClass();
 
         if(rootClass != null){
@@ -70,5 +56,9 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
     @Override
     public String getName() {
         return Messages.constructorFieldLabel;
+    }
+
+    public ConstructorFieldRequestProcessor getRequestProcesor() {
+        return requestProcessor;
     }
 }

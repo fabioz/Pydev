@@ -1,5 +1,5 @@
 class A:
-    def __init__(self, *someVarArg):
+    def __init__(self, *args):
         print "foo"
 
 class B(A):
@@ -8,16 +8,16 @@ class B(A):
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
-a.myMethod()
+a.my_method()
 
 ##c
-'''
+
 <config>
   <classSelection>1</classSelection>
   <attributeSelection>
@@ -25,28 +25,28 @@ a.myMethod()
   </attributeSelection>
   <offsetStrategy>1</offsetStrategy>
 </config>
-'''
 
-##r VarArg must be after arguments/keywords
+
+##r args must be after arguments/keywords
 class A:
-    def __init__(self, *someVarArg):
+    def __init__(self, *args):
         print "foo"
 
 class B(A):
 
-    def __init__(self, anAttribute, *varArg):
-        A.__init__(self, varArg)
-        self.anAttribute = anAttribute
+    def __init__(self, attribute, *args):
+        A.__init__(self, args)
+        self.attribute = attribute
 
     try:
         print "foo"
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
-a.myMethod()
+a.my_method()

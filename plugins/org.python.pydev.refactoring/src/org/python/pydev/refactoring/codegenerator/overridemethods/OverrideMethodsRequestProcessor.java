@@ -15,9 +15,9 @@ import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
+import org.python.pydev.refactoring.core.model.overridemethods.ClassTreeNode;
+import org.python.pydev.refactoring.core.model.overridemethods.FunctionTreeNode;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
-import org.python.pydev.refactoring.ui.model.overridemethods.ClassTreeNode;
-import org.python.pydev.refactoring.ui.model.overridemethods.FunctionTreeNode;
 
 public class OverrideMethodsRequestProcessor implements IRequestProcessor<OverrideMethodsRequest> {
 

@@ -46,7 +46,7 @@ public class BeginOffset extends AbstractOffsetStrategy {
                 SimpleNode lastNode = findLastLineVisitor.getLastNode();
                 SpecialStr lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
                 if(lastSpecialStr != null && (lastSpecialStr.str.equals(":") || lastSpecialStr.str.equals(")"))){
-                    //it was an from xxx import (euheon, utehon)
+                    // it was an from xxx import (euheon, utehon)
                     return lastSpecialStr.beginLine - 1;
                 }else{
                     return lastNode.beginLine - 1;
@@ -66,9 +66,9 @@ public class BeginOffset extends AbstractOffsetStrategy {
 
     @Override
     protected int getLineIndendation() throws BadLocationException {
-        if(adapter.getNodeBodyIndent() == 0)
+        if(adapter.getNodeBodyIndent() == 0){
             return 0;
-        else{
+        }else{
             return doc.getLineLength(getLine());
         }
     }

@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -31,9 +32,9 @@ public class MethodEdit extends AbstractInsertEdit {
 
     public MethodEdit(OverrideMethodsRequest req) {
         super(req);
-        this.method = req.getFunctionAdapter();
+        this.method = req.method;
         this.baseClassName = req.getBaseClassName();
-        this.offsetStrategy = req.getOffsetStrategy();
+        this.offsetStrategy = req.offsetStrategy;
     }
 
     @Override
@@ -69,18 +70,20 @@ public class MethodEdit extends AbstractInsertEdit {
 
     private exprType extractKwargs(argumentsType argType) {
         NameTok kwarg = (NameTok) argType.kwarg;
-        if(kwarg != null)
+        if(kwarg != null){
             return new Name("**" + kwarg.id, Name.Load, false);
-        else
+        }else{
             return null;
+        }
     }
 
     private exprType extractStarargs(argumentsType argType) {
         NameTok vararg = (NameTok) argType.vararg;
-        if(vararg != null)
+        if(vararg != null){
             return new Name("*" + vararg.id, Name.Load, false);
-        else
+        }else{
             return null;
+        }
     }
 
     private exprType[] extractArgs(argumentsType argType) {

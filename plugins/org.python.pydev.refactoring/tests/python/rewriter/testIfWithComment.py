@@ -26,6 +26,7 @@ else: # on-line else
 # after everything
 
 ##r
+
 # before
 if 3 == 2: # on-line 3==2
     # after first if
@@ -40,8 +41,7 @@ elif 3 != 2: # on-line first elif
     else:
         print "bar"
         # after second body (elif)
-# on-line else
-else:
+else: # on-line else
     print "abc" # print abc
     print "nextline"
     print "another"
@@ -51,5 +51,5 @@ else:
         print "elif in if/else"
     else:
         print "else in if in if"
-# some test
+        # some test
 # after everything

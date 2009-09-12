@@ -1,35 +1,27 @@
 class A:
   
     def test(self):
-        anAttribute = "hello" # peptic rocks
+        attribute = ##|"hello" # peptic rocks##|
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
 a.test()
 
-##c
-'''
-<config>
-  <offset>54</offset>
-  <selectionLength>22</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
-
 ##r
+
 class A:
 
-    def pepticMethod(self):
+    def extracted_method(self):
         return "hello" # peptic rocks
 
   
     def test(self):
-        anAttribute = self.pepticMethod()
+        attribute = self.extracted_method()
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
 a.test()

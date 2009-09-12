@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.python.pydev.core.MisconfigurationException;
 
 public class CompositeChangeProcessor implements IChangeProcessor {
 
@@ -24,7 +25,7 @@ public class CompositeChangeProcessor implements IChangeProcessor {
         this.processors = processors;
     }
 
-    public Change createChange() {
+    public Change createChange() throws MisconfigurationException {
         CompositeChange change = new CompositeChange(name);
         for(IChangeProcessor processor:processors){
             change.add(processor.createChange());

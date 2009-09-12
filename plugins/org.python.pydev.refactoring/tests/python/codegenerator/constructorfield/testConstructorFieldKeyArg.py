@@ -8,16 +8,16 @@ class B(A):
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
-a.myMethod()
+a.my_method()
 
 ##c
-'''
+
 <config>
   <classSelection>1</classSelection>
   <attributeSelection>
@@ -25,7 +25,7 @@ a.myMethod()
   </attributeSelection>
   <offsetStrategy>1</offsetStrategy>
 </config>
-'''
+
 
 ##r
 class A:
@@ -34,19 +34,19 @@ class A:
 
 class B(A):
 
-    def __init__(self, anAttribute, arg):
+    def __init__(self, arg, attribute):
         A.__init__(self, arg)
-        self.anAttribute = anAttribute
+        self.attribute = attribute
 
     try:
         print "foo"
     finally:
         print "done."
     
-    anAttribute = "hello"  
+    attribute = "hello"
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
-a.myMethod()
+a.my_method()

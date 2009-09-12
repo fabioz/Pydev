@@ -1,7 +1,7 @@
 def holder():
-    def nestedFunc():
+    def nested_func():
         print "nested foo"
     
-    nestedFunc()
+    nested_func()
 
 holder()

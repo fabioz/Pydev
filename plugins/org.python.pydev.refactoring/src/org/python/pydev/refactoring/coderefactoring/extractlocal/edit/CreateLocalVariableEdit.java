@@ -15,7 +15,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.expr_contextType;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
-import org.python.pydev.refactoring.core.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 
 public class CreateLocalVariableEdit extends AbstractInsertEdit {
@@ -28,9 +28,9 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
 
     public CreateLocalVariableEdit(ExtractLocalRequest req) {
         super(req);
-        this.info = req.getRefactoringInfo();
-        this.variableName = req.getVariableName();
-        this.expression = req.getExpression();
+        this.info = req.info;
+        this.variableName = req.variableName;
+        this.expression = req.expression;
     }
 
     @Override
@@ -51,4 +51,11 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
     public int getOffsetStrategy() {
         return 0;
     }
+
+    @Override
+    protected String getIndentation(int indent) {
+        PySelection selection = new PySelection(info.getDocument(), info.getExtendedSelection());
+        return selection.getIndentationFromLine();
+    }
+
 }

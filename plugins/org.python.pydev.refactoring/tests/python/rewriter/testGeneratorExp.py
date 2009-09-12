@@ -1,11 +1,11 @@
-def updown(N):
+def updown(n):
     a = 5
     b = 2
     c = (2, 3)
     d = True
-    # is handled by listComp
+    # is handled by list comprehension
     (a for x in range(9) if 2 == 2)
-    for x in xrange(N, 0, -1):
+    for x in xrange(n, 0, -1):
         yield x
     
 

@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -13,7 +14,7 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
+import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
 
 public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
@@ -52,13 +53,15 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
     public List<exprType> getSelfFilteredArgs() {
         List<exprType> args = new ArrayList<exprType>();
-        if(getASTNode().args == null)
+        if(getASTNode().args == null){
             return args;
+        }
 
         for(exprType arg:getASTNode().args){
             String argument = nodeHelper.getName(arg);
-            if(!nodeHelper.isSelf(argument))
+            if(!nodeHelper.isSelf(argument)){
                 args.add(arg);
+            }
         }
         return args;
     }
@@ -72,7 +75,6 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
     }
 
     public String getSignature() {
-        String endLineDelimiter = getModule().getEndLineDelimiter();
-        return RewriterVisitor.createSourceFromAST(this.getASTNode(), true, endLineDelimiter);
+        return RewriterVisitor.createSourceFromAST(this.getASTNode(), true, getModule().getEndLineDelimiter());
     }
 }

@@ -6,48 +6,54 @@ package org.python.pydev.refactoring.tests.jython;
 
 import java.io.StringWriter;
 
-import org.python.pydev.jython.IPythonInterpreter;
-import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.refactoring.tests.core.AbstractRewriterTestCase;
+import org.python.util.PythonInterpreter;
 
 /**
  * @author Dennis Hunziker, Ueli Kistler
  */
 public class JythonTestCase extends AbstractRewriterTestCase {
 
-    public JythonTestCase(String name) {
-        super(name);
-    }
+	public JythonTestCase(String name) {
+		super(name);
+	}
 
-    private String interpretedGenerated;
+	private String interpretedGenerated;
 
-    private String interpretedExcepted;
+	private String interpretedExcepted;
 
-    @Override
-    public void runTest() throws Throwable {
-        super.runRewriter();
-        setInterpretedExcepted(execPythonCode(getExpected()));
-        setInterpretedGenerated(execPythonCode(getGenerated()));
+	@Override
+	public void runTest() throws Throwable {
+		super.runRewriter();
+		setInterpretedExcepted(execPythonCode(getExpected()));
+		setInterpretedGenerated(execPythonCode(getGenerated()));
 
-        assertEquals(interpretedExcepted, interpretedGenerated);
-    }
+		assertEquals(interpretedExcepted, interpretedGenerated);
+	}
 
-    private String execPythonCode(String source) {
-        IPythonInterpreter pi = JythonPlugin.newPythonInterpreter(false);
+	private PythonInterpreter initInterpreter() {
+		PythonInterpreter pi = new PythonInterpreter();
+		pi.set("False", 0);
+		pi.set("True", 1);
+		return pi;
+	}
 
-        StringWriter out = new StringWriter();
-        pi.setOut(out);
+	private String execPythonCode(String source) {
+		PythonInterpreter pi = initInterpreter();
 
-        pi.exec(source);
+		StringWriter out = new StringWriter();
+		pi.setOut(out);
 
-        return out.getBuffer().toString();
-    }
+		pi.exec(source);
 
-    public void setInterpretedExcepted(String interpretedExcepted) {
-        this.interpretedExcepted = interpretedExcepted;
-    }
+		return out.getBuffer().toString();
+	}
 
-    public void setInterpretedGenerated(String interpretedGenerated) {
-        this.interpretedGenerated = interpretedGenerated;
-    }
+	public void setInterpretedExcepted(String interpretedExcepted) {
+		this.interpretedExcepted = interpretedExcepted;
+	}
+
+	public void setInterpretedGenerated(String interpretedGenerated) {
+		this.interpretedGenerated = interpretedGenerated;
+	}
 }

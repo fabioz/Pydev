@@ -8,10 +8,11 @@
 
 package org.python.pydev.refactoring.codegenerator.constructorfield;
 
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.codegenerator.constructorfield.edit.ConstructorMethodEdit;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
-import org.python.pydev.refactoring.core.RefactoringInfo;
-import org.python.pydev.refactoring.core.change.AbstractFileChangeProcessor;
+import org.python.pydev.refactoring.core.base.AbstractFileChangeProcessor;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 
@@ -22,7 +23,7 @@ public class ConstructorFieldChangeProcessor extends AbstractFileChangeProcessor
     }
 
     @Override
-    protected void processEdit() {
+    protected void processEdit() throws MisconfigurationException {
         for(ConstructorFieldRequest req:requestProcessor.getRefactoringRequests()){
             ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(req);
 

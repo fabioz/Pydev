@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -9,45 +10,39 @@ package org.python.pydev.refactoring.ast.adapters;
 
 import java.util.List;
 
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ast.ClassDef;
 
 public interface IClassDefAdapter extends INodeAdapter, IASTNodeAdapter<ClassDef> {
+    List<String> getBaseClassNames();
 
-    public abstract List<String> getBaseClassNames();
+    List<IClassDefAdapter> getBaseClasses() throws MisconfigurationException;
 
-    public abstract List<IClassDefAdapter> getBaseClasses();
+    List<SimpleAdapter> getAttributes();
 
-    public abstract boolean hasBaseClass();
+    List<PropertyAdapter> getProperties();
 
-    public abstract List<SimpleAdapter> getAttributes();
+    FunctionDefAdapter getFirstInit();
 
-    public abstract List<PropertyAdapter> getProperties();
+    List<FunctionDefAdapter> getFunctionsInitFiltered();
 
-    /**
-     * @return a list of functions (disconsidering __init__ functions).
-     */
-    public abstract List<FunctionDefAdapter> getFunctionsInitFiltered();
+    List<FunctionDefAdapter> getFunctions();
 
-    public abstract boolean hasFunctions();
+    List<SimpleAdapter> getAssignedVariables();
 
-    /**
-     * @return true if there is any function disconsidering __init__ functions.
-     */
-    public abstract boolean hasFunctionsInitFiltered();
+    int getNodeBodyIndent();
 
-    public abstract boolean isNested();
+    boolean hasBaseClass();
 
-    public abstract boolean hasAttributes();
+    boolean hasFunctions();
 
-    public abstract int getNodeBodyIndent();
+    boolean hasFunctionsInitFiltered();
 
-    public abstract boolean hasInit();
+    boolean isNested();
 
-    public abstract FunctionDefAdapter getFirstInit();
+    boolean hasAttributes();
 
-    public abstract List<SimpleAdapter> getAssignedVariables();
+    boolean hasInit();
 
-    public abstract boolean isNewStyleClass();
-
-    public abstract List<FunctionDefAdapter> getFunctions();
+    boolean isNewStyleClass();
 }

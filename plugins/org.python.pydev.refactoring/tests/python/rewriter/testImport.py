@@ -1,19 +1,19 @@
-# before
-from __future__ import with_statement # on-line
-# before
-from __future__ import division as foovision # on-line
-# after
+# before1
+from __future__ import with_statement # on-line1
+# before2
+from __future__ import division as foovision # on-line2
+# after3
 from __future__ import with_statement as foostatement, generators as barstatement
-# before
-from cmath import * # on-line
+# before3
+from cmath import * # on-line4
 import os, codecs
-# comment after
+# comment after4
 import os, codecs
-# before
-import httplib as httpfoo, array as arraybar # on-line
-# after
-import samplepackage.fibo # on-line
-# after
+# before5
+import httplib as httpfoo, array as arraybar # on-line5
+# after6
+import samplepackage.fibo # on-line6
+# after7
 samplepackage.fib(100)
 
 

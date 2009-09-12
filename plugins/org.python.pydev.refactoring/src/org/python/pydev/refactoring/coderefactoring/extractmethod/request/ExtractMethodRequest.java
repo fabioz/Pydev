@@ -21,21 +21,14 @@ import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class ExtractMethodRequest implements IRefactoringRequest {
 
-    private AbstractScopeNode<?> scopeAdapter;
-
-    private int offsetStrategy;
-
-    private String methodName;
-
-    private ModuleAdapter parsedSelection;
-
-    private List<String> parameters;
-
-    private List<String> returnVariables;
-
-    private Map<String, String> renamedVariables;
-
-    private ITextSelection selection;
+    public final AbstractScopeNode<?> scopeAdapter;
+    public final int offsetStrategy;
+    public final String methodName;
+    public final ModuleAdapter parsedSelection;
+    public final List<String> parameters;
+    public final List<String> returnVariables;
+    public final Map<String, String> renamedVariables;
+    public final ITextSelection selection;
 
     private String endLineDelim;
 
@@ -53,44 +46,13 @@ public class ExtractMethodRequest implements IRefactoringRequest {
         this.endLineDelim = endLineDelim;
     }
 
-    public ITextSelection getSelection() {
-        return selection;
-    }
-
-    public List<String> getParameters() {
-        return parameters;
-    }
-
-    public Map<String, String> getRenamedVariables() {
-        return renamedVariables;
-    }
-
-    public List<String> getReturnVariables() {
-        return returnVariables;
-    }
-
-    public int getOffsetStrategy() {
-        return offsetStrategy;
-    }
-
-    public AbstractScopeNode<?> getScopeAdapter() {
-        return scopeAdapter;
-    }
-
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         IASTNodeAdapter<? extends SimpleNode> offsetNode = scopeAdapter;
-        while(offsetNode instanceof FunctionDefAdapter)
+        while(offsetNode instanceof FunctionDefAdapter){
             offsetNode = offsetNode.getParent();
+        }
 
         return offsetNode;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public ModuleAdapter getParsedSelection() {
-        return parsedSelection;
     }
 
     public String getNewLineDelim() {

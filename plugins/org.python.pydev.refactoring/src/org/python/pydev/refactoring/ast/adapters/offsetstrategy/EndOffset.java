@@ -20,9 +20,9 @@ public class EndOffset extends AbstractOffsetStrategy {
 
     protected int getLine() {
         int endLine = adapter.getNodeLastLine() - 1;
-        if(endLine < 0)
+        if(endLine < 0){
             endLine = 0;
+        }
         return endLine;
     }
-
 }

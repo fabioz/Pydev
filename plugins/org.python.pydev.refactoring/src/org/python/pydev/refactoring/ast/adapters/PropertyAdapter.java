@@ -48,12 +48,15 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
         for(keywordType keyword:getValue().keywords){
             setKeyword(keyword);
         }
-        if(getter == null)
+        if(getter == null){
             getter = createNone();
-        if(setter == null)
+        }
+        if(setter == null){
             setter = createNone();
-        if(delete == null)
+        }
+        if(delete == null){
             delete = createNone();
+        }
 
     }
 
@@ -70,7 +73,7 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
     }
 
     private Name createNone() {
-        return new Name("None", Name.Param, false);
+        return new Name("None", Name.Param, true);
     }
 
     private void setMethod(exprType expr, int i) {
@@ -89,9 +92,12 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
                 delete = name;
                 break;
             case 3:
-                if(!(nodeHelper.isNone(name)))
+                if(!(nodeHelper.isNone(name))){
                     doc = name;
+                }
                 break;
+            default:
+                throw new RuntimeException("Unknown value");
             }
         }
     }

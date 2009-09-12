@@ -1,9 +1,9 @@
 class MyListBase(list):
     
-    def baseListMethod(self):
+    def base_list_method(self):
         pass
     
 class MyList2(MyListBase):
     
-    def listMethod2(self):
+    def list_method_2(self):
         pass

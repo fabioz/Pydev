@@ -1,0 +1,2 @@
+class Qux(object):
+    pass

@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.refactoring.PepticLog;
 import org.python.pydev.refactoring.codegenerator.generatedocstring.GenerateDocstringOperation;
 
 public class GenerateDocstringAction extends PyAction {
@@ -26,7 +25,7 @@ public class GenerateDocstringAction extends PyAction {
         try{
             PydevPlugin.getWorkspace().run(op, new NullProgressMonitor());
         }catch(CoreException e){
-            PepticLog.logError(e);
+            throw new RuntimeException(e);
         }
     }
 }

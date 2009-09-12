@@ -18,12 +18,9 @@ import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class ConstructorFieldRequest implements IRefactoringRequest {
 
-    private IClassDefAdapter classAdapter;
-
-    private List<INodeAdapter> attributeAdapters;
-
-    private int offsetStrategy;
-
+    public final List<INodeAdapter> attributeAdapters;
+    public final int offsetStrategy;
+    public final IClassDefAdapter classAdapter;
     private String newLineDelim;
 
     public ConstructorFieldRequest(IClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters, int offsetStrategy, String newLineDelim) {
@@ -35,18 +32,6 @@ public class ConstructorFieldRequest implements IRefactoringRequest {
 
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return classAdapter;
-    }
-
-    public List<INodeAdapter> getAttributeAdapters() {
-        return attributeAdapters;
-    }
-
-    public IClassDefAdapter getClassAdapter() {
-        return classAdapter;
-    }
-
-    public int getOffsetStrategy() {
-        return offsetStrategy;
     }
 
     public String getNewLineDelim() {

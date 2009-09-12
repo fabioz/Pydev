@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
 
 package org.python.pydev.refactoring.tests;
@@ -7,21 +8,22 @@ package org.python.pydev.refactoring.tests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-public class AllTests {
+public final class AllTests {
+	private AllTests() { }
+	
+	public static Test suite() {
+		TestSuite suite = new TestSuite("PEPTIC Unit tests");
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite("PEPTIC Unit tests");
-
-        // $JUnit-BEGIN$
-        suite.addTest(org.python.pydev.refactoring.tests.rewriter.AllTests.suite());
-        suite.addTest(org.python.pydev.refactoring.tests.core.AllTests.suite());
-        suite.addTest(org.python.pydev.refactoring.tests.adapter.AllTests.suite());
-        suite.addTest(org.python.pydev.refactoring.tests.visitors.AllTests.suite());
-        suite.addTest(org.python.pydev.refactoring.tests.codegenerator.AllTests.suite());
-        suite.addTest(org.python.pydev.refactoring.tests.coderefactoring.AllTests.suite());
-        // suite.addTest(JythonTestSuite.suite());
-        // $JUnit-END$
-        return suite;
-    }
+		// $JUnit-BEGIN$
+		suite.addTest(org.python.pydev.refactoring.tests.rewriter.AllTests.suite());
+		suite.addTest(org.python.pydev.refactoring.tests.adapter.AllTests.suite());
+		suite.addTest(org.python.pydev.refactoring.tests.visitors.AllTests.suite());
+		suite.addTest(org.python.pydev.refactoring.tests.codegenerator.AllTests.suite());
+		suite.addTest(org.python.pydev.refactoring.tests.coderefactoring.AllTests.suite());
+		suite.addTest(org.python.pydev.refactoring.tests.utils.AllTests.suite());
+		// suite.addTest(JythonTestSuite.suite());
+		// $JUnit-END$
+		return suite;
+	}
 
 }

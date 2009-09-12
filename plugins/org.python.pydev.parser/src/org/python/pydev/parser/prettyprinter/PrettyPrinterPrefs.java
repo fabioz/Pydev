@@ -14,6 +14,7 @@ public class PrettyPrinterPrefs {
     private int linesAfterMethod = 0;
     private int linesAfterClass = 0;
     private int spacesAfterColonInDict=0;
+    private int linesAfterSuite=0;
 
     public PrettyPrinterPrefs(String newLine) {
         this.newLine = newLine;
@@ -93,6 +94,13 @@ public class PrettyPrinterPrefs {
 
     public int getLinesAfterClass() {
         return linesAfterClass;
+    }
+
+    public void setLinesAfterSuite(int i) {
+        linesAfterSuite = i;
+    }
+    public int getLinesAfterSuite() {
+        return linesAfterSuite;
     }
 
 }

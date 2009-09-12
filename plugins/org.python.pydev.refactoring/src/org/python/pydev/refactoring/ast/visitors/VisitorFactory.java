@@ -37,7 +37,9 @@ import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
 
-public class VisitorFactory {
+public final class VisitorFactory {
+    private VisitorFactory() {
+    }
 
     public static ITextSelection createSelectionExtension(AbstractScopeNode<?> scope, ITextSelection selection) {
         SelectionExtenderVisitor visitor = null;
@@ -82,32 +84,29 @@ public class VisitorFactory {
      */
     @SuppressWarnings("unchecked")
     public static <T extends AbstractContextVisitor> T createContextVisitor(Class<T> visitorClass, SimpleNode root, ModuleAdapter module, AbstractNodeAdapter parent) {
-        T visitor = null;
         try{
-            visitor = (T) visitorClass.getConstructors()[0].newInstance(new Object[] { module, parent });
+            T visitor = (T) visitorClass.getConstructors()[0].newInstance(new Object[] { module, parent });
             root.accept(visitor);
-        }catch(Throwable e){
+            return visitor;
+        }catch(Exception e){
             throw new RuntimeException(e);
         }
-        return visitor;
     }
 
-    public static ModuleAdapter createModuleAdapter(PythonModuleManager moduleManager, File file, IDocument doc, IPythonNature nature) throws ParseException {
+    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc, IPythonNature nature) throws ParseException {
         if(file != null && file.exists()){
-            if(moduleManager != null){
-                IModulesManager m = moduleManager.getIModuleManager();
-                if(m != null){
-                    String modName = m.resolveModule(REF.getFileAbsolutePath(file));
-                    if(modName != null){
-                        IModule module = m.getModule(modName, nature, true);
-                        if(module instanceof ISourceModule){
-                            return createModuleAdapter(moduleManager, (ISourceModule) module, nature);
-                        }
+            if(pythonModuleManager != null){
+                IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
+                if(modulesManager != null){
+                    String modName = modulesManager.resolveModule(REF.getFileAbsolutePath(file));
+                    IModule module = modulesManager.getModule(modName, nature, true);
+                    if(module instanceof ISourceModule){
+                        return createModuleAdapter(pythonModuleManager, (ISourceModule) module, nature);
                     }
                 }
             }
         }
-        return new ModuleAdapter(moduleManager, file, doc, getRootNode(doc), nature);
+        return new ModuleAdapter(pythonModuleManager, file, doc, getRootNode(doc), nature);
     }
 
     /**
@@ -149,5 +148,4 @@ public class VisitorFactory {
             throw new RuntimeException(objects.o2);
         return (Module) objects.o1;
     }
-
 }

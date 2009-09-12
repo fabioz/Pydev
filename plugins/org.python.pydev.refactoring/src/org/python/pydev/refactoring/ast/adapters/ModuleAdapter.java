@@ -53,21 +53,13 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.info.ImportVisitor;
 
 public class ModuleAdapter extends AbstractScopeNode<Module> {
-
     private List<FQIdentifier> aliasToFQIdentifier;
-
     private IDocument doc;
-
     private File file;
-
     private SortedMap<String, String> importedModules;
-
     private PythonModuleManager moduleManager;
-
     private IOffsetStrategy offsetStrategy;
-
     private ISourceModule sourceModule;
-
     private IPythonNature nature;
 
     public String getEndLineDelimiter() {
@@ -76,7 +68,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     public ModuleAdapter(PythonModuleManager pm, File file, IDocument doc, Module node, IPythonNature nature) {
         super(null, null, node, TextUtilities.getDefaultLineDelimiter(doc));
-        //        Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
+        //		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
         this.moduleManager = pm;
         this.file = file;
         this.doc = doc;
@@ -87,10 +79,10 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     public ModuleAdapter(PythonModuleManager pm, ISourceModule module, IPythonNature nature) {
         super();
-        //        Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
+        //		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
         this.file = module.getFile();
         this.doc = PythonModuleManager.getDocFromFile(this.file);
-        init(null, null, (Module) (module).getAst(), TextUtilities.getDefaultLineDelimiter(this.doc));
+        init(null, null, (Module) module.getAst(), TextUtilities.getDefaultLineDelimiter(this.doc));
         this.sourceModule = module;
         this.moduleManager = pm;
         this.aliasToFQIdentifier = null;
@@ -101,24 +93,36 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof ModuleAdapter){
-            String otherPath = ((ModuleAdapter) obj).getFile().getAbsolutePath();
-            return this.file.getAbsolutePath().compareToIgnoreCase(otherPath) == 0;
+            ModuleAdapter other = (ModuleAdapter) obj;
+            String otherPath = other.getFile().getAbsolutePath();
+            return file.getAbsolutePath().equalsIgnoreCase(otherPath);
         }
         return super.equals(obj);
     }
 
+    /* 
+     * Not sure if this will ever be used, but as the .equals() method has been overwritten
+     * a corresponding hashCode() method is considered good style
+     */
+    @Override
+    public int hashCode() {
+        return this.file.getAbsolutePath().toLowerCase().hashCode();
+    }
+
     public List<FQIdentifier> getAliasToIdentifier() {
-        if(aliasToFQIdentifier == null)
+        if(aliasToFQIdentifier == null){
             initAliasList();
+        }
 
         return aliasToFQIdentifier;
     }
 
-    public List<IClassDefAdapter> getClassHierarchy(IClassDefAdapter scopeClass) {
+    public List<IClassDefAdapter> getClassHierarchy(IClassDefAdapter scopeClass) throws MisconfigurationException {
         List<IClassDefAdapter> bases = new ArrayList<IClassDefAdapter>();
 
         resolveClassHierarchy(bases, scopeClass, new HashSet<String>());
         Collections.reverse(bases);
+        bases.add(new ObjectAdapter(this, this, getEndLineDelimiter()));
 
         return bases;
     }
@@ -154,7 +158,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return this.file;
     }
 
-    public List<String> getGlobarVarNames() {
+    public List<String> getGlobalVariableNames() {
         List<String> globalNames = new ArrayList<String>();
         if(this.sourceModule != null && nature != null){
             try{
@@ -202,17 +206,17 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     }
 
     public SortedMap<String, String> getRegularImportedModules() {
-        if(importedModules == null)
+        if(importedModules == null){
             initAliasList();
+        }
 
         return importedModules;
     }
 
     public IClassDefAdapter getScopeClass(ITextSelection selection) {
         IASTNodeAdapter<? extends SimpleNode> bestClassScope = null;
-        Iterator<IClassDefAdapter> iter = getClasses().iterator();
-        while(iter.hasNext()){
-            IASTNodeAdapter<? extends SimpleNode> classScope = iter.next();
+
+        for(IClassDefAdapter classScope:getClasses()){
             if(isSelectionInAdapter(selection, classScope)){
                 bestClassScope = classScope;
             }
@@ -220,7 +224,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
             if(classScope.getNodeFirstLine() > selection.getEndLine()){
                 break;
             }
-
         }
 
         return (IClassDefAdapter) bestClassScope;
@@ -233,25 +236,22 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     }
 
     public boolean isGlobal(String name) {
-        return getGlobarVarNames().contains(name);
+        return getGlobalVariableNames().contains(name);
     }
 
     private boolean isSelectionInAdapter(ITextSelection selection, IASTNodeAdapter<? extends SimpleNode> adapter) {
-
         int startOffSet = selection.getOffset();
         int endOffSet = selection.getOffset() + selection.getLength();
 
         try{
             int lastLine = adapter.getNodeLastLine() - 1;
-            int adapterStartOffset = doc.getLineOffset(adapter.getNodeFirstLine() - 1) + adapter.getNodeIndent() - 1;
-
+            int adapterStartOffset = doc.getLineOffset(adapter.getNodeFirstLine() - 1) + adapter.getNodeIndent();
             int adapterEndOffset = doc.getLineOffset(lastLine) + doc.getLineLength(lastLine);
 
             return(adapterStartOffset <= startOffSet && adapterEndOffset >= endOffSet);
         }catch(BadLocationException e){
-
+            throw new RuntimeException("Internal error, bad location exception" + e.getMessage());
         }
-        return false;
     }
 
     private boolean isAdapterInSelection(ITextSelection selection, IASTNodeAdapter<? extends SimpleNode> adapter) {
@@ -264,9 +264,8 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
             return(adapterStart >= selectionStart && adapterStart < selectionEnd);
         }catch(BadLocationException e){
-            /* Fall through and return false */
+            return false;
         }
-        return false;
     }
 
     public int getEndOffset(IASTNodeAdapter<? extends SimpleNode> adapter, int adapterStartOffset) throws BadLocationException {
@@ -286,14 +285,14 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     }
 
     public int getStartOffset(IASTNodeAdapter<? extends SimpleNode> adapter) throws BadLocationException {
-        return doc.getLineOffset(adapter.getNodeFirstLine() - 1) + adapter.getNodeIndent() - 1;
+        return doc.getLineOffset(adapter.getNodeFirstLine() - 1) + adapter.getNodeIndent();
     }
 
     public boolean isNodeInSelection(ITextSelection selection, SimpleNode node) {
         return isAdapterInSelection(selection, new SimpleAdapter(this, this, node, getEndLineDelimiter()));
     }
 
-    private IClassDefAdapter resolveClassHierarchy(List<IClassDefAdapter> bases, IClassDefAdapter adap, Set<String> memo) {
+    private IClassDefAdapter resolveClassHierarchy(List<IClassDefAdapter> bases, IClassDefAdapter adap, Set<String> memo) throws MisconfigurationException {
         if(adap.hasBaseClass() && adap.getModule() != null){
 
             List<IClassDefAdapter> baseClasses = adap.getModule().getBaseClasses(adap);
@@ -319,7 +318,12 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         List<String> baseNames = clazz.getBaseClassNames();
         Set<String> classesToResolve = new HashSet<String>(baseNames);
 
-        Set<IClassDefAdapter> resolved = resolveClasses(classesToResolve, completionCache);
+        Set<IClassDefAdapter> resolved;
+        try{
+            resolved = resolveImportedClass(classesToResolve, completionCache);
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
         return new ArrayList<IClassDefAdapter>(resolved);
     }
 
@@ -335,7 +339,12 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
         HashSet<String> toResolve = new HashSet<String>();
         toResolve.add(name);
-        Set<IClassDefAdapter> resolved = resolveClasses(toResolve, completionCache);
+        Set<IClassDefAdapter> resolved;
+        try{
+            resolved = resolveImportedClass(toResolve, completionCache);
+        }catch(MisconfigurationException e){
+            throw new RuntimeException(e);
+        }
         if(toResolve.size() == 1){
             return resolved.iterator().next();
         }
@@ -351,22 +360,23 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
      */
     public List<FQIdentifier> resolveFullyQualified(String aliasName) {
         List<FQIdentifier> qualifiedIdentifiers = new ArrayList<FQIdentifier>();
-        String FQPrefix = "";
+        String fqPrefix = "";
         String aliasIdentifier = "";
         int longestMatch = 0;
 
         for(String module:getRegularImportedModules().keySet()){
             if(aliasName.startsWith(module)){
                 if(module.length() > longestMatch){
-                    FQPrefix = getRegularImportedModules().get(module);
+                    fqPrefix = getRegularImportedModules().get(module);
                     longestMatch = module.length();
                 }
             }
         }
         if(longestMatch > 0){
-            if(aliasName.length() > longestMatch)
+            if(aliasName.length() > longestMatch){
                 aliasIdentifier = aliasName.substring(longestMatch + 1);
-            qualifiedIdentifiers.add(new FQIdentifier(FQPrefix, aliasIdentifier, aliasIdentifier));
+            }
+            qualifiedIdentifiers.add(new FQIdentifier(fqPrefix, aliasIdentifier, aliasIdentifier));
             return qualifiedIdentifiers;
         }
 
@@ -395,11 +405,11 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
      * for each base class, all the tokens from it will be returned, what's missing in this approach is that currently
      * the tokens returned don't have an associated context, so, after getting them, it may be hard to actually
      * tell the whole class structure above it (but this can be considered secondary for now).
+     * @throws MisconfigurationException 
      */
-    private Set<IClassDefAdapter> resolveClasses(Set<String> importedBase, CompletionCache completionCache) {
+    private Set<IClassDefAdapter> resolveImportedClass(Set<String> importedBase, CompletionCache completionCache) throws MisconfigurationException {
         Set<IClassDefAdapter> bases = new HashSet<IClassDefAdapter>();
         if(moduleManager == null){
-            //            throw new RuntimeException("Must be specified!!");
             return bases;
         }
 
@@ -485,15 +495,18 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         AbstractScopeNode<?> bestScopeNode = null;
 
         bestScopeNode = getScopeFunction(selection);
-        if(bestScopeNode == null){
-            bestScopeNode = (AbstractScopeNode<?>) getScopeClass(selection);
+
+        if(bestScopeNode != null){
+            return bestScopeNode;
         }
 
-        if(bestScopeNode == null){
-            bestScopeNode = this;
+        bestScopeNode = (AbstractScopeNode<?>) getScopeClass(selection);
+
+        if(bestScopeNode != null){
+            return bestScopeNode;
         }
 
-        return bestScopeNode;
+        return this;
     }
 
     private AbstractScopeNode<?> getScopeFunction(ITextSelection selection) {
@@ -502,11 +515,13 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         Iterator<FunctionDefAdapter> iter = getFunctions().iterator();
         while(iter.hasNext()){
             FunctionDefAdapter functionScope = iter.next();
-            if(isSelectionInAdapter(selection, functionScope))
+            if(isSelectionInAdapter(selection, functionScope)){
                 scopeAdapter = functionScope;
+            }
 
-            if(functionScope.getNodeFirstLine() > selection.getEndLine())
+            if(functionScope.getNodeFirstLine() > selection.getEndLine()){
                 break;
+            }
         }
         return scopeAdapter;
     }
@@ -582,7 +597,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
             }catch(BadLocationException e){
 
             }
-
         }
         return selection;
     }
@@ -602,12 +616,10 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
                 selection = new TextSelection(doc, startOffset, endOffset - startOffset);
             }catch(BadLocationException e){
-
             }
 
         }
         return selection;
-
     }
 
     @Override
@@ -616,8 +628,9 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
         while(i < getASTNode().body.length){
             SimpleNode node = this.getASTNode().body[i];
-            if(!nodeHelper.isImport(node))
+            if(!nodeHelper.isImport(node)){
                 return node.beginLine;
+            }
             i += 1;
         }
         return 1;
@@ -625,15 +638,16 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     public boolean isImport(String name) {
         for(String module:getRegularImportedModules().keySet()){
-            if(module.compareTo(name) == 0)
+            if(module.compareTo(name) == 0){
                 return true;
+            }
         }
 
         for(FQIdentifier fq:getAliasToIdentifier()){
-            if(fq.getAlias().compareTo(name) == 0)
+            if(fq.getAlias().compareTo(name) == 0){
                 return true;
+            }
         }
         return false;
     }
-
 }

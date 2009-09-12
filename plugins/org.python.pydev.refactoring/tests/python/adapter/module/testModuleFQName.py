@@ -11,7 +11,7 @@ class b(foo.HTTPConnection):
 print port
        
 ##c
-'''
+
 <config>
   <resolveNames>
     <string>bar</string>
@@ -19,7 +19,7 @@ print port
     <string>port</string>
   </resolveNames>
 </config>
-'''
+
        
 ##r
 # bar -> httplib.HTTP

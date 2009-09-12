@@ -1,14 +1,12 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
  */
 
 package org.python.pydev.refactoring.codegenerator.generateproperties.edit;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -23,46 +21,50 @@ import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.GeneratePropertiesRequest;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 
+/**
+ * Creates the delete function:
+ * 
+ * <pre>
+ *    def del_attribute(self):
+ *        del self._attribute
+ * </pre>
+ */
 public class DeleteMethodEdit extends AbstractInsertEdit {
 
-    private static final String DEL = "del";
-
     private String attributeName;
+    private String accessorName;
 
     private int offsetStrategy;
 
     public DeleteMethodEdit(GeneratePropertiesRequest req) {
         super(req);
-        this.offsetStrategy = req.getMethodOffsetStrategy();
-        this.attributeName = nodeHelper.getPublicAttr(req.getAttributeName());
+        this.attributeName = req.getAttributeName();
+        this.accessorName = req.getAccessorName("del", attributeName);
+
+        this.offsetStrategy = req.offsetMethodStrategy;
     }
 
     @Override
     protected SimpleNode getEditNode() {
-        argumentsType args = initArguments();
-        exprType[] targets = initDeleteTarget();
-        List<stmtType> body = initBody(targets);
+        NameTok functionName = new NameTok(accessorName, NameTok.FunctionName);
+        argumentsType args = createArguments();
+        stmtType[] body = createBody();
 
-        return new FunctionDef(new NameTok(DEL + getCapitalString(attributeName), NameTok.FunctionName), args, body.toArray(new stmtType[0]), null, null);
+        return new FunctionDef(functionName, args, body, null, null);
     }
 
-    private List<stmtType> initBody(exprType[] targets) {
-        List<stmtType> body = new ArrayList<stmtType>();
-        body.add(new Delete(targets));
-        return body;
+    private argumentsType createArguments() {
+        exprType[] params = new exprType[] { new Name(NodeHelper.KEYWORD_SELF, Name.Param, false) };
+        return new argumentsType(params, null, null, null, null, null, null, null, null, null);
     }
 
-    private exprType[] initDeleteTarget() {
-        exprType[] targets = new exprType[1];
-        targets[0] = new Attribute(new Name(NodeHelper.KEYWORD_SELF, Name.Load, false), new NameTok(nodeHelper.getPrivateAttr(attributeName), NameTok.Attrib), Attribute.Del);
-        return targets;
-    }
+    private stmtType[] createBody() {
+        Name self = new Name(NodeHelper.KEYWORD_SELF, Name.Load, false);
+        NameTok name = new NameTok(nodeHelper.getPrivateAttr(attributeName), NameTok.Attrib);
+        Attribute attribute = new Attribute(self, name, Attribute.Del);
+        Delete delete = new Delete(new exprType[] { attribute });
 
-    private argumentsType initArguments() {
-        exprType[] params = new exprType[1];
-        params[0] = (new Name(NodeHelper.KEYWORD_SELF, Name.Param, false));
-        argumentsType args = new argumentsType(params, null, null, null, null, null, null, null, null, null);
-        return args;
+        return new stmtType[] { delete };
     }
 
     @Override

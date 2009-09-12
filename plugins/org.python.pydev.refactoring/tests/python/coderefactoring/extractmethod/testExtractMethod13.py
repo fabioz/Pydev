@@ -1,19 +1,28 @@
-def method1():
-    test((0, 0), style=1)
-    
-##c
-'''
-<config>
-  <offset>16</offset>
-  <selectionLength>21</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
+class A:
+    def test(self, a):
+        ##|var = a * a##|
+        print var
+            
+    def my_method(self):
+        print self.attribute
+        
+b = A()
+b.test(55)
 
-##r
-def pepticMethod():
-    return test((0, 0), style=1)
+##r selection starts at the first char
 
-def method1():
-    pepticMethod()
+class A:
 
+    def extracted_method(self, a):
+        var = a * a
+        return var
+
+    def test(self, a):
+        var = self.extracted_method(a)
+        print var
+            
+    def my_method(self):
+        print self.attribute
+        
+b = A()
+b.test(55)

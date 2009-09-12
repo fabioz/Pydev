@@ -8,7 +8,9 @@ print >> fileobj, "foo"
 print >> fileobj
 fileobj.close()
 remove('log')
+
 ##r
+
 print "foo"
 print "foo", 
 print "foo"

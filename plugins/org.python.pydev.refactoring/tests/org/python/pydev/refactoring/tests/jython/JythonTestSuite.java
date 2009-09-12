@@ -1,8 +1,11 @@
 /* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
 
 package org.python.pydev.refactoring.tests.jython;
+
+import java.io.File;
 
 import org.python.pydev.refactoring.tests.core.AbstractIOTestSuite;
 import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
@@ -14,16 +17,22 @@ import junit.framework.Test;
  */
 public class JythonTestSuite extends AbstractIOTestSuite {
 
-    public static Test suite() {
-        JythonTestSuite testSuite = new JythonTestSuite();
+	public JythonTestSuite(String name) {
+		super(name);
+	}
 
-        testSuite.createTests();
+	public static Test suite() {
+		String testdir = "tests" + File.separator + "python" + File.separator + "rewriter";
+		
+		JythonTestSuite testSuite = new JythonTestSuite("Jython");
 
-        return testSuite;
-    }
+		testSuite.createTests(testdir);
 
-    @Override
-    protected IInputOutputTestCase createTestCase(String testCaseName) {
-        return new JythonTestCase(testCaseName);
-    }
+		return testSuite;
+	}
+
+	@Override
+	protected IInputOutputTestCase createTestCase(String testCaseName) {
+		return new JythonTestCase(testCaseName);
+	}
 }

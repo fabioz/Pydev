@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
 
 package org.python.pydev.refactoring.tests.adapter;
@@ -30,7 +31,7 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
 
     private static PythonShell shell;
     
-    File file = new File(TestDependent.TEST_PYDEV_REFACTORING_PLUGIN_LOC+"tests/python/adapter/classdefwithbuiltins/testBaseClass2.py");
+    File file = new File(TestDependent.TEST_PYDEV_REFACTORING_PLUGIN_LOC + "tests/python/adapter/classdefwithbuiltins/testBaseClass2.py");
     
     /*
      * @see TestCase#setUp()
@@ -39,11 +40,11 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
         super.setUp();
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+file.getParent(), false);
+        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) + "|" + file.getParent(), false);
         codeCompletion = new PyCodeCompletion();
 
         //we don't want to start it more than once
-        if(shell == null){
+        if (shell == null) {
             shell = PythonShellTest.startShell();
         }
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, shell);
@@ -70,14 +71,14 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
         
         HashSet<String> actual = new HashSet<String>();
         for (IClassDefAdapter adapter : baseClasses) {
-            actual.add(adapter.getName());
-        }
+			actual.add(adapter.getName());
+		}
         HashSet<String> expected = new HashSet<String>();
         expected.add("MyList2");
         expected.add("__builtin__.list");
         expected.add("MyListBase");
         
-        assertEquals(expected, actual);
+		assertEquals(expected, actual);
     }
     
     

@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -19,6 +20,10 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 
+/**
+ * Looks for all variables in a defined scope
+ *
+ */
 public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter> {
 
     public ScopeVariablesVisitor(ModuleAdapter module, AbstractScopeNode<?> parent) {
@@ -27,20 +32,24 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public void visit(SimpleNode node) throws Exception {
-        if(nodeHelper.isClassDef(node))
+        if(nodeHelper.isClassDef(node)){
             return;
-        if(nodeHelper.isFunctionDef(node))
+        }
+        if(nodeHelper.isFunctionDef(node)){
             return;
+        }
 
         super.visit(node);
     }
 
     @Override
     public void traverse(SimpleNode node) throws Exception {
-        if(nodeHelper.isClassDef(node))
+        if(nodeHelper.isClassDef(node)){
             return;
-        if(nodeHelper.isFunctionDef(node))
+        }
+        if(nodeHelper.isFunctionDef(node)){
             return;
+        }
 
         super.traverse(node);
     }
@@ -80,8 +89,9 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public Object visitName(Name node) throws Exception {
-        if(node.id.compareTo(NodeHelper.KEYWORD_SELF) == 0)
+        if(node.id.compareTo(NodeHelper.KEYWORD_SELF) == 0){
             return null;
+        }
 
         registerInContext(node);
         return null;

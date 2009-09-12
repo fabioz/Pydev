@@ -11,25 +11,23 @@ package org.python.pydev.refactoring.ast.adapters;
 import org.python.pydev.parser.jython.SimpleNode;
 
 public interface IASTNodeAdapter<T extends SimpleNode> extends INodeAdapter {
+    T getASTNode();
 
-    public abstract T getASTNode();
+    SimpleNode getASTParent();
 
-    public abstract SimpleNode getASTParent();
+    int getNodeBodyIndent();
 
-    public abstract int getNodeBodyIndent();
+    int getNodeFirstLine();
 
-    public abstract int getNodeFirstLine();
+    int getNodeIndent();
 
-    public abstract int getNodeIndent();
+    int getNodeLastLine();
 
-    public abstract int getNodeLastLine();
+    AbstractNodeAdapter<? extends SimpleNode> getParent();
 
-    public abstract AbstractNodeAdapter<? extends SimpleNode> getParent();
+    SimpleNode getParentNode();
 
-    public abstract SimpleNode getParentNode();
+    boolean isModule();
 
-    public abstract boolean isModule();
-
-    public ModuleAdapter getModule();
-
+    ModuleAdapter getModule();
 }

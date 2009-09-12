@@ -41,57 +41,38 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
+import org.python.pydev.refactoring.codegenerator.generateproperties.GeneratePropertiesRefactoring;
 import org.python.pydev.refactoring.codegenerator.generateproperties.GeneratePropertiesRequestProcessor;
-import org.python.pydev.refactoring.ui.model.OffsetStrategyModel;
-import org.python.pydev.refactoring.ui.model.OffsetStrategyProvider;
-import org.python.pydev.refactoring.ui.model.generateproperties.PropertyTreeProvider;
-import org.python.pydev.refactoring.ui.model.tree.TreeLabelProvider;
+import org.python.pydev.refactoring.core.model.OffsetStrategyModel;
+import org.python.pydev.refactoring.core.model.OffsetStrategyProvider;
+import org.python.pydev.refactoring.core.model.generateproperties.PropertyTreeProvider;
+import org.python.pydev.refactoring.ui.core.TreeLabelProvider;
 
 public class GeneratePropertiesPage extends UserInputWizardPage {
+    private static final String PAGE_NAME = "GeneratePropertiesPage";
 
     private final OffsetStrategyProvider strategyProvider;
-
     private Composite mainComp = null;
-
     private Group visibilityGroup = null;
-
     private Composite buttonComp = null;
-
     private Button selectAll = null;
-
     private Button deselectAll = null;
-
     private Button publicVis = null;
-
     private Button pseudoprivateVis = null;
-
     private CLabel cLabel = null;
-
     private Composite treeComp = null;
-
     private Composite comboComp = null;
-
     private ComboViewer methodInsertionComb = null;
-
     private ComboViewer propertyInsertionComb = null;
-
     private CLabel methodInsertionLbl = null;
-
     private CLabel propertyInsertionLbl = null;
-
     private ContainerCheckedTreeViewer treeViewer = null;
-
     private PropertyTreeProvider classProvider;
-
-    private GeneratePropertiesRequestProcessor requestProcessor;
-
     private ILabelProvider labelProvider;
 
-    public GeneratePropertiesPage(String name, PropertyTreeProvider provider, GeneratePropertiesRequestProcessor requestProcessor) {
-        super(name);
-        this.setTitle(name);
+    public GeneratePropertiesPage(PropertyTreeProvider provider) {
+        super(PAGE_NAME);
         this.classProvider = provider;
-        this.requestProcessor = requestProcessor;
         this.labelProvider = new TreeLabelProvider();
 
         this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
@@ -145,7 +126,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         publicVis.setText(wizardAccessPublic);
         publicVis.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
-                requestProcessor.setAccessModifier(NodeHelper.ACCESS_PUBLIC);
+                getRequestProcsseor().setAccessModifier(NodeHelper.ACCESS_PUBLIC);
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {
@@ -155,7 +136,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         pseudoprivateVis.setText(wizardAccessPseudo);
         pseudoprivateVis.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
-                requestProcessor.setAccessModifier(NodeHelper.ACCESS_PSEUDO);
+                getRequestProcsseor().setAccessModifier(NodeHelper.ACCESS_PSEUDO);
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {
@@ -181,7 +162,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         selectAll.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(true);
-                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+                getRequestProcsseor().setCheckedElements(treeViewer.getCheckedElements());
                 GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
             }
         });
@@ -191,7 +172,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         deselectAll.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(false);
-                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+                getRequestProcsseor().setCheckedElements(treeViewer.getCheckedElements());
                 GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
             }
         });
@@ -228,11 +209,11 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
                 if(!sel.isEmpty()){
                     OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
-                    requestProcessor.setMethodDestination(elem.getStrategy());
+                    getRequestProcsseor().setMethodDestination(elem.getStrategy());
                 }
             }
         });
-        requestProcessor.setMethodDestination(strategyProvider.get(0).getStrategy());
+        getRequestProcsseor().setMethodDestination(strategyProvider.get(0).getStrategy());
         methodInsertionComb.getCombo().select(0);
 
         propertyInsertionLbl = new CLabel(comboComp, SWT.NONE);
@@ -244,12 +225,12 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
                 if(!sel.isEmpty()){
                     OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
-                    requestProcessor.setPropertyDestination(elem.getStrategy());
+                    getRequestProcsseor().setPropertyDestination(elem.getStrategy());
                 }
             }
         });
 
-        requestProcessor.setPropertyDestination(strategyProvider.get(2).getStrategy());
+        getRequestProcsseor().setPropertyDestination(strategyProvider.get(2).getStrategy());
         propertyInsertionComb.getCombo().select(2);
 
     }
@@ -258,7 +239,7 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         treeViewer = new ContainerCheckedTreeViewer(treeComp);
         treeViewer.addCheckStateListener(new ICheckStateListener() {
             public void checkStateChanged(CheckStateChangedEvent event) {
-                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+                getRequestProcsseor().setCheckedElements(treeViewer.getCheckedElements());
                 GeneratePropertiesPage.this.getWizard().getContainer().updateButtons();
             }
         });
@@ -289,4 +270,11 @@ public class GeneratePropertiesPage extends UserInputWizardPage {
         return(treeViewer.getCheckedElements().length > 0);
     }
 
+    protected GeneratePropertiesRequestProcessor getRequestProcsseor() {
+        return getGeneratePropertiesRefactoring().getRequestProcessor();
+    }
+
+    private GeneratePropertiesRefactoring getGeneratePropertiesRefactoring() {
+        return (GeneratePropertiesRefactoring) getRefactoring();
+    }
 }

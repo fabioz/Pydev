@@ -56,8 +56,9 @@ public class ImportVisitor extends VisitorBase {
 
             String realName = name.id;
             String aliasName = name.id;
-            if(asName != null)
+            if(asName != null){
                 aliasName = asName.id;
+            }
 
             addModuleImport(aliasName, realName);
         }
@@ -80,8 +81,9 @@ public class ImportVisitor extends VisitorBase {
 
                 String realName = name.id;
                 String aliasName = name.id;
-                if(asName != null)
+                if(asName != null){
                     aliasName = asName.id;
+                }
 
                 aliasToFQIdentifier.add(new FQIdentifier(prefix, realName, aliasName));
 
@@ -93,8 +95,9 @@ public class ImportVisitor extends VisitorBase {
     }
 
     private void addModuleImport(String moduleAlias, String realName) {
-        if(!(importedModules.containsKey(moduleAlias)))
+        if(!(importedModules.containsKey(moduleAlias))){
             importedModules.put(moduleAlias, realName);
+        }
     }
 
     @Override

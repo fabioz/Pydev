@@ -1,5 +1,6 @@
 /* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
 
 package org.python.pydev.refactoring.tests.codegenerator.overridemethods;
@@ -13,17 +14,21 @@ import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
 
 public class OverrideMethodsTestSuite extends AbstractIOTestSuite {
 
-    public static Test suite() {
-        TESTDIR = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "overridemethods";
-        OverrideMethodsTestSuite testSuite = new OverrideMethodsTestSuite();
+	public OverrideMethodsTestSuite(String name) {
+		super(name);
+	}
 
-        testSuite.createTests();
+	public static Test suite() {
+		String testdir = "tests" + File.separator + "python" + File.separator + "codegenerator" + File.separator + "overridemethods";
+		OverrideMethodsTestSuite testSuite = new OverrideMethodsTestSuite("Override Method");
 
-        return testSuite;
-    }
+		testSuite.createTests(testdir);
 
-    @Override
-    protected IInputOutputTestCase createTestCase(String testCaseName) {
-        return new OverrideMethodsTestCase(testCaseName);
-    }
+		return testSuite;
+	}
+
+	@Override
+	protected IInputOutputTestCase createTestCase(String testCaseName) {
+		return new OverrideMethodsTestCase(testCaseName);
+	}
 }

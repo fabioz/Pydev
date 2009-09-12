@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -9,7 +10,8 @@ package org.python.pydev.refactoring.core.edit;
 
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
-import org.python.pydev.refactoring.ast.rewriter.RewriterVisitor;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public abstract class AbstractReplaceEdit extends AbstractTextEdit {
@@ -19,11 +21,11 @@ public abstract class AbstractReplaceEdit extends AbstractTextEdit {
     }
 
     @Override
-    public TextEdit getEdit() {
-        return new ReplaceEdit(getOffset(), getReplaceLength(), getFormatedNode());
+    public TextEdit getEdit() throws MisconfigurationException {
+        return new ReplaceEdit(getOffset(), getReplaceLength(), getFormattedNode());
     }
 
-    protected String getFormatedNode() {
+    protected String getFormattedNode() throws MisconfigurationException {
         String source = RewriterVisitor.createSourceFromAST(getEditNode(), newLineDelim);
         return source.trim();
     }

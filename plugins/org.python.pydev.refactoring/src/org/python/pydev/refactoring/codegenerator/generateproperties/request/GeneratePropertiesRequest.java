@@ -11,27 +11,27 @@ package org.python.pydev.refactoring.codegenerator.generateproperties.request;
 import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
+import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
+import org.python.pydev.refactoring.utils.StringUtils;
 
 public class GeneratePropertiesRequest implements IRefactoringRequest {
 
+    public final INodeAdapter attributeAdapter;
+    public final int offsetMethodStrategy;
+    public final int offsetPropertyStrategy;
+    public final int accessModifier;
+
     private IClassDefAdapter classAdapter;
-
-    private INodeAdapter attributeAdapter;
-
     private SelectionState state;
-
-    private int offsetMethodStrategy;
-
-    private int offsetPropertyStrategy;
-
-    private int accessModifier;
-
     private String endLineDelim;
+    private NodeHelper nodeHelper;
 
     public GeneratePropertiesRequest(IClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties, int offsetMethodStrategy, int offsetPropertyStrategy,
             int accessModifier, String endLineDelim) {
@@ -42,11 +42,8 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
         this.offsetPropertyStrategy = offsetPropertyStrategy;
         this.accessModifier = accessModifier;
         this.endLineDelim = endLineDelim;
+        this.nodeHelper = new NodeHelper(endLineDelim);
         initialize(properties);
-    }
-
-    public IClassDefAdapter getClassAdapter() {
-        return classAdapter;
     }
 
     private void initialize(List<PropertyTextAdapter> properties) {
@@ -70,14 +67,6 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
         }
     }
 
-    public INodeAdapter getAttributeAdapter() {
-        return attributeAdapter;
-    }
-
-    public String getAttributeName() {
-        return getAttributeAdapter().getName();
-    }
-
     public SelectionState getSelectionState() {
         return state;
     }
@@ -86,19 +75,38 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
         return classAdapter;
     }
 
-    public int getMethodOffsetStrategy() {
-        return offsetMethodStrategy;
-    }
-
-    public int getPropertyOffsetStrategy() {
-        return offsetPropertyStrategy;
-    }
-
-    public int getAccessModifier() {
-        return accessModifier;
-    }
-
     public String getNewLineDelim() {
         return this.endLineDelim;
+    }
+
+    /**
+     * @return the attribute name, for example "an_attribute"
+     */
+    public String getAttributeName() {
+        return nodeHelper.getPublicAttr(attributeAdapter.getName());
+    }
+
+    /**
+     * @return the property name, for example "_an_attribute"
+     */
+    public String getPropertyName() {
+        return nodeHelper.getAccessName(getAttributeName(), accessModifier);
+    }
+
+    /**
+     * Joins the two strings to get the accessor function name, adhering to the
+     * user's preferred style (camelCase or snake_case).
+     * 
+     * @param accessType "get", "set" or "del"
+     * @param attributeName for example "an_attribute"
+     * @return for example "set_an_attribute" or "setAnAttribute"
+     */
+    public String getAccessorName(String accessType, String attributeName) {
+        if(PydevPlugin.getDefault() != null && PyCodeStylePreferencesPage.useLocalsAndAttrsCamelCase()){
+            return accessType + StringUtils.capitalize(attributeName);
+        }else{
+            // snake_case is the user's preference or the tests are running.
+            return accessType + "_" + attributeName;
+        }
     }
 }

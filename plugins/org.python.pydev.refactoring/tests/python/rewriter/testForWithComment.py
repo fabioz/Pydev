@@ -12,7 +12,7 @@ else: # on-line else
     print "bar" # this will be printer at last
 # after else body
 
-for (y) in (x): # on-line for
+for (y) in (x): # on-line for 2
     for a in x:
         print "foo" # on-line foo
         # after 1. body - disappears currently
@@ -21,5 +21,4 @@ for (y) in (x): # on-line for
     
 else:
     print "bla"
-
 # after else body (last line)

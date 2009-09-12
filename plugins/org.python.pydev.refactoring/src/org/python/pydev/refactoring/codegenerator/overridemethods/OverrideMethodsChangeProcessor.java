@@ -8,10 +8,11 @@
 
 package org.python.pydev.refactoring.codegenerator.overridemethods;
 
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.codegenerator.overridemethods.edit.MethodEdit;
 import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
-import org.python.pydev.refactoring.core.RefactoringInfo;
-import org.python.pydev.refactoring.core.change.AbstractFileChangeProcessor;
+import org.python.pydev.refactoring.core.base.AbstractFileChangeProcessor;
+import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 
@@ -22,7 +23,7 @@ public class OverrideMethodsChangeProcessor extends AbstractFileChangeProcessor<
     }
 
     @Override
-    protected void processEdit() {
+    protected void processEdit() throws MisconfigurationException {
         for(OverrideMethodsRequest req:requestProcessor.getRefactoringRequests()){
             MethodEdit methodEdit = new MethodEdit(req);
             registerEdit(methodEdit, Messages.overrideMethodsMethods);

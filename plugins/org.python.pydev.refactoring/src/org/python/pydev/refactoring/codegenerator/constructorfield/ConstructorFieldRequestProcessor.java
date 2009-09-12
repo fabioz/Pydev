@@ -16,10 +16,10 @@ import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
+import org.python.pydev.refactoring.core.model.constructorfield.TreeNodeClassField;
+import org.python.pydev.refactoring.core.model.constructorfield.TreeNodeField;
+import org.python.pydev.refactoring.core.model.tree.ITreeNode;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
-import org.python.pydev.refactoring.ui.model.constructorfield.TreeNodeClassField;
-import org.python.pydev.refactoring.ui.model.constructorfield.TreeNodeField;
-import org.python.pydev.refactoring.ui.model.tree.ITreeNode;
 
 public class ConstructorFieldRequestProcessor implements IRequestProcessor<ConstructorFieldRequest> {
 
@@ -54,28 +54,30 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
         while(iter.hasNext()){
             ITreeNode node = iter.next();
             if(node instanceof TreeNodeClassField){
-                addRequest(requests, iter, node);
+                List<INodeAdapter> fields = getFields(iter);
+                if(!fields.isEmpty()){
+                    ClassDefAdapter clazz = (ClassDefAdapter) node.getAdapter();
+                    ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy, endLineDelim);
+                    requests.add(request);
+                }
             }
         }
 
         return requests;
     }
 
-    private void addRequest(List<ConstructorFieldRequest> requests, Iterator<ITreeNode> iter, ITreeNode node) {
+    private List<INodeAdapter> getFields(Iterator<ITreeNode> iter) {
         List<INodeAdapter> fields = new ArrayList<INodeAdapter>();
         ITreeNode field = iter.next();
         while(field instanceof TreeNodeField){
             fields.add(field.getAdapter());
-            if(iter.hasNext())
+            if(iter.hasNext()){
                 field = iter.next();
-            else
+            }else{
                 break;
+            }
         }
-        if(fields.size() > 0){
-            ClassDefAdapter clazz = (ClassDefAdapter) node.getAdapter();
-            ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy, endLineDelim);
-            requests.add(request);
-        }
+        return fields;
     }
 
     public void setMethodDestination(int strat) {

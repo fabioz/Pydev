@@ -6,8 +6,8 @@ class B:
     def __init__(self):
         print "B" 
         
-    def simpleMeth(self):
-        print "simpleMeth B"
+    def simple_meth(self):
+        print "simple_meth B"
         
 class C(A, B):
     def __init__(self):
@@ -21,8 +21,8 @@ class D(B):
         self.a = 2
         print "D"
     
-    def simpleMeth(self):
-        print "simpleMeth D"
+    def simple_meth(self):
+        print "simple_meth D"
         
     def noarg():
         print "foo"
@@ -31,13 +31,13 @@ class D(B):
         print vararg
         
 class E(D, B):
-    def __init__(self):  
+    def __init__(self):
         D.__init__(self, 2)
         print "E"
         
 e = E()
 d = D()
-d.simpleMeth()
+d.simple_meth()
         
 ##r
 # ClassName FunctionName hasArg hasVarArg hasKwArg ArgumentsOnly
@@ -46,7 +46,7 @@ d.simpleMeth()
 
 # B
 # __init__ true false false [self]
-# simpleMeth true false false [self]
+# simple_meth true false false [self]
 
 # C
 # __init__ true false false [self]
@@ -54,7 +54,7 @@ d.simpleMeth()
 
 # D
 # __init__ true false false [self, a]
-# simpleMeth true false false [self]
+# simple_meth true false false [self]
 # noarg false false false []
 # vararg true true false [self]
 

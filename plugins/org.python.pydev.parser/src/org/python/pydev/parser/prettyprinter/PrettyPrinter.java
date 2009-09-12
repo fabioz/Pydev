@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
@@ -27,6 +28,7 @@ import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.DictComp;
+import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.For;
@@ -153,7 +155,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             name.accept(this);
             auxComment.writeSpecialsAfter(name);
         }
-        afterNode(node);
+        afterNode(node, false);
         fixNewStatementCondition();
         return null;
     }
@@ -167,7 +169,7 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             name.accept(this);
             auxComment.writeSpecialsAfter(name);
         }
-        afterNode(node);
+        afterNode(node, false);
         return null;
     }
 
@@ -291,6 +293,14 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
     
+    
+    @Override
+    public Object visitEllipsis(Ellipsis node) throws Exception {
+        auxComment.writeSpecialsBefore(node);
+        this.state.write("...");
+        auxComment.writeSpecialsAfter(node);
+        return null;
+    }
     
     @Override
     public Object visitSet(Set node) throws Exception {
@@ -449,14 +459,10 @@ public class PrettyPrinter extends PrettyPrinterUtils{
             n.accept(this);
         }
         dedent();
-        
-        if(node.orelse != null){
-            state.indent();
-            auxComment.writeSpecialsBefore(node.orelse);
-            auxComment.writeSpecialsAfter(node.orelse);
-            afterNode(node.orelse);
-            node.orelse.accept(this);
-            dedent();
+        visitOrElsePart(node.orelse);
+
+        for(int i=0;i<prefs.getLinesAfterSuite();i++){
+            state.writeNewLine();
         }
         return null;
     }
@@ -579,9 +585,52 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         return null;
     }
     
+    
     @Override
     public Object visitSlice(Slice node) throws Exception {
-        return visitGeneric(node, "visitSlice", false);
+        state.pushInStmt(node);
+        
+        for(List<Object> lst:
+            new List[]{
+                node.specialsBefore,
+                node.specialsAfter,
+                
+                node.lower==null?null:node.lower.specialsBefore,
+                node.lower==null?null:node.lower.specialsAfter,
+                        
+                node.upper==null?null:node.upper.specialsBefore,
+                node.upper==null?null:node.upper.specialsAfter,
+                        
+                node.step==null?null:node.step.specialsBefore,
+                node.step==null?null:node.step.specialsAfter,
+                }){
+            if(lst!=null){
+                for(Iterator<Object> it=lst.iterator();it.hasNext();){
+                    Object o = it.next();
+                    if(o!= null && o.toString().equals(":")){
+                        it.remove();
+                    }
+                }
+            }
+        }
+        
+        auxComment.writeSpecialsBefore(node);
+        if(node.lower!=null){
+            node.lower.accept(this);
+        }
+        state.write(prefs.getReplacement(":"));
+        if(node.upper!=null){
+            node.upper.accept(this);
+        }
+        if(node.step!=null){
+            state.write(prefs.getReplacement(":"));
+            node.step.accept(this);
+        }
+        
+        auxComment.writeSpecialsAfter(node);
+        state.popInStmt();
+        
+        return null;
     }
     
     @Override
@@ -661,9 +710,10 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         dedent();
         
         
+        auxComment.writeSpecialsAfter(node);
+        
         if(node.orelse != null && node.orelse.length > 0){
             boolean inElse = false;
-            auxComment.writeSpecialsAfter(node);
             
             //now, if it is an elif, it will end up calling the 'visitIf' again,
             //but if it is an 'else:' we will have to make the indent again
@@ -786,11 +836,14 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         printDecorators(node.decs);
         fixNewStatementCondition();
         auxComment.writeSpecialsBefore(node);
+        auxComment.writeSpecialsBefore(node.name);
         state.write("def ");
         
         state.indent();
         int lastWrite = state.getLastWrite();
+        auxComment.setWriteCommentsBeforeEnabled(false);
         node.name.accept(this);
+        auxComment.setWriteCommentsBeforeEnabled(true);
         auxComment.writeStringsAfter(node);
         
         {
@@ -847,8 +900,8 @@ public class PrettyPrinter extends PrettyPrinterUtils{
         exprType[] args = completeArgs.args;
         exprType[] d = completeArgs.defaults;
         exprType[] anns = completeArgs.annotation;
-        int argsLen = args.length;
-        int defaultsLen = d.length;
+        int argsLen = args==null?0:args.length;
+        int defaultsLen = d==null?0:d.length;
         int diff = argsLen-defaultsLen;
         
         for(int i=0;i<args.length;i++) {

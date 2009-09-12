@@ -16,16 +16,12 @@ import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class OverrideMethodsRequest implements IRefactoringRequest {
 
+    public final FunctionDefAdapter method;
+    public final int offsetStrategy;
+    public final boolean generateMethodComments;
+
     private IClassDefAdapter classAdapter;
-
-    private FunctionDefAdapter method;
-
-    private int offsetStrategy;
-
-    private boolean generateMethodComments;
-
     private String baseClassName;
-
     private String endLineDelim;
 
     public OverrideMethodsRequest(IClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method, boolean generateMethodComments, String baseClassName, String endLineDelim) {
@@ -39,18 +35,6 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
 
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return classAdapter;
-    }
-
-    public FunctionDefAdapter getFunctionAdapter() {
-        return method;
-    }
-
-    public int getOffsetStrategy() {
-        return offsetStrategy;
-    }
-
-    public boolean getGenerateMethodComments() {
-        return generateMethodComments;
     }
 
     public String getBaseClassName() {

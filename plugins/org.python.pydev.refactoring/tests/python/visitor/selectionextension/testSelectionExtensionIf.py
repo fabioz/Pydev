@@ -1,27 +1,19 @@
 class A:
     def test(self):
-        if (2 == 3):
+        ##|if (2 == 3):
             print "foo"
-        else:
+        els##|e:
             print "bar"
-        anAttribute = "hello"  
+        attribute = "hello"  
     
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
 a.test()
 
-##c 
-'''
-<config>
-  <offset>37</offset>
-  <selectionLength>48</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
-
 ##r
+
 if (2 == 3):
     print "foo"
 else:

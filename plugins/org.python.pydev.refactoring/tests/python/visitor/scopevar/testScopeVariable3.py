@@ -6,13 +6,14 @@ class A:
         var = a * a
         print var
             
-    def myMethod(self):
-        print self.anAttribute
+    def my_method(self):
+        print self.attribute
         
 a = A()
 a.test()
 
 ##r
+
 # test 7
 ## a
 ## a
@@ -22,6 +23,6 @@ a.test()
 ## a
 ## var
 
-# myMethod 0
+# my_method 0
 
 # A 0

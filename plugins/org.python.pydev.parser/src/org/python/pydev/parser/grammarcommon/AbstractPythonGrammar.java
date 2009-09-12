@@ -1,5 +1,6 @@
 package org.python.pydev.parser.grammarcommon;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.commentType;
 
 public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers implements ITreeConstants, IGrammar{
 
@@ -53,8 +55,51 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      */
     protected final void addToPeekCallFunc(Object t, boolean after) {
         Call n = (Call) getJJTree().peekNode();
-        n.func.addSpecial(t, after);
+        addSpecial(n.func, t, after);
     }
+
+
+    private SpecialStr lastSpecial; 
+    private SimpleNode lastNodeWithSpecial; 
+    
+    public final void addSpecialTokenToLastOpened(Object o) throws ParseException{
+        o = convertStringToSpecialStr(o);
+        if(o != null){
+            SimpleNode lastOpened = getJJTree().getLastOpened();
+            if(o instanceof SpecialStr){
+                lastSpecial = (SpecialStr) o;
+                lastNodeWithSpecial = lastOpened;
+            }
+            
+            lastOpened.getSpecialsBefore().add(o);
+
+        }
+    }
+    
+    
+    private void addSpecial(SimpleNode node, Object special, boolean after) {
+        if(special instanceof Token){
+            Token t = (Token) special;
+            commentType comment = new commentType(t.image.trim());
+            comment.beginColumn = t.beginColumn;
+            comment.beginLine = t.beginLine;
+            special = comment;
+            
+            if(node.beginLine != comment.beginLine){
+                if(lastSpecial != null && lastNodeWithSpecial != null){
+                    if(comment.beginLine < lastSpecial.beginLine ||
+                            (comment.beginLine == lastSpecial.beginLine && comment.beginColumn < lastSpecial.beginCol)){
+                        List<Object> specialsBefore = lastNodeWithSpecial.getSpecialsBefore();
+                        specialsBefore.add(specialsBefore.indexOf(lastSpecial), comment);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        node.addSpecial(special, after);
+    }
+    
 
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
@@ -79,7 +124,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
         }
         t = convertStringToSpecialStr(t);
         if(t != null){
-            peeked.addSpecial(t, after);
+            addSpecial(peeked, t, after);
         }
 
     }
@@ -144,9 +189,9 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
                         // in this case, we'll do some checks to see if it is really correct (checking for the line and column)
 
                         if (next instanceof Token) {
-                            findTokenToAdd((Token) next).addSpecial(next, after);
+                            addSpecial(findTokenToAdd((Token) next), next, after);
                         } else {
-                            prev.addSpecial(next, after);
+                            addSpecial(prev, next, after);
                         }
                     }
                 }
@@ -184,13 +229,6 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
         }
         return prev;
 
-    }
-
-    public final void addSpecialTokenToLastOpened(Object o) throws ParseException{
-        o = convertStringToSpecialStr(o);
-        if(o != null){
-            getJJTree().getLastOpened().getSpecialsBefore().add(o);
-        }
     }
     
     public final void addSpecialToken(Object o, int strategy) throws ParseException {

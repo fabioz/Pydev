@@ -64,13 +64,6 @@ public class SimpleNode implements Node, ISimpleNode{
      */
     public void addSpecial(Object special, boolean after) {
         if(special != null){
-            if(special instanceof Token){
-                Token t = (Token) special;
-                commentType comment = new commentType(t.image.trim());
-                comment.beginColumn = t.beginColumn;
-                comment.beginLine = t.beginLine;
-                special = comment;
-            }
             
             if(after){
                 if(special instanceof commentType){
@@ -79,6 +72,7 @@ public class SimpleNode implements Node, ISimpleNode{
                     int addAt = countAfter(special, false);
                     getSpecialsAfter().add(addAt, special);
                 }
+                
             }else{
                 if(special instanceof commentType){
                     commentType s = (commentType) special;

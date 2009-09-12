@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -77,8 +78,9 @@ public class SelectionExtenderVisitor extends VisitorBase {
     }
 
     protected SimpleNode visit(SimpleNode node) throws Exception {
-        if(node == null)
+        if(node == null){
             return null;
+        }
 
         updateSelection(node);
 
@@ -98,18 +100,14 @@ public class SelectionExtenderVisitor extends VisitorBase {
             node.accept(this);
         }
 
-        if(hasSpecialInSelection(node, node.getSpecialsBefore())){
-            this.extendNodeInSelection = node;
-        }
-
-        if(hasSpecialInSelection(node, node.getSpecialsAfter())){
+        if(isAnyInSelection(node.getSpecialsBefore()) || isAnyInSelection(node.getSpecialsAfter())){
             this.extendNodeInSelection = node;
         }
 
         return node;
     }
 
-    private boolean hasSpecialInSelection(SimpleNode node, List<Object> specials) {
+    private boolean isAnyInSelection(List<Object> specials) {
         for(Object o:specials){
             Str strNode = convertSpecialToStr(o);
             if(strNode != null){
@@ -331,8 +329,9 @@ public class SelectionExtenderVisitor extends VisitorBase {
 
     private void updateStack(SimpleNode node) {
         if(!stmtExprStack.isEmpty()){
-            if(node == stmtExprStack.peek())
+            if(node == stmtExprStack.peek()){
                 return;
+            }
         }
         if(node instanceof stmtType || node instanceof exprType){
             stmtExprStack.push(node);

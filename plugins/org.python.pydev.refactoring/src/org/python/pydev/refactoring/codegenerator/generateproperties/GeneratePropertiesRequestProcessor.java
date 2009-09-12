@@ -16,10 +16,10 @@ import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.GeneratePropertiesRequest;
+import org.python.pydev.refactoring.core.model.generateproperties.TreeAttributeNode;
+import org.python.pydev.refactoring.core.model.generateproperties.TreeClassNode;
+import org.python.pydev.refactoring.core.model.tree.TreeNodeSimple;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
-import org.python.pydev.refactoring.ui.model.generateproperties.TreeAttributeNode;
-import org.python.pydev.refactoring.ui.model.generateproperties.TreeClassNode;
-import org.python.pydev.refactoring.ui.model.tree.TreeNodeSimple;
 
 public class GeneratePropertiesRequestProcessor implements IRequestProcessor<GeneratePropertiesRequest> {
 
@@ -83,8 +83,9 @@ public class GeneratePropertiesRequestProcessor implements IRequestProcessor<Gen
 
         for(TreeAttributeNode elem:getAttributes()){
             GeneratePropertiesRequest request = extractRequest(elem);
-            if(request != null)
+            if(request != null){
                 requests.add(request);
+            }
         }
 
         return requests;

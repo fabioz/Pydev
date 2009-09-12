@@ -1,21 +1,14 @@
 a = 5
 b = 5
-if (a == b):
+if (a == ##|b##|):
     print "equal"
-##c
-'''
-<config>
-  <offset>21</offset>
-  <selectionLength>1</selectionLength>
-  <offsetStrategy>0</offsetStrategy>
-</config>
-'''
 
 ##r
-def pepticMethod(b):
+
+def extracted_method(b):
     return b
 
 a = 5
 b = 5
-if (a == pepticMethod(b)):
+if (a == extracted_method(b)):
     print "equal"

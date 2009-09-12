@@ -29,48 +29,34 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
+import org.python.pydev.refactoring.codegenerator.constructorfield.ConstructorFieldRefactoring;
 import org.python.pydev.refactoring.codegenerator.constructorfield.ConstructorFieldRequestProcessor;
+import org.python.pydev.refactoring.core.model.OffsetStrategyModel;
+import org.python.pydev.refactoring.core.model.OffsetStrategyProvider;
+import org.python.pydev.refactoring.core.model.constructorfield.ClassFieldTreeProvider;
 import org.python.pydev.refactoring.messages.Messages;
-import org.python.pydev.refactoring.ui.model.OffsetStrategyModel;
-import org.python.pydev.refactoring.ui.model.OffsetStrategyProvider;
-import org.python.pydev.refactoring.ui.model.constructorfield.ClassFieldTreeProvider;
-import org.python.pydev.refactoring.ui.model.tree.TreeLabelProvider;
+import org.python.pydev.refactoring.ui.core.TreeLabelProvider;
 
 public class ConstructorFieldPage extends UserInputWizardPage {
+    public static final String PAGE_NAME = "ConstructorFieldPage"; //$NON-NLS-1$
 
     private final OffsetStrategyProvider strategyProvider;
-
     private Composite mainComp = null;
-
     private Composite buttonComp = null;
-
     private Button selectAll = null;
-
     private Button deselectAll = null;
-
     private CLabel cLabel = null;
-
     private Composite treeComp = null;
-
     private Composite comboComp = null;
-
     private ComboViewer methodInsertionComb = null;
-
     private CLabel methodInsertionLbl = null;
-
     private ContainerCheckedTreeViewer treeViewer = null;
-
     private ClassFieldTreeProvider classProvider;
-
-    private ConstructorFieldRequestProcessor requestProcessor;
-
     private ILabelProvider labelProvider;
 
-    public ConstructorFieldPage(String name, ClassFieldTreeProvider provider, ConstructorFieldRequestProcessor requestProcessor2) {
-        super(name);
-        this.setTitle(name);
+    public ConstructorFieldPage(ClassFieldTreeProvider provider) {
+        super(PAGE_NAME);
         this.classProvider = provider;
-        this.requestProcessor = requestProcessor2;
         this.labelProvider = new TreeLabelProvider();
 
         this.strategyProvider = new OffsetStrategyProvider(IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
@@ -119,7 +105,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         selectAll.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(true);
-                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+                getRequestProcessor().setCheckedElements(treeViewer.getCheckedElements());
                 ConstructorFieldPage.this.getWizard().getContainer().updateButtons();
             }
         });
@@ -129,7 +115,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         deselectAll.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 treeViewer.setAllChecked(false);
-                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+                getRequestProcessor().setCheckedElements(treeViewer.getCheckedElements());
                 ConstructorFieldPage.this.getWizard().getContainer().updateButtons();
             }
         });
@@ -166,12 +152,12 @@ public class ConstructorFieldPage extends UserInputWizardPage {
                 IStructuredSelection sel = (IStructuredSelection) event.getSelection();
                 if(!sel.isEmpty()){
                     OffsetStrategyModel elem = (OffsetStrategyModel) sel.getFirstElement();
-                    requestProcessor.setMethodDestination(elem.getStrategy());
+                    getRequestProcessor().setMethodDestination(elem.getStrategy());
                 }
             }
         });
 
-        requestProcessor.setMethodDestination(strategyProvider.get(0).getStrategy());
+        getRequestProcessor().setMethodDestination(strategyProvider.get(0).getStrategy());
         methodInsertionComb.getCombo().select(0);
     }
 
@@ -179,7 +165,7 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         treeViewer = new ContainerCheckedTreeViewer(treeComp);
         treeViewer.addCheckStateListener(new ICheckStateListener() {
             public void checkStateChanged(CheckStateChangedEvent event) {
-                requestProcessor.setCheckedElements(treeViewer.getCheckedElements());
+                getRequestProcessor().setCheckedElements(treeViewer.getCheckedElements());
                 ConstructorFieldPage.this.getWizard().getContainer().updateButtons();
             }
         });
@@ -203,6 +189,14 @@ public class ConstructorFieldPage extends UserInputWizardPage {
         v.setLabelProvider(new LabelProvider());
         v.setInput("");
         return v;
+    }
+
+    private ConstructorFieldRequestProcessor getRequestProcessor() {
+        return getConstructorFieldRefactoring().getRequestProcesor();
+    }
+
+    public ConstructorFieldRefactoring getConstructorFieldRefactoring() {
+        return (ConstructorFieldRefactoring) getRefactoring();
     }
 
     @Override

@@ -4,7 +4,7 @@ def myfunc():
     print "hello"
     local = 5
 
-class foo:
+class Foo:
     def myfoo(self, x, y):
         print "myfoO"
         mylocalfoo = 123
@@ -18,6 +18,7 @@ global4 = global3
 global4.myfoo()
 
 ##r ignore self
+
 # myfunc 1
 ## local
 
@@ -26,5 +27,5 @@ global4.myfoo()
 ## y
 ## mylocalfoo
 
-# foo 1
+# Foo 1
 ## a

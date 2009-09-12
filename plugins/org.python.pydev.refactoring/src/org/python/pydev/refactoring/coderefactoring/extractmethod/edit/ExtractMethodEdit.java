@@ -49,14 +49,14 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 
     public ExtractMethodEdit(ExtractMethodRequest req) {
         super(req);
-        this.methodName = req.getMethodName();
-        this.scopeAdapter = req.getScopeAdapter();
-        this.parsedSelection = req.getParsedSelection();
-        this.offsetStrategy = req.getOffsetStrategy();
+        this.methodName = req.methodName;
+        this.scopeAdapter = req.scopeAdapter;
+        this.parsedSelection = req.parsedSelection;
+        this.offsetStrategy = req.offsetStrategy;
 
-        this.parameters = req.getParameters();
-        this.returnVariables = req.getReturnVariables();
-        this.renamedVariables = req.getRenamedVariables();
+        this.parameters = req.parameters;
+        this.returnVariables = req.returnVariables;
+        this.renamedVariables = req.renamedVariables;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
         if(this.scopeAdapter instanceof FunctionDefAdapter){
             IASTNodeAdapter<? extends SimpleNode> parentScopeAdapter = scopeAdapter.getParent();
             while(parentScopeAdapter instanceof FunctionDefAdapter){
-                parentScopeAdapter = scopeAdapter.getParent();
+                parentScopeAdapter = parentScopeAdapter.getParent();
             }
             if(parentScopeAdapter instanceof IClassDefAdapter){
                 argsList.add(new Name("self", Name.Load, false));
@@ -111,6 +111,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
             try{
                 extractedMethod.accept(renameVisitor);
             }catch(Exception e){
+                throw new RuntimeException(e);
             }
         }
     }

@@ -1,5 +1,6 @@
 /* 
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
  * 
@@ -20,15 +21,10 @@ import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 
 public class ParameterReturnDeduce {
-
     private List<String> parameters;
-
     private Set<String> returns;
-
     private AbstractScopeNode<?> scopeAdapter;
-
     private ITextSelection selection;
-
     private ModuleAdapter moduleAdapter;
 
     public ParameterReturnDeduce(AbstractScopeNode<?> scope, ITextSelection selection, ModuleAdapter moduleAdapter) {
@@ -41,11 +37,11 @@ public class ParameterReturnDeduce {
     }
 
     private void deduce() {
+        ModuleAdapter module = scopeAdapter.getModule();
+        List<SimpleAdapter> selected = module.getWithinSelection(selection, scopeAdapter.getUsedVariables());
+
         List<SimpleAdapter> before = new ArrayList<SimpleAdapter>();
         List<SimpleAdapter> after = new ArrayList<SimpleAdapter>();
-        ModuleAdapter module = scopeAdapter.getModule();
-        List<SimpleAdapter> selected = module.getWithinSelection(this.selection, scopeAdapter.getUsedVariables());
-
         extractBeforeAfterVariables(selected, before, after);
 
         deduceParameters(before, selected);
@@ -53,16 +49,20 @@ public class ParameterReturnDeduce {
 
     }
 
-    /**
-     * Needed fix: only add it if it is not a global (unless it shadows a global)
-     */
     private void deduceParameters(List<SimpleAdapter> before, List<SimpleAdapter> selected) {
-        Set<String> globarVarNames = new HashSet<String>(moduleAdapter.getGlobarVarNames());
+        Set<String> globalVariableNames = new HashSet<String>(moduleAdapter.getGlobalVariableNames());
 
         for(SimpleAdapter adapter:before){
             if(adapter.getASTNode() instanceof Name){
                 Name variable = (Name) adapter.getASTNode();
-                if(globarVarNames.contains(variable.id)){
+                if(globalVariableNames.contains(variable.id) && !isStored(variable.id, before)){
+                    // It's a global variable and there's no assignment
+                    // shadowing it in the local scope, so don't add it as a
+                    // parameter.
+                    continue;
+                }
+                if(variable.id.equals("True") || variable.id.equals("False") || variable.id.equals("None")){
+                    // The user most likely doesn't want them to be passed.
                     continue;
                 }
                 if(isUsed(variable.id, selected)){
@@ -88,8 +88,9 @@ public class ParameterReturnDeduce {
     private void extractBeforeAfterVariables(List<SimpleAdapter> selectedVariables, List<SimpleAdapter> before, List<SimpleAdapter> after) {
         List<SimpleAdapter> scopeVariables = scopeAdapter.getUsedVariables();
 
-        if(selectedVariables.size() < 1)
+        if(selectedVariables.isEmpty()){
             return;
+        }
 
         SimpleAdapter firstSelectedVariable = selectedVariables.get(0);
         SimpleAdapter lastSelectedVariable = selectedVariables.get(selectedVariables.size() - 1);
@@ -149,8 +150,9 @@ public class ParameterReturnDeduce {
                 }
             }
 
-            if(isStored)
+            if(isStored){
                 break;
+            }
         }
         return isStored;
     }

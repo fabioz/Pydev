@@ -1,11 +1,11 @@
 /* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
+ * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
 
 package org.python.pydev.refactoring.tests.core;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 
 import junit.framework.TestSuite;
@@ -14,66 +14,55 @@ import junit.framework.TestSuite;
  * @author Dennis Hunziker, Ueli Kistler
  */
 public abstract class AbstractIOTestSuite extends TestSuite {
+	private static final int EXTENSION = 3;
+	protected static final String I = File.separator;
 
-    protected static String TESTDIR = "tests" + File.separator + "python" + File.separator + "rewriter";
+	// can be used to choose which test we want to run
+//	public static final String FILE_FILTER = "^test.+\\.py$";
+	public static final String FILE_FILTER = "^testList.py$";
 
-    // can be used to choose which test we want to run
-    public static String FILE_FILTER = "^test.+\\.py$";
-    static{
-//        FILE_FILTER = "testExtractMethod12.py";
-//        FILE_FILTER = "testBoolOp.py";
-//        FILE_FILTER = "testDoubleAssign.py";
-//        FILE_FILTER = "testOverrideMethodsBuiltins.py";
-//        FILE_FILTER = "testDecorators2.py";
-    }
+	
+	public AbstractIOTestSuite(String name) {
+		super(name);
+	}
+	
+	protected void createTests(String testdir) {
+		for (File testFile : getTestFiles(testdir)) {
+			this.addTest(createTest(testFile));
+		}
+	}
 
-    protected void createTests() {
-        File[] testFiles = getTestFiles(System.getProperty("testDir", TESTDIR));
+	private IInputOutputTestCase createTest(File file) {
+		String filename = file.getName();
+		String testCaseName = filename.substring(0, filename.length() - EXTENSION);
 
-        if (testFiles == null)
-            return;
+		TestData data = new TestData(file);
+		IInputOutputTestCase testCase = createTestCase(testCaseName);
+		testCase.setData(data);
+		
+		
+		return testCase;
+	}
 
-        for (File testFile : testFiles) {
-            this.addTest(createTest(testFile));
-        }
-    }
+	private File[] getTestFiles(String path) {
+		File dir = new File(path);
+		if(!dir.exists()){
+		    throw new RuntimeException("No such directory: " + dir.getAbsolutePath());
+		}
+		File[] testFiles = dir.listFiles(new TestFilenameFilter());
+		
+		if (testFiles == null) {
+			throw new RuntimeException("No such directory or IO error while looking for files in " + path);
+		}
 
-    private IInputOutputTestCase createTest(File file) {
-        String filename = file.getName();
-        String testCaseName = filename.substring(0, filename.length() - 3);
+		return testFiles;
+	}
 
-        IInputOutputTestCase testCase = createTestCase(testCaseName);
-
-        IOTestCaseLexer lexer;
-        try {
-            lexer = new IOTestCaseLexer(new FileReader(file));
-            lexer.scan();
-            testCase.setFile(file);
-            testCase.setSource(lexer.getSource());
-            testCase.setResult(lexer.getResult());
-            testCase.setConfig(lexer.getConfig());
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-
-        return testCase;
-    }
-
-    protected abstract IInputOutputTestCase createTestCase(String testCaseName);
-
-    private File[] getTestFiles(String path) {
-        File dir = new File(path);
-        File[] testFiles = dir.listFiles(new TestFilenameFilter());
-
-        return testFiles;
-    }
-
-    protected class TestFilenameFilter implements FilenameFilter {
-
-        public boolean accept(File dir, String name) {
-            return name.matches(System.getProperty("filter", FILE_FILTER));
-        }
-
-    }
-
+	private final class TestFilenameFilter implements FilenameFilter {
+		public boolean accept(File dir, String name) {
+			return name.matches(System.getProperty("filter", FILE_FILTER));
+		}
+	}
+	
+	protected abstract IInputOutputTestCase createTestCase(String testCaseName);
 }

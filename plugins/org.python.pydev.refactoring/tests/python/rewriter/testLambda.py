@@ -1,10 +1,10 @@
-def make_incrementor(n):
+def make_incrementer(n):
     return lambda x: x + n
 
-a = make_incrementor(5)
+a = make_incrementer(5)
 print a(10)
-def varprinter(a, b, *arg, **args):
-    print a, b, arg, args
+def varprinter(a, b, *args, **kwargs):
+    print a, b, args, kwargs
 
 def make_lambda(a, b, *c, **d):
     return lambda a, f=b, *g, **h: varprinter(a)

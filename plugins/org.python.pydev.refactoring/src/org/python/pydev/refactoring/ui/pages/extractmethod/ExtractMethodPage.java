@@ -16,19 +16,18 @@ import java.util.Map;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
+import org.python.pydev.refactoring.coderefactoring.extractmethod.ExtractMethodRefactoring;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.ExtractMethodRequestProcessor;
-import org.python.pydev.refactoring.ui.model.table.SimpleTableItem;
 import org.python.pydev.refactoring.ui.pages.PyDevInputWizardPage;
+import org.python.pydev.refactoring.ui.pages.core.SimpleTableItem;
 
 public class ExtractMethodPage extends PyDevInputWizardPage {
-    private ExtractMethodRequestProcessor requestProcessor;
+    private static final String PAGE_NAME = "ExtractMethodPage";
     private ExtractMethodComposite extractComposite;
     private Composite parent;
 
-    public ExtractMethodPage(String name, ExtractMethodRequestProcessor requestProcessor) {
-        super(name);
-        this.setTitle(name);
-        this.requestProcessor = requestProcessor;
+    public ExtractMethodPage() {
+        super(PAGE_NAME);
     }
 
     public void createControl(Composite parent) {
@@ -41,9 +40,9 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
             extractComposite.dispose();
             extractComposite = null;
         }
-        boolean hasArguments = this.requestProcessor.getDeducer().getParameters().size() > 0;
+        boolean hasArguments = getRequestProcessor().getDeducer().getParameters().size() > 0;
 
-        extractComposite = new ExtractMethodComposite(this, parent, hasArguments, requestProcessor.getScopeAdapter());
+        extractComposite = new ExtractMethodComposite(this, parent, hasArguments, getRequestProcessor().getScopeAdapter());
 
         extractComposite.registerListeners(this);
         updateArgumentTable();
@@ -55,7 +54,7 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
 
     public void updateArgumentTable() {
         if(extractComposite != null && extractComposite.getArgumentsTable() != null){
-            extractComposite.initTable(requestProcessor.getDeducer().getParameters());
+            extractComposite.initTable(getRequestProcessor().getDeducer().getParameters());
         }
     }
 
@@ -74,8 +73,8 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
     }
 
     private void applySettings() {
-        this.requestProcessor.setMethodName(extractComposite.getFunctionName());
-        this.requestProcessor.setOffsetStrategy(extractComposite.getOffsetStrategy());
+        this.getRequestProcessor().setMethodName(extractComposite.getFunctionName());
+        this.getRequestProcessor().setOffsetStrategy(extractComposite.getOffsetStrategy());
 
         if(extractComposite.getArgumentsTable() != null){
             List<String> parameterOrder = new ArrayList<String>();
@@ -87,9 +86,17 @@ public class ExtractMethodPage extends PyDevInputWizardPage {
                     parameterOrder.add(tableItem.getOriginalName());
                 }
             }
-            requestProcessor.setParameterMap(parameterMap);
-            requestProcessor.setParameterOrder(parameterOrder);
+            getRequestProcessor().setParameterMap(parameterMap);
+            getRequestProcessor().setParameterOrder(parameterOrder);
         }
+    }
+
+    private ExtractMethodRequestProcessor getRequestProcessor() {
+        return getExtractMethodRefactoring().getRequestProcessor();
+    }
+
+    private ExtractMethodRefactoring getExtractMethodRefactoring() {
+        return (ExtractMethodRefactoring) getRefactoring();
     }
 
     public void handleEvent(Event event) {

@@ -8,22 +8,23 @@ class Rectangle(object):
             print "foo nested class"
 
     a = Foo() 
-    a.foo()          
+    a.foo()
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.color = "red"
-        localBorder = "bold"
-    def getArea(self):
+        local_border = "bold"
+    def get_area(self):
         return self.width * self.height
    
-    area = property(getArea, doc='area of the rectangle')
+    area = property(get_area, doc='area of the rectangle')
     
-myRectangle = Rectangle(10, 15)
-print myRectangle.width
-print myRectangle.area
+rect = Rectangle(10, 15)
+print rect.width
+print rect.area
 
 ##r
+
 # 3
 # Rectangle false
 # Foo true
