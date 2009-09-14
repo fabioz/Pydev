@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testStarred();
+            test.testExec();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -883,7 +883,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    pass\n" +
         "except select.error,err:\n" +
         "    if False:\n" +
-        "        raise \n" +
+        "        raise\n" +
         "    else:\n" +
         "        return \n" +
         "";
@@ -1061,7 +1061,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "try:\n" +
         "    print 'foo'\n" +
         "except:\n" +
-        "    raise \n" +
+        "    raise\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -1157,10 +1157,16 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     }
     
     public void testCall4() throws Exception {
-        String s = ""+
+        final String s = ""+
         "callIt(a=2,*args,**kwargs)\n" +
         "";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
     }
     
     
@@ -1225,7 +1231,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         String s = ""+
         "class Foo:\n" +
         "    def __init__(self,a,b):\n" +
-        "        print self,#comment0\n" +
+        "        print self#comment0\n" +
         "        a,\n" +
         "        b\n" +
         "    def met1(self,a):#ok comment1\n" +
@@ -1271,6 +1277,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         String s = "X or Y and X and Y or X\n";
         checkPrettyPrintEqual(s);
     }
+    
     public void testFuncComment() throws Exception {
         String s = ""+
         "def foo():\n" +
@@ -1400,12 +1407,20 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     }
     
     public void testDocStrings3() throws Exception {
-        String s = ""+
+        final String s = ""+
         "class Class1:\n" +
         "    def met1(self,a):\n" +
         "        ur'unicoderaw' + 'foo'\n" +
         "";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+            }
+        });
     }
     
     public void testDict() throws Exception {
@@ -1430,11 +1445,17 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     }
     
     public void testTuple2() throws Exception {
-        String s = ""+
+        final String s = ""+
         "if a:\n"+
         "    a = (a,b,#comment\n" +
         "        c)\n";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
     }
     
     public void testIfElse0() throws Exception {
@@ -1489,7 +1510,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     }
     
     public void testCommentAndIf() throws Exception {
-        String s = "" +
+        final String s = "" +
                 "def initiate_send():\n" +
                 "    if 10:\n" +
                 "        # try to send the buffer\n" +
@@ -1498,7 +1519,13 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
                 "        except:\n" +
                 "            pass\n" +
                 "";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
     }
     
 
@@ -1551,9 +1578,15 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     }
     
     public void testFloorDiv() throws Exception {
-        String s = ""+
+        final String s = ""+
         "a = 1 // 1\n";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
     }
     
     public void testNoComments2() throws Exception {
@@ -1589,13 +1622,19 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     }
     
     public void testComments2() throws Exception {
-        String s = ""+
+        final String s = ""+
         "class Foo(object):#test comment\n" +
         "    def m1(self,a,#c1\n" +
         "        b):#c2\n" +
         "        pass\n" +
         "";
-        checkPrettyPrintEqual(s);
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
         
     }
     

@@ -389,7 +389,7 @@ $FILE_INPUT
 void funcdef(): {}
 { 
     decorators()
-    <DEF> {this.markLastAsSuiteStart();} Name() parameters() $COLON suite() 
+    $DEF_START parameters() $COLON suite() 
 }
 
 //@ call, name, attr ... <nl>
@@ -398,12 +398,12 @@ void decorators(): {}
     (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} insidetuporcall() $RPAREN ] $NEWLINE )* 
 }
 void begin_decorator(): {}
-{ <AT> dotted_name()
+{ $AT dotted_name()
 }
 
 //parameters: '(' [varargslist] ')'
 void parameters() #void: {}
-{ <LPAREN>{this.findTokenAndAdd("(");}
+{ $LPAREN2
   [varargslist()] 
   $RPAREN
   }
@@ -427,11 +427,11 @@ void ExtraKeywordList(): {}
 { (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
 void defaultarg(): {}
-{ fpdef() [<EQUAL> {this.prev.addSpecial("=", true);} test()] }
+{ fpdef() [temporaryToken=<EQUAL> {this.prev.addSpecial(temporaryToken, true);} test()] }
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() $RPAREN  }
+{ Name() | $LPAREN1   fplist() $RPAREN  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
@@ -445,12 +445,12 @@ $SIMPLE_STMT
 
 
 //small_stmt: expr_stmt | print_stmt  | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | exec_stmt | assert_stmt
-void small_stmt() #void: {SimpleNode simpleNode;Object spStr;}
+void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 {
     expr_stmt()
 |   print_stmt()
 |   del_stmt()
-|   pass_stmt() {addToPeek("pass", false); }
+|   spStr=pass_stmt() {addToPeek(spStr, false); }
 |   flow_stmt()
 |   import_stmt()
 |   global_stmt()
@@ -493,17 +493,11 @@ void print_stmt() #void: {}
 }
 
 
-//del_stmt: 'del' exprlist
-void del_stmt(): {}
-{ begin_del_stmt() exprlist() }
+$DELL_STMT
 
-void begin_del_stmt(): {}
-{ <DEL> {this.addToPeek("del ",false);}
-}
 
-//pass_stmt: 'pass'
-void pass_stmt(): {}
-{ <PASS> }
+$PASS_STMT
+
 
 //flow_stmt: break_stmt | continue_stmt | return_stmt | yield_stmt | raise_stmt
 void flow_stmt() #void: {}
@@ -532,7 +526,7 @@ $YIELD
 
 //raise_stmt: 'raise' [test [',' test [',' test]]]
 void raise_stmt(): {}
-{ <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [$COMMA test() [$COMMA test()]]] }
+{ $RAISE [test() [$COMMA test() [$COMMA test()]]] }
 
 
 $IMPORT_STMT
@@ -547,10 +541,10 @@ Import Import(): {}
 //              'import' ('*' | '(' import_as_names ')' | import_as_names))
 void ImportFrom(): { int level=0; int state=0;String fromName=null;String importName=null; }
 {
-    //we need to set the  <IMPORT> {this.addSpecialToken(" import ");} in both otherwise the lookahead will not work as we want it to work
+    //we need to set the  $IMPORT in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
      (("." {this.addSpecialToken(".");level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
-     <IMPORT> {this.addSpecialToken(" import ");} 
+     $IMPORT 
     
     (
         //from xxx import *
@@ -562,7 +556,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
           ) 
         
         //from xxx import (a,b,c)
-        | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
+        | $LPAREN1   
           (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
           (
            ({
@@ -570,9 +564,8 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
                  throw new ParseException("Invalid syntax: 2 commas cannot be grouped.", getToken(1));
              }
              state=1; 
-             this.addSpecialToken(",");
              } 
-             <COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
+             $COMMA ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
            $RPAREN 
           )
     )
@@ -582,7 +575,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 
 //dotted_as_name: dotted_name [NAME NAME]
 void dotted_as_name(): {}
-{ dotted_name() [<AS> {this.addSpecialToken(" as ");} Name()] }
+{ dotted_name() [$AS Name()] }
 
 //dotted_name: NAME ('.' NAME)*
 String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
@@ -593,7 +586,7 @@ String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }
-{ t=Name() [<AS> {this.addSpecialToken(" as ");} Name()] { return t.image; } }
+{ t=Name() [$AS Name()] { return t.image; } }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
@@ -601,7 +594,7 @@ void global_stmt(): {}
 
 //exec_stmt: 'exec' expr ['in' test [',' test]]
 void exec_stmt(): {}
-{ <EXEC>{this.addSpecialTokenToLastOpened("exec ");} expr() [<IN>{this.addSpecialToken(" in ");} test() [$COMMA test()]] }
+{ temporaryToken=<EXEC>{this.addSpecialTokenToLastOpened(temporaryToken);} expr() [temporaryToken=<IN>{this.addSpecialToken(temporaryToken);} test() [$COMMA test()]] }
 
 
 $ASSERT
@@ -636,7 +629,7 @@ void begin_else_stmt(): {}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() $COLON suite()
+{   <FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened("for ");} exprlist() $IN SmartTestList() $COLON suite()
     [begin_for_else_stmt() suite()]
     
 } 
@@ -698,7 +691,7 @@ void with_stmt(): {}
 
 //with_var: 'as' expr
 void with_var():{}
-{ <AS> {this.addSpecialToken(" as ", STRATEGY_BEFORE_NEXT);} expr()}
+{ $AS2 expr()}
 
 $SUITE
 
@@ -718,7 +711,7 @@ void old_test()#void:{}
 
 //old_lambdef: 'lambda' [varargslist] ':' old_test
 void old_lambdef():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} old_test() }
+{ <LAMBDA> [varargslist(){hasArgs=true;}] $LAMBDA_COLON old_test() }
 
 
 //test: or_test ['if' or_test 'else' test] | lambdef
@@ -812,25 +805,25 @@ void power() #void: {}
 { atomtrailer() (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
-void atomtrailer() #void: {Object spStr;Object spStr2;}
+void atomtrailer() #void: {Token spStr;Token spStr2;}
 {
 atom() 
 (
     LOOKAHEAD(2) (  
-    {spStr  = createSpecialStr("(", false);} <LPAREN>  
-    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+    spStr =  <LPAREN>  
+    spStr2 =  <RPAREN> 
     )#Call_Op(1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-    {spStr  = createSpecialStr("(", false);} <LPAREN>  
+    spStr =  <LPAREN>  
     insidetuporcall() 
-    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+    spStr2 =  <RPAREN> 
     ) #Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 
-|   {spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   spStr =  <LBRACKET> 
     subscriptlist()
-    {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
+    spStr2 =  <RBRACKET>  
     #Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   <DOT> Name() #Dot_Op(2) 
@@ -839,31 +832,31 @@ atom()
 
 
 //atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | '`' testlist '`' | NAME | NUMBER | STRING+
-void atom() #void: {Object spStr;Object spStr2;}
+void atom() #void: {Token spStr;Token spStr2;}
 {
     LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+      spStr =  <LPAREN>  
+      spStr2 =  <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      spStr =  <LPAREN>  
       (yield_expr() | insidetuporcall())
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+      spStr2 =  <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
-|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] $RPAREN  )
+|   ( $LPAREN1   [SmartTestList()] $RPAREN  )
 
-|   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   ( spStr =  <LBRACKET> 
       [listmaker()] 
-      {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
+      spStr2 =  <RBRACKET>  
     ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
       
       
-|   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
+|   ( spStr  = <LBRACE> 
       [dictmaker()] 
-      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
+      spStr2  =  <RBRACE> 
     ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
     
 |   "`" SmartTestList() "`" #str_1op(1)
@@ -881,7 +874,7 @@ void insidetuporcall() #void: {}
 //lambdef: 'lambda' [varargslist] ':' test
 //we add the colon to the args if there is some argument... otherwise, we add it to the first token that appears on the test
 void lambdef():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} test() }
+{ <LAMBDA> [varargslist(){hasArgs=true;}] $LAMBDA_COLON test() }
 
 //subscriptlist: subscript (',' subscript)* [',']
 void subscriptlist() #void: {}
@@ -928,15 +921,15 @@ void list_iter() #void: {}
 
 //list_for: 'for' exprlist 'in' testlist list_iter
 void list_for(): {}
-{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} testlist_safe() [list_iter()] }
+{ $FOR_COMP exprlist() $IN testlist_safe() [list_iter()] }
 
 void list_if()#void:{}
-{ <IF>  {this.addSpecialToken(" if ");} old_test() [list_iter()]}
+{ $IF_COMP old_test() [list_iter()]}
 
 
 //classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
 void classdef(): {}
-{<CLASS> {this.markLastAsSuiteStart();} Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [testlist()] $RPAREN ] $COLON suite()}
+{$START_CLASS [$LPAREN1   [testlist()] $RPAREN ] $COLON suite()}
 
 //arglist: (argument ',')*
 //              (argument [',']| '*' test [',' '**' test] | '**' test)
@@ -963,7 +956,7 @@ void ExtraKeywordValueList(): {}
 
 //argument: [test '='] test     # Really [keyword '='] test
 void argument() #void: {}
-{ ([LOOKAHEAD(2) Name() <EQUAL>{this.addSpecialToken("=");}] test()) #Keyword(>1) }
+{ ([LOOKAHEAD(2) Name() $EQUAL] test()) #Keyword(>1) }
 
 
 void Number() #Num :

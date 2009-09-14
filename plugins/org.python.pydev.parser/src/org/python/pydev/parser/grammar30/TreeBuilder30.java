@@ -546,11 +546,11 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             test = (exprType) stack.popNode();
             arguments = makeArguments(arity - 1);
             Lambda lambda = new Lambda(arguments, test);
-            if(arguments == null || arguments.args == null || arguments.args.length == 0){
-                lambda.getSpecialsBefore().add("lambda");
-            }else{
-                lambda.getSpecialsBefore().add("lambda ");
-            }
+//            if(arguments == null || arguments.args == null || arguments.args.length == 0){
+//                lambda.getSpecialsBefore().add("lambda");
+//            }else{
+//                lambda.getSpecialsBefore().add("lambda ");
+//            }
             return lambda;
         case JJTELLIPSES:
             return new Ellipsis();

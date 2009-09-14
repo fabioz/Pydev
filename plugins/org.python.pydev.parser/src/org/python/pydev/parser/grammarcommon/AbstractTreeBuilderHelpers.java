@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
@@ -51,9 +52,16 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
     }
 
     protected final exprType[] makeExprs() {
-        if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA)
-            stack.popNode();
-        return makeExprs(stack.nodeArity());
+        SimpleNode commaNode = null;
+        if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA){
+            commaNode = stack.popNode();
+        }
+        int arity = stack.nodeArity();
+        exprType[] exprs = makeExprs(arity);
+        if(commaNode != null && arity > 0){
+            exprs[arity-1].addSpecial(new SpecialStr(",", commaNode.beginLine, commaNode.beginColumn), true);
+        }
+        return exprs;
     }
     
     

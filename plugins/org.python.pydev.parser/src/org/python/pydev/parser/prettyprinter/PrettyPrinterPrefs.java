@@ -6,7 +6,7 @@ package org.python.pydev.parser.prettyprinter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PrettyPrinterPrefs {
+public class PrettyPrinterPrefs implements IPrettyPrinterPrefs {
 
     private String newLine;
     private String spacesBeforeComment="";
@@ -101,6 +101,41 @@ public class PrettyPrinterPrefs {
     }
     public int getLinesAfterSuite() {
         return linesAfterSuite;
+    }
+
+    @Override
+    public String getBoolOperatorMapping(int op) {
+        throw new RuntimeException("Not impl");
+    }
+
+    @Override
+    public String getOperatorMapping(int op) {
+        throw new RuntimeException("Not impl");
+    }
+
+    @Override
+    public String getUnaryopOperatorMapping(int op) {
+        throw new RuntimeException("Not impl");
+    }
+
+    @Override
+    public String getAssignPunctuation() {
+        throw new RuntimeException("Not impl");
+    }
+
+    @Override
+    public String getCmpOp(int op) {
+        throw new RuntimeException("Not impl");
+    }
+
+    @Override
+    public String getAugOperatorMapping(int op) {
+        throw new RuntimeException("Not impl");
+    }
+
+    @Override
+    public void setReplacement(String original, String replacement) {
+        throw new RuntimeException("Not impl");
     }
 
 }

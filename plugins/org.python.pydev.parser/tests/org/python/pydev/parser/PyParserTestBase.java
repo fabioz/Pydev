@@ -167,7 +167,7 @@ public class PyParserTestBase extends TestCase {
         for(Iterator<Integer> it = IGrammarVersionProvider.grammarVersions.iterator();it.hasNext();){
             //try with all the grammars
             final Integer i = it.next();
-//            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
 //            if(i != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
 //                continue;
 //            }
@@ -175,11 +175,8 @@ public class PyParserTestBase extends TestCase {
             try {
                 iCallback.call(i);
             } catch (Throwable e) {
-                final AssertionError assertionError = new AssertionError("\nFound error while parsing with version: "+
-                        IGrammarVersionProvider.grammarVersionToRep.get(i)+"\n\n"+e.getMessage());
-                
-                assertionError.setStackTrace(e.getStackTrace());
-                throw assertionError;
+                throw new RuntimeException("\nFound error while parsing with version: "+
+                        IGrammarVersionProvider.grammarVersionToRep.get(i)+"\n\n"+e.getMessage(), e);
             }
         }
     }

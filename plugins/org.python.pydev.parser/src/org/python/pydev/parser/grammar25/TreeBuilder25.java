@@ -92,7 +92,6 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
             boolean nl = true;
             if (stack.nodeArity() == 0){
                 Print p = new Print(null, null, true);
-                p.getSpecialsBefore().add(0, "print ");
                 return p;
             }
             
@@ -101,7 +100,6 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 nl = false;
             }
             Print p = new Print(null, makeExprs(), nl);
-            p.getSpecialsBefore().add(0, "print ");
             return p;
         case JJTPRINTEXT_STMT:
             nl = true;
@@ -111,8 +109,6 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
             }
             exprs = makeExprs(stack.nodeArity()-1);
             p = new Print(((exprType) stack.popNode()), exprs, nl);
-            p.getSpecialsBefore().add(0, ">> ");
-            p.getSpecialsBefore().add(0, "print ");
             return p;
         case JJTBEGIN_FOR_ELSE_STMT:
             return new suiteType(null);
@@ -406,11 +402,11 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
             test = (exprType) stack.popNode();
             arguments = makeArguments(arity - 1);
             Lambda lambda = new Lambda(arguments, test);
-            if(arguments == null || arguments.args == null || arguments.args.length == 0){
-                lambda.getSpecialsBefore().add("lambda");
-            }else{
-                lambda.getSpecialsBefore().add("lambda ");
-            }
+//            if(arguments == null || arguments.args == null || arguments.args.length == 0){
+//                lambda.getSpecialsBefore().add("lambda");
+//            }else{
+//                lambda.getSpecialsBefore().add("lambda ");
+//            }
             return lambda;
         case JJTELLIPSES:
             return new Ellipsis();

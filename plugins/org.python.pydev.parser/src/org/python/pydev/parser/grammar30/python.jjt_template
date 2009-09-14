@@ -35,7 +35,7 @@ $COMMOM_METHODS
 
 
 
-    protected final void addSpecialToArgDef(String str){
+    protected final void addSpecialToArgDef(Object str){
         SimpleNode peeked = jjtree.peekNode();
         if(peeked instanceof JfpDef){
             JfpDef jfpdef = (JfpDef) peeked;
@@ -409,7 +409,7 @@ $FILE_INPUT
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 { 
-    <DEF> {this.markLastAsSuiteStart();} Name() parameters() [{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON 
+    $DEF_START parameters() [{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON 
         suite() 
 }
 
@@ -424,12 +424,12 @@ void decorators(): {}
 
 
 void begin_decorator(): {}
-{ <AT> dotted_name()
+{ $AT dotted_name()
 }
 
 //parameters: '(' [typedargslist] ')'
 void parameters() #void:  {}
-{ <LPAREN>{this.findTokenAndAdd("(");}
+{ $LPAREN2
   [typedargslist()] 
   $RPAREN 
 }
@@ -462,11 +462,11 @@ void ExtraKeywordList2(): {}
 }
 
 void defaultarg2(): {}
-{ tfpdef() [<EQUAL> {this.addSpecialToArgDef("=");}  test()] }
+{ tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
 
 void onlykeywordarg2(): {}
-{ tfpdef() [<EQUAL> {this.addSpecialToArgDef("=");}  test()] }
+{ tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
 
 //tfpdef: NAME [':' test]
@@ -493,14 +493,14 @@ void ExtraKeywordList(): {}
 { (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
 void onlykeywordarg(): {}
-{ fpdef() [<EQUAL> {this.addSpecialToArgDef("=");}  test()] }
+{ fpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
 void defaultarg(): {}
-{ fpdef() [<EQUAL> {this.addSpecialToArgDef("=");}  test()] }
+{ fpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   fplist() $RPAREN  }
+{ Name() | $LPAREN1   fplist() $RPAREN  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
@@ -514,11 +514,11 @@ $SIMPLE_STMT
 
 
 //small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt 
-void small_stmt() #void: {SimpleNode simpleNode;Object spStr;}
+void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 {
     expr_stmt()
 |   del_stmt()
-|   pass_stmt() {addToPeek("pass", false); }
+|   spStr = pass_stmt() {addToPeek(spStr, false); }
 |   flow_stmt()
 |   import_stmt()
 |   global_stmt()
@@ -548,17 +548,11 @@ void expr_stmt() #void: {}
 }
 
 
-//del_stmt: 'del' exprlist
-void del_stmt(): {}
-{ begin_del_stmt() exprlist() }
+$DELL_STMT
 
-void begin_del_stmt(): {}
-{ <DEL> {this.addToPeek("del ",false);}
-}
 
-//pass_stmt: 'pass'
-void pass_stmt(): {}
-{ <PASS> }
+$PASS_STMT
+
 
 //flow_stmt: break_stmt | continue_stmt | return_stmt | yield_stmt | raise_stmt
 void flow_stmt() #void: {}
@@ -587,7 +581,7 @@ $YIELD
 
 //raise_stmt: 'raise' [test ['from' test]]
 void raise_stmt(): {}
-{ <RAISE> {this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken(" from ");} <FROM> test()]] }
+{ $RAISE [test() [{this.addSpecialToken(" from ");} <FROM> test()]] }
 
 
 $IMPORT_STMT
@@ -602,10 +596,10 @@ Import Import(): {}
 //              'import' ('*' | '(' import_as_names ')' | import_as_names))
 void ImportFrom(): { int level=0; int state=0;String fromName=null;String importName=null; }
 {
-    //we need to set the  <IMPORT> {this.addSpecialToken(" import ");} in both otherwise the lookahead will not work as we want it to work
+    //we need to set the  $IMPORT in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
      (("." {this.addSpecialToken(".");level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
-     <IMPORT> {this.addSpecialToken(" import ");} 
+     $IMPORT 
     
     (
         //from xxx import *
@@ -617,7 +611,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
           ) 
         
         //from xxx import (a,b,c)
-        | <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   
+        | $LPAREN1   
           (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
           (
            ({
@@ -625,9 +619,8 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
                  throw new ParseException("Invalid syntax: 2 commas cannot be grouped.", getToken(1));
              }
              state=1; 
-             this.addSpecialToken(",");
              } 
-             <COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
+             $COMMA ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
            $RPAREN 
           )
     )
@@ -637,7 +630,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 
 //dotted_as_name: dotted_name [NAME NAME]
 void dotted_as_name(): {}
-{ dotted_name() [<AS> {this.addSpecialToken(" as ");} Name()] }
+{ dotted_name() [$AS Name()] }
 
 //dotted_name: NAME ('.' NAME)*
 String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
@@ -648,16 +641,16 @@ String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }
-{ t=Name() [<AS> {this.addSpecialToken(" as ");} Name()] { return t.image; } }
+{ t=Name() [$AS Name()] { return t.image; } }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()] }
+{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [$EQUAL2 testlist()] }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
 void nonlocal_stmt(): {}
-{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [<EQUAL> {this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} testlist()]}
+{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [$EQUAL2 testlist()]}
 
 
 $ASSERT
@@ -692,7 +685,7 @@ void begin_else_stmt(): {}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened("for ");} exprlist() <IN> {this.addSpecialToken(" in ");} SmartTestList() $COLON suite()
+{   <FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened("for ");} exprlist() $IN SmartTestList() $COLON suite()
     [begin_for_else_stmt() suite()]
     
 } 
@@ -735,7 +728,7 @@ void begin_finally_stmt(): {}
 
 //except_clause: 'except' [test [as test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.addSpecialToken(" as ");} <AS> test()]] $COLON suite() }
+{ begin_except_clause() {this.addToPeek("except",false);} [test() [$AS test()]] $COLON suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
@@ -752,7 +745,7 @@ void with_stmt(): {}
 
 //with_var: 'as' expr
 void with_var():{}
-{ <AS> {this.addSpecialToken(" as ", STRATEGY_BEFORE_NEXT);} expr()}
+{ $AS2 expr()}
 
 $SUITE
 
@@ -851,18 +844,18 @@ void power() #void: {}
 { atom() (trailer())* (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
-void trailer() #void: {Object spStr;Object spStr2;}
+void trailer() #void: {Token spStr;Token spStr2;}
 {
  
-    ({spStr  = createSpecialStr("(", false);} <LPAREN>  
+    (spStr =  <LPAREN>  
     [arglist()] 
-    <RPAREN> {spStr2 = createSpecialStr(")", false);}  
+    spStr2 = <RPAREN>    
     )#Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 
-|   ({spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   (spStr =  <LBRACKET> 
     subscriptlist()
-    <RBRACKET> {spStr2 = createSpecialStr("]", false);}   
+     spStr2 =<RBRACKET>    
     )#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   <DOT> Name() #Dot_Op(2) 
@@ -874,29 +867,29 @@ void trailer() #void: {Object spStr;Object spStr2;}
 //       '[' [testlist_comp] ']' |
 //       '{' [dictorsetmaker] '}' |
 //       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
-void atom() #void: {Object spStr;Object spStr2;}
+void atom() #void: {Token spStr;Token spStr2;}
 {
     LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+      spStr =  <LPAREN>  
+      spStr2 =  <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      spStr =  <LPAREN>  
       (yield_expr() | testlist_comp())
-      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+      spStr2 =  <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
-|   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   ( spStr =  <LBRACKET> 
       [testlist_comp()] 
-      {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
+      spStr2 =  <RBRACKET>  
     ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
       
       
-|   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
+|   ( spStr  = <LBRACE> 
       [dictorsetmaker()] 
-      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
+      spStr2  =  <RBRACE> 
     ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
     
 |   (<FALSE>)#False
@@ -910,11 +903,11 @@ void atom() #void: {Object spStr;Object spStr2;}
 //lambdef: 'lambda' [varargslist] ':' test
 //we add the colon to the args if there is some argument... otherwise, we add it to the first token that appears on the test
 void lambdef():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} test() }
+{ <LAMBDA> [varargslist(){hasArgs=true;}] $LAMBDA_COLON test() }
 
 //lambdef_nocond: 'lambda' [varargslist] ':' test_nocond
 void lambdef_nocond():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] <COLON> {if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} test_nocond() }
+{ <LAMBDA> [varargslist(){hasArgs=true;}] $LAMBDA_COLON test_nocond() }
 
 
 //subscriptlist: subscript (',' subscript)* [',']
@@ -992,11 +985,11 @@ void comp_iter() #void: {}
 
 //comp_for: 'for' exprlist 'in' or_test [comp_iter]
 void comp_for(): {}
-{ <FOR> {this.addSpecialToken(" for ");} exprlist() <IN> {this.addSpecialToken(" in ");} or_test() [comp_iter()] }
+{ $FOR_COMP exprlist() $IN or_test() [comp_iter()] }
 
 //comp_if: 'if' test_nocond [comp_iter]
 void comp_if()#void:{}
-{ <IF>  {this.addSpecialToken(" if ");} test_nocond() [comp_iter()]}
+{ $IF_COMP test_nocond() [comp_iter()]}
 
 
 //decorated: decorators (classdef | funcdef)
@@ -1006,9 +999,9 @@ void decorated():{}
 }
 
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
-void classdef(): {Object spStr;Object spStr2;}
+void classdef(): {Token spStr;Token spStr2;}
 {
-    <CLASS> {this.markLastAsSuiteStart();} Name() [<LPAREN>  {this.addSpecialToken("(",STRATEGY_ADD_AFTER_PREV);}   [arglist()] $RPAREN ] $COLON
+    $START_CLASS [$LPAREN3   [arglist()] $RPAREN ] $COLON
         suite()
 }
 
@@ -1038,7 +1031,7 @@ void argument(): {}
 
 void Keyword() : {}
 {
-	<EQUAL>{this.addSpecialToken("=");} test()
+	$EQUAL test()
 }
 
 void Number() #Num :

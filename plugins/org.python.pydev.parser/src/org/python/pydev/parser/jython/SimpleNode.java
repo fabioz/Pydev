@@ -4,6 +4,7 @@ package org.python.pydev.parser.jython;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.VisitorIF;
@@ -63,6 +64,7 @@ public class SimpleNode implements Node, ISimpleNode{
      * @param after defines if it was found before or after the token
      */
     public void addSpecial(Object special, boolean after) {
+        Assert.isTrue(!(special instanceof String), "Special: "+special+" is not valid");
         if(special != null){
             
             if(after){

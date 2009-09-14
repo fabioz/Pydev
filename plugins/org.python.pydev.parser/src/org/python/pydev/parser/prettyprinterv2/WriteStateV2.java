@@ -1,17 +1,19 @@
 /*
  * Created on Feb 11, 2006
  */
-package org.python.pydev.parser.prettyprinter;
+package org.python.pydev.parser.prettyprinterv2;
 
 import java.io.IOException;
 
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.prettyprinter.IPrettyPrinterPrefs;
+import org.python.pydev.parser.prettyprinter.IWriterEraser;
 
-public class WriteState implements IWriterEraser {
+public class WriteStateV2 implements IWriterEraser {
 
     private IWriterEraser writer;
-    private PrettyPrinterPrefs prefs;
+    private IPrettyPrinterPrefs prefs;
     private StringBuffer indentation = new StringBuffer();
     private FastStack<SimpleNode> stmtStack = new FastStack<SimpleNode>();
     
@@ -24,9 +26,13 @@ public class WriteState implements IWriterEraser {
     
     int lastState=INITIAL_STATE;
     
-    public WriteState(IWriterEraser writer, PrettyPrinterPrefs prefs) {
+    public WriteStateV2(IWriterEraser writer, IPrettyPrinterPrefs prefs) {
         this.writer = writer;
         this.prefs = prefs;
+    }
+    
+    public String getIndentString(){
+        return indentation.toString();
     }
     
     public int getIndentLen(){
@@ -96,16 +102,30 @@ public class WriteState implements IWriterEraser {
     }
 
     public void eraseIndent() {
-        if(indentation.toString().length() > 0){
+        if(indentation.length() > 0){
             writer.erase(prefs.getIndent());
         }
     }
 
+    /**
+     * Writes something, but indents if the last thing written was a new line.
+     */
     public void write(String o) throws IOException {
+        if(lastState == LAST_STATE_NEW_LINE){
+            this.writeIndent();
+        }
+        writeRaw(o);
+    }
+    
+    /**
+     * Writes something as it comes (independent on the state)
+     */
+    public void writeRaw(String o) throws IOException {
         lastState = LAST_STATE_WRITE;
         writer.write(o);
         lastWrite++;
     }
+
 
     public void erase(String o) {
         writer.erase(o);
@@ -170,5 +190,6 @@ public class WriteState implements IWriterEraser {
             write(prefs.getSpacesBeforeComment());
         }
     }
+
 
 }

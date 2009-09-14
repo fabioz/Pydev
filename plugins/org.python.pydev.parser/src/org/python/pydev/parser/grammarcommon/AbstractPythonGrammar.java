@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
@@ -38,6 +39,8 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      * @return the last pos.
      */
     protected abstract Token getJJLastPos();
+    
+    protected Token temporaryToken;
 
     
     //---------------------------- Helpers to add special tokens.
@@ -78,7 +81,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     
     
     private void addSpecial(SimpleNode node, Object special, boolean after) {
-        if(special instanceof Token){
+        if(special instanceof Token && special.toString().trim().startsWith("#")){
             Token t = (Token) special;
             commentType comment = new commentType(t.image.trim());
             comment.beginColumn = t.beginColumn;
@@ -234,6 +237,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     public final void addSpecialToken(Object o, int strategy) throws ParseException {
         o = convertStringToSpecialStr(o);
         if(o != null){
+            Assert.isTrue(!(o instanceof String));
             getTokenSourceSpecialTokensList().add(new Object[] { o, strategy });
         }
     }
@@ -250,6 +254,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
 
     public final void addSpecialToken(Object o) {
         //the default is adding after the previous token
+        Assert.isTrue(!(o instanceof String));
         getTokenSourceSpecialTokensList().add(new Object[] { o, STRATEGY_ADD_AFTER_PREV });
     }
 
@@ -370,6 +375,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      */
     public final boolean findTokenAndAdd(String token, String put, boolean searchOnLast) throws ParseException {
         Object s = createSpecialStr(token, put, searchOnLast);
+        Assert.isTrue(!(s instanceof String));
         getTokenSourceSpecialTokensList().add(new Object[] { s, STRATEGY_ADD_AFTER_PREV });
         return s instanceof SpecialStr;
     }

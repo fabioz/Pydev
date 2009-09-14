@@ -63,8 +63,8 @@ Token Name() #Name:
 def CreateYield():
     return '''
 //yield_expr: 'yield' [testlist]
-void yield_expr(): {Object spStr;}
-{ {spStr = createSpecialStr("yield","yield ", false);} <YIELD> [SmartTestList()] {this.addToPeek(spStr, false, Yield.class);}}
+void yield_expr(): {Token spStr;}
+{ spStr=<YIELD> [SmartTestList()] {this.addToPeek(spStr, false, Yield.class);}}
 '''
 
 
@@ -291,12 +291,12 @@ void dictmaker() #void: {}
 def CreateIfWithDeps(definitions):
     IF = '''
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
-void if_stmt(): {Object spStr;}
+void if_stmt(): {}
 {
-    {spStr = createSpecialStr("if","if ", false);}
-    <IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(spStr);} test() $COLON suite()
+    temporaryToken=<IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(temporaryToken);} test() $COLON suite()
          (begin_elif_stmt() test() $COLON suite())* 
-             [ <ELSE> {this.findTokenAndAdd("else","else:",false);} <COLON> suite()]
+             [ temporaryToken=<ELSE>  {this.addSpecialToken(temporaryToken);} 
+               temporaryToken=<COLON>{this.addSpecialToken(temporaryToken);} suite()]
 }
 '''
 
@@ -326,12 +326,12 @@ void assert_stmt(): {}
 def CreateImportStmt():
     return '''
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
-void import_stmt() #void: {Import imp;}
+void import_stmt() #void: {Import imp; Object spStr;}
 {  
     try{
-        <IMPORT> imp = Import() {imp.addSpecial("import ",false);} 
+        spStr=<IMPORT> imp = Import() {imp.addSpecial(spStr,false);} 
         |
-        <FROM> {this.addSpecialToken("from ",STRATEGY_BEFORE_NEXT);} ImportFrom()
+        temporaryToken=<FROM> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
     }catch(ParseException e){handleErrorInImport(e);}
 }
 '''
@@ -342,7 +342,7 @@ void import_stmt() #void: {Import imp;}
 # CreateCallAssert
 #=======================================================================================================================
 def CreateCallAssert():
-    return '''<ASSERT>{spStr  = createSpecialStr("assert", "assert ", false);} assert_stmt() {addToPeek(spStr, false); }
+    return '''temporaryToken=<ASSERT> assert_stmt() {addToPeek(temporaryToken, false); }
 '''
 
     
@@ -400,11 +400,13 @@ def CreateGrammarFiles():
         
         NAME_DEFINITION=CreateNameDefinition(),
         
-        RPAREN ='''try{{this.findTokenAndAdd(")");}<RPAREN>}catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
+        RPAREN ='''try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
         
-        COLON ='''{this.findTokenAndAdd(":");} <COLON>''',
+        COLON ='''temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);}''',
         
-        COMMA='''{this.findTokenAndAdd(",");} <COMMA>''',
+        AT ='''temporaryToken=<AT>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        
+        COMMA='''temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}''',
         
         YIELD = CreateYield(),
         
@@ -425,6 +427,54 @@ def CreateGrammarFiles():
         IMPORT_STMT=CreateImportStmt(),
         
         INDENTING=CreateIndenting(),
+        
+        RAISE = '''temporaryToken=<RAISE> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        
+        DEF_START = '''<DEF> {this.markLastAsSuiteStart();} Name()''',
+        
+        LPAREN1 = '''temporaryToken=<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        
+        LPAREN2 = '''temporaryToken=<LPAREN>{this.addSpecialToken(temporaryToken);}''',
+        
+        PASS_STMT = '''//pass_stmt: 'pass'
+Token pass_stmt(): {Token spStr;}
+{ spStr=<PASS> {return spStr;}}''',
+
+        LPAREN3 = '''temporaryToken=<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}''',
+        
+        DELL_STMT = '''//del_stmt: 'del' exprlist
+void del_stmt(): {}
+{ begin_del_stmt() exprlist() }
+
+void begin_del_stmt(): {}
+{ temporaryToken=<DEL> {this.addToPeek(temporaryToken,false);}
+}
+''',
+
+        LAMBDA_COLON= '''temporaryToken=<COLON> {
+if(hasArgs)
+    this.addSpecialToken(temporaryToken);
+else 
+    this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}
+''',
+
+        START_CLASS = '''<CLASS> {this.markLastAsSuiteStart();} Name()''',
+        
+        EQUAL = '''temporaryToken=<EQUAL>{this.addSpecialToken(temporaryToken);}''',
+        
+        EQUAL2 = '''temporaryToken=<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        
+        IN = '''temporaryToken=<IN> {this.addSpecialToken(temporaryToken);}''',
+        
+        IF_COMP = '''temporaryToken=<IF>  {this.addSpecialToken(temporaryToken);}''',
+        
+        FOR_COMP = '''temporaryToken=<FOR> {this.addSpecialToken(temporaryToken);}''',
+        
+        IMPORT = '''temporaryToken=<IMPORT> {this.addSpecialToken(temporaryToken);}''',
+
+        AS = '''temporaryToken=<AS> {this.addSpecialToken(temporaryToken);}''',
+        
+        AS2 = '''temporaryToken=<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
     )
     
     definitions['DICTMAKER'] = CreateDictMakerWithDeps(definitions)
@@ -445,5 +495,4 @@ def CreateGrammarFiles():
 if __name__ == '__main__':
     RunCog()
     CreateGrammarFiles()
-    
     

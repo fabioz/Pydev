@@ -74,7 +74,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
 
 
-    protected final void addSpecialToArgDef(String str){
+    protected final void addSpecialToArgDef(Object str){
         SimpleNode peeked = jjtree.peekNode();
         if(peeked instanceof JfpDef){
             JfpDef jfpdef = (JfpDef) peeked;
@@ -308,8 +308,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[2] = jj_gen;
         ;
       }
-                                                                                                                                                                     this.findTokenAndAdd(":");
-      jj_consume_token(COLON);
+      temporaryToken = jj_consume_token(COLON);
+                                                                                                                                                                                             this.addSpecialToken(temporaryToken);
       suite();
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -384,10 +384,10 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             ;
           }
           try {
-                                                                                                      this.findTokenAndAdd(")");
-            jj_consume_token(RPAREN);
+            temporaryToken = jj_consume_token(RPAREN);
+                                                                                                                               this.addSpecialToken(temporaryToken);
           } catch (ParseException e) {
-                                                                                                                                                                  handleRParensNearButNotCurrent(e);
+                                                                                                                                                                                              handleRParensNearButNotCurrent(e);
           }
           break;
         default:
@@ -397,7 +397,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         try {
           jj_consume_token(NEWLINE);
         } catch (ParseException e) {
-                                                                                                                                                                                                                                              handleNoNewline(e);
+                                                                                                                                                                                                                                                                          handleNoNewline(e);
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case AT:
@@ -437,7 +437,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      jj_consume_token(AT);
+      temporaryToken = jj_consume_token(AT);
+                        this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
       dotted_name();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -463,8 +464,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
 //parameters: '(' [typedargslist] ')'
   final public void parameters() throws ParseException {
-    jj_consume_token(LPAREN);
-           this.findTokenAndAdd("(");
+    temporaryToken = jj_consume_token(LPAREN);
+                          this.addSpecialToken(temporaryToken);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case MULTIPLY:
     case POWER:
@@ -476,10 +477,10 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       ;
     }
     try {
-       this.findTokenAndAdd(")");
-      jj_consume_token(RPAREN);
+      temporaryToken = jj_consume_token(RPAREN);
+                                this.addSpecialToken(temporaryToken);
     } catch (ParseException e) {
-                                                                   handleRParensNearButNotCurrent(e);
+                                                                                               handleRParensNearButNotCurrent(e);
     }
   }
 
@@ -497,13 +498,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_3;
         }
-                                     this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                             this.addSpecialToken(temporaryToken);
         defaultarg2();
       }
       if (jj_2_3(2)) {
-                                                                                                        this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                           this.addSpecialToken(temporaryToken);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case MULTIPLY:
           ExtraArgList2();
@@ -514,14 +515,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             } else {
               break label_4;
             }
-                                                                                                                                                                            this.findTokenAndAdd(",");
-            jj_consume_token(COMMA);
+            temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                          this.addSpecialToken(temporaryToken);
             onlykeywordarg2();
           }
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case COMMA:
-                                                                                                                                                                                                                                      this.findTokenAndAdd(",");
-            jj_consume_token(COMMA);
+            temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                                                                                                               this.addSpecialToken(temporaryToken);
             ExtraKeywordList2();
             break;
           default:
@@ -542,8 +543,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                                                                                                                                                                                                                                              this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                  this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[9] = jj_gen;
@@ -559,21 +560,21 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_5;
         }
-                                      this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                              this.addSpecialToken(temporaryToken);
         onlykeywordarg2();
       }
       if (jj_2_5(2)) {
-                                                                                                            this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                               this.addSpecialToken(temporaryToken);
         ExtraKeywordList2();
       } else {
         ;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                                                                                        this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                      this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[10] = jj_gen;
@@ -584,8 +585,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       ExtraKeywordList2();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                              this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                      this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[11] = jj_gen;
@@ -680,8 +681,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       tfpdef();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
-        jj_consume_token(EQUAL);
-                     this.addSpecialToArgDef("=");
+        temporaryToken = jj_consume_token(EQUAL);
+                                    this.addSpecialToArgDef(temporaryToken);
         test();
         break;
       default:
@@ -720,8 +721,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       tfpdef();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
-        jj_consume_token(EQUAL);
-                     this.addSpecialToArgDef("=");
+        temporaryToken = jj_consume_token(EQUAL);
+                                    this.addSpecialToArgDef(temporaryToken);
         test();
         break;
       default:
@@ -803,13 +804,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_6;
         }
-                                    this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                            this.addSpecialToken(temporaryToken);
         defaultarg();
       }
       if (jj_2_9(2)) {
-                                                                                                      this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                         this.addSpecialToken(temporaryToken);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case MULTIPLY:
           ExtraArgList();
@@ -820,14 +821,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             } else {
               break label_7;
             }
-                                                                                                                                                                         this.findTokenAndAdd(",");
-            jj_consume_token(COMMA);
+            temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                       this.addSpecialToken(temporaryToken);
             onlykeywordarg();
           }
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case COMMA:
-                                                                                                                                                                                                                                  this.findTokenAndAdd(",");
-            jj_consume_token(COMMA);
+            temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                                                                                                           this.addSpecialToken(temporaryToken);
             ExtraKeywordList();
             break;
           default:
@@ -848,8 +849,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                                                                                                                                                                                                                                        this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[18] = jj_gen;
@@ -865,21 +866,21 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_8;
         }
-                                     this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                             this.addSpecialToken(temporaryToken);
         onlykeywordarg();
       }
       if (jj_2_11(2)) {
-                                                                                                          this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                             this.addSpecialToken(temporaryToken);
         ExtraKeywordList();
       } else {
         ;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                                                                                     this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                   this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[19] = jj_gen;
@@ -890,8 +891,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       ExtraKeywordList();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                             this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                     this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[20] = jj_gen;
@@ -1000,8 +1001,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       fpdef();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
-        jj_consume_token(EQUAL);
-                    this.addSpecialToArgDef("=");
+        temporaryToken = jj_consume_token(EQUAL);
+                                   this.addSpecialToArgDef(temporaryToken);
         test();
         break;
       default:
@@ -1040,8 +1041,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       fpdef();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
-        jj_consume_token(EQUAL);
-                    this.addSpecialToArgDef("=");
+        temporaryToken = jj_consume_token(EQUAL);
+                                   this.addSpecialToArgDef(temporaryToken);
         test();
         break;
       default:
@@ -1077,14 +1078,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       Name();
       break;
     case LPAREN:
-      jj_consume_token(LPAREN);
-                      this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);
+      temporaryToken = jj_consume_token(LPAREN);
+                                     this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
       fplist();
       try {
-                                                                                       this.findTokenAndAdd(")");
-        jj_consume_token(RPAREN);
+        temporaryToken = jj_consume_token(RPAREN);
+                                                                                                                                           this.addSpecialToken(temporaryToken);
       } catch (ParseException e) {
-                                                                                                                                                   handleRParensNearButNotCurrent(e);
+                                                                                                                                                                                                          handleRParensNearButNotCurrent(e);
       }
       break;
     default:
@@ -1110,14 +1111,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_9;
         }
-                         this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                 this.addSpecialToken(temporaryToken);
         fpdef();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                         this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                            this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[27] = jj_gen;
@@ -1239,7 +1240,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
 //small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt 
   final public void small_stmt() throws ParseException {
-                          SimpleNode simpleNode;Object spStr;
+                          SimpleNode simpleNode;Token spStr;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LPAREN:
     case LBRACE:
@@ -1273,8 +1274,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       del_stmt();
       break;
     case PASS:
-      pass_stmt();
-                 addToPeek("pass", false);
+      spStr = pass_stmt();
+                         addToPeek(spStr, false);
       break;
     case BREAK:
     case CONTINUE:
@@ -1294,10 +1295,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       nonlocal_stmt();
       break;
     case ASSERT:
-      jj_consume_token(ASSERT);
-             spStr  = createSpecialStr("assert", "assert ", false);
+      temporaryToken = jj_consume_token(ASSERT);
       assert_stmt();
-                                                                                    addToPeek(spStr, false);
+                                           addToPeek(temporaryToken, false);
       break;
     default:
       jj_la1[30] = jj_gen;
@@ -2197,11 +2197,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      jj_consume_token(DEL);
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-          jjtreeCloseNodeScope(jjtn000);
-         this.addToPeek("del ",false);
+      temporaryToken = jj_consume_token(DEL);
+                         jjtree.closeNodeScope(jjtn000, true);
+                         jjtc000 = false;
+                         jjtreeCloseNodeScope(jjtn000);
+                        this.addToPeek(temporaryToken,false);
     } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
@@ -2211,20 +2211,25 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   }
 
 //pass_stmt: 'pass'
-  final public void pass_stmt() throws ParseException {
-                   /*@bgen(jjtree) pass_stmt */
-  SimpleNode jjtn000 = jjtree.builder.openNode( JJTPASS_STMT);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-  jjtreeOpenNodeScope(jjtn000);
+  final public Token pass_stmt() throws ParseException {
+                    /*@bgen(jjtree) pass_stmt */
+                    SimpleNode jjtn000 = jjtree.builder.openNode( JJTPASS_STMT);
+                    boolean jjtc000 = true;
+                    jjtree.openNodeScope(jjtn000);
+                    jjtreeOpenNodeScope(jjtn000);Token spStr;
     try {
-      jj_consume_token(PASS);
+      spStr = jj_consume_token(PASS);
+                 jjtree.closeNodeScope(jjtn000, true);
+                 jjtc000 = false;
+                 jjtreeCloseNodeScope(jjtn000);
+                {if (true) return spStr;}
     } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
       jjtreeCloseNodeScope(jjtn000);
     }
     }
+    throw new Error("Missing return statement in function");
   }
 
 //flow_stmt: break_stmt | continue_stmt | return_stmt | yield_stmt | raise_stmt
@@ -2402,10 +2407,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
                     SimpleNode jjtn000 = jjtree.builder.openNode( JJTYIELD_EXPR);
                     boolean jjtc000 = true;
                     jjtree.openNodeScope(jjtn000);
-                    jjtreeOpenNodeScope(jjtn000);Object spStr;
+                    jjtreeOpenNodeScope(jjtn000);Token spStr;
     try {
-   spStr = createSpecialStr("yield","yield ", false);
-      jj_consume_token(YIELD);
+      spStr = jj_consume_token(YIELD);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LPAREN:
       case LBRACE:
@@ -2438,10 +2442,10 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[48] = jj_gen;
         ;
       }
-                                                                                   jjtree.closeNodeScope(jjtn000, true);
-                                                                                   jjtc000 = false;
-                                                                                   jjtreeCloseNodeScope(jjtn000);
-                                                                                  this.addToPeek(spStr, false, Yield.class);
+                                    jjtree.closeNodeScope(jjtn000, true);
+                                    jjtc000 = false;
+                                    jjtreeCloseNodeScope(jjtn000);
+                                   this.addToPeek(spStr, false, Yield.class);
     } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -2472,8 +2476,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      jj_consume_token(RAISE);
-           this.addSpecialToken("raise ", STRATEGY_BEFORE_NEXT);
+      temporaryToken = jj_consume_token(RAISE);
+                          this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LPAREN:
       case LBRACE:
@@ -2503,7 +2507,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case FROM:
-                                                                            this.addSpecialToken(" from ");
+                                                                                                 this.addSpecialToken(" from ");
           jj_consume_token(FROM);
           test();
           break;
@@ -2540,17 +2544,17 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
 //import_stmt: 'import' dotted_name (',' dotted_name)* | 'from' dotted_name 'import' ('*' | NAME (',' NAME)*)
   final public void import_stmt() throws ParseException {
-                           Import imp;
+                           Import imp; Object spStr;
     try {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IMPORT:
-        jj_consume_token(IMPORT);
+        spStr = jj_consume_token(IMPORT);
         imp = Import();
-                                 imp.addSpecial("import ",false);
+                                       imp.addSpecial(spStr,false);
         break;
       case FROM:
-        jj_consume_token(FROM);
-                this.addSpecialToken("from ",STRATEGY_BEFORE_NEXT);
+        temporaryToken = jj_consume_token(FROM);
+                               this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);
         ImportFrom();
         break;
       default:
@@ -2581,8 +2585,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           jj_la1[52] = jj_gen;
           break label_12;
         }
-                     this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                             this.addSpecialToken(temporaryToken);
         dotted_as_name();
       }
     jjtree.closeNodeScope(jjtn000, true);
@@ -2643,8 +2647,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         ;
       }
                                                                                  if(fromName==null && level==0){{if (true) throw new ParseException("Expecting to find '.' or name in import.");}}
-      jj_consume_token(IMPORT);
-               this.addSpecialToken(" import ");
+      temporaryToken = jj_consume_token(IMPORT);
+                              this.addSpecialToken(temporaryToken);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MULTIPLY:
         jj_consume_token(MULTIPLY);
@@ -2663,15 +2667,15 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             jj_la1[55] = jj_gen;
             break label_14;
           }
-              this.findTokenAndAdd(",");
-          jj_consume_token(COMMA);
+          temporaryToken = jj_consume_token(COMMA);
+                                      this.addSpecialToken(temporaryToken);
           importName = import_as_name();
-                                                                                if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
+                                                                                                           if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
         }
         break;
       case LPAREN:
-        jj_consume_token(LPAREN);
-                     this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);
+        temporaryToken = jj_consume_token(LPAREN);
+                                    this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
         importName = import_as_name();
                                         if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
         label_15:
@@ -2688,13 +2692,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
                  {if (true) throw new ParseException("Invalid syntax: 2 commas cannot be grouped.", getToken(1));}
              }
              state=1;
-             this.addSpecialToken(",");
-          jj_consume_token(COMMA);
+          temporaryToken = jj_consume_token(COMMA);
+                                      this.addSpecialToken(temporaryToken);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case NAME:
-                        state=0;
+                                                                                state=0;
             importName = import_as_name();
-                                                               if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
+                                                                                                                       if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
             break;
           default:
             jj_la1[57] = jj_gen;
@@ -2702,10 +2706,10 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           }
         }
         try {
-                this.findTokenAndAdd(")");
-          jj_consume_token(RPAREN);
+          temporaryToken = jj_consume_token(RPAREN);
+                                         this.addSpecialToken(temporaryToken);
         } catch (ParseException e) {
-                                                                            handleRParensNearButNotCurrent(e);
+                                                                                                        handleRParensNearButNotCurrent(e);
         }
         break;
       default:
@@ -2750,8 +2754,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       dotted_name();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case AS:
-        jj_consume_token(AS);
-                       this.addSpecialToken(" as ");
+        temporaryToken = jj_consume_token(AS);
+                                      this.addSpecialToken(temporaryToken);
         Name();
         break;
       default:
@@ -2842,18 +2846,18 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       t = Name();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case AS:
-        jj_consume_token(AS);
-                  this.addSpecialToken(" as ");
+        temporaryToken = jj_consume_token(AS);
+                                 this.addSpecialToken(temporaryToken);
         Name();
         break;
       default:
         jj_la1[61] = jj_gen;
         ;
       }
-                                                           jjtree.closeNodeScope(jjtn000, true);
-                                                           jjtc000 = false;
-                                                           jjtreeCloseNodeScope(jjtn000);
-                                                           {if (true) return t.image;}
+                                                                                  jjtree.closeNodeScope(jjtn000, true);
+                                                                                  jjtc000 = false;
+                                                                                  jjtreeCloseNodeScope(jjtn000);
+                                                                                  {if (true) return t.image;}
     } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -2895,14 +2899,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_17;
         }
-                                                                                         this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                 this.addSpecialToken(temporaryToken);
         Name();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                                                        this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                           this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[62] = jj_gen;
@@ -2910,8 +2914,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
-        jj_consume_token(EQUAL);
-                                                                                                                                                                                       this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);
+        temporaryToken = jj_consume_token(EQUAL);
+                                                                                                                                                                                                                                                            this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
         testlist();
         break;
       default:
@@ -2958,14 +2962,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_18;
         }
-                                                                                             this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                     this.addSpecialToken(temporaryToken);
         Name();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                                                            this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                               this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[64] = jj_gen;
@@ -2973,8 +2977,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
-        jj_consume_token(EQUAL);
-                                                                                                                                                                                           this.addSpecialToken("=", STRATEGY_BEFORE_NEXT);
+        temporaryToken = jj_consume_token(EQUAL);
+                                                                                                                                                                                                                                                                this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
         testlist();
         break;
       default:
@@ -3014,8 +3018,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       test();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-           this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                   this.addSpecialToken(temporaryToken);
         test();
         break;
       default:
@@ -3081,18 +3085,17 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
   final public void if_stmt() throws ParseException {
                  /*@bgen(jjtree) if_stmt */
-                 SimpleNode jjtn000 = jjtree.builder.openNode( JJTIF_STMT);
-                 boolean jjtc000 = true;
-                 jjtree.openNodeScope(jjtn000);
-                 jjtreeOpenNodeScope(jjtn000);Object spStr;
+  SimpleNode jjtn000 = jjtree.builder.openNode( JJTIF_STMT);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+  jjtreeOpenNodeScope(jjtn000);
     try {
-     spStr = createSpecialStr("if","if ", false);
-      jj_consume_token(IF);
-          this.markLastAsSuiteStart();
-                                         this.addSpecialTokenToLastOpened(spStr);
+      temporaryToken = jj_consume_token(IF);
+                         this.markLastAsSuiteStart();
+                                                        this.addSpecialTokenToLastOpened(temporaryToken);
       test();
-                                                                                           this.findTokenAndAdd(":");
-      jj_consume_token(COLON);
+      temporaryToken = jj_consume_token(COLON);
+                                                                                                                                           this.addSpecialToken(temporaryToken);
       suite();
       label_19:
       while (true) {
@@ -3106,15 +3109,16 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         }
         begin_elif_stmt();
         test();
-                                    this.findTokenAndAdd(":");
-        jj_consume_token(COLON);
+        temporaryToken = jj_consume_token(COLON);
+                                                            this.addSpecialToken(temporaryToken);
         suite();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ELSE:
-        jj_consume_token(ELSE);
-                       this.findTokenAndAdd("else","else:",false);
-        jj_consume_token(COLON);
+        temporaryToken = jj_consume_token(ELSE);
+                                       this.addSpecialToken(temporaryToken);
+        temporaryToken = jj_consume_token(COLON);
+                                      this.addSpecialToken(temporaryToken);
         suite();
         break;
       default:
@@ -3173,8 +3177,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     try {
       begin_while_stmt();
       test();
-                             this.findTokenAndAdd(":");
-      jj_consume_token(COLON);
+      temporaryToken = jj_consume_token(COLON);
+                                                     this.addSpecialToken(temporaryToken);
       suite();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ELSE:
@@ -3259,11 +3263,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
            this.markLastAsSuiteStart();
                                           this.addSpecialTokenToLastOpened("for ");
       exprlist();
-      jj_consume_token(IN);
-                                                                                                      this.addSpecialToken(" in ");
+      temporaryToken = jj_consume_token(IN);
+                                                                                                                     this.addSpecialToken(temporaryToken);
       SmartTestList();
-                                                                                                                                                      this.findTokenAndAdd(":");
-      jj_consume_token(COLON);
+      temporaryToken = jj_consume_token(COLON);
+                                                                                                                                                                                                     this.addSpecialToken(temporaryToken);
       suite();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ELSE:
@@ -3545,8 +3549,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case AS:
-                                                                    this.addSpecialToken(" as ");
-          jj_consume_token(AS);
+          temporaryToken = jj_consume_token(AS);
+                                                                                        this.addSpecialToken(temporaryToken);
           test();
           break;
         default:
@@ -3558,8 +3562,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[77] = jj_gen;
         ;
       }
-                                                                                                                  this.findTokenAndAdd(":");
-      jj_consume_token(COLON);
+      temporaryToken = jj_consume_token(COLON);
+                                                                                                                                                                 this.addSpecialToken(temporaryToken);
       suite();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -3618,8 +3622,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[78] = jj_gen;
         ;
       }
-                  this.findTokenAndAdd(":");
-      jj_consume_token(COLON);
+      temporaryToken = jj_consume_token(COLON);
+                                          this.addSpecialToken(temporaryToken);
       suite();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -3651,8 +3655,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      jj_consume_token(AS);
-        this.addSpecialToken(" as ", STRATEGY_BEFORE_NEXT);
+      temporaryToken = jj_consume_token(AS);
+                       this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
       expr();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -5022,7 +5026,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
   final public void trailer() throws ParseException {
-                       Object spStr;Object spStr2;
+                       Token spStr;Token spStr2;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LPAREN:
       SimpleNode jjtn001 = jjtree.builder.openNode( JJTCALL_OP);
@@ -5030,8 +5034,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       jjtree.openNodeScope(jjtn001);
       jjtreeOpenNodeScope(jjtn001);
       try {
-      spStr  = createSpecialStr("(", false);
-        jj_consume_token(LPAREN);
+        spStr = jj_consume_token(LPAREN);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case LBRACE:
@@ -5066,11 +5069,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           jj_la1[102] = jj_gen;
           ;
         }
-        jj_consume_token(RPAREN);
-               jjtree.closeNodeScope(jjtn001,  jjtree . nodeArity ( ) + 1);
-               jjtc001 = false;
-               jjtreeCloseNodeScope(jjtn001);
-              spStr2 = createSpecialStr(")", false);
+        spStr2 = jj_consume_token(RPAREN);
       } catch (Throwable jjte001) {
       if (jjtc001) {
         jjtree.clearNodeScope(jjtn001);
@@ -5099,14 +5098,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       jjtree.openNodeScope(jjtn002);
       jjtreeOpenNodeScope(jjtn002);
       try {
-      spStr = createSpecialStr("[", false);
-        jj_consume_token(LBRACKET);
+        spStr = jj_consume_token(LBRACKET);
         subscriptlist();
-        jj_consume_token(RBRACKET);
-                 jjtree.closeNodeScope(jjtn002,  2);
-                 jjtc002 = false;
-                 jjtreeCloseNodeScope(jjtn002);
-                spStr2 = createSpecialStr("]", false);
+        spStr2 = jj_consume_token(RBRACKET);
       } catch (Throwable jjte002) {
       if (jjtc002) {
         jjtree.clearNodeScope(jjtn002);
@@ -5170,17 +5164,15 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 //       '{' [dictorsetmaker] '}' |
 //       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
   final public void atom() throws ParseException {
-                    Object spStr;Object spStr2;
+                    Token spStr;Token spStr2;
     if (jj_2_18(2)) {
                    SimpleNode jjtn001 = jjtree.builder.openNode( JJTTUPLE);
                    boolean jjtc001 = true;
                    jjtree.openNodeScope(jjtn001);
                    jjtreeOpenNodeScope(jjtn001);
       try {
-       spStr  = createSpecialStr("(", false);
-        jj_consume_token(LPAREN);
-       spStr2 = createSpecialStr(")", false);
-        jj_consume_token(RPAREN);
+        spStr = jj_consume_token(LPAREN);
+        spStr2 = jj_consume_token(RPAREN);
       } finally {
                    if (jjtc001) {
                      jjtree.closeNodeScope(jjtn001, true);
@@ -5194,8 +5186,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
                    jjtree.openNodeScope(jjtn002);
                    jjtreeOpenNodeScope(jjtn002);
       try {
-       spStr  = createSpecialStr("(", false);
-        jj_consume_token(LPAREN);
+        spStr = jj_consume_token(LPAREN);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case YIELD:
           yield_expr();
@@ -5232,8 +5223,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           jj_consume_token(-1);
           throw new ParseException();
         }
-       spStr2 = createSpecialStr(")", false);
-        jj_consume_token(RPAREN);
+        spStr2 = jj_consume_token(RPAREN);
       } catch (Throwable jjte002) {
                    if (jjtc002) {
                      jjtree.clearNodeScope(jjtn002);
@@ -5263,8 +5253,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       jjtree.openNodeScope(jjtn003);
       jjtreeOpenNodeScope(jjtn003);
         try {
-       spStr = createSpecialStr("[", false);
-          jj_consume_token(LBRACKET);
+          spStr = jj_consume_token(LBRACKET);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
           case LBRACE:
@@ -5297,8 +5286,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             jj_la1[105] = jj_gen;
             ;
           }
-       spStr2 = createSpecialStr("]", false);
-          jj_consume_token(RBRACKET);
+          spStr2 = jj_consume_token(RBRACKET);
         } catch (Throwable jjte003) {
       if (jjtc003) {
         jjtree.clearNodeScope(jjtn003);
@@ -5327,8 +5315,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       jjtree.openNodeScope(jjtn004);
       jjtreeOpenNodeScope(jjtn004);
         try {
-       spStr  = createSpecialStr("{", false);
-          jj_consume_token(LBRACE);
+          spStr = jj_consume_token(LBRACE);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LPAREN:
           case LBRACE:
@@ -5361,8 +5348,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             jj_la1[106] = jj_gen;
             ;
           }
-       spStr2  = createSpecialStr("}", false);
-          jj_consume_token(RBRACE);
+          spStr2 = jj_consume_token(RBRACE);
         } catch (Throwable jjte004) {
       if (jjtc004) {
         jjtree.clearNodeScope(jjtn004);
@@ -5521,8 +5507,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[109] = jj_gen;
         ;
       }
-      jj_consume_token(COLON);
-                                                   if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);
+      temporaryToken = jj_consume_token(COLON);
+if(hasArgs)
+    this.addSpecialToken(temporaryToken);
+else
+    this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);
       test();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -5567,8 +5556,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[110] = jj_gen;
         ;
       }
-      jj_consume_token(COLON);
-                                                   if(hasArgs)this.addSpecialToken(":");else this.addSpecialToken(":",STRATEGY_BEFORE_NEXT);
+      temporaryToken = jj_consume_token(COLON);
+if(hasArgs)
+    this.addSpecialToken(temporaryToken);
+else
+    this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);
       test_nocond();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -5607,8 +5599,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_35;
         }
-                              this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                      this.addSpecialToken(temporaryToken);
         subscript();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -5856,8 +5848,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-                   this.findTokenAndAdd(",");
-      jj_consume_token(COMMA);
+      temporaryToken = jj_consume_token(COMMA);
+                                            jjtree.closeNodeScope(jjtn000, true);
+                                            jjtc000 = false;
+                                            jjtreeCloseNodeScope(jjtn000);
+                                           this.addSpecialToken(temporaryToken);
     } finally {
                     if (jjtc000) {
                       jjtree.closeNodeScope(jjtn000, true);
@@ -5914,8 +5909,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_36;
         }
-                                       this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                               this.addSpecialToken(temporaryToken);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case LBRACE:
@@ -5996,8 +5991,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_37;
         }
-                         this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                 this.addSpecialToken(temporaryToken);
         test();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -6040,14 +6035,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       } else {
         break label_38;
       }
-                        this.findTokenAndAdd(",");
-      jj_consume_token(COMMA);
+      temporaryToken = jj_consume_token(COMMA);
+                                                this.addSpecialToken(temporaryToken);
       test();
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case COMMA:
-                                                                       this.findTokenAndAdd(",");
-      jj_consume_token(COMMA);
+      temporaryToken = jj_consume_token(COMMA);
+                                                                                                                          this.addSpecialToken(temporaryToken);
       break;
     default:
       jj_la1[121] = jj_gen;
@@ -6105,8 +6100,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_39;
         }
-                                        this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                this.addSpecialToken(temporaryToken);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case LBRACE:
@@ -6146,8 +6141,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                      this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                         this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[124] = jj_gen;
@@ -6215,12 +6210,12 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     test();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case COLON:
-               this.findTokenAndAdd(":");
-      jj_consume_token(COLON);
+      temporaryToken = jj_consume_token(COLON);
+                                       this.addSpecialToken(temporaryToken);
       try {
         test();
       } catch (ParseException e) {
-                                                                                          handleNoValInDict(e);
+                                                                                                                     handleNoValInDict(e);
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case FOR:
@@ -6235,17 +6230,17 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           } else {
             break label_40;
           }
-                                   this.findTokenAndAdd(",");
-          jj_consume_token(COMMA);
+          temporaryToken = jj_consume_token(COMMA);
+                                                           this.addSpecialToken(temporaryToken);
           test();
-                                                                              this.findTokenAndAdd(":");
-          jj_consume_token(COLON);
+          temporaryToken = jj_consume_token(COLON);
+                                                                                                                                 this.addSpecialToken(temporaryToken);
           test();
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                      this.findTokenAndAdd(",");
-          jj_consume_token(COMMA);
+          temporaryToken = jj_consume_token(COMMA);
+                                              this.addSpecialToken(temporaryToken);
           break;
         default:
           jj_la1[125] = jj_gen;
@@ -6273,8 +6268,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
               jj_la1[127] = jj_gen;
               break label_41;
             }
-                                           this.findTokenAndAdd(",");
-            jj_consume_token(COMMA);
+            temporaryToken = jj_consume_token(COMMA);
+                                                                   this.addSpecialToken(temporaryToken);
             test();
           }
         } catch (Throwable jjte001) {
@@ -6299,8 +6294,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-                                                                                              this.findTokenAndAdd(",");
-          jj_consume_token(COMMA);
+          temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                 this.addSpecialToken(temporaryToken);
           break;
         default:
           jj_la1[128] = jj_gen;
@@ -6334,14 +6329,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_43;
         }
-                                                      this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                              this.addSpecialToken(temporaryToken);
         test();
       }
-                                                                                                     SimpleNode jjtn001 = jjtree.builder.openNode( JJTTUPLE);
-                                                                                                     boolean jjtc001 = true;
-                                                                                                     jjtree.openNodeScope(jjtn001);
-                                                                                                     jjtreeOpenNodeScope(jjtn001);
+                                                                                                                                SimpleNode jjtn001 = jjtree.builder.openNode( JJTTUPLE);
+                                                                                                                                boolean jjtc001 = true;
+                                                                                                                                jjtree.openNodeScope(jjtn001);
+                                                                                                                                jjtreeOpenNodeScope(jjtn001);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
@@ -6352,24 +6347,24 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           ;
         }
       } catch (Throwable jjte001) {
-                                                                                                     if (jjtc001) {
-                                                                                                       jjtree.clearNodeScope(jjtn001);
-                                                                                                       jjtc001 = false;
-                                                                                                     } else {
-                                                                                                       jjtree.popNode();
-                                                                                                     }
-                                                                                                     if (jjte001 instanceof RuntimeException) {
-                                                                                                       {if (true) throw (RuntimeException)jjte001;}
-                                                                                                     }
-                                                                                                     if (jjte001 instanceof ParseException) {
-                                                                                                       {if (true) throw (ParseException)jjte001;}
-                                                                                                     }
-                                                                                                     {if (true) throw (Error)jjte001;}
+                                                                                                                                if (jjtc001) {
+                                                                                                                                  jjtree.clearNodeScope(jjtn001);
+                                                                                                                                  jjtc001 = false;
+                                                                                                                                } else {
+                                                                                                                                  jjtree.popNode();
+                                                                                                                                }
+                                                                                                                                if (jjte001 instanceof RuntimeException) {
+                                                                                                                                  {if (true) throw (RuntimeException)jjte001;}
+                                                                                                                                }
+                                                                                                                                if (jjte001 instanceof ParseException) {
+                                                                                                                                  {if (true) throw (ParseException)jjte001;}
+                                                                                                                                }
+                                                                                                                                {if (true) throw (Error)jjte001;}
       } finally {
-                                                                                                     if (jjtc001) {
-                                                                                                       jjtree.closeNodeScope(jjtn001, jjtree.nodeArity() > 1);
-                                                                                                       jjtreeCloseNodeScope(jjtn001);
-                                                                                                     }
+                                                                                                                                if (jjtc001) {
+                                                                                                                                  jjtree.closeNodeScope(jjtn001, jjtree.nodeArity() > 1);
+                                                                                                                                  jjtreeCloseNodeScope(jjtn001);
+                                                                                                                                }
       }
     }
   }
@@ -6398,11 +6393,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      jj_consume_token(FOR);
-         this.addSpecialToken(" for ");
+      temporaryToken = jj_consume_token(FOR);
+                        this.addSpecialToken(temporaryToken);
       exprlist();
-      jj_consume_token(IN);
-                                                          this.addSpecialToken(" in ");
+      temporaryToken = jj_consume_token(IN);
+                                                                                               this.addSpecialToken(temporaryToken);
       or_test();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
@@ -6437,8 +6432,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
 //comp_if: 'if' test_nocond [comp_iter]
   final public void comp_if() throws ParseException {
-    jj_consume_token(IF);
-         this.addSpecialToken(" if ");
+    temporaryToken = jj_consume_token(IF);
+                        this.addSpecialToken(temporaryToken);
     test_nocond();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case IF:
@@ -6500,15 +6495,15 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
                   SimpleNode jjtn000 = jjtree.builder.openNode( JJTCLASSDEF);
                   boolean jjtc000 = true;
                   jjtree.openNodeScope(jjtn000);
-                  jjtreeOpenNodeScope(jjtn000);Object spStr;Object spStr2;
+                  jjtreeOpenNodeScope(jjtn000);Token spStr;Token spStr2;
     try {
       jj_consume_token(CLASS);
              this.markLastAsSuiteStart();
       Name();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LPAREN:
-        jj_consume_token(LPAREN);
-                                                              this.addSpecialToken("(",STRATEGY_ADD_AFTER_PREV);
+        temporaryToken = jj_consume_token(LPAREN);
+                                                                             this.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case LBRACE:
@@ -6544,18 +6539,18 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           ;
         }
         try {
-                                                                                                                                     this.findTokenAndAdd(")");
-          jj_consume_token(RPAREN);
+          temporaryToken = jj_consume_token(RPAREN);
+                                                                                                                                                                                         this.addSpecialToken(temporaryToken);
         } catch (ParseException e) {
-                                                                                                                                                                                                 handleRParensNearButNotCurrent(e);
+                                                                                                                                                                                                                                                        handleRParensNearButNotCurrent(e);
         }
         break;
       default:
         jj_la1[137] = jj_gen;
         ;
       }
-                                                                                                                                                                                                                                        this.findTokenAndAdd(":");
-      jj_consume_token(COLON);
+      temporaryToken = jj_consume_token(COLON);
+                                                                                                                                                                                                                                                                                                                       this.addSpecialToken(temporaryToken);
       suite();
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -6617,13 +6612,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_44;
         }
-                                  this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                          this.addSpecialToken(temporaryToken);
         argument();
       }
       if (jj_2_31(2)) {
-                                                                                                  this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                     this.addSpecialToken(temporaryToken);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case MULTIPLY:
           ExtraArgValueList();
@@ -6634,14 +6629,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             } else {
               break label_45;
             }
-                                                                                                                                                                          this.findTokenAndAdd(",");
-            jj_consume_token(COMMA);
+            temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                        this.addSpecialToken(temporaryToken);
             argument();
           }
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case COMMA:
-                                                                                                                                                                                                                             this.findTokenAndAdd(",");
-            jj_consume_token(COMMA);
+            temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                                                                                                      this.addSpecialToken(temporaryToken);
             ExtraKeywordValueList();
             break;
           default:
@@ -6662,8 +6657,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                                                                                                                                                                                                                                             this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                 this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[140] = jj_gen;
@@ -6679,21 +6674,21 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_46;
         }
-                                          this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                  this.addSpecialToken(temporaryToken);
         argument();
       }
       if (jj_2_33(2)) {
-                                                                                                         this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                            this.addSpecialToken(temporaryToken);
         ExtraKeywordValueList();
       } else {
         ;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                                                                                                                         this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                                                                                                                                                                                                                       this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[141] = jj_gen;
@@ -6704,8 +6699,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       ExtraKeywordValueList();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                  this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        temporaryToken = jj_consume_token(COMMA);
+                                                          this.addSpecialToken(temporaryToken);
         break;
       default:
         jj_la1[142] = jj_gen;
@@ -6833,8 +6828,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      jj_consume_token(EQUAL);
-                this.addSpecialToken("=");
+      temporaryToken = jj_consume_token(EQUAL);
+                               this.addSpecialToken(temporaryToken);
       test();
     } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -7363,40 +7358,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     finally { jj_save(33, xla); }
   }
 
-  private boolean jj_3R_118() {
-    if (jj_3R_102()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_104() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_118()) {
-    jj_scanpos = xsp;
-    if (jj_3R_119()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3_8() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_54()) return true;
-    return false;
-  }
-
-  private boolean jj_3_20() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_64()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_116() {
-    if (jj_3R_131()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_129() {
-    if (jj_scan_token(FROM)) return true;
+  private boolean jj_3R_49() {
+    if (jj_3R_77()) return true;
     return false;
   }
 
@@ -7407,11 +7370,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
   private boolean jj_3R_100() {
     if (jj_3R_52()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_128() {
-    if (jj_scan_token(IMPORT)) return true;
     return false;
   }
 
@@ -7433,6 +7391,16 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
+  private boolean jj_3R_129() {
+    if (jj_scan_token(FROM)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_128() {
+    if (jj_scan_token(IMPORT)) return true;
+    return false;
+  }
+
   private boolean jj_3R_112() {
     Token xsp;
     xsp = jj_scanpos;
@@ -7440,16 +7408,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     jj_scanpos = xsp;
     if (jj_3R_129()) return true;
     }
-    return false;
-  }
-
-  private boolean jj_3R_55() {
-    if (jj_3R_80()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_73() {
-    if (jj_3R_74()) return true;
     return false;
   }
 
@@ -7473,19 +7431,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3_2() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_48()) return true;
+  private boolean jj_3R_137() {
+    if (jj_3R_97()) return true;
     return false;
   }
 
   private boolean jj_3R_145() {
     if (jj_3R_151()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_137() {
-    if (jj_3R_97()) return true;
     return false;
   }
 
@@ -7514,6 +7466,12 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
+  private boolean jj_3_11() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_57()) return true;
+    return false;
+  }
+
   private boolean jj_3R_150() {
     if (jj_scan_token(RETURN)) return true;
     return false;
@@ -7529,18 +7487,29 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
+  private boolean jj_3_9() {
+    if (jj_scan_token(COMMA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_55()) {
+    jj_scanpos = xsp;
+    if (jj_3R_56()) return true;
+    }
+    return false;
+  }
+
   private boolean jj_3R_127() {
     if (jj_3R_138()) return true;
     return false;
   }
 
-  private boolean jj_3R_139() {
-    if (jj_scan_token(LBRACKET)) return true;
+  private boolean jj_3R_126() {
+    if (jj_3R_137()) return true;
     return false;
   }
 
-  private boolean jj_3R_126() {
-    if (jj_3R_137()) return true;
+  private boolean jj_3R_139() {
+    if (jj_scan_token(LBRACKET)) return true;
     return false;
   }
 
@@ -7551,16 +7520,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
   private boolean jj_3R_124() {
     if (jj_scan_token(CONTINUE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_62() {
-    if (jj_3R_97()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_49() {
-    if (jj_3R_77()) return true;
     return false;
   }
 
@@ -7585,6 +7544,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
   private boolean jj_3R_123() {
     if (jj_scan_token(BREAK)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_62() {
+    if (jj_3R_97()) return true;
     return false;
   }
 
@@ -7649,31 +7613,37 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3_11() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_57()) return true;
-    return false;
-  }
-
   private boolean jj_3R_109() {
     if (jj_3R_122()) return true;
-    return false;
-  }
-
-  private boolean jj_3_9() {
-    if (jj_scan_token(COMMA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_55()) {
-    jj_scanpos = xsp;
-    if (jj_3R_56()) return true;
-    }
     return false;
   }
 
   private boolean jj_3_17() {
     if (jj_scan_token(POWER)) return true;
     if (jj_3R_61()) return true;
+    return false;
+  }
+
+  private boolean jj_3_5() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  private boolean jj_3_3() {
+    if (jj_scan_token(COMMA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_49()) {
+    jj_scanpos = xsp;
+    if (jj_3R_50()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3_30() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_71()) return true;
     return false;
   }
 
@@ -7692,23 +7662,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3R_92() {
-    if (jj_scan_token(ASSERT)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_91() {
-    if (jj_3R_114()) return true;
-    return false;
-  }
-
   private boolean jj_3R_96() {
     if (jj_3R_115()) return true;
     return false;
   }
 
-  private boolean jj_3R_90() {
-    if (jj_3R_113()) return true;
+  private boolean jj_3R_92() {
+    if (jj_scan_token(ASSERT)) return true;
     return false;
   }
 
@@ -7717,14 +7677,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3_13() {
-    if (jj_scan_token(SEMICOLON)) return true;
-    if (jj_3R_59()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_89() {
-    if (jj_3R_112()) return true;
+  private boolean jj_3R_91() {
+    if (jj_3R_114()) return true;
     return false;
   }
 
@@ -7733,14 +7687,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3_5() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_51()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_88() {
-    if (jj_3R_111()) return true;
+  private boolean jj_3R_90() {
+    if (jj_3R_113()) return true;
     return false;
   }
 
@@ -7762,6 +7710,22 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
   private boolean jj_3R_93() {
     if (jj_scan_token(PLUS)) return true;
+    return false;
+  }
+
+  private boolean jj_3_13() {
+    if (jj_scan_token(SEMICOLON)) return true;
+    if (jj_3R_59()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_89() {
+    if (jj_3R_112()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_88() {
+    if (jj_3R_111()) return true;
     return false;
   }
 
@@ -7808,19 +7772,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3_3() {
-    if (jj_scan_token(COMMA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_49()) {
-    jj_scanpos = xsp;
-    if (jj_3R_50()) return true;
-    }
+  private boolean jj_3R_168() {
+    if (jj_3R_61()) return true;
     return false;
   }
 
-  private boolean jj_3R_168() {
-    if (jj_3R_61()) return true;
+  private boolean jj_3R_72() {
+    if (jj_3R_105()) return true;
     return false;
   }
 
@@ -7866,14 +7824,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3_7() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_53()) return true;
+  private boolean jj_3R_102() {
+    if (jj_3R_117()) return true;
     return false;
   }
 
-  private boolean jj_3R_102() {
-    if (jj_3R_117()) return true;
+  private boolean jj_3_7() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_53()) return true;
     return false;
   }
 
@@ -7923,14 +7881,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3R_80() {
-    if (jj_scan_token(MULTIPLY)) return true;
+  private boolean jj_3R_56() {
+    if (jj_3R_57()) return true;
     return false;
   }
 
-  private boolean jj_3_30() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_71()) return true;
+  private boolean jj_3R_80() {
+    if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
 
@@ -7942,11 +7899,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
   private boolean jj_3R_154() {
     if (jj_3R_102()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_76() {
-    if (jj_3R_60()) return true;
     return false;
   }
 
@@ -7965,14 +7917,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3R_120() {
-    if (jj_3R_133()) return true;
+  private boolean jj_3R_76() {
+    if (jj_3R_60()) return true;
     return false;
   }
 
-  private boolean jj_3_4() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_48()) return true;
+  private boolean jj_3R_120() {
+    if (jj_3R_133()) return true;
     return false;
   }
 
@@ -7983,6 +7934,12 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
   private boolean jj_3R_79() {
     if (jj_3R_107()) return true;
+    return false;
+  }
+
+  private boolean jj_3_4() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_48()) return true;
     return false;
   }
 
@@ -7997,11 +7954,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3R_72() {
-    if (jj_3R_105()) return true;
-    return false;
-  }
-
   private boolean jj_3R_51() {
     if (jj_scan_token(POWER)) return true;
     return false;
@@ -8012,8 +7964,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3R_77() {
-    if (jj_scan_token(MULTIPLY)) return true;
+  private boolean jj_3_33() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_74()) return true;
     return false;
   }
 
@@ -8027,14 +7980,29 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
+  private boolean jj_3R_77() {
+    if (jj_scan_token(MULTIPLY)) return true;
+    return false;
+  }
+
   private boolean jj_3R_78() {
     if (jj_3R_106()) return true;
     return false;
   }
 
-  private boolean jj_3_33() {
+  private boolean jj_3R_50() {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
+  private boolean jj_3_31() {
     if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_74()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_72()) {
+    jj_scanpos = xsp;
+    if (jj_3R_73()) return true;
+    }
     return false;
   }
 
@@ -8070,17 +8038,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
 
   private boolean jj_3R_161() {
     if (jj_scan_token(SINGLE_STRING2)) return true;
-    return false;
-  }
-
-  private boolean jj_3_31() {
-    if (jj_scan_token(COMMA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_72()) {
-    jj_scanpos = xsp;
-    if (jj_3R_73()) return true;
-    }
     return false;
   }
 
@@ -8122,19 +8079,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3_15() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_60()) return true;
-    return false;
-  }
-
   private boolean jj_3R_159() {
     if (jj_scan_token(COMPLEX)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_56() {
-    if (jj_3R_57()) return true;
     return false;
   }
 
@@ -8143,7 +8089,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3_14() {
+  private boolean jj_3_15() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_60()) return true;
     return false;
@@ -8154,8 +8100,24 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
+  private boolean jj_3R_68() {
+    if (jj_3R_103()) return true;
+    return false;
+  }
+
   private boolean jj_3R_156() {
     if (jj_scan_token(OCTNUMBER)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_67() {
+    if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3_14() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_60()) return true;
     return false;
   }
 
@@ -8188,6 +8150,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
+  private boolean jj_3R_66() {
+    if (jj_3R_103()) return true;
+    return false;
+  }
+
   private boolean jj_3_32() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_71()) return true;
@@ -8205,8 +8172,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3R_50() {
-    if (jj_3R_51()) return true;
+  private boolean jj_3R_65() {
+    if (jj_3R_102()) return true;
     return false;
   }
 
@@ -8216,23 +8183,18 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3R_68() {
-    if (jj_3R_103()) return true;
-    return false;
-  }
-
   private boolean jj_3R_74() {
     if (jj_scan_token(POWER)) return true;
     return false;
   }
 
-  private boolean jj_3R_67() {
-    if (jj_3R_52()) return true;
+  private boolean jj_3R_105() {
+    if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
 
-  private boolean jj_3R_105() {
-    if (jj_scan_token(MULTIPLY)) return true;
+  private boolean jj_3R_73() {
+    if (jj_3R_74()) return true;
     return false;
   }
 
@@ -8242,23 +8204,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3R_66() {
-    if (jj_3R_103()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_65() {
-    if (jj_3R_102()) return true;
-    return false;
-  }
-
   private boolean jj_3R_70() {
     if (jj_3R_69()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_114() {
-    if (jj_scan_token(NONLOCAL)) return true;
     return false;
   }
 
@@ -8278,11 +8225,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
-  private boolean jj_3R_113() {
-    if (jj_scan_token(GLOBAL)) return true;
-    return false;
-  }
-
   private boolean jj_3_25() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_52()) return true;
@@ -8294,8 +8236,24 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
+  private boolean jj_3R_114() {
+    if (jj_scan_token(NONLOCAL)) return true;
+    return false;
+  }
+
   private boolean jj_3R_98() {
     if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3_8() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_113() {
+    if (jj_scan_token(GLOBAL)) return true;
     return false;
   }
 
@@ -8307,6 +8265,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     jj_scanpos = xsp;
     if (jj_3R_68()) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3R_55() {
+    if (jj_3R_80()) return true;
     return false;
   }
 
@@ -8363,8 +8326,40 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     return false;
   }
 
+  private boolean jj_3_2() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_48()) return true;
+    return false;
+  }
+
   private boolean jj_3R_119() {
     if (jj_3R_103()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_118() {
+    if (jj_3R_102()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_104() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_118()) {
+    jj_scanpos = xsp;
+    if (jj_3R_119()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3_20() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_64()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_116() {
+    if (jj_3R_131()) return true;
     return false;
   }
 

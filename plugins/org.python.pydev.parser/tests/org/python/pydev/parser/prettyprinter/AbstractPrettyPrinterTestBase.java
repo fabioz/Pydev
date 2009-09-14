@@ -7,6 +7,8 @@ import org.python.pydev.core.REF;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
 
@@ -14,12 +16,12 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
     
     public static boolean DEBUG = false;
 
-    protected PrettyPrinterPrefs prefs;
+    protected IPrettyPrinterPrefs prefs;
     
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        prefs = new PrettyPrinterPrefs("\n");
+        prefs = new PrettyPrinterPrefsV2("\n", "    ");
     }
 
     public SimpleNode checkPrettyPrintEqual(String s, String expected) throws Error {
@@ -36,11 +38,10 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
      * @throws Exception
      * @throws IOException
      */
-    public static SimpleNode checkPrettyPrintEqual(String s, PrettyPrinterPrefs prefs, String expected) throws Error {
+    public static SimpleNode checkPrettyPrintEqual(String s, IPrettyPrinterPrefs prefs, String expected) throws Error {
         SimpleNode node = parseLegalDocStr(s);
-        final WriterEraser stringWriter = makePrint(prefs, node);
 
-        assertEquals(expected, stringWriter.getBuffer().toString());
+        assertEquals(expected, makePrint(prefs, node));
         return node;
     }
 
@@ -50,23 +51,37 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
      * @return
      * @throws Exception
      */
-    public static WriterEraser makePrint(PrettyPrinterPrefs prefs, SimpleNode node) throws Error {
+    public static String makePrint(IPrettyPrinterPrefs prefs, SimpleNode node) throws Error {
         Module m = (Module) node;
         
-        final WriterEraser stringWriter = new WriterEraser();
-        PrettyPrinter printer = new PrettyPrinter(prefs, stringWriter);
+        PrettyPrinterV2 printer = new PrettyPrinterV2(prefs);
+        String result = "";
         try {
-            m.accept(printer);
+            result = printer.print(m);
         } catch (Exception e) {
-            throw new AssertionError(e);
+            throw new RuntimeException(e);
         }
         if(DEBUG){
             System.out.println("\n\nResult:\n");
-            System.out.println("'"+stringWriter.getBuffer().toString().replace(' ', '.').replace('\t', '^')+"'");
+            System.out.println("'"+result+"'");
+//            System.out.println("'"+result.replace(' ', '.').replace('\t', '^')+"'");
         }
-        assertTrue(! printer.state.inStmt());
-//        assertTrue("Should not be in record:"+printer.auxComment, ! printer.auxComment.inRecord());
-        return stringWriter;
+        return result;
+        
+        //OLD VERSION
+//        final WriterEraser stringWriter = new WriterEraser();
+//        PrettyPrinter printer = new PrettyPrinter(prefs, stringWriter);
+//        try {
+//            m.accept(printer);
+//        } catch (Exception e) {
+//            throw new AssertionError(e);
+//        }
+//        if(DEBUG){
+//            System.out.println("\n\nResult:\n");
+//            System.out.println("'"+stringWriter.getBuffer().toString().replace(' ', '.').replace('\t', '^')+"'");
+//        }
+//        assertTrue(! printer.state.inStmt());
+//        return stringWriter.getBuffer().toString();
     }
 
     
@@ -91,15 +106,15 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
             if(original == null){
                 fail("Error\nUnable to generate the AST for the file:"+f);
             }
-            WriterEraser writer = PrettyPrinterTest.makePrint(prefs, original);
+            String result = PrettyPrinterTest.makePrint(prefs, original);
             SimpleNode node = null;
             try {
-                node = parseLegalDocStr(writer.getBuffer().toString());
+                node = parseLegalDocStr(result);
             } catch (Throwable e) {
                 System.out.println("\n\n\n----------------- Initial contents:-------------------------\n");
                 System.out.println(original);
                 System.out.println("\n\n--------------Pretty-printed contents:------------------\n");
-                System.out.println(writer.getBuffer().toString());
+                System.out.println(result);
                 System.out.println("\n\n\n");
                 System.out.println("File: "+f);
                 e.printStackTrace();
