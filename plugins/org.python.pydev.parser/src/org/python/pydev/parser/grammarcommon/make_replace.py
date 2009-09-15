@@ -319,6 +319,21 @@ void assert_stmt(): {}
     substituted = str(ASSERT.substitute(**definitions))
     return substituted
 
+
+#=======================================================================================================================
+# CreateExec
+#=======================================================================================================================
+def CreateExec(definitions):
+    EXEC = '''
+//exec_stmt: 'exec' expr ['in' test [',' test]]
+void exec_stmt(): {}
+{ temporaryToken=<EXEC>{this.addSpecialTokenToLastOpened(temporaryToken);} expr() [temporaryToken=<IN>{this.addSpecialToken(temporaryToken);} test() [$COMMA test()]] }
+'''
+
+    EXEC = Template(EXEC)
+    substituted = str(EXEC.substitute(**definitions))
+    return substituted
+
     
 #=======================================================================================================================
 # CreateImportStmt
@@ -331,7 +346,7 @@ void import_stmt() #void: {Import imp; Object spStr;}
     try{
         spStr=<IMPORT> imp = Import() {imp.addSpecial(spStr,false);} 
         |
-        temporaryToken=<FROM> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
+        {temporaryToken=createSpecialStr("from");}<FROM> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
     }catch(ParseException e){handleErrorInImport(e);}
 }
 '''
@@ -400,7 +415,7 @@ def CreateGrammarFiles():
         
         NAME_DEFINITION=CreateNameDefinition(),
         
-        RPAREN ='''try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
+        RPAREN ='''try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
         
         COLON ='''{this.findTokenAndAdd(":");}<COLON>''',
         
@@ -428,19 +443,19 @@ def CreateGrammarFiles():
         
         INDENTING=CreateIndenting(),
         
-        RAISE = '''temporaryToken=<RAISE> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        RAISE = '''{temporaryToken=createSpecialStr("raise");}<RAISE> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
         
         DEF_START = '''<DEF> {this.markLastAsSuiteStart();} Name()''',
         
-        LPAREN1 = '''temporaryToken=<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        LPAREN1 = '''{temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
         
-        LPAREN2 = '''temporaryToken=<LPAREN>{this.addSpecialToken(temporaryToken);}''',
+        LPAREN2 = '''{findTokenAndAdd("(");}<LPAREN>''',
         
         PASS_STMT = '''//pass_stmt: 'pass'
 Token pass_stmt(): {Token spStr;}
 { spStr=<PASS> {return spStr;}}''',
 
-        LPAREN3 = '''temporaryToken=<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}''',
+        LPAREN3 = '''{temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}''',
         
         DELL_STMT = '''//del_stmt: 'del' exprlist
 void del_stmt(): {}
@@ -477,10 +492,12 @@ else
         AS2 = '''{temporaryToken=createSpecialStr("as");}<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
         
         IF_EXP = '''void if_exp():{}
-{{temporaryToken=createSpecialStr("if");}<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() {this.findTokenAndAdd("else");}<ELSE> test()}'''
+{{temporaryToken=createSpecialStr("if");}<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() {this.findTokenAndAdd("else");}<ELSE> test()}''',
 
+        GLOBAL = '''temporaryToken=<GLOBAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
     )
     
+    definitions['EXEC'] = CreateExec(definitions)
     definitions['DICTMAKER'] = CreateDictMakerWithDeps(definitions)
     definitions['IF'] = CreateIfWithDeps(definitions)
     definitions['ASSERT'] = CreateAssertWithDeps(definitions)

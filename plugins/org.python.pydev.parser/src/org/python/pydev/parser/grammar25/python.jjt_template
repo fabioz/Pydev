@@ -803,25 +803,25 @@ void power() #void: {}
 { atomtrailer() (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
-void atomtrailer() #void: {Token spStr;Token spStr2;}
+void atomtrailer() #void: {Object spStr;Object spStr2;}
 {
 atom() 
 (
     LOOKAHEAD(2) (  
-    spStr =  <LPAREN>  
-    spStr2 =  <RPAREN> 
+    {spStr  = createSpecialStr("(", false);} <LPAREN>  
+    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     )#Call_Op(1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-    spStr =  <LPAREN>  
+    {spStr  = createSpecialStr("(", false);} <LPAREN>  
     insidetuporcall() 
-    spStr2 =  <RPAREN> 
+    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 
-|   spStr =  <LBRACKET> 
+|   {spStr = createSpecialStr("[", false);} <LBRACKET> 
     subscriptlist()
-    spStr2 =  <RBRACKET>  
+    {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
     #Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   <DOT> Name() #Dot_Op(2) 
@@ -830,31 +830,31 @@ atom()
 
 
 //atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | '`' testlist '`' | NAME | NUMBER | STRING+
-void atom() #void: {Token spStr;Token spStr2;}
+void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
-      spStr =  <LPAREN>  
-      spStr2 =  <RPAREN> 
+      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-      spStr =  <LPAREN>  
+      {spStr  = createSpecialStr("(", false);} <LPAREN>  
       (yield_expr() | insidetuporcall())
-      spStr2 =  <RPAREN> 
+      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
-|   ( $LPAREN1   [SmartTestList()] $RPAREN  )
+|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] $RPAREN  )
 
-|   ( spStr =  <LBRACKET> 
+|   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
       [listmaker()] 
-      spStr2 =  <RBRACKET>  
+      {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
     ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
       
       
-|   ( spStr  = <LBRACE> 
+|   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
       [dictmaker()] 
-      spStr2  =  <RBRACE> 
+      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
     ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
     
 |   "`" SmartTestList() "`" #str_1op(1)

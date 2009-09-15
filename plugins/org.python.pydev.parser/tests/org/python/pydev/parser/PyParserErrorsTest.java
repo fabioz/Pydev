@@ -20,7 +20,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         try {
             PyParserErrorsTest test = new PyParserErrorsTest();
             test.setUp();
-            test.testErrorHandled16();
+//            test.testErrorHandled16();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserErrorsTest.class);

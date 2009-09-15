@@ -539,7 +539,7 @@ void funcdef(): {}
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);} ] try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} )+ 
+    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} )+ 
 }
 
 
@@ -549,9 +549,9 @@ void begin_decorator(): {}
 
 //parameters: '(' [typedargslist] ')'
 void parameters() #void:  {}
-{ temporaryToken=<LPAREN>{this.addSpecialToken(temporaryToken);}
+{ {findTokenAndAdd("(");}<LPAREN>
   [typedargslist()] 
-  try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);} 
+  try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} 
 }
   
 //typedargslist: ((tfpdef ['=' test] ',')*
@@ -620,7 +620,7 @@ void defaultarg(): {}
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
-{ Name() | temporaryToken=<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   fplist() try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);}  }
+{ Name() | {temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   fplist() try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}  }
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
@@ -734,7 +734,7 @@ void yield_expr(): {Token spStr;}
 
 //raise_stmt: 'raise' [test ['from' test]]
 void raise_stmt(): {}
-{ temporaryToken=<RAISE> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken(" from ");} <FROM> test()]] }
+{ {temporaryToken=createSpecialStr("raise");}<RAISE> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} [test() [{this.addSpecialToken(" from ");} <FROM> test()]] }
 
 
 
@@ -744,7 +744,7 @@ void import_stmt() #void: {Import imp; Object spStr;}
     try{
         spStr=<IMPORT> imp = Import() {imp.addSpecial(spStr,false);} 
         |
-        temporaryToken=<FROM> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
+        {temporaryToken=createSpecialStr("from");}<FROM> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} ImportFrom()
     }catch(ParseException e){handleErrorInImport(e);}
 }
 
@@ -774,7 +774,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
           ) 
         
         //from xxx import (a,b,c)
-        | temporaryToken=<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   
+        | {temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}   
           (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
           (
            ({
@@ -784,7 +784,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
              state=1; 
              } 
              {this.findTokenAndAdd(",");}<COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
-           try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);} 
+           try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} 
           )
     )
     //now, let's set the correct level for the module
@@ -808,7 +808,7 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> Name())* [{this.findTokenAndAdd(",");}<COMMA>] [{temporaryToken=createSpecialStr("=");}<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} testlist()] }
+{ temporaryToken=<GLOBAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> Name())* [{this.findTokenAndAdd(",");}<COMMA>] [{temporaryToken=createSpecialStr("=");}<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} testlist()] }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
@@ -1053,18 +1053,18 @@ void power() #void: {}
 { atom() (trailer())* (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
-void trailer() #void: {Token spStr;Token spStr2;}
+void trailer() #void: {Object spStr;Object spStr2;}
 {
  
-    (spStr =  <LPAREN>  
+    ({spStr  = createSpecialStr("(", false);} <LPAREN>  
     [arglist()] 
-    spStr2 = <RPAREN>    
+    <RPAREN> {spStr2 = createSpecialStr(")", false);}  
     )#Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 
-|   (spStr =  <LBRACKET> 
+|   ({spStr = createSpecialStr("[", false);} <LBRACKET> 
     subscriptlist()
-     spStr2 =<RBRACKET>    
+    <RBRACKET> {spStr2 = createSpecialStr("]", false);}   
     )#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   <DOT> Name() #Dot_Op(2) 
@@ -1076,29 +1076,29 @@ void trailer() #void: {Token spStr;Token spStr2;}
 //       '[' [testlist_comp] ']' |
 //       '{' [dictorsetmaker] '}' |
 //       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
-void atom() #void: {Token spStr;Token spStr2;}
+void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
-      spStr =  <LPAREN>  
-      spStr2 =  <RPAREN> 
+      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-      spStr =  <LPAREN>  
+      {spStr  = createSpecialStr("(", false);} <LPAREN>  
       (yield_expr() | testlist_comp())
-      spStr2 =  <RPAREN> 
+      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
-|   ( spStr =  <LBRACKET> 
+|   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
       [testlist_comp()] 
-      spStr2 =  <RBRACKET>  
+      {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
     ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
       
       
-|   ( spStr  = <LBRACE> 
+|   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
       [dictorsetmaker()] 
-      spStr2  =  <RBRACE> 
+      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
     ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
     
 |   (<FALSE>)#False
@@ -1220,7 +1220,7 @@ void decorated():{}
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
 void classdef(): {Token spStr;Token spStr2;}
 {
-    <CLASS> {this.markLastAsSuiteStart();} Name() [temporaryToken=<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}   [arglist()] try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {this.findTokenAndAdd(":");}<COLON>
+    <CLASS> {this.markLastAsSuiteStart();} Name() [{temporaryToken=createSpecialStr("(");}<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}   [arglist()] try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {this.findTokenAndAdd(":");}<COLON>
         suite()
 }
 

@@ -645,7 +645,7 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [$EQUAL2 testlist()] }
+{ $GLOBAL Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [$EQUAL2 testlist()] }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
@@ -842,18 +842,18 @@ void power() #void: {}
 { atom() (trailer())* (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
-void trailer() #void: {Token spStr;Token spStr2;}
+void trailer() #void: {Object spStr;Object spStr2;}
 {
  
-    (spStr =  <LPAREN>  
+    ({spStr  = createSpecialStr("(", false);} <LPAREN>  
     [arglist()] 
-    spStr2 = <RPAREN>    
+    <RPAREN> {spStr2 = createSpecialStr(")", false);}  
     )#Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 
-|   (spStr =  <LBRACKET> 
+|   ({spStr = createSpecialStr("[", false);} <LBRACKET> 
     subscriptlist()
-     spStr2 =<RBRACKET>    
+    <RBRACKET> {spStr2 = createSpecialStr("]", false);}   
     )#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   <DOT> Name() #Dot_Op(2) 
@@ -865,29 +865,29 @@ void trailer() #void: {Token spStr;Token spStr2;}
 //       '[' [testlist_comp] ']' |
 //       '{' [dictorsetmaker] '}' |
 //       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
-void atom() #void: {Token spStr;Token spStr2;}
+void atom() #void: {Object spStr;Object spStr2;}
 {
     LOOKAHEAD(2) (  
-      spStr =  <LPAREN>  
-      spStr2 =  <RPAREN> 
+      {spStr  = createSpecialStr("(", false);} <LPAREN>  
+      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   LOOKAHEAD(2) (  
-      spStr =  <LPAREN>  
+      {spStr  = createSpecialStr("(", false);} <LPAREN>  
       (yield_expr() | testlist_comp())
-      spStr2 =  <RPAREN> 
+      {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
-|   ( spStr =  <LBRACKET> 
+|   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
       [testlist_comp()] 
-      spStr2 =  <RBRACKET>  
+      {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
     ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
       
       
-|   ( spStr  = <LBRACE> 
+|   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
       [dictorsetmaker()] 
-      spStr2  =  <RBRACE> 
+      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
     ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
     
 |   (<FALSE>)#False
