@@ -12,6 +12,7 @@ import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.ImportsSelection;

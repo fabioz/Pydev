@@ -3,7 +3,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.autoedit;
+package org.python.pydev.core;
 
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;

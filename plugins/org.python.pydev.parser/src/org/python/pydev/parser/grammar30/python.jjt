@@ -761,7 +761,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 {
     //we need to set the  temporaryToken=<IMPORT> {this.addSpecialToken(temporaryToken);} in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
-     (("." {this.addSpecialToken(".");level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
+     (("." {level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
      temporaryToken=<IMPORT> {this.addSpecialToken(temporaryToken);} 
     
     (
@@ -969,8 +969,7 @@ void test_nocond() #void: {}
 
 
 void if_exp():{}
-{<IF> {this.addSpecialToken(" if ",STRATEGY_ADD_AFTER_PREV);} or_test() <ELSE> {this.addSpecialToken(" else ");} test()}
-
+{temporaryToken=<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() temporaryToken=<ELSE> {this.addSpecialToken(temporaryToken);} test()}
 
 //or_test: and_test ('or' and_test)*
 void or_test() #or_boolean(>1): {}

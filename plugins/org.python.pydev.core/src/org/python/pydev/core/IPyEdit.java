@@ -52,4 +52,6 @@ public interface IPyEdit extends IParserObserver{
     void setStatusLineErrorMessage(String msg);
 
     IGrammarVersionProvider getGrammarVersionProvider();
+
+    IIndentPrefs getIndentPrefs();
 }

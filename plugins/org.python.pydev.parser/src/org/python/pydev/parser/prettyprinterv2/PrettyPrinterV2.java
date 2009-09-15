@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.python.pydev.core.Tuple;
-import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.prettyprinter.IPrettyPrinterPrefs;
 
@@ -35,7 +35,7 @@ public class PrettyPrinterV2 {
         this.prefs = prefs;
     }
 
-    public String print(Module m) throws IOException {
+    public String print(SimpleNode m) throws IOException {
         PrettyPrinterDocV2 doc = new PrettyPrinterDocV2();
         PrettyPrinterVisitorV2 visitor = new PrettyPrinterVisitorV2(prefs, doc);
         try{

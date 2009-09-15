@@ -7,6 +7,7 @@ import java.io.File;
 
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 
 public class PrettyPrinter30LibTest extends AbstractPrettyPrinterTestBase{
 
@@ -27,7 +28,7 @@ public class PrettyPrinter30LibTest extends AbstractPrettyPrinterTestBase{
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        prefs = new PrettyPrinterPrefs("\n");
+        prefs = new PrettyPrinterPrefsV2("\n", "    ");
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
     }
 

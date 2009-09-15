@@ -4,6 +4,7 @@
 package org.python.pydev.parser;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -22,9 +23,8 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.commentType;
-import org.python.pydev.parser.prettyprinter.PrettyPrinter;
-import org.python.pydev.parser.prettyprinter.PrettyPrinterPrefs;
-import org.python.pydev.parser.prettyprinter.WriterEraser;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -814,17 +814,24 @@ public class PyParserTest extends PyParserTestBase{
 	}
 
 	private String printNode(SimpleNode node) {
-      final WriterEraser stringWriter = new WriterEraser();
-      PrettyPrinterPrefs prettyPrinterPrefs = new PrettyPrinterPrefs("\n");
-      prettyPrinterPrefs.setSpacesAfterComma(1);
-      prettyPrinterPrefs.setSpacesBeforeComment(1);
-      PrettyPrinter printer = new PrettyPrinter(prettyPrinterPrefs, stringWriter);
-      try {
-          node.accept(printer);
-          return stringWriter.getBuffer().toString();
-      } catch (Exception e) {
-          throw new RuntimeException(e);
-      }
+        PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(new PrettyPrinterPrefsV2("\n", "    "));
+        try{
+            return prettyPrinterV2.print(node);
+        }catch(IOException e){
+            throw new RuntimeException(e);
+        }
+
+//      final WriterEraser stringWriter = new WriterEraser();
+//      PrettyPrinterPrefs prettyPrinterPrefs = new PrettyPrinterPrefs("\n");
+//      prettyPrinterPrefs.setSpacesAfterComma(1);
+//      prettyPrinterPrefs.setSpacesBeforeComment(1);
+//      PrettyPrinter printer = new PrettyPrinter(prettyPrinterPrefs, stringWriter);
+//      try {
+//          node.accept(printer);
+//          return stringWriter.getBuffer().toString();
+//      } catch (Exception e) {
+//          throw new RuntimeException(e);
+//      }
 	}
 
 	

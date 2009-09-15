@@ -11,6 +11,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.parser.IPyParser;
@@ -81,6 +82,11 @@ public class PyParserEditorIntegrationTest extends TestCase {
 
         public IGrammarVersionProvider getGrammarVersionProvider() {
             return this.getPythonNature();
+        }
+
+        @Override
+        public IIndentPrefs getIndentPrefs() {
+            throw new RuntimeException("Not implemented");
         }
     }
 

@@ -12,6 +12,8 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 
 public class Formatter implements IFormatter{
 
@@ -30,13 +32,10 @@ public class Formatter implements IFormatter{
                 }
                 
             } else if (objects.o1 != null) {
-                SimpleNode n = objects.o1;
-                final WriterEraser stringWriter = new WriterEraser();
-                PrettyPrinterPrefs prefs = new PrettyPrinterPrefs("\n");
-                PrettyPrinter printer = new PrettyPrinter(prefs, stringWriter);
                 try{
-                    n.accept(printer);
-                    doc.set(stringWriter.getBuffer().toString());
+                    SimpleNode n = objects.o1;
+                    PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(new PrettyPrinterPrefsV2("\n", edit.getIndentPrefs().getIndentationString()));
+                    doc.set(prettyPrinterV2.print(n));
                 }catch(Exception e){
                     Log.log(e);
                 }

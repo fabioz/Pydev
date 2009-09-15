@@ -11,12 +11,17 @@ import org.python.pydev.parser.jython.Token;
 
 public class PrettyPrinterDocLineEntry {
     
-    private ArrayList<LinePart> line = new ArrayList<LinePart>();
+    private ArrayList<LinePart> lineParts = new ArrayList<LinePart>();
     private int indentDiff;
+    public final int line;
+    
+    public PrettyPrinterDocLineEntry(int line) {
+        this.line = line;
+    }
 
     public LinePart add(int beginCol, String string, Object token) {
-        LinePart linePart = new LinePart(beginCol, string, token);
-        line.add(linePart);
+        LinePart linePart = new LinePart(beginCol, string, token, this);
+        lineParts.add(linePart);
         return linePart;
     }
     
@@ -30,7 +35,7 @@ public class PrettyPrinterDocLineEntry {
         if(indentDiff < 0){
             buf.append("DEDENT ");
         }
-        for(LinePart c:line){
+        for(LinePart c:lineParts){
             buf.append(c.string);
             buf.append(" ");
         }
@@ -39,7 +44,7 @@ public class PrettyPrinterDocLineEntry {
 
     
     private void sortLineParts() {
-        Collections.sort(line, new Comparator<LinePart>() {
+        Collections.sort(lineParts, new Comparator<LinePart>() {
 
             @Override
             public int compare(LinePart o1, LinePart o2) {
@@ -50,7 +55,7 @@ public class PrettyPrinterDocLineEntry {
 
     public List<LinePart> getSortedParts() {
         sortLineParts();
-        return this.line;
+        return this.lineParts;
     }
 
 
@@ -72,8 +77,8 @@ public class PrettyPrinterDocLineEntry {
 
     public int getFirstCol() {
         sortLineParts();
-        if(this.line.size() > 0){
-            return this.line.get(0).beginCol;
+        if(this.lineParts.size() > 0){
+            return this.lineParts.get(0).beginCol;
         }
         return -1;
     }

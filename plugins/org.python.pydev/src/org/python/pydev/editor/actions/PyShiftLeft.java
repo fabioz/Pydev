@@ -5,11 +5,11 @@ import java.util.List;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.autoedit.IIndentPrefs;
 
 /**
  * This action was created so that we can make the shift left even if there are less characters in the line than

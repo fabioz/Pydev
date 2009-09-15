@@ -5,6 +5,7 @@
  */
 package org.python.pydev.editor.autoedit;
 
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.cache.PyPreferencesCache;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
@@ -110,7 +111,7 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
     }
 
     /** 
-     * @see org.python.pydev.editor.autoedit.IIndentPrefs#getAutoParentesis()
+     * @see org.python.pydev.core.IIndentPrefs#getAutoParentesis()
      */
     public boolean getAutoParentesis() {
         return getCache().getBoolean(PydevEditorPrefs.AUTO_PAR);

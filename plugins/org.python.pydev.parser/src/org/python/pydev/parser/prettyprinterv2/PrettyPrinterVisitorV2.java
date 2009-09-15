@@ -1,8 +1,10 @@
 package org.python.pydev.parser.prettyprinterv2;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -17,6 +19,7 @@ import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Ellipsis;
+import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
@@ -30,6 +33,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Print;
+import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -37,9 +41,11 @@ import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
@@ -185,8 +191,8 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         beforeNode(node);
         indent(node);
         node.traverse(this);
-        dedent();
         afterNode(node);
+        dedent();
         return null;
     }
 
@@ -195,10 +201,12 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         beforeNode(node);
         this.doc.pushRecordChanges();
         node.elt.accept(this);
-        this.doc.replaceRecorded(this.doc.popRecordChanges(), "for", " for ");
         for(comprehensionType c:node.generators){
             c.accept(this);
         }
+        java.util.List<LinePart> recordedChanges = this.doc.popRecordChanges();
+        this.doc.replaceRecorded(recordedChanges, "for", " for ");
+        this.doc.replaceRecorded(recordedChanges, "if", " if ");
         afterNode(node);
         return null;
     }
@@ -250,8 +258,8 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         beforeNode(node);
         indent(node);
         node.traverse(this);
-        dedent();
         afterNode(node);
+        dedent();
         return null;
     }
 
@@ -268,6 +276,25 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         if(node.orelse != null){
             visitOrElsePart(node.orelse);
         }
+        afterNode(node);
+        return null;
+    }
+    
+    @Override
+    public Object visitWith(With node) throws Exception {
+        beforeNode(node);
+        
+        if (node.context_expr != null)
+            node.context_expr.accept(this);
+        
+        if (node.optional_vars != null)
+            node.optional_vars.accept(this);
+        
+        indent(node);
+        if (node.body != null)
+            node.body.accept(this);
+        dedent();
+        
         afterNode(node);
         return null;
     }
@@ -413,26 +440,8 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         
         if (node.func != null)
             node.func.accept(this);
-        if (node.args != null) {
-            for (int i = 0; i < node.args.length; i++) {
-                if (node.args[i] != null)
-                    node.args[i].accept(this);
-            }
-        }
-        if (node.keywords != null) {
-            for (int i = 0; i < node.keywords.length; i++) {
-                keywordType keyword = node.keywords[i];
-                if (keyword != null){
-                    beforeNode(keyword);
-                    keyword.accept(this);
-                    afterNode(keyword);
-                }
-            }
-        }
-        if (node.starargs != null)
-            node.starargs.accept(this);
-        if (node.kwargs != null)
-            node.kwargs.accept(this);
+        
+        handleArguments(node.args, node.keywords, node.starargs, node.kwargs);
         
         
         dedent();
@@ -440,13 +449,44 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         return null;
     }
 
+    private void handleArguments(exprType[] args, keywordType[] keywords, exprType starargs, exprType kwargs) throws Exception, IOException {
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                if (args[i] != null)
+                    args[i].accept(this);
+            }
+        }
+        if (keywords != null) {
+            for (int i = 0; i < keywords.length; i++) {
+                keywordType keyword = keywords[i];
+                if (keyword != null){
+                    beforeNode(keyword);
+                    keyword.accept(this);
+                    afterNode(keyword);
+                }
+            }
+        }
+        if (starargs != null)
+            starargs.accept(this);
+        if (kwargs != null)
+            kwargs.accept(this);
+    }
+
+    
+    @Override
+    public Object visitExec(Exec node) throws Exception {
+        doc.pushRecordChanges();
+        Object ret = super.visitExec(node);
+        doc.replaceRecorded(doc.popRecordChanges(), "exec", "exec ");
+        return ret;
+    }
     
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         if(node.decs != null){
-            for(SimpleNode n:node.decs){
+            for(decoratorsType n:node.decs){
                 if(n != null){
-                    n.accept(this);
+                    handleDecorator(n);
                 }
             }
         }
@@ -484,12 +524,26 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     }
 
     
+    public boolean isFilled(SimpleNode[] nodes) {
+        return (nodes != null) && (nodes.length > 0);
+    }
+
+    
+    private void handleDecorator(decoratorsType node) throws Exception {
+        beforeNode(node);
+        if (node.func != null)
+            node.func.accept(this);
+        
+        handleArguments(node.args, node.keywords, node.starargs, node.kwargs);
+        afterNode(node);
+    }
+    
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         if(node.decs != null){
-            for(SimpleNode n:node.decs){
+            for(decoratorsType n:node.decs){
                 if(n != null){
-                    n.accept(this);
+                    handleDecorator(n);
                 }
             }
         }
@@ -517,6 +571,9 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitIfExp(IfExp node) throws Exception {
         //we have to change the order a bit...
+        this.doc.pushRecordChanges();
+
+        
         beforeNode(node);
         node.body.accept(this);
         node.test.accept(this);
@@ -524,6 +581,10 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             node.orelse.accept(this);
         }
         afterNode(node);
+        java.util.List<LinePart> recordedChanges = this.doc.popRecordChanges();
+        this.doc.replaceRecorded(recordedChanges, "if", " if ");
+        this.doc.replaceRecorded(recordedChanges, "else", " else ");
+        
         return null;
     }
 
@@ -582,7 +643,13 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         this.doc.pushRecordChanges();
         beforeNode(node);
         
-        node.module.accept(this);
+        if(!((NameTok)node.module).id.equals("")){
+            node.module.accept(this); //no need to add an empty module
+        }else{
+            //empty
+            beforeNode(node.module);
+            afterNode(node.module);
+        }
         
         for (aliasType name : node.names){
             beforeNode(name);
@@ -594,12 +661,34 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         
         java.util.List<LinePart> recordChanges = this.doc.popRecordChanges();
         this.doc.replaceRecorded(recordChanges, "import", " import ");
-        this.doc.replaceRecorded(recordChanges, "from", "from ");
+        
+        for(LinePart linePart:recordChanges){
+            if(linePart.string.equals("from")){
+                
+                if(node.level > 0){
+                    String s = new FastStringBuffer(node.level).appendN('.', node.level).toString();
+                    doc.add(linePart.getLine(), linePart.beginCol+1, s, linePart.token);
+                }
+
+                linePart.string = "from ";
+                break;
+            }
+        }
+
         return null;
     }
     
 
-
+    @Override
+    public Object visitRaise(Raise node) throws Exception {
+        this.doc.pushRecordChanges();
+        Object ret = super.visitRaise(node);
+        java.util.List<LinePart> recordChanges = this.doc.popRecordChanges();
+        if(node.type != null){
+            this.doc.replaceRecorded(recordChanges, "raise", "raise ");
+        }
+        return ret;
+    }
 
 
     @Override

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.Stack;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -22,13 +22,13 @@ public class PrettyPrinterDocV2 {
 
     public final SortedMap<Integer, PrettyPrinterDocLineEntry> linesToColAndContents = new TreeMap<Integer, PrettyPrinterDocLineEntry>();
     
-    private List<LinePart> recordedChanges = null;
+    private Stack<List<LinePart>> recordedChanges = new Stack<List<LinePart>>();
     
     public void add(int beginLine, int beginCol, String string, Object token) {
         PrettyPrinterDocLineEntry lineContents = getLine(beginLine);
         LinePart linePart = lineContents.add(beginCol, string, token);
-        if(recordedChanges != null){
-            recordedChanges.add(linePart);
+        for(List<LinePart> lst:recordedChanges){
+            lst.add(linePart);
         }
     }
     
@@ -36,7 +36,7 @@ public class PrettyPrinterDocV2 {
     PrettyPrinterDocLineEntry getLine(int beginLine) {
         PrettyPrinterDocLineEntry lineContents = linesToColAndContents.get(beginLine);
         if(lineContents == null){
-            lineContents = new PrettyPrinterDocLineEntry();
+            lineContents = new PrettyPrinterDocLineEntry(beginLine);
             linesToColAndContents.put(beginLine, lineContents);
         }
         return lineContents;
@@ -84,13 +84,11 @@ public class PrettyPrinterDocV2 {
     }
 
     public void pushRecordChanges() {
-        Assert.isTrue(recordedChanges == null);
-        recordedChanges = new ArrayList<LinePart>();
+        recordedChanges.push(new ArrayList<LinePart>());
     }
 
     public List<LinePart> popRecordChanges() {
-        List<LinePart> ret = recordedChanges;
-        recordedChanges = null;
+        List<LinePart> ret = recordedChanges.pop();
         return ret;
     }
 

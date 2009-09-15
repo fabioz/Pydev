@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testExec();
+            test.testExec2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -541,11 +541,9 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         
         String expected = ""+
         "class Foo:\n" +
-        "    def func1(self):\n" +
-        "        pass\n" +
+        "    def func1(self):pass\n" +
         "    # ------ Head elements\n" +
-        "    def func2(self):\n" +
-        "        pass\n" +
+        "    def func2(self):pass\n" +
         "";
         checkPrettyPrintEqual(s, expected);
     }

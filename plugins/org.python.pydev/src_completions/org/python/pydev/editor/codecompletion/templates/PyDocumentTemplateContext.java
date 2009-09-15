@@ -14,13 +14,13 @@ import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.TemplateTranslator;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.autoedit.IIndentPrefs;
 
 /**
  * Makes a custom evaluation of the template buffer to be created (to put it in the correct indentation and 

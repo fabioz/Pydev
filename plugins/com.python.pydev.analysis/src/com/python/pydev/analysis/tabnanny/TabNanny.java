@@ -8,10 +8,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.editor.autoedit.IIndentPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.IAnalysisPreferences;

@@ -475,6 +475,10 @@ else
         AS = '''temporaryToken=<AS> {this.addSpecialToken(temporaryToken);}''',
         
         AS2 = '''temporaryToken=<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        
+        IF_EXP = '''void if_exp():{}
+{temporaryToken=<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() temporaryToken=<ELSE> {this.addSpecialToken(temporaryToken);} test()}'''
+
     )
     
     definitions['DICTMAKER'] = CreateDictMakerWithDeps(definitions)
