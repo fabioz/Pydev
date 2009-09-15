@@ -34,6 +34,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
+import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -302,10 +303,13 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitFor(For node) throws Exception {
         //for a in b: xxx else: yyy
+        doc.pushRecordChanges();
 
         beforeNode(node);
         //a
         node.target.accept(this);
+        
+        doc.replaceRecorded(doc.popRecordChanges(), "for", "for ");
 
         //in b
         node.iter.accept(this);
@@ -319,6 +323,17 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
         afterNode(node);
         return null;
+    }
+    
+    @Override
+    public Object visitReturn(Return node) throws Exception {
+        doc.pushRecordChanges();
+        Object ret = super.visitReturn(node);
+        java.util.List<LinePart> changes = doc.popRecordChanges();
+        if(node.value != null){
+            doc.replaceRecorded(changes, "return", "return ");
+        }
+        return ret;
     }
 
     public void visitTryPart(SimpleNode node, stmtType[] body) throws Exception {

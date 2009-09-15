@@ -529,7 +529,7 @@ modType file_input(): {}
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 { 
-    <DEF> {this.markLastAsSuiteStart();} Name() parameters() [{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);} 
+    <DEF> {this.markLastAsSuiteStart();} Name() parameters() [{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] {this.findTokenAndAdd(":");}<COLON> 
         suite() 
 }
 
@@ -566,9 +566,9 @@ void typedargslist() #void: {}
 //        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
 
 
-       ((defaultarg2() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} defaultarg2())*) [LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ((ExtraArgList2() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} onlykeywordarg2())* [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]
-    |  (ExtraArgList2() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} onlykeywordarg2())* [LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ExtraKeywordList2()]) [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]   
-    |   ExtraKeywordList2() [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]
+       ((defaultarg2() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> defaultarg2())*) [LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> ((ExtraArgList2() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> onlykeywordarg2())* [{this.findTokenAndAdd(",");}<COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [{this.findTokenAndAdd(",");}<COMMA>]
+    |  (ExtraArgList2() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> onlykeywordarg2())* [LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> ExtraKeywordList2()]) [{this.findTokenAndAdd(",");}<COMMA>]   
+    |   ExtraKeywordList2() [{this.findTokenAndAdd(",");}<COMMA>]
 }
 
 void ExtraArgList2(): {}
@@ -601,9 +601,9 @@ void tfpdef(): {}
 //              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
 void varargslist() #void: {}
 {
-       ((defaultarg() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} defaultarg())*) [LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ((ExtraArgList() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} onlykeywordarg())* [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ExtraKeywordList()]) | (ExtraKeywordList()) )]) [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]
-    |  (ExtraArgList() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} onlykeywordarg())* [LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ExtraKeywordList()]) [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]   
-    |   ExtraKeywordList() [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]
+       ((defaultarg() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> defaultarg())*) [LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> ((ExtraArgList() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> onlykeywordarg())* [{this.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()]) | (ExtraKeywordList()) )]) [{this.findTokenAndAdd(",");}<COMMA>]
+    |  (ExtraArgList() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> onlykeywordarg())* [LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()]) [{this.findTokenAndAdd(",");}<COMMA>]   
+    |   ExtraKeywordList() [{this.findTokenAndAdd(",");}<COMMA>]
 }
 
 void ExtraArgList(): {}
@@ -624,7 +624,7 @@ void fpdef() #void: {}
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
-{ fpdef() (LOOKAHEAD(2) temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} fpdef())* [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}] }
+{ fpdef() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> fpdef())* [{this.findTokenAndAdd(",");}<COMMA>] }
 
 
 
@@ -751,7 +751,7 @@ void import_stmt() #void: {Import imp; Object spStr;}
 
 
 Import Import(): {}
-{ dotted_as_name() (temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} dotted_as_name())* 
+{ dotted_as_name() ({this.findTokenAndAdd(",");}<COMMA> dotted_as_name())* 
   {return (Import)jjtree.peekNode();}
 }
 
@@ -759,10 +759,10 @@ Import Import(): {}
 //              'import' ('*' | '(' import_as_names ')' | import_as_names))
 void ImportFrom(): { int level=0; int state=0;String fromName=null;String importName=null; }
 {
-    //we need to set the  temporaryToken=<IMPORT> {this.addSpecialToken(temporaryToken);} in both otherwise the lookahead will not work as we want it to work
+    //we need to set the  {this.findTokenAndAdd("import");}<IMPORT> in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
      (("." {level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
-     temporaryToken=<IMPORT> {this.addSpecialToken(temporaryToken);} 
+     {this.findTokenAndAdd("import");}<IMPORT> 
     
     (
         //from xxx import *
@@ -770,7 +770,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
         
         //from xxx import a,b,c
         | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
-            (temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
+            ({this.findTokenAndAdd(",");}<COMMA> (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
           ) 
         
         //from xxx import (a,b,c)
@@ -783,7 +783,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
              }
              state=1; 
              } 
-             temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
+             {this.findTokenAndAdd(",");}<COMMA> ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )* 
            try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);} 
           )
     )
@@ -793,7 +793,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 
 //dotted_as_name: dotted_name [NAME NAME]
 void dotted_as_name(): {}
-{ dotted_name() [temporaryToken=<AS> {this.addSpecialToken(temporaryToken);} Name()] }
+{ dotted_name() [{this.findTokenAndAdd("as");}<AS> Name()] }
 
 //dotted_name: NAME ('.' NAME)*
 String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
@@ -804,22 +804,22 @@ String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }
-{ t=Name() [temporaryToken=<AS> {this.addSpecialToken(temporaryToken);} Name()] { return t.image; } }
+{ t=Name() [{this.findTokenAndAdd("as");}<AS> Name()] { return t.image; } }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} Name())* [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}] [temporaryToken=<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} testlist()] }
+{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> Name())* [{this.findTokenAndAdd(",");}<COMMA>] [{temporaryToken=createSpecialStr("=");}<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} testlist()] }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
 void nonlocal_stmt(): {}
-{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} Name())* [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}] [temporaryToken=<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} testlist()]}
+{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> Name())* [{this.findTokenAndAdd(",");}<COMMA>] [{temporaryToken=createSpecialStr("=");}<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} testlist()]}
 
 
 
 //assert_stmt: 'assert' test [',' test]
 void assert_stmt(): {}
-{ test() [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} test()] }
+{ test() [{this.findTokenAndAdd(",");}<COMMA> test()] }
 
 
 
@@ -834,10 +834,10 @@ void compound_stmt() #void : {}
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
 void if_stmt(): {}
 {
-    temporaryToken=<IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(temporaryToken);} test() temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);} suite()
-         (begin_elif_stmt() test() temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);} suite())* 
+    temporaryToken=<IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(temporaryToken);} test() {this.findTokenAndAdd(":");}<COLON> suite()
+         (begin_elif_stmt() test() {this.findTokenAndAdd(":");}<COLON> suite())* 
              [ temporaryToken=<ELSE>  {this.addSpecialToken(temporaryToken);} 
-               temporaryToken=<COLON>{this.addSpecialToken(temporaryToken);} suite()]
+               {this.findTokenAndAdd(":");}<COLON> suite()]
 }
 
 
@@ -849,7 +849,7 @@ void begin_elif_stmt(): {}
 
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
 void while_stmt(): {}
-{ begin_while_stmt() test() temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);} suite() 
+{ begin_while_stmt() test() {this.findTokenAndAdd(":");}<COLON> suite() 
   [ begin_else_stmt()  suite()] }
 
 void begin_while_stmt(): {}
@@ -861,7 +861,7 @@ void begin_else_stmt(): {}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened("for ");} exprlist() temporaryToken=<IN> {this.addSpecialToken(temporaryToken);} SmartTestList() temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);} suite()
+{   <FOR> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened("for ");} exprlist() {this.findTokenAndAdd("in");}<IN>  SmartTestList() {this.findTokenAndAdd(":");}<COLON> suite()
     [begin_for_else_stmt() suite()]
     
 } 
@@ -904,7 +904,7 @@ void begin_finally_stmt(): {}
 
 //except_clause: 'except' [test [as test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [temporaryToken=<AS> {this.addSpecialToken(temporaryToken);} test()]] temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);} suite() }
+{ begin_except_clause() {this.addToPeek("except",false);} [test() [{this.findTokenAndAdd("as");}<AS> test()]] {this.findTokenAndAdd(":");}<COLON> suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
@@ -917,11 +917,11 @@ void with_stmt(): {}
     
     test() 
     
-    [with_var()] temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);} suite() }
+    [with_var()] {this.findTokenAndAdd(":");}<COLON> suite() }
 
 //with_var: 'as' expr
 void with_var():{}
-{ temporaryToken=<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} expr()}
+{ {temporaryToken=createSpecialStr("as");}<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} expr()}
 
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
@@ -969,7 +969,7 @@ void test_nocond() #void: {}
 
 
 void if_exp():{}
-{temporaryToken=<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() temporaryToken=<ELSE> {this.addSpecialToken(temporaryToken);} test()}
+{{temporaryToken=createSpecialStr("if");}<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() {this.findTokenAndAdd("else");}<ELSE> test()}
 
 //or_test: and_test ('or' and_test)*
 void or_test() #or_boolean(>1): {}
@@ -1112,7 +1112,7 @@ void atom() #void: {Token spStr;Token spStr2;}
 //lambdef: 'lambda' [varargslist] ':' test
 //we add the colon to the args if there is some argument... otherwise, we add it to the first token that appears on the test
 void lambdef():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] temporaryToken=<COLON> {
+{ <LAMBDA> [varargslist(){hasArgs=true;}] {temporaryToken=createSpecialStr(":");}<COLON> {
 if(hasArgs)
     this.addSpecialToken(temporaryToken);
 else 
@@ -1121,7 +1121,7 @@ else
 
 //lambdef_nocond: 'lambda' [varargslist] ':' test_nocond
 void lambdef_nocond():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] temporaryToken=<COLON> {
+{ <LAMBDA> [varargslist(){hasArgs=true;}] {temporaryToken=createSpecialStr(":");}<COLON> {
 if(hasArgs)
     this.addSpecialToken(temporaryToken);
 else 
@@ -1131,7 +1131,7 @@ else
 
 //subscriptlist: subscript (',' subscript)* [',']
 void subscriptlist() #void: {}
-{ (subscript() (LOOKAHEAD(2) temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} subscript())* [Comma()]) #subscriptlist(>1) }
+{ (subscript() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> subscript())* [Comma()]) #subscriptlist(>1) }
 
 //subscript: '.' '.' '.' | test | [test] ':' [test] [sliceop]
 void subscript() #void: {}
@@ -1146,23 +1146,23 @@ void slice() #void: {}
 { Colon() [test()] (Colon() [test()])? }
 
 void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
-void Comma(): {} {temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}}
+void Comma(): {} {<COMMA>}
 
 //exprlist: expr (',' expr)* [',']
 void exprlist() #void: {}
-{ ((expr()|star_expr()) (LOOKAHEAD(2) temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} (expr()|star_expr()))* [Comma()]) #tuple(>1) }
+{ ((expr()|star_expr()) (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> (expr()|star_expr()))* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void SmartTestList() #void: {}
-{ (test() (LOOKAHEAD(2) temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} test())* [Comma()]) #tuple(>1) }
+{ (test() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test())* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void testlist() #void: {}
-{ test() (LOOKAHEAD(2) temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} test())* [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]}
+{ test() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test())* [{this.findTokenAndAdd(",");}<COMMA>]}
 
 //testlist_star_expr: test (',' test)* [',']
 void testlist_star_expr() #void: {}
-{ ( (test()|star_expr()) (LOOKAHEAD(2) temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}  (test()|star_expr()))* [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]) #tuple(>1) }
+{ ( (test()|star_expr()) (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA>  (test()|star_expr()))* [{this.findTokenAndAdd(",");}<COMMA>]) #tuple(>1) }
 
 void star_expr(): {}
 {<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
@@ -1176,18 +1176,18 @@ void dictorsetmaker() #void: {}
 	test()
 	
 	(
-	    ( temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);}     try{test()}catch(ParseException e){handleNoValInDict(e);
+	    ( {this.findTokenAndAdd(":");}<COLON>     try{test()}catch(ParseException e){handleNoValInDict(e);
     } 
 	     
 	        (
 	            comp_for()|
-	            (LOOKAHEAD(2) temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} test()temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);} test())*
-	            [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]
+	            (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test(){this.findTokenAndAdd(":");}<COLON> test())*
+	            [{this.findTokenAndAdd(",");}<COMMA>]
 	        )
 	    )
         |
 	    (
-	      (LOOKAHEAD(2) comp_for() | (temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} test())*#set [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}] )
+	      (LOOKAHEAD(2) comp_for() | ({this.findTokenAndAdd(",");}<COMMA> test())*#set [{this.findTokenAndAdd(",");}<COMMA>] )
 	    )
     )
 }
@@ -1195,7 +1195,7 @@ void dictorsetmaker() #void: {}
 
 //testlist_comp: test ( comp_for | (',' test)* [','] )
 void testlist_comp() #void: {}
-{ test() ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} test())* [Comma()] #tuple(>1)) }
+{ test() ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test())* [Comma()] #tuple(>1)) }
 
 
 //comp_iter: [comp_for | comp_if]
@@ -1204,11 +1204,11 @@ void comp_iter() #void: {}
 
 //comp_for: 'for' exprlist 'in' or_test [comp_iter]
 void comp_for(): {}
-{ temporaryToken=<FOR> {this.addSpecialToken(temporaryToken);} exprlist() temporaryToken=<IN> {this.addSpecialToken(temporaryToken);} or_test() [comp_iter()] }
+{ {this.findTokenAndAdd("for");}<FOR> exprlist() {this.findTokenAndAdd("in");}<IN>  or_test() [comp_iter()] }
 
 //comp_if: 'if' test_nocond [comp_iter]
 void comp_if()#void:{}
-{ temporaryToken=<IF>  {this.addSpecialToken(temporaryToken);} test_nocond() [comp_iter()]}
+{ {this.findTokenAndAdd("if");}<IF> test_nocond() [comp_iter()]}
 
 
 //decorated: decorators (classdef | funcdef)
@@ -1220,7 +1220,7 @@ void decorated():{}
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
 void classdef(): {Token spStr;Token spStr2;}
 {
-    <CLASS> {this.markLastAsSuiteStart();} Name() [temporaryToken=<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}   [arglist()] try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);} ] temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);}
+    <CLASS> {this.markLastAsSuiteStart();} Name() [temporaryToken=<LPAREN>  {this.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}   [arglist()] try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {this.findTokenAndAdd(":");}<COLON>
         suite()
 }
 
@@ -1229,9 +1229,9 @@ void classdef(): {Token spStr;Token spStr2;}
 //                         |'**' test)
 void arglist() #void: {}
 {
-       ((argument() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} argument())*) [LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ((ExtraArgValueList() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} argument())* [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]
-    |  (ExtraArgValueList() (LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} argument())* [LOOKAHEAD(2)temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);} ExtraKeywordValueList()]) [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]   
-    |   ExtraKeywordValueList() [temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}]
+       ((argument() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> argument())*) [LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> ((ExtraArgValueList() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> argument())* [{this.findTokenAndAdd(",");}<COMMA> ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [{this.findTokenAndAdd(",");}<COMMA>]
+    |  (ExtraArgValueList() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> argument())* [LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> ExtraKeywordValueList()]) [{this.findTokenAndAdd(",");}<COMMA>]   
+    |   ExtraKeywordValueList() [{this.findTokenAndAdd(",");}<COMMA>]
 }
 
 
@@ -1250,7 +1250,7 @@ void argument(): {}
 
 void Keyword() : {}
 {
-	temporaryToken=<EQUAL>{this.addSpecialToken(temporaryToken);} test()
+	{this.findTokenAndAdd("=");}<EQUAL> test()
 }
 
 void Number() #Num :

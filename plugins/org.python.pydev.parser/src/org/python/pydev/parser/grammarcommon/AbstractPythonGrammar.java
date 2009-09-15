@@ -1,13 +1,12 @@
 package org.python.pydev.parser.grammarcommon;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.runtime.Assert;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
+import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -40,7 +39,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      */
     protected abstract Token getJJLastPos();
     
-    protected Token temporaryToken;
+    protected ISpecialStrOrToken temporaryToken;
 
     
     //---------------------------- Helpers to add special tokens.
@@ -214,7 +213,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      */
     public static final int STRATEGY_BEFORE_NEXT = 1;
 
-    public final SimpleNode findTokenToAdd(Token next) {
+    private final SimpleNode findTokenToAdd(Token next) {
         SimpleNode curr = (SimpleNode) getJJTree().peekNode();
         if (curr != prev) {
             //let's see which one is better suited
@@ -235,43 +234,42 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     }
     
     public final void addSpecialToken(Object o, int strategy) throws ParseException {
-        o = convertStringToSpecialStr(o);
-        if(o != null){
-            Assert.isTrue(!(o instanceof String));
-            getTokenSourceSpecialTokensList().add(new Object[] { o, strategy });
+        ISpecialStrOrToken t = convertStringToSpecialStr(o);
+        if(t != null){
+            getTokenSourceSpecialTokensList().add(new Object[] { t, strategy });
         }
     }
 
-    private final Object convertStringToSpecialStr(Object o) throws ParseException{
-        if (o instanceof String) {
-            Object s = createSpecialStr(((String) o).trim(), (String) o, DEFAULT_SEARCH_ON_LAST, false);
-            if(s != null){
-                o = s;
-            }
+    private final ISpecialStrOrToken convertStringToSpecialStr(Object o) throws ParseException{
+        if (!(o instanceof ISpecialStrOrToken)) {
+            return createSpecialStr(((String) o).trim(), DEFAULT_SEARCH_ON_LAST, false);
+        }else{
+            return (ISpecialStrOrToken) o;
         }
-        return o;
     }
 
-    public final void addSpecialToken(Object o) {
+    public final void addSpecialToken(Object o) throws ParseException {
+        if (!(o instanceof ISpecialStrOrToken)) {
+            o = convertStringToSpecialStr(o);
+        }
         //the default is adding after the previous token
-        Assert.isTrue(!(o instanceof String));
         getTokenSourceSpecialTokensList().add(new Object[] { o, STRATEGY_ADD_AFTER_PREV });
     }
 
 
-    public final Object createSpecialStr(String token, boolean searchOnLast) throws ParseException {
-        return createSpecialStr(token, token, searchOnLast);
+    public final ISpecialStrOrToken createSpecialStr(String token) throws ParseException {
+        return createSpecialStr(token, DEFAULT_SEARCH_ON_LAST);
     }
-
-    public final Object createSpecialStr(String token, String put, boolean searchOnLast) throws ParseException {
-        return createSpecialStr(token, put, searchOnLast, true);
+    
+    public final ISpecialStrOrToken createSpecialStr(String token, boolean searchOnLast) throws ParseException {
+        return createSpecialStr(token, searchOnLast, true);
     }
     
     /**
      * This is where we do a lookahead to see if we find some token and if we do find it, but not on the correct
      * position, we skip some tokens to go to it.
      */
-    public final Object createSpecialStr(String token, String put, boolean searchOnLast, boolean throwException) throws ParseException {
+    public final ISpecialStrOrToken createSpecialStr(String token, boolean searchOnLast, boolean throwException) throws ParseException {
         final Token currentToken = getCurrentToken();
         
         Token firstTokenToIterate;
@@ -302,7 +300,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
             if(foundAtPos <= 2 //found at correct position. 
                 || searchOnLast //we already matched it... right now we're just adding it to the stack!
                 ){
-                return new SpecialStr(put, foundToken.beginLine, foundToken.beginColumn);
+                return foundToken;
                 
             }
         }
@@ -317,7 +315,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
                 addAndReport(e, "Found at wrong position: "+foundToken);
                 Token beforeLastReturned = iterTokens.getBeforeLastReturned();
                 setCurrentToken(beforeLastReturned);
-                return new SpecialStr(put, foundToken.beginLine, foundToken.beginColumn);
+                return foundToken;
             }
             
             //create a 'synthetic token' in the place we were expecting it.
@@ -339,7 +337,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
                         inputStream.restoreLineColPos(currentToken.endLine, currentToken.endColumn);
                     }
                     addAndReport(e, "Created custom token: "+token);
-                    return new SpecialStr(put, currentToken.beginLine, currentToken.beginColumn);
+                    return new SpecialStr(token, currentToken.beginLine, currentToken.beginColumn);
                 }
             }
             throw e;
@@ -366,18 +364,17 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     
 
     public final boolean findTokenAndAdd(String token) throws ParseException {
-        return findTokenAndAdd(token, token, DEFAULT_SEARCH_ON_LAST);
+        return findTokenAndAdd(token, DEFAULT_SEARCH_ON_LAST);
     }
     
     /**
      * This is so that we add the String with the beginLine and beginColumn
      * @throws ParseException 
      */
-    public final boolean findTokenAndAdd(String token, String put, boolean searchOnLast) throws ParseException {
-        Object s = createSpecialStr(token, put, searchOnLast);
-        Assert.isTrue(!(s instanceof String));
+    public final boolean findTokenAndAdd(String token, boolean searchOnLast) throws ParseException {
+        ISpecialStrOrToken s = createSpecialStr(token, searchOnLast);
         getTokenSourceSpecialTokensList().add(new Object[] { s, STRATEGY_ADD_AFTER_PREV });
-        return s instanceof SpecialStr;
+        return s instanceof ISpecialStrOrToken;
     }
 
     /**

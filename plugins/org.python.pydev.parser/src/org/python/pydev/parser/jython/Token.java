@@ -5,7 +5,7 @@ package org.python.pydev.parser.jython;
  * Describes the input token stream.
  */
 
-public class Token {
+public class Token implements ISpecialStrOrToken {
 
   /**
    * An integer that describes the kind of this token.  This numbering

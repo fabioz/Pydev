@@ -296,7 +296,7 @@ void if_stmt(): {}
     temporaryToken=<IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(temporaryToken);} test() $COLON suite()
          (begin_elif_stmt() test() $COLON suite())* 
              [ temporaryToken=<ELSE>  {this.addSpecialToken(temporaryToken);} 
-               temporaryToken=<COLON>{this.addSpecialToken(temporaryToken);} suite()]
+               {this.findTokenAndAdd(":");}<COLON> suite()]
 }
 '''
 
@@ -402,11 +402,11 @@ def CreateGrammarFiles():
         
         RPAREN ='''try{temporaryToken=<RPAREN>  {this.addSpecialToken(temporaryToken);}}catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
         
-        COLON ='''temporaryToken=<COLON>  {this.addSpecialToken(temporaryToken);}''',
+        COLON ='''{this.findTokenAndAdd(":");}<COLON>''',
         
         AT ='''temporaryToken=<AT>  {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
         
-        COMMA='''temporaryToken=<COMMA>  {this.addSpecialToken(temporaryToken);}''',
+        COMMA='''{this.findTokenAndAdd(",");}<COMMA>''',
         
         YIELD = CreateYield(),
         
@@ -451,7 +451,7 @@ void begin_del_stmt(): {}
 }
 ''',
 
-        LAMBDA_COLON= '''temporaryToken=<COLON> {
+        LAMBDA_COLON= '''{temporaryToken=createSpecialStr(":");}<COLON> {
 if(hasArgs)
     this.addSpecialToken(temporaryToken);
 else 
@@ -460,24 +460,24 @@ else
 
         START_CLASS = '''<CLASS> {this.markLastAsSuiteStart();} Name()''',
         
-        EQUAL = '''temporaryToken=<EQUAL>{this.addSpecialToken(temporaryToken);}''',
+        EQUAL = '''{this.findTokenAndAdd("=");}<EQUAL>''',
         
-        EQUAL2 = '''temporaryToken=<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        EQUAL2 = '''{temporaryToken=createSpecialStr("=");}<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
         
-        IN = '''temporaryToken=<IN> {this.addSpecialToken(temporaryToken);}''',
+        IN = '''{this.findTokenAndAdd("in");}<IN> ''',
         
-        IF_COMP = '''temporaryToken=<IF>  {this.addSpecialToken(temporaryToken);}''',
+        IF_COMP = '''{this.findTokenAndAdd("if");}<IF>''',
         
-        FOR_COMP = '''temporaryToken=<FOR> {this.addSpecialToken(temporaryToken);}''',
+        FOR_COMP = '''{this.findTokenAndAdd("for");}<FOR>''',
         
-        IMPORT = '''temporaryToken=<IMPORT> {this.addSpecialToken(temporaryToken);}''',
+        IMPORT = '''{this.findTokenAndAdd("import");}<IMPORT>''',
 
-        AS = '''temporaryToken=<AS> {this.addSpecialToken(temporaryToken);}''',
+        AS = '''{this.findTokenAndAdd("as");}<AS>''',
         
-        AS2 = '''temporaryToken=<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        AS2 = '''{temporaryToken=createSpecialStr("as");}<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
         
         IF_EXP = '''void if_exp():{}
-{temporaryToken=<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() temporaryToken=<ELSE> {this.addSpecialToken(temporaryToken);} test()}'''
+{{temporaryToken=createSpecialStr("if");}<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() {this.findTokenAndAdd("else");}<ELSE> test()}'''
 
     )
     

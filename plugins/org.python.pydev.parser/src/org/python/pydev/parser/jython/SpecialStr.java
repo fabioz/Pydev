@@ -1,6 +1,6 @@
 package org.python.pydev.parser.jython;
 
-public class SpecialStr {
+public class SpecialStr implements ISpecialStrOrToken{
     public String str;
     public int beginLine;
     public int beginCol;

@@ -308,8 +308,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[2] = jj_gen;
         ;
       }
-      temporaryToken = jj_consume_token(COLON);
-                                                                                                                                                                                             this.addSpecialToken(temporaryToken);
+                                                                                                                                                                     this.findTokenAndAdd(":");
+      jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -498,13 +498,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_3;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                             this.addSpecialToken(temporaryToken);
+                                     this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         defaultarg2();
       }
       if (jj_2_3(2)) {
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                           this.addSpecialToken(temporaryToken);
+                                                                                                       this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case MULTIPLY:
           ExtraArgList2();
@@ -515,14 +515,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             } else {
               break label_4;
             }
-            temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                          this.addSpecialToken(temporaryToken);
+                                                                                                                                                                          this.findTokenAndAdd(",");
+            jj_consume_token(COMMA);
             onlykeywordarg2();
           }
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case COMMA:
-            temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                                                                                                               this.addSpecialToken(temporaryToken);
+                                                                                                                                                                                                                                   this.findTokenAndAdd(",");
+            jj_consume_token(COMMA);
             ExtraKeywordList2();
             break;
           default:
@@ -543,8 +543,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                  this.addSpecialToken(temporaryToken);
+                                                                                                                                                                                                                                                                                                                          this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[9] = jj_gen;
@@ -560,21 +560,21 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_5;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                              this.addSpecialToken(temporaryToken);
+                                      this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         onlykeywordarg2();
       }
       if (jj_2_5(2)) {
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                               this.addSpecialToken(temporaryToken);
+                                                                                                           this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         ExtraKeywordList2();
       } else {
         ;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                      this.addSpecialToken(temporaryToken);
+                                                                                                                                                                      this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[10] = jj_gen;
@@ -585,8 +585,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       ExtraKeywordList2();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                      this.addSpecialToken(temporaryToken);
+                              this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[11] = jj_gen;
@@ -804,13 +804,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_6;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                            this.addSpecialToken(temporaryToken);
+                                    this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         defaultarg();
       }
       if (jj_2_9(2)) {
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                         this.addSpecialToken(temporaryToken);
+                                                                                                     this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case MULTIPLY:
           ExtraArgList();
@@ -821,14 +821,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             } else {
               break label_7;
             }
-            temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                       this.addSpecialToken(temporaryToken);
+                                                                                                                                                                       this.findTokenAndAdd(",");
+            jj_consume_token(COMMA);
             onlykeywordarg();
           }
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case COMMA:
-            temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                                                                                                           this.addSpecialToken(temporaryToken);
+                                                                                                                                                                                                                               this.findTokenAndAdd(",");
+            jj_consume_token(COMMA);
             ExtraKeywordList();
             break;
           default:
@@ -849,8 +849,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            this.addSpecialToken(temporaryToken);
+                                                                                                                                                                                                                                                                                                                    this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[18] = jj_gen;
@@ -866,21 +866,21 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_8;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                             this.addSpecialToken(temporaryToken);
+                                     this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         onlykeywordarg();
       }
       if (jj_2_11(2)) {
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                             this.addSpecialToken(temporaryToken);
+                                                                                                         this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         ExtraKeywordList();
       } else {
         ;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                   this.addSpecialToken(temporaryToken);
+                                                                                                                                                                   this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[19] = jj_gen;
@@ -891,8 +891,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       ExtraKeywordList();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                     this.addSpecialToken(temporaryToken);
+                             this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[20] = jj_gen;
@@ -1111,14 +1111,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_9;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                 this.addSpecialToken(temporaryToken);
+                         this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         fpdef();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                            this.addSpecialToken(temporaryToken);
+                                                                        this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[27] = jj_gen;
@@ -2585,8 +2585,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           jj_la1[52] = jj_gen;
           break label_12;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                             this.addSpecialToken(temporaryToken);
+                     this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         dotted_as_name();
       }
     jjtree.closeNodeScope(jjtn000, true);
@@ -2647,8 +2647,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         ;
       }
                                                        if(fromName==null && level==0){{if (true) throw new ParseException("Expecting to find '.' or name in import.");}}
-      temporaryToken = jj_consume_token(IMPORT);
-                              this.addSpecialToken(temporaryToken);
+      this.findTokenAndAdd("import");
+      jj_consume_token(IMPORT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MULTIPLY:
         jj_consume_token(MULTIPLY);
@@ -2667,10 +2667,10 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             jj_la1[55] = jj_gen;
             break label_14;
           }
-          temporaryToken = jj_consume_token(COMMA);
-                                      this.addSpecialToken(temporaryToken);
+              this.findTokenAndAdd(",");
+          jj_consume_token(COMMA);
           importName = import_as_name();
-                                                                                                           if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
+                                                                               if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
         }
         break;
       case LPAREN:
@@ -2692,13 +2692,13 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
                  {if (true) throw new ParseException("Invalid syntax: 2 commas cannot be grouped.", getToken(1));}
              }
              state=1;
-          temporaryToken = jj_consume_token(COMMA);
-                                      this.addSpecialToken(temporaryToken);
+              this.findTokenAndAdd(",");
+          jj_consume_token(COMMA);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case NAME:
-                                                                                state=0;
+                                                    state=0;
             importName = import_as_name();
-                                                                                                                       if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
+                                                                                           if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);
             break;
           default:
             jj_la1[57] = jj_gen;
@@ -2754,8 +2754,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       dotted_name();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case AS:
-        temporaryToken = jj_consume_token(AS);
-                                      this.addSpecialToken(temporaryToken);
+                  this.findTokenAndAdd("as");
+        jj_consume_token(AS);
         Name();
         break;
       default:
@@ -2846,18 +2846,18 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       t = Name();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case AS:
-        temporaryToken = jj_consume_token(AS);
-                                 this.addSpecialToken(temporaryToken);
+             this.findTokenAndAdd("as");
+        jj_consume_token(AS);
         Name();
         break;
       default:
         jj_la1[61] = jj_gen;
         ;
       }
-                                                                                  jjtree.closeNodeScope(jjtn000, true);
-                                                                                  jjtc000 = false;
-                                                                                  jjtreeCloseNodeScope(jjtn000);
-                                                                                  {if (true) return t.image;}
+                                                        jjtree.closeNodeScope(jjtn000, true);
+                                                        jjtc000 = false;
+                                                        jjtreeCloseNodeScope(jjtn000);
+                                                        {if (true) return t.image;}
     } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -2899,14 +2899,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_17;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                 this.addSpecialToken(temporaryToken);
+                                                                                         this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         Name();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                           this.addSpecialToken(temporaryToken);
+                                                                                                                                       this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[62] = jj_gen;
@@ -2914,8 +2914,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
-        temporaryToken = jj_consume_token(EQUAL);
-                                                                                                                                                                                                                                                            this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
+                                                                                                                                                                             temporaryToken=createSpecialStr("=");
+        jj_consume_token(EQUAL);
+                                                                                                                                                                                                                            this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
         testlist();
         break;
       default:
@@ -2962,14 +2963,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         } else {
           break label_18;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                     this.addSpecialToken(temporaryToken);
+                                                                                             this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         Name();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                               this.addSpecialToken(temporaryToken);
+                                                                                                                                           this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[64] = jj_gen;
@@ -2977,8 +2978,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case EQUAL:
-        temporaryToken = jj_consume_token(EQUAL);
-                                                                                                                                                                                                                                                                this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
+                                                                                                                                                                                 temporaryToken=createSpecialStr("=");
+        jj_consume_token(EQUAL);
+                                                                                                                                                                                                                                this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
         testlist();
         break;
       default:
@@ -3018,8 +3020,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       test();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                   this.addSpecialToken(temporaryToken);
+           this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         test();
         break;
       default:
@@ -3094,8 +3096,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
                          this.markLastAsSuiteStart();
                                                         this.addSpecialTokenToLastOpened(temporaryToken);
       test();
-      temporaryToken = jj_consume_token(COLON);
-                                                                                                                                           this.addSpecialToken(temporaryToken);
+                                                                                                                   this.findTokenAndAdd(":");
+      jj_consume_token(COLON);
       suite();
       label_19:
       while (true) {
@@ -3109,16 +3111,16 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         }
         begin_elif_stmt();
         test();
-        temporaryToken = jj_consume_token(COLON);
-                                                            this.addSpecialToken(temporaryToken);
+                                    this.findTokenAndAdd(":");
+        jj_consume_token(COLON);
         suite();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ELSE:
         temporaryToken = jj_consume_token(ELSE);
                                        this.addSpecialToken(temporaryToken);
-        temporaryToken = jj_consume_token(COLON);
-                                      this.addSpecialToken(temporaryToken);
+                this.findTokenAndAdd(":");
+        jj_consume_token(COLON);
         suite();
         break;
       default:
@@ -3177,8 +3179,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     try {
       begin_while_stmt();
       test();
-      temporaryToken = jj_consume_token(COLON);
-                                                     this.addSpecialToken(temporaryToken);
+                             this.findTokenAndAdd(":");
+      jj_consume_token(COLON);
       suite();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ELSE:
@@ -3263,11 +3265,11 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
            this.markLastAsSuiteStart();
                                           this.addSpecialTokenToLastOpened("for ");
       exprlist();
-      temporaryToken = jj_consume_token(IN);
-                                                                                                                     this.addSpecialToken(temporaryToken);
+                                                                                                 this.findTokenAndAdd("in");
+      jj_consume_token(IN);
       SmartTestList();
-      temporaryToken = jj_consume_token(COLON);
-                                                                                                                                                                                                     this.addSpecialToken(temporaryToken);
+                                                                                                                                                    this.findTokenAndAdd(":");
+      jj_consume_token(COLON);
       suite();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ELSE:
@@ -3549,8 +3551,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case AS:
-          temporaryToken = jj_consume_token(AS);
-                                                                                        this.addSpecialToken(temporaryToken);
+                                                                    this.findTokenAndAdd("as");
+          jj_consume_token(AS);
           test();
           break;
         default:
@@ -3562,8 +3564,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[77] = jj_gen;
         ;
       }
-      temporaryToken = jj_consume_token(COLON);
-                                                                                                                                                                 this.addSpecialToken(temporaryToken);
+                                                                                                               this.findTokenAndAdd(":");
+      jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -3622,8 +3624,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[78] = jj_gen;
         ;
       }
-      temporaryToken = jj_consume_token(COLON);
-                                          this.addSpecialToken(temporaryToken);
+                  this.findTokenAndAdd(":");
+      jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -3655,8 +3657,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      temporaryToken = jj_consume_token(AS);
-                       this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
+   temporaryToken=createSpecialStr("as");
+      jj_consume_token(AS);
+                                                this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
       expr();
     } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -4029,11 +4032,12 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      temporaryToken = jj_consume_token(IF);
-                      this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);
+  temporaryToken=createSpecialStr("if");
+      jj_consume_token(IF);
+                                               this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);
       or_test();
-      temporaryToken = jj_consume_token(ELSE);
-                                                                                                                      this.addSpecialToken(temporaryToken);
+                                                                                                                         this.findTokenAndAdd("else");
+      jj_consume_token(ELSE);
       test();
     } catch (Throwable jjte000) {
    if (jjtc000) {
@@ -5507,7 +5511,8 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[109] = jj_gen;
         ;
       }
-      temporaryToken = jj_consume_token(COLON);
+                                           temporaryToken=createSpecialStr(":");
+      jj_consume_token(COLON);
 if(hasArgs)
     this.addSpecialToken(temporaryToken);
 else
@@ -5556,7 +5561,8 @@ else
         jj_la1[110] = jj_gen;
         ;
       }
-      temporaryToken = jj_consume_token(COLON);
+                                           temporaryToken=createSpecialStr(":");
+      jj_consume_token(COLON);
 if(hasArgs)
     this.addSpecialToken(temporaryToken);
 else
@@ -5599,8 +5605,8 @@ else
         } else {
           break label_35;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                      this.addSpecialToken(temporaryToken);
+                              this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         subscript();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -5848,11 +5854,7 @@ else
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      temporaryToken = jj_consume_token(COMMA);
-                                            jjtree.closeNodeScope(jjtn000, true);
-                                            jjtc000 = false;
-                                            jjtreeCloseNodeScope(jjtn000);
-                                           this.addSpecialToken(temporaryToken);
+      jj_consume_token(COMMA);
     } finally {
                     if (jjtc000) {
                       jjtree.closeNodeScope(jjtn000, true);
@@ -5909,8 +5911,8 @@ else
         } else {
           break label_36;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                               this.addSpecialToken(temporaryToken);
+                                       this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case LBRACE:
@@ -5991,8 +5993,8 @@ else
         } else {
           break label_37;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                 this.addSpecialToken(temporaryToken);
+                         this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         test();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -6035,14 +6037,14 @@ else
       } else {
         break label_38;
       }
-      temporaryToken = jj_consume_token(COMMA);
-                                                this.addSpecialToken(temporaryToken);
+                        this.findTokenAndAdd(",");
+      jj_consume_token(COMMA);
       test();
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case COMMA:
-      temporaryToken = jj_consume_token(COMMA);
-                                                                                                                          this.addSpecialToken(temporaryToken);
+                                                                      this.findTokenAndAdd(",");
+      jj_consume_token(COMMA);
       break;
     default:
       jj_la1[121] = jj_gen;
@@ -6100,8 +6102,8 @@ else
         } else {
           break label_39;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                                this.addSpecialToken(temporaryToken);
+                                        this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
         case LBRACE:
@@ -6141,8 +6143,8 @@ else
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                         this.addSpecialToken(temporaryToken);
+                                                                                                     this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[124] = jj_gen;
@@ -6210,12 +6212,12 @@ else
     test();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case COLON:
-      temporaryToken = jj_consume_token(COLON);
-                                       this.addSpecialToken(temporaryToken);
+               this.findTokenAndAdd(":");
+      jj_consume_token(COLON);
       try {
         test();
       } catch (ParseException e) {
-                                                                                                                     handleNoValInDict(e);
+                                                                                         handleNoValInDict(e);
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case FOR:
@@ -6230,17 +6232,17 @@ else
           } else {
             break label_40;
           }
-          temporaryToken = jj_consume_token(COMMA);
-                                                           this.addSpecialToken(temporaryToken);
+                                   this.findTokenAndAdd(",");
+          jj_consume_token(COMMA);
           test();
-          temporaryToken = jj_consume_token(COLON);
-                                                                                                                                 this.addSpecialToken(temporaryToken);
+                                                                             this.findTokenAndAdd(":");
+          jj_consume_token(COLON);
           test();
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-          temporaryToken = jj_consume_token(COMMA);
-                                              this.addSpecialToken(temporaryToken);
+                      this.findTokenAndAdd(",");
+          jj_consume_token(COMMA);
           break;
         default:
           jj_la1[125] = jj_gen;
@@ -6268,8 +6270,8 @@ else
               jj_la1[127] = jj_gen;
               break label_41;
             }
-            temporaryToken = jj_consume_token(COMMA);
-                                                                   this.addSpecialToken(temporaryToken);
+                                           this.findTokenAndAdd(",");
+            jj_consume_token(COMMA);
             test();
           }
         } catch (Throwable jjte001) {
@@ -6294,8 +6296,8 @@ else
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
-          temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                 this.addSpecialToken(temporaryToken);
+                                                                                             this.findTokenAndAdd(",");
+          jj_consume_token(COMMA);
           break;
         default:
           jj_la1[128] = jj_gen;
@@ -6329,14 +6331,14 @@ else
         } else {
           break label_43;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                                              this.addSpecialToken(temporaryToken);
+                                                      this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         test();
       }
-                                                                                                                                SimpleNode jjtn001 = jjtree.builder.openNode( JJTTUPLE);
-                                                                                                                                boolean jjtc001 = true;
-                                                                                                                                jjtree.openNodeScope(jjtn001);
-                                                                                                                                jjtreeOpenNodeScope(jjtn001);
+                                                                                                    SimpleNode jjtn001 = jjtree.builder.openNode( JJTTUPLE);
+                                                                                                    boolean jjtc001 = true;
+                                                                                                    jjtree.openNodeScope(jjtn001);
+                                                                                                    jjtreeOpenNodeScope(jjtn001);
       try {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
@@ -6347,24 +6349,24 @@ else
           ;
         }
       } catch (Throwable jjte001) {
-                                                                                                                                if (jjtc001) {
-                                                                                                                                  jjtree.clearNodeScope(jjtn001);
-                                                                                                                                  jjtc001 = false;
-                                                                                                                                } else {
-                                                                                                                                  jjtree.popNode();
-                                                                                                                                }
-                                                                                                                                if (jjte001 instanceof RuntimeException) {
-                                                                                                                                  {if (true) throw (RuntimeException)jjte001;}
-                                                                                                                                }
-                                                                                                                                if (jjte001 instanceof ParseException) {
-                                                                                                                                  {if (true) throw (ParseException)jjte001;}
-                                                                                                                                }
-                                                                                                                                {if (true) throw (Error)jjte001;}
+                                                                                                    if (jjtc001) {
+                                                                                                      jjtree.clearNodeScope(jjtn001);
+                                                                                                      jjtc001 = false;
+                                                                                                    } else {
+                                                                                                      jjtree.popNode();
+                                                                                                    }
+                                                                                                    if (jjte001 instanceof RuntimeException) {
+                                                                                                      {if (true) throw (RuntimeException)jjte001;}
+                                                                                                    }
+                                                                                                    if (jjte001 instanceof ParseException) {
+                                                                                                      {if (true) throw (ParseException)jjte001;}
+                                                                                                    }
+                                                                                                    {if (true) throw (Error)jjte001;}
       } finally {
-                                                                                                                                if (jjtc001) {
-                                                                                                                                  jjtree.closeNodeScope(jjtn001, jjtree.nodeArity() > 1);
-                                                                                                                                  jjtreeCloseNodeScope(jjtn001);
-                                                                                                                                }
+                                                                                                    if (jjtc001) {
+                                                                                                      jjtree.closeNodeScope(jjtn001, jjtree.nodeArity() > 1);
+                                                                                                      jjtreeCloseNodeScope(jjtn001);
+                                                                                                    }
       }
     }
   }
@@ -6393,11 +6395,11 @@ else
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      temporaryToken = jj_consume_token(FOR);
-                        this.addSpecialToken(temporaryToken);
+   this.findTokenAndAdd("for");
+      jj_consume_token(FOR);
       exprlist();
-      temporaryToken = jj_consume_token(IN);
-                                                                                               this.addSpecialToken(temporaryToken);
+                                                  this.findTokenAndAdd("in");
+      jj_consume_token(IN);
       or_test();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
@@ -6432,8 +6434,8 @@ else
 
 //comp_if: 'if' test_nocond [comp_iter]
   final public void comp_if() throws ParseException {
-    temporaryToken = jj_consume_token(IF);
-                        this.addSpecialToken(temporaryToken);
+   this.findTokenAndAdd("if");
+    jj_consume_token(IF);
     test_nocond();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case IF:
@@ -6549,8 +6551,8 @@ else
         jj_la1[137] = jj_gen;
         ;
       }
-      temporaryToken = jj_consume_token(COLON);
-                                                                                                                                                                                                                                                                                                                       this.addSpecialToken(temporaryToken);
+                                                                                                                                                                                                                                                                                               this.findTokenAndAdd(":");
+      jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -6612,13 +6614,13 @@ else
         } else {
           break label_44;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                          this.addSpecialToken(temporaryToken);
+                                  this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         argument();
       }
       if (jj_2_31(2)) {
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                     this.addSpecialToken(temporaryToken);
+                                                                                                 this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case MULTIPLY:
           ExtraArgValueList();
@@ -6629,14 +6631,14 @@ else
             } else {
               break label_45;
             }
-            temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                        this.addSpecialToken(temporaryToken);
+                                                                                                                                                                        this.findTokenAndAdd(",");
+            jj_consume_token(COMMA);
             argument();
           }
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case COMMA:
-            temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                                                                                                      this.addSpecialToken(temporaryToken);
+                                                                                                                                                                                                                          this.findTokenAndAdd(",");
+            jj_consume_token(COMMA);
             ExtraKeywordValueList();
             break;
           default:
@@ -6657,8 +6659,8 @@ else
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                 this.addSpecialToken(temporaryToken);
+                                                                                                                                                                                                                                                                                                                         this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[140] = jj_gen;
@@ -6674,21 +6676,21 @@ else
         } else {
           break label_46;
         }
-        temporaryToken = jj_consume_token(COMMA);
-                                                                  this.addSpecialToken(temporaryToken);
+                                          this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         argument();
       }
       if (jj_2_33(2)) {
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                            this.addSpecialToken(temporaryToken);
+                                                                                                        this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         ExtraKeywordValueList();
       } else {
         ;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                                                                                                                                                                                                                       this.addSpecialToken(temporaryToken);
+                                                                                                                                                                       this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[141] = jj_gen;
@@ -6699,8 +6701,8 @@ else
       ExtraKeywordValueList();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-        temporaryToken = jj_consume_token(COMMA);
-                                                          this.addSpecialToken(temporaryToken);
+                                  this.findTokenAndAdd(",");
+        jj_consume_token(COMMA);
         break;
       default:
         jj_la1[142] = jj_gen;
@@ -6828,8 +6830,8 @@ else
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      temporaryToken = jj_consume_token(EQUAL);
-                               this.addSpecialToken(temporaryToken);
+         this.findTokenAndAdd("=");
+      jj_consume_token(EQUAL);
       test();
     } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -7358,11 +7360,6 @@ else
     finally { jj_save(33, xla); }
   }
 
-  private boolean jj_3R_49() {
-    if (jj_3R_77()) return true;
-    return false;
-  }
-
   private boolean jj_3R_101() {
     if (jj_3R_116()) return true;
     return false;
@@ -7391,6 +7388,12 @@ else
     return false;
   }
 
+  private boolean jj_3_8() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
   private boolean jj_3R_129() {
     if (jj_scan_token(FROM)) return true;
     return false;
@@ -7408,6 +7411,16 @@ else
     jj_scanpos = xsp;
     if (jj_3R_129()) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3R_73() {
+    if (jj_3R_74()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_55() {
+    if (jj_3R_80()) return true;
     return false;
   }
 
@@ -7461,14 +7474,14 @@ else
     return false;
   }
 
-  private boolean jj_3R_141() {
-    if (jj_scan_token(FALSE)) return true;
+  private boolean jj_3_2() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_48()) return true;
     return false;
   }
 
-  private boolean jj_3_11() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_57()) return true;
+  private boolean jj_3R_141() {
+    if (jj_scan_token(FALSE)) return true;
     return false;
   }
 
@@ -7484,17 +7497,6 @@ else
 
   private boolean jj_3R_140() {
     if (jj_scan_token(LBRACE)) return true;
-    return false;
-  }
-
-  private boolean jj_3_9() {
-    if (jj_scan_token(COMMA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_55()) {
-    jj_scanpos = xsp;
-    if (jj_3R_56()) return true;
-    }
     return false;
   }
 
@@ -7549,6 +7551,11 @@ else
 
   private boolean jj_3R_62() {
     if (jj_3R_97()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_49() {
+    if (jj_3R_77()) return true;
     return false;
   }
 
@@ -7613,6 +7620,12 @@ else
     return false;
   }
 
+  private boolean jj_3_11() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_57()) return true;
+    return false;
+  }
+
   private boolean jj_3R_109() {
     if (jj_3R_122()) return true;
     return false;
@@ -7624,31 +7637,19 @@ else
     return false;
   }
 
-  private boolean jj_3_5() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_51()) return true;
-    return false;
-  }
-
-  private boolean jj_3_3() {
+  private boolean jj_3_9() {
     if (jj_scan_token(COMMA)) return true;
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_49()) {
+    if (jj_3R_55()) {
     jj_scanpos = xsp;
-    if (jj_3R_50()) return true;
+    if (jj_3R_56()) return true;
     }
     return false;
   }
 
   private boolean jj_3R_108() {
     if (jj_3R_121()) return true;
-    return false;
-  }
-
-  private boolean jj_3_30() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_71()) return true;
     return false;
   }
 
@@ -7729,6 +7730,12 @@ else
     return false;
   }
 
+  private boolean jj_3_5() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
   private boolean jj_3R_87() {
     if (jj_3R_110()) return true;
     return false;
@@ -7772,13 +7779,19 @@ else
     return false;
   }
 
-  private boolean jj_3R_168() {
-    if (jj_3R_61()) return true;
+  private boolean jj_3_3() {
+    if (jj_scan_token(COMMA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_49()) {
+    jj_scanpos = xsp;
+    if (jj_3R_50()) return true;
+    }
     return false;
   }
 
-  private boolean jj_3R_72() {
-    if (jj_3R_105()) return true;
+  private boolean jj_3R_168() {
+    if (jj_3R_61()) return true;
     return false;
   }
 
@@ -7861,6 +7874,12 @@ else
     return false;
   }
 
+  private boolean jj_3_30() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_71()) return true;
+    return false;
+  }
+
   private boolean jj_3R_54() {
     if (jj_3R_58()) return true;
     return false;
@@ -7878,11 +7897,6 @@ else
     jj_scanpos = xsp;
     if (jj_3R_82()) return true;
     }
-    return false;
-  }
-
-  private boolean jj_3R_56() {
-    if (jj_3R_57()) return true;
     return false;
   }
 
@@ -7927,6 +7941,11 @@ else
     return false;
   }
 
+  private boolean jj_3R_72() {
+    if (jj_3R_105()) return true;
+    return false;
+  }
+
   private boolean jj_3R_79() {
     if (jj_3R_107()) return true;
     return false;
@@ -7964,12 +7983,6 @@ else
     return false;
   }
 
-  private boolean jj_3_33() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_74()) return true;
-    return false;
-  }
-
   private boolean jj_3R_52() {
     Token xsp;
     xsp = jj_scanpos;
@@ -7990,24 +8003,14 @@ else
     return false;
   }
 
-  private boolean jj_3R_50() {
-    if (jj_3R_51()) return true;
-    return false;
-  }
-
-  private boolean jj_3_31() {
-    if (jj_scan_token(COMMA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_72()) {
-    jj_scanpos = xsp;
-    if (jj_3R_73()) return true;
-    }
-    return false;
-  }
-
   private boolean jj_3R_167() {
     if (jj_scan_token(TRIPLE_BSTRING2)) return true;
+    return false;
+  }
+
+  private boolean jj_3_33() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_74()) return true;
     return false;
   }
 
@@ -8043,6 +8046,17 @@ else
 
   private boolean jj_3R_160() {
     if (jj_scan_token(SINGLE_STRING)) return true;
+    return false;
+  }
+
+  private boolean jj_3_31() {
+    if (jj_scan_token(COMMA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_72()) {
+    jj_scanpos = xsp;
+    if (jj_3R_73()) return true;
+    }
     return false;
   }
 
@@ -8100,11 +8114,6 @@ else
     return false;
   }
 
-  private boolean jj_3R_68() {
-    if (jj_3R_103()) return true;
-    return false;
-  }
-
   private boolean jj_3R_156() {
     if (jj_scan_token(OCTNUMBER)) return true;
     return false;
@@ -8116,8 +8125,8 @@ else
     return false;
   }
 
-  private boolean jj_3R_67() {
-    if (jj_3R_52()) return true;
+  private boolean jj_3R_56() {
+    if (jj_3R_57()) return true;
     return false;
   }
 
@@ -8150,11 +8159,6 @@ else
     return false;
   }
 
-  private boolean jj_3R_66() {
-    if (jj_3R_103()) return true;
-    return false;
-  }
-
   private boolean jj_3_32() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_71()) return true;
@@ -8172,14 +8176,14 @@ else
     return false;
   }
 
-  private boolean jj_3R_65() {
-    if (jj_3R_102()) return true;
-    return false;
-  }
-
   private boolean jj_3_29() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_71()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_68() {
+    if (jj_3R_103()) return true;
     return false;
   }
 
@@ -8188,19 +8192,34 @@ else
     return false;
   }
 
+  private boolean jj_3R_67() {
+    if (jj_3R_52()) return true;
+    return false;
+  }
+
   private boolean jj_3R_105() {
     if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
 
-  private boolean jj_3R_73() {
-    if (jj_3R_74()) return true;
+  private boolean jj_3R_50() {
+    if (jj_3R_51()) return true;
     return false;
   }
 
   private boolean jj_3_27() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_66() {
+    if (jj_3R_103()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_65() {
+    if (jj_3R_102()) return true;
     return false;
   }
 
@@ -8246,12 +8265,6 @@ else
     return false;
   }
 
-  private boolean jj_3_8() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_54()) return true;
-    return false;
-  }
-
   private boolean jj_3R_113() {
     if (jj_scan_token(GLOBAL)) return true;
     return false;
@@ -8265,11 +8278,6 @@ else
     jj_scanpos = xsp;
     if (jj_3R_68()) return true;
     }
-    return false;
-  }
-
-  private boolean jj_3R_55() {
-    if (jj_3R_80()) return true;
     return false;
   }
 
@@ -8323,12 +8331,6 @@ else
 
   private boolean jj_3R_131() {
     if (jj_scan_token(COLON)) return true;
-    return false;
-  }
-
-  private boolean jj_3_2() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_48()) return true;
     return false;
   }
 

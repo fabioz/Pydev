@@ -830,7 +830,7 @@ void slice() #void: {}
 { Colon() [test()] (Colon() [test()])? }
 
 void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
-void Comma(): {} {$COMMA}
+void Comma(): {} {<COMMA>}
 
 //exprlist: expr (',' expr)* [',']
 void exprlist() #void: {}

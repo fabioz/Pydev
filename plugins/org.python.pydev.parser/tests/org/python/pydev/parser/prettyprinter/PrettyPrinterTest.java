@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testExec2();
+            test.testForElse();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -883,7 +883,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    if False:\n" +
         "        raise\n" +
         "    else:\n" +
-        "        return \n" +
+        "        return\n" +
         "";
         checkPrettyPrintEqual(s);
     }
