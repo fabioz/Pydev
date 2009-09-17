@@ -218,8 +218,8 @@ def CreateSimpleStmt(NEWLINE):
 //simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 void simple_stmt() #void: {}
 { 
-    small_stmt() (LOOKAHEAD(2) <SEMICOLON> small_stmt())* 
-    [<SEMICOLON>] 
+    small_stmt() (LOOKAHEAD(2) temporaryToken=<SEMICOLON>{this.addSpecialToken(temporaryToken);} small_stmt())* 
+    [temporaryToken=<SEMICOLON>{this.addSpecialToken(temporaryToken);}] 
     $NEWLINE
 }
 '''.replace('$NEWLINE', NEWLINE)

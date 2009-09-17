@@ -15,7 +15,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testOnlyComment();
+            test.testOthers();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -309,6 +309,30 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             "save_reduce(obj=obj,*rv)\n" +
             "";
         checkPrettyPrintEqual(s);
+    }
+    
+    public void testOthers() throws Exception {
+        String s = 
+            "def __instancecheck__(cls,instance):\n" +
+            "    '''Override for isinstance(instance,cls).'''\n" +
+            "    # Inline the cache checking\n" +
+            "    subclass = instance.__class__\n" +
+            "    if subclass in cls._abc_cache:\n" +
+            "        return True\n" +
+            "";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testOthers1() throws Exception {
+        String s = 
+            "_skiplist = b'COMT',\\\n" +
+            "      b'ANNO'\n" +
+            "";
+        String expected = 
+            "_skiplist = b'COMT',b'ANNO'\n" +
+            "";
+        
+        checkPrettyPrintEqual(s, expected);
     }
     
 }

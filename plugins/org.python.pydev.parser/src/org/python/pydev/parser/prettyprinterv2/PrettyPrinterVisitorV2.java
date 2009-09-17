@@ -93,14 +93,22 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public Object visitAssign(Assign node) throws Exception {
         beforeNode(node);
 
+        int id=0;
+        java.util.List<ILinePart> recordChanges = null;
+        org.python.pydev.core.Tuple<ILinePart, ILinePart> lowerAndHigher = null;
+
+        
         for(int i = 0; i < node.targets.length; i++){
             exprType target = node.targets[i];
             if(i >= 1){ //more than one assign
-                doc.add(lastNode.beginLine, lastNode.beginColumn + 1, this.prefs.getAssignPunctuation(), node);
+                doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(), this.prefs.getAssignPunctuation(), node);
             }
+            id = this.doc.pushRecordChanges();
             target.accept(this);
+            recordChanges = this.doc.popRecordChanges(id);
+            lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
         }
-        doc.add(lastNode.beginLine, lastNode.beginColumn + 1, this.prefs.getAssignPunctuation(), node);
+        doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(), this.prefs.getAssignPunctuation(), node);
 
         node.value.accept(this);
         afterNode(node);
@@ -141,8 +149,8 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         beforeNode(node);
         for(int i = 0; i < node.values.length - 1; i++){
             node.values[i].accept(this);
-            LinePart lastPart = doc.getLastPart();
-            doc.add(doc.getLastLineKey(), lastPart.beginCol + 1, this.prefs.getBoolOperatorMapping(node.op), lastNode);
+            ILinePart lastPart = doc.getLastPart();
+            doc.add(doc.getLastLineKey(), lastPart.getBeginCol() + 1, this.prefs.getBoolOperatorMapping(node.op), lastNode);
         }
         node.values[node.values.length - 1].accept(this);
         afterNode(node);
@@ -152,11 +160,20 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitCompare(Compare node) throws Exception {
         beforeNode(node);
+        int id = this.doc.pushRecordChanges();
         node.left.accept(this);
+        java.util.List<ILinePart> recordChanges = this.doc.popRecordChanges(id);
+        org.python.pydev.core.Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
 
         for(int i = 0; i < node.comparators.length; i++){
-            doc.add(node.comparators[i].beginLine, node.comparators[i].beginColumn - 1, this.prefs.getCmpOp(node.ops[i]), node.comparators[i]);
+            ILinePart lastPart = lowerAndHigher.o2; //higher
+            doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getCmpOp(node.ops[i]), lastNode);
+            
+            
+            id = this.doc.pushRecordChanges();
             node.comparators[i].accept(this);
+            recordChanges = this.doc.popRecordChanges(id);
+            lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
         }
 
         afterNode(node);
@@ -176,12 +193,10 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         beforeNode(node);
         exprType[] keys = node.keys;
         exprType[] values = node.values;
-        indent(node);
         for(int i = 0; i < values.length; i++){
             keys[i].accept(this);
             values[i].accept(this);
         }
-        dedent();
         afterNode(node);
         return null;
     }
@@ -190,24 +205,21 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitList(List node) throws Exception {
         beforeNode(node);
-        indent(node);
         node.traverse(this);
         afterNode(node);
-        dedent();
         return null;
     }
 
     @Override
     public Object visitListComp(ListComp node) throws Exception {
         beforeNode(node);
-        this.doc.pushRecordChanges();
+        int id = this.doc.pushRecordChanges();
         node.elt.accept(this);
         for(comprehensionType c:node.generators){
             c.accept(this);
         }
-        java.util.List<LinePart> recordedChanges = this.doc.popRecordChanges();
-        this.doc.replaceRecorded(recordedChanges, "for", " for ");
-        this.doc.replaceRecorded(recordedChanges, "if", " if ");
+        java.util.List<ILinePart> recordedChanges = this.doc.popRecordChanges(id);
+        this.doc.replaceRecorded(recordedChanges, "for", " for ", "if", " if ");
         afterNode(node);
         return null;
     }
@@ -215,10 +227,12 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitSetComp(SetComp node) throws Exception {
         beforeNode(node);
+        int id = doc.pushRecordChanges();
         node.elt.accept(this);
         for(comprehensionType c:node.generators){
             c.accept(this);
         }
+        doc.replaceRecorded(doc.popRecordChanges(id), "for", " for ", "if", " if ");
         afterNode(node);
         return null;
     }
@@ -226,11 +240,13 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitDictComp(DictComp node) throws Exception {
         beforeNode(node);
+        int id = doc.pushRecordChanges();
         node.key.accept(this);
         node.value.accept(this);
         for(comprehensionType c:node.generators){
             c.accept(this);
         }
+        doc.replaceRecorded(doc.popRecordChanges(id), "for", " for ", "if", " if ");
         afterNode(node);
         return null;
     }
@@ -257,17 +273,17 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitTuple(Tuple node) throws Exception {
         beforeNode(node);
-        indent(node);
         node.traverse(this);
         afterNode(node);
-        dedent();
         return null;
     }
 
     @Override
     public Object visitWhile(While node) throws Exception {
         beforeNode(node);
+        startStatementPart();
         node.test.accept(this);
+        endStatementPart(node);
         indent(node.test);
         for(SimpleNode n:node.body){
             n.accept(this);
@@ -284,12 +300,13 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitWith(With node) throws Exception {
         beforeNode(node);
-        
+        startStatementPart();
         if (node.context_expr != null)
             node.context_expr.accept(this);
         
         if (node.optional_vars != null)
             node.optional_vars.accept(this);
+        endStatementPart(node);
         
         indent(node);
         if (node.body != null)
@@ -303,13 +320,15 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitFor(For node) throws Exception {
         //for a in b: xxx else: yyy
-        doc.pushRecordChanges();
+        int id = doc.pushRecordChanges();
 
         beforeNode(node);
         //a
+        startStatementPart();
         node.target.accept(this);
+        endStatementPart(node);
         
-        doc.replaceRecorded(doc.popRecordChanges(), "for", "for ");
+        doc.replaceRecorded(doc.popRecordChanges(id), "for", "for ");
 
         //in b
         node.iter.accept(this);
@@ -327,10 +346,14 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     
     @Override
     public Object visitReturn(Return node) throws Exception {
-        doc.pushRecordChanges();
-        Object ret = super.visitReturn(node);
-        java.util.List<LinePart> changes = doc.popRecordChanges();
+        int id=0;
         if(node.value != null){
+            id = doc.pushRecordChanges();
+        }
+        
+        Object ret = super.visitReturn(node);
+        if(node.value != null){
+            java.util.List<ILinePart> changes = doc.popRecordChanges(id);
             doc.replaceRecorded(changes, "return", "return ");
         }
         return ret;
@@ -340,11 +363,25 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         //try:
         beforeNode(node);
 
-        indent(node);
+        boolean indent = false;
+        if(node.specialsBefore != null && node.specialsBefore.size() > 0){
+            for(Object o:node.specialsBefore){
+                if(o.toString().equals("try")){
+                    indent = true;
+                    break;
+                }
+            }
+        }
+
+        if(indent){
+            indent(node);
+        }
         for(stmtType st:body){
             st.accept(this);
         }
-        dedent();
+        if(indent){
+            dedent();
+        }
         afterNode(node);
 
     }
@@ -389,14 +426,18 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             //at this point, we may have written an except clause that should have a space after it,
             //so, let's get what we've written and see if a space should be added.
             PrettyPrinterDocLineEntry line = this.doc.getLine(h.beginLine);
-            LinePart foundExcept = null;
-            for(LinePart l:line.getSortedParts()){
-                if(foundExcept != null && !l.string.equals(":")){
-                    foundExcept.string += " ";
+            ILinePart2 foundExcept = null;
+            for(ILinePart l:line.getSortedParts()){
+                if(!(l instanceof ILinePart2)){
+                    continue;
+                }
+                ILinePart2 iLinePart2 = (ILinePart2) l;
+                if(foundExcept != null && !iLinePart2.getString().equals(":")){
+                    foundExcept.setString(foundExcept.getString() + " ");
                     break;
                 }
-                if(l.string.equals("except")){
-                    foundExcept = l;
+                if(iLinePart2.getString().equals("except")){
+                    foundExcept = iLinePart2;
                 }else{
                     foundExcept = null;
                 }
@@ -440,9 +481,11 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
         beforeNode(node);
+        doc.startWriteSequentialOnSameLine();
         node.value.accept(this);
-        doc.add(node.value.beginLine, node.value.beginColumn + 1, ".", node.value);
+        doc.add(lastNode.beginLine, lastNode.beginColumn, ".", node.value);
         node.attr.accept(this);
+        doc.endWriteSequentialOnSameLine();
         afterNode(node);
         return null;
     }
@@ -451,48 +494,22 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitCall(Call node) throws Exception {
         beforeNode(node);
-        indent(node);
-        
         if (node.func != null)
             node.func.accept(this);
         
         handleArguments(node.args, node.keywords, node.starargs, node.kwargs);
         
-        
-        dedent();
         afterNode(node);
         return null;
     }
 
-    private void handleArguments(exprType[] args, keywordType[] keywords, exprType starargs, exprType kwargs) throws Exception, IOException {
-        if (args != null) {
-            for (int i = 0; i < args.length; i++) {
-                if (args[i] != null)
-                    args[i].accept(this);
-            }
-        }
-        if (keywords != null) {
-            for (int i = 0; i < keywords.length; i++) {
-                keywordType keyword = keywords[i];
-                if (keyword != null){
-                    beforeNode(keyword);
-                    keyword.accept(this);
-                    afterNode(keyword);
-                }
-            }
-        }
-        if (starargs != null)
-            starargs.accept(this);
-        if (kwargs != null)
-            kwargs.accept(this);
-    }
 
     
     @Override
     public Object visitExec(Exec node) throws Exception {
-        doc.pushRecordChanges();
+        int id = doc.pushRecordChanges();
         Object ret = super.visitExec(node);
-        doc.replaceRecorded(doc.popRecordChanges(), "exec", "exec ");
+        doc.replaceRecorded(doc.popRecordChanges(id), "exec", "exec ");
         return ret;
     }
     
@@ -512,22 +529,7 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         indent(node.name);
     
     
-        if(node.bases != null && node.bases.length > 0){
-            for (exprType expr : node.bases) {
-                expr.accept(this);
-            }
-        }
-        
-        if (node.keywords != null) {
-            for (int i = 0; i < node.keywords.length; i++) {
-                if (node.keywords[i] != null)
-                    node.keywords[i].accept(this);
-            }
-        }
-        if (node.starargs != null)
-            node.starargs.accept(this);
-        if (node.kwargs != null)
-            node.kwargs.accept(this);
+        handleArguments(node.bases, node.keywords, node.starargs, node.kwargs);
         
         for(SimpleNode n: node.body){
             n.accept(this);
@@ -567,8 +569,10 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         node.name.accept(this);
         indent(node.name);
 
-        if(node.args != null)
+        if(node.args != null){
+            handleArguments(node.args);
             node.args.accept(this);
+        }
         if(node.body != null){
             for(int i = 0; i < node.body.length; i++){
                 if(node.body[i] != null)
@@ -586,7 +590,7 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitIfExp(IfExp node) throws Exception {
         //we have to change the order a bit...
-        this.doc.pushRecordChanges();
+        int id = this.doc.pushRecordChanges();
 
         
         beforeNode(node);
@@ -596,9 +600,8 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             node.orelse.accept(this);
         }
         afterNode(node);
-        java.util.List<LinePart> recordedChanges = this.doc.popRecordChanges();
-        this.doc.replaceRecorded(recordedChanges, "if", " if ");
-        this.doc.replaceRecorded(recordedChanges, "else", " else ");
+        java.util.List<ILinePart> recordedChanges = this.doc.popRecordChanges(id);
+        this.doc.replaceRecorded(recordedChanges, "if", " if ", "else", " else ");
         
         return null;
     }
@@ -638,7 +641,7 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     
     @Override
     public Object visitImport(Import node) throws Exception {
-        this.doc.pushRecordChanges();
+        int id = this.doc.pushRecordChanges();
         beforeNode(node);
         
         for (aliasType name : node.names){
@@ -649,13 +652,13 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         
         afterNode(node);
         
-        this.doc.replaceRecorded(this.doc.popRecordChanges(), "import", "import ");
+        this.doc.replaceRecorded(this.doc.popRecordChanges(id), "import", "import ");
         return null;
     }
     
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
-        this.doc.pushRecordChanges();
+        int id = this.doc.pushRecordChanges();
         beforeNode(node);
         
         if(!((NameTok)node.module).id.equals("")){
@@ -674,18 +677,22 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         
         afterNode(node);
         
-        java.util.List<LinePart> recordChanges = this.doc.popRecordChanges();
+        java.util.List<ILinePart> recordChanges = this.doc.popRecordChanges(id);
         this.doc.replaceRecorded(recordChanges, "import", " import ");
         
-        for(LinePart linePart:recordChanges){
-            if(linePart.string.equals("from")){
+        for(ILinePart linePart:recordChanges){
+            if(!(linePart instanceof ILinePart2)){
+                continue;
+            }
+            ILinePart2 iLinePart2 = (ILinePart2) linePart;
+            if(iLinePart2.getString().equals("from")){
                 
                 if(node.level > 0){
                     String s = new FastStringBuffer(node.level).appendN('.', node.level).toString();
-                    doc.add(linePart.getLine(), linePart.beginCol+1, s, linePart.token);
+                    doc.add(iLinePart2.getLine(), linePart.getBeginCol()+1, s, linePart.getToken());
                 }
 
-                linePart.string = "from ";
+                iLinePart2.setString("from ");
                 break;
             }
         }
@@ -696,11 +703,11 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
     @Override
     public Object visitRaise(Raise node) throws Exception {
-        this.doc.pushRecordChanges();
+        int id = this.doc.pushRecordChanges();
         Object ret = super.visitRaise(node);
-        java.util.List<LinePart> recordChanges = this.doc.popRecordChanges();
+        java.util.List<ILinePart> recordChanges = this.doc.popRecordChanges(id);
         if(node.type != null){
-            this.doc.replaceRecorded(recordChanges, "raise", "raise ");
+            this.doc.replaceRecorded(recordChanges, "raise", "raise ", "from", " from ");
         }
         return ret;
     }
@@ -719,15 +726,56 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         }
 
         doc.add(node.beginLine, node.beginColumn, str, node);
+        this.handleArguments(node.args);
         node.traverse(this);
         afterNode(node);
         return null;
     }
+    
+    
+    private void handleArguments(exprType[] args, keywordType[] keywords, exprType starargs, exprType kwargs) throws Exception, IOException {
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                if (args[i] != null)
+                    args[i].accept(this);
+            }
+        }
+        if (keywords != null) {
+            for (int i = 0; i < keywords.length; i++) {
+                keywordType keyword = keywords[i];
+                if (keyword != null){
+                    beforeNode(keyword);
+                    keyword.accept(this);
+                    afterNode(keyword);
+                }
+            }
+        }
+        if (starargs != null)
+            starargs.accept(this);
+        if (kwargs != null)
+            kwargs.accept(this);
+    }
 
+
+     /**
+     * Prints the arguments.
+     */
+    protected void handleArguments(argumentsType completeArgs) throws Exception {
+        if(completeArgs.vararg == null && completeArgs.kwonlyargs != null && completeArgs.kwonlyargs.length > 0 && completeArgs.kwonlyargs[0] != null){
+            //we must add a '*,' to print it if we have a keyword arg after the varargs but don't really have an expression for it
+            doc.add(completeArgs.kwonlyargs[0].beginLine, completeArgs.kwonlyargs[0].beginColumn, "*", completeArgs.kwonlyargs[0]);
+            doc.add(completeArgs.kwonlyargs[0].beginLine, completeArgs.kwonlyargs[0].beginColumn, ",", completeArgs.kwonlyargs[0]);
+        }
+        
+    }
+    
+    
     public Object visitIf(If node) throws Exception {
         beforeNode(node);
+        startStatementPart();
         node.test.accept(this);
-        indent(node.test);
+        endStatementPart(node);
+        indent(lastNode);
 
         //write the body and dedent
         for(SimpleNode n:node.body){

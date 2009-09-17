@@ -1221,12 +1221,14 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       } else {
         break label_10;
       }
-      jj_consume_token(SEMICOLON);
+      temporaryToken = jj_consume_token(SEMICOLON);
+                                                          this.addSpecialToken(temporaryToken);
       small_stmt();
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case SEMICOLON:
-      jj_consume_token(SEMICOLON);
+      temporaryToken = jj_consume_token(SEMICOLON);
+                                this.addSpecialToken(temporaryToken);
       break;
     default:
       jj_la1[29] = jj_gen;

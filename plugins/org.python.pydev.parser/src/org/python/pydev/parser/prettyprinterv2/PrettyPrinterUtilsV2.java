@@ -2,13 +2,24 @@ package org.python.pydev.parser.prettyprinterv2;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Stack;
 
+import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.For;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.prettyprinter.IPrettyPrinterPrefs;
 
 public class PrettyPrinterUtilsV2 extends VisitorBase{
@@ -62,6 +73,8 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         }
     }
     
+    Stack<Integer> ids = new Stack<Integer>();
+    
     /**
      * Writes the specials before and starts recording
      * @throws Exception 
@@ -69,12 +82,38 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
     protected void beforeNode(SimpleNode node) throws Exception {
         this.lastNode = node;
         writeSpecialsBefore(node);
+        if(node instanceof stmtType && !isMultiLineStmt((stmtType) node)){
+            startStatementPart();
+        }
     }
 
     
+    private boolean isMultiLineStmt(stmtType node) {
+        return node instanceof ClassDef || node instanceof For || node instanceof FunctionDef || node instanceof If || node instanceof TryExcept || node instanceof TryFinally || node instanceof While ||node instanceof With ;
+    }
+
     protected void afterNode(SimpleNode node) throws IOException {
+        if(node instanceof stmtType && !isMultiLineStmt((stmtType) node)){
+            endStatementPart(node);
+        }
         writeSpecialsAfter(node);
     }
+
+    protected void startStatementPart() {
+        ids.push(doc.pushRecordChanges());
+    }
+    
+    protected void endStatementPart(SimpleNode node) {
+        List<ILinePart> recordChanges = doc.popRecordChanges(ids.pop());
+        
+        Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
+        
+        if(lowerAndHigher != null){
+            doc.addStartStatementMark(lowerAndHigher.o1, (stmtType)node);
+            doc.addEndStatementMark(lowerAndHigher.o2, (stmtType)node);
+        }
+    }
+
     
     protected void indent(SimpleNode node){
         doc.addIndent(node);

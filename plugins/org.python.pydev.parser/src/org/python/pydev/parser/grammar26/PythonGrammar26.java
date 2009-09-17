@@ -794,12 +794,14 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       } else {
         break label_5;
       }
-      jj_consume_token(SEMICOLON);
+      temporaryToken = jj_consume_token(SEMICOLON);
+                                                          this.addSpecialToken(temporaryToken);
       small_stmt();
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case SEMICOLON:
-      jj_consume_token(SEMICOLON);
+      temporaryToken = jj_consume_token(SEMICOLON);
+                                this.addSpecialToken(temporaryToken);
       break;
     default:
       jj_la1[15] = jj_gen;

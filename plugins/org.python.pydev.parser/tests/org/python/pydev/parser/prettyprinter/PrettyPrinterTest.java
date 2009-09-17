@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testForElse();
+            test.testVarious7();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -148,7 +148,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     
     public void testMethodDef3() throws Exception {
         final String s = "" +
-        "def Bastion(object,filter=lambda name:name[:1] != '_',name=None,bastionclass=BastionClass):\n" +
+        "def Bastion(object,filter=lambda kk:kk[:1] != '_',name=None,bastionclass=Foo):\n" +
         "    pass\n" +
         "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
@@ -619,7 +619,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         String s = ""+
         "a = (r\"a\"#comm1\n" +
         "    r'\"b\"'#comm2\n" +
-        "    )\n" +
+        ")\n" +
         "";
         checkPrettyPrintEqual(s);
     }
@@ -1623,7 +1623,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         final String s = ""+
         "class Foo(object):#test comment\n" +
         "    def m1(self,a,#c1\n" +
-        "        b):#c2\n" +
+        "            b):#c2\n" +
         "        pass\n" +
         "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
@@ -1653,5 +1653,112 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         checkPrettyPrintEqual(s);
     }
     
+    
+    public void testVarious2() throws Exception {
+        final String s = ""+
+        "if self._file.getname() != 'FORM':\n" +
+        "    raise Error('file does not start with FORM id')\n" +
+        "";
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+        
+    }
 
+    public void testVarious3() throws Exception {
+        final String s = ""+
+        "def writeframes(self, data):\n" +
+        "    self.writeframesraw(data)\n" +
+        "    if self._nframeswritten != self._nframes or \\\n" +
+        "          self._datalength != self._datawritten:\n" +
+        "        self._patchheader()\n" +
+        "";
+        final String expected = ""+
+        "def writeframes(self,data):\n" +
+        "    self.writeframesraw(data)\n" +
+        "    if self._nframeswritten != self._nframes or self._datalength != self._datawritten:\n" +
+        "        self._patchheader()\n" +
+        "";
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s, expected);
+                return true;
+            }
+        });
+        
+    }
+    
+    public void testVarious4() throws Exception {
+        final String s = ""+
+        "if map:\n" +
+        "    r = []; w = []; e = []\n" +
+        "";
+        final String expected = ""+
+        "if map:\n" +
+        "    r = []\n" +
+        "    w = []\n" +
+        "    e = []\n" +
+        "";
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s, expected);
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious5() throws Exception {
+        final String s = ""+
+        "imap[self._fileno] = self\n" +
+        "";
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    public void testVarious6() throws Exception {
+        final String s = ""+
+        "def accept(self):\n" +
+        "    try:\n" +
+        "        conn,addr = self.socket.accept()\n" +
+        "        return conn,addr\n" +
+        "    except socket.error:\n" +
+        "        pass\n" +
+        "";
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    public void testVarious7() throws Exception {
+        final String s = ""+
+        "def deleteMe(self):\n" +
+        "    index = (self.file, self.line)\n" +
+        "    self.bpbynumber[self.number] = None   # No longer in list\n" +
+        "    self.bplist[index].remove(self)\n" +
+        "";
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
 }
