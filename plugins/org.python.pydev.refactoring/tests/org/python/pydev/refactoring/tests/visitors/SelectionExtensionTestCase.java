@@ -9,6 +9,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
@@ -34,7 +36,14 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 	private void runSelectionExtension(RefactoringInfo info) {
 		StringBuilder buffer = new StringBuilder();
 		try {
-			String source = RewriterVisitor.createSourceFromAST(info.getParsedExtendedSelection().getASTParent(), "\n");
+			String source = RewriterVisitor.createSourceFromAST(
+			        info.getParsedExtendedSelection().getASTParent(), "\n", new IGrammarVersionProvider() {
+                        
+                        @Override
+                        public int getGrammarVersion() throws MisconfigurationException {
+                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                        }
+                    });
 			buffer.append(source); // normalized source
 		} catch (Throwable e) {
 			buffer.append("# Invalid selection:\n");
@@ -54,7 +63,12 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 		IDocument doc = new Document(data.source);
 
 		ITextSelection selection = new TextSelection(doc, data.sourceSelection.getOffset(), data.sourceSelection.getLength());
-		RefactoringInfo info = new RefactoringInfo(doc, selection);
+		RefactoringInfo info = new RefactoringInfo(doc, selection, new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+            }
+        });
 
 		return info;
 	}
@@ -65,7 +79,7 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 		xstream.alias("config", MockupSelectionConfig.class);
 		
 		if (data.config.length() > 0) {
-			config = (MockupSelectionConfig) xstream.fromXML(data.config);
+			config = (MockupSelectionConfig) xstream.fromXML(data.getConfigContents());
 		} else {
 			config = new MockupSelectionConfig(0, 0, 0);
 		}

@@ -61,15 +61,15 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     }
 
 
-    private SpecialStr lastSpecial; 
+    private ISpecialStrOrToken lastSpecial; 
     private SimpleNode lastNodeWithSpecial; 
     
     public final void addSpecialTokenToLastOpened(Object o) throws ParseException{
         o = convertStringToSpecialStr(o);
         if(o != null){
             SimpleNode lastOpened = getJJTree().getLastOpened();
-            if(o instanceof SpecialStr){
-                lastSpecial = (SpecialStr) o;
+            if(o instanceof ISpecialStrOrToken){
+                lastSpecial = (ISpecialStrOrToken) o;
                 lastNodeWithSpecial = lastOpened;
             }
             
@@ -89,8 +89,8 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
             
             if(node.beginLine != comment.beginLine){
                 if(lastSpecial != null && lastNodeWithSpecial != null){
-                    if(comment.beginLine < lastSpecial.beginLine ||
-                            (comment.beginLine == lastSpecial.beginLine && comment.beginColumn < lastSpecial.beginCol)){
+                    if(comment.beginLine < lastSpecial.getBeginLine() ||
+                            (comment.beginLine == lastSpecial.getBeginLine() && comment.beginColumn < lastSpecial.getBeginCol())){
                         List<Object> specialsBefore = lastNodeWithSpecial.getSpecialsBefore();
                         specialsBefore.add(specialsBefore.indexOf(lastSpecial), comment);
                         return;

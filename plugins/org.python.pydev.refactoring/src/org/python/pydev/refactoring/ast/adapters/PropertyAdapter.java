@@ -25,8 +25,8 @@ public class PropertyAdapter extends AbstractNodeAdapter<SimpleNode> {
 
     private SimpleNode doc;
 
-    public PropertyAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, SimpleNode node, String endLineDelim) {
-        super(module, parent, node, endLineDelim);
+    public PropertyAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, SimpleNode node, AdapterPrefs adapterPrefs) {
+        super(module, parent, node, adapterPrefs);
         if(nodeHelper.isAssign(getASTNode())){
             initByAssign();
         }else{

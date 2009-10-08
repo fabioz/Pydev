@@ -24,7 +24,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserErrorsTest.class);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -36,7 +36,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
 
-    public void testSuccessWithError() {
+    public void testSuccessWithError() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -58,7 +58,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled0() {
+    public void testErrorHandled0() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -80,7 +80,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         });
     }
     
-    public void testErrorHandled() {
+    public void testErrorHandled() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -105,7 +105,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled2() {
+    public void testErrorHandled2() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -129,7 +129,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled3() {
+    public void testErrorHandled3() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -154,7 +154,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled4() {
+    public void testErrorHandled4() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -176,7 +176,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         });
     }
     
-    public void testErrorHandled5() {
+    public void testErrorHandled5() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -197,7 +197,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         });
     }
     
-    public void testErrorHandled6() {
+    public void testErrorHandled6() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -220,7 +220,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled7() {
+    public void testErrorHandled7() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -242,7 +242,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         });
     }
     
-    public void testErrorHandled8() {
+    public void testErrorHandled8() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -264,7 +264,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         });
     }
     
-    public void testErrorHandled9() {
+    public void testErrorHandled9() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -286,7 +286,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled10() {
+    public void testErrorHandled10() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -314,7 +314,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled11() {
+    public void testErrorHandled11() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -352,7 +352,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled12() {
+    public void testErrorHandled12() throws Throwable {
         
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
         
@@ -382,7 +382,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         
     }
     
-    public void testErrorHandled13() {
+    public void testErrorHandled13() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -409,7 +409,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled14() {
+    public void testErrorHandled14() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -431,7 +431,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     
     
     
-    public void testErrorHandled15() {
+    public void testErrorHandled15() throws Throwable {
 //        PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
@@ -471,7 +471,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
 
     
 
-    public void testErrorHandled16() {
+    public void testErrorHandled16() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -488,7 +488,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
         
     }
     
-    public void testErrorHandled17() {
+    public void testErrorHandled17() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -511,7 +511,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
     }
     
     
-    public void testErrorHandled18() {
+    public void testErrorHandled18() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {

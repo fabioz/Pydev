@@ -14,6 +14,7 @@ public class PrettyPrinterDocLineEntry {
     
     private ArrayList<ILinePart> lineParts = new ArrayList<ILinePart>();
     private int indentDiff;
+    private int emptyLinesRequiredAfterDedent;
     public final int line;
     
     public PrettyPrinterDocLineEntry(int line) {
@@ -23,6 +24,20 @@ public class PrettyPrinterDocLineEntry {
     public ILinePart add(int beginCol, String string, Object token) {
         ILinePart linePart = new LinePart(beginCol, string, token, this);
         lineParts.add(linePart);
+        return linePart;
+    }
+    
+    public ILinePart addBefore(int beginCol, String string, Object token) {
+        ILinePart linePart = new LinePart(beginCol, string, token, this);
+        
+        //Now, on the start, we want to add it before any existing in the same column.
+        for(int i=0;i<this.lineParts.size();i++){
+            if(beginCol == this.lineParts.get(i).getBeginCol()){
+                this.lineParts.add(i, linePart);
+                return linePart;
+            }
+        }
+        this.lineParts.add(linePart);
         return linePart;
     }
 
@@ -59,19 +74,41 @@ public class PrettyPrinterDocLineEntry {
 
 
     public void indent(SimpleNode node) {
+        indent(node, false);
+    }
+    
+    public LinePartIndentMark indent(SimpleNode node, boolean requireNewLine) {
         this.indentDiff += 1;
-        lineParts.add(new LinePartIndentMark(node.beginColumn, node, true, this));
+        LinePartIndentMark linePartIndentMark = new LinePartIndentMark(node.beginColumn, node, true, this);
+        linePartIndentMark.setRequireNewLine(requireNewLine);
+        lineParts.add(linePartIndentMark);
+        return linePartIndentMark;
     }
 
-    public void dedent(SimpleNode node) {
+    public void dedent(int emptyLinesRequiredAfterDedent) {
+        if(this.emptyLinesRequiredAfterDedent < emptyLinesRequiredAfterDedent){
+            this.emptyLinesRequiredAfterDedent = emptyLinesRequiredAfterDedent;
+        }
         this.indentDiff -= 1;
-        lineParts.add(new LinePartIndentMark(node.beginColumn, node, false, this));
+        LinePartIndentMark dedentMark = new LinePartIndentMark(Integer.MAX_VALUE, "", false, this);
+        dedentMark.setEmptyLinesRequiredAfterDedent(emptyLinesRequiredAfterDedent);
+        lineParts.add(dedentMark);
     }
 
-    public void indent(Token token) {
+    public void indent(Token token, boolean requireNewLine) {
         this.indentDiff += 1;
-        lineParts.add(new LinePartIndentMark(token.beginColumn, token, true, this));
+        LinePartIndentMark linePartIndentMark = new LinePartIndentMark(token.beginColumn, token, true, this);
+        linePartIndentMark.setRequireNewLine(requireNewLine);
+        lineParts.add(linePartIndentMark);
     }
+    
+    public void indentAfter(ILinePart after, boolean requireNewLine) {
+        this.indentDiff += 1;
+        LinePartIndentMark linePartIndentMark = new LinePartIndentMark(after.getBeginCol(), after.getToken(), true, this);
+        linePartIndentMark.setRequireNewLine(requireNewLine);
+        lineParts.add(lineParts.indexOf(after)+1, linePartIndentMark);
+    }
+
 
     public int getIndentDiff() {
         return this.indentDiff;
@@ -86,13 +123,72 @@ public class PrettyPrinterDocLineEntry {
     }
 
     public void addStartStatementMark(ILinePart foundWithLowerLocation, stmtType node) {
-        this.lineParts.add(new LinePartStatementMark(foundWithLowerLocation.getBeginCol(), node, true, this));
+        int beginCol = foundWithLowerLocation.getBeginCol();
+        sortLineParts();
+        
+        //Now, on the start, we want to add it before any existing in the same column.
+        for(int i=0;i<this.lineParts.size();i++){
+            if(beginCol == this.lineParts.get(i).getBeginCol()){
+                this.lineParts.add(i, new LinePartStatementMark(beginCol, node, true, this));
+                return;
+            }
+        }
+        this.lineParts.add(new LinePartStatementMark(beginCol, node, true, this));
     }
 
     
     public void addEndStatementMark(ILinePart foundWithHigherLocation, stmtType node) {
         this.lineParts.add(new LinePartStatementMark(foundWithHigherLocation.getBeginCol(), node, false, this));
     }
+
+    public int getNewLinesRequired() {
+        return this.emptyLinesRequiredAfterDedent;
+    }
+
+    public LinePartRequireMark addRequireMark(int beginColumn, String string) {
+        LinePartRequireMark mark = new LinePartRequireMark(beginColumn, string, this);
+        this.lineParts.add(mark);
+        return mark;
+    }
+    
+    public LinePartRequireMark addRequireMark(int beginColumn, String ... string) {
+        LinePartRequireMark mark = new LinePartRequireMark(beginColumn, this, string);
+        this.lineParts.add(mark);
+        return mark;
+    }
+
+    public LinePartRequireIndentMark addRequireIndentMark(int beginColumn, String string) {
+        LinePartRequireIndentMark ret = new LinePartRequireIndentMark(beginColumn, string, this);
+        this.lineParts.add(ret);
+        return ret;
+    }
+
+    public LinePartRequireMark addRequireMarkBefore(ILinePart o1, String string) {
+        LinePartRequireMark linePart = new LinePartRequireMark(o1.getBeginCol(), string, this);
+        for(int i=0;i<this.lineParts.size();i++){
+            if(o1 == this.lineParts.get(i)){
+                this.lineParts.add(i, linePart);
+                return linePart;
+            }
+        }
+        this.lineParts.add(linePart);
+        return linePart;
+    }
+
+    public LinePartRequireMark addRequireMarkAfterBefore(ILinePart o1, String string) {
+        LinePartRequireMark linePart = new LinePartRequireMark(o1.getBeginCol(), string, this);
+        for(int i=0;i<this.lineParts.size();i++){
+            if(o1 == this.lineParts.get(i)){
+                this.lineParts.add(i+1, linePart);
+                return linePart;
+            }
+        }
+        this.lineParts.add(linePart);
+        return linePart;
+    }
+
+
+
 
 
 

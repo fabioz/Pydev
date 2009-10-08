@@ -40,6 +40,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -759,13 +760,13 @@ void compound_stmt() #void : {}
 
 
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
-void if_stmt(): {}
+void if_stmt(): {Object[] elseToks;}
 {
     temporaryToken=<IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(temporaryToken);} test() {this.findTokenAndAdd(":");}<COLON> suite()
          (begin_elif_stmt() test() {this.findTokenAndAdd(":");}<COLON> suite())* 
-             [ temporaryToken=<ELSE>  {this.addSpecialToken(temporaryToken);} 
-               {this.findTokenAndAdd(":");}<COLON> suite()]
+             [ elseToks=begin_else_stmt() suite() {addToPeek(elseToks[0], false, Suite.class);addToPeek(elseToks[1], false, Suite.class);}]
 }
+
 
 
 
@@ -774,17 +775,24 @@ void begin_elif_stmt(): {}
 }
 
 
+
 //while_stmt: 'while' test ':' suite ['else' ':' suite]
-void while_stmt(): {}
+void while_stmt(): {Object[] elseToks;}
 { begin_while_stmt() test() {this.findTokenAndAdd(":");}<COLON> suite() 
-  [ begin_else_stmt()  suite()] }
+  [ elseToks=begin_else_stmt()  suite() {addToPeek(elseToks[0], false, Suite.class);addToPeek(elseToks[1], false, Suite.class);}] }
 
 void begin_while_stmt(): {}
 { temporaryToken=<WHILE>{this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} {this.markLastAsSuiteStart();}
 }
-void begin_else_stmt(): {}
-{ temporaryToken=<ELSE> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} temporaryToken=<COLON>{this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}  
+
+
+
+Object[] begin_else_stmt(): {Object o1, o2;}
+{ o1=<ELSE> o2=<COLON>{return new Object[]{o1, o2};} 
 }
+
+
+
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
@@ -1037,9 +1045,12 @@ void subscript() #void: {}
 |   slice() #Slice(>0)
 }
 
+
 //sliceop: ':' [test]
 void slice() #void: {}
 { Colon() [test()] (Colon() [test()])? }
+
+
 
 void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
 void Comma(): {} {<COMMA>}

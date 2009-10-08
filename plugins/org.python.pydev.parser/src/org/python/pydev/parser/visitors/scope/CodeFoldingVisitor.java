@@ -17,6 +17,7 @@ import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.suiteType;
 
 public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
 
@@ -53,7 +54,8 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
             //treat elifs
             if(parent != null && parent.node instanceof If){
                 If parentIf = (If) parent.node;
-                if(parentIf.orelse != null && parentIf.orelse.length > 0 && parentIf.orelse[0] == entryIf){
+                if(parentIf.orelse != null && parentIf.orelse.body != null && 
+                        parentIf.orelse.body.length > 0 && parentIf.orelse.body[0] == entryIf){
                     parent.endLine = entry.node.beginLine-1;
                     if(entry.parent != null){
                         entry.parent = entry.parent.parent;
@@ -84,11 +86,11 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
      */
     private void checkElse(If entryIf, ASTEntry parentIf) {
         //treat elses
-        if(entryIf.orelse != null && entryIf.orelse.length > 0){
-            stmtType firstOrElseStmt = entryIf.orelse[0];
+        if(entryIf.orelse != null && entryIf.orelse.body != null && entryIf.orelse.body.length > 0){
+            stmtType firstOrElseStmt = entryIf.orelse.body[0];
             
             if(!(firstOrElseStmt instanceof If) && firstOrElseStmt != null){
-                If generatedIf = new If(new BoolOp(BoolOp.And, new exprType[0]), new stmtType[0], new stmtType[0]);
+                If generatedIf = new If(new BoolOp(BoolOp.And, new exprType[0]), new stmtType[0], new suiteType(new stmtType[0]));
                 
                 generatedIf.beginLine = firstOrElseStmt.beginLine-1;
                 generatedIf.beginColumn = 1;

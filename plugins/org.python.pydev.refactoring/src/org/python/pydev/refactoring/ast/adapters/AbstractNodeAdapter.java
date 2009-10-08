@@ -19,19 +19,25 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
     private AbstractScopeNode<? extends SimpleNode> parent;
     private T adaptee;
     protected NodeHelper nodeHelper;
+    private AdapterPrefs adapterPrefs;
 
     protected AbstractNodeAdapter() {
     }
 
-    public AbstractNodeAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, T node, String endLineDelim) {
-        init(module, parent, node, endLineDelim);
+    public AbstractNodeAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, T node, AdapterPrefs adapterPrefs) {
+        init(module, parent, node, adapterPrefs);
     }
 
-    protected void init(ModuleAdapter module, AbstractScopeNode<?> parent, T node, String endLineDelim) {
+    protected void init(ModuleAdapter module, AbstractScopeNode<?> parent, T node, AdapterPrefs adapterPrefs) {
         this.module = module;
         this.parent = parent;
         this.adaptee = node;
-        this.nodeHelper = new NodeHelper(endLineDelim);
+        this.nodeHelper = new NodeHelper(adapterPrefs);
+        this.adapterPrefs = adapterPrefs;
+    }
+    
+    public AdapterPrefs getAdapterPrefs() {
+        return adapterPrefs;
     }
 
     /*

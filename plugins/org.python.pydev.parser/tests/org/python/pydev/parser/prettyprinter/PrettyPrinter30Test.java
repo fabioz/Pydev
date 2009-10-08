@@ -15,11 +15,11 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testOthers();
+            test.testRaiseFrom();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -113,6 +113,13 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
     public void testAnnotations4() throws Exception {
         String s = "" +
         "def seek(whence:int,*,foo:int=10):\n" +
+        "    pass\n";
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testAnnotations5() throws Exception {
+        String s = "" +
+        "def seek(self,pos:int=None,whence:int=0)->int:\n" +
         "    pass\n";
         checkPrettyPrintEqual(s);
     }
@@ -255,6 +262,21 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         checkPrettyPrintEqual(s);
     }
     
+    public void testTryExcept2() throws Exception {
+        String s = "" +
+        "try:\n" +
+        "    try:\n" +
+        "        a = 10\n" +
+        "    except BdbQuit:\n" +
+        "        b = 10\n" +
+        "    else:\n" +
+        "        c = 10\n" +
+        "finally:\n" +
+        "    d = 10\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
+    
     public void testComment() throws Exception {
         String s = "" +
         		"def __enter__(self)->'IOBase':#That's a forward reference\n" +
@@ -334,5 +356,20 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         
         checkPrettyPrintEqual(s, expected);
     }
+
     
+    public void testOthers2() throws Throwable {
+        final String s = ""+
+        "def _format(node):\n" +
+        "    rv = '%s(%s' % (node.__class__.__name__,', '.join((\n" +
+        "                '%s=%s' % field for field in fields)\n" +
+        "             if annotate_fields else \n" +
+        "            (b for (a,b) in fields)\n" +
+        "            ))\n" +
+        "";
+        
+        checkPrettyPrintEqual(s);
+        
+    }
+
 }

@@ -136,7 +136,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                     
                 }else if(node instanceof ComprehensionCollection){
                     //what can happen is something like print sum(x for x in y), where we have already passed x in the args, and then get 'for x in y'
-                    args.add(0, new ListComp((exprType) stack.popNode(), ((ComprehensionCollection)node).getGenerators()));
+                    args.add(0, new ListComp((exprType) stack.popNode(), ((ComprehensionCollection)node).getGenerators(), ListComp.EmptyCtx));
                     i--; //popped node
                     
                 }else{
@@ -440,14 +440,14 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 SimpleNode peeked = stack.peekNode();
                 if(peeked instanceof ComprehensionCollection){
                     ComprehensionCollection col = (ComprehensionCollection) stack.popNode();
-                    return new ListComp(((exprType) stack.popNode()), col.getGenerators());
+                    return new ListComp(((exprType) stack.popNode()), col.getGenerators(), ListComp.TupleCtx);
                 }
             }
             return makeTuple(n);
         case JJTLIST:
             if (stack.nodeArity() > 0 && stack.peekNode() instanceof ComprehensionCollection) {
                 ComprehensionCollection col = (ComprehensionCollection) stack.popNode();
-                return new ListComp(((exprType) stack.popNode()), col.getGenerators());
+                return new ListComp(((exprType) stack.popNode()), col.getGenerators(), ListComp.ListCtx);
             }
             return new List(makeExprs(), List.Load);
         case JJTSET:

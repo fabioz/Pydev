@@ -18,8 +18,10 @@ public abstract class AbstractIOTestSuite extends TestSuite {
 	protected static final String I = File.separator;
 
 	// can be used to choose which test we want to run
-//	public static final String FILE_FILTER = "^test.+\\.py$";
-	public static final String FILE_FILTER = "^testList.py$";
+	public static String FILE_FILTER = "^test.+\\.py$";
+	static{
+//	    FILE_FILTER = "^testExtractMethod3.py$";
+	}
 
 	
 	public AbstractIOTestSuite(String name) {

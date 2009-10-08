@@ -11,9 +11,8 @@ public final class ClassDef extends stmtType {
     public exprType starargs;
     public exprType kwargs;
 
-    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body,
-    decoratorsType[] decs, keywordType[] keywords, exprType starargs,
-    exprType kwargs) {
+    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body, decoratorsType[] decs,
+    keywordType[] keywords, exprType starargs, exprType kwargs) {
         this.name = name;
         this.bases = bases;
         this.body = body;
@@ -23,12 +22,72 @@ public final class ClassDef extends stmtType {
         this.kwargs = kwargs;
     }
 
-    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body,
-    decoratorsType[] decs, keywordType[] keywords, exprType starargs,
-    exprType kwargs, SimpleNode parent) {
+    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body, decoratorsType[] decs,
+    keywordType[] keywords, exprType starargs, exprType kwargs, SimpleNode parent) {
         this(name, bases, body, decs, keywords, starargs, kwargs);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public ClassDef createCopy() {
+        exprType[] new0;
+        if(this.bases != null){
+        new0 = new exprType[this.bases.length];
+        for(int i=0;i<this.bases.length;i++){
+            new0[i] = (exprType) this.bases[i].createCopy();
+        }
+        }else{
+            new0 = this.bases;
+        }
+        stmtType[] new1;
+        if(this.body != null){
+        new1 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new1[i] = (stmtType) this.body[i].createCopy();
+        }
+        }else{
+            new1 = this.body;
+        }
+        decoratorsType[] new2;
+        if(this.decs != null){
+        new2 = new decoratorsType[this.decs.length];
+        for(int i=0;i<this.decs.length;i++){
+            new2[i] = (decoratorsType) this.decs[i].createCopy();
+        }
+        }else{
+            new2 = this.decs;
+        }
+        keywordType[] new3;
+        if(this.keywords != null){
+        new3 = new keywordType[this.keywords.length];
+        for(int i=0;i<this.keywords.length;i++){
+            new3[i] = (keywordType) this.keywords[i].createCopy();
+        }
+        }else{
+            new3 = this.keywords;
+        }
+        ClassDef temp = new ClassDef(name!=null?(NameTokType)name.createCopy():null, new0, new1,
+        new2, new3, starargs!=null?(exprType)starargs.createCopy():null,
+        kwargs!=null?(exprType)kwargs.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

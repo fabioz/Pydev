@@ -13,11 +13,35 @@ public final class IfExp extends exprType {
         this.orelse = orelse;
     }
 
-    public IfExp(exprType test, exprType body, exprType orelse, SimpleNode
-    parent) {
+    public IfExp(exprType test, exprType body, exprType orelse, SimpleNode parent) {
         this(test, body, orelse);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public IfExp createCopy() {
+        IfExp temp = new IfExp(test!=null?(exprType)test.createCopy():null,
+        body!=null?(exprType)body.createCopy():null,
+        orelse!=null?(exprType)orelse.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

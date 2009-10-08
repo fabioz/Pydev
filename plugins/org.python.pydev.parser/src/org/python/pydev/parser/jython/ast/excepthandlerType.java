@@ -7,18 +7,49 @@ public final class excepthandlerType extends SimpleNode {
     public exprType name;
     public stmtType[] body;
 
-    public excepthandlerType(exprType type, exprType name, stmtType[] body)
-    {
+    public excepthandlerType(exprType type, exprType name, stmtType[] body) {
         this.type = type;
         this.name = name;
         this.body = body;
     }
 
-    public excepthandlerType(exprType type, exprType name, stmtType[] body,
-    SimpleNode parent) {
+    public excepthandlerType(exprType type, exprType name, stmtType[] body, SimpleNode parent) {
         this(type, name, body);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public excepthandlerType createCopy() {
+        stmtType[] new0;
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) this.body[i].createCopy();
+        }
+        }else{
+            new0 = this.body;
+        }
+        excepthandlerType temp = new excepthandlerType(type!=null?(exprType)type.createCopy():null,
+        name!=null?(exprType)name.createCopy():null, new0);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

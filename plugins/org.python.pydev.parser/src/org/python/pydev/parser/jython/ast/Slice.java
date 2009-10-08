@@ -13,11 +13,34 @@ public final class Slice extends sliceType {
         this.step = step;
     }
 
-    public Slice(exprType lower, exprType upper, exprType step, SimpleNode
-    parent) {
+    public Slice(exprType lower, exprType upper, exprType step, SimpleNode parent) {
         this(lower, upper, step);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public Slice createCopy() {
+        Slice temp = new Slice(lower!=null?(exprType)lower.createCopy():null,
+        upper!=null?(exprType)upper.createCopy():null, step!=null?(exprType)step.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

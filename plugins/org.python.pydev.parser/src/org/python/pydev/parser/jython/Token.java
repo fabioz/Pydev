@@ -20,6 +20,15 @@ public class Token implements ISpecialStrOrToken {
    * last character of this token.
    */
   public int beginLine, beginColumn, endLine, endColumn;
+  
+  public int getBeginCol() {
+      return beginColumn;
+  }
+  
+  public int getBeginLine() {
+      return beginLine;
+  }
+
 
   /**
    * The string image of the token.

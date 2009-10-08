@@ -13,9 +13,7 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.codegenerator.constructorfield.edit.ConstructorMethodEdit;
-import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 import com.thoughtworks.xstream.XStream;
@@ -35,8 +33,11 @@ public class ConstructorFieldTestCase extends AbstractIOTestCase {
 		IDocument refactoringDoc = applyConstructorUsingFields(requestProcessor);
 
 		this.setTestGenerated(refactoringDoc.get());
-		assertEquals(getExpected(), getGenerated());
+		String expected = getExpected();
+        String generated = getGenerated();
+        assertContentsEqual(expected, generated);
 	}
+
 
 	private IDocument applyConstructorUsingFields(MockupConstructorFieldRequestProcessor requestProcessor) throws BadLocationException, MalformedTreeException, MisconfigurationException {
 		ConstructorMethodEdit constructorEdit = new ConstructorMethodEdit(requestProcessor.getRefactoringRequests().get(0));
@@ -47,7 +48,7 @@ public class ConstructorFieldTestCase extends AbstractIOTestCase {
 	}
 
 	private MockupConstructorFieldRequestProcessor setupRequestProcessor(MockupConstructorFieldConfig config) throws Throwable {
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		ModuleAdapter module = this.createModuleAdapterFromDataSource();
 		List<IClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
@@ -55,13 +56,14 @@ public class ConstructorFieldTestCase extends AbstractIOTestCase {
 		return requestProcessor;
 	}
 
-	private MockupConstructorFieldConfig initConfig() {
+
+    private MockupConstructorFieldConfig initConfig() {
 		MockupConstructorFieldConfig config = null;
 		XStream xstream = new XStream();
 		xstream.alias("config", MockupConstructorFieldConfig.class);
 
 		if (data.config.length() > 0) {
-			config = (MockupConstructorFieldConfig) xstream.fromXML(data.config);
+			config = (MockupConstructorFieldConfig) xstream.fromXML(data.getConfigContents());
 		} else {
 			fail("Could not unserialize configuration");
 		}

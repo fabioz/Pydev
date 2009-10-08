@@ -52,14 +52,16 @@ def simple_func(foo, bar=5.0):
 def simple_func(foo, bar):
     # this is a comment
     print "myfunc"
-# a simple func
 
+# a simple func
 def simple_func(foo):
     # this is a comment
     print "myfunc" # foo
-# a simple func
 
+# a simple func
 def simple_func(): # and a comment
     # this is a comment
     print "myfunc" # foo
-# last comment in simple_func
+
+    # last comment in simple_func
+    

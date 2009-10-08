@@ -10,15 +10,16 @@ for y in x: # on-line for
     # after first for-body - disappears
 else: # on-line else
     print "bar" # this will be printer at last
-# after else body
 
+# after else body
 for (y) in (x): # on-line for 2
     for a in x:
         print "foo" # on-line foo
         # after 1. body - disappears currently
     else: # on-line else
         print "bar" # print "bar"
-    
+
 else:
     print "bla"
+
 # after else body (last line)

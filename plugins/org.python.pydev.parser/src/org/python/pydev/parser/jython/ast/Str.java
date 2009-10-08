@@ -9,8 +9,7 @@ public final class Str extends exprType implements str_typeType {
     public boolean raw;
     public boolean binary;
 
-    public Str(String s, int type, boolean unicode, boolean raw, boolean
-    binary) {
+    public Str(String s, int type, boolean unicode, boolean raw, boolean binary) {
         this.s = s;
         this.type = type;
         this.unicode = unicode;
@@ -18,11 +17,34 @@ public final class Str extends exprType implements str_typeType {
         this.binary = binary;
     }
 
-    public Str(String s, int type, boolean unicode, boolean raw, boolean
-    binary, SimpleNode parent) {
+    public Str(String s, int type, boolean unicode, boolean raw, boolean binary, SimpleNode parent)
+    {
         this(s, type, unicode, raw, binary);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public Str createCopy() {
+        Str temp = new Str(s, type, unicode, raw, binary);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

@@ -82,4 +82,15 @@ public class TestData {
 		}
 	}
 
+    public String getConfigContents() {
+        String c = config.trim();
+        if(c.startsWith("'''")){
+            c = c.substring(3);
+        }
+        if(c.endsWith("'''")){
+            c = c.substring(0, c.length()-3);
+        }
+        return c;
+    }
+
 }

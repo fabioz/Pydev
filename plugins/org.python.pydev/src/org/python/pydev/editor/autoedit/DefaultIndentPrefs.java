@@ -7,6 +7,7 @@ package org.python.pydev.editor.autoedit;
 
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.cache.PyPreferencesCache;
+import org.python.pydev.editor.TestIndentPrefs;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -36,6 +37,9 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
      */
     public synchronized static IIndentPrefs get() {
         if(indentPrefs == null){
+            if(PydevPlugin.getDefault() == null){
+                return new TestIndentPrefs(true, 4);
+            }
             indentPrefs = new DefaultIndentPrefs();
         }
         return indentPrefs;

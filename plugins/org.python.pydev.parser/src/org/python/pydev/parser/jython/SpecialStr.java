@@ -28,4 +28,12 @@ public class SpecialStr implements ISpecialStrOrToken{
         }
         return str.equals(((SpecialStr)obj).str);
     }
+    
+    public int getBeginCol() {
+        return beginCol;
+    }
+    
+    public int getBeginLine() {
+        return beginLine;
+    }
 }

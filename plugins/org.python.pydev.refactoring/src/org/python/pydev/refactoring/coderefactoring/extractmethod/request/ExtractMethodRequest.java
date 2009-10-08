@@ -14,6 +14,7 @@ import java.util.Map;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -30,10 +31,18 @@ public class ExtractMethodRequest implements IRefactoringRequest {
     public final Map<String, String> renamedVariables;
     public final ITextSelection selection;
 
-    private String endLineDelim;
+    private final AdapterPrefs adapterPrefs;
 
-    public ExtractMethodRequest(String methodName, ITextSelection selection, AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, List<String> callParameters,
-            List<String> returnVariables, Map<String, String> renamedVariables, int offsetStrategy, String endLineDelim) {
+    public ExtractMethodRequest(
+            String methodName, 
+            ITextSelection selection, 
+            AbstractScopeNode<?> scopeAdapter, 
+            ModuleAdapter parsedSelection, 
+            List<String> callParameters,
+            List<String> returnVariables, 
+            Map<String, String> renamedVariables, 
+            int offsetStrategy, 
+            AdapterPrefs adapterPrefs) {
         this.methodName = methodName;
         this.selection = selection;
         this.scopeAdapter = scopeAdapter;
@@ -43,7 +52,7 @@ public class ExtractMethodRequest implements IRefactoringRequest {
         this.parameters = callParameters;
         this.returnVariables = returnVariables;
         this.renamedVariables = renamedVariables;
-        this.endLineDelim = endLineDelim;
+        this.adapterPrefs = adapterPrefs;
     }
 
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
@@ -55,8 +64,9 @@ public class ExtractMethodRequest implements IRefactoringRequest {
         return offsetNode;
     }
 
-    public String getNewLineDelim() {
-        return endLineDelim;
+    @Override
+    public AdapterPrefs getAdapterPrefs() {
+        return adapterPrefs;
     }
 
 }

@@ -5,19 +5,51 @@ import org.python.pydev.parser.jython.SimpleNode;
 public final class If extends stmtType {
     public exprType test;
     public stmtType[] body;
-    public stmtType[] orelse;
+    public suiteType orelse;
 
-    public If(exprType test, stmtType[] body, stmtType[] orelse) {
+    public If(exprType test, stmtType[] body, suiteType orelse) {
         this.test = test;
         this.body = body;
         this.orelse = orelse;
     }
 
-    public If(exprType test, stmtType[] body, stmtType[] orelse, SimpleNode
-    parent) {
+    public If(exprType test, stmtType[] body, suiteType orelse, SimpleNode parent) {
         this(test, body, orelse);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public If createCopy() {
+        stmtType[] new0;
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) this.body[i].createCopy();
+        }
+        }else{
+            new0 = this.body;
+        }
+        If temp = new If(test!=null?(exprType)test.createCopy():null, new0,
+        orelse!=null?(suiteType)orelse.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {
@@ -47,12 +79,8 @@ public final class If extends stmtType {
                     body[i].accept(visitor);
             }
         }
-        if (orelse != null) {
-            for (int i = 0; i < orelse.length; i++) {
-                if (orelse[i] != null)
-                    orelse[i].accept(visitor);
-            }
-        }
+        if (orelse != null)
+            orelse.accept(visitor);
     }
 
 }

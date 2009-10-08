@@ -14,6 +14,7 @@ class Foo:
     
     print a, b, c, d
 
+
 foo_obj = Foo()
 foo_obj.foometh()
 ## Will print

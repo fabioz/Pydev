@@ -47,7 +47,7 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
 	}
 
 	private MockupOverrideMethodsRequestProcessor setupRequestProcessor(MockupOverrideMethodsConfig config) throws Throwable {
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		ModuleAdapter module = super.createModuleAdapterFromDataSource();
 		List<IClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
@@ -61,7 +61,7 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
 		xstream.alias("config", MockupOverrideMethodsConfig.class);
 
 		if (data.config.length() > 0) {
-			config = (MockupOverrideMethodsConfig) xstream.fromXML(data.config);
+			config = (MockupOverrideMethodsConfig) xstream.fromXML(data.getConfigContents());
 		} else {
 			fail("Could not unserialize configuration");
 		}

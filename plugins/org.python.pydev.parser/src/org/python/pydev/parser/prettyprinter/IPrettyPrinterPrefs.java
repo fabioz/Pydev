@@ -1,6 +1,8 @@
 package org.python.pydev.parser.prettyprinter;
 
-public interface IPrettyPrinterPrefs {
+import org.python.pydev.core.IGrammarVersionProvider;
+
+public interface IPrettyPrinterPrefs extends IGrammarVersionProvider {
 
     void setSpacesAfterComma(int i);
 
@@ -29,5 +31,9 @@ public interface IPrettyPrinterPrefs {
     String getCmpOp(int op);
 
     String getAugOperatorMapping(int op);
+
+    void setLinesAfterMethod(int i);
+
+    int getLinesAfterSuite();
 
 }

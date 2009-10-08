@@ -17,6 +17,38 @@ public final class Assign extends stmtType {
         this.beginColumn = parent.beginColumn;
     }
 
+    public Assign createCopy() {
+        exprType[] new0;
+        if(this.targets != null){
+        new0 = new exprType[this.targets.length];
+        for(int i=0;i<this.targets.length;i++){
+            new0[i] = (exprType) this.targets[i].createCopy();
+        }
+        }else{
+            new0 = this.targets;
+        }
+        Assign temp = new Assign(new0, value!=null?(exprType)value.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer("Assign[");
         sb.append("targets=");

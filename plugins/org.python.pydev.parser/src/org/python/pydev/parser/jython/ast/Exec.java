@@ -13,11 +13,35 @@ public final class Exec extends stmtType {
         this.locals = locals;
     }
 
-    public Exec(exprType body, exprType globals, exprType locals,
-    SimpleNode parent) {
+    public Exec(exprType body, exprType globals, exprType locals, SimpleNode parent) {
         this(body, globals, locals);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public Exec createCopy() {
+        Exec temp = new Exec(body!=null?(exprType)body.createCopy():null,
+        globals!=null?(exprType)globals.createCopy():null,
+        locals!=null?(exprType)locals.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

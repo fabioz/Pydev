@@ -8,19 +8,42 @@ public final class Raise extends stmtType {
     public exprType tback;
     public exprType cause;
 
-    public Raise(exprType type, exprType inst, exprType tback, exprType
-    cause) {
+    public Raise(exprType type, exprType inst, exprType tback, exprType cause) {
         this.type = type;
         this.inst = inst;
         this.tback = tback;
         this.cause = cause;
     }
 
-    public Raise(exprType type, exprType inst, exprType tback, exprType
-    cause, SimpleNode parent) {
+    public Raise(exprType type, exprType inst, exprType tback, exprType cause, SimpleNode parent) {
         this(type, inst, tback, cause);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public Raise createCopy() {
+        Raise temp = new Raise(type!=null?(exprType)type.createCopy():null,
+        inst!=null?(exprType)inst.createCopy():null, tback!=null?(exprType)tback.createCopy():null,
+        cause!=null?(exprType)cause.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

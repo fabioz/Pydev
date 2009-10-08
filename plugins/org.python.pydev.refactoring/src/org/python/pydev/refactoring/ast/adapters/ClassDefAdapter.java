@@ -27,8 +27,8 @@ public class ClassDefAdapter extends AbstractScopeNode<ClassDef> implements ICla
 
     private List<PropertyAdapter> properties;
 
-    public ClassDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, ClassDef node, String endLineDelim) {
-        super(module, parent, node, endLineDelim);
+    public ClassDefAdapter(ModuleAdapter module, AbstractScopeNode<?> parent, ClassDef node, AdapterPrefs adapterPrefs) {
+        super(module, parent, node, adapterPrefs);
         this.attributes = null;
         this.properties = null;
     }

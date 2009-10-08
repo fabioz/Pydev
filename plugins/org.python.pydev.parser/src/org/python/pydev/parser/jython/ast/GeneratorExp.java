@@ -11,11 +11,42 @@ public final class GeneratorExp extends exprType {
         this.generators = generators;
     }
 
-    public GeneratorExp(exprType elt, comprehensionType[] generators,
-    SimpleNode parent) {
+    public GeneratorExp(exprType elt, comprehensionType[] generators, SimpleNode parent) {
         this(elt, generators);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public GeneratorExp createCopy() {
+        comprehensionType[] new0;
+        if(this.generators != null){
+        new0 = new comprehensionType[this.generators.length];
+        for(int i=0;i<this.generators.length;i++){
+            new0[i] = (comprehensionType) this.generators[i].createCopy();
+        }
+        }else{
+            new0 = this.generators;
+        }
+        GeneratorExp temp = new GeneratorExp(elt!=null?(exprType)elt.createCopy():null, new0);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

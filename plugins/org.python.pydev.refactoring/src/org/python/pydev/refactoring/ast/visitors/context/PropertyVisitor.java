@@ -26,7 +26,7 @@ public class PropertyVisitor extends AbstractContextVisitor<PropertyAdapter> {
 
     @Override
     protected PropertyAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
-        return new PropertyAdapter(moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
+        return new PropertyAdapter(moduleAdapter, parent, node, moduleAdapter.getAdapterPrefs());
     }
 
     @Override

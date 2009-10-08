@@ -7,6 +7,9 @@ package org.python.pydev.refactoring.tests.codegenerator.constructorfield;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -42,7 +45,13 @@ public class MockupConstructorFieldRequestProcessor implements IRequestProcessor
 		for (int index : attributeSelection) {
 			attributes.add(clazz.getAttributes().get(index));
 		}
-		ConstructorFieldRequest req = new ConstructorFieldRequest(clazz, attributes, this.offsetStrategy, "\n");
+		ConstructorFieldRequest req = new ConstructorFieldRequest(
+		        clazz, attributes, this.offsetStrategy, new AdapterPrefs("\n", new IGrammarVersionProvider() {
+                    
+                    public int getGrammarVersion() throws MisconfigurationException {
+                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                    }
+                }));
 
 		List<ConstructorFieldRequest> requests = new ArrayList<ConstructorFieldRequest>();
 		requests.add(req);

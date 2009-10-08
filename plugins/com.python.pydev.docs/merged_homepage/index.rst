@@ -4,6 +4,7 @@ What is Pydev?
 .. _Features Matrix: manual_adv_features.html
 .. _History for Pydev Extensions: history_pydev_extensions.html
 .. _History for Pydev: history_pydev.html
+.. _Pydev Blog: http://pydev.blogspot.com/
 
 Pydev is a plugin that enables users to use **Eclipse** for **Python**, **Jython** and **Iron Python** development, making Eclipse a first class **Python IDE**.
 
@@ -39,7 +40,10 @@ Pydev Extensions is now merged with Pydev, and its once closed source code has b
 there is no more Pydev Extensions, only the open source Pydev, with all the capabilities of Pydev Extensions
 incorporated.
 
+Development Info
+====================================
 
+`Pydev Blog`_
 
 Releases History:
 ==================

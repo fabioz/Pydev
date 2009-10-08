@@ -34,7 +34,7 @@ public class Formatter implements IFormatter{
             } else if (objects.o1 != null) {
                 try{
                     SimpleNode n = objects.o1;
-                    PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(new PrettyPrinterPrefsV2("\n", edit.getIndentPrefs().getIndentationString()));
+                    PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(new PrettyPrinterPrefsV2("\n", edit.getIndentPrefs().getIndentationString(), edit.getGrammarVersionProvider()));
                     doc.set(prettyPrinterV2.print(n));
                 }catch(Exception e){
                     Log.log(e);

@@ -2,7 +2,7 @@ package org.python.pydev.parser.prettyprinterv2;
 
 public abstract class AbstractLinePart implements ILinePart{
     
-    private final Object token;
+    protected Object token;
     private final int beginCol;
     private PrettyPrinterDocLineEntry lineEntry;
     

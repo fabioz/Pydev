@@ -18,6 +18,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 
 public class LocalVarRenameVisitor extends VisitorBase {
@@ -26,9 +27,9 @@ public class LocalVarRenameVisitor extends VisitorBase {
 
     private NodeHelper nodeHelper;
 
-    public LocalVarRenameVisitor(String endLineDelim) {
+    public LocalVarRenameVisitor(AdapterPrefs adapterPrefs) {
         this.renameMap = new HashMap<String, String>();
-        this.nodeHelper = new NodeHelper(endLineDelim);
+        this.nodeHelper = new NodeHelper(adapterPrefs);
     }
 
     public void visit(SimpleNode node) throws Exception {

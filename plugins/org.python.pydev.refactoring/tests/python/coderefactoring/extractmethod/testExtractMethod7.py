@@ -17,7 +17,7 @@ a.test()
 class A:
 
     def extracted_method(self, a):
-        while (a < 2):
+        while a < 2:
             a += 1
         
         return a

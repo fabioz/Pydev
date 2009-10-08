@@ -27,8 +27,8 @@ public abstract class AbstractScopeNode<T extends SimpleNode> extends AbstractNo
 
     }
 
-    public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<? extends SimpleNode> parent, T node, String endLineDelim) {
-        super(module, parent, node, endLineDelim);
+    public AbstractScopeNode(ModuleAdapter module, AbstractScopeNode<? extends SimpleNode> parent, T node, AdapterPrefs adapterPrefs) {
+        super(module, parent, node, adapterPrefs);
     }
 
     public List<FunctionDefAdapter> getFunctions() {

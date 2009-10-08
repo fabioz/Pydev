@@ -20,13 +20,13 @@ import org.python.pydev.parser.jython.ast.stmtType;
 public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
 
     private ClassDef classDef;
-    private String endLineDelim;
+    private AdapterPrefs adapterPrefs;
     private ModuleAdapter module;
 
-    public ClassDefAdapterFromClassDef(ModuleAdapter module, ClassDef classDef, String endLineDelim) {
+    public ClassDefAdapterFromClassDef(ModuleAdapter module, ClassDef classDef, AdapterPrefs adapterPrefs) {
         this.module = module;
         this.classDef = classDef;
-        this.endLineDelim = endLineDelim;
+        this.adapterPrefs = adapterPrefs;
     }
 
     public List<SimpleAdapter> getAssignedVariables() {
@@ -50,7 +50,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
             if(b instanceof FunctionDef){
                 FunctionDef functionDef = (FunctionDef) b;
                 if(((NameTok) functionDef.name).id.equals("__init__")){
-                    return new FunctionDefAdapter(module, null, (FunctionDef) b, endLineDelim);
+                    return new FunctionDefAdapter(module, null, (FunctionDef) b, adapterPrefs);
                 }
             }
         }
@@ -61,7 +61,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
         ArrayList<FunctionDefAdapter> ret = new ArrayList<FunctionDefAdapter>();
         for(stmtType b:this.classDef.body){
             if(b instanceof FunctionDef){
-                ret.add(new FunctionDefAdapter(module, null, (FunctionDef) b, endLineDelim));
+                ret.add(new FunctionDefAdapter(module, null, (FunctionDef) b, adapterPrefs));
             }
         }
         return ret;
@@ -75,7 +75,7 @@ public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
                 if(((NameTok) functionDef.name).id.equals("__init__")){
                     continue;
                 }
-                ret.add(new FunctionDefAdapter(module, null, functionDef, endLineDelim));
+                ret.add(new FunctionDefAdapter(module, null, functionDef, adapterPrefs));
             }
         }
         return ret;

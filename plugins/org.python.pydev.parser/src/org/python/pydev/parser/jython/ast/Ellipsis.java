@@ -13,6 +13,29 @@ public final class Ellipsis extends sliceType {
         this.beginColumn = parent.beginColumn;
     }
 
+    public Ellipsis createCopy() {
+        Ellipsis temp = new Ellipsis();
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer("Ellipsis[");
         sb.append("]");

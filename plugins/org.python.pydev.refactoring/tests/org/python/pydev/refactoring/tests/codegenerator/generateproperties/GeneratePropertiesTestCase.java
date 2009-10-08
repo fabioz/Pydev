@@ -88,7 +88,7 @@ public class GeneratePropertiesTestCase extends AbstractIOTestCase {
 		xstream.alias("config", MockupGeneratePropertiesConfig.class);
 
 		if (data.config.length() > 0) {
-			config = (MockupGeneratePropertiesConfig) xstream.fromXML(data.config);
+			config = (MockupGeneratePropertiesConfig) xstream.fromXML(data.getConfigContents());
 		} else {
 			fail("Could not unserialize configuration");
 		}

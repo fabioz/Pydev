@@ -20,12 +20,14 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.IFileEditorInput;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
@@ -36,7 +38,8 @@ public class RefactoringInfo {
     private ITextSelection userSelection;
     private ITextSelection extendedSelection;
     private ModuleAdapter moduleAdapter;
-    private IPythonNature nature;
+    private final IPythonNature nature;
+    private final IGrammarVersionProvider versionProvider;
     private PythonModuleManager moduleManager;
     private AbstractScopeNode<?> scopeAdapter;
     private IProject project;
@@ -54,13 +57,15 @@ public class RefactoringInfo {
 
         this.project = edit.getProject();
         this.nature = edit.getPythonNature();
+        versionProvider = this.nature;
         initInfo(selection);
 
     }
 
-    public RefactoringInfo(IDocument document, ITextSelection selection) {
+    public RefactoringInfo(IDocument document, ITextSelection selection, IGrammarVersionProvider versionProvider) {
         this.sourceFile = null;
         this.nature = null;
+        this.versionProvider = versionProvider;
         this.doc = document;
 
         initInfo(selection);
@@ -224,6 +229,10 @@ public class RefactoringInfo {
 
     public String getNewLineDelim() {
         return TextUtilities.getDefaultLineDelimiter(this.doc);
+    }
+
+    public AdapterPrefs getAdapterPrefs() {
+        return new AdapterPrefs(getNewLineDelim(), versionProvider);
     }
 
 //    public Workspace getWorkspace() {

@@ -56,6 +56,19 @@ public class FastStringBufferTest extends TestCase{
         assertEquals("cba", fastStringBuffer2.toString());
     }
     
+    public void testEndsWith() throws Exception {
+        FastStringBuffer fastStringBuffer = new FastStringBuffer("abc", 0);
+        assertTrue(fastStringBuffer.endsWith("c"));
+        assertTrue(fastStringBuffer.endsWith("bc"));
+        assertTrue(fastStringBuffer.endsWith("abc"));
+        assertTrue(!fastStringBuffer.endsWith("aabc"));
+        
+        assertTrue(fastStringBuffer.startsWith("abc"));
+        assertTrue(fastStringBuffer.startsWith("a"));
+        assertTrue(fastStringBuffer.startsWith("ab"));
+        assertTrue(!fastStringBuffer.startsWith("abcd"));
+    }
+    
     
 //    public void testFastString() throws Exception {
 //        

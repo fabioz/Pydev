@@ -11,18 +11,19 @@ package org.python.pydev.refactoring.ast.adapters.offsetstrategy;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.FindLastLineVisitor;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
 public class BeginOffset extends AbstractOffsetStrategy {
 
-    public BeginOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc) {
-        super(adapter, doc);
+    public BeginOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc, AdapterPrefs adapterPrefs) {
+        super(adapter, doc, adapterPrefs);
     }
 
     protected int getLine() {
@@ -44,10 +45,10 @@ public class BeginOffset extends AbstractOffsetStrategy {
                     }
                 }
                 SimpleNode lastNode = findLastLineVisitor.getLastNode();
-                SpecialStr lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
-                if(lastSpecialStr != null && (lastSpecialStr.str.equals(":") || lastSpecialStr.str.equals(")"))){
+                ISpecialStrOrToken lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
+                if(lastSpecialStr != null && (lastSpecialStr.toString().equals(":") || lastSpecialStr.toString().equals(")"))){
                     // it was an from xxx import (euheon, utehon)
-                    return lastSpecialStr.beginLine - 1;
+                    return lastSpecialStr.getBeginLine() - 1;
                 }else{
                     return lastNode.beginLine - 1;
                 }

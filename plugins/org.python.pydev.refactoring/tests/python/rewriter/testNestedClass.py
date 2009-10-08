@@ -4,9 +4,10 @@ class Rectangle(object):
             class Bla:
                 print "foo"
             
+            
             b = Bla()
             print "foo nested class"
-        
+    
     
     a = Foo()
     a.foo()
@@ -20,6 +21,7 @@ class Rectangle(object):
         return self.width * self.height
     
     area = property(get_area, doc='area of the rectangle')
+
 
 rect = Rectangle(10, 15)
 print rect.width

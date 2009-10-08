@@ -12,7 +12,7 @@ remove('log')
 ##r
 
 print "foo"
-print "foo", 
+print "foo"
 print "foo"
 print ("foo")
 print ("foo", test("bla"))

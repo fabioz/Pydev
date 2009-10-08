@@ -499,10 +499,10 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         stmtType[] body;
         exprType test;
         
-        stmtType[] orelse = null;
-        if ((arity + 1) % 3 == 1) {
-            arity--;
-            orelse = getBodyAndSpecials();
+        suiteType orelse = null;
+        if (arity % 3 == 1) {
+            arity-=2;
+            orelse=this.popSuiteAndSuiteType();
         }
 
         //make the suite
@@ -534,7 +534,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             test = (exprType) stack.popNode();
             arity--;
 
-            stmtType[] newOrElse = new stmtType[] { last };
+            suiteType newOrElse = new suiteType(new stmtType[] { last });
             if (arity == 0) {
                 //last If found
                 last = (If) n;

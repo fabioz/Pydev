@@ -8,7 +8,7 @@ import os, sys, traceback
 import asdl
 
 TABSIZE = 4
-MAX_COL = 76
+MAX_COL = 100
 
 def reflow_lines(s, depth):
     """Reflow the line s indented depth tabs.
@@ -206,6 +206,16 @@ class JavaVisitor(EmitVisitor):
 
         if fpargs:
             fpargs += ", "
+            
+
+#        Creates something as:            
+#        public Attribute(exprType value, NameTokType attr, int ctx, SimpleNode
+#        parent) {
+#            this(value, attr, ctx);
+#            this.beginLine = parent.beginLine;
+#            this.beginColumn = parent.beginColumn;
+#        }
+
         self.emit("public %s(%sSimpleNode parent) {" % (ctorname, fpargs), depth)
         self.emit("this(%s);" %
                     ", ".join([str(f.name) for f in fields]), depth+1)
@@ -213,6 +223,82 @@ class JavaVisitor(EmitVisitor):
         self.emit("this.beginColumn = parent.beginColumn;", depth+1);
         self.emit("}", depth)
         self.emit("", 0)
+        
+        
+        
+        #createCopy()
+        self.emit("public %s createCopy() {" % (ctorname,), depth)
+        params = []
+        copy_i = 0
+        for f in fields:
+            jType = self.jType(f)
+            if jType in ('int', 'boolean', 'String', 'Object'):
+                if f.seq:
+                    self.emit('%s[] new%s;' % (jType,copy_i), depth+1) 
+                    self.emit('if(this.%s != null){' % (f.name,), depth+1) 
+                        
+                    #int[] new0 = new int[this.ops.length];
+                    #System.arraycopy(this.ops, 0, new0, 0, this.ops.length);
+                    self.emit('new%s = new %s[this.%s.length];' % (copy_i, jType, f.name), depth+2) 
+                    self.emit('System.arraycopy(this.%s, 0, new%s, 0, this.%s.length);' % (f.name, copy_i, f.name), depth+2) 
+                    
+                    self.emit('}else{', depth+1)
+                    self.emit('new%s = this.%s;'%(copy_i, f.name), depth+2)
+                    self.emit('}', depth+1)
+                         
+                    
+                    params.append('new%s' % (copy_i,))
+                    copy_i += 1
+                else:
+                    params.append(str(f.name))
+            else:
+                if f.seq:
+                    #comprehensionType[] new0 = new comprehensionType[this.generators.length];
+                    #for(int i=0;i<this.generators.length;i++){
+                    #    new0[i] = (comprehensionType) this.generators[i].createCopy();
+                    #}
+                    self.emit('%s[] new%s;' % (jType,copy_i), depth+1) 
+                    self.emit('if(this.%s != null){' % (f.name,), depth+1) 
+                    self.emit('new%s = new %s[this.%s.length];' % (copy_i, jType, f.name), depth+1) 
+                    self.emit('for(int i=0;i<this.%s.length;i++){' % (f.name), depth+1)
+                    self.emit('new%s[i] = (%s) this.%s[i].createCopy();' % (copy_i, jType, f.name), depth+2) 
+                    self.emit('}', depth+1)
+                    self.emit('}else{', depth+1)
+                    self.emit('new%s = this.%s;'%(copy_i, f.name), depth+2)
+                    self.emit('}', depth+1)
+                    
+                    params.append('new%s' % (copy_i,))
+                    copy_i += 1
+                else:  
+                    params.append('%s!=null?(%s)%s.createCopy():null' % (f.name, jType, f.name))
+            
+        params = ", ".join(params)
+        
+        self.emit("%s temp = new %s(%s);" %
+                    (ctorname, ctorname, params), depth+1)
+        
+        self.emit("temp.beginLine = this.beginLine;", depth+1);
+        self.emit("temp.beginColumn = this.beginColumn;", depth+1);
+        
+        def EmitSpecials(s):
+            self.emit('if(this.specials%s != null){' % s, depth+1)
+            self.emit('    for(Object o:this.specials%s){' % s, depth+1)
+            self.emit('        if(o instanceof commentType){', depth+1)
+            self.emit('            commentType commentType = (commentType) o;', depth+1)
+            self.emit('            temp.getSpecials%s().add(commentType);' %s, depth+1)
+            self.emit('        }', depth+1)
+            self.emit('    }', depth+1)
+            self.emit('}', depth+1)
+        
+        EmitSpecials('Before')
+        EmitSpecials('After')
+        
+        self.emit("return temp;", depth+1);
+        self.emit("}", depth)
+        self.emit("", 0)
+        
+        
+        
 
         # The toString() method
         self.emit("public String toString() {", depth)
@@ -281,13 +367,17 @@ class JavaVisitor(EmitVisitor):
         'string' : 'String',
         'object' : 'Object', # was PyObject
     }
-
-    def fieldDef(self, field):
+    
+    def jType(self, field):
         jtype = str(field.type)
         if field.typedef and field.typedef.simple:
             jtype = 'int'
         else:
             jtype = self.bltinnames.get(jtype, jtype + 'Type')
+        return jtype
+
+    def fieldDef(self, field):
+        jtype = self.jType(field)
         name = field.name
         seq = field.seq and "[]" or ""
         return "%(jtype)s%(seq)s %(name)s" % locals()

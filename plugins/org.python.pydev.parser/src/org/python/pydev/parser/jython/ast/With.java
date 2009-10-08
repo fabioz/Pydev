@@ -7,18 +7,41 @@ public final class With extends stmtType {
     public exprType optional_vars;
     public suiteType body;
 
-    public With(exprType context_expr, exprType optional_vars, suiteType
-    body) {
+    public With(exprType context_expr, exprType optional_vars, suiteType body) {
         this.context_expr = context_expr;
         this.optional_vars = optional_vars;
         this.body = body;
     }
 
-    public With(exprType context_expr, exprType optional_vars, suiteType
-    body, SimpleNode parent) {
+    public With(exprType context_expr, exprType optional_vars, suiteType body, SimpleNode parent) {
         this(context_expr, optional_vars, body);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public With createCopy() {
+        With temp = new With(context_expr!=null?(exprType)context_expr.createCopy():null,
+        optional_vars!=null?(exprType)optional_vars.createCopy():null,
+        body!=null?(suiteType)body.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

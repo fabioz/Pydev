@@ -81,24 +81,20 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
     
     public void traverse(If node) throws Exception {
         checkStop();
-        OccurrencesVisitor visitor = this;
         if (node.test != null){
             isInTestScope += 1;
-            node.test.accept(visitor);
+            node.test.accept(this);
             isInTestScope -= 1;
         }
         
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
                 if (node.body[i] != null)
-                    node.body[i].accept(visitor);
+                    node.body[i].accept(this);
             }
         }
         if (node.orelse != null) {
-            for (int i = 0; i < node.orelse.length; i++) {
-                if (node.orelse[i] != null)
-                    node.orelse[i].accept(visitor);
-            }
+            node.orelse.accept(this);
         }
     }
     

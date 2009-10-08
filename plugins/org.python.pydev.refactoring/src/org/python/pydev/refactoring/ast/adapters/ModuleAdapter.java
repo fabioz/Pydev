@@ -60,14 +60,14 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     private PythonModuleManager moduleManager;
     private IOffsetStrategy offsetStrategy;
     private ISourceModule sourceModule;
-    private IPythonNature nature;
+    public final IPythonNature nature;
 
     public String getEndLineDelimiter() {
         return TextUtilities.getDefaultLineDelimiter(doc);
     }
 
     public ModuleAdapter(PythonModuleManager pm, File file, IDocument doc, Module node, IPythonNature nature) {
-        super(null, null, node, TextUtilities.getDefaultLineDelimiter(doc));
+        super(null, null, node, new AdapterPrefs(TextUtilities.getDefaultLineDelimiter(doc), nature));
         //		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
         this.moduleManager = pm;
         this.file = file;
@@ -82,7 +82,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         //		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
         this.file = module.getFile();
         this.doc = PythonModuleManager.getDocFromFile(this.file);
-        init(null, null, (Module) module.getAst(), TextUtilities.getDefaultLineDelimiter(this.doc));
+        init(null, null, (Module) module.getAst(), new AdapterPrefs(TextUtilities.getDefaultLineDelimiter(this.doc), nature));
         this.sourceModule = module;
         this.moduleManager = pm;
         this.aliasToFQIdentifier = null;
@@ -122,7 +122,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
         resolveClassHierarchy(bases, scopeClass, new HashSet<String>());
         Collections.reverse(bases);
-        bases.add(new ObjectAdapter(this, this, getEndLineDelimiter()));
+        bases.add(new ObjectAdapter(this, this, getAdapterPrefs()));
 
         return bases;
     }
@@ -281,7 +281,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     }
 
     public int getStartOffset(SimpleNode node) throws BadLocationException {
-        return getStartOffset(new SimpleAdapter(this, this, node, getEndLineDelimiter()));
+        return getStartOffset(new SimpleAdapter(this, this, node, getAdapterPrefs()));
     }
 
     public int getStartOffset(IASTNodeAdapter<? extends SimpleNode> adapter) throws BadLocationException {
@@ -289,7 +289,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     }
 
     public boolean isNodeInSelection(ITextSelection selection, SimpleNode node) {
-        return isAdapterInSelection(selection, new SimpleAdapter(this, this, node, getEndLineDelimiter()));
+        return isAdapterInSelection(selection, new SimpleAdapter(this, this, node, getAdapterPrefs()));
     }
 
     private IClassDefAdapter resolveClassHierarchy(List<IClassDefAdapter> bases, IClassDefAdapter adap, Set<String> memo) throws MisconfigurationException {
@@ -409,10 +409,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
      */
     private Set<IClassDefAdapter> resolveImportedClass(Set<String> importedBase, CompletionCache completionCache) throws MisconfigurationException {
         Set<IClassDefAdapter> bases = new HashSet<IClassDefAdapter>();
-        if(moduleManager == null){
-            return bases;
-        }
-
         Set<ClassDef> alreadyTreated = new HashSet<ClassDef>();
 
         //let's create the module only once (this way the classdefs will be the same as reparses should not be needed).
@@ -464,11 +460,11 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
             for(Map.Entry<String, List<IToken>> entry:map.entrySet()){
                 //TODO: The module adapter should probably not be 'this' (make test to break it!)
-                bases.add(new ClassDefAdapterFromTokens(this, entry.getKey(), entry.getValue(), getEndLineDelimiter()));
+                bases.add(new ClassDefAdapterFromTokens(this, entry.getKey(), entry.getValue(), getAdapterPrefs()));
             }
             for(ClassDef classDef:classDefAsts){
                 //TODO: The module adapter should probably not be 'this' (make test to break it!)
-                bases.add(new ClassDefAdapterFromClassDef(this, classDef, getEndLineDelimiter()));
+                bases.add(new ClassDefAdapterFromClassDef(this, classDef, getAdapterPrefs()));
             }
         }
         return bases;
@@ -477,17 +473,17 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     public void setStrategy(IASTNodeAdapter<? extends SimpleNode> adapter, int strategy) {
         switch(strategy){
         case IOffsetStrategy.AFTERINIT:
-            this.offsetStrategy = new InitOffset(adapter, this.doc);
+            this.offsetStrategy = new InitOffset(adapter, this.doc, this.getAdapterPrefs());
             break;
         case IOffsetStrategy.BEGIN:
-            this.offsetStrategy = new BeginOffset(adapter, this.doc);
+            this.offsetStrategy = new BeginOffset(adapter, this.doc, this.getAdapterPrefs());
             break;
         case IOffsetStrategy.END:
-            this.offsetStrategy = new EndOffset(adapter, this.doc);
+            this.offsetStrategy = new EndOffset(adapter, this.doc, this.getAdapterPrefs());
             break;
 
         default:
-            this.offsetStrategy = new BeginOffset(adapter, this.doc);
+            this.offsetStrategy = new BeginOffset(adapter, this.doc, this.getAdapterPrefs());
         }
     }
 
@@ -563,7 +559,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
                 }
                 selection = new TextSelection(doc, startOffset, endOffset - startOffset);
             }catch(BadLocationException e){
-
+                e.printStackTrace();
             }
         }
         return normalizeSelection(selection);
@@ -586,7 +582,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     public ITextSelection extendSelectionToEnd(ITextSelection selection, SimpleNode node) {
         if(this.doc != null){
-            SimpleAdapter adapter = new SimpleAdapter(this, this, node, getEndLineDelimiter());
+            SimpleAdapter adapter = new SimpleAdapter(this, this, node, getAdapterPrefs());
             int lastLine = adapter.getNodeLastLine() - 1;
             try{
                 int adapterEndOffset = doc.getLineOffset(lastLine);
@@ -603,7 +599,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     public ITextSelection extendSelection(ITextSelection selection, SimpleNode node) {
         if(this.doc != null && (node instanceof Str)){
-            SimpleAdapter adapter = new SimpleAdapter(this, this, node, getEndLineDelimiter());
+            SimpleAdapter adapter = new SimpleAdapter(this, this, node, getAdapterPrefs());
             try{
                 int startOffset = getStartOffset(adapter);
                 if(startOffset > selection.getOffset()){

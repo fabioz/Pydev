@@ -11,6 +11,7 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal.request;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
@@ -37,7 +38,7 @@ public class ExtractLocalRequest implements IRefactoringRequest {
         return info.getScopeAdapter();
     }
 
-    public String getNewLineDelim() {
-        return info.getNewLineDelim();
+    public AdapterPrefs getAdapterPrefs() {
+        return info.getAdapterPrefs();
     }
 }

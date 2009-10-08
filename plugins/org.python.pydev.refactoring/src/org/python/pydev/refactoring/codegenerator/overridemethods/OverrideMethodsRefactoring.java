@@ -28,7 +28,8 @@ public class OverrideMethodsRefactoring extends AbstractPythonRefactoring {
 
     public OverrideMethodsRefactoring(RefactoringInfo req) {
         super(req);
-        this.requestProcessor = new OverrideMethodsRequestProcessor(info.getScopeClass(), this.info.getNewLineDelim());
+        this.requestProcessor = new OverrideMethodsRequestProcessor(info.getScopeClass(), 
+                this.info.getAdapterPrefs());
         this.changeProcessor = new OverrideMethodsChangeProcessor(getName(), this.info, this.requestProcessor);
     }
 

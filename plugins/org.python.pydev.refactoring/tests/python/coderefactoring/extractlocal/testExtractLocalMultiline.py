@@ -3,5 +3,5 @@ print ##|(1
 
 ##r
 
-extracted_variable = (1 + 2)
+extracted_variable = 1 + 2
 print extracted_variable

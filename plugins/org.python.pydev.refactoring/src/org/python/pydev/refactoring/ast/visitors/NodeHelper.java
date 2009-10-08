@@ -10,8 +10,8 @@ package org.python.pydev.refactoring.ast.visitors;
 
 import java.util.ArrayList;
 
+import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.BoolOp;
@@ -39,14 +39,15 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
 
 public class NodeHelper {
 
-    private String endLineDelimiter;
+    private final AdapterPrefs adapterPrefs;
 
-    public NodeHelper(String endLineDelimiter) {
-        this.endLineDelimiter = endLineDelimiter;
+    public NodeHelper(AdapterPrefs adapterPrefs) {
+        this.adapterPrefs = adapterPrefs;
     }
 
     private static final String KEYWORD_FDEL = "fdel";
@@ -144,7 +145,7 @@ public class NodeHelper {
         }else if(isCall(node)){
             return getName(((Call) node).func);
         }else if(isAttribute(node)){
-            String attributeName = RewriterVisitor.createSourceFromAST(node, true, endLineDelimiter);
+            String attributeName = RewriterVisitor.createSourceFromAST(node, true, adapterPrefs);
             int subscriptOffset = attributeName.indexOf("[");
             if(subscriptOffset > 0){
                 attributeName = attributeName.substring(0, subscriptOffset - 1);
@@ -355,7 +356,7 @@ public class NodeHelper {
     }
 
     public boolean isSpecialStr(Object o) {
-        return o instanceof SpecialStr;
+        return o instanceof ISpecialStrOrToken;
     }
 
     public boolean isStr(SimpleNode node) {
@@ -527,4 +528,9 @@ public class NodeHelper {
             out.append("|   ");
         }
     }
+
+    public AdapterPrefs getAdapterPrefs() {
+        return this.adapterPrefs;
+    }
+
 }

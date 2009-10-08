@@ -26,7 +26,7 @@ public abstract class AbstractReplaceEdit extends AbstractTextEdit {
     }
 
     protected String getFormattedNode() throws MisconfigurationException {
-        String source = RewriterVisitor.createSourceFromAST(getEditNode(), newLineDelim);
+        String source = RewriterVisitor.createSourceFromAST(getEditNode(), adapterPrefs);
         return source.trim();
     }
 

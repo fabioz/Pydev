@@ -3,6 +3,9 @@ package org.python.pydev.parser.prettyprinterv2;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.Assert;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.prettyprinter.IPrettyPrinterPrefs;
 
@@ -15,12 +18,14 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
     private int linesAfterClass = 0;
     private int linesAfterSuite=0;
     private String indent;
+    private IGrammarVersionProvider versionProvider;
     
     
 
-    public PrettyPrinterPrefsV2(String newLine, String indent) {
+    public PrettyPrinterPrefsV2(String newLine, String indent, IGrammarVersionProvider versionProvider) {
         this.newLine = newLine;
         this.indent = indent;
+        Assert.isNotNull(versionProvider);
         this.tokReplacement.put("def", "def ");
         this.tokReplacement.put("class", "class ");
         this.tokReplacement.put("if", "if ");
@@ -33,6 +38,12 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         this.tokReplacement.put("while", "while ");
         this.tokReplacement.put("global", "global ");
         this.tokReplacement.put("with", "with ");
+        this.versionProvider = versionProvider;
+    }
+    
+    @Override
+    public int getGrammarVersion() throws MisconfigurationException {
+        return versionProvider.getGrammarVersion();
     }
     
     
@@ -165,7 +176,7 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
 
     //spaces before comment
     public void setSpacesBeforeComment(int i) {
-        spacesBeforeComment = createSpacesStr(i, null);
+        spacesBeforeComment = createSpacesStr(i, "");
     }
     
     public String getSpacesBeforeComment() {

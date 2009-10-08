@@ -11,11 +11,34 @@ public final class aliasType extends SimpleNode {
         this.asname = asname;
     }
 
-    public aliasType(NameTokType name, NameTokType asname, SimpleNode
-    parent) {
+    public aliasType(NameTokType name, NameTokType asname, SimpleNode parent) {
         this(name, asname);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public aliasType createCopy() {
+        aliasType temp = new aliasType(name!=null?(NameTokType)name.createCopy():null,
+        asname!=null?(NameTokType)asname.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

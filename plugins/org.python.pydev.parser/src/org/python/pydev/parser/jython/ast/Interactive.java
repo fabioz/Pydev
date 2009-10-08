@@ -15,6 +15,38 @@ public final class Interactive extends modType {
         this.beginColumn = parent.beginColumn;
     }
 
+    public Interactive createCopy() {
+        stmtType[] new0;
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) this.body[i].createCopy();
+        }
+        }else{
+            new0 = this.body;
+        }
+        Interactive temp = new Interactive(new0);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer("Interactive[");
         sb.append("body=");

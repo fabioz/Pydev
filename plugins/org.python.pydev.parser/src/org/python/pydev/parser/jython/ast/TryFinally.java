@@ -11,11 +11,43 @@ public final class TryFinally extends stmtType {
         this.finalbody = finalbody;
     }
 
-    public TryFinally(stmtType[] body, suiteType finalbody, SimpleNode
-    parent) {
+    public TryFinally(stmtType[] body, suiteType finalbody, SimpleNode parent) {
         this(body, finalbody);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public TryFinally createCopy() {
+        stmtType[] new0;
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) this.body[i].createCopy();
+        }
+        }else{
+            new0 = this.body;
+        }
+        TryFinally temp = new TryFinally(new0,
+        finalbody!=null?(suiteType)finalbody.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

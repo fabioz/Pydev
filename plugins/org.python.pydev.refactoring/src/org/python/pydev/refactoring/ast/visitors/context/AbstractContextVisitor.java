@@ -43,7 +43,7 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
 
         this.moduleAdapter = module;
 
-        nodeHelper = new NodeHelper(module.getEndLineDelimiter());
+        nodeHelper = new NodeHelper(module.getAdapterPrefs());
 
         stack = new FastStack<SimpleNode>();
         parents = new FastStack<AbstractScopeNode<?>>();
@@ -73,11 +73,11 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
         AbstractScopeNode<?> parent = parents.peek();
 
         if(nodeHelper.isClassDef(node)){
-            return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node, moduleAdapter.getEndLineDelimiter());
+            return new ClassDefAdapter(moduleAdapter, parent, (ClassDef) node, moduleAdapter.getAdapterPrefs());
         }else if(nodeHelper.isFunctionDef(node)){
-            return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node, moduleAdapter.getEndLineDelimiter());
+            return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node, moduleAdapter.getAdapterPrefs());
         }else{
-            return new SimpleAdapter(moduleAdapter, parent, node, moduleAdapter.getEndLineDelimiter());
+            return new SimpleAdapter(moduleAdapter, parent, node, moduleAdapter.getAdapterPrefs());
         }
     }
 

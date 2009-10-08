@@ -1,11 +1,12 @@
 package org.python.pydev.parser.prettyprinterv2;
 
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.prettyprinter.IWriterEraser;
 
 public class WriterEraserV2 implements IWriterEraser{
 
-    FastStack<StringBuffer> buf = new FastStack<StringBuffer>();
+    FastStack<FastStringBuffer> buf = new FastStack<FastStringBuffer>();
     
     public WriterEraserV2(){
         pushTempBuffer(); //this is the initial buffer (should never be removed)
@@ -16,7 +17,7 @@ public class WriterEraserV2 implements IWriterEraser{
     }
 
     public void erase(String o) {
-        StringBuffer buffer = buf.peek();
+        FastStringBuffer buffer = buf.peek();
         if(buffer.toString().endsWith(o)){
             //only delete if it ends with what was passed
             int len = o.length();
@@ -25,12 +26,21 @@ public class WriterEraserV2 implements IWriterEraser{
         }
     }
 
-    public StringBuffer getBuffer() {
+    @Override
+    public boolean endsWithSpace() {
+        FastStringBuffer current = buf.peek();
+        if(current.length() == 0){
+            return false;
+        }
+        return current.lastChar() == ' ';
+    }
+    
+    public FastStringBuffer getBuffer() {
         return buf.peek();
     }
 
     public void pushTempBuffer() {
-        buf.push(new StringBuffer());
+        buf.push(new FastStringBuffer());
     }
 
     public String popTempBuffer() {

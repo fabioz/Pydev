@@ -13,11 +13,43 @@ public final class While extends stmtType {
         this.orelse = orelse;
     }
 
-    public While(exprType test, stmtType[] body, suiteType orelse,
-    SimpleNode parent) {
+    public While(exprType test, stmtType[] body, suiteType orelse, SimpleNode parent) {
         this(test, body, orelse);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public While createCopy() {
+        stmtType[] new0;
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) this.body[i].createCopy();
+        }
+        }else{
+            new0 = this.body;
+        }
+        While temp = new While(test!=null?(exprType)test.createCopy():null, new0,
+        orelse!=null?(suiteType)orelse.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

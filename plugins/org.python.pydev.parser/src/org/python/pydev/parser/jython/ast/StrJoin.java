@@ -15,6 +15,38 @@ public final class StrJoin extends exprType {
         this.beginColumn = parent.beginColumn;
     }
 
+    public StrJoin createCopy() {
+        exprType[] new0;
+        if(this.strs != null){
+        new0 = new exprType[this.strs.length];
+        for(int i=0;i<this.strs.length;i++){
+            new0[i] = (exprType) this.strs[i].createCopy();
+        }
+        }else{
+            new0 = this.strs;
+        }
+        StrJoin temp = new StrJoin(new0);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer("StrJoin[");
         sb.append("strs=");

@@ -18,8 +18,8 @@ import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
 
 public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
 
-    public FunctionArgAdapter(ModuleAdapter module, FunctionDefAdapter parent, argumentsType node, String endLineDelim) {
-        super(module, parent, node, endLineDelim);
+    public FunctionArgAdapter(ModuleAdapter module, FunctionDefAdapter parent, argumentsType node, AdapterPrefs adapterPrefs) {
+        super(module, parent, node, adapterPrefs);
         Assert.isNotNull(module);
     }
 
@@ -60,7 +60,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
         for(exprType arg:getASTNode().args){
             String argument = nodeHelper.getName(arg);
             if(!nodeHelper.isSelf(argument)){
-                args.add(arg);
+                args.add((exprType) arg.createCopy()); //We have to create a copy because we don't want specials.
             }
         }
         return args;
@@ -75,6 +75,7 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
     }
 
     public String getSignature() {
-        return RewriterVisitor.createSourceFromAST(this.getASTNode(), true, getModule().getEndLineDelimiter());
+        return RewriterVisitor.createSourceFromAST(this.getASTNode(), true, 
+                new AdapterPrefs(getModule().getEndLineDelimiter(), this.getModule().nature));
     }
 }

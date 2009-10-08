@@ -11,8 +11,10 @@ package org.python.pydev.refactoring.core.edit;
 import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
+import org.python.pydev.refactoring.ast.factory.PyAstFactory;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
@@ -28,14 +30,15 @@ public abstract class AbstractTextEdit {
 
     protected NodeHelper nodeHelper;
 
-    protected String newLineDelim;
+    protected AdapterPrefs adapterPrefs;
+    protected PyAstFactory astFactory;
 
     public AbstractTextEdit(IRefactoringRequest req) {
-        String newLineDelim = req.getNewLineDelim();
         this.moduleAdapter = req.getOffsetNode().getModule();
         this.offsetAdapter = req.getOffsetNode();
-        this.nodeHelper = new NodeHelper(newLineDelim);
-        this.newLineDelim = newLineDelim;
+        this.nodeHelper = new NodeHelper(req.getAdapterPrefs());
+        this.adapterPrefs = req.getAdapterPrefs();
+        this.astFactory = new PyAstFactory(this.nodeHelper.getAdapterPrefs());
     }
 
     protected abstract SimpleNode getEditNode() throws MisconfigurationException;
@@ -44,7 +47,13 @@ public abstract class AbstractTextEdit {
 
     protected String getFormattedNode() throws MisconfigurationException {
         SimpleNode node = getEditNode();
-        String source = RewriterVisitor.createSourceFromAST(node, newLineDelim);
+        try{
+            PyAstFactory.makeValid(node);
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
+
+        String source = RewriterVisitor.createSourceFromAST(node, this.adapterPrefs);
         return getIndentedSource(node, source, getIndent());
     }
 
@@ -53,17 +62,17 @@ public abstract class AbstractTextEdit {
         String indentation = getIndentation(indent);
 
         if(nodeHelper.isFunctionDef(node)){
-            indented.append(newLineDelim);
+            indented.append(this.adapterPrefs.endLineDelim);
         }
 
         indented.append(indentation);
-        source = source.replaceAll(REPLACE_PATTERN, newLineDelim + indentation);
+        source = source.replaceAll(REPLACE_PATTERN, this.adapterPrefs.endLineDelim + indentation);
         source = source.trim();
         indented.append(source);
-        indented.append(newLineDelim);
+        indented.append(this.adapterPrefs.endLineDelim);
 
         if(nodeHelper.isFunctionDef(node)){
-            indented.append(newLineDelim);
+            indented.append(this.adapterPrefs.endLineDelim);
         }
 
         return indented.toString();

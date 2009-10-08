@@ -9,8 +9,8 @@ public final class FunctionDef extends stmtType {
     public decoratorsType[] decs;
     public exprType returns;
 
-    public FunctionDef(NameTokType name, argumentsType args, stmtType[]
-    body, decoratorsType[] decs, exprType returns) {
+    public FunctionDef(NameTokType name, argumentsType args, stmtType[] body, decoratorsType[]
+    decs, exprType returns) {
         this.name = name;
         this.args = args;
         this.body = body;
@@ -18,11 +18,54 @@ public final class FunctionDef extends stmtType {
         this.returns = returns;
     }
 
-    public FunctionDef(NameTokType name, argumentsType args, stmtType[]
-    body, decoratorsType[] decs, exprType returns, SimpleNode parent) {
+    public FunctionDef(NameTokType name, argumentsType args, stmtType[] body, decoratorsType[]
+    decs, exprType returns, SimpleNode parent) {
         this(name, args, body, decs, returns);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public FunctionDef createCopy() {
+        stmtType[] new0;
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) this.body[i].createCopy();
+        }
+        }else{
+            new0 = this.body;
+        }
+        decoratorsType[] new1;
+        if(this.decs != null){
+        new1 = new decoratorsType[this.decs.length];
+        for(int i=0;i<this.decs.length;i++){
+            new1[i] = (decoratorsType) this.decs[i].createCopy();
+        }
+        }else{
+            new1 = this.decs;
+        }
+        FunctionDef temp = new FunctionDef(name!=null?(NameTokType)name.createCopy():null,
+        args!=null?(argumentsType)args.createCopy():null, new0, new1,
+        returns!=null?(exprType)returns.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

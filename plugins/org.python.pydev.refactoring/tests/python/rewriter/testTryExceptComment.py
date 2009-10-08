@@ -7,7 +7,6 @@ except ZeroDivisionError: # on-line
     # after zerodivision
     print "foomsg" # on-line print "foomsg"
 # this comment is dropped by the parser?
-
 try:
     f = open('testTryExcept.py')
     s = f.readline()

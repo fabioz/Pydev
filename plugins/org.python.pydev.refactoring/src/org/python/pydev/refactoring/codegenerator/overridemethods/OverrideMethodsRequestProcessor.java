@@ -11,6 +11,7 @@ package org.python.pydev.refactoring.codegenerator.overridemethods;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
@@ -29,13 +30,13 @@ public class OverrideMethodsRequestProcessor implements IRequestProcessor<Overri
 
     private IClassDefAdapter origin;
 
-    private String endLineDelim;
+    private AdapterPrefs adapterPrefs;
 
-    public OverrideMethodsRequestProcessor(IClassDefAdapter origin, String endLineDelim) {
+    public OverrideMethodsRequestProcessor(IClassDefAdapter origin, AdapterPrefs adapterPrefs) {
         checked = new Object[0];
         insertionPoint = IOffsetStrategy.AFTERINIT;
         this.origin = origin;
-        this.endLineDelim = endLineDelim;
+        this.adapterPrefs = adapterPrefs;
     }
 
     public void setCheckedElements(Object[] checked) {
@@ -55,7 +56,9 @@ public class OverrideMethodsRequestProcessor implements IRequestProcessor<Overri
 
         for(ClassTreeNode clazz:getClasses()){
             for(FunctionDefAdapter method:getMethods(clazz)){
-                requests.add(new OverrideMethodsRequest(origin, insertionPoint, method, generateMethodComments, clazz.getAdapter().getName(), endLineDelim));
+                requests.add(new OverrideMethodsRequest(
+                        origin, insertionPoint, method, generateMethodComments, 
+                        clazz.getAdapter().getName(), adapterPrefs));
             }
         }
 

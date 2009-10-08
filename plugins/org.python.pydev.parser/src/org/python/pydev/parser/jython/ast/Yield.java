@@ -15,6 +15,29 @@ public final class Yield extends exprType {
         this.beginColumn = parent.beginColumn;
     }
 
+    public Yield createCopy() {
+        Yield temp = new Yield(value!=null?(exprType)value.createCopy():null);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer("Yield[");
         sb.append("value=");

@@ -261,8 +261,10 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
             try {
                 
                 String identifier = launchConfig.getType().getIdentifier();
-                if(identifier.equals(Constants.ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE) || 
+                if(
+                    identifier.equals(Constants.ID_PYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE) || 
                     identifier.equals(Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE) ||
+                    identifier.equals(Constants.ID_IRONPYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE) || 
                     identifier.equals(Constants.ID_PYTHON_COVERAGE_LAUNCH_CONFIGURATION_TYPE)){
                     
                     //may have  multiple files selected for the run for unitest and code-coverage

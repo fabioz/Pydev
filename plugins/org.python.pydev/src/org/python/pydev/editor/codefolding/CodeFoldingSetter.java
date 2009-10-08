@@ -30,6 +30,7 @@ import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
+import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -419,9 +420,9 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         if (orelse != null){
             if(orelse.specialsBefore != null){
                 for(Object o:orelse.specialsBefore){
-                    if(o instanceof SpecialStr){
-                        SpecialStr specialStr = (SpecialStr) o;
-                        if(specialStr.str.equals(specialToken)){
+                    if(o instanceof Token){
+                        Token specialStr = (Token) o;
+                        if(specialStr.toString().equals(specialToken)){
                             foldingEntry.endLine = specialStr.beginLine-1;
                             if(addPrevious){
                                 addFoldingEntry(ret, foldingEntry);

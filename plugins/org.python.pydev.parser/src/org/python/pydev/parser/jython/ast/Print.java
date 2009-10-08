@@ -13,11 +13,42 @@ public final class Print extends stmtType {
         this.nl = nl;
     }
 
-    public Print(exprType dest, exprType[] values, boolean nl, SimpleNode
-    parent) {
+    public Print(exprType dest, exprType[] values, boolean nl, SimpleNode parent) {
         this(dest, values, nl);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public Print createCopy() {
+        exprType[] new0;
+        if(this.values != null){
+        new0 = new exprType[this.values.length];
+        for(int i=0;i<this.values.length;i++){
+            new0[i] = (exprType) this.values[i].createCopy();
+        }
+        }else{
+            new0 = this.values;
+        }
+        Print temp = new Print(dest!=null?(exprType)dest.createCopy():null, new0, nl);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

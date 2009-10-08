@@ -37,6 +37,17 @@ except:
     #Python 3k does not have it
     xrange = range
 
+try:
+    enumerate
+except:
+    def enumerate(lst):
+        ret = []
+        i=0
+        for element in lst:
+            ret.append((i, element))
+            i+=1
+        return ret
+    
 
 
 #=======================================================================================================================

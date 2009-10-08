@@ -9,7 +9,7 @@ class CoolApproach(object):
         # copied to object attributes
         # .. now do whatever initialisation is required ..
         print ">> In initialiser, self.arg_1 = '%s'" % self.arg_1
-    
+
 
 class FooApproach(CoolApproach):
     # this tests also a tuple "special case"

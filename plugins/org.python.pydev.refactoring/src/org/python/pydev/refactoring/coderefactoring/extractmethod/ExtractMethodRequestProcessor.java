@@ -15,6 +15,7 @@ import java.util.TreeMap;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;
@@ -39,7 +40,7 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 
     private ITextSelection selection;
 
-    private String endLineDelim;
+    private AdapterPrefs adapterPrefs;
 
     public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module, ITextSelection selection) {
         initProcessor(scopeAdapter, parsedSelection, module, selection);
@@ -55,7 +56,7 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
         parameterOrder.addAll(deducer.getParameters());
         this.renameMap = new TreeMap<String, String>();
         initRenamedMap();
-        this.endLineDelim = module.getEndLineDelimiter();
+        this.adapterPrefs = module.getAdapterPrefs();
 
         offsetStrategy = IOffsetStrategy.AFTERINIT;
     }
@@ -89,8 +90,16 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 
     public List<ExtractMethodRequest> getRefactoringRequests() {
         List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
-        requests.add(new ExtractMethodRequest(this.methodName, this.selection, this.scopeAdapter, this.parsedSelection, parameterOrder, deducer.getReturns(), this.renameMap, this.offsetStrategy,
-                this.endLineDelim));
+        requests.add(new ExtractMethodRequest(
+                this.methodName, 
+                this.selection, 
+                this.scopeAdapter, 
+                this.parsedSelection, 
+                parameterOrder, 
+                deducer.getReturns(), 
+                this.renameMap, 
+                this.offsetStrategy,
+                this.adapterPrefs));
         return requests;
     }
 

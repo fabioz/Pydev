@@ -351,7 +351,6 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
-    abstract protected Object unhandled_node(SimpleNode node) throws
-    Exception;
+    abstract protected Object unhandled_node(SimpleNode node) throws Exception;
     abstract public void traverse(SimpleNode node) throws Exception;
 }

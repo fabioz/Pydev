@@ -11,6 +11,7 @@ package org.python.pydev.refactoring.codegenerator.constructorfield.request;
 import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
@@ -21,21 +22,22 @@ public class ConstructorFieldRequest implements IRefactoringRequest {
     public final List<INodeAdapter> attributeAdapters;
     public final int offsetStrategy;
     public final IClassDefAdapter classAdapter;
-    private String newLineDelim;
+    private final AdapterPrefs adapterPrefs;
 
-    public ConstructorFieldRequest(IClassDefAdapter classAdapter, List<INodeAdapter> attributeAdapters, int offsetStrategy, String newLineDelim) {
+    public ConstructorFieldRequest(IClassDefAdapter classAdapter, 
+            List<INodeAdapter> attributeAdapters, int offsetStrategy, AdapterPrefs adapterPrefs) {
         this.classAdapter = classAdapter;
         this.attributeAdapters = attributeAdapters;
         this.offsetStrategy = offsetStrategy;
-        this.newLineDelim = newLineDelim;
+        this.adapterPrefs = adapterPrefs;
     }
 
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return classAdapter;
     }
 
-    public String getNewLineDelim() {
-        return newLineDelim;
+    public AdapterPrefs getAdapterPrefs() {
+        return adapterPrefs;
     }
-
+    
 }

@@ -47,7 +47,7 @@ public class PyParserTest extends PyParserTestBase{
             
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParserTest.class);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -71,7 +71,7 @@ public class PyParserTest extends PyParserTestBase{
         assertTrue(reparseDocument.o2 != null);
     }
     
-    public void testCorrectArgs() {
+    public void testCorrectArgs() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
         
             public Boolean call(Integer arg) {
@@ -90,7 +90,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testMultilineStr() {
+    public void testMultilineStr() throws Throwable {
         final String s = "" +
         "a = '''\n" +
         "really really big string\n"+
@@ -127,7 +127,7 @@ public class PyParserTest extends PyParserTestBase{
 
     }
     
-    public void testErr() {
+    public void testErr() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -146,7 +146,7 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     
-    public void testEmptyBaseForClass() {
+    public void testEmptyBaseForClass() throws Throwable {
         final String s = "" +
         "class B2(): pass\n" +
         "\n" +
@@ -164,7 +164,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testFor2() {
+    public void testFor2() throws Throwable {
         final String s = "" +
         "[x for x in 1,2,3,4]\n" +
         "";
@@ -182,7 +182,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testFor2a() {
+    public void testFor2a() throws Throwable {
         final String s = "" +
         "[x for x in 2,3,4 if x > 2]\n" +
         "";
@@ -200,7 +200,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testFor3() {
+    public void testFor3() throws Throwable {
         final String s = "" +
         "[x() for x in lambda: True, lambda: False if x() ] \n" +
         "";
@@ -219,7 +219,7 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     
-    public void testYield() {
+    public void testYield() throws Throwable {
         final String s = "" +
                 "def m():\n" +
                 "    yield 1";
@@ -232,7 +232,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testYield2() {
+    public void testYield2() throws Throwable {
         final String s = "" +
         "class Generator:\n" +
         "    def __iter__(self): \n" +
@@ -249,7 +249,7 @@ public class PyParserTest extends PyParserTestBase{
     }
 
     
-    public void testDecorator() {
+    public void testDecorator() throws Throwable {
         final String s = "" +
             "class C:\n" +
             "    \n" +
@@ -266,7 +266,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testDecorator2() {
+    public void testDecorator2() throws Throwable {
         final String s = "" +
             "@funcattrs(status=\"experimental\", author=\"BDFL\")\n" +
             "@staticmethod\n" +
@@ -283,7 +283,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testDecorator4() {
+    public void testDecorator4() throws Throwable {
         final String s = "" +
         "@funcattrs(1)\n" +
         "def longMethodNameForEffect(*args):\n" +
@@ -299,7 +299,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testDecorator5() {
+    public void testDecorator5() throws Throwable {
         final String s = "" +
         "@funcattrs(a)\n" +
         "def longMethodNameForEffect(*args):\n" +
@@ -315,7 +315,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testDecorator3() {
+    public void testDecorator3() throws Throwable {
         final String s = "" +
         "@funcattrs(a, 1, status=\"experimental\", author=\"BDFL\", *args, **kwargs)\n" +
         "@staticmethod1\n" +
@@ -333,7 +333,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testDecorator6() {
+    public void testDecorator6() throws Throwable {
         final String s = "" +
         "@funcattrs(b for b in x)\n" +
         "def longMethodNameForEffect(*args):\n" +
@@ -349,7 +349,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testOnNumarray() {
+    public void testOnNumarray() throws Throwable {
         if(TestDependent.HAS_NUMARRAY_INSTALLED){
             
             File file = new File(TestDependent.PYTHON_NUMARRAY_PACKAGES);
@@ -359,7 +359,7 @@ public class PyParserTest extends PyParserTestBase{
         }
     }
     
-    public void testOnWxPython() {
+    public void testOnWxPython() throws Throwable {
         if(TestDependent.HAS_WXPYTHON_INSTALLED){
             File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES+"wxPython");
             parseFilesInDir(file);
@@ -368,7 +368,7 @@ public class PyParserTest extends PyParserTestBase{
         }
     }
 
-    public void testOnCompleteLib() {
+    public void testOnCompleteLib() throws Throwable {
         File file = new File(TestDependent.PYTHON_LIB);
         parseFilesInDir(file);
     }
@@ -379,7 +379,7 @@ public class PyParserTest extends PyParserTestBase{
     
     
 //    not removed completely because we may still want to debug it later...
-//    public void testOnCsv() {
+//    public void testOnCsv() throws Throwable {
 //        PyParser.USE_FAST_STREAM = false;
 //        String loc = TestDependent.PYTHON_LIB+"csv.py";
 //        String s = REF.getFileContents(new File(loc));
@@ -392,7 +392,7 @@ public class PyParserTest extends PyParserTestBase{
 //    }
     
     
-    public void testOnCgiMod() {
+    public void testOnCgiMod() throws Throwable {
         final String s = "dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)";
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
@@ -403,14 +403,14 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testOnCgiMod2() {
+    public void testOnCgiMod2() throws Throwable {
         String loc = TestDependent.PYTHON_LIB+"cgi.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
     
 //    this should really give errors (but is not a priority)
-//    public void testErrOnFor() {
+//    public void testErrOnFor() throws Throwable {
 //        //ok, it should throw errors in those cases (but that's not so urgent)
 //        String s = "foo(x for x in range(10), 100)\n";
 //        parseILegalDoc(new Document(s));
@@ -420,14 +420,14 @@ public class PyParserTest extends PyParserTestBase{
 //        
 //    }
     
-    public void testOnTestGrammar() {
+    public void testOnTestGrammar() throws Throwable {
         String loc = TestDependent.PYTHON_LIB+"test/test_grammar.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s,"(file: test_grammar.py)");
     }
     
     
-    public void testSimple() {
+    public void testSimple() throws Throwable {
         final String s = "" +
                 "if maxint == 10:\n"+
                 "    for s in 'a':\n"+
@@ -444,7 +444,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testOnTestContextLib() {
+    public void testOnTestContextLib() throws Throwable {
         if(TestDependent.HAS_PYTHON_TESTS){
             String loc = TestDependent.PYTHON_LIB+"test/test_contextlib.py";
             String s = REF.getFileContents(new File(loc));
@@ -452,37 +452,37 @@ public class PyParserTest extends PyParserTestBase{
         }
     }
     
-    public void testOnCalendar() {
+    public void testOnCalendar() throws Throwable {
         String loc = TestDependent.PYTHON_LIB+"hmac.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
     
-    public void testOnUnittestMod() {
+    public void testOnUnittestMod() throws Throwable {
         String loc = TestDependent.PYTHON_LIB+"unittest.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
     
-    public void testOnCodecsMod() {
+    public void testOnCodecsMod() throws Throwable {
         String loc = TestDependent.PYTHON_LIB+"codecs.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
     
-    public void testOnDocBaseHTTPServer() {
+    public void testOnDocBaseHTTPServer() throws Throwable {
         String loc = TestDependent.PYTHON_LIB+"BaseHTTPServer.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
     
-    public void testOnDocXMLRPCServerMod() {
+    public void testOnDocXMLRPCServerMod() throws Throwable {
         String loc = TestDependent.PYTHON_LIB+"DocXMLRPCServer.py";
         String s = REF.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
     
-    public void testNewImportParser() {
+    public void testNewImportParser() throws Throwable {
         final String s = "" +
         "from a import (b,\n" +
         "            c,\n" +
@@ -499,7 +499,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testNewImportParser2() {
+    public void testNewImportParser2() throws Throwable {
         final String s = "" +
         "from a import (b,\n" +
         "            c,\n" +
@@ -516,7 +516,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testNewImportParser3() {
+    public void testNewImportParser3() throws Throwable {
         final String s = "" +
         "from a import (b,\n" +
         "            c,,\n" + //err
@@ -537,12 +537,12 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testParser() {
+    public void testParser() throws Throwable {
         String s = "class C: pass";
         parseLegalDocStr(s);
     }
 
-    public void testEndWithComment() {
+    public void testEndWithComment() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -562,7 +562,7 @@ public class PyParserTest extends PyParserTestBase{
         
     }
     
-    public void testOnlyComment() {
+    public void testOnlyComment() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -580,7 +580,7 @@ public class PyParserTest extends PyParserTestBase{
         
     }
     
-    public void testEmpty() {
+    public void testEmpty() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -593,7 +593,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testParser7() {
+    public void testParser7() throws Throwable {
         String s = "" +
         "if a < (2, 2):\n"+
         "    False, True = 0, 1\n"+
@@ -602,7 +602,7 @@ public class PyParserTest extends PyParserTestBase{
         parseLegalDocStr(s);
     }
     
-    public void testParser8() {
+    public void testParser8() throws Throwable {
         String s = "" +
 "if type(clsinfo) in (types.TupleType, types.ListType):\n"+
 "    pass\n"+
@@ -612,7 +612,7 @@ public class PyParserTest extends PyParserTestBase{
         parseLegalDocStr(s);
     }
     
-    public void testParser2() {
+    public void testParser2() throws Throwable {
         String s = "" +
         "td = dict()                                                            \n"+
         "                                                                       \n"+
@@ -622,7 +622,7 @@ public class PyParserTest extends PyParserTestBase{
         parseLegalDocStr(s);
     }
     
-    public void testParser13() throws Exception {
+    public void testParser13() throws Throwable {
         final String s = "plural = lambda : None";
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
@@ -634,25 +634,25 @@ public class PyParserTest extends PyParserTestBase{
         
     }
     
-    public void testParser3() {
+    public void testParser3() throws Throwable {
         String s = "print (x for x in y)";
         
         parseLegalDocStr(s);
     }
 
-    public void testParser4() {
+    public void testParser4() throws Throwable {
         String s = "print sum(x for x in y)";
         
         parseLegalDocStr(s);
     }
     
-    public void testParser5() {
+    public void testParser5() throws Throwable {
         String s = "print sum(x.b for x in y)";
         
         parseLegalDocStr(s);
     }
     
-    public void testParser6() {
+    public void testParser6() throws Throwable {
         String s = "" +
         "import re\n"+
         "def firstMatch(s,regexList):\n"+
@@ -664,7 +664,7 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     
-    public void testParser9() {
+    public void testParser9() throws Throwable {
         String s = "" +
         "a[1,]\n"+
         "a[1,2]\n"+
@@ -680,7 +680,7 @@ public class PyParserTest extends PyParserTestBase{
      * 
      * expected beginCols at: 7 and 17
      */
-    public void testParser10() {
+    public void testParser10() throws Throwable {
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer arg) {
@@ -697,7 +697,7 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     
-    public void testParser11() {
+    public void testParser11() throws Throwable {
         final String s = "" +
         "if True:\n"+        
         "    pass\n"+        
@@ -716,7 +716,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testParser12() {
+    public void testParser12() throws Throwable {
         final String s = "" +
         "m1()\n"+        
         "\n";        
@@ -730,7 +730,7 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     
-    public void testParser14() {
+    public void testParser14() throws Throwable {
         final String s = "" +
         "assert False\n"+
         "result = []\n"+
@@ -746,7 +746,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testParser15() {
+    public void testParser15() throws Throwable {
         final String s = "" +
         "def f():\n"+
         "    return \"(\" + (";
@@ -760,7 +760,7 @@ public class PyParserTest extends PyParserTestBase{
         });
     }
     
-    public void testParser16() {
+    public void testParser16() throws Throwable {
         final String s = "" +
         "def f():\n"+
         "    return \"(\" + ()";
@@ -814,7 +814,7 @@ public class PyParserTest extends PyParserTestBase{
 	}
 
 	private String printNode(SimpleNode node) {
-        PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(new PrettyPrinterPrefsV2("\n", "    "));
+        PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(new PrettyPrinterPrefsV2("\n", "    ", versionProvider));
         try{
             return prettyPrinterV2.print(node);
         }catch(IOException e){

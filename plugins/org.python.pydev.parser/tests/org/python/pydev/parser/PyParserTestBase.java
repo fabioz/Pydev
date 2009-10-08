@@ -20,7 +20,7 @@ import org.python.pydev.parser.jython.TokenMgrError;
 public class PyParserTestBase extends TestCase {
     protected static PyParser parser;
     private static int defaultVersion;
-    private static IGrammarVersionProvider versionProvider = new IGrammarVersionProvider(){
+    protected static IGrammarVersionProvider versionProvider = new IGrammarVersionProvider(){
 
         public int getGrammarVersion() {
             return defaultVersion;
@@ -136,7 +136,7 @@ public class PyParserTestBase extends TestCase {
         return objects.o1;
     }
 
-    public void testEmpty() {
+    public void testEmpty() throws Throwable {
     }
     
     /**
@@ -162,8 +162,9 @@ public class PyParserTestBase extends TestCase {
     /**
      * The parameter passed in the callback is an integer with the version of the grammar.
      * @param iCallback
+     * @throws Throwable 
      */
-    public void checkWithAllGrammars(ICallback<Boolean, Integer> iCallback) {
+    public void checkWithAllGrammars(ICallback<Boolean, Integer> iCallback) throws Throwable {
         for(Iterator<Integer> it = IGrammarVersionProvider.grammarVersions.iterator();it.hasNext();){
             //try with all the grammars
             final Integer i = it.next();
@@ -175,8 +176,9 @@ public class PyParserTestBase extends TestCase {
             try {
                 iCallback.call(i);
             } catch (Throwable e) {
-                throw new RuntimeException("\nFound error while parsing with version: "+
-                        IGrammarVersionProvider.grammarVersionToRep.get(i)+"\n\n"+e.getMessage(), e);
+                throw e;
+//                throw new RuntimeException("\nFound error while parsing with version: "+
+//                        IGrammarVersionProvider.grammarVersionToRep.get(i)+"\n\n"+e.getMessage(), e);
             }
         }
     }

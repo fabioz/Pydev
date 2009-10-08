@@ -27,7 +27,7 @@ public class ConstructorFieldRefactoring extends AbstractPythonRefactoring {
     public ConstructorFieldRefactoring(RefactoringInfo req) {
         super(req);
 
-        this.requestProcessor = new ConstructorFieldRequestProcessor(this.info.getNewLineDelim());
+        this.requestProcessor = new ConstructorFieldRequestProcessor(this.info.getAdapterPrefs());
         this.changeProcessor = new ConstructorFieldChangeProcessor(getName(), this.info, this.requestProcessor);
     }
 

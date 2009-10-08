@@ -22,7 +22,7 @@ public class GlobalFunctionDefVisitor extends AbstractContextVisitor<FunctionDef
 
     @Override
     protected FunctionDefAdapter createAdapter(AbstractScopeNode<?> parent, SimpleNode node) {
-        return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node, moduleAdapter.getEndLineDelimiter());
+        return new FunctionDefAdapter(moduleAdapter, parent, (FunctionDef) node, moduleAdapter.getAdapterPrefs());
     }
 
     @Override

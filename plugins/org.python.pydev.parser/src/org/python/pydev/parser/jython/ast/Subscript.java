@@ -13,11 +13,34 @@ public final class Subscript extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
-    public Subscript(exprType value, sliceType slice, int ctx, SimpleNode
-    parent) {
+    public Subscript(exprType value, sliceType slice, int ctx, SimpleNode parent) {
         this(value, slice, ctx);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public Subscript createCopy() {
+        Subscript temp = new Subscript(value!=null?(exprType)value.createCopy():null,
+        slice!=null?(sliceType)slice.createCopy():null, ctx);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {
@@ -29,8 +52,7 @@ public final class Subscript extends exprType implements expr_contextType {
         sb.append(dumpThis(this.slice));
         sb.append(", ");
         sb.append("ctx=");
-        sb.append(dumpThis(this.ctx,
-        expr_contextType.expr_contextTypeNames));
+        sb.append(dumpThis(this.ctx, expr_contextType.expr_contextTypeNames));
         sb.append("]");
         return sb.toString();
     }

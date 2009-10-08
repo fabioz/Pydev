@@ -21,6 +21,11 @@ public class RewriterTestCase extends AbstractRewriterTestCase {
 
 	public void runTest() throws Throwable {
 		super.runRewriter();
-		assertEquals(getExpected(), getGenerated());
+		String expected = getExpected().replace("\r\n", "\n").replace("\r", "\n");
+//		System.out.println(">"+expected.replace(' ', '.').replace('\n', '|').replace('\r', '*')+"<");
+		
+        String generated = getGenerated();
+//        System.out.println(">"+generated.replace(' ', '.').replace('\n', '|').replace('\r', '*')+"<");
+        assertEquals(expected, generated);
 	}
 }

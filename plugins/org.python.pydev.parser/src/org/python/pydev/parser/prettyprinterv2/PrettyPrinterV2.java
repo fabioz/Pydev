@@ -35,13 +35,28 @@ public class PrettyPrinterV2 {
     private final int LEVEL_BRACKETS = 1; //[]
     private final int LEVEL_BRACES = 2; //{} 
     
-    private final int[] LEVELS = new int[]{0,0,0};
     
-    private int statementLevel=0;
 
     public PrettyPrinterV2(IPrettyPrinterPrefs prefs) {
         this.prefs = prefs;
     }
+
+    
+    //Used while parsing for (maintained across lines)
+    private final int[] LEVELS = new int[]{0,0,0};
+    private int statementLevel=0;
+    WriterEraserV2 writerEraserV2;
+    WriteStateV2 writeStateV2;
+    Set<Entry<Integer, PrettyPrinterDocLineEntry>> entrySet;
+    List<Tuple<PrettyPrinterDocLineEntry, String>> previousLines;
+    List<LinePartRequireMark> requireMarks = new ArrayList<LinePartRequireMark>();
+    
+    
+    //Restarted for each line
+    boolean lastWasComment;
+    boolean writtenComment;
+    boolean savedLineIndent;
+    int indentDiff;
 
     public String print(SimpleNode m) throws IOException {
         PrettyPrinterDocV2 doc = new PrettyPrinterDocV2();
@@ -52,31 +67,24 @@ public class PrettyPrinterV2 {
             throw new RuntimeException(e);
         }
         
-        
-        WriterEraserV2 writerEraserV2 = new WriterEraserV2();
-        WriteStateV2 writeStateV2 = new WriteStateV2(writerEraserV2, prefs);
+        writerEraserV2 = new WriterEraserV2();
+        writeStateV2 = new WriteStateV2(writerEraserV2, prefs);
         
         //Now that the doc is filled, let's make a string from it.
-        Set<Entry<Integer, PrettyPrinterDocLineEntry>> entrySet = doc.linesToColAndContents.entrySet();
-        
-        List<Tuple<PrettyPrinterDocLineEntry, String>> previousLines = new ArrayList<Tuple<PrettyPrinterDocLineEntry, String>>();
-        
+        entrySet = doc.linesToColAndContents.entrySet();
+        previousLines = new ArrayList<Tuple<PrettyPrinterDocLineEntry, String>>();
+
+        doc.validateRequireMarks();
         
         for(Entry<Integer, PrettyPrinterDocLineEntry> entry:entrySet){
             PrettyPrinterDocLineEntry line = entry.getValue();
             List<ILinePart> sortedParts = line.getSortedParts();
-            int indentDiff = line.getIndentDiff();
+            indentDiff = line.getIndentDiff();
+            savedLineIndent = false;
+            List<ILinePart2> sortedPartsWithILinePart2 = getLineParts2(sortedParts);
             
-            
-            List<ILinePart2> sortedPartsWithILinePart2 = new ArrayList<ILinePart2>(); 
-            for(ILinePart p:sortedParts){
-                if(p instanceof ILinePart2){
-                    sortedPartsWithILinePart2.add((ILinePart2) p);
-                }
-            }
-            
-            boolean lastWasComment=false;
-            boolean writtenComment = false;
+            lastWasComment = false;
+            writtenComment = false;
             if(sortedParts.size() == 0){
                 continue;
             }
@@ -87,104 +95,186 @@ public class PrettyPrinterV2 {
                 //found), so, we have to go on and check how we should indent it based on the previous line(s)
                 ILinePart linePart = sortedPartsWithILinePart2.get(0);
                 if(linePart.getToken() instanceof commentType && linePart instanceof ILinePart2){
-                    ILinePart2 iLinePart2 = (ILinePart2) linePart;
-                    commentType commentType = (commentType) linePart.getToken();
-                    int col = commentType.beginColumn;
-                    if(col == 0){ //yes, our indexing starts at 1.
-                        writtenComment=true;
-                        writeStateV2.writeRaw(iLinePart2.getString());
-                    }else{
-                        Tuple<PrettyPrinterDocLineEntry, String> found = null;
-                        //Let's go backward in the lines to see one that matches the current indentation.
-                        ListIterator<Tuple<PrettyPrinterDocLineEntry, String>> it = previousLines.listIterator(previousLines.size());
-                        while(it.hasPrevious() && found == null){
-                            Tuple<PrettyPrinterDocLineEntry, String> previous = it.previous();
-                            int firstCol = previous.o1.getFirstCol();
-                            if(firstCol != -1){
-                                if(firstCol == col){
-                                    found = previous;
-                                }
-                            }
-                        }
-                        
-                        if(found != null){
-                            lastWasComment=true;
-                            writtenComment=true;
-                            writeStateV2.writeRaw(found.o2);
-                            writeStateV2.writeRaw(iLinePart2.getString());
-                        }
-                    }
+                    handleSingleLineComment((ILinePart2)linePart);
                 }
             }
             
             
-            if(!writtenComment){
-                for(ILinePart linePart:sortedParts){
-                    if(linePart instanceof ILinePart2){
-                        //Note: on a write, if the last thing was a new line, it'll indent.
-                        String tok = ((ILinePart2)linePart).getString();
-                        
-                        if(tok.length() == 1){
-                            if(tok.charAt(0) == ';'){
-                                writeStateV2.writeNewLine();
-                                continue;
+            for(ILinePart linePart:sortedParts){
+                if(linePart instanceof ILinePart2 && !writtenComment){
+                    String tok = ((ILinePart2)linePart).getString();
+                    if(tok.length() == 1){
+                        if(tok.charAt(0) == ';'){
+                            writeStateV2.writeNewLine();
+                            continue;
+                        }
+                    }
+                    
+                    if(linePart.getToken() instanceof commentType){
+                        writeStateV2.writeSpacesBeforeComment();
+                        lastWasComment=true;
+                    }
+                    
+                    boolean written = false;
+                    //Note: on a write, if the last thing was a new line, it'll indent.
+                    if(tok.length() == 1){
+                        Tuple<Integer, Boolean> newLevel = updateLevels(tok);
+                        if(newLevel != null){
+                            if(!savedLineIndent){
+                                savedLineIndent = true;
+                                previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
                             }
-                            Tuple<Integer, Boolean> newLevel = updateLevels(tok);
-                            if(newLevel != null){
-                                if(newLevel.o2){
-                                    writeStateV2.indent();
-                                }else{
+                            
+                            if(newLevel.o2){
+                                writeStateV2.write(prefs.getReplacement(tok));
+                                writeStateV2.indent();
+                                written=true;
+                            }else{
+                                if(indentDiff == 0){
                                     writeStateV2.dedent();
                                 }
+                                writeStateV2.write(prefs.getReplacement(tok));
+                                if(indentDiff != 0){
+                                    writeStateV2.dedent();
+                                }
+                                written=true;
                             }
                         }
-                        
+                    }
+                    if(!written){
+                        written=true;
                         writeStateV2.write(prefs.getReplacement(tok));
-                        if(linePart.getToken() instanceof commentType){
-                            lastWasComment=true;
+                    }
+                    
+                    
+                }else if(linePart instanceof ILinePartIndentMark){
+                    ILinePartIndentMark indentMark = (ILinePartIndentMark) linePart;
+                    if(!savedLineIndent){
+                        savedLineIndent = true;
+                        previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
+                    }
+                    if(indentMark.isIndent()){
+                        if(indentMark.getRequireNewLineOnIndent()){
+                            
+                            
+                            writeStateV2.requireNextNewLineOrComment();
                         }
-                        
-                    }else if(linePart instanceof ILinePartStatementMark){
-                        ILinePartStatementMark statementMark = (ILinePartStatementMark) linePart;
-                        if(statementMark.isStart()){
-                            statementLevel++;
-                        }else{
-                            statementLevel--;
+                        writeStateV2.indent();
+                        indentDiff--;
+                    }else{
+                        writeStateV2.dedent();
+                        indentDiff++;
+                    }
+                    
+                }else if(linePart instanceof ILinePartStatementMark){
+                    ILinePartStatementMark statementMark = (ILinePartStatementMark) linePart;
+                    if(statementMark.isStart()){
+                        if(statementLevel == 0){
+                            writeStateV2.requireNextNewLineOrComment();
                         }
+                        statementLevel++;
+                    }else{
+                        statementLevel--;
                     }
                 }
             }
             
             
-            previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
-            
-            
-            if(indentDiff > 0){
-                while(indentDiff != 0){
-                    indentDiff --;
-                    writeStateV2.indent();
-                }
-                statementLevel = 0; //when we indent, we are at the body of a statement, so, lets start it over
-            }else if(indentDiff < 0){
-                while(indentDiff != 0){
-                    indentDiff ++;
-                    writeStateV2.dedent();
-                }
-                statementLevel = 0;
+            if(!savedLineIndent){
+                savedLineIndent = true;
+                previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
             }
+            
+            
+            updateIndentLevel();
             
             if(statementLevel != 0 && !lastWasComment){
                 if(!isInLevel()){
-                    continue;//don't write the new line if in a statement and not within paranthesis.
+                    continue;//don't write the new line if in a statement and not within parenthesis.
                 }
             }
             writeStateV2.writeNewLine();
+            int newLinesRequired = line.getNewLinesRequired();
+            if(newLinesRequired != 0){
+                for(int i=0;i<newLinesRequired;i++){
+                    writeStateV2.writeNewLine();
+                }
+            }
         }
         
         return writerEraserV2.getBuffer().toString();
     }
+
+
+    /**
+     * Updates the indentation level.
+     */
+    private void updateIndentLevel() {
+//        if(indentDiff > 0){
+//            while(indentDiff != 0){
+//                indentDiff --;
+//                writeStateV2.indent();
+//            }
+//        }else if(indentDiff < 0){
+//            while(indentDiff != 0){
+//                indentDiff ++;
+//                writeStateV2.dedent();
+//            }
+//        }
+    }
+
+
+    /**
+     * @return all the line parts that implement ILinePart2
+     */
+    private List<ILinePart2> getLineParts2(List<ILinePart> sortedParts) {
+        List<ILinePart2> sortedPartsWithILinePart2 = new ArrayList<ILinePart2>(); 
+        for(ILinePart p:sortedParts){
+            if(p instanceof ILinePart2){
+                sortedPartsWithILinePart2.add((ILinePart2) p);
+            }
+        }
+        return sortedPartsWithILinePart2;
+    }
     
     
+    /**
+     * Handles a single line comment, puttingt it in the correct indentation.
+     */
+    private void handleSingleLineComment(ILinePart2 linePart) throws IOException {
+        ILinePart2 iLinePart2 = (ILinePart2) linePart;
+        commentType commentType = (commentType) linePart.getToken();
+        int col = commentType.beginColumn;
+        if(col == 1){ //yes, our indexing starts at 1.
+            lastWasComment=true;
+            writtenComment=true;
+            writeStateV2.writeRaw(iLinePart2.getString());
+        }else{
+            Tuple<PrettyPrinterDocLineEntry, String> found = null;
+            //Let's go backward in the lines to see one that matches the current indentation.
+            ListIterator<Tuple<PrettyPrinterDocLineEntry, String>> it = previousLines.listIterator(previousLines.size());
+            while(it.hasPrevious() && found == null){
+                Tuple<PrettyPrinterDocLineEntry, String> previous = it.previous();
+                int firstCol = previous.o1.getFirstCol();
+                if(firstCol != -1){
+                    if(firstCol == col){
+                        found = previous;
+                    }
+                }
+            }
+            
+            if(found != null){
+                lastWasComment=true;
+                writtenComment=true;
+                writeStateV2.writeRaw(found.o2);
+                writeStateV2.writeRaw(iLinePart2.getString());
+            }
+        }
+    }
+
+    /**
+     * @return true if we're within parenthesis, brackets or braces
+     */
     private boolean isInLevel(){
         for(int i=0;i<3;i++){
             if(this.LEVELS[i] != 0){
@@ -196,7 +286,7 @@ public class PrettyPrinterV2 {
     
 
     /**
-     * Updates the level for parens, brackets and braces based on the passed token and returns the new level and whether
+     * Updates the level for parenthesis, brackets and braces based on the passed token and returns the new level and whether
      * it was increased (or null if nothing happened).
      */
     private Tuple<Integer, Boolean> updateLevels(String tok) {
@@ -240,4 +330,8 @@ public class PrettyPrinterV2 {
     }
     
 
+    @Override
+    public String toString() {
+        return "PrettyPrinterV2[\n"+this.writeStateV2+"\n]";
+    }
 }

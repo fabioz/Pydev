@@ -13,6 +13,6 @@ for (y) in (x):
         print "foo"
     else:
         print "bar"
-    
+
 else:
     print "bla"

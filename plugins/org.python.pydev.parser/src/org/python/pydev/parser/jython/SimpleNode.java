@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.parser.ISimpleNode;
-import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.commentType;
 
@@ -59,6 +58,10 @@ public class SimpleNode implements Node, ISimpleNode{
         //ignore the image at this point (only subclasses actually have it -- when that's necessary).
     }
 
+    public SimpleNode createCopy(){
+        throw new RuntimeException("Subclasses must reimplement");
+    }
+    
     /**
      * @param special The 'special token' added (comment or some literal)
      * @param after defines if it was found before or after the token
@@ -176,9 +179,9 @@ public class SimpleNode implements Node, ISimpleNode{
      * @return the line and column where that object starts (or null if it cannot get that information)
      */
     private int[] getLineCol(Object o) {
-        if (o instanceof SpecialStr){
-            SpecialStr s = (SpecialStr) o;
-            return new int[]{s.beginLine, s.beginCol};
+        if (o instanceof ISpecialStrOrToken){
+            ISpecialStrOrToken s = (ISpecialStrOrToken) o;
+            return new int[]{s.getBeginLine(), s.getBeginCol()};
         }
         if (o instanceof commentType){
             commentType c = (commentType) o;
@@ -197,7 +200,7 @@ public class SimpleNode implements Node, ISimpleNode{
         }
         int i=0;
         for(Object o : l){
-            if (o instanceof String || o instanceof SpecialStr){
+            if (o instanceof String || o instanceof ISpecialStrOrToken){
                 i++;
             }
         }

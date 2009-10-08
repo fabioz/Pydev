@@ -105,7 +105,7 @@ public class CodeFoldingSetterTest extends TestCase {
         try{
             CodeFoldingSetterTest test = new CodeFoldingSetterTest();
             test.setUp();
-            test.testTryFinally2();
+            test.testMarks();
             test.tearDown();
             junit.textui.TestRunner.run(CodeFoldingSetterTest.class);
         }catch(Throwable e){

@@ -11,6 +11,7 @@ package org.python.pydev.refactoring.codegenerator.generateproperties;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
@@ -31,10 +32,10 @@ public class GeneratePropertiesRequestProcessor implements IRequestProcessor<Gen
 
     private int accessModifier;
 
-    private String endLineDelim;
+    private AdapterPrefs adapterPrefs;
 
-    public GeneratePropertiesRequestProcessor(String endLineDelim) {
-        this.endLineDelim = endLineDelim;
+    public GeneratePropertiesRequestProcessor(AdapterPrefs adapterPrefs) {
+        this.adapterPrefs = adapterPrefs;
         checked = new Object[0];
         offsetMethodStrategy = IOffsetStrategy.AFTERINIT;
         offsetPropertyStrategy = IOffsetStrategy.END;
@@ -95,7 +96,9 @@ public class GeneratePropertiesRequestProcessor implements IRequestProcessor<Gen
         if(attr.getParent() != null && attr.getParent() instanceof TreeClassNode){
             TreeClassNode classNode = (TreeClassNode) attr.getParent();
 
-            return new GeneratePropertiesRequest(classNode.getAdapter(), attr.getAdapter(), getProperties(attr), offsetMethodStrategy, offsetPropertyStrategy, accessModifier, endLineDelim);
+            return new GeneratePropertiesRequest(
+                    classNode.getAdapter(), attr.getAdapter(), getProperties(attr), offsetMethodStrategy, 
+                    offsetPropertyStrategy, accessModifier, adapterPrefs);
         }
         return null;
     }

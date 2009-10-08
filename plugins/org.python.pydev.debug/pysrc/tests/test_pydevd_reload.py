@@ -27,7 +27,7 @@ tempdir = None
 save_path = None
 import unittest
 
-class TestCase(unittest.TestCase):
+class Test(unittest.TestCase):
     
 
     def setUp(self, nused=None):
@@ -93,4 +93,6 @@ class TestCase(unittest.TestCase):
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-    unittest.main()
+    #this is so that we can run it frem the jython tests -- because we don't actually have an __main__ module
+    #(so, it won't try importing the __main__ module)
+    unittest.TextTestRunner().run(unittest.makeSuite(Test))

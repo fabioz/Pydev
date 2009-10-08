@@ -4,9 +4,15 @@
 
 package org.python.pydev.refactoring.tests.adapter;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.REF;
+import org.python.pydev.core.TestDependent;
+import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
@@ -14,6 +20,7 @@ import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 public class ClassDefAdapterTestCase extends AbstractIOTestCase {
 
+    
 	public ClassDefAdapterTestCase(String name) {
 		super(name);
 	}
@@ -21,13 +28,20 @@ public class ClassDefAdapterTestCase extends AbstractIOTestCase {
 	@Override
 	public void runTest() throws Throwable {
 		StringBuffer buffer = new StringBuffer();
-		ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source), new PythonNatureStub());
+		ModuleAdapter module = createModuleAdapterFromDataSource();
+		
 		List<IClassDefAdapter> classes = module.getClasses();
 		assertTrue(classes.size() > 0);
 
 		for (IClassDefAdapter adapter : module.getClasses()) {
 			printBaseClass(buffer, adapter);
-			for (IClassDefAdapter base : adapter.getBaseClasses()) {
+			List<IClassDefAdapter> baseClasses = adapter.getBaseClasses();
+			Collections.sort(baseClasses, new Comparator<IClassDefAdapter>(){
+
+                public int compare(IClassDefAdapter o1, IClassDefAdapter o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }});
+            for (IClassDefAdapter base : baseClasses) {
 				buffer.append("## " + adapter.getName());
 				printBaseDefClass(buffer, base);
 			}

@@ -14,7 +14,7 @@ def test_arg_lists_3(arg0):
 def test_arg_lists_4(arg0, test=123, bla=123):
     pass
 
-def test_arg_lists_5(arg0, test=123, bla=123, ):
+def test_arg_lists_5(arg0, test=123, bla=123):
     pass
 
 print '=' * 40

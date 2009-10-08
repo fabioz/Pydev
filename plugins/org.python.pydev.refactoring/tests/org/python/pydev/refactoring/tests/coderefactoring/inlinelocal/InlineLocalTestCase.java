@@ -14,6 +14,8 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.refactoring.coderefactoring.inlinelocal.InlineLocalRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
@@ -31,7 +33,12 @@ public class InlineLocalTestCase extends AbstractIOTestCase {
 	    
 	    IDocument document = new Document(data.source);
 	    ITextSelection selection = new TextSelection(document, data.sourceSelection.getOffset(), data.sourceSelection.getLength());
-	    RefactoringInfo info = new RefactoringInfo(document, selection);
+	    RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+            }
+        });
 	    InlineLocalRefactoring refactoring = new InlineLocalRefactoring(info);
 	    
 	    NullProgressMonitor monitor = new NullProgressMonitor();

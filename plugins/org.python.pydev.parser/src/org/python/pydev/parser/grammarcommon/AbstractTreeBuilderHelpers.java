@@ -67,8 +67,14 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
     
     protected final SimpleNode makeTuple(SimpleNode n)  throws ParseException{
         try {
+            boolean endsWithComma = false;
+            //There's a detail with tuples: if we have a tuple with a single element and it doesn't end with a comma,
+            //it's not actually treated as a tuple, but as its only item.
+            if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA){
+                endsWithComma = true;
+            }
             final exprType[] exp = makeExprs();
-            Tuple t = new Tuple(exp, Tuple.Load);
+            Tuple t = new Tuple(exp, Tuple.Load, endsWithComma);
             addSpecialsAndClearOriginal(n, t);
             return t;
         } catch (ClassCastException e) {
@@ -87,7 +93,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
             }
             
             //recover properly!
-            return new Tuple(new exprType[0], Tuple.Load);
+            return new Tuple(new exprType[0], Tuple.Load, false);
 
         }
     }
@@ -111,6 +117,8 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         n.beginColumn = name.beginColumn;
         n.beginLine = name.beginLine;
         addSpecials(name, n);
+        //we have to create it because it could be that specials are added later
+        //(so, the instance must be already created even if not used)
         name.specialsBefore = n.getSpecialsBefore();
         name.specialsAfter = n.getSpecialsAfter();
         return n;
@@ -230,11 +238,11 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                 argsl.add(node);
 
             } else if (node instanceof Comprehension) {
-                argsl.add(new ListComp((exprType) iter.next(), new comprehensionType[] { (comprehensionType) node }));
+                argsl.add(new ListComp((exprType) iter.next(), new comprehensionType[] { (comprehensionType) node }, ListComp.EmptyCtx));
 
             } else if (node instanceof ComprehensionCollection) {
                 //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?) 
-                argsl.add(new ListComp((exprType) iter.next(), ((ComprehensionCollection) node).getGenerators()));
+                argsl.add(new ListComp((exprType) iter.next(), ((ComprehensionCollection) node).getGenerators(), ListComp.EmptyCtx));
 
             } else if (node instanceof decoratorsType) {
                 func = (exprType) stack.popNode();//the func is the last thing in the stack

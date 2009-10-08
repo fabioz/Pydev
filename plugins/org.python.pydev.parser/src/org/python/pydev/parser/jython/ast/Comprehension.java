@@ -13,11 +13,43 @@ public final class Comprehension extends comprehensionType {
         this.ifs = ifs;
     }
 
-    public Comprehension(exprType target, exprType iter, exprType[] ifs,
-    SimpleNode parent) {
+    public Comprehension(exprType target, exprType iter, exprType[] ifs, SimpleNode parent) {
         this(target, iter, ifs);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public Comprehension createCopy() {
+        exprType[] new0;
+        if(this.ifs != null){
+        new0 = new exprType[this.ifs.length];
+        for(int i=0;i<this.ifs.length;i++){
+            new0[i] = (exprType) this.ifs[i].createCopy();
+        }
+        }else{
+            new0 = this.ifs;
+        }
+        Comprehension temp = new Comprehension(target!=null?(exprType)target.createCopy():null,
+        iter!=null?(exprType)iter.createCopy():null, new0);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

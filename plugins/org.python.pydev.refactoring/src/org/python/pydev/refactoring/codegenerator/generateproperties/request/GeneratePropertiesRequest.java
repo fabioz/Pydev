@@ -13,6 +13,7 @@ import java.util.List;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
@@ -30,19 +31,20 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 
     private IClassDefAdapter classAdapter;
     private SelectionState state;
-    private String endLineDelim;
     private NodeHelper nodeHelper;
+    private final AdapterPrefs adapterPrefs;
 
-    public GeneratePropertiesRequest(IClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties, int offsetMethodStrategy, int offsetPropertyStrategy,
-            int accessModifier, String endLineDelim) {
+    public GeneratePropertiesRequest(
+            IClassDefAdapter classAdapter, INodeAdapter attributeAdapter, List<PropertyTextAdapter> properties, int offsetMethodStrategy, int offsetPropertyStrategy,
+            int accessModifier, AdapterPrefs adapterPrefs) {
         this.state = new SelectionState();
         this.classAdapter = classAdapter;
         this.attributeAdapter = attributeAdapter;
         this.offsetMethodStrategy = offsetMethodStrategy;
         this.offsetPropertyStrategy = offsetPropertyStrategy;
         this.accessModifier = accessModifier;
-        this.endLineDelim = endLineDelim;
-        this.nodeHelper = new NodeHelper(endLineDelim);
+        this.adapterPrefs = adapterPrefs;
+        this.nodeHelper = new NodeHelper(adapterPrefs);
         initialize(properties);
     }
 
@@ -66,6 +68,10 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
             }
         }
     }
+    
+    public AdapterPrefs getAdapterPrefs() {
+        return adapterPrefs;
+    }
 
     public SelectionState getSelectionState() {
         return state;
@@ -73,10 +79,6 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
 
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
         return classAdapter;
-    }
-
-    public String getNewLineDelim() {
-        return this.endLineDelim;
     }
 
     /**

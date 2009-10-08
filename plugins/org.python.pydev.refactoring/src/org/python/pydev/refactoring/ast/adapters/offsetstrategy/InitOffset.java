@@ -13,14 +13,15 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.position.LastLineVisitor;
 
 public class InitOffset extends BeginOffset {
 
-    public InitOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc) {
-        super(adapter, doc);
+    public InitOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc, AdapterPrefs adapterPrefs) {
+        super(adapter, doc, adapterPrefs);
     }
 
     @Override

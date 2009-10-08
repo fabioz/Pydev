@@ -24,6 +24,11 @@ public class LinePart extends AbstractLinePart implements ILinePart, ILinePart2 
     public String getString() {
         return string;
     }
+    
+    @Override
+    public String toString() {
+        return getString();
+    }
 
 
 }

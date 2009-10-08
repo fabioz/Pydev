@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Stack;
 
 import org.python.pydev.core.Tuple;
+import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.For;
@@ -49,6 +49,8 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         writeSpecials(node, specialsAfter);
     }
     
+    public static boolean USE_SPECIAL_STR_OR_TOKEN = true;
+    
     private void writeSpecials(SimpleNode node, List<Object> specials) {
         for (Object c : specials){
             if(c instanceof commentType){
@@ -59,13 +61,11 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
                 Name name = (Name) c;
                 doc.add(name.beginLine, name.beginColumn, name.id, name);
                 
-            }else if(c instanceof SpecialStr){
-                SpecialStr specialStr = (SpecialStr) c;
-                doc.add(specialStr.beginLine, specialStr.beginCol, specialStr.toString(), specialStr);
-                
-            }else if(c instanceof Token){
-                Token token = (Token) c;
-                doc.add(token.beginLine, token.beginColumn, token.toString(), token);
+            }else if(c instanceof ISpecialStrOrToken){
+                if(USE_SPECIAL_STR_OR_TOKEN){
+                    ISpecialStrOrToken specialStr = (ISpecialStrOrToken) c;
+                    doc.add(specialStr.getBeginLine(), specialStr.getBeginCol(), specialStr.toString(), specialStr);
+                }
                 
             }else{
                 throw new RuntimeException("Unexpected special: '"+c+ "' Class: "+c.getClass()+". Node: "+node);
@@ -81,14 +81,14 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
      */
     protected void beforeNode(SimpleNode node) throws Exception {
         this.lastNode = node;
-        writeSpecialsBefore(node);
         if(node instanceof stmtType && !isMultiLineStmt((stmtType) node)){
             startStatementPart();
         }
+        writeSpecialsBefore(node);
     }
 
     
-    private boolean isMultiLineStmt(stmtType node) {
+    public static boolean isMultiLineStmt(stmtType node) {
         return node instanceof ClassDef || node instanceof For || node instanceof FunctionDef || node instanceof If || node instanceof TryExcept || node instanceof TryFinally || node instanceof While ||node instanceof With ;
     }
 
@@ -103,7 +103,7 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         ids.push(doc.pushRecordChanges());
     }
     
-    protected void endStatementPart(SimpleNode node) {
+    protected Tuple<ILinePart, ILinePart> endStatementPart(SimpleNode node) {
         List<ILinePart> recordChanges = doc.popRecordChanges(ids.pop());
         
         Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
@@ -111,7 +111,9 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         if(lowerAndHigher != null){
             doc.addStartStatementMark(lowerAndHigher.o1, (stmtType)node);
             doc.addEndStatementMark(lowerAndHigher.o2, (stmtType)node);
+            return lowerAndHigher;
         }
+        return null;
     }
 
     
@@ -119,12 +121,24 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         doc.addIndent(node);
     }
     
+    protected void indent(SimpleNode node, boolean requireNewLine){
+        doc.addIndent(node, requireNewLine);
+    }
+    
     protected void dedent(){
-        doc.addDedent(lastNode);
+        doc.addDedent();
+    }
+    
+    protected void dedent(int emptyLinesRequiredAfterDedent){
+        doc.addDedent(emptyLinesRequiredAfterDedent);
     }
     
     protected void indent(Token token) {
-        doc.addIndent(token);
+        doc.addIndent(token, false);
+    }
+    
+    protected void indent(Token token, boolean requireNewLine) {
+        doc.addIndent(token, requireNewLine);
     }
 
     

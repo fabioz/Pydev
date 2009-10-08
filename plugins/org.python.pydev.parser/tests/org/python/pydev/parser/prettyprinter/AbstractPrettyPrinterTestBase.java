@@ -8,6 +8,7 @@ import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterUtilsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
@@ -21,13 +22,17 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        prefs = new PrettyPrinterPrefsV2("\n", "    ");
+        prefs = new PrettyPrinterPrefsV2("\n", "    ", versionProvider);
     }
 
     public SimpleNode checkPrettyPrintEqual(String s, String expected) throws Error {
         return checkPrettyPrintEqual(s, prefs, expected);
-        
     }
+    
+    public SimpleNode checkPrettyPrintEqual(String s, String expected, String v2) throws Error {
+        return checkPrettyPrintEqual(s, prefs, expected, v2);
+    }
+    
     public SimpleNode checkPrettyPrintEqual(String s) throws Error {
         return checkPrettyPrintEqual(s, s);
     }
@@ -38,9 +43,20 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
      * @throws Exception
      * @throws IOException
      */
-    public static SimpleNode checkPrettyPrintEqual(String s, IPrettyPrinterPrefs prefs, String expected) throws Error {
+    public static SimpleNode checkPrettyPrintEqual(String s, IPrettyPrinterPrefs prefs, String expected, String ... v2) throws Error {
         SimpleNode node = parseLegalDocStr(s);
 
+        PrettyPrinterUtilsV2.USE_SPECIAL_STR_OR_TOKEN = false;
+        try{
+            String check = expected;
+            if(v2.length > 0){
+                check = v2[0];
+            }
+//            assertEquals(check, makePrint(prefs, node));
+        }finally{
+            PrettyPrinterUtilsV2.USE_SPECIAL_STR_OR_TOKEN = true;
+        }
+        
         assertEquals(expected, makePrint(prefs, node));
         return node;
     }
@@ -106,9 +122,10 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
             if(original == null){
                 fail("Error\nUnable to generate the AST for the file:"+f);
             }
-            String result = PrettyPrinterTest.makePrint(prefs, original);
+            String result = null;
             SimpleNode node = null;
             try {
+                result = PrettyPrinterTest.makePrint(prefs, original);
                 node = parseLegalDocStr(result);
             } catch (Throwable e) {
                 System.out.println("\n\n\n----------------- Initial contents:-------------------------\n");

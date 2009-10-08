@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
@@ -24,6 +24,7 @@ import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.operatorType;
 import org.python.pydev.parser.jython.ast.str_typeType;
 import org.python.pydev.parser.jython.ast.unaryopType;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 
 public class SourcePrinter {
@@ -34,17 +35,17 @@ public class SourcePrinter {
     private final PrintWriter output;
     private final CallDepth callDepth;
 
-    public SourcePrinter(PrintWriter output, String newLineDelim) {
+    public SourcePrinter(PrintWriter output, AdapterPrefs adapterPrefs) {
         this.output = output;
-        this.syntaxHelper = new SyntaxHelper(newLineDelim);
+        this.syntaxHelper = new SyntaxHelper(adapterPrefs.endLineDelim);
         this.callDepth = new CallDepth();
         this.ignoreComments = false;
 
         this.disabledIfPrinting = false;
-        this.nodeHelper = new NodeHelper(newLineDelim);
+        this.nodeHelper = new NodeHelper(adapterPrefs);
     }
 
-    protected java.util.List<commentType> extractComments(java.util.List<Object> specials) {
+    public java.util.List<commentType> extractComments(java.util.List<Object> specials) {
         if(specials == null){
             return null;
         }
@@ -317,7 +318,7 @@ public class SourcePrinter {
         printStatement("class");
     }
 
-    protected void printComment(SimpleNode node, java.util.List<commentType> comments) {
+    public void printComment(SimpleNode node, java.util.List<commentType> comments) {
 
         if(comments == null){
             return;
@@ -563,9 +564,9 @@ public class SourcePrinter {
 
             if(node != null){
                 for(Object o:node.specialsBefore){
-                    if(o instanceof SpecialStr){
-                        SpecialStr specialStr = (SpecialStr) o;
-                        if(specialStr.str.trim().equals("if")){
+                    if(o instanceof ISpecialStrOrToken){
+                        ISpecialStrOrToken specialStr = (ISpecialStrOrToken) o;
+                        if(specialStr.toString().trim().equals("if")){
                             printStatement("if", spaceBefore, spaceAfter);
                             return;
                         }
@@ -725,9 +726,9 @@ public class SourcePrinter {
 
     public boolean checkSpecialStr(List<Object> specials, String pattern) {
         for(Object object:specials){
-            if(object instanceof SpecialStr){
-                SpecialStr str = (SpecialStr) object;
-                return(str.str.compareTo(pattern) == 0);
+            if(object instanceof ISpecialStrOrToken){
+                ISpecialStrOrToken str = (ISpecialStrOrToken) object;
+                return(str.toString().compareTo(pattern) == 0);
 
             }else if(object instanceof String){
                 String text = (String) object;

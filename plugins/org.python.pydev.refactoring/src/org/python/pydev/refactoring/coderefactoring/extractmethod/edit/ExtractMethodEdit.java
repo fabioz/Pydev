@@ -98,7 +98,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
         stmtType[] extractBody = parsedSelection.getASTNode().body;
         List<stmtType> body = new ArrayList<stmtType>();
         for(stmtType stmt:extractBody){
-            body.add(stmt);
+            body.add((stmtType) stmt.createCopy());
         }
         return body;
     }
@@ -106,7 +106,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
     private void applyRenamedVariables(FunctionDef extractedMethod) {
 
         if(renamedVariables.size() > 0){
-            LocalVarRenameVisitor renameVisitor = new LocalVarRenameVisitor(this.newLineDelim);
+            LocalVarRenameVisitor renameVisitor = new LocalVarRenameVisitor(this.adapterPrefs);
             renameVisitor.setRenameMap(renamedVariables);
             try{
                 extractedMethod.accept(renameVisitor);
@@ -125,8 +125,10 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
         exprType returnValue = null;
         if(returnList.size() == 1){
             returnValue = returnList.get(0);
+            
         }else if(returnList.size() > 1){
-            returnValue = new Tuple(returnList.toArray(new exprType[0]), Tuple.Load);
+            returnValue = new Tuple(returnList.toArray(new exprType[0]), Tuple.Load, false);
+            
         }else if(body.size() == 1){
             // return expression as-is (note: body must be cleared)
             if(body.get(0) instanceof Expr){

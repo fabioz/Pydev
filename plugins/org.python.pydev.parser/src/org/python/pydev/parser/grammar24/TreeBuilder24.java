@@ -161,7 +161,7 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
                     args = new exprType[]{
                         new ListComp(args[0], new comprehensionType[]{
                                 (comprehensionType)tmparr[i]
-                            })
+                            }, ListComp.EmptyCtx)
                         };
                 }else{
                     args[i] = (exprType) tmparr[i];
@@ -321,7 +321,7 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
                         generators[i] = (comprehensionType) compNode;
                     }
                 }
-                return new ListComp(((exprType) stack.popNode()), generators);
+                return new ListComp(((exprType) stack.popNode()), generators, ListComp.TupleCtx);
             }
             return makeTuple(n);
         case JJTLIST:
@@ -330,7 +330,7 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
                 for (int i = arity-2; i >= 0; i--) {
                     generators[i] = (comprehensionType) stack.popNode();
                 }
-                return new ListComp(((exprType) stack.popNode()), generators);
+                return new ListComp(((exprType) stack.popNode()), generators, ListComp.ListCtx);
             }
             return new List(makeExprs(), List.Load);
         case JJTDICTIONARY:

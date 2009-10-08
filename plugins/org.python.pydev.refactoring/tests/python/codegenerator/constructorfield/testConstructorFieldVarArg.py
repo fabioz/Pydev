@@ -35,7 +35,7 @@ class A:
 class B(A):
 
     def __init__(self, attribute, *args):
-        A.__init__(self, args)
+        A.__init__(self, *args)
         self.attribute = attribute
 
     try:

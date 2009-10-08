@@ -19,14 +19,36 @@ public final class Name extends exprType implements expr_contextType {
         this.beginColumn = parent.beginColumn;
     }
 
+    public Name createCopy() {
+        Name temp = new Name(id, ctx, reserved);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer("Name[");
         sb.append("id=");
         sb.append(dumpThis(this.id));
         sb.append(", ");
         sb.append("ctx=");
-        sb.append(dumpThis(this.ctx,
-        expr_contextType.expr_contextTypeNames));
+        sb.append(dumpThis(this.ctx, expr_contextType.expr_contextTypeNames));
         sb.append(", ");
         sb.append("reserved=");
         sb.append(dumpThis(this.reserved));

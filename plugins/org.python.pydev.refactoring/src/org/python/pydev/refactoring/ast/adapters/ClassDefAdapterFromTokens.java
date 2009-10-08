@@ -26,14 +26,14 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter {
 
     private List<IToken> tokens;
     private String parentName;
-    private String endLineDelim;
+    private AdapterPrefs adapterPrefs;
     private ModuleAdapter module;
 
-    public ClassDefAdapterFromTokens(ModuleAdapter module, String parentName, List<IToken> tokens, String endLineDelim) {
+    public ClassDefAdapterFromTokens(ModuleAdapter module, String parentName, List<IToken> tokens, AdapterPrefs adapterPrefs) {
         this.module = module;
         this.parentName = parentName;
         this.tokens = tokens;
-        this.endLineDelim = endLineDelim;
+        this.adapterPrefs = adapterPrefs;
     }
 
     public List<SimpleAdapter> getAssignedVariables() {
@@ -92,7 +92,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter {
                 }
                 //                System.out.println(tok.getRepresentation()+tok.getArgs());
                 FunctionDef functionDef = new FunctionDef(new NameTok(tok.getRepresentation(), NameTok.FunctionName), functionArguments, null, null, null);
-                ret.add(new FunctionDefAdapter(this.getModule(), null, functionDef, endLineDelim));
+                ret.add(new FunctionDefAdapter(this.getModule(), null, functionDef, adapterPrefs));
             }
         }
         return ret;

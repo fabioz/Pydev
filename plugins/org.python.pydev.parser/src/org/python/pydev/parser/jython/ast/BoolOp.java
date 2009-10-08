@@ -17,6 +17,38 @@ public final class BoolOp extends exprType implements boolopType {
         this.beginColumn = parent.beginColumn;
     }
 
+    public BoolOp createCopy() {
+        exprType[] new0;
+        if(this.values != null){
+        new0 = new exprType[this.values.length];
+        for(int i=0;i<this.values.length;i++){
+            new0[i] = (exprType) this.values[i].createCopy();
+        }
+        }else{
+            new0 = this.values;
+        }
+        BoolOp temp = new BoolOp(op, new0);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer("BoolOp[");
         sb.append("op=");

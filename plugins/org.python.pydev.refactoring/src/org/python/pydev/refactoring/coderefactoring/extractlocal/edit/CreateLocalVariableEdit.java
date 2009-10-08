@@ -30,7 +30,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
         super(req);
         this.info = req.info;
         this.variableName = req.variableName;
-        this.expression = req.expression;
+        this.expression = (exprType) req.expression.createCopy();
     }
 
     @Override

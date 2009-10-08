@@ -7,6 +7,9 @@ package org.python.pydev.refactoring.tests.codegenerator.generateproperties;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -62,7 +65,13 @@ public class MockupGeneratePropertiesRequestProcessor implements IRequestProcess
 		List<GeneratePropertiesRequest> requests = new ArrayList<GeneratePropertiesRequest>();
 		GeneratePropertiesRequest req;
 		for (INodeAdapter elem : attributes) {
-			req = new GeneratePropertiesRequest(clazz, elem, properties, methodOffsetStrategy, propertyOffsetStrategy, accessModifier, "\n");
+			req = new GeneratePropertiesRequest(clazz, elem, properties, methodOffsetStrategy, propertyOffsetStrategy, accessModifier, 
+			        new AdapterPrefs("\n", new IGrammarVersionProvider() {
+                        
+                        public int getGrammarVersion() throws MisconfigurationException {
+                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                        }
+                    }));
 			requests.add(req);
 		}
 

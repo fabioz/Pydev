@@ -30,6 +30,7 @@ import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.printer.SourcePrinter;
 import org.python.pydev.refactoring.ast.visitors.context.AbstractContextVisitor;
@@ -116,8 +117,8 @@ public final class VisitorFactory {
         return new ModuleAdapter(moduleManager, module, nature);
     }
 
-    public static SourcePrinter createPrinter(Writer out, String newLineDelim) {
-        return new SourcePrinter(new PrintWriter(out), newLineDelim);
+    public static SourcePrinter createPrinter(Writer out, AdapterPrefs adapterPrefs) {
+        return new SourcePrinter(new PrintWriter(out), adapterPrefs);
     }
 
     public static SimpleNode getRootNodeFromString(String source) throws ParseException {

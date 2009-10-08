@@ -2,8 +2,8 @@ package org.python.pydev.parser.visitors;
 
 import java.util.List;
 
+import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.VisitorBase;
@@ -11,7 +11,7 @@ import org.python.pydev.parser.jython.ast.VisitorBase;
 public class FindLastLineVisitor extends VisitorBase{
 
     private SimpleNode lastNode;
-    private SpecialStr lastSpecialStr;
+    private ISpecialStrOrToken lastSpecialStr;
 
     @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
@@ -37,9 +37,9 @@ public class FindLastLineVisitor extends VisitorBase{
             return;
         }
         for (Object obj : specials) {
-            if(obj instanceof SpecialStr){
-                if(lastSpecialStr == null || lastSpecialStr.beginLine <= ((SpecialStr)obj).beginLine){
-                    lastSpecialStr = (SpecialStr) obj;
+            if(obj instanceof ISpecialStrOrToken){
+                if(lastSpecialStr == null || lastSpecialStr.getBeginLine() <= ((ISpecialStrOrToken)obj).getBeginLine()){
+                    lastSpecialStr = (ISpecialStrOrToken) obj;
                 }
             }
         }
@@ -73,7 +73,7 @@ public class FindLastLineVisitor extends VisitorBase{
         return lastNode;
     }
     
-    public SpecialStr getLastSpecialStr(){
+    public ISpecialStrOrToken getLastSpecialStr(){
         return lastSpecialStr;
     }
     

@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
@@ -42,8 +45,23 @@ public class MockupExtractMethodRequestProcessor implements IRequestProcessor<Ex
 
 	public List<ExtractMethodRequest> getRefactoringRequests() {
 		List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
-		ExtractMethodRequest req = new ExtractMethodRequest("extracted_method", this.selection, this.scopeAdapter, this.parsedSelection,
-				deducer.getParameters(), deducer.getReturns(), this.renameMap, this.offsetStrategy, "\n");
+		ExtractMethodRequest req = new ExtractMethodRequest(
+		        "extracted_method", 
+		        this.selection, 
+		        this.scopeAdapter, 
+		        this.parsedSelection,
+				deducer.getParameters(), 
+				deducer.getReturns(), 
+				this.renameMap, 
+				this.offsetStrategy, 
+				new AdapterPrefs("\n", new IGrammarVersionProvider() {
+                    
+                    public int getGrammarVersion() throws MisconfigurationException {
+                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                    }
+                }
+			)
+		);
 		requests.add(req);
 
 		return requests;

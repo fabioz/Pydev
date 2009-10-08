@@ -382,5 +382,31 @@ public final class FastStringBuffer{
         }
         return this;
     }
+
+    public boolean endsWith(String string) {
+        return startsWith(string, count - string.length());
+    }
+
+    public boolean startsWith(String prefix) {
+        return startsWith(prefix, 0);
+    }
+    
+    public boolean startsWith(String prefix, int offset) {
+        char ta[] = value;
+        int to = offset;
+        char pa[] = prefix.toCharArray();
+        int po = 0;
+        int pc = pa.length;
+        // Note: toffset might be near -1>>>1.
+        if ((offset < 0) || (offset > count - pc)) {
+            return false;
+        }
+        while (--pc >= 0) {
+            if (ta[to++] != pa[po++]) {
+                return false;
+            }
+        }
+        return true;
+    }
     
 }

@@ -4,7 +4,6 @@ with open('testWith.py', 'r') as f: # on-line
     # after
     for line in f:
         print line
-    
 
 with True: # on-line
     # just afer whith true

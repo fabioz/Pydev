@@ -15,6 +15,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.ast.Module;
@@ -52,7 +53,12 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 
 		ITextSelection selection = new TextSelection(doc, data.sourceSelection.getOffset(), data.sourceSelection.getLength());
 
-		RefactoringInfo info = new RefactoringInfo(doc, selection);
+		RefactoringInfo info = new RefactoringInfo(doc, selection, new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+            }
+        });
 
 		MockupExtractMethodRequestProcessor requestProcessor = setupRequestProcessor(config, module, info);
 
@@ -95,7 +101,8 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 			renameMap.put(variable, newName);
 		}
 
-		return new MockupExtractMethodRequestProcessor(scope, info.getExtendedSelection(), parsedSelection, deducer, renameMap, config
+		return new MockupExtractMethodRequestProcessor(
+		        scope, info.getExtendedSelection(), parsedSelection, deducer, renameMap, config
 				.getOffsetStrategy());
 	}
 
@@ -105,7 +112,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		xstream.alias("config", MockupExtractMethodConfig.class);
 
 		if (data.config.length() > 0) {
-			config = (MockupExtractMethodConfig) xstream.fromXML(data.config);
+			config = (MockupExtractMethodConfig) xstream.fromXML(data.getConfigContents());
 		} else {
 			config = new MockupExtractMethodConfig();
 		}

@@ -247,6 +247,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -291,13 +292,13 @@ void dictmaker() #void: {}
 def CreateIfWithDeps(definitions):
     IF = '''
 //if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ['else' ':' suite]
-void if_stmt(): {}
+void if_stmt(): {Object[] elseToks;}
 {
     temporaryToken=<IF> {this.markLastAsSuiteStart();} {this.addSpecialTokenToLastOpened(temporaryToken);} test() $COLON suite()
          (begin_elif_stmt() test() $COLON suite())* 
-             [ temporaryToken=<ELSE>  {this.addSpecialToken(temporaryToken);} 
-               {this.findTokenAndAdd(":");}<COLON> suite()]
+             [ elseToks=begin_else_stmt() suite() {addToPeek(elseToks[0], false, Suite.class);addToPeek(elseToks[1], false, Suite.class);}]
 }
+
 '''
 
     IF = Template(IF)
@@ -392,6 +393,39 @@ def CreateIndenting():
         } : DEFAULT
 }
 '''
+
+
+#===============================================================================
+# CreateWhileWithDeps
+#===============================================================================
+def CreateWhileWithDeps(definitions):
+    WHILE = '''
+//while_stmt: 'while' test ':' suite ['else' ':' suite]
+void while_stmt(): {Object[] elseToks;}
+{ begin_while_stmt() test() $COLON suite() 
+  [ elseToks=begin_else_stmt()  suite() {addToPeek(elseToks[0], false, Suite.class);addToPeek(elseToks[1], false, Suite.class);}] }
+
+void begin_while_stmt(): {}
+{ temporaryToken=<WHILE>{this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} {this.markLastAsSuiteStart();}
+}
+'''
+    WHILE = Template(WHILE)
+    substituted = str(WHILE.substitute(**definitions))
+    return substituted
+
+
+#===============================================================================
+# CreateBeginElseWithDeps
+#===============================================================================
+def CreateBeginElseWithDeps(definitions):
+    BEGIN_ELSE = '''
+Object[] begin_else_stmt(): {Object o1, o2;}
+{ o1=<ELSE> o2=<COLON>{return new Object[]{o1, o2};} 
+}
+'''
+    BEGIN_ELSE = Template(BEGIN_ELSE)
+    substituted = str(BEGIN_ELSE.substitute(**definitions))
+    return substituted
 
     
     
@@ -495,12 +529,21 @@ else
 {{temporaryToken=createSpecialStr("if");}<IF> {this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);} or_test() {this.findTokenAndAdd("else");}<ELSE> test()}''',
 
         GLOBAL = '''temporaryToken=<GLOBAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
+        
+        BACKQUOTE = '''"`" SmartTestList() "`" #str_1op(1)''',
+        
+        SLICE = '''//sliceop: ':' [test]
+void slice() #void: {}
+{ Colon() [test()] (Colon() [test()])? }
+''',
     )
     
     definitions['EXEC'] = CreateExec(definitions)
     definitions['DICTMAKER'] = CreateDictMakerWithDeps(definitions)
     definitions['IF'] = CreateIfWithDeps(definitions)
     definitions['ASSERT'] = CreateAssertWithDeps(definitions)
+    definitions['WHILE'] = CreateWhileWithDeps(definitions)
+    definitions['BEGIN_ELSE'] = CreateBeginElseWithDeps(definitions)
     
     for file in files:
         s = Template(open(file, 'r').read())

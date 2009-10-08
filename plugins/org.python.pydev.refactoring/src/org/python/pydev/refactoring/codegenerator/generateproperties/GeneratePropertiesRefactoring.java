@@ -36,7 +36,7 @@ public class GeneratePropertiesRefactoring extends AbstractPythonRefactoring {
     }
 
     private void initWizard() throws Throwable {
-        this.requestProcessor = new GeneratePropertiesRequestProcessor(this.info.getNewLineDelim());
+        this.requestProcessor = new GeneratePropertiesRequestProcessor(this.info.getAdapterPrefs());
         this.changeProcessor = new GeneratePropertiesChangeProcessor(getName(), this.info, this.requestProcessor);
     }
 

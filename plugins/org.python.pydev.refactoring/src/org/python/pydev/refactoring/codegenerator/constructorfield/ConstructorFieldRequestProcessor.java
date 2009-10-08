@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
@@ -27,12 +28,12 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
 
     private int offsetStrategy;
 
-    private String endLineDelim;
+    private AdapterPrefs adapterPrefs;
 
-    public ConstructorFieldRequestProcessor(String endLineDelim) {
+    public ConstructorFieldRequestProcessor(AdapterPrefs adapterPrefs) {
         checked = new Object[0];
         offsetStrategy = IOffsetStrategy.AFTERINIT;
-        this.endLineDelim = endLineDelim;
+        this.adapterPrefs = adapterPrefs;
     }
 
     public void setCheckedElements(Object[] checked) {
@@ -57,7 +58,8 @@ public class ConstructorFieldRequestProcessor implements IRequestProcessor<Const
                 List<INodeAdapter> fields = getFields(iter);
                 if(!fields.isEmpty()){
                     ClassDefAdapter clazz = (ClassDefAdapter) node.getAdapter();
-                    ConstructorFieldRequest request = new ConstructorFieldRequest(clazz, fields, offsetStrategy, endLineDelim);
+                    ConstructorFieldRequest request = new ConstructorFieldRequest(
+                            clazz, fields, offsetStrategy, adapterPrefs);
                     requests.add(request);
                 }
             }

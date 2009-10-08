@@ -6,7 +6,7 @@ class fooexception(Exception):
     def __init__(self):
         Exception.__init__(self)
         print "i am a fooexception"
-    
+
 
 data = 2
 raise "foo"

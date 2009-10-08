@@ -12,8 +12,8 @@ import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -82,7 +82,9 @@ public class SelectionExtenderVisitor extends VisitorBase {
             return null;
         }
 
-        updateSelection(node);
+        if(!(node instanceof suiteType)){
+            updateSelection(node);
+        }
 
         if(node instanceof suiteType){
             visitSuiteType((suiteType) node);
@@ -122,11 +124,11 @@ public class SelectionExtenderVisitor extends VisitorBase {
 
     private Str convertSpecialToStr(Object o) {
         Str stringNode = null;
-        if(o instanceof SpecialStr){
-            SpecialStr special = (SpecialStr) o;
-            stringNode = new Str(special.str, Str.SingleDouble, false, false, false);
-            stringNode.beginLine = special.beginLine;
-            stringNode.beginColumn = special.beginCol;
+        if(o instanceof ISpecialStrOrToken){
+            ISpecialStrOrToken special = (ISpecialStrOrToken) o;
+            stringNode = new Str(special.toString(), Str.SingleDouble, false, false, false);
+            stringNode.beginLine = special.getBeginLine();
+            stringNode.beginColumn = special.getBeginCol();
         }
         return stringNode;
     }
@@ -164,9 +166,9 @@ public class SelectionExtenderVisitor extends VisitorBase {
     private SimpleNode checkSpecials(SimpleNode node, List<Object> specials) {
         if(specials.size() > 0){
             for(Object o:specials){
-                if(o instanceof SpecialStr){
-                    SpecialStr str = (SpecialStr) o;
-                    if(str.beginLine >= extendNodeInSelection.beginLine){
+                if(o instanceof ISpecialStrOrToken){
+                    ISpecialStrOrToken str = (ISpecialStrOrToken) o;
+                    if(str.getBeginLine() >= extendNodeInSelection.beginLine){
                         return convertSpecialToStr(o);
                     }
                 }

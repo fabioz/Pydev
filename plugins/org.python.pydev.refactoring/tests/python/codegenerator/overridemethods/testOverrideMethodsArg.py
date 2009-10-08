@@ -17,7 +17,7 @@ b = B()
 b.my_method()
 
 ##c
-
+'''
 <config>
   <classSelection>0</classSelection>
   <methodSelection>
@@ -26,7 +26,7 @@ b.my_method()
   <offsetStrategy>4</offsetStrategy>
   <editClass>1</editClass>
 </config>
-
+'''
 ##r
 
 class A:

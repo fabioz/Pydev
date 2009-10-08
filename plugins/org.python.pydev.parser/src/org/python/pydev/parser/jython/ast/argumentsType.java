@@ -14,10 +14,9 @@ public final class argumentsType extends SimpleNode {
     public exprType kwargannotation;
     public exprType[] kwonlyargannotation;
 
-    public argumentsType(exprType[] args, NameTokType vararg, NameTokType
-    kwarg, exprType[] defaults, exprType[] kwonlyargs, exprType[]
-    kw_defaults, exprType[] annotation, exprType varargannotation, exprType
-    kwargannotation, exprType[] kwonlyargannotation) {
+    public argumentsType(exprType[] args, NameTokType vararg, NameTokType kwarg, exprType[]
+    defaults, exprType[] kwonlyargs, exprType[] kw_defaults, exprType[] annotation, exprType
+    varargannotation, exprType kwargannotation, exprType[] kwonlyargannotation) {
         this.args = args;
         this.vararg = vararg;
         this.kwarg = kwarg;
@@ -30,14 +29,94 @@ public final class argumentsType extends SimpleNode {
         this.kwonlyargannotation = kwonlyargannotation;
     }
 
-    public argumentsType(exprType[] args, NameTokType vararg, NameTokType
-    kwarg, exprType[] defaults, exprType[] kwonlyargs, exprType[]
-    kw_defaults, exprType[] annotation, exprType varargannotation, exprType
-    kwargannotation, exprType[] kwonlyargannotation, SimpleNode parent) {
-        this(args, vararg, kwarg, defaults, kwonlyargs, kw_defaults,
-        annotation, varargannotation, kwargannotation, kwonlyargannotation);
+    public argumentsType(exprType[] args, NameTokType vararg, NameTokType kwarg, exprType[]
+    defaults, exprType[] kwonlyargs, exprType[] kw_defaults, exprType[] annotation, exprType
+    varargannotation, exprType kwargannotation, exprType[] kwonlyargannotation, SimpleNode parent) {
+        this(args, vararg, kwarg, defaults, kwonlyargs, kw_defaults, annotation, varargannotation,
+        kwargannotation, kwonlyargannotation);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
+    }
+
+    public argumentsType createCopy() {
+        exprType[] new0;
+        if(this.args != null){
+        new0 = new exprType[this.args.length];
+        for(int i=0;i<this.args.length;i++){
+            new0[i] = (exprType) this.args[i].createCopy();
+        }
+        }else{
+            new0 = this.args;
+        }
+        exprType[] new1;
+        if(this.defaults != null){
+        new1 = new exprType[this.defaults.length];
+        for(int i=0;i<this.defaults.length;i++){
+            new1[i] = (exprType) this.defaults[i].createCopy();
+        }
+        }else{
+            new1 = this.defaults;
+        }
+        exprType[] new2;
+        if(this.kwonlyargs != null){
+        new2 = new exprType[this.kwonlyargs.length];
+        for(int i=0;i<this.kwonlyargs.length;i++){
+            new2[i] = (exprType) this.kwonlyargs[i].createCopy();
+        }
+        }else{
+            new2 = this.kwonlyargs;
+        }
+        exprType[] new3;
+        if(this.kw_defaults != null){
+        new3 = new exprType[this.kw_defaults.length];
+        for(int i=0;i<this.kw_defaults.length;i++){
+            new3[i] = (exprType) this.kw_defaults[i].createCopy();
+        }
+        }else{
+            new3 = this.kw_defaults;
+        }
+        exprType[] new4;
+        if(this.annotation != null){
+        new4 = new exprType[this.annotation.length];
+        for(int i=0;i<this.annotation.length;i++){
+            new4[i] = (exprType) this.annotation[i].createCopy();
+        }
+        }else{
+            new4 = this.annotation;
+        }
+        exprType[] new5;
+        if(this.kwonlyargannotation != null){
+        new5 = new exprType[this.kwonlyargannotation.length];
+        for(int i=0;i<this.kwonlyargannotation.length;i++){
+            new5[i] = (exprType) this.kwonlyargannotation[i].createCopy();
+        }
+        }else{
+            new5 = this.kwonlyargannotation;
+        }
+        argumentsType temp = new argumentsType(new0,
+        vararg!=null?(NameTokType)vararg.createCopy():null,
+        kwarg!=null?(NameTokType)kwarg.createCopy():null, new1, new2, new3, new4,
+        varargannotation!=null?(exprType)varargannotation.createCopy():null,
+        kwargannotation!=null?(exprType)kwargannotation.createCopy():null, new5);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
     }
 
     public String toString() {

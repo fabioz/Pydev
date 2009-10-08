@@ -139,7 +139,7 @@ class RunfilesTest(unittest.TestCase):
 
     def test___get_module_from_str(self):
         my_importer = self.MyTestRunner._PydevTestRunner__get_module_from_str
-        my_os_path = my_importer("os.path")
+        my_os_path = my_importer("os.path", True)
         from os import path
         import os.path as path2
         self.assertEquals(path, my_os_path)

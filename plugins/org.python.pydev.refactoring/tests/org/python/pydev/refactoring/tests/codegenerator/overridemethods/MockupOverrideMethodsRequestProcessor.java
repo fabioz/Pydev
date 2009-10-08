@@ -7,6 +7,9 @@ package org.python.pydev.refactoring.tests.codegenerator.overridemethods;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -51,7 +54,14 @@ public class MockupOverrideMethodsRequestProcessor implements IRequestProcessor<
 		List<OverrideMethodsRequest> requests = new ArrayList<OverrideMethodsRequest>();
 
 		for (FunctionDefAdapter method : methods) {
-			OverrideMethodsRequest req = new OverrideMethodsRequest(clazz, this.offsetStrategy, method, false, baseClassName, "\n");
+			OverrideMethodsRequest req = new OverrideMethodsRequest(
+			        clazz, this.offsetStrategy, method, false, baseClassName, new AdapterPrefs("\n", new IGrammarVersionProvider() {
+                        
+                        @Override
+                        public int getGrammarVersion() throws MisconfigurationException {
+                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                        }
+                    }));
 			requests.add(req);
 		}
 

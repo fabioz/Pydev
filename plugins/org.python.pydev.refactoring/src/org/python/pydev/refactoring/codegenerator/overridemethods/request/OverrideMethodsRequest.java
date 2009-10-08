@@ -9,6 +9,7 @@
 package org.python.pydev.refactoring.codegenerator.overridemethods.request;
 
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
@@ -22,15 +23,17 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
 
     private IClassDefAdapter classAdapter;
     private String baseClassName;
-    private String endLineDelim;
+    private AdapterPrefs adapterPrefs;
 
-    public OverrideMethodsRequest(IClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method, boolean generateMethodComments, String baseClassName, String endLineDelim) {
+    public OverrideMethodsRequest(
+            IClassDefAdapter classAdapter, int offsetStrategy, FunctionDefAdapter method, 
+            boolean generateMethodComments, String baseClassName, AdapterPrefs adapterPrefs) {
         this.baseClassName = baseClassName;
         this.classAdapter = classAdapter;
         this.offsetStrategy = offsetStrategy;
         this.method = method;
         this.generateMethodComments = generateMethodComments;
-        this.endLineDelim = endLineDelim;
+        this.adapterPrefs = adapterPrefs;
     }
 
     public IASTNodeAdapter<? extends SimpleNode> getOffsetNode() {
@@ -41,7 +44,7 @@ public class OverrideMethodsRequest implements IRefactoringRequest {
         return getOffsetNode().getModule().getBaseContextName(this.classAdapter, baseClassName);
     }
 
-    public String getNewLineDelim() {
-        return endLineDelim;
+    public AdapterPrefs getAdapterPrefs() {
+        return adapterPrefs;
     }
 }

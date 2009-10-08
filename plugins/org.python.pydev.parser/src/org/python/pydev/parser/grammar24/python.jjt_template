@@ -598,17 +598,11 @@ void begin_elif_stmt(): {}
 }
 
 
-//while_stmt: 'while' test ':' suite ['else' ':' suite]
-void while_stmt(): {}
-{ begin_while_stmt() test() $COLON suite() 
-  [ begin_else_stmt()  suite()] }
+$WHILE
 
-void begin_while_stmt(): {}
-{ temporaryToken=<WHILE>{this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} {this.markLastAsSuiteStart();}
-}
-void begin_else_stmt(): {}
-{ temporaryToken=<ELSE> {this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);} temporaryToken=<COLON>{this.addSpecialToken(temporaryToken,STRATEGY_BEFORE_NEXT);}  
-}
+$BEGIN_ELSE
+
+
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
@@ -793,7 +787,7 @@ void atom() #void: {Object spStr;Object spStr2;}
       {spStr2  = createSpecialStr("}", false);} <RBRACE> 
     ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
     
-|   "`" SmartTestList() "`" #str_1op(1)
+|   $BACKQUOTE
 |   Name() 
 |   Number()
 |   String() (String() #strjoin(2))*
@@ -822,9 +816,9 @@ void subscript() #void: {}
 |   slice() #Slice(>0)
 }
 
-//sliceop: ':' [test]
-void slice() #void: {}
-{ Colon() [test()] (Colon() [test()])? }
+
+$SLICE
+
 
 void Colon(): {} {{this.addSpecialToken(createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
 void Comma(): {} {<COMMA>}

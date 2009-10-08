@@ -15,6 +15,38 @@ public final class ExtSlice extends sliceType {
         this.beginColumn = parent.beginColumn;
     }
 
+    public ExtSlice createCopy() {
+        sliceType[] new0;
+        if(this.dims != null){
+        new0 = new sliceType[this.dims.length];
+        for(int i=0;i<this.dims.length;i++){
+            new0[i] = (sliceType) this.dims[i].createCopy();
+        }
+        }else{
+            new0 = this.dims;
+        }
+        ExtSlice temp = new ExtSlice(new0);
+        temp.beginLine = this.beginLine;
+        temp.beginColumn = this.beginColumn;
+        if(this.specialsBefore != null){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsBefore().add(commentType);
+                }
+            }
+        }
+        if(this.specialsAfter != null){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
+                    commentType commentType = (commentType) o;
+                    temp.getSpecialsAfter().add(commentType);
+                }
+            }
+        }
+        return temp;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer("ExtSlice[");
         sb.append("dims=");
