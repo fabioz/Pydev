@@ -20,7 +20,7 @@ public final class Suite extends modType {
         if(this.body != null){
         new0 = new stmtType[this.body.length];
         for(int i=0;i<this.body.length;i++){
-            new0[i] = (stmtType) this.body[i].createCopy();
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy():null);
         }
         }else{
             new0 = this.body;
@@ -62,8 +62,9 @@ public final class Suite extends modType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (body != null) {
             for (int i = 0; i < body.length; i++) {
-                if (body[i] != null)
+                if (body[i] != null){
                     body[i].accept(visitor);
+                }
             }
         }
     }

@@ -24,7 +24,7 @@ public final class Comprehension extends comprehensionType {
         if(this.ifs != null){
         new0 = new exprType[this.ifs.length];
         for(int i=0;i<this.ifs.length;i++){
-            new0[i] = (exprType) this.ifs[i].createCopy();
+            new0[i] = (exprType) (this.ifs[i] != null? this.ifs[i].createCopy():null);
         }
         }else{
             new0 = this.ifs;
@@ -71,14 +71,17 @@ public final class Comprehension extends comprehensionType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (target != null)
+        if (target != null){
             target.accept(visitor);
-        if (iter != null)
+        }
+        if (iter != null){
             iter.accept(visitor);
+        }
         if (ifs != null) {
             for (int i = 0; i < ifs.length; i++) {
-                if (ifs[i] != null)
+                if (ifs[i] != null){
                     ifs[i].accept(visitor);
+                }
             }
         }
     }

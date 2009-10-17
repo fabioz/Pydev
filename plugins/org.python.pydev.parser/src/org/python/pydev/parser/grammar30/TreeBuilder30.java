@@ -28,14 +28,12 @@ import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
 import org.python.pydev.parser.jython.ast.IfExp;
-import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
-import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.NonLocal;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
@@ -51,7 +49,6 @@ import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.Yield;
-import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -300,19 +297,9 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             exprType type = arity >= 1 ? ((exprType) stack.popNode()) : null;
             return new Raise(type, null, null, from);
         case JJTGLOBAL_STMT:
-            if(arity == 0){
-                return new Global(makeIdentifiers(NameTok.GlobalName), null);
-            }else{
-                exprType globalValue = (exprType) stack.popNode();
-                return new Global(makeIdentifiers(NameTok.GlobalName), globalValue);
-            }
+            return new Global(makeIdentifiers(NameTok.GlobalName), null);
         case JJTNONLOCAL_STMT:
-            if(arity == 0){
-                return new NonLocal(makeIdentifiers(NameTok.NonLocalName), null);
-            }else{
-                exprType nonLocalValue = (exprType) stack.popNode();
-                return new NonLocal(makeIdentifiers(NameTok.NonLocalName), nonLocalValue);
-            }
+            return new NonLocal(makeIdentifiers(NameTok.NonLocalName), null);
         case JJTASSERT_STMT:
             exprType msg = arity == 2 ? ((exprType) stack.popNode()) : null;
             test = (exprType) stack.popNode();
@@ -619,19 +606,8 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             col.added.add(new Comprehension(target, iter, ifs.toArray(new exprType[0])));
             return col;
         case JJTIMPORTFROM:
-            ArrayList<aliasType> aliastL = new ArrayList<aliasType>();
-            while(arity > 0 && stack.peekNode() instanceof aliasType){
-                aliastL.add(0, (aliasType) stack.popNode());
-                arity--;
-            }
-            NameTok nT;
-            if(arity > 0){
-                nT = makeName(NameTok.ImportModule);
-            }else{
-                nT = new NameTok("", NameTok.ImportModule);
-            }
-            return new ImportFrom((NameTokType)nT, aliastL.toArray(new aliasType[0]), 0);
-
+            return makeImportFrom25Onwards(arity);
+            
         default:
             System.out.println("Error at TreeBuilder: default not treated:"+n.getId());
             return null;

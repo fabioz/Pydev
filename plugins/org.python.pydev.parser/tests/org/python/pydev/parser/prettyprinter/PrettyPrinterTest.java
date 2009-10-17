@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testListComp();
+            test.testVarious21();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -89,6 +89,10 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "exec ('a=1')\n" +
         "";
         
+        final String v2 = ""+
+        "exec 'a=1'\n" +
+        "";
+        
         
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
@@ -97,7 +101,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
                     checkPrettyPrintEqual(s, "exec('a=1')\n");
                     
                 }else{
-                    checkPrettyPrintEqual(s);
+                    checkPrettyPrintEqual(s, s, v2);
                 }
                 return true;
             }
@@ -409,8 +413,8 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     }
     
     public void testComprehension() throws Exception {
-        String str = "compre4list = [zahl ** 2 for zahl in (1,4,6) if zahl % 2 == 1 if zahl % 3 == 2]# on-line\n";
-        checkPrettyPrintEqual(str);
+        String s = "compre4list = [zahl ** 2 for zahl in (1,4,6) if zahl % 2 == 1 if zahl % 3 == 2]# on-line\n";
+        checkPrettyPrintEqual(s);
     }
     
     public void test25If() throws Exception {
@@ -513,7 +517,11 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         String s = ""+
         "lambda a:(1 + 2)\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v2 = ""+
+        "lambda a:1 + 2\n" +
+        "";
+        checkPrettyPrintEqual(s, s, v2);
     }
     
     public void testLambda4() throws Exception {
@@ -666,7 +674,11 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    r'\"b\"'#comm2\n" +
         ")\n" +
         "";
-        checkPrettyPrintEqual(s);
+        String v2 = ""+
+        "a = (r\"a\"#comm1\n" +
+        "    r'\"b\"')#comm2\n" +
+        "";
+        checkPrettyPrintEqual(s, s, v2);
     }
     
     public void testAdd() throws Exception {
@@ -719,7 +731,11 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "all = [#comm1\n" +
         "    'encode','decode',]\n" +
         "";
-        checkPrettyPrintEqual(s);
+        String v2 = ""+
+        "all = [#comm1\n" +
+        "    'encode','decode']\n" +
+        "";
+        checkPrettyPrintEqual(s, s, v2);
     }
     
     public void testListComp2() throws Exception {
@@ -727,7 +743,11 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "for (raw,cooked) in foo:\n" +
         "    pass\n" +
         "";
-        checkPrettyPrintEqual(s);
+        String v2 = ""+
+        "for raw,cooked in foo:\n" +
+        "    pass\n" +
+        "";
+        checkPrettyPrintEqual(s, s, v2);
     }
     
     public void testKwArgs() throws Exception {
@@ -782,7 +802,17 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    self.quitting = 1\n" +
         "    sys.settrace(None)\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v2 = ""+
+        "try:\n" +
+        "    pass\n" +
+        "except BdbQuit:\n" +
+        "    pass\n" +
+        "finally:\n" +
+        "    self.quitting = 1\n" +
+        "    sys.settrace(None)\n" +
+        "";
+        checkPrettyPrintEqual(s, s, v2);
     }
     
     public void testDecorator() throws Exception {
@@ -1623,6 +1653,25 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             "else:\n"+   
             "    if b:\n" +
             "        pass\n";
+        
+        String v2 = 
+            "if a:#commentIf\n"+     
+            "    c = 3\n"+           
+            "elif b:\n" +
+            "    pass\n";
+        checkPrettyPrintEqual(s, s, v2);
+    }
+    
+    public void testIfElse5() throws Exception {
+        String s = 
+            "if a:#commentIf\n"+     
+            "    c = 3\n"+           
+            "else:\n"+   
+            "    if b:\n" +
+            "        pass\n" +
+            "    if c:\n" +
+            "        pass\n";
+        
         checkPrettyPrintEqual(s);
     }
     
@@ -1928,7 +1977,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    y = x - M\n" +
         "    R = 0\n" +
         "    while (R <= L or \n" +
-        "            R > L):\n" +
+        "        R > L):\n" +
         "        y = call((M * y) << 1,\n" +
         "            M,K)\n" +
         "        R += 1\n" +
@@ -2217,6 +2266,42 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             }
         });
     }
+    
+    public void testVarious20() throws Throwable {
+        final String s = ""+
+        "_b32rev = dict([(v, long(k)) for k, v in _b32alphabet.items()])\n" +
+        "";
+        
+        final String expected = ""+
+        "_b32rev = dict([(v,long(k)) for (k,v) in _b32alphabet.items()])\n" +
+        "";
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s, expected);
+                return true;
+            }
+        });
+    }
+    
+    
+    
+    
+    public void testVarious21() throws Throwable {
+        final String s = ""+
+        "'a%s%s' % (1,2)\n" +
+        "";
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
     
     
 }

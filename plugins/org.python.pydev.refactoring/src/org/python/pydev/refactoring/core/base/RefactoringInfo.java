@@ -25,6 +25,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
@@ -80,7 +81,7 @@ public class RefactoringInfo {
 
         try{
             this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature);
-        }catch(ParseException e){
+        }catch(Throwable e){
             throw new RuntimeException(e);
         }
 
@@ -130,9 +131,13 @@ public class RefactoringInfo {
         if(source.length() > 0){
             try{
                 return VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
+            }catch(TokenMgrError e){
+                return null;
             }catch(ParseException e){
                 /* Parse Exception means the current selection is invalid, discard and return null */
                 return null;
+            }catch(Throwable e){
+                throw new RuntimeException(e);
             }
         }
         return null;
@@ -145,10 +150,15 @@ public class RefactoringInfo {
         if(this.userSelection != null && source.length() > 0){
             try{
                 parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature);
+            }catch(TokenMgrError e){
+                return null;
             }catch(ParseException e){
                 /* Parse Exception means the current selection is invalid, discard and return null */
                 return null;
+            }catch(Throwable e){
+                throw new RuntimeException(e);
             }
+
         }
         return parsedAdapter;
     }

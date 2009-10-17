@@ -8,6 +8,7 @@ package org.python.pydev.refactoring.tests.adapter;
 import java.io.File;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.python.pydev.refactoring.tests.core.AbstractIOTestSuite;
 import org.python.pydev.refactoring.tests.core.IInputOutputTestCase;
@@ -23,7 +24,7 @@ public class FunctionDefAdapterTestSuite extends AbstractIOTestSuite {
 		FunctionDefAdapterTestSuite testSuite = new FunctionDefAdapterTestSuite("FunctionDef");
 
 		testSuite.createTests(testdir);
-
+		testSuite.addTest(new TestSuite(FunctionDefAdapterTestCase2.class));
 		return testSuite;
 	}
 

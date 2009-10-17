@@ -46,7 +46,7 @@ public abstract class AbstractTextEdit {
     public abstract TextEdit getEdit() throws MisconfigurationException;
 
     protected String getFormattedNode() throws MisconfigurationException {
-        SimpleNode node = getEditNode();
+        SimpleNode node = getEditNode().createCopy();
         try{
             PyAstFactory.makeValid(node);
         }catch(Exception e){

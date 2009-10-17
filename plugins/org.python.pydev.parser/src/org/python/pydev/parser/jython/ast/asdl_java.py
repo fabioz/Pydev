@@ -255,13 +255,13 @@ class JavaVisitor(EmitVisitor):
                 if f.seq:
                     #comprehensionType[] new0 = new comprehensionType[this.generators.length];
                     #for(int i=0;i<this.generators.length;i++){
-                    #    new0[i] = (comprehensionType) this.generators[i].createCopy();
+                    #    new0[i] = (comprehensionType) this.generators[i] != null?this.generators[i].createCopy():null;
                     #}
                     self.emit('%s[] new%s;' % (jType,copy_i), depth+1) 
                     self.emit('if(this.%s != null){' % (f.name,), depth+1) 
                     self.emit('new%s = new %s[this.%s.length];' % (copy_i, jType, f.name), depth+1) 
                     self.emit('for(int i=0;i<this.%s.length;i++){' % (f.name), depth+1)
-                    self.emit('new%s[i] = (%s) this.%s[i].createCopy();' % (copy_i, jType, f.name), depth+2) 
+                    self.emit('new%s[i] = (%s) (this.%s[i] != null? this.%s[i].createCopy():null);' % (copy_i, jType, f.name, f.name), depth+2) 
                     self.emit('}', depth+1)
                     self.emit('}else{', depth+1)
                     self.emit('new%s = this.%s;'%(copy_i, f.name), depth+2)
@@ -347,13 +347,15 @@ class JavaVisitor(EmitVisitor):
                 self.emit('if (%s != null) {' % f.name, depth+1)
                 self.emit('for (int i = 0; i < %s.length; i++) {' % f.name,
                         depth+2)
-                self.emit('if (%s[i] != null)' % f.name, depth+3)
+                self.emit('if (%s[i] != null){' % f.name, depth+3)
                 self.emit('%s[i].accept(visitor);' % f.name, depth+4)
+                self.emit('}' % f.name, depth+3)
                 self.emit('}', depth+2)
                 self.emit('}', depth+1)
             else:
-                self.emit('if (%s != null)' % f.name, depth+1)
+                self.emit('if (%s != null){' % f.name, depth+1)
                 self.emit('%s.accept(visitor);' % f.name, depth+2)
+                self.emit('}' % f.name, depth+1)
         self.emit('}', depth)
         self.emit("", 0)
 

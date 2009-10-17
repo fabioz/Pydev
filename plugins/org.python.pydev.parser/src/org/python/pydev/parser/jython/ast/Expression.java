@@ -51,8 +51,9 @@ public final class Expression extends modType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (body != null)
+        if (body != null){
             body.accept(visitor);
+        }
     }
 
 }

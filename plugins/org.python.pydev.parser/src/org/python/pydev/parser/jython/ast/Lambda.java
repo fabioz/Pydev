@@ -57,10 +57,12 @@ public final class Lambda extends exprType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (args != null)
+        if (args != null){
             args.accept(visitor);
-        if (body != null)
+        }
+        if (body != null){
             body.accept(visitor);
+        }
     }
 
 }

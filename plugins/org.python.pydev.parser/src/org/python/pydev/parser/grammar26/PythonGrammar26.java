@@ -56,7 +56,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
      * @return the special tokens in the token source
      */
     @SuppressWarnings("unchecked")
-    protected final List<Object> getTokenSourceSpecialTokensList(){
+    public final List<Object> getTokenSourceSpecialTokensList(){
         return token_source.specialTokens;
     }
 
@@ -690,8 +690,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                        this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        Comma();
         break;
       default:
         jj_la1[13] = jj_gen;

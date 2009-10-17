@@ -51,8 +51,9 @@ public final class Expr extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (value != null)
+        if (value != null){
             value.accept(visitor);
+        }
     }
 
 }

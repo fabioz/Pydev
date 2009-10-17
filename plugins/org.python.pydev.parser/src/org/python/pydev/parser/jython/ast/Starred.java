@@ -56,8 +56,9 @@ public final class Starred extends exprType implements expr_contextType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (value != null)
+        if (value != null){
             value.accept(visitor);
+        }
     }
 
 }

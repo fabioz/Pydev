@@ -22,7 +22,7 @@ public final class Dict extends exprType {
         if(this.keys != null){
         new0 = new exprType[this.keys.length];
         for(int i=0;i<this.keys.length;i++){
-            new0[i] = (exprType) this.keys[i].createCopy();
+            new0[i] = (exprType) (this.keys[i] != null? this.keys[i].createCopy():null);
         }
         }else{
             new0 = this.keys;
@@ -31,7 +31,7 @@ public final class Dict extends exprType {
         if(this.values != null){
         new1 = new exprType[this.values.length];
         for(int i=0;i<this.values.length;i++){
-            new1[i] = (exprType) this.values[i].createCopy();
+            new1[i] = (exprType) (this.values[i] != null? this.values[i].createCopy():null);
         }
         }else{
             new1 = this.values;
@@ -76,14 +76,16 @@ public final class Dict extends exprType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (keys != null) {
             for (int i = 0; i < keys.length; i++) {
-                if (keys[i] != null)
+                if (keys[i] != null){
                     keys[i].accept(visitor);
+                }
             }
         }
         if (values != null) {
             for (int i = 0; i < values.length; i++) {
-                if (values[i] != null)
+                if (values[i] != null){
                     values[i].accept(visitor);
+                }
             }
         }
     }

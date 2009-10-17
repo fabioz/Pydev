@@ -62,10 +62,12 @@ public final class BinOp extends exprType implements operatorType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (left != null)
+        if (left != null){
             left.accept(visitor);
-        if (right != null)
+        }
+        if (right != null){
             right.accept(visitor);
+        }
     }
 
 }

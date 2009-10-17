@@ -51,6 +51,9 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		name = name.substring(0, name.length() - EXTENSION);
 		ModuleAdapter module = new ModuleAdapter(null, data.file, doc, astModule, new PythonNatureStub());
 
+		if(data.sourceSelection == null){
+		    System.out.println("here");
+		}
 		ITextSelection selection = new TextSelection(doc, data.sourceSelection.getOffset(), data.sourceSelection.getLength());
 
 		RefactoringInfo info = new RefactoringInfo(doc, selection, new IGrammarVersionProvider() {
@@ -65,7 +68,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		IDocument refactoringDoc = applyExtractMethod(info, requestProcessor);
 
 		this.setTestGenerated(refactoringDoc.get());
-		assertEquals(getExpected(), getGenerated());
+		assertContentsEqual(getExpected(), getGenerated());
 		REF.IN_TESTS = false;
 	}
 

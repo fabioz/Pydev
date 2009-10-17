@@ -3,6 +3,7 @@ package org.python.pydev.parser.grammarcommon;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
@@ -73,6 +74,23 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
             if (stack.nodeArity() > 0 && stack.peekNode().getId() == JJTCOMMA){
                 endsWithComma = true;
             }
+            if(!endsWithComma && stack.nodeArity() == 1){
+                java.util.List<Object> tokenSourceSpecialTokensList = this.stack.getGrammar().getTokenSourceSpecialTokensList();
+                for(Object object:tokenSourceSpecialTokensList){
+                    if(object instanceof Object[]){
+                        Object[] objects = (Object[]) object;
+                        object=objects[0];
+                    }
+                    if(object instanceof ISpecialStrOrToken){
+                        ISpecialStrOrToken specialStr = (ISpecialStrOrToken) object;
+                        if(specialStr.toString().equals(",")){
+                            endsWithComma = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
             final exprType[] exp = makeExprs();
             Tuple t = new Tuple(exp, Tuple.Load, endsWithComma);
             addSpecialsAndClearOriginal(n, t);

@@ -63,12 +63,15 @@ public final class IfExp extends exprType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (test != null)
+        if (test != null){
             test.accept(visitor);
-        if (body != null)
+        }
+        if (body != null){
             body.accept(visitor);
-        if (orelse != null)
+        }
+        if (orelse != null){
             orelse.accept(visitor);
+        }
     }
 
 }

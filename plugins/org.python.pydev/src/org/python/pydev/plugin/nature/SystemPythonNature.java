@@ -38,6 +38,25 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     }
     
     public String getVersion() throws CoreException {
+        if(this.info != null){
+            String version = this.info.getVersion();
+            if(version != null && version.startsWith("3")){
+                switch(this.manager.getInterpreterType()){
+                
+                case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                    return IPythonNature.PYTHON_VERSION_3_0;
+                    
+                case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                    return IPythonNature.JYTHON_VERSION_3_0;
+                    
+                case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                    return IPythonNature.PYTHON_VERSION_3_0;
+                    
+                default:
+                    throw new RuntimeException("Not python nor jython nor iron python?");
+                }
+            }
+        }
         switch(this.manager.getInterpreterType()){
             
             case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
@@ -148,7 +167,12 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
 
     
     public int getGrammarVersion() throws MisconfigurationException {
-        IInterpreterInfo info = manager.getDefaultInterpreterInfo(new NullProgressMonitor());
+        IInterpreterInfo info;
+        if(this.info != null){
+            info = this.info;
+        }else{
+            info = manager.getDefaultInterpreterInfo(new NullProgressMonitor());
+        }
         if(info != null){
             return info.getGrammarVersion();
         }else{

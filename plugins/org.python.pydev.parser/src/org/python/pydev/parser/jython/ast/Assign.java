@@ -22,7 +22,7 @@ public final class Assign extends stmtType {
         if(this.targets != null){
         new0 = new exprType[this.targets.length];
         for(int i=0;i<this.targets.length;i++){
-            new0[i] = (exprType) this.targets[i].createCopy();
+            new0[i] = (exprType) (this.targets[i] != null? this.targets[i].createCopy():null);
         }
         }else{
             new0 = this.targets;
@@ -67,12 +67,14 @@ public final class Assign extends stmtType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (targets != null) {
             for (int i = 0; i < targets.length; i++) {
-                if (targets[i] != null)
+                if (targets[i] != null){
                     targets[i].accept(visitor);
+                }
             }
         }
-        if (value != null)
+        if (value != null){
             value.accept(visitor);
+        }
     }
 
 }

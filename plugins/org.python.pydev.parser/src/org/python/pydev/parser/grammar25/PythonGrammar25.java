@@ -57,7 +57,7 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements/*@bg
      * @return the special tokens in the token source
      */
     @SuppressWarnings("unchecked")
-    protected final List<Object> getTokenSourceSpecialTokensList(){
+    public final List<Object> getTokenSourceSpecialTokensList(){
         return token_source.specialTokens;
     }
 
@@ -645,8 +645,7 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements/*@bg
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
-                                                                        this.findTokenAndAdd(",");
-        jj_consume_token(COMMA);
+        Comma();
         break;
       default:
         jj_la1[12] = jj_gen;
@@ -2525,8 +2524,8 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements/*@bg
   jjtree.openNodeScope(jjtn000);
   jjtreeOpenNodeScope(jjtn000);
     try {
-      jj_consume_token(GLOBAL);
-            this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);
+      temporaryToken = jj_consume_token(GLOBAL);
+                           this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
       Name();
       label_14:
       while (true) {
@@ -2538,7 +2537,7 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements/*@bg
           jj_la1[52] = jj_gen;
           break label_14;
         }
-                                                                             this.findTokenAndAdd(",");
+                                                                                                 this.findTokenAndAdd(",");
         jj_consume_token(COMMA);
         Name();
       }

@@ -21,6 +21,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -94,7 +95,7 @@ public final class VisitorFactory {
         }
     }
 
-    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc, IPythonNature nature) throws ParseException {
+    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc, IPythonNature nature) throws Throwable {
         if(file != null && file.exists()){
             if(pythonModuleManager != null){
                 IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
@@ -102,19 +103,16 @@ public final class VisitorFactory {
                     String modName = modulesManager.resolveModule(REF.getFileAbsolutePath(file));
                     IModule module = modulesManager.getModule(modName, nature, true);
                     if(module instanceof ISourceModule){
-                        return createModuleAdapter(pythonModuleManager, (ISourceModule) module, nature);
+                        SourceModule iSourceModule = (SourceModule) module;
+                        if(iSourceModule.parseError != null){
+                            throw iSourceModule.parseError;
+                        }
+                        return new ModuleAdapter(pythonModuleManager, ((ISourceModule) module), nature, doc);
                     }
                 }
             }
         }
         return new ModuleAdapter(pythonModuleManager, file, doc, getRootNode(doc), nature);
-    }
-
-    /**
-     * Preferred way of creating a module adapter
-     */
-    public static ModuleAdapter createModuleAdapter(PythonModuleManager moduleManager, ISourceModule module, IPythonNature nature) {
-        return new ModuleAdapter(moduleManager, module, nature);
     }
 
     public static SourcePrinter createPrinter(Writer out, AdapterPrefs adapterPrefs) {

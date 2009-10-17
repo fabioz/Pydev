@@ -34,7 +34,7 @@ public final class ClassDef extends stmtType {
         if(this.bases != null){
         new0 = new exprType[this.bases.length];
         for(int i=0;i<this.bases.length;i++){
-            new0[i] = (exprType) this.bases[i].createCopy();
+            new0[i] = (exprType) (this.bases[i] != null? this.bases[i].createCopy():null);
         }
         }else{
             new0 = this.bases;
@@ -43,7 +43,7 @@ public final class ClassDef extends stmtType {
         if(this.body != null){
         new1 = new stmtType[this.body.length];
         for(int i=0;i<this.body.length;i++){
-            new1[i] = (stmtType) this.body[i].createCopy();
+            new1[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy():null);
         }
         }else{
             new1 = this.body;
@@ -52,7 +52,7 @@ public final class ClassDef extends stmtType {
         if(this.decs != null){
         new2 = new decoratorsType[this.decs.length];
         for(int i=0;i<this.decs.length;i++){
-            new2[i] = (decoratorsType) this.decs[i].createCopy();
+            new2[i] = (decoratorsType) (this.decs[i] != null? this.decs[i].createCopy():null);
         }
         }else{
             new2 = this.decs;
@@ -61,7 +61,7 @@ public final class ClassDef extends stmtType {
         if(this.keywords != null){
         new3 = new keywordType[this.keywords.length];
         for(int i=0;i<this.keywords.length;i++){
-            new3[i] = (keywordType) this.keywords[i].createCopy();
+            new3[i] = (keywordType) (this.keywords[i] != null? this.keywords[i].createCopy():null);
         }
         }else{
             new3 = this.keywords;
@@ -121,36 +121,43 @@ public final class ClassDef extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (name != null)
+        if (name != null){
             name.accept(visitor);
+        }
         if (bases != null) {
             for (int i = 0; i < bases.length; i++) {
-                if (bases[i] != null)
+                if (bases[i] != null){
                     bases[i].accept(visitor);
+                }
             }
         }
         if (body != null) {
             for (int i = 0; i < body.length; i++) {
-                if (body[i] != null)
+                if (body[i] != null){
                     body[i].accept(visitor);
+                }
             }
         }
         if (decs != null) {
             for (int i = 0; i < decs.length; i++) {
-                if (decs[i] != null)
+                if (decs[i] != null){
                     decs[i].accept(visitor);
+                }
             }
         }
         if (keywords != null) {
             for (int i = 0; i < keywords.length; i++) {
-                if (keywords[i] != null)
+                if (keywords[i] != null){
                     keywords[i].accept(visitor);
+                }
             }
         }
-        if (starargs != null)
+        if (starargs != null){
             starargs.accept(visitor);
-        if (kwargs != null)
+        }
+        if (kwargs != null){
             kwargs.accept(visitor);
+        }
     }
 
 }

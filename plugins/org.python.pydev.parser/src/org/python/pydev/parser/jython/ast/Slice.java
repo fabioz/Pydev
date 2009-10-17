@@ -62,12 +62,15 @@ public final class Slice extends sliceType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (lower != null)
+        if (lower != null){
             lower.accept(visitor);
-        if (upper != null)
+        }
+        if (upper != null){
             upper.accept(visitor);
-        if (step != null)
+        }
+        if (step != null){
             step.accept(visitor);
+        }
     }
 
 }

@@ -30,7 +30,7 @@ public final class FunctionDef extends stmtType {
         if(this.body != null){
         new0 = new stmtType[this.body.length];
         for(int i=0;i<this.body.length;i++){
-            new0[i] = (stmtType) this.body[i].createCopy();
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy():null);
         }
         }else{
             new0 = this.body;
@@ -39,7 +39,7 @@ public final class FunctionDef extends stmtType {
         if(this.decs != null){
         new1 = new decoratorsType[this.decs.length];
         for(int i=0;i<this.decs.length;i++){
-            new1[i] = (decoratorsType) this.decs[i].createCopy();
+            new1[i] = (decoratorsType) (this.decs[i] != null? this.decs[i].createCopy():null);
         }
         }else{
             new1 = this.decs;
@@ -93,24 +93,29 @@ public final class FunctionDef extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (name != null)
+        if (name != null){
             name.accept(visitor);
-        if (args != null)
+        }
+        if (args != null){
             args.accept(visitor);
+        }
         if (body != null) {
             for (int i = 0; i < body.length; i++) {
-                if (body[i] != null)
+                if (body[i] != null){
                     body[i].accept(visitor);
+                }
             }
         }
         if (decs != null) {
             for (int i = 0; i < decs.length; i++) {
-                if (decs[i] != null)
+                if (decs[i] != null){
                     decs[i].accept(visitor);
+                }
             }
         }
-        if (returns != null)
+        if (returns != null){
             returns.accept(visitor);
+        }
     }
 
 }

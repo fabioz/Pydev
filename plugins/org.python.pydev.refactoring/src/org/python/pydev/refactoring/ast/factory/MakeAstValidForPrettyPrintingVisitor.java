@@ -2,6 +2,7 @@ package org.python.pydev.refactoring.ast.factory;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.argumentsType;
@@ -9,6 +10,7 @@ import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.suiteType;
 
 public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase{
 
@@ -37,7 +39,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase{
             }
         }
         
-        if(node instanceof stmtType){
+        if(node instanceof stmtType || node instanceof suiteType){
             nextLine();
         }
         if(node.beginLine < currentLine){
@@ -95,6 +97,26 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase{
         }
 
         return null;
+    }
+    
+    @Override
+    public Object visitIf(If node) throws Exception {
+        Object ret = unhandled_node(node);
+        if (node.test != null){
+            node.test.accept(this);
+        }
+        if (node.body != null) {
+            for (int i = 0; i < node.body.length; i++) {
+                if (node.body[i] != null){
+                    node.body[i].accept(this);
+                }
+            }
+        }
+        if (node.orelse != null){
+            unhandled_node(node.orelse);
+            node.orelse.accept(this);
+        }        
+        return ret;
     }
 
     private void handleArguments(argumentsType completeArgs) throws Exception {

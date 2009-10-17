@@ -58,10 +58,12 @@ public final class aliasType extends SimpleNode {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (name != null)
+        if (name != null){
             name.accept(visitor);
-        if (asname != null)
+        }
+        if (asname != null){
             asname.accept(visitor);
+        }
     }
 
 }

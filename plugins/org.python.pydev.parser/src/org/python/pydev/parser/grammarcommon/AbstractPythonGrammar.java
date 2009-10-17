@@ -32,7 +32,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      * @return the list of special added to the token manager (used so that we
      * can add more info to it later on)
      */
-    protected abstract List<Object> getTokenSourceSpecialTokensList();
+    public abstract List<Object> getTokenSourceSpecialTokensList();
 
     /**
      * @return the last pos.

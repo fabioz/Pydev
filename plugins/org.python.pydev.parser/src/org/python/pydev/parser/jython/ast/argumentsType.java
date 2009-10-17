@@ -43,7 +43,7 @@ public final class argumentsType extends SimpleNode {
         if(this.args != null){
         new0 = new exprType[this.args.length];
         for(int i=0;i<this.args.length;i++){
-            new0[i] = (exprType) this.args[i].createCopy();
+            new0[i] = (exprType) (this.args[i] != null? this.args[i].createCopy():null);
         }
         }else{
             new0 = this.args;
@@ -52,7 +52,7 @@ public final class argumentsType extends SimpleNode {
         if(this.defaults != null){
         new1 = new exprType[this.defaults.length];
         for(int i=0;i<this.defaults.length;i++){
-            new1[i] = (exprType) this.defaults[i].createCopy();
+            new1[i] = (exprType) (this.defaults[i] != null? this.defaults[i].createCopy():null);
         }
         }else{
             new1 = this.defaults;
@@ -61,7 +61,7 @@ public final class argumentsType extends SimpleNode {
         if(this.kwonlyargs != null){
         new2 = new exprType[this.kwonlyargs.length];
         for(int i=0;i<this.kwonlyargs.length;i++){
-            new2[i] = (exprType) this.kwonlyargs[i].createCopy();
+            new2[i] = (exprType) (this.kwonlyargs[i] != null? this.kwonlyargs[i].createCopy():null);
         }
         }else{
             new2 = this.kwonlyargs;
@@ -70,7 +70,8 @@ public final class argumentsType extends SimpleNode {
         if(this.kw_defaults != null){
         new3 = new exprType[this.kw_defaults.length];
         for(int i=0;i<this.kw_defaults.length;i++){
-            new3[i] = (exprType) this.kw_defaults[i].createCopy();
+            new3[i] = (exprType) (this.kw_defaults[i] != null?
+            this.kw_defaults[i].createCopy():null);
         }
         }else{
             new3 = this.kw_defaults;
@@ -79,7 +80,7 @@ public final class argumentsType extends SimpleNode {
         if(this.annotation != null){
         new4 = new exprType[this.annotation.length];
         for(int i=0;i<this.annotation.length;i++){
-            new4[i] = (exprType) this.annotation[i].createCopy();
+            new4[i] = (exprType) (this.annotation[i] != null? this.annotation[i].createCopy():null);
         }
         }else{
             new4 = this.annotation;
@@ -88,7 +89,8 @@ public final class argumentsType extends SimpleNode {
         if(this.kwonlyargannotation != null){
         new5 = new exprType[this.kwonlyargannotation.length];
         for(int i=0;i<this.kwonlyargannotation.length;i++){
-            new5[i] = (exprType) this.kwonlyargannotation[i].createCopy();
+            new5[i] = (exprType) (this.kwonlyargannotation[i] != null?
+            this.kwonlyargannotation[i].createCopy():null);
         }
         }else{
             new5 = this.kwonlyargannotation;
@@ -162,46 +164,56 @@ public final class argumentsType extends SimpleNode {
     public void traverse(VisitorIF visitor) throws Exception {
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
-                if (args[i] != null)
+                if (args[i] != null){
                     args[i].accept(visitor);
+                }
             }
         }
-        if (vararg != null)
+        if (vararg != null){
             vararg.accept(visitor);
-        if (kwarg != null)
+        }
+        if (kwarg != null){
             kwarg.accept(visitor);
+        }
         if (defaults != null) {
             for (int i = 0; i < defaults.length; i++) {
-                if (defaults[i] != null)
+                if (defaults[i] != null){
                     defaults[i].accept(visitor);
+                }
             }
         }
         if (kwonlyargs != null) {
             for (int i = 0; i < kwonlyargs.length; i++) {
-                if (kwonlyargs[i] != null)
+                if (kwonlyargs[i] != null){
                     kwonlyargs[i].accept(visitor);
+                }
             }
         }
         if (kw_defaults != null) {
             for (int i = 0; i < kw_defaults.length; i++) {
-                if (kw_defaults[i] != null)
+                if (kw_defaults[i] != null){
                     kw_defaults[i].accept(visitor);
+                }
             }
         }
         if (annotation != null) {
             for (int i = 0; i < annotation.length; i++) {
-                if (annotation[i] != null)
+                if (annotation[i] != null){
                     annotation[i].accept(visitor);
+                }
             }
         }
-        if (varargannotation != null)
+        if (varargannotation != null){
             varargannotation.accept(visitor);
-        if (kwargannotation != null)
+        }
+        if (kwargannotation != null){
             kwargannotation.accept(visitor);
+        }
         if (kwonlyargannotation != null) {
             for (int i = 0; i < kwonlyargannotation.length; i++) {
-                if (kwonlyargannotation[i] != null)
+                if (kwonlyargannotation[i] != null){
                     kwonlyargannotation[i].accept(visitor);
+                }
             }
         }
     }

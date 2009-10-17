@@ -11,11 +11,10 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.codegenerator.overridemethods.edit.MethodEdit;
-import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 import com.thoughtworks.xstream.XStream;
@@ -28,14 +27,19 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
 
 	@Override
 	public void runTest() throws Throwable {
-		MockupOverrideMethodsConfig config = initConfig();
+	    CompiledModule.COMPILED_MODULES_ENABLED = true;
+		try{
+            MockupOverrideMethodsConfig config = initConfig();
 
-		MockupOverrideMethodsRequestProcessor requestProcessor = setupRequestProcessor(config);
+            MockupOverrideMethodsRequestProcessor requestProcessor = setupRequestProcessor(config);
 
-		IDocument refactoringDoc = applyOverrideMethod(requestProcessor);
+            IDocument refactoringDoc = applyOverrideMethod(requestProcessor);
 
-		this.setTestGenerated(refactoringDoc.get());
-		assertEquals(getExpected(), getGenerated());
+            this.setTestGenerated(refactoringDoc.get());
+            assertContentsEqual(getExpected(), getGenerated());
+        }finally{
+            CompiledModule.COMPILED_MODULES_ENABLED = false;
+        }
 	}
 
 	private IDocument applyOverrideMethod(MockupOverrideMethodsRequestProcessor requestProcessor) throws BadLocationException, MalformedTreeException, MisconfigurationException {

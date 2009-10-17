@@ -11,8 +11,11 @@ package org.python.pydev.refactoring.ui.actions.internal;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
@@ -24,6 +27,9 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.ui.core.PythonRefactoringWizard;
@@ -81,10 +87,15 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
             wizard.run();
             
             this.targetEditor.getDocumentProvider().changed(this.targetEditor.getEditorInput());
-        }catch(MisconfigurationException e){
-            Log.log(e);
+        }catch(Throwable e){
+            Throwable initial = e;
+            while(e.getCause() != null){
+                e = e.getCause();
+            }
+            //get the root cause
+            Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Error making refactoring", initial);
+            ErrorDialog.openError(PyAction.getShell(), "Error making refactoring", e.getMessage(), status);
         }
-
     }
 
     /**

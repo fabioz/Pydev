@@ -5,6 +5,7 @@ public abstract class AbstractLinePart implements ILinePart{
     protected Object token;
     private final int beginCol;
     private PrettyPrinterDocLineEntry lineEntry;
+    private boolean found;
     
     public AbstractLinePart(int beginCol, Object token, PrettyPrinterDocLineEntry lineEntry) {
         this.beginCol = beginCol;
@@ -32,5 +33,20 @@ public abstract class AbstractLinePart implements ILinePart{
      */
     public int getLine() {
         return this.lineEntry.line;
+    }
+    
+    @Override
+    public int getLinePosition() {
+        return this.lineEntry.getSortedParts().indexOf(this);
+    }
+    
+    @Override
+    public void setMarkAsFound() {
+        this.found = true;
+    }
+    
+    @Override
+    public boolean isMarkedAsFound() {
+        return found;
     }
 }

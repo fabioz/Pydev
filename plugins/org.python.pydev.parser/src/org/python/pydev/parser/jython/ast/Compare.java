@@ -31,7 +31,8 @@ public final class Compare extends exprType implements cmpopType {
         if(this.comparators != null){
         new1 = new exprType[this.comparators.length];
         for(int i=0;i<this.comparators.length;i++){
-            new1[i] = (exprType) this.comparators[i].createCopy();
+            new1[i] = (exprType) (this.comparators[i] != null?
+            this.comparators[i].createCopy():null);
         }
         }else{
             new1 = this.comparators;
@@ -77,12 +78,14 @@ public final class Compare extends exprType implements cmpopType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (left != null)
+        if (left != null){
             left.accept(visitor);
+        }
         if (comparators != null) {
             for (int i = 0; i < comparators.length; i++) {
-                if (comparators[i] != null)
+                if (comparators[i] != null){
                     comparators[i].accept(visitor);
+                }
             }
         }
     }

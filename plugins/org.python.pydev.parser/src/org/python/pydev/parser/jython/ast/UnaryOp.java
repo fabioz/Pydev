@@ -56,8 +56,9 @@ public final class UnaryOp extends exprType implements unaryopType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (operand != null)
+        if (operand != null){
             operand.accept(visitor);
+        }
     }
 
 }

@@ -30,7 +30,7 @@ public final class Call extends exprType {
         if(this.args != null){
         new0 = new exprType[this.args.length];
         for(int i=0;i<this.args.length;i++){
-            new0[i] = (exprType) this.args[i].createCopy();
+            new0[i] = (exprType) (this.args[i] != null? this.args[i].createCopy():null);
         }
         }else{
             new0 = this.args;
@@ -39,7 +39,7 @@ public final class Call extends exprType {
         if(this.keywords != null){
         new1 = new keywordType[this.keywords.length];
         for(int i=0;i<this.keywords.length;i++){
-            new1[i] = (keywordType) this.keywords[i].createCopy();
+            new1[i] = (keywordType) (this.keywords[i] != null? this.keywords[i].createCopy():null);
         }
         }else{
             new1 = this.keywords;
@@ -93,24 +93,29 @@ public final class Call extends exprType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (func != null)
+        if (func != null){
             func.accept(visitor);
+        }
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
-                if (args[i] != null)
+                if (args[i] != null){
                     args[i].accept(visitor);
+                }
             }
         }
         if (keywords != null) {
             for (int i = 0; i < keywords.length; i++) {
-                if (keywords[i] != null)
+                if (keywords[i] != null){
                     keywords[i].accept(visitor);
+                }
             }
         }
-        if (starargs != null)
+        if (starargs != null){
             starargs.accept(visitor);
-        if (kwargs != null)
+        }
+        if (kwargs != null){
             kwargs.accept(visitor);
+        }
     }
 
 }

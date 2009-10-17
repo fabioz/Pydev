@@ -24,7 +24,7 @@ public final class Print extends stmtType {
         if(this.values != null){
         new0 = new exprType[this.values.length];
         for(int i=0;i<this.values.length;i++){
-            new0[i] = (exprType) this.values[i].createCopy();
+            new0[i] = (exprType) (this.values[i] != null? this.values[i].createCopy():null);
         }
         }else{
             new0 = this.values;
@@ -70,12 +70,14 @@ public final class Print extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (dest != null)
+        if (dest != null){
             dest.accept(visitor);
+        }
         if (values != null) {
             for (int i = 0; i < values.length; i++) {
-                if (values[i] != null)
+                if (values[i] != null){
                     values[i].accept(visitor);
+                }
             }
         }
     }

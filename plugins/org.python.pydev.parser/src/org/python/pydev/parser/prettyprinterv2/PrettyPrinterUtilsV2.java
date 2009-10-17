@@ -109,24 +109,24 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         Tuple<ILinePart, ILinePart> lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
         
         if(lowerAndHigher != null){
-            doc.addStartStatementMark(lowerAndHigher.o1, (stmtType)node);
-            doc.addEndStatementMark(lowerAndHigher.o2, (stmtType)node);
+            doc.addStartStatementMark(lowerAndHigher.o1, node);
+            doc.addEndStatementMark(lowerAndHigher.o2, node);
             return lowerAndHigher;
         }
         return null;
     }
 
     
-    protected void indent(SimpleNode node){
-        doc.addIndent(node);
-    }
+//    protected void indent(SimpleNode node){
+//        doc.addIndent(node);
+//    }
     
     protected void indent(SimpleNode node, boolean requireNewLine){
         doc.addIndent(node, requireNewLine);
     }
     
-    protected void dedent(){
-        doc.addDedent();
+    protected LinePartIndentMark dedent(){
+        return doc.addDedent();
     }
     
     protected void dedent(int emptyLinesRequiredAfterDedent){

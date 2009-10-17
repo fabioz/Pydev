@@ -20,7 +20,7 @@ public final class ExtSlice extends sliceType {
         if(this.dims != null){
         new0 = new sliceType[this.dims.length];
         for(int i=0;i<this.dims.length;i++){
-            new0[i] = (sliceType) this.dims[i].createCopy();
+            new0[i] = (sliceType) (this.dims[i] != null? this.dims[i].createCopy():null);
         }
         }else{
             new0 = this.dims;
@@ -62,8 +62,9 @@ public final class ExtSlice extends sliceType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (dims != null) {
             for (int i = 0; i < dims.length; i++) {
-                if (dims[i] != null)
+                if (dims[i] != null){
                     dims[i].accept(visitor);
+                }
             }
         }
     }

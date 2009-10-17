@@ -62,10 +62,12 @@ public final class Subscript extends exprType implements expr_contextType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (value != null)
+        if (value != null){
             value.accept(visitor);
-        if (slice != null)
+        }
+        if (slice != null){
             slice.accept(visitor);
+        }
     }
 
 }

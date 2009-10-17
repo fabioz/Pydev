@@ -9,9 +9,11 @@ import java.util.List;
 
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
@@ -20,7 +22,7 @@ public class MockupOverrideMethodsRequestProcessor implements IRequestProcessor<
 
 	private ModuleAdapter module;
 
-	private int classSelection;
+	private String classSelection;
 
 	private int offsetStrategy;
 
@@ -28,7 +30,7 @@ public class MockupOverrideMethodsRequestProcessor implements IRequestProcessor<
 
 	private int editClass;
 
-	private MockupOverrideMethodsRequestProcessor(ModuleAdapter module, int classSelection, List<Integer> methodSelection,
+	private MockupOverrideMethodsRequestProcessor(ModuleAdapter module, String classSelection, List<Integer> methodSelection,
 			int offsetStrategy, int editClass) {
 		this.module = module;
 		this.methodSelection = methodSelection;
@@ -41,14 +43,65 @@ public class MockupOverrideMethodsRequestProcessor implements IRequestProcessor<
 		this(module, config.getClassSelection(), config.getMethodSelection(), config.getOffsetStrategy(), config.getEditClass());
 	}
 
-	public List<OverrideMethodsRequest> getRefactoringRequests() {
+	public List<OverrideMethodsRequest> getRefactoringRequests() throws MisconfigurationException {
 		ClassDefAdapter clazz = (ClassDefAdapter) module.getClasses().get(editClass);
-		ClassDefAdapter clazzSelection = (ClassDefAdapter) module.getClasses().get(classSelection);
-		String baseClassName = module.getClasses().get(classSelection).getName();
+		
+		IClassDefAdapter clazzSelection;
+		
+		int parsedInt = -1;
+		try{
+            parsedInt = Integer.parseInt(classSelection);
+        }catch(NumberFormatException e){
+        }
+        
+		if(parsedInt != -1){
+		    clazzSelection = module.getClasses().get(parsedInt);
+		}else{
+		    List<String> split = StringUtils.split(classSelection, ",");
+		    if(split.size() != 2){
+		        throw new RuntimeException("Right now can only handle with a single comma.");
+		    }
+		    clazzSelection = module.getClasses().get(Integer.parseInt(split.get(0)));
+		    List<IClassDefAdapter> classHierarchy = module.getClassHierarchy(clazz);
+		    boolean found=false;
+		    StringBuffer foundClasses = new StringBuffer("\nFound classes:");
+		    for(IClassDefAdapter iClassDefAdapter:classHierarchy){
+		        foundClasses.append(iClassDefAdapter.getName());
+		        if(iClassDefAdapter.getName().equals(split.get(1))){
+		            clazzSelection = iClassDefAdapter;
+		            found = true;
+		            break;
+		        }
+		    }
+		    if(!found){
+		        String message = "Could not find: "+split.get(1)+foundClasses;
+		        
+                throw new RuntimeException(message);
+		    }
+		}
+		
+		String baseClassName = clazzSelection.getName();
 		List<FunctionDefAdapter> methods = new ArrayList<FunctionDefAdapter>();
 
-		for (int index : methodSelection) {
-			methods.add(clazzSelection.getFunctions().get(index));
+		for(Object o:methodSelection){
+		    if(o instanceof Integer){
+		        methods.add(clazzSelection.getFunctions().get((Integer)o));
+		    }else if(o instanceof String){
+		        List<FunctionDefAdapter> functions = clazzSelection.getFunctions();
+		        boolean found = false;
+		        for(FunctionDefAdapter f:functions){
+		            if(f.getName().equals(o)){
+		                methods.add(f);
+		                found = true;
+		                break;
+		            }
+		        }
+		        if(!found){
+		            throw new RuntimeException("Unable to find:"+o);
+		        }
+		    }else{
+		        throw new RuntimeException("Unable to recognize: "+o);
+		    }
 		}
 
 		List<OverrideMethodsRequest> requests = new ArrayList<OverrideMethodsRequest>();

@@ -16,9 +16,9 @@ class A(object):
 
 ##r
 class A(object):
+
     def __init__(self, a):
         self.a = a
-
 
     
     def myMethod(self):

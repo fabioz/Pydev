@@ -80,7 +80,7 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements IGra
      * @return the special tokens in the token source
      */
     @SuppressWarnings("unchecked")
-    protected final List<Object> getTokenSourceSpecialTokensList(){
+    public final List<Object> getTokenSourceSpecialTokensList(){
         return token_source.specialTokens;
     }
 
@@ -556,7 +556,7 @@ void fpdef() #void: {}
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
-{ fpdef() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> fpdef())* [{this.findTokenAndAdd(",");}<COMMA>] }
+{ fpdef() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> fpdef())* [Comma()] }
 
 
 
@@ -754,7 +754,7 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() ({this.findTokenAndAdd(",");}<COMMA> Name())* }
+{ temporaryToken=<GLOBAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} Name() ({this.findTokenAndAdd(",");}<COMMA> Name())* }
 
 //exec_stmt: 'exec' expr ['in' test [',' test]]
 void exec_stmt(): {}

@@ -15,7 +15,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testRaiseFrom();
+            test.testAnnotations3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -274,7 +274,18 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "finally:\n" +
         "    d = 10\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v2 = "" +
+        "try:\n" +
+        "    a = 10\n" +
+        "except BdbQuit:\n" +
+        "    b = 10\n" +
+        "else:\n" +
+        "    c = 10\n" +
+        "finally:\n" +
+        "    d = 10\n" +
+        "";
+        checkPrettyPrintEqual(s, s, v2);
     }
     
     public void testComment() throws Exception {
@@ -294,7 +305,11 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         String s = "" +
         "j = stop if (arg in gets) else start\n"+
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v2 = "" +
+        "j = stop if arg in gets else start\n"+
+        "";
+        checkPrettyPrintEqual(s, s, v2);
         
     }
     
@@ -368,8 +383,23 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "            ))\n" +
         "";
         
-        checkPrettyPrintEqual(s);
+        final String v2 = ""+
+        "def _format(node):\n" +
+        "    rv = '%s(%s' % (node.__class__.__name__,', '.join((\n" +
+        "                '%s=%s' % field for field in fields) if \n" +
+        "            annotate_fields else \n" +
+        "            (b for (a,b) in fields)))\n" +
+        "";
         
+        checkPrettyPrintEqual(s, s, v2);
+    }
+    
+    public void testManyGlobals() throws Throwable {
+        final String s = ""+
+        "global logfp,log\n" +
+        "";
+        
+        checkPrettyPrintEqual(s);
     }
 
 }

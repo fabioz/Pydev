@@ -29,7 +29,7 @@ a.test()
 class A:
 
     def extracted_method(self, b):
-        while (b < 2):
+        while b < 2:
             b += 1
         
         return b

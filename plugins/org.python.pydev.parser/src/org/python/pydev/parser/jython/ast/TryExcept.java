@@ -25,7 +25,7 @@ public final class TryExcept extends stmtType {
         if(this.body != null){
         new0 = new stmtType[this.body.length];
         for(int i=0;i<this.body.length;i++){
-            new0[i] = (stmtType) this.body[i].createCopy();
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy():null);
         }
         }else{
             new0 = this.body;
@@ -34,7 +34,8 @@ public final class TryExcept extends stmtType {
         if(this.handlers != null){
         new1 = new excepthandlerType[this.handlers.length];
         for(int i=0;i<this.handlers.length;i++){
-            new1[i] = (excepthandlerType) this.handlers[i].createCopy();
+            new1[i] = (excepthandlerType) (this.handlers[i] != null?
+            this.handlers[i].createCopy():null);
         }
         }else{
             new1 = this.handlers;
@@ -83,18 +84,21 @@ public final class TryExcept extends stmtType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (body != null) {
             for (int i = 0; i < body.length; i++) {
-                if (body[i] != null)
+                if (body[i] != null){
                     body[i].accept(visitor);
+                }
             }
         }
         if (handlers != null) {
             for (int i = 0; i < handlers.length; i++) {
-                if (handlers[i] != null)
+                if (handlers[i] != null){
                     handlers[i].accept(visitor);
+                }
             }
         }
-        if (orelse != null)
+        if (orelse != null){
             orelse.accept(visitor);
+        }
     }
 
 }

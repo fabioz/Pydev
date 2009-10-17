@@ -20,7 +20,7 @@ public final class StrJoin extends exprType {
         if(this.strs != null){
         new0 = new exprType[this.strs.length];
         for(int i=0;i<this.strs.length;i++){
-            new0[i] = (exprType) this.strs[i].createCopy();
+            new0[i] = (exprType) (this.strs[i] != null? this.strs[i].createCopy():null);
         }
         }else{
             new0 = this.strs;
@@ -62,8 +62,9 @@ public final class StrJoin extends exprType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (strs != null) {
             for (int i = 0; i < strs.length; i++) {
-                if (strs[i] != null)
+                if (strs[i] != null){
                     strs[i].accept(visitor);
+                }
             }
         }
     }

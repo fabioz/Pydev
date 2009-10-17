@@ -431,7 +431,7 @@ void fpdef() #void: {}
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
-{ fpdef() (LOOKAHEAD(2) $COMMA fpdef())* [$COMMA] }
+{ fpdef() (LOOKAHEAD(2) $COMMA fpdef())* [Comma()] }
 
 
 $STMT

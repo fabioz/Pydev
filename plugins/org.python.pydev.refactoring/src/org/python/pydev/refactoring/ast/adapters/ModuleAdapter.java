@@ -77,11 +77,15 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         this.nature = nature;
     }
 
-    public ModuleAdapter(PythonModuleManager pm, ISourceModule module, IPythonNature nature) {
+    public ModuleAdapter(PythonModuleManager pm, ISourceModule module, IPythonNature nature, IDocument doc) {
         super();
         //		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
         this.file = module.getFile();
-        this.doc = PythonModuleManager.getDocFromFile(this.file);
+        if(doc != null){
+            this.doc = doc;
+        }else{
+            this.doc = PythonModuleManager.getDocFromFile(this.file);
+        }
         init(null, null, (Module) module.getAst(), new AdapterPrefs(TextUtilities.getDefaultLineDelimiter(this.doc), nature));
         this.sourceModule = module;
         this.moduleManager = pm;
@@ -122,7 +126,7 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
         resolveClassHierarchy(bases, scopeClass, new HashSet<String>());
         Collections.reverse(bases);
-        bases.add(new ObjectAdapter(this, this, getAdapterPrefs()));
+//        bases.add(new ObjectAdapter(this, this, getAdapterPrefs()));
 
         return bases;
     }
@@ -397,10 +401,10 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     }
 
     /**
-     * This method fills the bases list (out) with asts for the methods that can be overriden.
+     * This method fills the bases list (out) with asts for the methods that can be overridden.
      * 
      * Still, compiled modules will not have an actual ast, but a list of tokens (that should be used
-     * to know what should be overriden), so, this method should actually be changed so that 
+     * to know what should be overridden), so, this method should actually be changed so that 
      * it works with tokens (that are resolved when a completion is requested), so, if we request a completion
      * for each base class, all the tokens from it will be returned, what's missing in this approach is that currently
      * the tokens returned don't have an associated context, so, after getting them, it may be hard to actually

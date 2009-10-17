@@ -17,7 +17,6 @@ import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.commentType;
-import org.python.pydev.parser.jython.ast.stmtType;
 
 /**
  * This document is the temporary structure we create to put on the tokens and the comments.
@@ -93,12 +92,12 @@ public class PrettyPrinterDocV2 {
     
     //---------------- Mark that a statement has started (new lines need a '\')
     
-    public void addStartStatementMark(ILinePart foundWithLowerLocation, stmtType node) {
+    public void addStartStatementMark(ILinePart foundWithLowerLocation, SimpleNode node) {
         getLine(foundWithLowerLocation.getLine()).addStartStatementMark(foundWithLowerLocation, node);
     }
 
 
-    public void addEndStatementMark(ILinePart foundWithHigherLocation, stmtType node) {
+    public void addEndStatementMark(ILinePart foundWithHigherLocation, SimpleNode node) {
         getLine(foundWithHigherLocation.getLine()).addEndStatementMark(foundWithHigherLocation, node);
     }
     
@@ -156,13 +155,13 @@ public class PrettyPrinterDocV2 {
     }    
 
 
-    public void addDedent() {
-        addDedent(0);
+    public LinePartIndentMark addDedent() {
+        return addDedent(0);
     }
     
-    public void addDedent(int emptyLinesRequiredAfterDedent) {
+    public LinePartIndentMark addDedent(int emptyLinesRequiredAfterDedent) {
         PrettyPrinterDocLineEntry lastLine = getLastLine();
-        lastLine.dedent(emptyLinesRequiredAfterDedent);
+        return lastLine.dedent(emptyLinesRequiredAfterDedent);
     }
     
     
@@ -268,21 +267,6 @@ public class PrettyPrinterDocV2 {
 
     
     
-    
-    
-    
-    public void checkTokenAdded(List<ILinePart> changes, SimpleNode node, String string) {
-        for(ILinePart p:changes){
-            if(p instanceof ILinePart2){
-                ILinePart2 iLinePart2 = (ILinePart2) p;
-                if(iLinePart2.getString().equals(string)){
-                    return;
-                }
-            }
-        }
-        this.addBefore(node.beginLine, node.beginColumn, string, node);
-    }
-
 
     /**
      * In this method, all the require marks have to be either already given in the parsing
@@ -292,6 +276,8 @@ public class PrettyPrinterDocV2 {
         if(linesToColAndContents.size() == 0){
             return;//nothing to validate (no entries there)
         }
+        Tuple<ILinePart, Boolean> search=null;
+        
         for(int line=linesToColAndContents.firstKey();line<=linesToColAndContents.lastKey();line++){
             PrettyPrinterDocLineEntry prettyPrinterDocLineEntry = linesToColAndContents.get(line);
             if(prettyPrinterDocLineEntry == null){
@@ -303,11 +289,12 @@ public class PrettyPrinterDocV2 {
                 if(iLinePart instanceof LinePartRequireMark){
                     LinePartRequireMark linePartRequireMark = (LinePartRequireMark) iLinePart;
                     
+                    Tuple<ILinePart, Boolean> lastSearch=search;
                     //Ok, go forwards and see if we have a match somewhere
-                    Tuple<ILinePart, Boolean> search = search(line, position, linePartRequireMark, true);
+                    search = search(line, position, linePartRequireMark, false, lastSearch);
                     boolean found = search.o2;
                     if(!found){
-                        search = search(line, position, linePartRequireMark, false);
+                        search = search(line, position, linePartRequireMark, true, lastSearch);
                         found = search.o2;
                     }
                     
@@ -318,16 +305,29 @@ public class PrettyPrinterDocV2 {
                             throw new RuntimeException("Unable to find place to add indent");
                         }
                         ILinePart removed = parts.remove(position);
-                        parts.add(position, new LinePartRequireAdded(
+                        LinePartRequireAdded linePartRequireAdded = new LinePartRequireAdded(
                                 removed.getBeginCol(), 
                                 linePartRequireMark.getToken(), 
                                 linePartRequireMark.getToken(), 
-                                prettyPrinterDocLineEntry));
+                                prettyPrinterDocLineEntry);
+                        
+                        int addAt=position;
+                        if(lastSearch != null){
+                            int i = parts.indexOf(lastSearch.o1);
+                            if(i > -1 && position == i-1){
+                                addAt = i+1;
+                            }
+                        }
+                        parts.add(addAt, linePartRequireAdded);
+                        //Generate the search so that the last search is correct.
+                        search = new Tuple<ILinePart, Boolean>(linePartRequireAdded, true);
                     }else{
                         if(iLinePart instanceof LinePartRequireIndentMark){
                             //add the indent on the last position returned
                             PrettyPrinterDocLineEntry l = this.getLine(next.getLine());
                             l.indentAfter(next, true);
+                        }else{
+                            search.o1.setMarkAsFound();
                         }
                         int i = parts.indexOf(iLinePart);
                         parts.remove(i);
@@ -341,10 +341,11 @@ public class PrettyPrinterDocV2 {
     }
 
 
-    private Tuple<ILinePart, Boolean> search(int line, int position, LinePartRequireMark linePartRequireMark, boolean forward) {
+    private Tuple<ILinePart, Boolean> search(int line, int position, LinePartRequireMark linePartRequireMark, 
+            boolean forward, Tuple<ILinePart, Boolean> lastSearch) {
         boolean found = false;
         ILinePart next = null;
-        LinePartsIterator it = getLinePartsIterator(line, position, forward);
+        LinePartsIterator it = getLinePartsIterator(line, position, forward, lastSearch);
         boolean searchForIndentMark = linePartRequireMark instanceof LinePartRequireIndentMark;
         
         OUTER:
@@ -353,6 +354,11 @@ public class PrettyPrinterDocV2 {
             if(next instanceof ILinePart2){
                 if(!searchForIndentMark && next instanceof LinePartRequireAdded){
                     break; //As the require parts are in order, finding a previously added require, we just mark it as not found.
+                }
+                if(!searchForIndentMark){
+                    if(next.isMarkedAsFound()){
+                        continue;
+                    }
                 }
                 ILinePart2 part2 = (ILinePart2) next;
                 if(linePartRequireMark.requireOneOf != null){
@@ -379,8 +385,28 @@ public class PrettyPrinterDocV2 {
     }
 
 
-    public LinePartsIterator getLinePartsIterator(int initialLine, int initialPos, boolean forward) {
-        return new LinePartsIterator(this, initialLine, initialPos, forward);
+    public LinePartsIterator getLinePartsIterator(int initialLine, int initialPos, boolean forward, Tuple<ILinePart, Boolean> lastSearch) {
+        return new LinePartsIterator(this, initialLine, initialPos, forward, lastSearch);
+    }
+
+
+    public LinePartIndentMark getLastDedent() {
+        for(int line = this.getLastLineKey();line>=linesToColAndContents.firstKey();line--){
+            PrettyPrinterDocLineEntry prettyPrinterDocLineEntry = linesToColAndContents.get(line);
+            if(prettyPrinterDocLineEntry!=null){
+                List<ILinePart> sortedParts = prettyPrinterDocLineEntry.getSortedParts();
+                for(int i=sortedParts.size()-1;i>=0;i--){
+                    ILinePart iLinePart = sortedParts.get(i);
+                    if(iLinePart instanceof LinePartIndentMark){
+                        LinePartIndentMark linePartIndentMark = (LinePartIndentMark) iLinePart;
+                        if(!linePartIndentMark.isIndent()){
+                            return linePartIndentMark;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 
@@ -452,13 +478,15 @@ class LinePartsIterator implements Iterator<ILinePart>{
     private PrettyPrinterDocV2 doc;
     private ILinePart next;
     private boolean forward;
+    private Tuple<ILinePart, Boolean> lastSearch;
     
     
-    public LinePartsIterator(PrettyPrinterDocV2 prettyPrinterDocV2, int initialLine, int initialPos, boolean forward) {
+    public LinePartsIterator(PrettyPrinterDocV2 prettyPrinterDocV2, int initialLine, int initialPos, boolean forward, Tuple<ILinePart, Boolean> lastSearch) {
         this.doc = prettyPrinterDocV2;
         this.line = initialLine;
         this.position = initialPos;
         this.forward = forward;
+        this.lastSearch = lastSearch;
         calcNext();
     }
 
@@ -473,8 +501,13 @@ class LinePartsIterator implements Iterator<ILinePart>{
                     continue;
                 }
                 List<ILinePart> parts = prettyPrinterDocLineEntry.getSortedParts();
+                int onlyAfter = lastSearch!=null?parts.indexOf(lastSearch.o1):-1;
                 while(next == null){
                     if(position<parts.size()){
+                        if(position < onlyAfter){
+                            position++;
+                            continue;
+                        }
                         next = parts.get(position);
                         position ++;
                         return;
@@ -492,9 +525,13 @@ class LinePartsIterator implements Iterator<ILinePart>{
                     continue;
                 }
                 List<ILinePart> parts = prettyPrinterDocLineEntry.getSortedParts();
+                int onlyAfter = lastSearch!=null?parts.indexOf(lastSearch.o1):-1;
                 while(next == null){
                     if(position>=parts.size()){
                         position = parts.size()-1;
+                    }
+                    if(position < onlyAfter){
+                        return; //going backwards, when we reach the onlyAfter position, there's nowhere to go.
                     }
                     if(position>=0){
                         next = parts.get(position);

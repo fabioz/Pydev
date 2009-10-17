@@ -68,14 +68,18 @@ public final class Raise extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (type != null)
+        if (type != null){
             type.accept(visitor);
-        if (inst != null)
+        }
+        if (inst != null){
             inst.accept(visitor);
-        if (tback != null)
+        }
+        if (tback != null){
             tback.accept(visitor);
-        if (cause != null)
+        }
+        if (cause != null){
             cause.accept(visitor);
+        }
     }
 
 }

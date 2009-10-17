@@ -2,6 +2,8 @@ package org.python.pydev.parser.grammarcommon;
 
 import java.util.ArrayList;
 
+import org.python.pydev.core.log.Log;
+import org.python.pydev.parser.jython.ISpecialStrOrToken;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -18,9 +20,11 @@ import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Starred;
@@ -177,7 +181,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
      * @return a new node representing the node that's having it's context closed.
      * @throws Exception
      */
-    public SimpleNode closeNode(final SimpleNode n, final int arity) throws Exception {
+    public final SimpleNode closeNode(final SimpleNode n, final int arity) throws Exception {
         exprType value;
         suiteType orelseSuite;
         stmtType[] body;
@@ -550,5 +554,27 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         return last;
     }
 
+
+    protected final SimpleNode makeImportFrom25Onwards(int arity) {
+        ArrayList<aliasType> aliastL = new ArrayList<aliasType>();
+        while(arity > 0 && stack.peekNode() instanceof aliasType){
+            aliastL.add(0, (aliasType) stack.popNode());
+            arity--;
+        }
+        NameTok nT;
+        if(arity > 0){
+            nT = makeName(NameTok.ImportModule);
+        }else{
+            nT = new NameTok("", NameTok.ImportModule);
+            ISpecialStrOrToken temporaryToken = this.stack.getGrammar().temporaryToken;
+            if(temporaryToken.toString().equals("from")){
+                nT.beginColumn = temporaryToken.getBeginCol();
+                nT.beginLine = temporaryToken.getBeginLine();
+            }else{
+                Log.log("Expected to find 'from' token as the current temporary token (begin col/line can be wrong)!");
+            }
+        }
+        return new ImportFrom((NameTokType)nT, aliastL.toArray(new aliasType[0]), 0);
+    }
 
 }

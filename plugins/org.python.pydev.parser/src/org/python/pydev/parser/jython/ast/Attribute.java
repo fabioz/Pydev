@@ -62,10 +62,12 @@ public final class Attribute extends exprType implements expr_contextType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (value != null)
+        if (value != null){
             value.accept(visitor);
-        if (attr != null)
+        }
+        if (attr != null){
             attr.accept(visitor);
+        }
     }
 
 }

@@ -57,10 +57,12 @@ public final class Assert extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (test != null)
+        if (test != null){
             test.accept(visitor);
-        if (msg != null)
+        }
+        if (msg != null){
             msg.accept(visitor);
+        }
     }
 
 }

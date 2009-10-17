@@ -17,7 +17,7 @@ b = B()
 b.my_method()
 
 ##c
-
+'''
 <config>
   <classSelection>1</classSelection>
   <attributeSelection>
@@ -25,7 +25,7 @@ b.my_method()
   </attributeSelection>
   <offsetStrategy>2</offsetStrategy>
 </config>
-
+'''
 
 ##r Again any kwargs of a superclass init-method must be called with kwargs (same as for vararg)
 class A:

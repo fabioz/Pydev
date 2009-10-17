@@ -504,7 +504,7 @@ void fpdef() #void: {}
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
-{ fpdef() (LOOKAHEAD(2) $COMMA fpdef())* [$COMMA] }
+{ fpdef() (LOOKAHEAD(2) $COMMA fpdef())* [Comma()] }
 
 
 $STMT
@@ -645,7 +645,7 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ $GLOBAL Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [$EQUAL2 testlist()] }
+{ $GLOBAL Name() ($COMMA Name())* }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
@@ -933,7 +933,7 @@ void testlist() #void: {}
 
 //testlist_star_expr: test (',' test)* [',']
 void testlist_star_expr() #void: {}
-{ ( (test()|star_expr()) (LOOKAHEAD(2) $COMMA  (test()|star_expr()))* [$COMMA]) #tuple(>1) }
+{ ( (test()|star_expr()) (LOOKAHEAD(2) $COMMA  (test()|star_expr()))* [Comma()]) #tuple(>1) }
 
 void star_expr(): {}
 {<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}

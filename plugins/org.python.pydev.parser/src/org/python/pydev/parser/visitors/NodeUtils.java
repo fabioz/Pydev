@@ -505,6 +505,10 @@ public class NodeUtils {
     }
     
     public static int getLineEnd(SimpleNode v) {
+        if(v instanceof Expr){
+            Expr expr = (Expr) v;
+            v = expr.value;
+        }
         if(v instanceof ImportFrom){
             ImportFrom f = (ImportFrom) v;
             FindLastLineVisitor findLastLineVisitor = new FindLastLineVisitor();

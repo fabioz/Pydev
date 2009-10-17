@@ -22,7 +22,8 @@ public final class SetComp extends exprType {
         if(this.generators != null){
         new0 = new comprehensionType[this.generators.length];
         for(int i=0;i<this.generators.length;i++){
-            new0[i] = (comprehensionType) this.generators[i].createCopy();
+            new0[i] = (comprehensionType) (this.generators[i] != null?
+            this.generators[i].createCopy():null);
         }
         }else{
             new0 = this.generators;
@@ -65,12 +66,14 @@ public final class SetComp extends exprType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (elt != null)
+        if (elt != null){
             elt.accept(visitor);
+        }
         if (generators != null) {
             for (int i = 0; i < generators.length; i++) {
-                if (generators[i] != null)
+                if (generators[i] != null){
                     generators[i].accept(visitor);
+                }
             }
         }
     }

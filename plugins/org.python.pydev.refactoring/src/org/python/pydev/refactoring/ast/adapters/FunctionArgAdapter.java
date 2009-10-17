@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
@@ -75,7 +76,9 @@ public class FunctionArgAdapter extends AbstractNodeAdapter<argumentsType> {
     }
 
     public String getSignature() {
-        return RewriterVisitor.createSourceFromAST(this.getASTNode(), true, 
-                new AdapterPrefs(getModule().getEndLineDelimiter(), this.getModule().nature));
+        argumentsType astNode = this.getASTNode().createCopy();
+        AdapterPrefs adapterPrefs = new AdapterPrefs(getModule().getEndLineDelimiter(), this.getModule().nature);
+        String ret = StringUtils.replaceNewLines(RewriterVisitor.createSourceFromAST(astNode, true, adapterPrefs), "");
+        return ret;
     }
 }

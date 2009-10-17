@@ -7,10 +7,9 @@ class B(object):
 ##c
 '''
 <config>
-  <classSelection>0</classSelection>
+  <classSelection>0,__builtin__.object</classSelection>
   <methodSelection>
     <string>__hash__</string>
-    <string>__delattr__</string>
   </methodSelection>
   <offsetStrategy>4</offsetStrategy>
   <editClass>0</editClass>
@@ -22,9 +21,5 @@ class B(object):
     '''
         comment
     '''
-    def __hash__(self, *args, **kwrgs):
-        return object.__hash__(self, *args, **kwrgs)
-
-
-    def __delattr__(self, *args, **kwrgs):
-        return object.__delattr__(self, *args, **kwrgs)
+    def __hash__(self, *args, **kwargs):
+        return object.__hash__(self, *args, **kwargs)

@@ -10,6 +10,7 @@ package org.python.pydev.refactoring.ast.visitors.position;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.VisitorBase;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
  * A node's last body statement isn't always the last line. We have to traverse the statement's AST node in many cases: e.g. a nested class,
@@ -35,8 +36,9 @@ public class LastLineVisitor extends VisitorBase {
 
     @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
-        if(node.beginLine > lastLine){
-            lastLine = node.beginLine;
+        int lineEnd = NodeUtils.getLineEnd(node);
+        if(lineEnd > lastLine){
+            lastLine = lineEnd;
         }
         return null;
     }

@@ -63,12 +63,15 @@ public final class Exec extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (body != null)
+        if (body != null){
             body.accept(visitor);
-        if (globals != null)
+        }
+        if (globals != null){
             globals.accept(visitor);
-        if (locals != null)
+        }
+        if (locals != null){
             locals.accept(visitor);
+        }
     }
 
 }

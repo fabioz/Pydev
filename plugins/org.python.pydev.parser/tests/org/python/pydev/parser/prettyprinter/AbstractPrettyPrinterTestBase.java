@@ -46,16 +46,13 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
     public static SimpleNode checkPrettyPrintEqual(String s, IPrettyPrinterPrefs prefs, String expected, String ... v2) throws Error {
         SimpleNode node = parseLegalDocStr(s);
 
-        PrettyPrinterUtilsV2.USE_SPECIAL_STR_OR_TOKEN = false;
-        try{
-            String check = expected;
-            if(v2.length > 0){
-                check = v2[0];
-            }
-//            assertEquals(check, makePrint(prefs, node));
-        }finally{
-            PrettyPrinterUtilsV2.USE_SPECIAL_STR_OR_TOKEN = true;
+        String check = expected;
+        if(v2.length > 0){
+            check = v2[0];
         }
+        
+        //When creating a copy, the specials won't go along.
+        assertEquals(check, makePrint(prefs, node.createCopy()));
         
         assertEquals(expected, makePrint(prefs, node));
         return node;

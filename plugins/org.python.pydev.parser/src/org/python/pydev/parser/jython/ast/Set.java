@@ -20,7 +20,7 @@ public final class Set extends exprType {
         if(this.elts != null){
         new0 = new exprType[this.elts.length];
         for(int i=0;i<this.elts.length;i++){
-            new0[i] = (exprType) this.elts[i].createCopy();
+            new0[i] = (exprType) (this.elts[i] != null? this.elts[i].createCopy():null);
         }
         }else{
             new0 = this.elts;
@@ -62,8 +62,9 @@ public final class Set extends exprType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (elts != null) {
             for (int i = 0; i < elts.length; i++) {
-                if (elts[i] != null)
+                if (elts[i] != null){
                     elts[i].accept(visitor);
+                }
             }
         }
     }

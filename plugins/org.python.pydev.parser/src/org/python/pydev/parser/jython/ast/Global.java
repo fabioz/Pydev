@@ -22,7 +22,7 @@ public final class Global extends stmtType {
         if(this.names != null){
         new0 = new NameTokType[this.names.length];
         for(int i=0;i<this.names.length;i++){
-            new0[i] = (NameTokType) this.names[i].createCopy();
+            new0[i] = (NameTokType) (this.names[i] != null? this.names[i].createCopy():null);
         }
         }else{
             new0 = this.names;
@@ -67,12 +67,14 @@ public final class Global extends stmtType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (names != null) {
             for (int i = 0; i < names.length; i++) {
-                if (names[i] != null)
+                if (names[i] != null){
                     names[i].accept(visitor);
+                }
             }
         }
-        if (value != null)
+        if (value != null){
             value.accept(visitor);
+        }
     }
 
 }

@@ -62,7 +62,7 @@ public class PrettyPrinterV2 {
         PrettyPrinterDocV2 doc = new PrettyPrinterDocV2();
         PrettyPrinterVisitorV2 visitor = new PrettyPrinterVisitorV2(prefs, doc);
         try{
-            m.accept(visitor);
+            visitor.visitNode(m);
         }catch(Exception e){
             throw new RuntimeException(e);
         }

@@ -58,10 +58,12 @@ public final class keywordType extends SimpleNode {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (arg != null)
+        if (arg != null){
             arg.accept(visitor);
-        if (value != null)
+        }
+        if (value != null){
             value.accept(visitor);
+        }
     }
 
 }

@@ -405,8 +405,8 @@ public class PyParser30Test extends PyParserTestBase{
         "def m1():\n" +
         "    a = 20\n" +
         "    def m2():\n" +
-        "        nonlocal a = 30\n" +
-        "        global x = 30\n" +
+        "        nonlocal a\n" +
+        "        global x\n" +
         "";
         parseLegalDocStr(s);
     }
@@ -417,8 +417,8 @@ public class PyParser30Test extends PyParserTestBase{
         "def m1():\n" +
         "    a = 20\n" +
         "    def m2():\n" +
-        "        nonlocal a, = (5,)\n" +
-        "        global x, = (5,)\n" +
+        "        nonlocal a\n" +
+        "        global x\n" +
         "";
         parseLegalDocStr(s);
     }

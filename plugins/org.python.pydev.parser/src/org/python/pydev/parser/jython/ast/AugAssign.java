@@ -62,10 +62,12 @@ public final class AugAssign extends stmtType implements operatorType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (target != null)
+        if (target != null){
             target.accept(visitor);
-        if (value != null)
+        }
+        if (value != null){
             value.accept(visitor);
+        }
     }
 
 }

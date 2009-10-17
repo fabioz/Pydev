@@ -24,7 +24,7 @@ public final class ImportFrom extends stmtType {
         if(this.names != null){
         new0 = new aliasType[this.names.length];
         for(int i=0;i<this.names.length;i++){
-            new0[i] = (aliasType) this.names[i].createCopy();
+            new0[i] = (aliasType) (this.names[i] != null? this.names[i].createCopy():null);
         }
         }else{
             new0 = this.names;
@@ -71,12 +71,14 @@ public final class ImportFrom extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (module != null)
+        if (module != null){
             module.accept(visitor);
+        }
         if (names != null) {
             for (int i = 0; i < names.length; i++) {
-                if (names[i] != null)
+                if (names[i] != null){
                     names[i].accept(visitor);
+                }
             }
         }
     }

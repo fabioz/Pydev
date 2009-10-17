@@ -435,7 +435,7 @@ void fpdef() #void: {}
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
-{ fpdef() (LOOKAHEAD(2) $COMMA fpdef())* [$COMMA] }
+{ fpdef() (LOOKAHEAD(2) $COMMA fpdef())* [Comma()] }
 
 
 $STMT
@@ -590,7 +590,7 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ <GLOBAL> {this.addSpecialToken("global ", STRATEGY_BEFORE_NEXT);} Name() ($COMMA Name())* }
+{ $GLOBAL Name() ($COMMA Name())* }
 
 //exec_stmt: 'exec' expr ['in' test [',' test]]
 void exec_stmt(): {}

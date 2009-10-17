@@ -79,7 +79,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements IGra
      * @return the special tokens in the token source
      */
     @SuppressWarnings("unchecked")
-    protected final List<Object> getTokenSourceSpecialTokensList(){
+    public final List<Object> getTokenSourceSpecialTokensList(){
         return token_source.specialTokens;
     }
 
@@ -625,7 +625,7 @@ void fpdef() #void: {}
 
 //fplist: fpdef (',' fpdef)* [',']
 void fplist() #tuple: {}
-{ fpdef() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> fpdef())* [{this.findTokenAndAdd(",");}<COMMA>] }
+{ fpdef() (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> fpdef())* [Comma()] }
 
 
 
@@ -809,7 +809,7 @@ String import_as_name(): { Token t; }
 
 //global_stmt: 'global' NAME (',' NAME)*
 void global_stmt(): {}
-{ temporaryToken=<GLOBAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2){this.findTokenAndAdd(",");}<COMMA> Name())* [{this.findTokenAndAdd(",");}<COMMA>] [{temporaryToken=createSpecialStr("=");}<EQUAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} testlist()] }
+{ temporaryToken=<GLOBAL> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} Name() ({this.findTokenAndAdd(",");}<COMMA> Name())* }
 
 
 //nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
@@ -1171,7 +1171,7 @@ void testlist() #void: {}
 
 //testlist_star_expr: test (',' test)* [',']
 void testlist_star_expr() #void: {}
-{ ( (test()|star_expr()) (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA>  (test()|star_expr()))* [{this.findTokenAndAdd(",");}<COMMA>]) #tuple(>1) }
+{ ( (test()|star_expr()) (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA>  (test()|star_expr()))* [Comma()]) #tuple(>1) }
 
 void star_expr(): {}
 {<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}

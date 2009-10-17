@@ -10,7 +10,7 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 
 public class MockupOverrideMethodsConfig {
 
-	private int classSelection;
+	private String classSelection;
 
 	private ArrayList<Integer> methodSelection;
 
@@ -19,7 +19,7 @@ public class MockupOverrideMethodsConfig {
 	private int editClass;
 
 	public MockupOverrideMethodsConfig() {
-		this.classSelection = 0;
+		this.classSelection = "";
 		this.offsetStrategy = IOffsetStrategy.AFTERINIT;
 		this.methodSelection = new ArrayList<Integer>();
 		methodSelection.add(0);
@@ -30,7 +30,7 @@ public class MockupOverrideMethodsConfig {
 		return methodSelection;
 	}
 
-	public int getClassSelection() {
+	public String getClassSelection() {
 		return classSelection;
 	}
 

@@ -24,7 +24,7 @@ public final class excepthandlerType extends SimpleNode {
         if(this.body != null){
         new0 = new stmtType[this.body.length];
         for(int i=0;i<this.body.length;i++){
-            new0[i] = (stmtType) this.body[i].createCopy();
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy():null);
         }
         }else{
             new0 = this.body;
@@ -72,14 +72,17 @@ public final class excepthandlerType extends SimpleNode {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (type != null)
+        if (type != null){
             type.accept(visitor);
-        if (name != null)
+        }
+        if (name != null){
             name.accept(visitor);
+        }
         if (body != null) {
             for (int i = 0; i < body.length; i++) {
-                if (body[i] != null)
+                if (body[i] != null){
                     body[i].accept(visitor);
+                }
             }
         }
     }

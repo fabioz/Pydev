@@ -63,12 +63,15 @@ public final class With extends stmtType {
     }
 
     public void traverse(VisitorIF visitor) throws Exception {
-        if (context_expr != null)
+        if (context_expr != null){
             context_expr.accept(visitor);
-        if (optional_vars != null)
+        }
+        if (optional_vars != null){
             optional_vars.accept(visitor);
-        if (body != null)
+        }
+        if (body != null){
             body.accept(visitor);
+        }
     }
 
 }

@@ -8,7 +8,6 @@ import java.util.List;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
-import org.python.pydev.parser.jython.ast.stmtType;
 
 public class PrettyPrinterDocLineEntry {
     
@@ -48,10 +47,12 @@ public class PrettyPrinterDocLineEntry {
         FastStringBuffer buf = new FastStringBuffer();
         for(ILinePart c:lineParts){
             if(c instanceof ILinePart2){
-                buf.append(((ILinePart2)c).getString());
+                ILinePart2 iLinePart2 = (ILinePart2)c;
+                buf.append(iLinePart2.getString());
             }else{
                 buf.append(c.toString());
             }
+            buf.append(c.isMarkedAsFound()?"+":"?");
             buf.append(" ");
         }
         return buf.toString();
@@ -85,7 +86,7 @@ public class PrettyPrinterDocLineEntry {
         return linePartIndentMark;
     }
 
-    public void dedent(int emptyLinesRequiredAfterDedent) {
+    public LinePartIndentMark dedent(int emptyLinesRequiredAfterDedent) {
         if(this.emptyLinesRequiredAfterDedent < emptyLinesRequiredAfterDedent){
             this.emptyLinesRequiredAfterDedent = emptyLinesRequiredAfterDedent;
         }
@@ -93,6 +94,7 @@ public class PrettyPrinterDocLineEntry {
         LinePartIndentMark dedentMark = new LinePartIndentMark(Integer.MAX_VALUE, "", false, this);
         dedentMark.setEmptyLinesRequiredAfterDedent(emptyLinesRequiredAfterDedent);
         lineParts.add(dedentMark);
+        return dedentMark;
     }
 
     public void indent(Token token, boolean requireNewLine) {
@@ -102,11 +104,12 @@ public class PrettyPrinterDocLineEntry {
         lineParts.add(linePartIndentMark);
     }
     
-    public void indentAfter(ILinePart after, boolean requireNewLine) {
+    public LinePartIndentMark indentAfter(ILinePart after, boolean requireNewLine) {
         this.indentDiff += 1;
         LinePartIndentMark linePartIndentMark = new LinePartIndentMark(after.getBeginCol(), after.getToken(), true, this);
         linePartIndentMark.setRequireNewLine(requireNewLine);
         lineParts.add(lineParts.indexOf(after)+1, linePartIndentMark);
+        return linePartIndentMark;
     }
 
 
@@ -122,22 +125,21 @@ public class PrettyPrinterDocLineEntry {
         return -1;
     }
 
-    public void addStartStatementMark(ILinePart foundWithLowerLocation, stmtType node) {
-        int beginCol = foundWithLowerLocation.getBeginCol();
+    public void addStartStatementMark(ILinePart foundWithLowerLocation, SimpleNode node) {
         sortLineParts();
         
         //Now, on the start, we want to add it before any existing in the same column.
         for(int i=0;i<this.lineParts.size();i++){
-            if(beginCol == this.lineParts.get(i).getBeginCol()){
-                this.lineParts.add(i, new LinePartStatementMark(beginCol, node, true, this));
+            if(foundWithLowerLocation == this.lineParts.get(i)){
+                this.lineParts.add(i, new LinePartStatementMark(foundWithLowerLocation.getBeginCol(), node, true, this));
                 return;
             }
         }
-        this.lineParts.add(new LinePartStatementMark(beginCol, node, true, this));
+        this.lineParts.add(new LinePartStatementMark(foundWithLowerLocation.getBeginCol(), node, true, this));
     }
 
     
-    public void addEndStatementMark(ILinePart foundWithHigherLocation, stmtType node) {
+    public void addEndStatementMark(ILinePart foundWithHigherLocation, SimpleNode node) {
         this.lineParts.add(new LinePartStatementMark(foundWithHigherLocation.getBeginCol(), node, false, this));
     }
 
@@ -186,6 +188,7 @@ public class PrettyPrinterDocLineEntry {
         this.lineParts.add(linePart);
         return linePart;
     }
+
 
 
 
