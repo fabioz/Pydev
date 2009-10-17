@@ -7,8 +7,10 @@ import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.parser.prettyprinter.IPrettyPrinterPrefs;
 
+/**
+ * Holds the preferences for pretty printing.
+ */
 public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
 
     private String newLine;

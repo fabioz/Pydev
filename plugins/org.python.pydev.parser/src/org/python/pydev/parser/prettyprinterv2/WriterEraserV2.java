@@ -2,7 +2,6 @@ package org.python.pydev.parser.prettyprinterv2;
 
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.parser.prettyprinter.IWriterEraser;
 
 public class WriterEraserV2 implements IWriterEraser{
 

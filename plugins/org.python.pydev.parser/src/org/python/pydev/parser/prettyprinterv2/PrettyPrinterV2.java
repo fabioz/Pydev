@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.commentType;
-import org.python.pydev.parser.prettyprinter.IPrettyPrinterPrefs;
 
 /**
  * The initial pretty printer approach consisted of going to a scope and then printing things
@@ -58,11 +57,14 @@ public class PrettyPrinterV2 {
     boolean savedLineIndent;
     int indentDiff;
 
-    public String print(SimpleNode m) throws IOException {
+    /**
+     * This is the method that manages to call everything else correctly to print the ast.
+     */
+    public String print(SimpleNode ast) throws IOException {
         PrettyPrinterDocV2 doc = new PrettyPrinterDocV2();
         PrettyPrinterVisitorV2 visitor = new PrettyPrinterVisitorV2(prefs, doc);
         try{
-            visitor.visitNode(m);
+            visitor.visitNode(ast);
         }catch(Exception e){
             throw new RuntimeException(e);
         }
@@ -122,7 +124,8 @@ public class PrettyPrinterV2 {
                         if(newLevel != null){
                             if(!savedLineIndent){
                                 savedLineIndent = true;
-                                previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
+                                previousLines.add(
+                                        new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
                             }
                             
                             if(newLevel.o2){
@@ -186,8 +189,6 @@ public class PrettyPrinterV2 {
             }
             
             
-            updateIndentLevel();
-            
             if(statementLevel != 0 && !lastWasComment){
                 if(!isInLevel()){
                     continue;//don't write the new line if in a statement and not within parenthesis.
@@ -203,24 +204,6 @@ public class PrettyPrinterV2 {
         }
         
         return writerEraserV2.getBuffer().toString();
-    }
-
-
-    /**
-     * Updates the indentation level.
-     */
-    private void updateIndentLevel() {
-//        if(indentDiff > 0){
-//            while(indentDiff != 0){
-//                indentDiff --;
-//                writeStateV2.indent();
-//            }
-//        }else if(indentDiff < 0){
-//            while(indentDiff != 0){
-//                indentDiff ++;
-//                writeStateV2.dedent();
-//            }
-//        }
     }
 
 

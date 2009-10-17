@@ -18,7 +18,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.parser.prettyprinter.IFormatter;
+import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 

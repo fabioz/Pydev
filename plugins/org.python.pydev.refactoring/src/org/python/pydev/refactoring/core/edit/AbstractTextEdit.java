@@ -16,7 +16,7 @@ import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.factory.PyAstFactory;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
-import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
+import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public abstract class AbstractTextEdit {
@@ -53,7 +53,7 @@ public abstract class AbstractTextEdit {
             throw new RuntimeException(e);
         }
 
-        String source = RewriterVisitor.createSourceFromAST(node, this.adapterPrefs);
+        String source = Rewriter.createSourceFromAST(node, this.adapterPrefs);
         return getIndentedSource(node, source, getIndent());
     }
 

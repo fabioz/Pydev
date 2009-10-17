@@ -26,9 +26,14 @@ import org.python.pydev.parser.jython.ast.commentType;
  */
 public class PrettyPrinterDocV2 {
 
-    public final SortedMap<Integer, PrettyPrinterDocLineEntry> linesToColAndContents = new TreeMap<Integer, PrettyPrinterDocLineEntry>();
+    /**
+     * Holds the lines to print.
+     */
+    public final SortedMap<Integer, PrettyPrinterDocLineEntry> linesToColAndContents = 
+        new TreeMap<Integer, PrettyPrinterDocLineEntry>();
     
     private Map<Integer, List<ILinePart>> recordedChanges = new HashMap<Integer, List<ILinePart>>();
+    
     private int lastRecordedChangesId=0;
     
     
@@ -410,65 +415,12 @@ public class PrettyPrinterDocV2 {
     }
 
 
-
-
-
-
-
-
-
-
-//    public void checkTokenAt(SimpleNode node, String string) {
-//        PrettyPrinterDocLineEntry line = this.getLine(node.beginLine);
-//        List<ILinePart> sortedParts = line.getSortedParts();
-//        for(ILinePart iLinePart:sortedParts){
-//            if(iLinePart instanceof ILinePart2){
-//                ILinePart2 iLinePart2 = (ILinePart2) iLinePart;
-//                if(iLinePart2.getBeginCol() == node.beginColumn && iLinePart2.getString().equals(string)){
-//                    return;
-//                }
-//                if(iLinePart2.getBeginCol() > node.beginColumn){
-//                    break;
-//                }
-//            }
-//        }
-//        this.add(node.beginLine, node.beginColumn, string, node);
-//    }
-//
-//
-//    public void checkTokenAfterAndBefore(SimpleNode after, SimpleNode before, String string) {
-//        OUT:
-//        for(int iLine=after.beginLine; iLine<=before.beginLine; iLine++){
-//            PrettyPrinterDocLineEntry line = this.getLine(iLine);
-//            
-//            List<ILinePart> sortedParts = line.getSortedParts();
-//            for(ILinePart iLinePart:sortedParts){
-//                
-//                if(iLinePart.getLine() == after.beginLine && iLinePart.getBeginCol() < after.beginColumn){
-//                    continue; //still didn't reach it.
-//                }
-//                
-//                if(iLinePart.getLine() == before.beginLine && iLinePart.getBeginCol() > before.beginColumn){
-//                    break OUT; //we passed the before node.
-//                }
-//                
-//                if(iLinePart instanceof ILinePart2){
-//                    ILinePart2 iLinePart2 = (ILinePart2) iLinePart;
-//                    if(iLinePart2.getString().equals(string)){
-//                        return;
-//                    }
-//                }
-//            }
-//        }
-//        this.add(after.beginLine, after.beginColumn, string, after);
-//    }
-
-
-
-    
 }
 
 
+/**
+ * Helper class to iterate over the line parts in sequence (forward or backward) while traversing the lines.
+ */
 class LinePartsIterator implements Iterator<ILinePart>{
     
     private int line;

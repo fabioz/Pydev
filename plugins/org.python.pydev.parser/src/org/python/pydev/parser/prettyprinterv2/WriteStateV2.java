@@ -5,18 +5,17 @@ package org.python.pydev.parser.prettyprinterv2;
 
 import java.io.IOException;
 
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.prettyprinter.IPrettyPrinterPrefs;
-import org.python.pydev.parser.prettyprinter.IWriterEraser;
 
+/**
+ * Helper to write things in the document marking the last thing written, indent, etc.
+ *
+ */
 public class WriteStateV2 implements IWriterEraser {
 
     private IWriterEraser writer;
     private IPrettyPrinterPrefs prefs;
     private StringBuffer indentation = new StringBuffer();
-    private FastStack<SimpleNode> stmtStack = new FastStack<SimpleNode>();
     private boolean nextMustBeNewLineOrComment=false;
     
     public final static int INITIAL_STATE = -1;
@@ -60,19 +59,7 @@ public class WriteStateV2 implements IWriterEraser {
         eraseIndent();
     }
     
-
-    public void pushInStmt(SimpleNode node) {
-        stmtStack.push(node);
-    }
-
-    public SimpleNode popInStmt() {
-        return stmtStack.pop();
-    }
-
-    public boolean inStmt() {
-        return stmtStack.size() > 0;
-    }
-
+    
     public void eraseIndent() {
         if(indentation.length() > 0){
             writer.erase(prefs.getIndent());
@@ -112,17 +99,7 @@ public class WriteStateV2 implements IWriterEraser {
         }
         return false;
     }
-//
-//    public void writeIndent(int i) throws IOException {
-//        lastState = LAST_STATE_INDENT;
-//        writeIndent();
-//        String indent = prefs.getIndent();
-//        for (int j = 0; j < i; j++) {
-//            writer.write(indent);
-//            lastWrite++;
-//        }
-//        
-//    }
+
     
     
     /**

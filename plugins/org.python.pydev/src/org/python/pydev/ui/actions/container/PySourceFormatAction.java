@@ -24,7 +24,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.parser.prettyprinter.IFormatter;
+import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**

@@ -9,8 +9,6 @@
 package org.python.pydev.refactoring.ast.visitors;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.Writer;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -31,9 +29,7 @@ import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.printer.SourcePrinter;
 import org.python.pydev.refactoring.ast.visitors.context.AbstractContextVisitor;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisitor;
@@ -115,9 +111,6 @@ public final class VisitorFactory {
         return new ModuleAdapter(pythonModuleManager, file, doc, getRootNode(doc), nature);
     }
 
-    public static SourcePrinter createPrinter(Writer out, AdapterPrefs adapterPrefs) {
-        return new SourcePrinter(new PrintWriter(out), adapterPrefs);
-    }
 
     public static SimpleNode getRootNodeFromString(String source) throws ParseException {
         return getRootNode(getDocumentFromString(source));

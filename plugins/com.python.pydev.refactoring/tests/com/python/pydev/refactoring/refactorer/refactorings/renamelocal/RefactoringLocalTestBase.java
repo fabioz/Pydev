@@ -66,16 +66,6 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
         }
     }
 
-//    /** Applies an extract method refactoring 
-//     */
-//    private void applyExtractMethodRefactoring(RefactoringRequest request, boolean expectError) throws OperationCanceledException, CoreException {
-//        PyExtractMethodProcessor processor = new PyExtractMethodProcessor(request);
-//        NullProgressMonitor monitor = new NullProgressMonitor();
-//        checkStatus(processor.checkInitialConditions(monitor), expectError);
-//        checkStatus(processor.checkFinalConditions(monitor, null), expectError);
-//        Change change = processor.createChange(monitor);
-//        change.perform(monitor);
-//    }
     
     protected void checkStatus(RefactoringStatus status, boolean expectError) {
         RefactoringStatusEntry err = status.getEntryMatchingSeverity(RefactoringStatus.ERROR);
@@ -102,28 +92,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
         checkRename(strDoc, line, col, initialName, expectError, onlyOnLocalScope, "bb");
     }
     
-//    protected void checkExtract(String initialDoc, String expectedDoc, int line, int col, int len, boolean expectError, String newName) throws CoreException {
-//        Document doc = new Document(initialDoc);
-//        PySelection ps = new PySelection(doc, line, col, len);
-//        
-//        RefactoringRequest request = new RefactoringRequest(null, ps, nature);
-//        request.moduleName = "foo";
-//        request.inputName = newName;
-//        request.fillInitialNameAndOffset();
-//        
-//        applyExtractMethodRefactoring(request, expectError);
-//        String refactored = doc.get();
-//        if(DEBUG){
-//            System.out.println(refactored);
-//        }
-//        if(!expectError){
-//            assertEquals(expectedDoc,  refactored);
-//        }else{
-//            //cannot have changed
-//            assertEquals(initialDoc, doc.get());
-//        }
-//        
-//    }
+
 
     protected void checkRename(String strDoc, int line, int col, String initialName, boolean expectError, boolean onlyOnLocalScope, String newName) throws CoreException {
         Document doc = new Document(StringUtils.format(strDoc, getSame(initialName)));

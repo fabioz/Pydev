@@ -9,22 +9,74 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 
+/**
+ * Defines a line in the document. The items are added based on the order in which items are added
+ * and their actual columns.
+ * 
+ * So, if 2 items are added to the same column, the one added 1st has precedence over the other.
+ *
+ */
 public class PrettyPrinterDocLineEntry {
     
+    /**
+     * Holds the line parts available.
+     */
     private ArrayList<ILinePart> lineParts = new ArrayList<ILinePart>();
+    
+    /**
+     * The difference from indents/dedents in the current line (e.g.: if there are 2 indents
+     * and 1 dedent in this line, indentDiff = 1)
+     */
     private int indentDiff;
+    
+    /**
+     * The number of empty lines required after a dedent in this line.
+     */
     private int emptyLinesRequiredAfterDedent;
+    
+    /**
+     * The number of this line in the document.
+     */
     public final int line;
+    
+    /**
+     * Marks if the line is currently sorted or not. Whenever the line is changed, this
+     * attribute has to be marked as false.
+     */
+    private boolean lineSorted = false;
     
     public PrettyPrinterDocLineEntry(int line) {
         this.line = line;
     }
+    
+    private void addPart(ILinePart linePart) {
+        lineParts.add(linePart);
+        lineSorted = false;
+    }
+    
+    private void addPart(int i, ILinePart linePart) {
+        lineParts.add(i, linePart);
+        lineSorted = false;
+    }
 
+    private void sortLineParts() {
+        if(!lineSorted){
+            Collections.sort(lineParts, new Comparator<ILinePart>() {
+    
+                public int compare(ILinePart o1, ILinePart o2) {
+                    return (o1.getBeginCol()<o2.getBeginCol() ? -1 : (o1.getBeginCol()==o2.getBeginCol() ? 0 : 1));
+                }
+            });
+            lineSorted = true;
+        }
+    }
+    
     public ILinePart add(int beginCol, String string, Object token) {
         ILinePart linePart = new LinePart(beginCol, string, token, this);
-        lineParts.add(linePart);
+        addPart(linePart);
         return linePart;
     }
+
     
     public ILinePart addBefore(int beginCol, String string, Object token) {
         ILinePart linePart = new LinePart(beginCol, string, token, this);
@@ -32,20 +84,20 @@ public class PrettyPrinterDocLineEntry {
         //Now, on the start, we want to add it before any existing in the same column.
         for(int i=0;i<this.lineParts.size();i++){
             if(beginCol == this.lineParts.get(i).getBeginCol()){
-                this.lineParts.add(i, linePart);
+                addPart(i, linePart);
                 return linePart;
             }
         }
-        this.lineParts.add(linePart);
+        addPart(linePart);
         return linePart;
     }
+
 
     
     @Override
     public String toString() {
-        sortLineParts();
         FastStringBuffer buf = new FastStringBuffer();
-        for(ILinePart c:lineParts){
+        for(ILinePart c:getSortedParts()){
             if(c instanceof ILinePart2){
                 ILinePart2 iLinePart2 = (ILinePart2)c;
                 buf.append(iLinePart2.getString());
@@ -59,14 +111,7 @@ public class PrettyPrinterDocLineEntry {
     }
 
     
-    private void sortLineParts() {
-        Collections.sort(lineParts, new Comparator<ILinePart>() {
 
-            public int compare(ILinePart o1, ILinePart o2) {
-                return (o1.getBeginCol()<o2.getBeginCol() ? -1 : (o1.getBeginCol()==o2.getBeginCol() ? 0 : 1));
-            }
-        });
-    }
 
     public List<ILinePart> getSortedParts() {
         sortLineParts();
@@ -82,7 +127,7 @@ public class PrettyPrinterDocLineEntry {
         this.indentDiff += 1;
         LinePartIndentMark linePartIndentMark = new LinePartIndentMark(node.beginColumn, node, true, this);
         linePartIndentMark.setRequireNewLine(requireNewLine);
-        lineParts.add(linePartIndentMark);
+        addPart(linePartIndentMark);
         return linePartIndentMark;
     }
 
@@ -92,8 +137,7 @@ public class PrettyPrinterDocLineEntry {
         }
         this.indentDiff -= 1;
         LinePartIndentMark dedentMark = new LinePartIndentMark(Integer.MAX_VALUE, "", false, this);
-        dedentMark.setEmptyLinesRequiredAfterDedent(emptyLinesRequiredAfterDedent);
-        lineParts.add(dedentMark);
+        addPart(dedentMark);
         return dedentMark;
     }
 
@@ -101,14 +145,14 @@ public class PrettyPrinterDocLineEntry {
         this.indentDiff += 1;
         LinePartIndentMark linePartIndentMark = new LinePartIndentMark(token.beginColumn, token, true, this);
         linePartIndentMark.setRequireNewLine(requireNewLine);
-        lineParts.add(linePartIndentMark);
+        addPart(linePartIndentMark);
     }
     
     public LinePartIndentMark indentAfter(ILinePart after, boolean requireNewLine) {
         this.indentDiff += 1;
         LinePartIndentMark linePartIndentMark = new LinePartIndentMark(after.getBeginCol(), after.getToken(), true, this);
         linePartIndentMark.setRequireNewLine(requireNewLine);
-        lineParts.add(lineParts.indexOf(after)+1, linePartIndentMark);
+        addPart(lineParts.indexOf(after)+1, linePartIndentMark);
         return linePartIndentMark;
     }
 
@@ -131,16 +175,16 @@ public class PrettyPrinterDocLineEntry {
         //Now, on the start, we want to add it before any existing in the same column.
         for(int i=0;i<this.lineParts.size();i++){
             if(foundWithLowerLocation == this.lineParts.get(i)){
-                this.lineParts.add(i, new LinePartStatementMark(foundWithLowerLocation.getBeginCol(), node, true, this));
+                addPart(i, new LinePartStatementMark(foundWithLowerLocation.getBeginCol(), node, true, this));
                 return;
             }
         }
-        this.lineParts.add(new LinePartStatementMark(foundWithLowerLocation.getBeginCol(), node, true, this));
+        addPart(new LinePartStatementMark(foundWithLowerLocation.getBeginCol(), node, true, this));
     }
 
     
     public void addEndStatementMark(ILinePart foundWithHigherLocation, SimpleNode node) {
-        this.lineParts.add(new LinePartStatementMark(foundWithHigherLocation.getBeginCol(), node, false, this));
+        addPart(new LinePartStatementMark(foundWithHigherLocation.getBeginCol(), node, false, this));
     }
 
     public int getNewLinesRequired() {
@@ -149,19 +193,19 @@ public class PrettyPrinterDocLineEntry {
 
     public LinePartRequireMark addRequireMark(int beginColumn, String string) {
         LinePartRequireMark mark = new LinePartRequireMark(beginColumn, string, this);
-        this.lineParts.add(mark);
+        addPart(mark);
         return mark;
     }
     
     public LinePartRequireMark addRequireMark(int beginColumn, String ... string) {
         LinePartRequireMark mark = new LinePartRequireMark(beginColumn, this, string);
-        this.lineParts.add(mark);
+        addPart(mark);
         return mark;
     }
 
     public LinePartRequireIndentMark addRequireIndentMark(int beginColumn, String string) {
         LinePartRequireIndentMark ret = new LinePartRequireIndentMark(beginColumn, string, this);
-        this.lineParts.add(ret);
+        addPart(ret);
         return ret;
     }
 
@@ -169,11 +213,11 @@ public class PrettyPrinterDocLineEntry {
         LinePartRequireMark linePart = new LinePartRequireMark(o1.getBeginCol(), string, this);
         for(int i=0;i<this.lineParts.size();i++){
             if(o1 == this.lineParts.get(i)){
-                this.lineParts.add(i, linePart);
+                addPart(i, linePart);
                 return linePart;
             }
         }
-        this.lineParts.add(linePart);
+        addPart(linePart);
         return linePart;
     }
 
@@ -181,11 +225,11 @@ public class PrettyPrinterDocLineEntry {
         LinePartRequireMark linePart = new LinePartRequireMark(o1.getBeginCol(), string, this);
         for(int i=0;i<this.lineParts.size();i++){
             if(o1 == this.lineParts.get(i)){
-                this.lineParts.add(i+1, linePart);
+                addPart(i+1, linePart);
                 return linePart;
             }
         }
-        this.lineParts.add(linePart);
+        addPart(linePart);
         return linePart;
     }
 

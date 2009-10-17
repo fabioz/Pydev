@@ -11,10 +11,8 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IModulesManager;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.refactoring.ast.PythonModuleManager;

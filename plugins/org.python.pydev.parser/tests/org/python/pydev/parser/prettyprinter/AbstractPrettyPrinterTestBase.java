@@ -7,6 +7,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.prettyprinterv2.IPrettyPrinterPrefs;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterUtilsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;

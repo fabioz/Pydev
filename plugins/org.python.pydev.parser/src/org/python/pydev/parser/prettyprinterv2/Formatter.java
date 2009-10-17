@@ -1,7 +1,7 @@
 /*
  * Created on Feb 17, 2006
  */
-package org.python.pydev.parser.prettyprinter;
+package org.python.pydev.parser.prettyprinterv2;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPyEdit;
@@ -12,8 +12,6 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
-import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 
 public class Formatter implements IFormatter{
 

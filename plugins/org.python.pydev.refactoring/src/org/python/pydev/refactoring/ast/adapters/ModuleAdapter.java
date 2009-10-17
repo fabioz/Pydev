@@ -57,7 +57,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
     private IDocument doc;
     private File file;
     private SortedMap<String, String> importedModules;
-    private PythonModuleManager moduleManager;
     private IOffsetStrategy offsetStrategy;
     private ISourceModule sourceModule;
     public final IPythonNature nature;
@@ -68,8 +67,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     public ModuleAdapter(PythonModuleManager pm, File file, IDocument doc, Module node, IPythonNature nature) {
         super(null, null, node, new AdapterPrefs(TextUtilities.getDefaultLineDelimiter(doc), nature));
-        //		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
-        this.moduleManager = pm;
         this.file = file;
         this.doc = doc;
         this.aliasToFQIdentifier = null;
@@ -79,7 +76,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
     public ModuleAdapter(PythonModuleManager pm, ISourceModule module, IPythonNature nature, IDocument doc) {
         super();
-        //		Assert.isNotNull(pm); TODO: MAKE THIS ASSERTION TRUE
         this.file = module.getFile();
         if(doc != null){
             this.doc = doc;
@@ -88,7 +84,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         }
         init(null, null, (Module) module.getAst(), new AdapterPrefs(TextUtilities.getDefaultLineDelimiter(this.doc), nature));
         this.sourceModule = module;
-        this.moduleManager = pm;
         this.aliasToFQIdentifier = null;
         this.importedModules = null;
         this.nature = nature;
@@ -126,7 +121,6 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
 
         resolveClassHierarchy(bases, scopeClass, new HashSet<String>());
         Collections.reverse(bases);
-//        bases.add(new ObjectAdapter(this, this, getAdapterPrefs()));
 
         return bases;
     }

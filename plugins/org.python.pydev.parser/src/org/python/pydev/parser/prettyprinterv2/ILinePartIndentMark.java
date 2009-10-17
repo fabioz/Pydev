@@ -1,5 +1,8 @@
 package org.python.pydev.parser.prettyprinterv2;
 
+/**
+ * Interface for the line part that marks an indent or dedent.
+ */
 public interface ILinePartIndentMark extends ILinePart{
 
     /**

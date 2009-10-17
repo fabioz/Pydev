@@ -11,7 +11,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
+import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
@@ -36,7 +36,7 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 	private void runSelectionExtension(RefactoringInfo info) {
 		StringBuilder buffer = new StringBuilder();
 		try {
-			String source = RewriterVisitor.createSourceFromAST(
+			String source = Rewriter.createSourceFromAST(
 			        info.getParsedExtendedSelection().getASTParent(), "\n", new IGrammarVersionProvider() {
                         
                         @Override

@@ -8,7 +8,7 @@ package org.python.pydev.refactoring.tests.core;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
-import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
+import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
 
 public abstract class AbstractRewriterTestCase extends AbstractIOTestCase {
 
@@ -21,7 +21,7 @@ public abstract class AbstractRewriterTestCase extends AbstractIOTestCase {
 	}
 
 	protected void runRewriter() throws Throwable {
-		setTestGenerated(RewriterVisitor.reparsed(data.source, new AdapterPrefs("\n", new IGrammarVersionProvider() {
+		setTestGenerated(Rewriter.reparsed(data.source, new AdapterPrefs("\n", new IGrammarVersionProvider() {
             
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;

@@ -1,7 +1,7 @@
 /*
  * Created on Feb 17, 2006
  */
-package org.python.pydev.parser.prettyprinter;
+package org.python.pydev.parser.prettyprinterv2;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPyEdit;

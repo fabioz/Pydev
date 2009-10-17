@@ -20,8 +20,10 @@ import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.parser.prettyprinter.IPrettyPrinterPrefs;
 
+/**
+ * Utilities for pretty printing.
+ */
 public class PrettyPrinterUtilsV2 extends VisitorBase{
 
     protected IPrettyPrinterPrefs prefs;
@@ -49,8 +51,9 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         writeSpecials(node, specialsAfter);
     }
     
-    public static boolean USE_SPECIAL_STR_OR_TOKEN = true;
-    
+    /**
+     * Adds the special tokens as tokens in the document.
+     */
     private void writeSpecials(SimpleNode node, List<Object> specials) {
         for (Object c : specials){
             if(c instanceof commentType){
@@ -62,10 +65,8 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
                 doc.add(name.beginLine, name.beginColumn, name.id, name);
                 
             }else if(c instanceof ISpecialStrOrToken){
-                if(USE_SPECIAL_STR_OR_TOKEN){
-                    ISpecialStrOrToken specialStr = (ISpecialStrOrToken) c;
-                    doc.add(specialStr.getBeginLine(), specialStr.getBeginCol(), specialStr.toString(), specialStr);
-                }
+                ISpecialStrOrToken specialStr = (ISpecialStrOrToken) c;
+                doc.add(specialStr.getBeginLine(), specialStr.getBeginCol(), specialStr.toString(), specialStr);
                 
             }else{
                 throw new RuntimeException("Unexpected special: '"+c+ "' Class: "+c.getClass()+". Node: "+node);
@@ -89,7 +90,9 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
 
     
     public static boolean isMultiLineStmt(stmtType node) {
-        return node instanceof ClassDef || node instanceof For || node instanceof FunctionDef || node instanceof If || node instanceof TryExcept || node instanceof TryFinally || node instanceof While ||node instanceof With ;
+        return node instanceof ClassDef || node instanceof For || node instanceof FunctionDef || 
+        node instanceof If || node instanceof TryExcept || node instanceof TryFinally || node instanceof While ||
+        node instanceof With ;
     }
 
     protected void afterNode(SimpleNode node) throws IOException {
@@ -117,10 +120,6 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
     }
 
     
-//    protected void indent(SimpleNode node){
-//        doc.addIndent(node);
-//    }
-    
     protected void indent(SimpleNode node, boolean requireNewLine){
         doc.addIndent(node, requireNewLine);
     }
@@ -141,8 +140,6 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         doc.addIndent(token, requireNewLine);
     }
 
-    
-    
     protected SimpleNode lastNode;
     
     protected Object unhandled_node(SimpleNode node) throws Exception {

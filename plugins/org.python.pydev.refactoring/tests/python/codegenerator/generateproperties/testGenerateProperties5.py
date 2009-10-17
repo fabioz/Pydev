@@ -13,7 +13,7 @@ a = A()
 a.my_method()
 
 ##c
-
+'''
 <config>
   <classSelection>0</classSelection>
   <attributeSelection>
@@ -29,7 +29,7 @@ a.my_method()
   </methodSelection>
   <accessModifier>2</accessModifier>
 </config>
-
+'''
 ##r
 
 class A(object):

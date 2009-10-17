@@ -1,5 +1,8 @@
 package org.python.pydev.parser.prettyprinterv2;
 
+/**
+ * Base class for line parts.
+ */
 public abstract class AbstractLinePart implements ILinePart{
     
     protected Object token;

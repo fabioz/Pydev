@@ -40,7 +40,7 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
-import org.python.pydev.refactoring.ast.visitors.rewriter.RewriterVisitor;
+import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
 
 public class NodeHelper {
 
@@ -145,7 +145,7 @@ public class NodeHelper {
         }else if(isCall(node)){
             return getName(((Call) node).func);
         }else if(isAttribute(node)){
-            String attributeName = RewriterVisitor.createSourceFromAST(node, true, adapterPrefs);
+            String attributeName = Rewriter.createSourceFromAST(node, true, adapterPrefs);
             int subscriptOffset = attributeName.indexOf("[");
             if(subscriptOffset > 0){
                 attributeName = attributeName.substring(0, subscriptOffset - 1);

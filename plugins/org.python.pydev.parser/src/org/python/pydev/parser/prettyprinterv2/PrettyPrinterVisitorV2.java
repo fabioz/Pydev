@@ -66,7 +66,6 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
-import org.python.pydev.parser.prettyprinter.IPrettyPrinterPrefs;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 /**
@@ -886,17 +885,6 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     }
     
     
-//    /**
-//     * Prints the arguments.
-//     */
-//    protected void handleArguments(argumentsType completeArgs) throws Exception {
-//        if(completeArgs.vararg == null && completeArgs.kwonlyargs != null && completeArgs.kwonlyargs.length > 0 && completeArgs.kwonlyargs[0] != null){
-//            //we must add a '*,' to print it if we have a keyword arg after the varargs but don't really have an expression for it
-//            doc.add(completeArgs.kwonlyargs[0].beginLine, completeArgs.kwonlyargs[0].beginColumn, "*", completeArgs.kwonlyargs[0]);
-//            doc.add(completeArgs.kwonlyargs[0].beginLine, completeArgs.kwonlyargs[0].beginColumn, ",", completeArgs.kwonlyargs[0]);
-//        }
-//    }
-    
      /**
      * Prints the arguments.
      */
@@ -959,8 +947,6 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             if(completeArgs.kwonlyargs != null && completeArgs.kwonlyargs.length > 0 && completeArgs.kwonlyargs[0] != null){
                 //we must add a '*,' to print it if we have a keyword arg after the varargs but don't really have an expression for it
                 
-//              doc.add(completeArgs.kwonlyargs[0].beginLine, completeArgs.kwonlyargs[0].beginColumn, "*", completeArgs.kwonlyargs[0]);
-//              doc.add(completeArgs.kwonlyargs[0].beginLine, completeArgs.kwonlyargs[0].beginColumn, ",", completeArgs.kwonlyargs[0]);
                 if(foundBefore){
                     doc.addRequire(",", lastNode);
                 }
@@ -1492,9 +1478,10 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     }
 
     
-    
-    
 
+    /**
+     * This should be the entry point for any node, as it properly handles nodes that aren't usually handled.
+     */
     protected SimpleNode visitNode(SimpleNode node) throws Exception {
         if (node == null) {
             return null;
@@ -1515,42 +1502,5 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         return null;
     }
 
-    
-//    /**
-//     * Additional nodes supported by this visitor
-//     */
-//    public Object visitAliasType(aliasType node) throws Exception{
-//        return null;
-//    }
-//
-//
-//    public Object visitArgumentsType(argumentsType node) throws Exception{
-//        return null;
-//    }
-//
-//
-//    public Object visitDecoratorsType(decoratorsType node) throws Exception{
-//        return null;
-//    }
-//
-//
-//    public Object visitExceptHandlerType(excepthandlerType node) throws Exception{
-//        return null;
-//    }
-//
-//    public Object visitKeywordType(keywordType node) throws Exception{
-//        return null;
-//        
-//    }
-//
-//    public Object visitListCompType(ListComp node) throws Exception{
-//        return null;
-//        
-//    }
-//
-//    public Object visitSuiteType(suiteType suite) throws Exception{
-//        return null;
-//        
-//    }
     
 }
