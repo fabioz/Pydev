@@ -28,12 +28,12 @@
             description="%peptic.ExtractMethodDescription"
             id="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"
             name="%peptic.ExtractMethodLabel"/>
-      <!-- waiting for bug fixes
       <command
             categoryId="org.python.pydev.refactoring.pepticCategory"
             description="%peptic.ExtractLocalDescription"
             id="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
             name="%peptic.ExtractLocalLabel"/>
+      <!-- waiting for bug fixes
       <command
             categoryId="org.python.pydev.refactoring.pepticCategory"
             description="%peptic.GenerateDocstringDescription"
@@ -92,7 +92,6 @@
                label="%peptic.ExtractMethodLabel"
                menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticRefactoringGroup"
                style="push"/>
-	     <!-- waiting for bug fixes
          <action
                class="org.python.pydev.refactoring.ui.actions.ExtractLocalAction"
                definitionId="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
@@ -100,7 +99,6 @@
                label="%peptic.ExtractLocalLabel"
                menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticRefactoringGroup"
                style="push"/>
-         -->
       </editorContribution>
    </extension>
    <extension
@@ -149,7 +147,6 @@
                label="%peptic.ExtractMethodLabel"
                menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup">
          </action>
-         <!-- waiting for bug fixes
               <action
                class="org.python.pydev.refactoring.ui.actions.ExtractLocalAction"
                definitionId="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
@@ -157,7 +154,6 @@
                label="%peptic.ExtractLocalLabel"
                menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup">
          </action>
-         -->
       </viewerContribution>
    </extension>
    <extension
@@ -177,6 +173,18 @@
             contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T O"/>
+      <key
+            sequence="Shift+Alt+L"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M3+M2+T L"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
       <!-- waiting for bug fixes
       <key
             commandId="org.python.pydev.refactoring.ui.actions.GenerateDocstringCommand"
@@ -186,18 +194,6 @@
             
             
             
-      <key
-            sequence="Shift+Alt+L"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.extractlocalvariable"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
-            sequence="M3+M2+T L"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.extractlocalvariable"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
       <key
             sequence="Shift+Alt+I"
             contextId="org.python.pydev.ui.editor.scope"
@@ -217,13 +213,7 @@
             contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T E"/>
-      <!-- waiting for bug fixes
-      <key
-            commandId="org.python.pydev.refactoring.ui.actions.ExtractLocalCommand"
-            contextId="org.python.pydev.ui.editor.scope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M3+M2+T O"/>
-      -->
+
       <key
             sequence="Shift+Alt+M"
             contextId="org.python.pydev.ui.editor.scope"
