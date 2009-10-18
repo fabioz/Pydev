@@ -26,6 +26,17 @@
             id="com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage"
             name="Mark Occurrences"/>
    </extension>
+<!-- Hyperlink -->
+   <extension point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            class="com.python.pydev.refactoring.hyperlink.PythonElementHyperlinkDetector"
+            id="org.python.pydev.editor.PythonElementHyperlinkDetector"
+            name="Pydev Hyperlink Detector"
+            targetId="org.python.pydev.editor.PythonEditor">
+      </hyperlinkDetector>
+   </extension>
+
+
 
 <!-- Create the needed actions -->
    <extension point="org.python.pydev.pydev_pyedit_listener">
@@ -35,10 +46,18 @@
    
 <!-- command: find references -->
    <extension point="org.eclipse.ui.commands">
+<!-- command: Find all references-->
       <command
             description="Find all references"
             id="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
             name="Find all references">
+      </command>
+<!-- command: Go To Defition-->
+      <command
+            name="Python Go To Definition"
+            description="Goes to the definition of a python element"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
       </command>
    </extension>
    <extension
@@ -53,13 +72,29 @@
                definitionId="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
                id="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
                label="Find all occurrences"/>
+         <action
+               definitionId="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
+               label="Go to Definition"
+               class="com.python.pydev.refactoring.actions.PyGoToDefinition"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
+         </action>
+
       </editorContribution>
    </extension>
    <extension point="org.eclipse.ui.bindings">
+<!-- command: Find all references-->
       <key
             sequence="Ctrl+Shift+G"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="com.python.pydev.refactoring.actions.PyFindAllOccurrences"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+<!-- command: Go To Defition-->
+      <key
+            sequence="F3"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>

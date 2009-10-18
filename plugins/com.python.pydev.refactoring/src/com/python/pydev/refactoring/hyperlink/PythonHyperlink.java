@@ -1,4 +1,4 @@
-package org.python.pydev.editor.hyperlink;
+package com.python.pydev.refactoring.hyperlink;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IRegion;
@@ -8,13 +8,14 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyGoToDefinition;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
-import org.python.pydev.editor.refactoring.PyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.PydevPlugin;
+
+import com.python.pydev.refactoring.actions.PyGoToDefinition;
 
 /**
  * Hiperlink will try to open the current selected word (and will give a beep if not found).
@@ -48,7 +49,7 @@ public class PythonHyperlink implements IHyperlink {
      * Try to find a definition and open it.
      */
     public void open() {
-        IPyRefactoring pyRefactoring = PyRefactoring.getPyRefactoring();
+        IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
         
         //saves the dirty editors so that hyperlink is correct.
         IWorkbench workbench = PlatformUI.getWorkbench();

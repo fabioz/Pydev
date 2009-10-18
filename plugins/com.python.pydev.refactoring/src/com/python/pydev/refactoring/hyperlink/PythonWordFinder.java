@@ -1,4 +1,4 @@
-package org.python.pydev.editor.hyperlink;
+package com.python.pydev.refactoring.hyperlink;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;

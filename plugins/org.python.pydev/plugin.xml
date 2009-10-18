@@ -433,13 +433,6 @@
                id="org.python.pydev.editor.actions.navigation.previousMethod">
          </action>
          <action
-               definitionId="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
-               label="Go to Definition"
-               class="org.python.pydev.editor.actions.PyGoToDefinition"
-               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
-               id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
-         </action>
-         <action
                definitionId="org.python.pydev.editor.actions.navigation.pyCollapse"
                label="Collapse code"
                class="org.python.pydev.editor.actions.codefolding.PyCollapse"
@@ -502,30 +495,6 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.pySelectWord">
          </action>
-
-        <!-- This is for the refactoring having the existing action (definition) -->
-        <!-- BRM action no longer used (PEPTIC replaced it)
-         <action
-               definitionId="org.python.pydev.refactoring.extractmethod"
-               label="Extract Method"
-               class="org.python.pydev.editor.actions.refactoring.PyExtractMethod"
-               id="org.python.pydev.refactoring.extractmethod">
-         </action>
-         -->
-         <action
-               definitionId="org.python.pydev.refactoring.extractlocalvariable"
-               label="%pydev.extractlocallabel"
-               class="org.python.pydev.editor.actions.refactoring.PyExtractLocalVariable"
-               id="org.python.pydev.refactoring.extractlocalvariable"
-               menubarPath="org.python.pydev.refactoring.refactoringMenu/brmGroup">
-         </action>
-         <action
-               definitionId="org.python.pydev.refactoring.inlinelocalvariable"
-               label="%pydev.inlinelocallabel"
-               class="org.python.pydev.editor.actions.refactoring.PyInlineLocalVariable"
-               id="org.python.pydev.refactoring.inlinelocalvariable"
-               menubarPath="org.python.pydev.refactoring.refactoringMenu/brmGroup">
-         </action>
          <action
                definitionId="org.python.pydev.refactoring.rename"
                label="%pydev.renamelabel"
@@ -566,18 +535,7 @@
                menubarPath="org.python.pydev.editor.refactoring/refactorings"
                id="org.python.pydev.editor.refactoring.rename">
          </action>
-         <action
-               label="%pydev.inlinelocallabel"
-               class="org.python.pydev.editor.actions.refactoring.PyInlineLocalVariable"
-               menubarPath="org.python.pydev.editor.refactoring/refactorings"
-               id="org.python.pydev.editor.refactoring.inlinelocalvariable">
-         </action>
-         <action
-               label="%pydev.extractlocallabel"
-               class="org.python.pydev.editor.actions.refactoring.PyExtractLocalVariable"
-               menubarPath="org.python.pydev.editor.refactoring/refactorings"
-               id="org.python.pydev.editor.refactoring.extractlocalvariable">
-         </action>
+
       </viewerContribution>
     </extension>
 
@@ -692,13 +650,6 @@
             description="Toggles comments of python line/s (Adds/Removes # at beggining of the line)"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.togglecomment">
-      </command>
-<!-- command: Go To Defition-->
-      <command
-            name="Python Go To Definition"
-            description="Goes to the definition of a python element"
-            categoryId="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
       </command>
 <!-- command: Collapse-->
       <command
@@ -869,12 +820,6 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="F3"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
             sequence="Ctrl+-"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.pyCollapse"
@@ -1001,19 +946,6 @@
       <filter selected="True" pattern="*.pyc"/>
       <filter selected="True" pattern="*.class"/>
       <filter selected="True" pattern="*.pyo"/>
-   </extension>
-<!-- view for refactoring -->
-   <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="Pydev"
-            id="org.python.pydev"/>
-      <view
-            class="org.python.pydev.views.PyRefactorView"
-            icon="icons/python_refactor.png"
-            category="org.python.pydev"
-            name="Refactor Results View"
-            id="org.python.pydev.views.PyRefactorView"/>
    </extension>
 <!-- add quick-fixes (does nothing right now) -->
     <extension
@@ -1504,15 +1436,6 @@
       </target>
    </extension>
    
-   <extension point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
-      <hyperlinkDetector
-            class="org.python.pydev.editor.hyperlink.PythonElementHyperlinkDetector"
-            id="org.python.pydev.editor.PythonElementHyperlinkDetector"
-            name="Pydev Hyperlink Detector"
-            targetId="org.python.pydev.editor.PythonEditor">
-      </hyperlinkDetector>
-   </extension>
-
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="org.python.pydev.builder.syntaxchecker.ClearSyntaxMarkersPyeditListener"/>
    </extension>

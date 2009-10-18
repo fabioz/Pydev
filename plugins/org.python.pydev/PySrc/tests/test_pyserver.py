@@ -166,36 +166,6 @@ if sys.platform.find('java') == -1:
             
         def sendKillMsg(self, socket):
             socket.send(pycompletionserver.MSG_KILL_SERVER)
-            
-        
-    #    def testRefactoringSocketsAndMessages(self):
-    #        t, sToWrite, sToRead, self.connToRead, addr = self.createConnections(50002+2,50003+2)
-    #
-    #        import refactoring
-    #        from test_refactoring import delete, createFile, FILE, getInitialFile, getRenameRefactored
-    #        try:
-    #            createFile(FILE, getInitialFile())
-    #            
-    #            msg = quote_plus('@@BIKEfindDefinition %s %s %sEND@@'%(FILE, 7+1, 4))
-    #            send(sToWrite, msg) 
-    #            result = self.readMsg()
-    #            self.assert_('BIKE_OK:' in result)
-    #    
-    #            msg = quote_plus('@@BIKErenameByCoordinates %s %s %s %sEND@@'%(FILE, 1+1, 6, 'G'))
-    #            send(sToWrite, msg) 
-    #            result = self.readMsg()
-    #            self.assert_('BIKE_OK:' in result)
-    #    
-    #            self.sendKillMsg(sToWrite)
-    #            
-    #    
-    #            while not hasattr(t, 'ended'):
-    #                pass #wait until it receives the message and quits.
-    #        finally:
-    #            
-    #            sToRead.close()
-    #            sToWrite.close()
-    #            self.connToRead.close()
 
         
 if __name__ == '__main__':

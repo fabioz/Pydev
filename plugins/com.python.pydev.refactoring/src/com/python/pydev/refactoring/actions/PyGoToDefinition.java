@@ -2,7 +2,7 @@
  * Created on May 21, 2004
  *
  */
-package org.python.pydev.editor.actions;
+package com.python.pydev.refactoring.actions;
 
 import java.io.File;
 import java.util.HashSet;
@@ -24,12 +24,14 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
@@ -45,17 +47,6 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio Zadrozny
  */
 public class PyGoToDefinition extends PyRefactorAction {
-    IPyRefactoring pyRefactoring;
-    
-    /**
-     * @return the refactoring engine to be used
-     */
-    protected IPyRefactoring getPyRefactoring() {
-        if(pyRefactoring == null){
-            pyRefactoring = getPyRefactoring("canFindDefinition"); 
-        }
-        return pyRefactoring;
-    }
     
 
     /**
@@ -63,16 +54,6 @@ public class PyGoToDefinition extends PyRefactorAction {
      * @return true if the conditions are ok and false otherwise
      */
     protected boolean areRefactorPreconditionsOK(RefactoringRequest request) {
-        try {
-            IPyRefactoring pyRefactoring = getPyRefactoring();
-            pyRefactoring.checkAvailableForRefactoring(request);
-        } catch (Exception e) {
-            e.printStackTrace();
-            ErrorDialog.openError(null, "Error", "Unable to do requested action", 
-                    new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, e.getMessage(), null));
-            return false;
-        }
-
         if (request.pyEdit.isDirty())
             request.pyEdit.doSave(null);
 
@@ -245,21 +226,14 @@ public class PyGoToDefinition extends PyRefactorAction {
      * @throws TooManyMatchesException 
      */
     public ItemPointer[] findDefinition(PyEdit pyEdit) throws TooManyMatchesException, MisconfigurationException {
-        IPyRefactoring pyRefactoring = getPyRefactoring("canFindDefinition");
+        IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
         return pyRefactoring.findDefinition(getRefactoringRequest());
     }
 
     /**
      * As we're not using the default refactoring cycle, this method is not even called
      */
-    protected String perform(IAction action, String name, IProgressMonitor monitor) throws Exception {
-        return null;
-    }
-
-    /**
-     * As we're not using the default refactoring cycle, this method is not even called
-     */
-    protected String getInputMessage() {
+    protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
         return null;
     }
 

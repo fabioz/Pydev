@@ -2,10 +2,11 @@ package com.python.pydev.codecompletion;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.editor.actions.PyGoToDefinition;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editor.model.ItemPointer;
+
+import com.python.pydev.refactoring.actions.PyGoToDefinition;
 
 public class JavaIntegrationPydevComTestWorkbench extends AbstractWorkbenchTestCase {
     

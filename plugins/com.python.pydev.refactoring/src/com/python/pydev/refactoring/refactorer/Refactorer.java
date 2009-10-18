@@ -10,8 +10,8 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.RenameRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizardOpenOperation;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.model.ItemPointer;
@@ -19,7 +19,6 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
@@ -36,32 +35,6 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     public String getName() {
         return "Pydev Extensions Refactorer";
     }
-    
-    //-------------------------------------------- things we currently cannot do
-    public boolean canExtract() {
-        return false;
-    }
-    public boolean canRename() {
-        return true;
-    }
-    public boolean canInlineLocalVariable() {
-        return false;
-    }
-    public boolean canExtractLocalVariable() {
-        return false;
-    }
-    
-    //--------------------------------------------------------- things we can do
-    public boolean canFindDefinition() {
-        return true;
-    }
-    //----------------------------------------------------- end things we can do
-
-    
-    public String extract(RefactoringRequest request) {
-        return null;
-    }
-
     
     /**
      * Renames something... 
@@ -82,7 +55,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
                 // do nothing. User action got cancelled
             }
         } catch (Exception e) {
-            PydevPlugin.log(e);
+            Log.log(e);
         }
         return null;
     }
@@ -90,47 +63,6 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
     public ItemPointer[] findDefinition(RefactoringRequest request) throws TooManyMatchesException {
         return new RefactorerFindDefinition().findDefinition(request);
     }
-    
-    public String inlineLocalVariable(RefactoringRequest request) {
-        return null;
-    }
-    
-    public String extractLocalVariable(RefactoringRequest request) {
-        return null;
-    }
-
-    public void restartShell(RefactoringRequest request) {
-        //no shell
-    }
-
-    public void killShell(RefactoringRequest request) {
-        //no shell
-    }
-
-    public void checkAvailableForRefactoring(RefactoringRequest request) {
-        //can always do it (does not depend upon the project)
-    }
-    
-    /**
-     * We always return false here because we use the refactoring cycle provided
-     * by the actions in the refactoring toolkit from Eclipse.
-     * 
-     * @see org.python.pydev.editor.refactoring.IPyRefactoring#useDefaultRefactoringActionCycle()
-     */
-    public boolean useDefaultRefactoringActionCycle() {
-        return false;
-    }
-    
-    /**
-     * 
-     * do nothing (should throw exception if not available) -- in this refactorer,
-     * we're able to refactor any python natures (such as jython).
-     * @see org.python.pydev.editor.refactoring.IPyRefactoring#canRefactorNature(org.python.pydev.core.IPythonNature)
-     */
-    public void canRefactorNature(IPythonNature pythonNature) throws RuntimeException {
-        //empty
-    }
-    
     
     
     // --------------------------------------------------------- IPyRefactoring2

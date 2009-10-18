@@ -36,8 +36,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
-import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
@@ -95,7 +93,6 @@ public class MarkOccurrencesJob extends Job{
     /**
      * Mark if we are still abel to do it by the time we get to the run.
      */
-    @SuppressWarnings("unchecked")
     public IStatus run(IProgressMonitor monitor) {
         if(currRequestTime == -1){
             return Status.OK_STATUS;
@@ -336,20 +333,9 @@ public class MarkOccurrencesJob extends Job{
         PyRefactorAction pyRefactorAction = new PyRefactorAction(){
    
             @Override
-            protected IPyRefactoring getPyRefactoring() {
-                return AbstractPyRefactoring.getPyRefactoring();
-            }
-   
-            @Override
-            protected String perform(IAction action, String name, IProgressMonitor monitor) throws Exception {
+            protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
                 throw new RuntimeException("Perform should not be called in this case.");
             }
-   
-            @Override
-            protected String getInputMessage() {
-                return null;
-            }
-            
         };
         pyRefactorAction.setEditor(pyEdit);
         return pyRefactorAction;

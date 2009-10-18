@@ -30,13 +30,8 @@ except ImportError:
     SERVER_NAME = 'pycompletionserver'
     from threading import Thread
     import importsTipper
-    try:
-        import refactoring
-    except:
-        class RefactoringWrapper:
-            def HandleRefactorMessage(*args, **kwargs):
-                return ''
-        refactoring = RefactoringWrapper()
+    
+
 
 
 import sys
@@ -339,12 +334,7 @@ class T(Thread):
                                 returnMsg = MSG_OK
                                 
                             elif data.startswith(MSG_BIKE): 
-                                if IS_JYTHON:
-                                    returnMsg = MSG_JYTHON_INVALID_REQUEST
-                                else:
-                                    data = data.replace(MSG_BIKE, '')
-                                    data = unquote_plus(data)
-                                    returnMsg = refactoring.HandleRefactorMessage(data, keepAliveThread)
+                                returnMsg = MSG_INVALID_REQUEST #No longer supported.
                                 
                             else:
                                 returnMsg = MSG_INVALID_REQUEST
@@ -353,7 +343,7 @@ class T(Thread):
                         keepAliveThread.lastMsg = returnMsg
                         raise
                     except:
-                        dbg(SERVER_NAME + ' exception ocurred', ERROR)
+                        dbg(SERVER_NAME + ' exception occurred', ERROR)
                         s = StringIO.StringIO()
                         traceback.print_exc(file=s)
     

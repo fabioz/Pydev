@@ -38,7 +38,7 @@ public class RefactoringRequest extends DecoratableObject{
     /**
      * The file associated with the editor where the refactoring is being requested
      */
-    public File file;
+    public final File file;
     
     /**
      * The current selection when the refactoring was requested
@@ -51,7 +51,7 @@ public class RefactoringRequest extends DecoratableObject{
      * 
      * Note that this is the monitor for the initial request, but, clients may use it in othe
      */
-    private volatile Stack<IProgressMonitor> monitors = new Stack<IProgressMonitor>();
+    private final Stack<IProgressMonitor> monitors = new Stack<IProgressMonitor>();
     
     /**
      * The nature used 
@@ -61,7 +61,7 @@ public class RefactoringRequest extends DecoratableObject{
     /**
      * The python editor. May be null (especially on tests)
      */
-    public PyEdit pyEdit;
+    public final PyEdit pyEdit;
     
     /**
      * The module for the passed document. Has a getter that caches the result here.
@@ -83,12 +83,6 @@ public class RefactoringRequest extends DecoratableObject{
      */
     public String initialName;
     
-    /**
-     * Default constructor... the user is responsible for filling the needed information
-     * later.
-     */
-    public RefactoringRequest() {
-    }
     
     /**
      * If the file is passed, we also set the document automatically
@@ -112,6 +106,8 @@ public class RefactoringRequest extends DecoratableObject{
             if(infoForFile != null){
                 this.nature = infoForFile.o1;
                 this.moduleName = infoForFile.o2;
+            }else{
+                this.nature = null;
             }
         }else{
             this.nature = nature;
