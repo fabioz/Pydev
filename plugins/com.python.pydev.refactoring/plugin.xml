@@ -50,15 +50,19 @@
       <command
             description="Find all references"
             id="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
-            name="Find all references">
-      </command>
+            name="Find all references"/>
 <!-- command: Go To Defition-->
       <command
             name="Python Go To Definition"
             description="Goes to the definition of a python element"
             categoryId="org.python.pydev.ui.category.source"
-            id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
-      </command>
+            id="org.python.pydev.editor.actions.navigation.pyGoToDefinition"/>
+      <!-- Rename -->
+      <command
+            name="%pydev.renamelabel"
+            description="%pydev.renamedescription"
+            categoryId="org.python.pydev.ui.category.refactoring"
+            id="org.python.pydev.refactoring.rename"/>
    </extension>
    <extension
          id="org.python.pydev.refactoring.editorContribution"
@@ -79,6 +83,13 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyGoToDefinition">
          </action>
+         <action
+               definitionId="org.python.pydev.refactoring.rename"
+               label="%pydev.renamelabel"
+               class="com.python.pydev.refactoring.actions.PyRename"
+               id="org.python.pydev.refactoring.rename"
+               menubarPath="org.python.pydev.refactoring.refactoringMenu/brmGroup">
+         </action>
 
       </editorContribution>
    </extension>
@@ -97,7 +108,22 @@
             commandId="org.python.pydev.editor.actions.navigation.pyGoToDefinition"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+<!-- command: Rename (v1) -->
+      <key
+            sequence="Shift+Alt+R"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.rename"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+<!-- command: Rename (v2) -->
+      <key
+            sequence="M3+M2+T R"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.rename"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
    </extension>
+
    <extension
          id="com.python.pydev.refactoring.search.FindOccurrencesSearchResultPage"
          point="org.eclipse.search.searchResultViewPages">
@@ -107,6 +133,28 @@
             label="Python Search Result"
             searchResultClass="com.python.pydev.refactoring.search.FindOccurrencesSearchResult"/>
    </extension>
+<!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
+<!-- Editor popup menus-->
+   <extension point="org.eclipse.ui.popupMenus" 
+              id="org.python.pydev.editor">
+      <viewerContribution
+            targetID="#PyEditContext"
+            id="org.python.pydev.editor">
+         <menu
+               id="org.python.pydev.editor.refactoring"
+               label="Refactoring"
+               path="Refactoring">
+            <separator name="source"/>
+            <separator name="refactorings"/>
+         </menu>
+         <action
+               label="%pydev.renamelabel"
+               class="com.python.pydev.refactoring.actions.PyRename"
+               menubarPath="org.python.pydev.editor.refactoring/refactorings"
+               id="org.python.pydev.editor.refactoring.rename">
+         </action>
+      </viewerContribution>
+    </extension>
 
 
 </plugin>

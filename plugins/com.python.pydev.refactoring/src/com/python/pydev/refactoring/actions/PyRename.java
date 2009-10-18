@@ -3,10 +3,11 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.actions.refactoring;
+package com.python.pydev.refactoring.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
+import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 
 /**

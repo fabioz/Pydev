@@ -183,6 +183,34 @@
             contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+T D"/>
+            
+            
+            
+      <key
+            sequence="Shift+Alt+L"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.extractlocalvariable"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M3+M2+T L"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.extractlocalvariable"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="Shift+Alt+I"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.inlinelocalvariable"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M3+M2+T I"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.refactoring.inlinelocalvariable"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+
       -->
       <key
             commandId="org.python.pydev.refactoring.ui.actions.ExtractMethodCommand"

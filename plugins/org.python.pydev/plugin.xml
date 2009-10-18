@@ -495,49 +495,9 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.pySelectWord">
          </action>
-         <action
-               definitionId="org.python.pydev.refactoring.rename"
-               label="%pydev.renamelabel"
-               class="org.python.pydev.editor.actions.refactoring.PyRename"
-               id="org.python.pydev.refactoring.rename"
-               menubarPath="org.python.pydev.refactoring.refactoringMenu/brmGroup">
-         </action>
-
       </editorContribution>
    </extension>
 
-<!-- NOTE: EditorContext part of the targetID was deduced, that is just what Eclipse expects -->
-<!-- Editor popup menus-->
-   <extension point="org.eclipse.ui.popupMenus" 
-              id="org.python.pydev.editor">
-      <viewerContribution
-            targetID="#PyEditContext"
-            id="org.python.pydev.editor">
-         <menu
-               id="org.python.pydev.editor.refactoring"
-               label="Refactoring"
-               path="Refactoring">
-            <separator name="source"/>
-            <separator name="refactorings"/>
-         </menu>
-         <!--This is for making the refactor action accessible in the editor pop-up -->
-         <!-- BRM action no longer used (PEPTIC replaced it)
-         <action
-               label="Extract Method"
-               class="org.python.pydev.editor.actions.refactoring.PyExtractMethod"
-               menubarPath="org.python.pydev.editor.refactoring/refactorings"
-               id="org.python.pydev.editor.refactoring.extractmethod">
-         </action>
-         -->
-         <action
-               label="%pydev.renamelabel"
-               class="org.python.pydev.editor.actions.refactoring.PyRename"
-               menubarPath="org.python.pydev.editor.refactoring/refactorings"
-               id="org.python.pydev.editor.refactoring.rename">
-         </action>
-
-      </viewerContribution>
-    </extension>
 
 <!-- Editor Context (formerly scope) -->
     <extension point="org.eclipse.ui.contexts">
@@ -714,33 +674,6 @@
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.pySelectWord">
       </command>
-      <!-- This is for making a keybinding for it-->
-      <!-- Extract Method -->
-      <!-- BRM action no longer used (PEPTIC replaced it)
-      <command
-            name="Python Extract Method"
-            description="Extract Method"
-            categoryId="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.extractmethod"/>
-      -->
-      <!-- Extract Local Variable -->
-      <command
-            name="%pydev.extractlocallabel"
-            description="%pydev.extractlocaldescription"
-            categoryId="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.extractlocalvariable"/>
-      <!-- Inline Local Variable -->
-      <command
-            name="%pydev.inlinelocallabel"
-            description="%pydev.inlinelocaldescription"
-            categoryId="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.inlinelocalvariable"/>
-      <!-- Rename -->
-      <command
-            name="%pydev.renamelabel"
-            description="%pydev.renamedescription"
-            categoryId="org.python.pydev.ui.category.refactoring"
-            id="org.python.pydev.refactoring.rename"/>
       <!-- Offline Command -->
       <command
             name="Offline Action for scripting"
@@ -865,58 +798,6 @@
             sequence="Ctrl+Shift+F"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyFormatStd"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <!-- Removed as ctrl+w is already taken by close window.
-      <key
-            sequence="Ctrl+W"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.editor.actions.pySelectWord"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      -->
-      <!-- Passed to the refactoring plugin
-      <key
-            sequence="Shift+Alt+M"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.extractmethod"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      -->
-      <key
-            sequence="Shift+Alt+L"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.extractlocalvariable"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
-            sequence="M3+M2+T L"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.extractlocalvariable"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
-            sequence="Shift+Alt+I"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.inlinelocalvariable"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
-            sequence="M3+M2+T I"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.inlinelocalvariable"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
-            sequence="Shift+Alt+R"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.rename"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
-            sequence="M3+M2+T R"
-            contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.refactoring.rename"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
