@@ -20,6 +20,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.plugin.PydevPlugin;
@@ -100,7 +101,14 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
     }
 
     private exprType extractExpression(ModuleAdapter node) {
-        stmtType[] body = node.getASTNode().body;
+        if(node == null){
+            return null;
+        }
+        Module astNode = node.getASTNode();
+        if(astNode == null){
+            return null;
+        }
+        stmtType[] body = astNode.body;
 
         if(body.length > 0 && body[0] instanceof Expr){
             Expr expr = (Expr) body[0];
