@@ -1,7 +1,8 @@
 class A:
     def test(self):
         a = 1
-     ##|   while (a < 2):
+        ##|
+        while (a < 2):
             a += 1##|
         var = a * a
         print var
@@ -24,6 +25,7 @@ class A:
 
     def test(self):
         a = 1
+        
         a = self.extracted_method(a)
         var = a * a
         print var

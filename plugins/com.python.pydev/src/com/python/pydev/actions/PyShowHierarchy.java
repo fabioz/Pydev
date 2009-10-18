@@ -27,17 +27,6 @@ import com.python.pydev.ui.hierarchy.PyHierarchyView;
 public class PyShowHierarchy extends PyRefactorAction{
 
 
-    IPyRefactoring pyRefactoring;
-    /**
-     * @return
-     */
-    protected IPyRefactoring getPyRefactoring() {
-        if(pyRefactoring == null){
-            pyRefactoring = AbstractPyRefactoring.getPyRefactoring(); //the one provided by the com part (no need to check for it).
-        }
-        return pyRefactoring;
-    }
-
     private PyHierarchyView view;
     private HierarchyNodeModel model;
 
