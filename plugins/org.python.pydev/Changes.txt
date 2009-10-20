@@ -1,3 +1,6 @@
+After 1.5.0
+Fixed invalid addition of 'self' patch from Tassilo Barth: http://sourceforge.net/tracker/?func=detail&atid=577329&aid=2882305&group_id=85796
+
 After 1.4.7
 
 

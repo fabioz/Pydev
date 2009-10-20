@@ -560,6 +560,8 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
                                             }
                                         }
                                     }
+                                }else{
+                                    addRegular = false;
                                 }
                             }
                             if(addRegular){

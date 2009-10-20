@@ -25,7 +25,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNoAutoSelf3();
+            s.testNoAutoSelf4();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1313,6 +1313,24 @@ public class PyAutoIndentStrategyTest extends TestCase {
             "   pool = Pool()\n" +
             "\n" +
             "   def OnAdd" +
+            "";
+        
+        docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "():";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testNoAutoSelf4() {
+        TestIndentPrefs testIndentPrefs = new TestIndentPrefs(false, 4, true);
+        strategy.setIndentPrefs(testIndentPrefs);
+        String doc = null;
+        DocCmd docCmd = null;
+        String expected = null;
+        
+        doc = 
+            "if True:\n" +
+            "    def foo" +
             "";
         
         docCmd = new DocCmd(doc.length(), 0, "(");
