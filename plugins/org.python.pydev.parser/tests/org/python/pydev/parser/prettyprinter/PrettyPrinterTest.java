@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testVarious21();
+            test.testVarious32();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -671,12 +671,12 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     public void testStr() throws Exception {
         String s = ""+
         "a = (r\"a\"#comm1\n" +
-        "    r'\"b\"'#comm2\n" +
+        "        r'\"b\"'#comm2\n" +
         ")\n" +
         "";
         String v2 = ""+
         "a = (r\"a\"#comm1\n" +
-        "    r'\"b\"')#comm2\n" +
+        "        r'\"b\"')#comm2\n" +
         "";
         checkPrettyPrintEqual(s, s, v2);
     }
@@ -1152,7 +1152,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    pass\n" +
         "";
         String v2 = ""+
-        "while a + 1 < 0:#comment\n" +
+        "while (a + 1 < 0):#comment\n" +
         "    pass\n" +
         "";
         checkPrettyPrintEqual(s, s, v2);
@@ -1401,7 +1401,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         
         String v2 = ""+
         "def foo():\n" +
-        "    yield a + b / 2#comment1\n" +
+        "    yield (a + b) / 2#comment1\n" +
         "    print 'foo'\n" +
         "";
         checkPrettyPrintEqual(s, s, v2);
@@ -2301,6 +2301,211 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             }
         });
     }
+    
+
+    
+    public void testVarious22() throws Throwable {
+        final String s = ""+
+        "if raw:\n" +
+        "    return [(option,d[option]) for \n" +
+        "        option in options]\n" +
+        "";
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious23() throws Throwable {
+        final String s = ""+
+        "assert nr_junk_chars > 0,(\n" +
+        "    'split_header_words bug: %s, %s, %s' % \n" +
+        "    (orig_text,text,pairs))\n" +
+        "";
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    public void testVarious24() throws Throwable {
+        final String s = ""+
+        "a = ()\n" +
+        "";
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious25() throws Throwable {
+        final String s = ""+
+        "assert n in (2,3,4,5)\n" +
+        "";
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious26() throws Throwable {
+        final String s = ""+
+        "def handle(self,context,*args):\n" +
+        "    return (0,(0,),'n')#Passed to something which uses a tuple.\n" +
+        "";
+        
+        final String v2 = ""+
+        "def handle(self,context,*args):\n" +
+        "    return 0,(0,),'n'#Passed to something which uses a tuple.\n" +
+        "";
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s, s, v2);
+                return true;
+            }
+        });
+    }
+    
+    
+    
+    public void testVarious27() throws Throwable {
+        final String s = ""+
+        "def handle(self,context,*args):\n" +
+        "    return (Infsign[sign],) * 2\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious28() throws Throwable {
+        final String s = ""+
+        "assert False,(\"unknown outcome\",outcome)\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious29() throws Throwable {
+        final String s = ""+
+        "assert 0,'Could not find method in self.functions and no '\\\n" +
+        "    'instance installed'\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious30() throws Throwable {
+        final String s = ""+
+        "if k == 'max-age':\n" +
+        "    max_age_set = True\n" +
+        "    try:\n" +
+        "        v = int(v)\n" +
+        "    except ValueError:\n" +
+        "        _debug('   missing or invalid (non-numeric) value for '\n" +
+        "                'max-age attribute')\n" +
+        "        bad_cookie = True\n" +
+        "        break\n" +
+        "    # convert RFC 2965 Max-Age to seconds since epoch\n" +
+        "    # XXX Strictly you're supposed to follow RFC 2616\n" +
+        "    #   age-calculation rules.  Remember that zero Max-Age is a\n" +
+        "    #   is a request to discard (old and new) cookie, though.\n" +
+        "    k = 'expires'\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    
+    
+    public void testVarious31() throws Throwable {
+        final String s = ""+
+        "assert not _active,\"Active pipes when test starts \" + repr([c.cmd for c in _active])\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s);
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious32() throws Throwable {
+        final String s = ""+
+        "try:\n" +
+        "    pass\n" +
+        "except:\n" +
+        "    raise IOError,('socket error',msg),sys.exc_info()[2]\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                    checkPrettyPrintEqual(s);
+                }
+                return true;
+            }
+        });
+    }
+    
+    
     
     
     

@@ -132,9 +132,6 @@ public class TokenMgrError extends Error
     * Constructors of various flavors follow.
     */
 
-   public TokenMgrError() {
-   }
-
    public TokenMgrError(String message, int reason) {
       super(message);
       errorCode = reason;
@@ -142,10 +139,10 @@ public class TokenMgrError extends Error
 
     // added: 12-Mar-1999 baw
    public TokenMgrError(String message, int errorLine, int errorColumn) {
-      this(message, LEXICAL_ERROR);
-           this.EOFSeen = false;
-           this.errorLine = errorLine;
-           this.errorColumn = errorColumn;
+      this(message+" at line " +errorLine + ", column " +errorColumn, LEXICAL_ERROR);
+      this.EOFSeen = false;
+      this.errorLine = errorLine;
+      this.errorColumn = errorColumn;
    }
 
    public TokenMgrError(boolean EOFSeen, int lexState, int errorLine, int errorColumn, String errorAfter, char curChar, int reason) {

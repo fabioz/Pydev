@@ -176,9 +176,9 @@ public class PyParserTestBase extends TestCase {
             try {
                 iCallback.call(i);
             } catch (Throwable e) {
+                System.out.println("\nFound error while parsing with version: "+
+                        IGrammarVersionProvider.grammarVersionToRep.get(i));
                 throw e;
-//                throw new RuntimeException("\nFound error while parsing with version: "+
-//                        IGrammarVersionProvider.grammarVersionToRep.get(i)+"\n\n"+e.getMessage(), e);
             }
         }
     }

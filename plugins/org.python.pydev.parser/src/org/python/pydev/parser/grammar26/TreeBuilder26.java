@@ -35,8 +35,6 @@ import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Repr;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Slice;
-import org.python.pydev.parser.jython.ast.Str;
-import org.python.pydev.parser.jython.ast.StrJoin;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -362,20 +360,6 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
             return defaultCreateDictionary(arity);
         case JJTSTR_1OP:
             return new Repr(((exprType) stack.popNode()));
-        case JJTSTRJOIN:
-            Str str2 = (Str) stack.popNode();
-            Object o = stack.popNode();
-            if(o instanceof Str){
-                Str str1 = (Str) o;
-                return new StrJoin(new exprType[]{str1, str2});
-            }else{
-                StrJoin strJ = (StrJoin) o;
-                exprType[] newStrs = new exprType[strJ.strs.length +1];
-                System.arraycopy(strJ.strs, 0, newStrs, 0, strJ.strs.length);
-                newStrs[strJ.strs.length] = str2;
-                strJ.strs = newStrs;
-                return strJ;
-            }
         case JJTTEST:
             if(arity == 2){
                 IfExp node = (IfExp) stack.popNode();

@@ -29,6 +29,7 @@ import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.StrJoin;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.Yield;
@@ -485,6 +486,26 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 s.value = (exprType) this.stack.popNode();
                 ctx.setStore(s);
                 return s;
+                
+            case JJTSTRJOIN:
+                Str str2 = (Str) stack.popNode();
+                Object o = stack.popNode();
+                StrJoin ret;
+                if(o instanceof Str){
+                    Str str1 = (Str) o;
+                    ret = new StrJoin(new exprType[]{str1, str2});
+                }else{
+                    StrJoin strJ = (StrJoin) o;
+                    exprType[] newStrs = new exprType[strJ.strs.length +1];
+                    System.arraycopy(strJ.strs, 0, newStrs, 0, strJ.strs.length);
+                    newStrs[strJ.strs.length] = str2;
+                    strJ.strs = newStrs;
+                    ret = strJ;
+                }
+                ret.beginLine = ret.strs[0].beginLine;
+                ret.beginColumn = ret.strs[0].beginColumn;
+                return ret;
+
         }
 
         //if we found a node not expected in the base, let's give subclasses an opportunity for dealing with it.

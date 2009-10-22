@@ -48,6 +48,7 @@ import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Slice;
 import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.StrJoin;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
@@ -96,7 +97,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
  * 
  * @author Fabio
  */
-public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
+public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
     private int tupleNeedsParens;
 
@@ -148,11 +149,11 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public Object visitBinOp(BinOp node) throws Exception {
         beforeNode(node);
         int id = this.doc.pushRecordChanges();
+        this.pushTupleNeedsParens();
         node.left.accept(this);
         org.python.pydev.core.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc.getLowerAndHigerFound(this.doc.popRecordChanges(id));
         ILinePart lastPart = lowerAndHigerFound.o2;
         doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getOperatorMapping(node.op), node);
-        this.pushTupleNeedsParens();
         node.right.accept(this);
         this.popTupleNeedsParens();
         afterNode(node);
@@ -191,6 +192,7 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitCompare(Compare node) throws Exception {
         beforeNode(node);
+        this.pushTupleNeedsParens();
         int id = this.doc.pushRecordChanges();
         node.left.accept(this);
         java.util.List<ILinePart> recordChanges = this.doc.popRecordChanges(id);
@@ -206,7 +208,7 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             recordChanges = this.doc.popRecordChanges(id);
             lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
         }
-
+        this.popTupleNeedsParens();
         afterNode(node);
         return null;
     }
@@ -238,7 +240,9 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             }
             keys[i].accept(this);
             doc.addRequire(":", lastNode);
+            this.pushTupleNeedsParens();
             values[i].accept(this);
+            this.popTupleNeedsParens();
         }
         doc.addRequire("}", lastNode);
         afterNode(node);
@@ -248,37 +252,46 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     @Override
     public Object visitTuple(Tuple node) throws Exception {
         beforeNode(node);
-        if(tupleNeedsParens > 0){
-            doc.addRequire("(", node);
-        }
-        int id = doc.pushRecordChanges();
-        visitCommaSeparated(node.elts, node.endsWithComma);
-        
-        java.util.List<ILinePart> changes = doc.popRecordChanges(id);
-        
-        
-        //Ok, treat the following case: if we added a comment, we have a new line, in which case the tuple
-        //MUST have parens.
-        if(tupleNeedsParens == 0){
-            boolean foundComment = false;
-            for(ILinePart iLinePart:changes){
-                if(foundComment){
-                    if(iLinePart.getToken() instanceof SimpleNode){
-                        doc.addRequire("(", node);
-                        doc.addRequire(")", lastNode);
-                        break;
+        if(node.elts != null && node.elts.length > 0){
+            if(tupleNeedsParens > 0){
+                doc.addRequire("(", node);
+            }
+            int id = doc.pushRecordChanges();
+            
+            //tuple inside tuple
+            this.pushTupleNeedsParens();
+            visitCommaSeparated(node.elts, node.endsWithComma);
+            this.popTupleNeedsParens();
+            
+            java.util.List<ILinePart> changes = doc.popRecordChanges(id);
+            
+            
+            //Ok, treat the following case: if we added a comment, we have a new line, in which case the tuple
+            //MUST have parens.
+            if(tupleNeedsParens == 0){
+                boolean foundComment = false;
+                for(ILinePart iLinePart:changes){
+                    if(foundComment){
+                        if(iLinePart.getToken() instanceof SimpleNode){
+                            doc.addRequire("(", node);
+                            doc.addRequire(")", lastNode);
+                            break;
+                        }
+                    }
+                    if(iLinePart.getToken() instanceof commentType){
+                        foundComment = true;
                     }
                 }
-                if(iLinePart.getToken() instanceof commentType){
-                    foundComment = true;
-                }
             }
-        }
-        
-        
-        
-        if(tupleNeedsParens > 0){
-            doc.addRequire(")", lastNode);
+            
+            
+            
+            if(tupleNeedsParens > 0){
+                doc.addRequire(")", lastNode);
+            }
+        }else{
+            doc.addRequire("(", node);
+            doc.addRequire(")", node);
         }
         afterNode(node);
         return null;
@@ -321,7 +334,9 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         }
         
         int id = this.doc.pushRecordChanges();
+        this.pushTupleNeedsParens();
         node.elt.accept(this);
+        this.popTupleNeedsParens();
         for(comprehensionType c:node.generators){
             doc.addRequire(" for ", lastNode);
             c.accept(this);
@@ -759,7 +774,43 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         unhandled_node(node);
         beforeNode(node);
         doc.addRequire("assert", node);
-        node.traverse(this);
+        if (node.test != null){
+            node.test.accept(this);
+        }
+        if (node.msg != null){
+            doc.addRequire(",", lastNode);
+            this.pushTupleNeedsParens();
+            node.msg.accept(this);
+            this.popTupleNeedsParens();
+        }
+        
+        afterNode(node);
+        return null;
+    }
+    
+    @Override
+    public Object visitStrJoin(StrJoin node) throws Exception {
+        unhandled_node(node);
+        beforeNode(node);
+        exprType last = null; 
+        if (node.strs != null) {
+            for (int i = 0; i < node.strs.length; i++) {
+                exprType str = node.strs[i];
+                if (str != null){
+                    if(last != null && last.beginLine != str.beginLine){
+                        this.doc.addRequire("\\", last);
+                    }
+                    str.accept(this);
+                    if(last == null){
+                        doc.addIndent(str); //Only add an indent after the 1st string
+                    }
+                    last = str;
+                }
+            }
+        }
+        if(last != null){
+            doc.getLine(last.beginLine).dedent(0);
+        }
         afterNode(node);
         return null;
     }
@@ -1176,6 +1227,7 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     
     @Override
     public Object visitStr(Str node) throws Exception {
+        unhandled_node(node);
         beforeNode(node);
         doc.add(node.beginLine, node.beginColumn, NodeUtils.getStringToPrint(node), node);
         afterNode(node);
@@ -1267,6 +1319,7 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public Object visitRaise(Raise node) throws Exception {
         int id = this.doc.pushRecordChanges();
         beforeNode(node);
+        this.pushTupleNeedsParens();
         if(node.type != null){
             this.doc.addRequire("raise ", node);
         }else{
@@ -1295,6 +1348,7 @@ public class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         if(node.type != null){
             this.doc.replaceRecorded(recordChanges, "raise", "raise ", "from", " from ");
         }
+        this.popTupleNeedsParens();
         afterNode(node);
         return null;
     }

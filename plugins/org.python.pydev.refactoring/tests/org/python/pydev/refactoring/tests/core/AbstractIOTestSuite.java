@@ -20,7 +20,7 @@ public abstract class AbstractIOTestSuite extends TestSuite {
 	// can be used to choose which test we want to run
 	public static String FILE_FILTER = "^test.+\\.py$";
 	static{
-	    FILE_FILTER = "^testExtractLocalMultiline5.py$";
+//	    FILE_FILTER = "^testExtractMethod16.py$";
 	}
 
 	

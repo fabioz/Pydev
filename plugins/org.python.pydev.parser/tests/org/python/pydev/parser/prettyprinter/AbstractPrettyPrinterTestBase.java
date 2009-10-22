@@ -6,10 +6,8 @@ import java.io.IOException;
 import org.python.pydev.core.REF;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.prettyprinterv2.IPrettyPrinterPrefs;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
-import org.python.pydev.parser.prettyprinterv2.PrettyPrinterUtilsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
@@ -66,12 +64,10 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
      * @throws Exception
      */
     public static String makePrint(IPrettyPrinterPrefs prefs, SimpleNode node) throws Error {
-        Module m = (Module) node;
-        
         PrettyPrinterV2 printer = new PrettyPrinterV2(prefs);
         String result = "";
         try {
-            result = printer.print(m);
+            result = printer.print(node);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -81,21 +77,6 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
 //            System.out.println("'"+result.replace(' ', '.').replace('\t', '^')+"'");
         }
         return result;
-        
-        //OLD VERSION
-//        final WriterEraser stringWriter = new WriterEraser();
-//        PrettyPrinter printer = new PrettyPrinter(prefs, stringWriter);
-//        try {
-//            m.accept(printer);
-//        } catch (Exception e) {
-//            throw new AssertionError(e);
-//        }
-//        if(DEBUG){
-//            System.out.println("\n\nResult:\n");
-//            System.out.println("'"+stringWriter.getBuffer().toString().replace(' ', '.').replace('\t', '^')+"'");
-//        }
-//        assertTrue(! printer.state.inStmt());
-//        return stringWriter.getBuffer().toString();
     }
 
     
@@ -126,23 +107,45 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
                 result = PrettyPrinterTest.makePrint(prefs, original);
                 node = parseLegalDocStr(result);
             } catch (Throwable e) {
-                System.out.println("\n\n\n----------------- Initial contents:-------------------------\n");
-                System.out.println(original);
-                System.out.println("\n\n--------------Pretty-printed contents:------------------\n");
-                System.out.println(result);
-                System.out.println("\n\n\n");
-                System.out.println("File: "+f);
-                e.printStackTrace();
-                
-                fail("Error\nUnable to pretty-print regenerated file:"+f);
+                printErrorAndFail(f, original, result, e);
             }
-            SimpleNodeComparator comparator = new SimpleNodeComparator();
+            makeCompare(f, original, node);
+            
+            String result2 = null;
+            SimpleNode nodePrintingWithoutSpecials = null;
             try {
-                comparator.compare(original, node);
-            } catch (DifferException e) {
-                System.out.println("Compare did not suceed:"+f);
+                //Ok, first print done... go on and create a version without the specials. 
+                SimpleNode node2 = node.createCopy();
+                result2 = PrettyPrinterTest.makePrint(prefs, node2);
+                nodePrintingWithoutSpecials = parseLegalDocStr(result2);
+            } catch (Throwable e) {
+                printErrorAndFail(f, original, result2, e);
             }
+            makeCompare(f, original, nodePrintingWithoutSpecials);
+            
+            
         }
+    }
+
+    private void makeCompare(File f, SimpleNode original, SimpleNode node) throws Exception {
+        SimpleNodeComparator comparator = new SimpleNodeComparator();
+        try {
+            comparator.compare(original, node);
+        } catch (DifferException e) {
+            System.out.println("Compare did not suceed:"+f);
+        }
+    }
+
+    private void printErrorAndFail(File f, SimpleNode original, String result2, Throwable e) {
+        System.out.println("\n\n\n----------------- Initial contents:-------------------------\n");
+        System.out.println(original);
+        System.out.println("\n\n--------------Pretty-printed contents:------------------\n");
+        System.out.println(result2);
+        System.out.println("\n\n\n");
+        System.out.println("File: "+f);
+        e.printStackTrace();
+        
+        fail("Error\nUnable to pretty-print regenerated file:"+f);
     }
 
 }

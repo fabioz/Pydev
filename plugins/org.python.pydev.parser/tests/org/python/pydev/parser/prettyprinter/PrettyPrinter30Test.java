@@ -15,7 +15,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testAnnotations3();
+            test.testVarious1();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -397,6 +397,18 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
     public void testManyGlobals() throws Throwable {
         final String s = ""+
         "global logfp,log\n" +
+        "";
+        
+        checkPrettyPrintEqual(s);
+    }
+    
+    public void testVarious1() throws Throwable {
+        final String s = ""+
+        "def _incrementudc(self):\n" +
+        "    \"Increment update counter.\"\"\"\n" +
+        "    if not TurtleScreen._RUNNING:\n" +
+        "        TurtleScreen._RUNNNING = True\n" +
+        "        raise Terminator\n" +
         "";
         
         checkPrettyPrintEqual(s);

@@ -97,18 +97,29 @@ public class PrettyPrinterV2 {
                 //found), so, we have to go on and check how we should indent it based on the previous line(s)
                 ILinePart linePart = sortedPartsWithILinePart2.get(0);
                 if(linePart.getToken() instanceof commentType && linePart instanceof ILinePart2){
-                    handleSingleLineComment((ILinePart2)linePart);
+                    String indentWritten = handleSingleLineComment((ILinePart2)linePart);
+                    if(indentWritten != null){
+                        savedLineIndent = true;
+                        previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, indentWritten));
+                    }
                 }
             }
             
             
             for(ILinePart linePart:sortedParts){
+                boolean isSlash = false;
                 if(linePart instanceof ILinePart2 && !writtenComment){
                     String tok = ((ILinePart2)linePart).getString();
                     if(tok.length() == 1){
                         if(tok.charAt(0) == ';'){
                             writeStateV2.writeNewLine();
                             continue;
+                        }
+                        if(tok.charAt(0) == '\\'){
+                            if(isInLevel()){
+                                continue;
+                            }
+                            isSlash = true;
                         }
                     }
                     
@@ -143,10 +154,14 @@ public class PrettyPrinterV2 {
                                 written=true;
                             }
                         }
+
                     }
                     if(!written){
                         written=true;
                         writeStateV2.write(prefs.getReplacement(tok));
+                    }
+                    if(isSlash){
+                        writeStateV2.writeNewLine();
                     }
                     
                     
@@ -222,9 +237,11 @@ public class PrettyPrinterV2 {
     
     
     /**
-     * Handles a single line comment, puttingt it in the correct indentation.
+     * Handles a single line comment, putting it in the correct indentation.
+     * @return the indent used or null if it wasn't written.
      */
-    private void handleSingleLineComment(ILinePart2 linePart) throws IOException {
+    private String handleSingleLineComment(ILinePart2 linePart) throws IOException {
+        String indent=null;
         ILinePart2 iLinePart2 = (ILinePart2) linePart;
         commentType commentType = (commentType) linePart.getToken();
         int col = commentType.beginColumn;
@@ -232,6 +249,7 @@ public class PrettyPrinterV2 {
             lastWasComment=true;
             writtenComment=true;
             writeStateV2.writeRaw(iLinePart2.getString());
+            indent="";
         }else{
             Tuple<PrettyPrinterDocLineEntry, String> found = null;
             //Let's go backward in the lines to see one that matches the current indentation.
@@ -251,8 +269,10 @@ public class PrettyPrinterV2 {
                 writtenComment=true;
                 writeStateV2.writeRaw(found.o2);
                 writeStateV2.writeRaw(iLinePart2.getString());
+                indent = found.o2;
             }
         }
+        return indent;
     }
 
     /**

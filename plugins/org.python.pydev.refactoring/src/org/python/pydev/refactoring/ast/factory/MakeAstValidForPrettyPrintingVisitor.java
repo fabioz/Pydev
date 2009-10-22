@@ -45,6 +45,10 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase{
         if(node.beginLine < currentLine){
             node.beginLine = currentLine;
             node.beginColumn = currentCol;
+            
+        }else if(node.beginLine == currentLine && node.beginColumn < currentCol){
+            node.beginColumn = currentCol;
+            
         }else{
             currentLine = node.beginLine;
             currentCol = node.beginColumn;
@@ -98,6 +102,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase{
 
         return null;
     }
+    
     
     @Override
     public Object visitIf(If node) throws Exception {
