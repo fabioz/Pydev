@@ -612,10 +612,12 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public void visitOrElsePart(suiteType orelse, String expectedToken, int linesAfterSuite) throws Exception {
         
         if(orelse != null){
+            startStatementPart();
             beforeNode(orelse);
             doc.addRequire(expectedToken, orelse);
             doc.addRequire(":", orelse);
             doc.addRequireIndent(":", orelse);
+            endStatementPart(orelse);
             for(stmtType st:orelse.body){
                 st.accept(this);
             }
@@ -637,6 +639,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         visitTryPart(node, node.body);
         for(excepthandlerType h:node.handlers){
 
+            startStatementPart();
             beforeNode(h);
             doc.addRequire("except", lastNode);
             this.pushTupleNeedsParens();
@@ -666,6 +669,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             popTupleNeedsParens();
             this.doc.addRequire(":", lastNode);
             this.doc.addRequireIndent(":", lastNode);
+            endStatementPart(lastNode);
             
             for(stmtType st:h.body){
                 st.accept(this);
@@ -947,6 +951,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int defaultsLen = d==null?0:d.length;
         int diff = argsLen-defaultsLen;
         
+        beforeNodeWithoutSettintgLastNode(completeArgs);
         boolean foundBefore = false;
         for(int i=0;i<argsLen;i++) {
             foundBefore = true;
@@ -1046,6 +1051,8 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
                 completeArgs.kwargannotation.accept(this);
             }
         }
+        
+        afterNode(completeArgs);
         
     }
     
@@ -1245,9 +1252,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
                 this.doc.addRequire(",", lastNode);
             }
             aliasType alias = node.names[i];
-            beforeNode(alias);
             handleAlias(alias);
-            afterNode(alias);
         }
         
         afterNode(node);
@@ -1289,9 +1294,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
                 if(i > 0){
                     doc.addRequire(",", lastNode);
                 }
-                beforeNode(alias);
                 handleAlias(alias);
-                afterNode(alias);
             }
         }
         
@@ -1304,6 +1307,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     }
 
     private void handleAlias(aliasType alias) throws Exception {
+        beforeNode(alias);
         if (alias.name != null)
             alias.name.accept(this);
         
@@ -1312,6 +1316,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             doc.addRequire("as", lastNode);
             alias.asname.accept(this);
         }
+        afterNode(alias);
     }
     
 

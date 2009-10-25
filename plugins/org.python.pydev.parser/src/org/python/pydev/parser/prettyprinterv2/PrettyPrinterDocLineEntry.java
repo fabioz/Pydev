@@ -136,8 +136,15 @@ public class PrettyPrinterDocLineEntry {
             this.emptyLinesRequiredAfterDedent = emptyLinesRequiredAfterDedent;
         }
         this.indentDiff -= 1;
-        LinePartIndentMark dedentMark = new LinePartIndentMark(Integer.MAX_VALUE, "", false, this);
-        addPart(dedentMark);
+        List<ILinePart> sortedParts = this.getSortedParts();
+        LinePartIndentMark dedentMark;
+        if(sortedParts.size() > 0){
+            dedentMark = new LinePartIndentMark(sortedParts.get(sortedParts.size()-1).getBeginCol(), "", false, this);
+            sortedParts.add(dedentMark);
+        }else{
+            dedentMark = new LinePartIndentMark(0, "", false, this);
+            addPart(dedentMark);
+        }
         return dedentMark;
     }
 

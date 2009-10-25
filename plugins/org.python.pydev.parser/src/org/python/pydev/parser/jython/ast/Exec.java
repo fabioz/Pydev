@@ -29,7 +29,7 @@ public final class Exec extends stmtType {
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType);
+                    temp.getSpecialsBefore().add(commentType.createCopy());
                 }
             }
         }
@@ -37,7 +37,7 @@ public final class Exec extends stmtType {
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType);
+                    temp.getSpecialsAfter().add(commentType.createCopy());
                 }
             }
         }

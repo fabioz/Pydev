@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
@@ -64,10 +63,6 @@ public class PyAstFactory {
         Assign assign = new Assign(new exprType[] { attribute }, value);
 
         return new stmtType[] { assign };
-    }
-
-    public static void makeValid(SimpleNode node) throws Exception {
-        node.accept(new MakeAstValidForPrettyPrintingVisitor());
     }
 
     public Call createCall(String call, String ... params) {

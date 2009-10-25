@@ -11,6 +11,7 @@ package org.python.pydev.refactoring.core.edit;
 import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -48,7 +49,7 @@ public abstract class AbstractTextEdit {
     protected String getFormattedNode() throws MisconfigurationException {
         SimpleNode node = getEditNode().createCopy();
         try{
-            PyAstFactory.makeValid(node);
+            MakeAstValidForPrettyPrintingVisitor.makeValid(node);
         }catch(Exception e){
             throw new RuntimeException(e);
         }

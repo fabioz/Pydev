@@ -7,6 +7,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.prettyprinterv2.IPrettyPrinterPrefs;
+import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.comparator.DifferException;
@@ -32,6 +33,11 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
         return checkPrettyPrintEqual(s, prefs, expected, v2);
     }
     
+    
+    public SimpleNode checkPrettyPrintEqual(String s, String expected, String v2, String v3) throws Error {
+        return checkPrettyPrintEqual(s, prefs, expected, v2, v3);
+    }
+    
     public SimpleNode checkPrettyPrintEqual(String s) throws Error {
         return checkPrettyPrintEqual(s, s);
     }
@@ -45,14 +51,31 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
     public static SimpleNode checkPrettyPrintEqual(String s, IPrettyPrinterPrefs prefs, String expected, String ... v2) throws Error {
         SimpleNode node = parseLegalDocStr(s);
 
-        String check = expected;
+        String checkV2 = expected;
         if(v2.length > 0){
-            check = v2[0];
+            checkV2 = v2[0];
+        }
+        String checkV3 = checkV2;
+        if(v2.length > 1){
+            checkV3 = v2[1];
         }
         
-        //When creating a copy, the specials won't go along.
-        assertEquals(check, makePrint(prefs, node.createCopy()));
         
+        //Scramble the lines/columns
+        SimpleNode copy = node.createCopy();
+        MessLinesAndColumnsVisitor messLinesAndColumnsVisitor = new MessLinesAndColumnsVisitor();
+        try{
+            copy.accept(messLinesAndColumnsVisitor);
+            MakeAstValidForPrettyPrintingVisitor.makeValid(copy);
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
+//        assertEquals(checkV3, makePrint(prefs, copy));
+        
+        //Without specials: When creating a copy, the specials won't go along.
+        assertEquals(checkV2, makePrint(prefs, node.createCopy()));
+        
+        //Regular
         assertEquals(expected, makePrint(prefs, node));
         return node;
     }

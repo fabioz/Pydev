@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testVarious32();
+            test.testVarious30();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -2134,10 +2134,19 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "";
         
         
+        final String v3 = ""+
+        "def visiblename(name,all=None):\n" +
+        "    if name in ('__builtins__','__doc__','__file__','__path__','__module__','__name__','__slots__'):\n" +
+        "        return 0# Private names are hidden, but special names are displayed.\n" +
+        "    if name.startswith('__') and name.endswith('__'):\n" +
+        "        return 1\n" +
+        "";
+        
+        
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                checkPrettyPrintEqual(s, expected);
+                checkPrettyPrintEqual(s, expected, expected, v3);
                 return true;
             }
         });
@@ -2196,11 +2205,15 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    c=False):\n" +
         "    pass\n" +
         "";
+        final String v3 = ""+
+        "def m(a,b,c=False):\n" +
+        "    pass\n" +
+        "";
         
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                checkPrettyPrintEqual(s, expected, v2);
+                checkPrettyPrintEqual(s, expected, v2, v3);
                 return true;
             }
         });
@@ -2311,10 +2324,15 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "        option in options]\n" +
         "";
         
+        final String v3 = ""+
+        "if raw:\n" +
+        "    return [(option,d[option]) for option in options]\n" +
+        "";
+        
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                checkPrettyPrintEqual(s);
+                checkPrettyPrintEqual(s, s, s, v3);
                 return true;
             }
         });
@@ -2328,10 +2346,14 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    (orig_text,text,pairs))\n" +
         "";
         
+        final String v3 = ""+
+        "assert nr_junk_chars > 0,('split_header_words bug: %s, %s, %s' % (orig_text,text,pairs))\n" +
+        "";
+        
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                checkPrettyPrintEqual(s);
+                checkPrettyPrintEqual(s, s, s, v3);
                 return true;
             }
         });

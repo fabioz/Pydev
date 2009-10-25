@@ -66,12 +66,21 @@ public class PrettyPrinterDocV2 {
     }
 
     public LinePartRequireMark addRequire(String string, SimpleNode node) {
+        checkLine(node);
         PrettyPrinterDocLineEntry line = getLine(node.beginLine);
         LinePartRequireMark linePart = line.addRequireMark(node.beginColumn, string);
         addToCurrentRecordedChanges(linePart);
         return linePart;
     }
     
+    private void checkLine(SimpleNode node) {
+        if(node.beginLine < 0 || node.beginColumn < 0){
+            throw new RuntimeException("Node: "+node+" has invalid line "+node.beginLine+" or col "+node.beginColumn);
+        }
+        
+    }
+
+
     public LinePartRequireMark addRequireBefore(String string, ILinePart o1) {
         PrettyPrinterDocLineEntry line = getLine(o1.getLine());
         LinePartRequireMark linePart = line.addRequireMarkBefore(o1, string);
@@ -110,6 +119,9 @@ public class PrettyPrinterDocV2 {
     //------------ Get information
 
     PrettyPrinterDocLineEntry getLine(int beginLine) {
+        if(beginLine < 0){
+            throw new RuntimeException("Cannot get negative line.");
+        }
         PrettyPrinterDocLineEntry lineContents = linesToColAndContents.get(beginLine);
         if(lineContents == null){
             lineContents = new PrettyPrinterDocLineEntry(beginLine);

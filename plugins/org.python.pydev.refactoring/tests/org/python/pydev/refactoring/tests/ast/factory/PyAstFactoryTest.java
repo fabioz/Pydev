@@ -7,6 +7,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
@@ -81,7 +82,7 @@ public class PyAstFactoryTest extends TestCase {
     
     
     private void checkExpected(SimpleNode functionDef, String expected) throws Exception {
-        PyAstFactory.makeValid(functionDef);
+        MakeAstValidForPrettyPrintingVisitor.makeValid(functionDef);
         PrettyPrinterV2 printer = new PrettyPrinterV2(
                 new PrettyPrinterPrefsV2("\n", "    ", new IGrammarVersionProvider() {
                     

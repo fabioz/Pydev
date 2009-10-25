@@ -6,7 +6,7 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.prettyprinter.AbstractPrettyPrinterTestBase;
-import org.python.pydev.refactoring.ast.factory.PyAstFactory;
+import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 
 public class PyAstFactoryWithPrettyPrinting extends AbstractPrettyPrinterTestBase{
 
@@ -47,7 +47,7 @@ public class PyAstFactoryWithPrettyPrinting extends AbstractPrettyPrinterTestBas
                 exprType value = ((Expr)module.body[0]).value;
                 Return node = new Return((exprType) value.createCopy());
                 try{
-                    PyAstFactory.makeValid(node);
+                    MakeAstValidForPrettyPrintingVisitor.makeValid(node);
                 }catch(Exception e){
                     throw new RuntimeException(e);
                 }

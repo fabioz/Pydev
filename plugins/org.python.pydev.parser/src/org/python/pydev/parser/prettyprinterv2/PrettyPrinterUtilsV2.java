@@ -82,6 +82,10 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
      */
     protected void beforeNode(SimpleNode node) throws Exception {
         this.lastNode = node;
+        beforeNodeWithoutSettintgLastNode(node);
+    }
+
+    protected void beforeNodeWithoutSettintgLastNode(SimpleNode node) throws IOException {
         if(node instanceof stmtType && !isMultiLineStmt((stmtType) node)){
             startStatementPart();
         }

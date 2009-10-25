@@ -285,7 +285,7 @@ class JavaVisitor(EmitVisitor):
             self.emit('    for(Object o:this.specials%s){' % s, depth+1)
             self.emit('        if(o instanceof commentType){', depth+1)
             self.emit('            commentType commentType = (commentType) o;', depth+1)
-            self.emit('            temp.getSpecials%s().add(commentType);' %s, depth+1)
+            self.emit('            temp.getSpecials%s().add(commentType.createCopy());' %s, depth+1)
             self.emit('        }', depth+1)
             self.emit('    }', depth+1)
             self.emit('}', depth+1)
