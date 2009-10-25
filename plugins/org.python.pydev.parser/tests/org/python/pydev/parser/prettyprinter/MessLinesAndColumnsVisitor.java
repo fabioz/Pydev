@@ -3,30 +3,26 @@ package org.python.pydev.parser.prettyprinter;
 import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 
-public class MessLinesAndColumnsVisitor extends VisitorBase{
+public class MessLinesAndColumnsVisitor extends MakeAstValidForPrettyPrintingVisitor{
 
-    @Override
-    public void traverse(SimpleNode node) throws Exception {
-        node.traverse(this);
-    }
-
-    @Override
-    protected Object unhandled_node(SimpleNode node) throws Exception {
+    protected void fixNode(SimpleNode node) {
         node.beginLine = -1;
         node.beginColumn = -1;
         handleSpecials(node.specialsBefore);
         handleSpecials(node.specialsAfter);
-        return null;
+        
     }
+    
 
-    private void handleSpecials(List<Object> specials) throws Exception {
+
+    private void handleSpecials(List<Object> specials)  {
         if(specials != null){
             for(Object o:specials){
                 if(o instanceof commentType){
-                    unhandled_node((SimpleNode) o);
+                    fixNode((SimpleNode) o);
                 }
             }
         }

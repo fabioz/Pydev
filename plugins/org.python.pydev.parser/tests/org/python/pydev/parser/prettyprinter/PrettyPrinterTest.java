@@ -2479,11 +2479,27 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    k = 'expires'\n" +
         "";
         
+        final String v3 = ""+
+        "if k == 'max-age':\n" +
+        "    max_age_set = True\n" +
+        "    try:\n" +
+        "        v = int(v)\n" +
+        "    except ValueError:\n" +
+        "        _debug('   missing or invalid (non-numeric) value for '\n" +
+        "                'max-age attribute')\n" +
+        "        bad_cookie = True\n" +
+        "        break# convert RFC 2965 Max-Age to seconds since epoch\n" +
+        "        # XXX Strictly you're supposed to follow RFC 2616\n" +
+        "        #   age-calculation rules.  Remember that zero Max-Age is a\n" +
+        "        #   is a request to discard (old and new) cookie, though.\n" +
+        "    k = 'expires'\n" +
+        "";
+        
         
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                checkPrettyPrintEqual(s);
+                checkPrettyPrintEqual(s, s, s, v3);
                 return true;
             }
         });

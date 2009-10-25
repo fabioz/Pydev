@@ -70,7 +70,7 @@ import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
-public final class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
+public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     int currentLine = 0;
     int currentCol = 0;
@@ -142,6 +142,10 @@ public final class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         }else{
             currentLine = node.beginLine;
             currentCol = node.beginColumn;
+        }
+        
+        if(node instanceof stmtType){
+            nextCol();
         }
     }
 
@@ -506,6 +510,7 @@ public final class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
             for(stmtType st:h.body){
                 st.accept(this);
             }
+            fixAfterNode(h);
 
         }
         visitOrElsePart(node.orelse, "else");
