@@ -378,7 +378,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "def _format(node):\n" +
         "    rv = '%s(%s' % (node.__class__.__name__,', '.join((\n" +
         "                '%s=%s' % field for field in fields)\n" +
-        "             if annotate_fields else \n" +
+        "            if annotate_fields else \n" +
         "            (b for (a,b) in fields)\n" +
         "            ))\n" +
         "";

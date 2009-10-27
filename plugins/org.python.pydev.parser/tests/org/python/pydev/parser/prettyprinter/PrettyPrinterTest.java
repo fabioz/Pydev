@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testVarious30();
+//            test.testVarious34();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -676,7 +676,8 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "";
         String v2 = ""+
         "a = (r\"a\"#comm1\n" +
-        "        r'\"b\"')#comm2\n" +
+        "        r'\"b\"'#comm2\n" +
+        ")\n" +
         "";
         checkPrettyPrintEqual(s, s, v2);
     }
@@ -1062,7 +1063,8 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "        #comment\n" +
         "        break\n" +
         "";
-        checkPrettyPrintEqual(s, s, v2);
+        String v3 = s;
+        checkPrettyPrintEqual(s, s, v2, v3);
     }
     
     public void testBreak3() throws Exception {
@@ -1081,7 +1083,13 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "        break\n" +
         "";
         
-        checkPrettyPrintEqual(s, s, v2);
+        String v3 = ""+
+        "for a in b:\n" +
+        "    if True:#comment1\n" +
+        "        break#comment2\n" +
+        "";
+        
+        checkPrettyPrintEqual(s, s, v2, v3);
     }
     
     public void testReturn() throws Exception {
@@ -1418,7 +1426,12 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    #comment0\n" +
         "    print 'foo'\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v3 = ""+
+        "def foo():#comment0\n" +
+        "    print 'foo'\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
     }
     
     
@@ -1643,7 +1656,20 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "else:#commentElse\n"+   //8
         "    d = 4\n" +          //9
         "outOfIf = True\n";      //10
-        checkPrettyPrintEqual(s);
+        
+        String v3 = 
+            "#commentbefore\n"+      //1
+            "if a:#commentIf\n"+     //2
+            "    a = 1\n"+           //3
+            "elif b:#commentElif\n"+ //4
+            "    b = 2\n"+           //5
+            "elif c:\n"+             //6
+            "    c = 3\n"+           //7
+            "else:\n"+   //8
+            "    d = 4#commentElse\n" +          //9
+            "outOfIf = True\n";      //10
+        
+        checkPrettyPrintEqual(s, s, s, v3);
     }
     
     public void testIfElse4() throws Exception {
@@ -1685,10 +1711,19 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
                 "        except:\n" +
                 "            pass\n" +
                 "";
+        
+        final String v3 = "" +
+        "def initiate_send():\n" +
+        "    if 10:# try to send the buffer\n" +
+        "        try:\n" +
+        "            num_sent = 10\n" +
+        "        except:\n" +
+        "            pass\n" +
+        "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                checkPrettyPrintEqual(s);
+                checkPrettyPrintEqual(s, s, s, v3);
                 return true;
             }
         });
@@ -1784,7 +1819,13 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    def met1(self,a):#comment2\n" +
         "        pass#comment3\n" +
         "";
-        checkPrettyPrintEqual(s);
+        String v3 = "#comment00\n" +
+        "class Class1:#comment0\n" +
+        "#comment1\n" + //this is because we mess with columns too.
+        "    def met1(self,a):#comment2\n" +
+        "        pass#comment3\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
     }
     
     public void testComments2() throws Throwable {
@@ -1832,7 +1873,22 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    # comment on else end\n" +
         "# after the second body (but actually in the module node)!\n" +
         "";
-        checkPrettyPrintEqual(s, s, v2);
+        
+        String v3 = ""+
+        "# comment before\n" +
+        "i = 0\n" +
+        "while i < 2:# while test comment on-line\n" +
+        "    print 'under 5'\n" +
+        "    i += 1# augmented assignment on-line\n" +
+        "# this comment disappears\n" +
+        "else:\n" +
+        "    print 'bigger'# print on-line\n" +
+        "    # else on-line\n" +
+        "    # comment inside else\n" +
+        "    # comment on else end\n" +
+        "    # after the second body (but actually in the module node)!\n" +
+        "";
+        checkPrettyPrintEqual(s, s, v2, v3);
     }
     
     
@@ -1962,10 +2018,15 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "# Constants for weekdays\n" +
         "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY = range(7)\n" +
         "";
+        
+        final String v3 = ""+
+        "month_abbr = _localized_month('%b')# Constants for weekdays\n" +
+        "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY = range(7)\n" +
+        "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                checkPrettyPrintEqual(s, s, v2);
+                checkPrettyPrintEqual(s, s, v2, v3);
                 return true;
             }
         });
@@ -1992,10 +2053,19 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "            M,K)\n" +
         "        R += 1\n" +
         "";
+        
+        final String v3 = ""+
+        "def _ilog(x,M,L=8):\n" +
+        "    y = x - M\n" +
+        "    R = 0\n" +
+        "    while R <= L or R > L:\n" +
+        "        y = call((M * y) << 1,M,K)\n" +
+        "        R += 1\n" +
+        "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                checkPrettyPrintEqual(s, s, v2);
+                checkPrettyPrintEqual(s, s, v2, v3);
                 return true;
             }
         });
@@ -2048,11 +2118,19 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "        not isfunction(object))\n" +
         "";
         
+        final String v3 = ""+
+        "def ismethoddescriptor(object):\n" +
+        "    return (hasattr(object,\"__get__\") and not hasattr(object,\"__set__\")# else it's a data descriptor\n" +
+        "        #comment\n" +
+        "        and not ismethod(object)# mutual exclusion\n" +
+        "        and not isfunction(object))\n" +
+        "";
+        
         
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                checkPrettyPrintEqual(s, expected);
+                checkPrettyPrintEqual(s, expected, expected, v3);
                 return true;
             }
         });
@@ -2538,6 +2616,66 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
                 if(version < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
                     checkPrettyPrintEqual(s);
                 }
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious33() throws Throwable {
+        final String s = ""+
+        "def method(f):\n" +
+        "    if True:\n" +
+        "        pass\n"+
+        "\n" +
+        "class Obj(object):\n" +
+        "    __slots__ = (\n" +
+        "        # comment1\n" +
+        "        'name1',\n" +
+        "        # comment2\n" +
+        "        'name2',\n" +
+        "    )\n" +
+        "";
+        
+        final String expected = ""+
+        "def method(f):\n" +
+        "    if True:\n" +
+        "        pass\n"+
+        "class Obj(object):\n" +
+        "    __slots__ = (\n" +
+        "        # comment1\n" +
+        "        'name1',\n" +
+        "        # comment2\n" +
+        "        'name2',\n" +
+        "        )\n" +
+        "";
+        
+        final String v2 = ""+
+        "def method(f):\n" +
+        "    if True:\n" +
+        "        pass\n"+
+        "class Obj(object):\n" +
+        "    __slots__ = (# comment1\n" +
+        "        'name1',\n" +
+        "        # comment2\n" +
+        "        'name2')\n" +
+        "";
+        
+        final String v3 = ""+
+        "def method(f):\n" +
+        "    if True:\n" +
+        "        pass\n"+
+        "class Obj(object):\n" +
+        "    __slots__ = (# comment1\n" +
+        "        'name1',# comment2\n" +
+        "        'name2')\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s, expected, v2, v3);
                 return true;
             }
         });

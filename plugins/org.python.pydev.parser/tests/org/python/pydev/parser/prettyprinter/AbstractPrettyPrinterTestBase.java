@@ -70,7 +70,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
         }catch(Exception e){
             throw new RuntimeException(e);
         }
-//        assertEquals(checkV3, makePrint(prefs, copy));
+        assertEquals(checkV3, makePrint(prefs, copy));
         
         //Without specials: When creating a copy, the specials won't go along.
         assertEquals(checkV2, makePrint(prefs, node.createCopy()));
@@ -119,7 +119,8 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase{
     }
 
     protected void parseAndPrettyPrintFile(File f) throws Error, Exception {
-        if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
+        String lowerCase = f.getAbsolutePath().toLowerCase();
+        if(lowerCase.endsWith(".py")){
             SimpleNode original = parseLegalDocStr(REF.getFileContents(f), f);
             if(original == null){
                 fail("Error\nUnable to generate the AST for the file:"+f);

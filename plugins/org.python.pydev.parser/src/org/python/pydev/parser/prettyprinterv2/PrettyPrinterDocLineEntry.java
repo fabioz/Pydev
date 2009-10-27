@@ -8,6 +8,7 @@ import java.util.List;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.jython.ast.commentType;
 
 /**
  * Defines a line in the document. The items are added based on the order in which items are added
@@ -50,7 +51,32 @@ public class PrettyPrinterDocLineEntry {
     }
     
     private void addPart(ILinePart linePart) {
-        lineParts.add(linePart);
+        int before = -1;
+        if(linePart instanceof LinePartRequireMark){
+            String token = ((LinePartRequireMark)linePart).getToken().trim();
+            if(token.equals(":") || token.equals(",") || 
+                    token.equals("(") || token.equals(")") || 
+                    token.equals("[") || token.equals("]") ||
+                    token.equals("=") || 
+                    token.equals("{") || token.equals("}")
+                    ){
+                if(lineParts.size() > 0){
+                    for(int i=lineParts.size()-1;i>=0;i--){
+                        ILinePart existing = lineParts.get(i);
+                        if(existing instanceof LinePartStatementMark || existing.getToken() instanceof commentType){
+                            before = i;
+                        }else{
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(before != -1){
+            lineParts.add(before, linePart);
+        }else{
+            lineParts.add(linePart);
+        }
         lineSorted = false;
     }
     
@@ -171,7 +197,10 @@ public class PrettyPrinterDocLineEntry {
     public int getFirstCol() {
         sortLineParts();
         if(this.lineParts.size() > 0){
-            return this.lineParts.get(0).getBeginCol();
+            ILinePart iLinePart0 = this.lineParts.get(0);
+            if(!(iLinePart0 instanceof LinePartRequireAdded)){
+                return iLinePart0.getBeginCol();
+            }
         }
         return -1;
     }

@@ -273,8 +273,8 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
                 for(ILinePart iLinePart:changes){
                     if(foundComment){
                         if(iLinePart.getToken() instanceof SimpleNode){
-                            doc.addRequire("(", node);
-                            doc.addRequire(")", lastNode);
+                            doc.addRequireBefore("(", changes.get(0));
+                            doc.addRequireAfter(")", changes.get(changes.size()-1));
                             break;
                         }
                     }
@@ -713,21 +713,18 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id= doc.pushRecordChanges();
         
         beforeNode(node);
+        if(node.value != null){
+            doc.addRequire("yield ", node);
+        }else{
+            doc.addRequire("yield", node);
+        }
         node.traverse(this);
         
         java.util.List<ILinePart> changes = doc.popRecordChanges(id);
-        String replaceToken;
         if(node.value != null){
-            replaceToken = "yield ";
-        }else{
-            replaceToken = "yield";
+            doc.replaceRecorded(changes, "yield", "yield ");
         }
         
-        int replaced=doc.replaceRecorded(changes, "yield", replaceToken);
-        if(replaced == 0){
-            //we did not find the token
-            this.doc.addBefore(node.beginLine, node.beginColumn, replaceToken, node);
-        }
         afterNode(node);
         return null;
     }

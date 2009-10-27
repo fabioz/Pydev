@@ -74,10 +74,17 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     int currentLine = 0;
     int currentCol = 0;
+    private int isInMultiLine;
 
     private void nextLine() {
-        currentLine += 1;
-        currentCol = 0;
+        nextLine(false);
+    }
+    private void nextLine(boolean force) {
+        //on a multi-line statement, we don't need to add tokens in new lines.
+        if(force || isInMultiLine == 0){
+            currentLine += 1;
+            currentCol = 0;
+        }
     }
 
     private void nextCol() {
@@ -232,6 +239,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitDict(Dict node) throws Exception {
         fixNode(node);
+        this.pushInMultiline();
         exprType[] keys = node.keys;
         exprType[] values = node.values;
         for(int i = 0; i < values.length; i++){
@@ -243,6 +251,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
             values[i].accept(this);
 
         }
+        this.popInMultiline();
         fixAfterNode(node);
         return null;
     }
@@ -250,24 +259,29 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitTuple(Tuple node) throws Exception {
         fixNode(node);
+        this.pushInMultiline();
         if(node.elts != null && node.elts.length > 0){
-
             //tuple inside tuple
-
             visitCommaSeparated(node.elts, node.endsWithComma);
 
         }
+        this.popInMultiline();
         fixAfterNode(node);
         return null;
+    }
+
+    private void pushInMultiline() {
+        this.isInMultiLine += 1;
+    }
+    
+    private void popInMultiline() {
+        this.isInMultiLine -= 1;
     }
 
     private void visitCommaSeparated(exprType[] elts, boolean requireEndWithCommaSingleElement) throws Exception {
         if(elts != null){
             for(int i = 0; i < elts.length; i++){
                 if(elts[i] != null){
-                    if(i > 0){
-
-                    }
                     elts[i].accept(this);
                 }
             }
@@ -277,7 +291,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitList(List node) throws Exception {
         fixNode(node);
+        this.pushInMultiline();
         visitCommaSeparated(node.elts, false);
+        this.popInMultiline();
         fixAfterNode(node);
         return null;
     }
@@ -566,9 +582,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitCall(Call node) throws Exception {
         fixNode(node);
         node.func.accept(this);
-
+        this.pushInMultiline();
         handleArguments(node.args, node.keywords, node.starargs, node.kwargs);
-
+        this.popInMultiline();
         fixAfterNode(node);
         return null;
     }
@@ -605,7 +621,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
                 exprType str = node.strs[i];
                 if(str != null){
                     str.accept(this);
-                    nextLine();
+                    nextLine(true);
                 }
             }
         }

@@ -78,6 +78,8 @@ public class PrettyPrinterV2 {
 
         doc.validateRequireMarks();
         
+        List<Tuple<ILinePart, PrettyPrinterDocLineEntry>> commentsSkipped = new ArrayList<Tuple<ILinePart, PrettyPrinterDocLineEntry>>();
+        
         for(Entry<Integer, PrettyPrinterDocLineEntry> entry:entrySet){
             PrettyPrinterDocLineEntry line = entry.getValue();
             List<ILinePart> sortedParts = line.getSortedParts();
@@ -96,111 +98,23 @@ public class PrettyPrinterV2 {
                 //it can happen that it doesn't belong in the current indentation (and rather to the last indentation
                 //found), so, we have to go on and check how we should indent it based on the previous line(s)
                 ILinePart linePart = sortedPartsWithILinePart2.get(0);
+                
                 if(linePart.getToken() instanceof commentType && linePart instanceof ILinePart2){
-                    String indentWritten = handleSingleLineComment((ILinePart2)linePart);
+                    String indentWritten = handleSingleLineComment((ILinePart2)linePart, line, commentsSkipped);
                     if(indentWritten != null){
-                        savedLineIndent = true;
-                        previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, indentWritten));
+                        saveLineIndent(line, indentWritten);
                     }
                 }
             }
             
             
             for(ILinePart linePart:sortedParts){
-                boolean isSlash = false;
-                if(linePart instanceof ILinePart2 && !writtenComment){
-                    String tok = ((ILinePart2)linePart).getString();
-                    if(tok.length() == 1){
-                        if(tok.charAt(0) == ';'){
-                            writeStateV2.writeNewLine();
-                            continue;
-                        }
-                        if(tok.charAt(0) == '\\'){
-                            if(isInLevel()){
-                                continue;
-                            }
-                            isSlash = true;
-                        }
-                    }
-                    
-                    if(linePart.getToken() instanceof commentType){
-                        writeStateV2.writeSpacesBeforeComment();
-                        lastWasComment=true;
-                    }
-                    
-                    boolean written = false;
-                    //Note: on a write, if the last thing was a new line, it'll indent.
-                    if(tok.length() == 1){
-                        Tuple<Integer, Boolean> newLevel = updateLevels(tok);
-                        if(newLevel != null){
-                            if(!savedLineIndent){
-                                savedLineIndent = true;
-                                previousLines.add(
-                                        new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
-                            }
-                            
-                            if(newLevel.o2){
-                                writeStateV2.write(prefs.getReplacement(tok));
-                                writeStateV2.indent();
-                                written=true;
-                            }else{
-                                if(indentDiff == 0){
-                                    writeStateV2.dedent();
-                                }
-                                writeStateV2.write(prefs.getReplacement(tok));
-                                if(indentDiff != 0){
-                                    writeStateV2.dedent();
-                                }
-                                written=true;
-                            }
-                        }
-
-                    }
-                    if(!written){
-                        written=true;
-                        writeStateV2.write(prefs.getReplacement(tok));
-                    }
-                    if(isSlash){
-                        writeStateV2.writeNewLine();
-                    }
-                    
-                    
-                }else if(linePart instanceof ILinePartIndentMark){
-                    ILinePartIndentMark indentMark = (ILinePartIndentMark) linePart;
-                    if(!savedLineIndent){
-                        savedLineIndent = true;
-                        previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
-                    }
-                    if(indentMark.isIndent()){
-                        if(indentMark.getRequireNewLineOnIndent()){
-                            
-                            
-                            writeStateV2.requireNextNewLineOrComment();
-                        }
-                        writeStateV2.indent();
-                        indentDiff--;
-                    }else{
-                        writeStateV2.dedent();
-                        indentDiff++;
-                    }
-                    
-                }else if(linePart instanceof ILinePartStatementMark){
-                    ILinePartStatementMark statementMark = (ILinePartStatementMark) linePart;
-                    if(statementMark.isStart()){
-                        if(statementLevel == 0){
-                            writeStateV2.requireNextNewLineOrComment();
-                        }
-                        statementLevel++;
-                    }else{
-                        statementLevel--;
-                    }
-                }
+                writeLinePart(linePart, commentsSkipped, line);
             }
             
             
             if(!savedLineIndent){
-                savedLineIndent = true;
-                previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
+                saveLineIndent(line);
             }
             
             
@@ -222,6 +136,130 @@ public class PrettyPrinterV2 {
     }
 
 
+    private void saveLineIndent(PrettyPrinterDocLineEntry line) {
+        savedLineIndent = true;
+        previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, writeStateV2.getIndentString()));
+    }
+
+
+    private void saveLineIndent(PrettyPrinterDocLineEntry line, String indentWritten) {
+        savedLineIndent = true;
+        previousLines.add(new Tuple<PrettyPrinterDocLineEntry, String>(line, indentWritten));
+    }
+
+
+    private void writeLinePart(ILinePart linePart, List<Tuple<ILinePart, PrettyPrinterDocLineEntry>> commentsSkipped, PrettyPrinterDocLineEntry line) throws IOException {
+        boolean isSlash = false;
+        if(linePart instanceof ILinePart2 && !writtenComment){
+            String tok = ((ILinePart2)linePart).getString();
+            if(tok.charAt(0) == ';'){
+                writeStateV2.writeNewLine();
+                savedLineIndent = true; //don't save line indent
+                return;
+                
+            }else if(tok.charAt(0) == '\\'){
+                if(isInLevel()){
+                    savedLineIndent = true; //don't save line indent
+                    return;
+                }
+                isSlash = true;
+            }else if(tok.charAt(0) == '@'){
+                writeStateV2.requireNextNewLine();
+            }
+            
+            
+            if(linePart.getToken() instanceof commentType){
+                if(statementLevel > 0 && !isInLevel()){
+                    commentsSkipped.add(new Tuple<ILinePart, PrettyPrinterDocLineEntry>(linePart, line));
+                    savedLineIndent = true; //don't save line indent
+                    return;
+                }
+                writeStateV2.writeSpacesBeforeComment();
+            }
+            
+            boolean written = false;
+            //Note: on a write, if the last thing was a new line, it'll indent.
+            if(tok.length() == 1){
+                Tuple<Integer, Boolean> newLevel = updateLevels(tok);
+                if(newLevel != null){
+                    if(!savedLineIndent){
+                        saveLineIndent(line);
+                    }
+                    
+                    if(newLevel.o2){
+                        writeStateV2.write(prefs.getReplacement(tok));
+                        writeStateV2.indent();
+                        written=true;
+                    }else{
+                        if(indentDiff == 0){
+                            writeStateV2.dedent();
+                        }
+                        writeStateV2.write(prefs.getReplacement(tok));
+                        if(indentDiff != 0){
+                            writeStateV2.dedent();
+                        }
+                        written=true;
+                    }
+                }
+
+            }
+            if(!written){
+                written=true;
+                writeStateV2.write(prefs.getReplacement(tok));
+            }
+            if(isSlash){
+                writeStateV2.writeNewLine();
+            }
+            if(linePart.getToken() instanceof commentType){
+                writeStateV2.requireNextNewLine();
+                lastWasComment=true;
+            }else{
+                lastWasComment=false;
+                
+            }
+
+            
+            
+        }else if(linePart instanceof ILinePartIndentMark){
+            ILinePartIndentMark indentMark = (ILinePartIndentMark) linePart;
+            if(!savedLineIndent){
+                saveLineIndent(line);
+            }
+            if(indentMark.isIndent()){
+                if(indentMark.getRequireNewLineOnIndent()){
+                    
+                    
+                    writeStateV2.requireNextNewLineOrComment();
+                }
+                writeStateV2.indent();
+                indentDiff--;
+            }else{
+                writeStateV2.dedent();
+                indentDiff++;
+            }
+            
+        }else if(linePart instanceof ILinePartStatementMark){
+            ILinePartStatementMark statementMark = (ILinePartStatementMark) linePart;
+            if(statementMark.isStart()){
+                if(statementLevel == 0){
+                    writeStateV2.requireNextNewLineOrComment();
+                }
+                statementLevel++;
+            }else{
+                statementLevel--;
+            }
+        }
+        
+        if((statementLevel == 0 || isInLevel()) && commentsSkipped != null && commentsSkipped.size()>0){
+            savedLineIndent = true; //We don't want to save line indents at this point.
+            for(Tuple<ILinePart, PrettyPrinterDocLineEntry> tup:commentsSkipped){
+                writeLinePart(tup.o1, null, tup.o2);
+            }
+            commentsSkipped.clear();
+        }
+    }
+
+
     /**
      * @return all the line parts that implement ILinePart2
      */
@@ -238,10 +276,21 @@ public class PrettyPrinterV2 {
     
     /**
      * Handles a single line comment, putting it in the correct indentation.
+     * @param line 
+     * @param commentsSkipped 
      * @return the indent used or null if it wasn't written.
      */
-    private String handleSingleLineComment(ILinePart2 linePart) throws IOException {
+    private String handleSingleLineComment(ILinePart2 linePart, PrettyPrinterDocLineEntry line, List<Tuple<ILinePart, PrettyPrinterDocLineEntry>> commentsSkipped) throws IOException {
         String indent=null;
+        
+        
+        if(statementLevel > 0 && !isInLevel()){
+            commentsSkipped.add(new Tuple<ILinePart, PrettyPrinterDocLineEntry>(linePart, line));
+            savedLineIndent = true; //don't save line indent
+            writtenComment=true; //make it as if we've written it
+            return indent;
+        }
+
         ILinePart2 iLinePart2 = (ILinePart2) linePart;
         commentType commentType = (commentType) linePart.getToken();
         int col = commentType.beginColumn;

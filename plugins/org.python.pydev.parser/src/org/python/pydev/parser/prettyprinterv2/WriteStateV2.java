@@ -5,6 +5,7 @@ package org.python.pydev.parser.prettyprinterv2;
 
 import java.io.IOException;
 
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
@@ -17,6 +18,7 @@ public class WriteStateV2 implements IWriterEraser {
     private IPrettyPrinterPrefs prefs;
     private StringBuffer indentation = new StringBuffer();
     private boolean nextMustBeNewLineOrComment=false;
+    private boolean nextMustBeNewLine=true;
     
     public final static int INITIAL_STATE = -1;
     public final static int LAST_STATE_NEW_LINE = 0;
@@ -92,6 +94,7 @@ public class WriteStateV2 implements IWriterEraser {
             }
             
             this.nextMustBeNewLineOrComment = false;
+            this.nextMustBeNewLine = false;
             lastState = LAST_STATE_NEW_LINE;
             writer.write(prefs.getNewLine());
             lastWrite++;
@@ -106,16 +109,26 @@ public class WriteStateV2 implements IWriterEraser {
      * Writes something, but indents if the last thing written was a new line.
      */
     public void write(String o) throws IOException {
-        if(nextMustBeNewLineOrComment && this.getBuffer().length() > 0 && lastState != LAST_STATE_NEW_LINE && lastState != LAST_STATE_INDENT){
-            if(!o.trim().startsWith("#")){
+        if((nextMustBeNewLineOrComment || nextMustBeNewLine) && this.getBuffer().length() > 0 && lastState != LAST_STATE_NEW_LINE && lastState != LAST_STATE_INDENT){
+            if(nextMustBeNewLine){
+                this.writeNewLine();
+                
+            }else if(nextMustBeNewLineOrComment && !o.trim().startsWith("#")){
                 this.writeNewLine();
             }
         }
         nextMustBeNewLineOrComment = false;
+        nextMustBeNewLine = false;
         if(lastState == LAST_STATE_NEW_LINE){
             this.writeIndent();
         }
-        writeRaw(o);
+        FastStringBuffer buf = this.getBuffer();
+        if(buf.endsWith("\r") || buf.endsWith("\n") || buf.endsWith(" ") || buf.endsWith("\t")){
+            writeRaw(StringUtils.leftTrim(o));
+            
+        }else{
+            writeRaw(o);
+        }
     }
     
     /**
@@ -189,6 +202,10 @@ public class WriteStateV2 implements IWriterEraser {
         this.nextMustBeNewLineOrComment=true;
     }
 
+    public void requireNextNewLine() {
+        this.nextMustBeNewLine=true;
+    }
+    
     @Override
     public boolean endsWithSpace() {
         return this.writer.endsWithSpace();
@@ -198,5 +215,6 @@ public class WriteStateV2 implements IWriterEraser {
     public FastStringBuffer getBuffer() {
         return writer.getBuffer();
     }
+
 
 }
