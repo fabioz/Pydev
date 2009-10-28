@@ -337,7 +337,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         this.pushTupleNeedsParens();
         node.elt.accept(this);
         this.popTupleNeedsParens();
-        for(comprehensionType c:node.generators){
+        for(SimpleNode c:node.generators){
             doc.addRequire(" for ", lastNode);
             c.accept(this);
         }
@@ -399,7 +399,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     }
 
     private SimpleNode[] reverseNodeArray(SimpleNode[] expressions) {
-        java.util.List<SimpleNode> ifs = Arrays.asList(expressions);
+        java.util.List<SimpleNode> ifs = new ArrayList<SimpleNode>(Arrays.asList(expressions));
         Collections.reverse(ifs);
         SimpleNode[] ifsInOrder = ifs.toArray(new SimpleNode[0]);
         return ifsInOrder;
@@ -802,15 +802,15 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
                         this.doc.addRequire("\\", last);
                     }
                     str.accept(this);
-                    if(last == null){
-                        doc.addIndent(str); //Only add an indent after the 1st string
-                    }
+//                    if(last == null){
+//                        doc.addIndent(str); //Only add an indent after the 1st string
+//                    }
                     last = str;
                 }
             }
         }
         if(last != null){
-            doc.getLine(last.beginLine).dedent(0);
+//            doc.getLine(last.beginLine).dedent(0);
         }
         afterNode(node);
         return null;
@@ -1139,18 +1139,16 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         }
         
         SimpleNode lastBeforeIf = lastNode;
+        this.doc.addRequire(" if ", lastBeforeIf);
         node.test.accept(this);
         
         java.util.List<ILinePart> recordedChanges = this.doc.popRecordChanges(id);
-        if(this.doc.replaceRecorded(recordedChanges, "if", " if ") == 0){
-            this.doc.addRequire(" if ", lastBeforeIf);
-        }
+        this.doc.replaceRecorded(recordedChanges, "if", " if ");
         
         if(node.orelse != null){
+            this.doc.addRequire(" else ", lastNode);
             recordedChanges = this.doc.popRecordChanges(id2);
-            if(this.doc.replaceRecorded(recordedChanges, "else", " else ") == 0){
-                this.doc.addRequire(" else ", lastNode);
-            }
+            this.doc.replaceRecorded(recordedChanges, "else", " else ");
             node.orelse.accept(this);
         }
         
@@ -1384,36 +1382,33 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         boolean foundBefore = false;
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
-                foundBefore = true;
-                if(i > 0){
+                if(foundBefore){
                     doc.addRequire(",", lastNode);
                 }
-                if (args[i] != null)
+                if (args[i] != null){
                     args[i].accept(this);
+                    foundBefore = true;
+                }
             }
         }
-        int[] onlyBefore = null;
-        if (starargs != null){
-            onlyBefore = new int[]{starargs.beginLine, starargs.beginColumn};
-        }
+
         
         java.util.List<keywordType> keywordsLater = new ArrayList<keywordType>();
         if (keywords != null) {
             for (int i = 0; i < keywords.length; i++) {
                 keywordType keyword = (keywordType) keywords[i];
-                if (keyword != null){
-                    if(onlyBefore != null){
-                        if(keyword.beginLine > onlyBefore[0] || (keyword.beginLine == onlyBefore[0] && keyword.beginColumn > onlyBefore[1])){
-                            keywordsLater.add(keyword);
-                            continue; //this one won't be added right now
-                        }
-                    }
-                    if(foundBefore){
-                        doc.addRequire(",", lastNode);
-                    }
-                    foundBefore = true;
-                    handleKeyword(keyword);
+                if (keyword == null){
+                    continue;
                 }
+                if(keyword.afterstarargs){
+                    keywordsLater.add(keyword);
+                    continue; //this one won't be added right now
+                }
+                if(foundBefore){
+                    doc.addRequire(",", lastNode);
+                }
+                foundBefore = true;
+                handleKeyword(keyword);
             }
         }
         
@@ -1430,6 +1425,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             if(foundBefore){
                 doc.addRequire(",", lastNode);
             }
+            foundBefore = true;
             handleKeyword(keyword);
         }
         

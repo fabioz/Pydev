@@ -117,7 +117,11 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             for (int i = arity - 2; i >= 0; i--) {
                 SimpleNode node = stack.popNode();
                 if (node instanceof keywordType) {
-                    keywords.add(0, (keywordType) node);
+                    keywordType keyword = (keywordType) node;
+                    keywords.add(0, keyword);
+                    if(starargs == null){
+                        keyword.afterstarargs = true; //note that we get things backward in the stack
+                    }
                     
                 }else if(node.getId() == JJTEXTRAARGVALUELIST){
                     ExtraArgValue nstarargs = (ExtraArgValue) node;
@@ -140,7 +144,8 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             }
             
             exprType func = (exprType) stack.popNode();
-            Call c = new Call(func, args.toArray(new exprType[args.size()]), keywords.toArray(new keywordType[keywords.size()]), starargs, kwargs);
+            Call c = new Call(func, args.toArray(new exprType[args.size()]), 
+                    keywords.toArray(new keywordType[keywords.size()]), starargs, kwargs);
             addSpecialsAndClearOriginal(n, c);
             return c;
         case JJTFUNCDEF_RETURN_ANNOTTATION:
@@ -248,7 +253,11 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 SimpleNode node = stack.peekNode();
                 if(node instanceof keywordType){
                     stack.popNode();
-                    classDefKeywords.add((keywordType) node);
+                    keywordType keyword = (keywordType) node;
+                    classDefKeywords.add(keyword);
+                    if(starargs == null){
+                        keyword.afterstarargs = true; //note that we get things backward in the stack
+                    }
                     nodeArity--;
                 }else if(node instanceof ExtraArgValue){
                     if(node.getId() == JJTEXTRAARGVALUELIST){
@@ -419,7 +428,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             return keyword;
         case JJTKEYWORD:
             value = (exprType) stack.popNode();
-            return new keywordType(null, value);
+            return new keywordType(null, value, false);
         case JJTTUPLE:
             if (stack.nodeArity() > 0) {
                 SimpleNode peeked = stack.peekNode();

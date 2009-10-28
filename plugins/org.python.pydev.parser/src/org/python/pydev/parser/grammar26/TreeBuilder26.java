@@ -340,7 +340,7 @@ public final class TreeBuilder26 extends AbstractTreeBuilder implements ITreeBui
         case JJTKEYWORD:
             value = (exprType) stack.popNode();
             nameTok = makeName(NameTok.KeywordName);
-            return new keywordType(nameTok, value);
+            return new keywordType(nameTok, value, false);
         case JJTTUPLE:
             if (stack.nodeArity() > 0) {
                 SimpleNode peeked = stack.peekNode();

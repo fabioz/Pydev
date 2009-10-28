@@ -100,6 +100,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitIndex(Index node) throws Exception {
         fixNode(node);
         traverse(node);
+        fixAfterNode(node);
         return null;
     }
 
@@ -107,6 +108,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitModule(Module node) throws Exception {
         fixNode(node);
         traverse(node);
+        fixAfterNode(node);
         return null;
     }
     
@@ -304,7 +306,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         node.elt.accept(this);
 
-        for(comprehensionType c:node.generators){
+        for(SimpleNode c:node.generators){
             c.accept(this);
         }
         fixAfterNode(node);
@@ -349,7 +351,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     }
 
     private SimpleNode[] reverseNodeArray(SimpleNode[] expressions) {
-        java.util.List<SimpleNode> ifs = Arrays.asList(expressions);
+        java.util.List<SimpleNode> ifs = new ArrayList<SimpleNode>(Arrays.asList(expressions));
         Collections.reverse(ifs);
         SimpleNode[] ifsInOrder = ifs.toArray(new SimpleNode[0]);
         return ifsInOrder;
@@ -1035,24 +1037,19 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
                     args[i].accept(this);
             }
         }
-        int[] onlyBefore = null;
-        if(starargs != null){
-            onlyBefore = new int[] { starargs.beginLine, starargs.beginColumn };
-        }
 
         java.util.List<keywordType> keywordsLater = new ArrayList<keywordType>();
         if(keywords != null){
             for(int i = 0; i < keywords.length; i++){
                 keywordType keyword = (keywordType) keywords[i];
-                if(keyword != null){
-                    if(onlyBefore != null){
-                        if(keyword.beginLine > onlyBefore[0] || (keyword.beginLine == onlyBefore[0] && keyword.beginColumn > onlyBefore[1])){
-                            keywordsLater.add(keyword);
-                            continue; //this one won't be added right now
-                        }
-                    }
-                    handleKeyword(keyword);
+                if(keyword == null){
+                    continue;
                 }
+                if(keyword.afterstarargs){
+                    keywordsLater.add(keyword);
+                    continue; //this one won't be added right now
+                }
+                handleKeyword(keyword);
             }
         }
 

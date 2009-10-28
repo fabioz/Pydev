@@ -146,7 +146,7 @@ module Python
 
         
     -- keyword arguments supplied to call
-    keyword = (NameTok arg, expr value)
+    keyword = (NameTok arg, expr value, bool afterstarargs)
 
     -- import name with optional 'as' alias.
     alias = (NameTok name, NameTok? asname)

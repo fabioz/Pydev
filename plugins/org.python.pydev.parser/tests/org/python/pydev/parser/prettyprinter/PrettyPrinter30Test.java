@@ -15,7 +15,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testVarious1();
+            test.testMisc();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -197,7 +197,15 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "        # Compute set of abstract method names\n" +
         "        abstracts = {name for name,value in namespace.items() if getattr(value,'__isabstractmethod__',False)}\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v3 = "" +
+        "class ABCMeta(type):\n" +
+        "    _abc_invalidation_counter = 0\n" +
+        "    def __new__(mcls,name,bases,namespace):\n" +
+        "        cls = super().__new__(mcls,name,bases,namespace)# Compute set of abstract method names\n" +
+        "        abstracts = {name for name,value in namespace.items() if getattr(value,'__isabstractmethod__',False)}\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
     }
     
     public void testMethodDef() throws Exception {
@@ -319,12 +327,17 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
                 "    pass\n" +
                 "#end\n" +
                 "";
+        
+        String v3 = 
+            "class C:\n" +
+            "    pass#end\n" +
+            "";
         Module ast = (Module) parseLegalDocStr(s);
         ClassDef d = (ClassDef) ast.body[0];
         assertEquals(1, d.specialsAfter.size());
         commentType c = (commentType) d.specialsAfter.get(0);
         assertEquals("#end", c.id);
-        checkPrettyPrintEqual(s);
+        checkPrettyPrintEqual(s, s, s, v3);
         
     }
     
@@ -357,7 +370,15 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             "    if subclass in cls._abc_cache:\n" +
             "        return True\n" +
             "";
-        checkPrettyPrintEqual(s);
+        
+        String v3 = 
+            "def __instancecheck__(cls,instance):\n" +
+            "    '''Override for isinstance(instance,cls).'''# Inline the cache checking\n" +
+            "    subclass = instance.__class__\n" +
+            "    if subclass in cls._abc_cache:\n" +
+            "        return True\n" +
+            "";
+        checkPrettyPrintEqual(s, s, s, v3);
     }
     
     public void testOthers1() throws Exception {
@@ -391,7 +412,12 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "            (b for (a,b) in fields)))\n" +
         "";
         
-        checkPrettyPrintEqual(s, s, v2);
+        final String v3 = ""+
+        "def _format(node):\n" +
+        "    rv = '%s(%s' % (node.__class__.__name__,', '.join(('%s=%s' % field for field in fields) if annotate_fields else (b for (a,b) in fields)))\n" +
+        "";
+        
+        checkPrettyPrintEqual(s, s, v2, v3);
     }
     
     public void testManyGlobals() throws Throwable {
@@ -411,7 +437,16 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "        raise Terminator\n" +
         "";
         
-        checkPrettyPrintEqual(s);
+        final String v3 = ""+
+        "def _incrementudc(self):\n" +
+        "    \"Increment update counter.\"\\\n" +
+        "    \"\"\n" +
+        "    if not TurtleScreen._RUNNING:\n" +
+        "        TurtleScreen._RUNNNING = True\n" +
+        "        raise Terminator\n" +
+        "";
+        
+        checkPrettyPrintEqual(s, s, s, v3);
     }
 
 }

@@ -248,8 +248,11 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                 extraArg.specialsAfter = starargs.getSpecialsAfter();
 
             } else if (node instanceof keywordType) {
-                //keyword
-                keywordsl.add(node);
+                keywordType keyword = (keywordType) node;
+                if(starargs == null){
+                    keyword.afterstarargs = true;
+                }
+                keywordsl.add(keyword);
 
             } else if (isArg(node)) {
                 //default

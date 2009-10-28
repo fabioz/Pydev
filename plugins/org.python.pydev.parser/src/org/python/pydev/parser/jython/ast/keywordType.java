@@ -5,21 +5,23 @@ import org.python.pydev.parser.jython.SimpleNode;
 public final class keywordType extends SimpleNode {
     public NameTokType arg;
     public exprType value;
+    public boolean afterstarargs;
 
-    public keywordType(NameTokType arg, exprType value) {
+    public keywordType(NameTokType arg, exprType value, boolean afterstarargs) {
         this.arg = arg;
         this.value = value;
+        this.afterstarargs = afterstarargs;
     }
 
-    public keywordType(NameTokType arg, exprType value, SimpleNode parent) {
-        this(arg, value);
+    public keywordType(NameTokType arg, exprType value, boolean afterstarargs, SimpleNode parent) {
+        this(arg, value, afterstarargs);
         this.beginLine = parent.beginLine;
         this.beginColumn = parent.beginColumn;
     }
 
     public keywordType createCopy() {
         keywordType temp = new keywordType(arg!=null?(NameTokType)arg.createCopy():null,
-        value!=null?(exprType)value.createCopy():null);
+        value!=null?(exprType)value.createCopy():null, afterstarargs);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null){
@@ -48,6 +50,9 @@ public final class keywordType extends SimpleNode {
         sb.append(", ");
         sb.append("value=");
         sb.append(dumpThis(this.value));
+        sb.append(", ");
+        sb.append("afterstarargs=");
+        sb.append(dumpThis(this.afterstarargs));
         sb.append("]");
         return sb.toString();
     }

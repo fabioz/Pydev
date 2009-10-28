@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-//            test.testVarious34();
+            test.testNewFuncCall();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -294,7 +294,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     
     
     public void testNewFuncCall() throws Throwable {
-        final String s = "Call(1,2,3,*(4,5,6),keyword=13,**kwargs)\n";
+        final String s = "Call(1,2,3,kkk=22,*(4,5,6),keyword=13,**kwargs)\n";
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
@@ -362,7 +362,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     }
     
     public void testComments() throws Exception {
-        String str = "" +
+        String s = "" +
                 "class MyMeta(type):\n" +
                 "    def __str__(cls):\n" +
                 "        return \"Beautiful class '%s'\" % cls.__name__\n" +
@@ -375,18 +375,36 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
                 "    def met(self):\n" +
                 "        print 'A'\n" +
                 "";
-        checkPrettyPrintEqual(str);
+        
+        String v3 = "" +
+        "class MyMeta(type):\n" +
+        "    def __str__(cls):\n" +
+        "        return \"Beautiful class '%s'\" % cls.__name__\n" +
+        "class MyClass:\n" +
+        "    __metaclass__ = MyMeta\n" +
+        "print type(foox)# after print type\n" +
+        "class A(object):# on-line\n" +
+        "# foo test\n" +
+        "    def met(self):\n" +
+        "        print 'A'\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
         
     }
     
     public void testComment5() throws Exception {
-        String str = "" +
+        String s = "" +
                 "class CoolApproach(object):\n" +
                 "    # this tests also a tuple \"special case\"\n" +
                 "    def foodeco(**arg5):\n" +
                 "        pass\n" +
                 "";
-        checkPrettyPrintEqual(str);
+        String v3 = "" +
+        "class CoolApproach(object):# this tests also a tuple \"special case\"\n" +
+        "    def foodeco(**arg5):\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
         
     }
     
@@ -401,19 +419,26 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     }
     
     public void testComments6() throws Exception {
-        String str = "" +
+        String s = "" +
                 "class FooApproach(CoolApproach):\n" +
                 "    def __init__(self,arg_1,(arg_2,arg_3),*arg_4,**arg_5):\n" +
                 "        # .. at this point all parameters except for 'arg_3' have been\n" +
                 "        # copied to object attributes\n" +
                 "        pass\n" +
                 "";
-        checkPrettyPrintEqual(str);
+        
+        String v3 = "" +
+        "class FooApproach(CoolApproach):\n" +
+        "    def __init__(self,arg_1,(arg_2,arg_3),*arg_4,**arg_5):# .. at this point all parameters except for 'arg_3' have been\n" +
+        "    # copied to object attributes\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
         
     }
     
     public void testComprehension() throws Exception {
-        String s = "compre4list = [zahl ** 2 for zahl in (1,4,6) if zahl % 2 == 1 if zahl % 3 == 2]# on-line\n";
+        String s = "compre4list = [A ** 2 for B in (1,4,6) if C % 2 == 1 if D % 3 == 2]# on-line\n";
         checkPrettyPrintEqual(s);
     }
     
@@ -496,7 +521,12 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "from hashlib import md5\n" +
         "new = md5\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v3 = ""+
+        "from hashlib import md5#foo\n" +
+        "new = md5\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
     }
     
     public void testKwArgs2() throws Exception {
@@ -541,7 +571,14 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "a = 10\n" +
         "#--- fooo\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v3 = ""+
+        "class AAA:\n" +
+        "    def m1(self):\n" +
+        "        pass#--- barrr\n" +
+        "a = 10#--- fooo\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
         
     }
     public void testComment3() throws Exception {
@@ -552,7 +589,13 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "a = 10\n" +
         "#--- fooo\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v3 = ""+
+        "class Foo:\n" +
+        "    pass#--- barrr\n" +
+        "a = 10#--- fooo\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
     }
     
     public void testLambda2() throws Exception {
@@ -579,7 +622,15 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    def func2(self):\n" +
         "        pass\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v3 = ""+
+        "class Foo:\n" +
+        "    def func1(self):\n" +
+        "        pass# ------ Head elements\n" +
+        "    def func2(self):\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
     }
     
     public void testFuncAndComment() throws Exception {
@@ -598,7 +649,15 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "    def func2(self):\n" +
         "        pass\n" +
         "";
-        checkPrettyPrintEqual(s, expected);
+        
+        String v3 = ""+
+        "class Foo:\n" +
+        "    def func1(self):\n" +
+        "        pass# ------ Head elements\n" +
+        "    def func2(self):\n" +
+        "        pass\n" +
+        "";
+        checkPrettyPrintEqual(s, expected, expected, v3);
     }
     
     public void testSubscript4() throws Exception {
@@ -671,15 +730,22 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     public void testStr() throws Exception {
         String s = ""+
         "a = (r\"a\"#comm1\n" +
-        "        r'\"b\"'#comm2\n" +
+        "    r'\"b\"'#comm2\n" +
         ")\n" +
         "";
         String v2 = ""+
         "a = (r\"a\"#comm1\n" +
-        "        r'\"b\"'#comm2\n" +
+        "    r'\"b\"'#comm2\n" +
         ")\n" +
         "";
-        checkPrettyPrintEqual(s, s, v2);
+        
+        String v3 = ""+
+        "a = (r\"a\"#comm1\n" +
+        "    r'\"b\"'\n" +
+        "    #comm2\n" +
+        ")\n" +
+        "";
+        checkPrettyPrintEqual(s, s, v2, v3);
     }
     
     public void testAdd() throws Exception {
@@ -784,7 +850,11 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "import foo\n" +
         "#end\n" +
         "";
-        checkPrettyPrintEqual(s);
+        
+        String v3 = ""+
+        "import foo#end\n" +
+        "";
+        checkPrettyPrintEqual(s, s, s, v3);
     }
     
     public void testExec() throws Exception {
@@ -1883,10 +1953,10 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "# this comment disappears\n" +
         "else:\n" +
         "    print 'bigger'# print on-line\n" +
-        "    # else on-line\n" +
-        "    # comment inside else\n" +
-        "    # comment on else end\n" +
-        "    # after the second body (but actually in the module node)!\n" +
+        "# else on-line\n" +
+        "# comment inside else\n" +
+        "# comment on else end\n" +
+        "# after the second body (but actually in the module node)!\n" +
         "";
         checkPrettyPrintEqual(s, s, v2, v3);
     }
@@ -2525,7 +2595,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     public void testVarious29() throws Throwable {
         final String s = ""+
         "assert 0,'Could not find method in self.functions and no '\\\n" +
-        "    'instance installed'\n" +
+        "'instance installed'\n" +
         "";
         
         
@@ -2547,7 +2617,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "        v = int(v)\n" +
         "    except ValueError:\n" +
         "        _debug('   missing or invalid (non-numeric) value for '\n" +
-        "                'max-age attribute')\n" +
+        "            'max-age attribute')\n" +
         "        bad_cookie = True\n" +
         "        break\n" +
         "    # convert RFC 2965 Max-Age to seconds since epoch\n" +
@@ -2564,7 +2634,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "        v = int(v)\n" +
         "    except ValueError:\n" +
         "        _debug('   missing or invalid (non-numeric) value for '\n" +
-        "                'max-age attribute')\n" +
+        "            'max-age attribute')\n" +
         "        bad_cookie = True\n" +
         "        break# convert RFC 2965 Max-Age to seconds since epoch\n" +
         "        # XXX Strictly you're supposed to follow RFC 2616\n" +

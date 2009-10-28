@@ -302,7 +302,7 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
         case JJTKEYWORD:
             value = (exprType) stack.popNode();
             nameTok = makeName(NameTok.KeywordName);
-            return new keywordType(nameTok, value);
+            return new keywordType(nameTok, value, false);
         case JJTTUPLE:
             if (stack.nodeArity() > 0 && stack.peekNode() instanceof comprehensionType) {
                 comprehensionType[] generators = new comprehensionType[arity-1];
