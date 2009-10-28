@@ -15,6 +15,7 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
@@ -94,6 +95,14 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
         }
 
         registerInContext(node);
+        return null;
+    }
+    
+    @Override
+    public Object visitNameTok(NameTok node) throws Exception {
+        if(node.ctx != NameTok.FunctionName){
+            registerInContext(node);
+        }
         return null;
     }
 

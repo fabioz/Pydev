@@ -16,6 +16,7 @@ import java.util.Set;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
@@ -53,22 +54,30 @@ public class ParameterReturnDeduce {
         Set<String> globalVariableNames = new HashSet<String>(moduleAdapter.getGlobalVariableNames());
 
         for(SimpleAdapter adapter:before){
-            if(adapter.getASTNode() instanceof Name){
-                Name variable = (Name) adapter.getASTNode();
-                if(globalVariableNames.contains(variable.id) && !isStored(variable.id, before)){
-                    // It's a global variable and there's no assignment
-                    // shadowing it in the local scope, so don't add it as a
-                    // parameter.
-                    continue;
-                }
-                if(variable.id.equals("True") || variable.id.equals("False") || variable.id.equals("None")){
-                    // The user most likely doesn't want them to be passed.
-                    continue;
-                }
-                if(isUsed(variable.id, selected)){
-                    if(!parameters.contains(variable.id)){
-                        parameters.add(variable.id);
-                    }
+            SimpleNode astNode = adapter.getASTNode();
+            String id;
+            if(astNode instanceof Name){
+                Name variable = (Name) astNode;
+                id = variable.id;
+            }else if(astNode instanceof NameTok){
+                NameTok variable = (NameTok) astNode;
+                id = variable.id;
+            }else{
+                continue;
+            }
+            if(globalVariableNames.contains(id) && !isStored(id, before)){
+                // It's a global variable and there's no assignment
+                // shadowing it in the local scope, so don't add it as a
+                // parameter.
+                continue;
+            }
+            if(id.equals("True") || id.equals("False") || id.equals("None")){
+                // The user most likely doesn't want them to be passed.
+                continue;
+            }
+            if(isUsed(id, selected)){
+                if(!parameters.contains(id)){
+                    parameters.add(id);
                 }
             }
         }
@@ -76,11 +85,19 @@ public class ParameterReturnDeduce {
 
     private void deduceReturns(List<SimpleAdapter> after, List<SimpleAdapter> selected) {
         for(SimpleAdapter adapter:after){
-            if(adapter.getASTNode() instanceof Name){
-                Name variable = (Name) adapter.getASTNode();
-                if(isStored(variable.id, selected)){
-                    returns.add(variable.id);
-                }
+            SimpleNode astNode = adapter.getASTNode();
+            String id;
+            if(astNode instanceof Name){
+                Name variable = (Name) astNode;
+                id = variable.id;
+            }else if(astNode instanceof NameTok){
+                NameTok variable = (NameTok) astNode;
+                id = variable.id;
+            }else{
+                continue;
+            }
+            if(isStored(id, selected)){
+                returns.add(id);
             }
         }
     }
@@ -133,6 +150,7 @@ public class ParameterReturnDeduce {
                     return true;
                 }
             }
+            //Note: NameTok are always only in store context.
         }
         return false;
     }
@@ -146,8 +164,14 @@ public class ParameterReturnDeduce {
             if(astNode instanceof Name){
                 Name scopeVar = (Name) astNode;
                 if(scopeVar.id.equals(var)){
-                    isStored = (scopeVar.ctx == Name.Store || scopeVar.ctx == Name.AugStore);
+                    isStored = (scopeVar.ctx != Name.Load && scopeVar.ctx != Name.AugLoad);
                 }
+            }else if(astNode instanceof NameTok){
+                NameTok scopeVar = (NameTok) astNode;
+                if(scopeVar.id.equals(var)){
+                    isStored = true; //NameTok are always store contexts.
+                }
+                
             }
 
             if(isStored){
