@@ -19,7 +19,7 @@ public class PyOrganizeImportsTest extends TestCase {
         try {
             PyOrganizeImportsTest test = new PyOrganizeImportsTest();
             test.setUp();
-            test.testPerform8();
+            test.testPerformGroupingWithWraps5();
             test.tearDown();
             junit.textui.TestRunner.run(PyOrganizeImportsTest.class);
         } catch (Throwable e) {
@@ -267,6 +267,22 @@ String result = ""+
         assertEquals(result, doc.get());
     }
     
+    public void testPerformGroupingWithWraps5() {
+        ImportsPreferencesPage.groupImportsForTests = true;
+        String d = ""+
+        "from cccccccccccccccccccccccccccccccccccccccccccccccccc \\\nimport eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n"; //50 * 'c'
+        
+        Document doc = new Document(d);
+        PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
+        
+        String result = ""+
+        "from cccccccccccccccccccccccccccccccccccccccccccccccccc import (\n" +
+        "    eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)\n";
+        
+//        System.out.println(">>"+doc.get()+"<<");
+        assertEquals(result, doc.get());
+    }
+    
     
     public void testPerform2() {
         
@@ -386,7 +402,7 @@ String result = ""+header+
         
         String d = ""+
         "import sys\n"+
-        "from os import pipe,\\\n"+
+        "from ...os.path import pipe,\\\n"+
         "path\n"+
         "import time\n";
         
@@ -394,7 +410,7 @@ String result = ""+header+
         PyOrganizeImports.performArrangeImports(doc, "\n", "    ");
         
         String result = ""+
-        "from os import pipe,\\\n"+
+        "from ...os.path import pipe,\\\n"+
         "path\n"+
         "import sys\n"+
         "import time\n";
