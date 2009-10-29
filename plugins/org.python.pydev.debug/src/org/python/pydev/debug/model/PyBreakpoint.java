@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugException;
@@ -70,7 +71,11 @@ public class PyBreakpoint extends LineBreakpoint {
         IMarker marker = getMarker();
         IResource r = marker.getResource();
         if(r instanceof IFile){
-            return r.getLocation().toOSString();
+            IPath location = r.getLocation();
+            if(location == null){
+                return null;
+            }
+            return location.toOSString();
         }else{
             //it's an external file...
             try {
