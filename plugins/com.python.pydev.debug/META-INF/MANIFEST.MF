@@ -8,7 +8,7 @@ Bundle-Vendor: Aptana
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.python.pydev,
+ org.python.pydev;bundle-version="0.9.7.1",
  org.python.pydev.core,
  org.python.pydev.debug,
  org.eclipse.debug.core,

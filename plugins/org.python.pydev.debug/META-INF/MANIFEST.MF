@@ -29,7 +29,7 @@ Require-Bundle: org.junit;resolution:=optional,
  org.python.pydev.core,
  org.python.pydev.ast,
  org.python.pydev.parser,
- org.python.pydev,
+ org.python.pydev;bundle-version="0.9.7.1",
  org.eclipse.core.expressions
 Eclipse-LazyStart: true
 Export-Package: org.python.pydev.debug.codecoverage,

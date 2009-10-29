@@ -103,6 +103,10 @@
         <replaceregexp match="Bundle-Version:(.*)" replace="Bundle-Version: ${version.full}" byline="true">
             <fileset dir="${buildDirectory}" includes="plugins/**/META-INF/MANIFEST.MF" />
 		</replaceregexp>
+		
+        <replaceregexp match='org.python.pydev;bundle-version="(.*)"' replace='org.python.pydev;bundle-version="${version.full}"' byline="true">
+            <fileset dir="${buildDirectory}" includes="plugins/**/META-INF/MANIFEST.MF" />
+		</replaceregexp>
 
 		<replaceregexp file="${buildDirectory}/features/org.python.pydev.feature/feature.xml" match='version="(.*)"' replace='version="${version.full}"' byline="true" />
 			

@@ -9,7 +9,7 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
- org.python.pydev,
+ org.python.pydev;bundle-version="0.9.7.1",
  com.python.pydev,
  org.junit;resolution:=optional,
  org.python.pydev.core,

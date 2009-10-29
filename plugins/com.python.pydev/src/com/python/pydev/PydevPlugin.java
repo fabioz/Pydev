@@ -5,17 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.source.Annotation;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 
 
@@ -37,33 +30,6 @@ public class PydevPlugin extends AbstractUIPlugin {
      */
     public PydevPlugin() {
         plugin = this;
-    }
-
-    /**
-     * This method is called upon plug-in activation
-     */
-    public void start(BundleContext context) throws Exception {
-        super.start(context);
-        
-        if(!version.equals(org.python.pydev.plugin.PydevPlugin.version)){
-            final String msg = StringUtils.format("The Pydev extensions version (%s) differs from " +
-            		"the Pydev version (%s) installed.", version, org.python.pydev.plugin.PydevPlugin.version);
-            
-            
-            Display disp = Display.getDefault();
-            disp.asyncExec(new Runnable() {
-                public void run() {
-                    IWorkbenchWindow window = getDefault().getWorkbench().getActiveWorkbenchWindow();
-                    Shell shell = window == null ? null : window.getShell();
-                    if (shell != null) {
-                        ErrorDialog.openError(shell, "Pydev: version mismatch.", 
-                                "The versions of Pydev Extensions and Pydev don't match.", 
-                                new Status(IStatus.ERROR, getPluginID(), -1, msg, null));
-                    }
-                }
-            });
-
-        }
     }
 
     
