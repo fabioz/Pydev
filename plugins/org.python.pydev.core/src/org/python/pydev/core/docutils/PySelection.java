@@ -1270,7 +1270,24 @@ public class PySelection {
                 String c = doc.get(documentOffset-1, 1);
                 
                 if(c.equals("]")){
-                    activationToken = "list."+activationToken;  
+                    // consume [.*] 
+                    int docOff = documentOffset;
+                    while(docOff > 0 && doc.get(docOff, 1).equals("[") == false){
+                         docOff -= 1;
+                    }
+                    // get activation token for the accessed list derivative
+                    tok = extractActivationToken(doc, docOff, false).o1;
+                    
+                    if(tok.length() > 0) {
+                        // see handling of function call below
+                        // this won't work for pure lists at the moment
+                        activationToken = tok+".__getitem__()."+activationToken;
+                        documentOffset = docOff-tok.length()-1;
+                        
+                    }else {                  
+                        // (old) fall-back handling
+                        activationToken = "list."+activationToken;
+                    }
                     break;
                     
                 }else if(c.equals("}")){

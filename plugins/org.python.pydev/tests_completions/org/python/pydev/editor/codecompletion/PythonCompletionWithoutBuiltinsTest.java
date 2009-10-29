@@ -81,7 +81,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
           //DEBUG_TESTS_BASE = true;
           PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
           test.setUp();
-          test.testForWithExtensions();
+          test.testListItemAccess();
           test.tearDown();
           System.out.println("Finished");
 
@@ -1391,7 +1391,26 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, -1, new String[] {"__file__"});
         
     }
+
     
+    public void testListItemAccess() throws Exception {
+        String s;
+        s = "" +
+        "import testAssist.assist.ExistingClass\n" +
+        "class Fooo:\n" +
+        "  def __getitem__(self,k):\n" +
+        "      return testAssist.assist.ExistingClass()\n\n" +
+        "lst = Fooo()\n"+
+        "lst[0].";
+        requestCompl(s, -1, new String[] {"existingMethod()"});
+        
+        // if the type of the list item can't be inferred, expect an empty proposal list  
+        s = "" +
+        "lst = list()\n"+
+        "lst.append(1)\n" +
+        "lst[0].";
+        requestCompl(s, -1, new String[] {});
+    }
 }
 
 
