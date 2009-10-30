@@ -206,12 +206,10 @@ public class WriteStateV2 implements IWriterEraser {
         this.nextMustBeNewLine=true;
     }
     
-    @Override
     public boolean endsWithSpace() {
         return this.writer.endsWithSpace();
     }
 
-    @Override
     public FastStringBuffer getBuffer() {
         return writer.getBuffer();
     }

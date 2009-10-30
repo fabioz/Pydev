@@ -84,7 +84,6 @@ public class PyParserEditorIntegrationTest extends TestCase {
             return this.getPythonNature();
         }
 
-        @Override
         public IIndentPrefs getIndentPrefs() {
             throw new RuntimeException("Not implemented");
         }

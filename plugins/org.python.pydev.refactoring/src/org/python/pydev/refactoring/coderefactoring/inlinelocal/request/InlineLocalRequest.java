@@ -32,7 +32,6 @@ public class InlineLocalRequest implements IRefactoringRequest {
         return info.getScopeAdapter();
     }
 
-    @Override
     public AdapterPrefs getAdapterPrefs() {
         return info.getAdapterPrefs();
     }

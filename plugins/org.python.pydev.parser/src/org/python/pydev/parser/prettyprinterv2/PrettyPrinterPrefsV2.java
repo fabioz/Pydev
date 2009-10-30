@@ -43,7 +43,6 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         this.versionProvider = versionProvider;
     }
     
-    @Override
     public int getGrammarVersion() throws MisconfigurationException {
         return versionProvider.getGrammarVersion();
     }
@@ -160,7 +159,7 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         return buf.toString();
     }
 
-    @Override
+    
     public void setReplacement(String original, String replacement) {
         this.tokReplacement.put(original, replacement);
     }
@@ -217,7 +216,6 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         return linesAfterSuite;
     }
 
-    @Override
     public String getAssignPunctuation() {
         return " = ";
     }

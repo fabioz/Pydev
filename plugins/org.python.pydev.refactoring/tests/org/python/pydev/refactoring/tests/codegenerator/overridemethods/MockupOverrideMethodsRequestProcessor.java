@@ -110,7 +110,6 @@ public class MockupOverrideMethodsRequestProcessor implements IRequestProcessor<
 			OverrideMethodsRequest req = new OverrideMethodsRequest(
 			        clazz, this.offsetStrategy, method, false, baseClassName, new AdapterPrefs("\n", new IGrammarVersionProvider() {
                         
-                        @Override
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
                         }

@@ -86,7 +86,6 @@ public class PyAstFactoryTest extends TestCase {
         PrettyPrinterV2 printer = new PrettyPrinterV2(
                 new PrettyPrinterPrefsV2("\n", "    ", new IGrammarVersionProvider() {
                     
-                    @Override
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
                     }

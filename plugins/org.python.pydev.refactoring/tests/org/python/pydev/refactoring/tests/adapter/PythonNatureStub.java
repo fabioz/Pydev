@@ -142,22 +142,18 @@ public class PythonNatureStub implements IPythonNature {
 		throw new RuntimeException("Not implemented");
 	}
 
-    @Override
     public int getInterpreterType() throws CoreException {
         throw new RuntimeException("Not implemented");
     }
 
-    @Override
     public IInterpreterInfo getProjectInterpreter() throws MisconfigurationException, PythonNatureWithoutProjectException {
         throw new RuntimeException("Not implemented");
     }
 
-    @Override
     public boolean isOkToUse() {
         throw new RuntimeException("Not implemented");
     }
 
-    @Override
     public void setVersion(String version, String interpreter) throws CoreException {
         throw new RuntimeException("Not implemented");
         

@@ -39,7 +39,6 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 			String source = Rewriter.createSourceFromAST(
 			        info.getParsedExtendedSelection().getASTParent(), "\n", new IGrammarVersionProvider() {
                         
-                        @Override
                         public int getGrammarVersion() throws MisconfigurationException {
                             return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
                         }

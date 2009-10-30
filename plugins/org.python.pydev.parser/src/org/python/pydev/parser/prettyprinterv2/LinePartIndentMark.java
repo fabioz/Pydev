@@ -26,7 +26,6 @@ public class LinePartIndentMark extends AbstractLinePart implements ILinePartInd
     }
 
 
-    @Override
     public boolean isIndent() {
         return this.isIndent;
     }

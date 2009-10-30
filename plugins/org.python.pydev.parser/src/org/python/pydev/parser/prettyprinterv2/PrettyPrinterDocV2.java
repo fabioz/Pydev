@@ -517,14 +517,12 @@ class LinePartsIterator implements Iterator<ILinePart>{
     }
 
     
-    @Override
     public ILinePart next() {
         ILinePart ret = next;
         calcNext();
         return ret;
     }
     
-    @Override
     public boolean hasNext() {
         return next != null;
     }

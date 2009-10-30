@@ -146,22 +146,18 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 		throw new RuntimeException("Not implemented");
 	}
 
-    @Override
     public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
         throw new RuntimeException("Not implemented");
     }
 
-    @Override
     public IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request, boolean onlyGetDirectModules) throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
-    @Override
     public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas) {
         throw new RuntimeException("Not implemented");
     }
 
-    @Override
     public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions, IToken wildImport) {
         throw new RuntimeException("Not implemented");
     }

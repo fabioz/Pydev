@@ -38,17 +38,14 @@ public abstract class AbstractLinePart implements ILinePart{
         return this.lineEntry.line;
     }
     
-    @Override
     public int getLinePosition() {
         return this.lineEntry.getSortedParts().indexOf(this);
     }
     
-    @Override
     public void setMarkAsFound() {
         this.found = true;
     }
     
-    @Override
     public boolean isMarkedAsFound() {
         return found;
     }

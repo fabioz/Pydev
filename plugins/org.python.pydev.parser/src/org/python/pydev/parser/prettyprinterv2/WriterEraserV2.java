@@ -25,7 +25,6 @@ public class WriterEraserV2 implements IWriterEraser{
         }
     }
 
-    @Override
     public boolean endsWithSpace() {
         FastStringBuffer current = buf.peek();
         if(current.length() == 0){

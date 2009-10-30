@@ -64,7 +64,6 @@ public class ExtractMethodRequest implements IRefactoringRequest {
         return offsetNode;
     }
 
-    @Override
     public AdapterPrefs getAdapterPrefs() {
         return adapterPrefs;
     }
