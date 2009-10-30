@@ -171,7 +171,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
     }
 
     public IRegisterGroup[] getRegisterGroups() throws DebugException {
-        return null;
+        return new IRegisterGroup[0];
     }
 
     public boolean hasRegisterGroups() throws DebugException {
