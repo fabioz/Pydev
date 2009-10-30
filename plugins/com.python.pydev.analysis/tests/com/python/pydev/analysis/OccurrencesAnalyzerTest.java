@@ -31,7 +31,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testStarExp();
+            analyzer2.testClassDecoratorUndefined();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -1592,6 +1592,22 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(1, msg.getStartLine(doc));
     }
     
+    public void testClassDecoratorUndefined() {
+        doc = new Document(
+                "@notdefined \n"+
+                "class Foo:   \n"+ 
+                "    pass    \n"+ 
+                "\n" 
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        printMessages(msgs,1);
+        IMessage msg = msgs[0];
+        assertEquals("Undefined variable: notdefined", msg.getMessage());
+        assertEquals(2, msg.getStartCol(doc));
+        assertEquals(1, msg.getStartLine(doc));
+    }
+    
     public void testUndefinedVariable3() {
         doc = new Document(
                 "a = 10      \n"+ //global scope - does not give msg
@@ -2578,6 +2594,21 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "        class ClassSub(ClassSuper):\n" +
                 "            pass\n" +
                 "    \n" +
+        "");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0);
+    }
+
+    
+    public void testInvalidStatementNoEffect() {
+        doc = new Document("" +
+                "@property('a' in [1])\n" +
+                "@property(lambda: 'a' in [1])\n" +
+                "def test_hallo():\n" +
+                "    lambda: 'a' in [1]\n" +
+                "    return 'Hallo'\n" +
         "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();

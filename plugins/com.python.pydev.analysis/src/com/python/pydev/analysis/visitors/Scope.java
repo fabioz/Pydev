@@ -25,7 +25,7 @@ import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
  *
  * @author Fabio
  */
-public class Scope implements Iterable<ScopeItems>{
+public final class Scope implements Iterable<ScopeItems>{
     
     /**
      * the scope type is a method

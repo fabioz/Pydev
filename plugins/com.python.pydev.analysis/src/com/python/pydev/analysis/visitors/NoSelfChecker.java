@@ -23,7 +23,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 
-public class NoSelfChecker {
+public final class NoSelfChecker {
 
     public static class Expected{
         public String expected;

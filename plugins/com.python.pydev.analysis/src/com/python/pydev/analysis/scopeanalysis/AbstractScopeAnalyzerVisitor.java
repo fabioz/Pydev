@@ -181,6 +181,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         
         AbstractScopeAnalyzerVisitor visitor = this;
 
+        handleDecorators(node.decs);
+        
         //we want to visit the bases before actually starting the class scope (as it's as if they're attribute
         //accesses).
         if (node.bases != null) {
@@ -279,13 +281,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         
         //then the decorators (no, still not in method scope)
-        if(node.decs != null){
-            for (decoratorsType dec : node.decs){
-                if(dec != null){
-                    dec.accept(visitor);
-                }
-            }
-        }
+        handleDecorators(node.decs);
 
         startScope(Scope.SCOPE_TYPE_METHOD, node);
 
@@ -321,6 +317,24 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         endScope(node); //don't report unused variables if the method is virtual
         return null;
     }
+
+    protected void handleDecorators(decoratorsType[] decs) throws Exception {
+        if(decs != null){
+            for (decoratorsType dec : decs){
+                if(dec != null){
+                    handleDecorator(dec);
+                }
+            }
+        }
+    }
+
+    /**
+     * Traverses the decorator.
+     */
+    protected void handleDecorator(decoratorsType dec) throws Exception {
+        dec.accept(this);
+    }
+
     
     /**
      * we are starting a new scope when visiting a lambda 

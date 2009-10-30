@@ -21,7 +21,7 @@ import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 /**
  * This scope analyzer works finding definitions that are based on some import.
  */
-public class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
+public final class ScopeAnalyzerVisitorForImports extends ScopeAnalyzerVisitor {
 
     private SourceModule moduleToFind;
 

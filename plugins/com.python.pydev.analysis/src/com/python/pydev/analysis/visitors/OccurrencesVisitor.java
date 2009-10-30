@@ -25,6 +25,7 @@ import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
@@ -32,6 +33,7 @@ import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.messages.IMessage;
@@ -42,7 +44,7 @@ import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
  * 
  * @author Fabio
  */
-public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
+public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
 
     
     /**
@@ -197,6 +199,21 @@ public class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
         Object r = super.visitReturn(node);
         isInTestScope-=1;
         return r;
+    }
+    
+    @Override
+    protected void handleDecorator(decoratorsType dec) throws Exception {
+        isInTestScope+=1;
+        dec.accept(this);
+        isInTestScope-=1;
+    }
+
+    @Override
+    public Object visitLambda(Lambda node) throws Exception {
+        isInTestScope+=1;
+        Object ret = super.visitLambda(node);
+        isInTestScope-=1;
+        return ret;
     }
     
     public void traverse(SimpleNode node) throws Exception {

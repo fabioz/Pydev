@@ -25,10 +25,10 @@ import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
  * 
  * @author Fabio
  */
-public class ImportChecker {
+public final class ImportChecker {
 
     /**
-     * this is the nature we are analyzing
+     * This is the nature we are analyzing
      */
     private IPythonNature nature;
 
