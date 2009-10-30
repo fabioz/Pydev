@@ -6,7 +6,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateContextType;
-import org.python.pydev.editor.TestIndentPrefs;
+import org.python.pydev.editor.autoedit.TestIndentPrefs;
 
 public class PyDocumentTemplateContextTest extends TestCase {
 

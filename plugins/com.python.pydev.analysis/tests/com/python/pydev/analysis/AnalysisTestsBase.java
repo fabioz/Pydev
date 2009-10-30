@@ -18,7 +18,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.TestIndentPrefs;
+import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;

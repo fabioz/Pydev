@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.TestIndentPrefs;
+import org.python.pydev.editor.autoedit.TestIndentPrefs;
 
 public class PyBackspaceTest extends TestCase {
     

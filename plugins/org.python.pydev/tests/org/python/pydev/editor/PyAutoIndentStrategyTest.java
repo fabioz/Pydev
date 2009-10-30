@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.editor.autoedit.TestIndentPrefs;
 
 /**
  * @author Fabio Zadrozny

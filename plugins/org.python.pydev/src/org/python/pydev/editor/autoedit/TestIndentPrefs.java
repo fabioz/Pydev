@@ -1,21 +1,22 @@
-package org.python.pydev.editor;
-
-import org.python.pydev.editor.autoedit.AbstractIndentPrefs;
+package org.python.pydev.editor.autoedit;
 
 
+/**
+ * Code to be used in tests.
+ */
 public class TestIndentPrefs extends AbstractIndentPrefs {
     
     private boolean useSpaces;
     private int tabWidth;
-    boolean autoPar = true;
-    boolean autoColon = true;
-    boolean autoBraces = true;
-    boolean autoWriteImport = true;
-    boolean smartIndentAfterPar = true;
-    boolean autoAddSelf = true;
-    boolean autoElse;
-    boolean indentToParLevel = true;
-    int indentAfterParWidth = 1;
+    public boolean autoPar = true;
+    public boolean autoColon = true;
+    public boolean autoBraces = true;
+    public boolean autoWriteImport = true;
+    public boolean smartIndentAfterPar = true;
+    public boolean autoAddSelf = true;
+    public boolean autoElse;
+    public boolean indentToParLevel = true;
+    public int indentAfterParWidth = 1;
 
     public TestIndentPrefs(boolean useSpaces, int tabWidth){
         this.useSpaces = useSpaces;

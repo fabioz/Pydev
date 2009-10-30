@@ -14,8 +14,8 @@ import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
-import org.python.pydev.editor.TestIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.editor.autoedit.TestIndentPrefs;
 
 public class ScriptConsoleDocumentListenerTest extends TestCase {
 

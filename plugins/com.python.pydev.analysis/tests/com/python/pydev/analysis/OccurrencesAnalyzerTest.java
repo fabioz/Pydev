@@ -18,7 +18,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.TestIndentPrefs;
+import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 

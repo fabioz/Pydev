@@ -7,7 +7,6 @@ package org.python.pydev.editor.autoedit;
 
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.cache.PyPreferencesCache;
-import org.python.pydev.editor.TestIndentPrefs;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 
