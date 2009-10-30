@@ -41,7 +41,7 @@ and
 
 .. _http://pydev.sourceforge.net/updates: http://pydev.sourceforge.net/updates
 .. _http://pydev.org/updates: http://pydev.org/updates
-.. _http://nightly.aptana.com/pydev: http://nightly.aptana.com/pydev
+.. _http://pydev.org/nightly: http://pydev.org/nightly
 .. _SourceForge download: http://sourceforge.net/projects/pydev/files/
 
 Urls to use when updating with the Eclipse update manager
@@ -53,7 +53,7 @@ Urls to use when updating with the Eclipse update manager
     
 :Nightly builds: 
     
-    * `http://nightly.aptana.com/pydev`_
+    * `http://pydev.org/nightly`_
 
         
         

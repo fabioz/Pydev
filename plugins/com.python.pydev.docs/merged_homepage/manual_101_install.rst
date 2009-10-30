@@ -24,7 +24,7 @@ In the next screen, add the update site(s) you want to work with (**See below fo
    
 .. _http://pydev.sourceforge.net/updates: http://pydev.sourceforge.net/updates
 .. _http://pydev.org/updates: http://pydev.org/updates
-.. _http://nightly.aptana.com/pydev: http://nightly.aptana.com/pydev
+.. _http://pydev.org/nightly: http://pydev.org/nightly
 .. _SourceForge download: http://sourceforge.net/projects/pydev/files/
 
 
@@ -40,7 +40,7 @@ _`Available update sites`
     
 :Nightly builds: 
     
-    * `http://nightly.aptana.com/pydev`_
+    * `http://pydev.org/nightly`_
       
       
 
