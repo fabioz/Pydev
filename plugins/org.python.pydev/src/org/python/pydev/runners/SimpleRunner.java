@@ -109,8 +109,15 @@ public abstract class SimpleRunner {
             Map<String,String> env = getDefaultSystemEnv(defaultPlugin, nature);        
     
             env.put("PYTHONPATH", pythonPathEnvStr); //put the environment
-            if(manager.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_JYTHON){
-                env.put("CLASSPATH", pythonPathEnvStr); //put the environment
+            switch(manager.getInterpreterType()){
+            
+                case IPythonNature.INTERPRETER_TYPE_JYTHON:
+                    env.put("CLASSPATH", pythonPathEnvStr); //put the environment
+                    
+                case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+                    env.put("IRONPYTHONPATH", pythonPathEnvStr); //put the environment
+                    
+                break;
             }
             return getMapEnvAsArray(env);
         }else{

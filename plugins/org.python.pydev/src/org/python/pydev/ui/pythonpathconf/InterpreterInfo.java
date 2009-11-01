@@ -1099,7 +1099,7 @@ public class InterpreterInfo implements IInterpreterInfo{
             key = key.toUpperCase();
         }
         final String keyPlatformDependent = key;
-        if(keyPlatformDependent.equals("PYTHONPATH") || keyPlatformDependent.equals("CLASSPATH")){
+        if(keyPlatformDependent.equals("PYTHONPATH") || keyPlatformDependent.equals("CLASSPATH") || keyPlatformDependent.equals("IRONPYTHONPATH")){
             final String msg = "Ignoring "+keyPlatformDependent+" specified in the interpreter info.\n" +
             "It's managed depending on the project and other configurations and cannot be directly specified in the interpreter.";
             try {

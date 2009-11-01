@@ -176,7 +176,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         fCommandLineText = new Text (comp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         fCommandLineText.setText ("In case you are in doubt how will the run happen, click the button to \n" +
                       "see the command-line that will be executed with the current parameters\n" +
-                      "(and the PYTHONPATH / CLASSPATH used for the run).");
+                      "(and the PYTHONPATH / CLASSPATH / IRONPYTHONPATH used for the run).");
         data = new GridData ();
         data.grabExcessVerticalSpace = true;
         data.horizontalAlignment = GridData.FILL;
