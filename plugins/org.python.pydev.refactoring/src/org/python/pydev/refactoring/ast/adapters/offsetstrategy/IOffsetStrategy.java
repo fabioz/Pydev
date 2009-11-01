@@ -16,5 +16,8 @@ public interface IOffsetStrategy {
     int END = 4;
     int BEFORECURRENT = 8;
 
+    /**
+     * @return the offset where the code should be inserted.
+     */
     int getOffset() throws BadLocationException;
 }

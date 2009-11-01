@@ -43,5 +43,14 @@ public abstract class AbstractOffsetStrategy implements IOffsetStrategy {
         return getLineOffset();
     }
 
+    /**
+     * @return the line where the new code should be inserted. Note that when getting the offset, the
+     * default implementation will get the start of this line (previously it got the last offset of the line).
+     * 
+     * So, if the code should be added before a method, one should return the function ast definition line -1 
+     * (the -1 is before the ast starts at 1 and the doc at 0), and if it should be added at the last line,
+     * it should return the last ast node line directly. 
+     */
     protected abstract int getLine();
+    
 }
