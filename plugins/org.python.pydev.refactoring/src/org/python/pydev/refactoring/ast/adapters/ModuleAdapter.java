@@ -45,6 +45,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.FQIdentifier;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
+import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeforeCurrentOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeginOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.EndOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
@@ -188,10 +189,10 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return this;
     }
 
-    public int getOffset(IASTNodeAdapter<? extends SimpleNode> adapter, int strategy) {
+    public int getOffset(IASTNodeAdapter<? extends SimpleNode> adapter, int strategy, AbstractScopeNode<?> scopeAdapter) {
         int offset = 0;
 
-        setStrategy(adapter, strategy);
+        setStrategy(adapter, strategy, scopeAdapter);
         try{
             offset = offsetStrategy.getOffset();
         }catch(BadLocationException e){
@@ -468,10 +469,13 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return bases;
     }
 
-    public void setStrategy(IASTNodeAdapter<? extends SimpleNode> adapter, int strategy) {
+    public void setStrategy(IASTNodeAdapter<? extends SimpleNode> adapter, int strategy, AbstractScopeNode<?> scopeAdapter) {
         switch(strategy){
         case IOffsetStrategy.AFTERINIT:
             this.offsetStrategy = new InitOffset(adapter, this.doc, this.getAdapterPrefs());
+            break;
+        case IOffsetStrategy.BEFORECURRENT:
+            this.offsetStrategy = new BeforeCurrentOffset(adapter, this.doc, this.getAdapterPrefs(), scopeAdapter);
             break;
         case IOffsetStrategy.BEGIN:
             this.offsetStrategy = new BeginOffset(adapter, this.doc, this.getAdapterPrefs());

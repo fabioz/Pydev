@@ -38,12 +38,9 @@ public abstract class AbstractOffsetStrategy implements IOffsetStrategy {
         return getRegion().getOffset();
     }
 
-    protected int getLineIndendation() throws BadLocationException {
-        return doc.getLineLength(getLine());
-    }
 
     public int getOffset() throws BadLocationException {
-        return getLineOffset() + getLineIndendation();
+        return getLineOffset();
     }
 
     protected abstract int getLine();

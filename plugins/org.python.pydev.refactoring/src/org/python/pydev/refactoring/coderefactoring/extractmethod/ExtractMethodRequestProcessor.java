@@ -58,7 +58,7 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
         initRenamedMap();
         this.adapterPrefs = module.getAdapterPrefs();
 
-        offsetStrategy = IOffsetStrategy.AFTERINIT;
+        offsetStrategy = IOffsetStrategy.BEFORECURRENT;
     }
 
     private void initRenamedMap() {

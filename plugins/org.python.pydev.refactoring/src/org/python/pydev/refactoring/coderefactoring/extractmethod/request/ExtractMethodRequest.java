@@ -18,9 +18,10 @@ import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
+import org.python.pydev.refactoring.core.request.IExtractMethodRefactoringRequest;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
-public class ExtractMethodRequest implements IRefactoringRequest {
+public class ExtractMethodRequest implements IRefactoringRequest, IExtractMethodRefactoringRequest {
 
     public final AbstractScopeNode<?> scopeAdapter;
     public final int offsetStrategy;
@@ -66,6 +67,10 @@ public class ExtractMethodRequest implements IRefactoringRequest {
 
     public AdapterPrefs getAdapterPrefs() {
         return adapterPrefs;
+    }
+
+    public AbstractScopeNode<?> getScopeAdapter() {
+        return this.scopeAdapter;
     }
 
 }

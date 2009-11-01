@@ -10,20 +10,24 @@ package org.python.pydev.refactoring.ast.adapters.offsetstrategy;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
-public class EndOffset extends AbstractOffsetStrategy {
+public class BeforeCurrentOffset extends BeginOffset {
 
-    public EndOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc, AdapterPrefs adapterPrefs) {
+    private AbstractScopeNode<?> scopeAdapter;
+
+    public BeforeCurrentOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc, AdapterPrefs adapterPrefs, AbstractScopeNode<?> scopeAdapter) {
         super(adapter, doc, adapterPrefs);
+        this.scopeAdapter = scopeAdapter;
     }
-    
+
     protected int getLine() {
-        int endLine = adapter.getNodeLastLine();
-        if(endLine < 0){
-            endLine = 0;
+        if(scopeAdapter != null){
+            return scopeAdapter.getNodeFirstLine()-1;
         }
-        return endLine;
+        return super.getLine();
     }
+
 }

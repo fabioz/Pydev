@@ -62,6 +62,7 @@ public class OffsetStrategyProvider implements IStructuredContentProvider {
     }
 
     private void initStrategies(int strategyOption) {
+        setStrategy(strategyOption, IOffsetStrategy.BEFORECURRENT, "Before current method.");
         setStrategy(strategyOption, IOffsetStrategy.AFTERINIT, initLabel);
         setStrategy(strategyOption, IOffsetStrategy.BEGIN, beginLabel);
         setStrategy(strategyOption, IOffsetStrategy.END, endLabel);

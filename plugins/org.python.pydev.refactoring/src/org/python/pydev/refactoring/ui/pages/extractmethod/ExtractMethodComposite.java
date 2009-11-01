@@ -91,7 +91,7 @@ public class ExtractMethodComposite extends Composite {
         this.page = page;
         this.scopeAdapter = scope;
 
-        this.strategyProvider = new OffsetStrategyProvider(scopeAdapter, IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
+        this.strategyProvider = new OffsetStrategyProvider(scopeAdapter, IOffsetStrategy.BEFORECURRENT | IOffsetStrategy.AFTERINIT | IOffsetStrategy.BEGIN | IOffsetStrategy.END);
 
         createComposite(hasArguments);
     }

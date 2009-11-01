@@ -8,7 +8,6 @@
 
 package org.python.pydev.refactoring.ast.adapters.offsetstrategy;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ISpecialStrOrToken;
@@ -33,7 +32,7 @@ public class BeginOffset extends AbstractOffsetStrategy {
             Str strNode = NodeUtils.getNodeDocStringNode(node);
 
             if(strNode != null){
-                return NodeUtils.getLineEnd(strNode) - 1;
+                return NodeUtils.getLineEnd(strNode);
             }
 
             FindLastLineVisitor findLastLineVisitor = new FindLastLineVisitor();
@@ -48,9 +47,9 @@ public class BeginOffset extends AbstractOffsetStrategy {
                 ISpecialStrOrToken lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
                 if(lastSpecialStr != null && (lastSpecialStr.toString().equals(":") || lastSpecialStr.toString().equals(")"))){
                     // it was an from xxx import (euheon, utehon)
-                    return lastSpecialStr.getBeginLine() - 1;
+                    return lastSpecialStr.getBeginLine();
                 }else{
-                    return lastNode.beginLine - 1;
+                    return lastNode.beginLine ;
                 }
             }catch(Exception e){
                 Log.log(e);
@@ -58,19 +57,10 @@ public class BeginOffset extends AbstractOffsetStrategy {
 
         }
 
-        int startLine = adapter.getNodeFirstLine() - 1;
+        int startLine = adapter.getNodeFirstLine()-1;
         if(startLine < 0){
             startLine = 0;
         }
         return startLine;
-    }
-
-    @Override
-    protected int getLineIndendation() throws BadLocationException {
-        if(adapter.getNodeBodyIndent() == 0){
-            return 0;
-        }else{
-            return doc.getLineLength(getLine());
-        }
     }
 }

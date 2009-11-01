@@ -12,12 +12,14 @@ import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
+import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.factory.PyAstFactory;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
+import org.python.pydev.refactoring.core.request.IExtractMethodRefactoringRequest;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public abstract class AbstractTextEdit {
@@ -33,10 +35,14 @@ public abstract class AbstractTextEdit {
 
     protected AdapterPrefs adapterPrefs;
     protected PyAstFactory astFactory;
+    private AbstractScopeNode<?> scopeAdapter;
 
     public AbstractTextEdit(IRefactoringRequest req) {
         this.moduleAdapter = req.getOffsetNode().getModule();
         this.offsetAdapter = req.getOffsetNode();
+        if(req instanceof IExtractMethodRefactoringRequest){
+            this.scopeAdapter = ((IExtractMethodRefactoringRequest)req).getScopeAdapter();
+        }
         this.nodeHelper = new NodeHelper(req.getAdapterPrefs());
         this.adapterPrefs = req.getAdapterPrefs();
         this.astFactory = new PyAstFactory(this.nodeHelper.getAdapterPrefs());
@@ -90,7 +96,7 @@ public abstract class AbstractTextEdit {
     public abstract int getOffsetStrategy();
 
     public int getOffset() {
-        return moduleAdapter.getOffset(offsetAdapter, getOffsetStrategy());
+        return moduleAdapter.getOffset(offsetAdapter, getOffsetStrategy(), this.scopeAdapter);
     }
 
     public int getIndent() {

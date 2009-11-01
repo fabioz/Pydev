@@ -14,6 +14,7 @@ public interface IOffsetStrategy {
     int AFTERINIT = 1;
     int BEGIN = 2;
     int END = 4;
+    int BEFORECURRENT = 8;
 
     int getOffset() throws BadLocationException;
 }

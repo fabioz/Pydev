@@ -35,7 +35,7 @@ public class InitOffset extends BeginOffset {
                     FunctionDef func = (FunctionDef) statement;
                     stmtType lastStmt = func.body[func.body.length - 1];
                     LastLineVisitor visitor = VisitorFactory.createVisitor(LastLineVisitor.class, lastStmt);
-                    return visitor.getLastLine() - 1;
+                    return visitor.getLastLine();
                 }
             }
         }
