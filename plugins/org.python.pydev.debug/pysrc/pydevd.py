@@ -780,6 +780,11 @@ class PyDB:
             execfile(file, globals, locals) #execute the script
         else:
             #We need to compile before so that the module name is correct
+            try:
+                import codecs
+                open = codecs.open
+            except:
+                pass #Use the default open as something happened when importing codecs.
             obj = compile(open(file).read(), file, 'exec')
             exec(obj, globals, locals) #execute the script
 
