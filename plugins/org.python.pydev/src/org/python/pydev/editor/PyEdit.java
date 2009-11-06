@@ -321,10 +321,19 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             
             public void verifyKey(VerifyEvent event) {
                 if((event.doit && event.character == SWT.BS && event.stateMask == 0)){ //isBackspace
-                    PyBackspace pyBackspace = new PyBackspace();
-                    pyBackspace.setEditor(PyEdit.this);
-                    pyBackspace.perform(new PySelection(PyEdit.this));
-                    event.doit = false;
+                    boolean blockSelection = false;
+                    try{
+                        blockSelection = PyEdit.this.getSourceViewer().getTextWidget().getBlockSelection();
+                    }catch(Throwable e){
+                        //that's OK (only available in eclipse 3.5)
+                    }
+                    if(!blockSelection){
+                        //Only do our custom backspace if we're not in block selection mode.
+                        PyBackspace pyBackspace = new PyBackspace();
+                        pyBackspace.setEditor(PyEdit.this);
+                        pyBackspace.perform(new PySelection(PyEdit.this));
+                        event.doit = false;
+                    }
                 }
             }
         };
