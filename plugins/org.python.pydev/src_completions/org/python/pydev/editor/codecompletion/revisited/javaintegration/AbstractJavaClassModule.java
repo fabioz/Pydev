@@ -147,19 +147,21 @@ public abstract class AbstractJavaClassModule extends AbstractModule {
                         //Create a property for it
                         tempBuffer.clear();
                         elementName = elementName.substring(3);
-                        tempBuffer.append(Character.toLowerCase(elementName.charAt(0)));
-                        tempBuffer.append(elementName.substring(1));
-                        
-                        
-                        String propertyName = tempBuffer.toString();
-                        IJavaElement existing = generatedProperties.get(propertyName);
-                        if(existing != null){
-                            if(existing.getElementName().startsWith("set")){
-                                //getXXX has precedence over the setXXX.
+                        if(elementName.length() > 0){
+                            tempBuffer.append(Character.toLowerCase(elementName.charAt(0)));
+                            tempBuffer.append(elementName.substring(1));
+                            
+                            
+                            String propertyName = tempBuffer.toString();
+                            IJavaElement existing = generatedProperties.get(propertyName);
+                            if(existing != null){
+                                if(existing.getElementName().startsWith("set")){
+                                    //getXXX has precedence over the setXXX.
+                                    generatedProperties.put(propertyName, javaElement);
+                                }
+                            }else{
                                 generatedProperties.put(propertyName, javaElement);
                             }
-                        }else{
-                            generatedProperties.put(propertyName, javaElement);
                         }
                     }
                     
