@@ -67,6 +67,9 @@ public class FastStringBufferTest extends TestCase{
         assertTrue(fastStringBuffer.startsWith("a"));
         assertTrue(fastStringBuffer.startsWith("ab"));
         assertTrue(!fastStringBuffer.startsWith("abcd"));
+        
+        fastStringBuffer.setCharAt(0, 'h');
+        assertTrue(fastStringBuffer.startsWith("hb"));
     }
     
     

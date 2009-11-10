@@ -544,6 +544,74 @@ public class StringUtils {
         return message.replaceAll("\r","").replaceAll("\n","");
     }
 
+    public static String asStyleLowercaseUnderscores(String string) {
+        FastStringBuffer buf = new FastStringBuffer(string.length()*2);
+        char[] charArray = string.toCharArray();
+        boolean lastUpper = false;
+        for(char c:charArray){
+            if(Character.isUpperCase(c)){
+                if(!lastUpper){
+                    if(buf.length() > 0 && buf.lastChar() != '_'){
+                        buf.append('_');
+                    }
+                }
+                buf.append(Character.toLowerCase(c));
+                lastUpper = true;
+            }else{
+                buf.append(c);
+                lastUpper = false;
+            }
+        }
+        return buf.toString();
+    }
+
+    public static String asStyleCamelCaseFirstLower(String string) {
+        FastStringBuffer buf = new FastStringBuffer(string.length());
+        char[] charArray = string.toCharArray();
+        boolean first = true;
+        int nextUpper = 0;
+        
+        for(char c:charArray){
+            if(first){
+                if(c == '_'){
+                    //underscores at the start
+                    buf.append(c);
+                    continue;
+                }
+                buf.append(Character.toLowerCase(c));
+                first = false;
+            }else{
+                
+                if(c=='_'){
+                    nextUpper += 1;
+                    continue;
+                }
+                if(nextUpper > 0){
+                    c = Character.toUpperCase(c);
+                    nextUpper = 0;
+                }
+                
+                buf.append(c);
+            }
+        }
+        
+        if(nextUpper > 0){
+            //underscores at the end
+            buf.appendN('_', nextUpper);
+        }
+        return buf.toString();
+    }
+
+    public static String asStyleCamelCaseFirstUpper(String string) {
+        string = asStyleCamelCaseFirstLower(string);
+        if(string.length() > 0){
+            return Character.toUpperCase(string.charAt(0)) + string.substring(1);
+        }
+        return string;
+    }
+
+    
+
 
 
 }

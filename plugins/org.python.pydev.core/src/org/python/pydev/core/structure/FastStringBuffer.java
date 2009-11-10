@@ -408,5 +408,9 @@ public final class FastStringBuffer{
         }
         return true;
     }
+
+    public void setCharAt(int i, char c) {
+        this.value[i] = c;
+    }
     
 }

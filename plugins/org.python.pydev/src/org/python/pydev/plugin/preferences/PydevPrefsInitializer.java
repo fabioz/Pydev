@@ -114,6 +114,7 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
 
         //coding style
         node.putBoolean(PyCodeStylePreferencesPage.USE_LOCALS_AND_ATTRS_CAMELCASE, PyCodeStylePreferencesPage.DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE);
+        node.putInt(PyCodeStylePreferencesPage.USE_METHODS_FORMAT, PyCodeStylePreferencesPage.DEFAULT_USE_METHODS_FORMAT);
         
         //code formatting
         node.putBoolean(PyCodeFormatterPage.USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS, PyCodeFormatterPage.DEFAULT_USE_ASSIGN_WITH_PACES_INSIDE_PARENTESIS);

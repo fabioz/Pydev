@@ -10,8 +10,8 @@ package org.python.pydev.refactoring.codegenerator.generateproperties.request;
 
 import java.util.List;
 
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
@@ -20,7 +20,6 @@ import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
-import org.python.pydev.refactoring.utils.StringUtils;
 
 public class GeneratePropertiesRequest implements IRefactoringRequest {
 
@@ -103,12 +102,19 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
      * @param attributeName for example "an_attribute"
      * @return for example "set_an_attribute" or "setAnAttribute"
      */
-    public String getAccessorName(String accessType, String attributeName) {
-        if(PydevPlugin.getDefault() != null && PyCodeStylePreferencesPage.useLocalsAndAttrsCamelCase()){
-            return accessType + StringUtils.capitalize(attributeName);
-        }else{
-            // snake_case is the user's preference or the tests are running.
-            return accessType + "_" + attributeName;
+    public static String getAccessorName(String accessType, String attributeName) {
+        accessType += "_"+attributeName;
+        int useMethodsCamelCase = PyCodeStylePreferencesPage.useMethodsCamelCase();
+        if(useMethodsCamelCase == PyCodeStylePreferencesPage.METHODS_FORMAT_CAMELCASE_FIRST_LOWER){
+            return StringUtils.asStyleCamelCaseFirstLower(accessType);
         }
+        if(useMethodsCamelCase == PyCodeStylePreferencesPage.METHODS_FORMAT_CAMELCASE_FIRST_UPPER){
+            return StringUtils.asStyleCamelCaseFirstUpper(accessType);
+        }
+        //default is underscore
+        return StringUtils.asStyleLowercaseUnderscores(accessType);
+        
     }
+    
+
 }

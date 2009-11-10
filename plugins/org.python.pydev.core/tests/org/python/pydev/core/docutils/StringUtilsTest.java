@@ -15,7 +15,7 @@ public class StringUtilsTest extends TestCase {
         try {
             StringUtilsTest test = new StringUtilsTest();
             test.setUp();
-            test.testSplitOnString();
+            test.testCodingStd();
             test.tearDown();
             junit.textui.TestRunner.run(StringUtilsTest.class);
         } catch (Throwable e) {
@@ -190,6 +190,42 @@ public class StringUtilsTest extends TestCase {
     public void testReplaceChars() throws Exception {
         assertEquals("aaaXeeeXcccX", StringUtils.replaceNewLines("aaa\neee\r\nccc\r", "X"));
         assertEquals("aaabbbccc", StringUtils.removeNewLineChars("aaa\r\nbbb\rccc\n"));
+    }
+    
+    public void testCodingStd() throws Exception {
+        assertEquals("a_b_c", StringUtils.asStyleLowercaseUnderscores("a_b_c"));
+        assertEquals("a_and_b", StringUtils.asStyleLowercaseUnderscores("aAndB"));
+        assertEquals("abc", StringUtils.asStyleLowercaseUnderscores("ABC"));
+        assertEquals("a_b_c", StringUtils.asStyleLowercaseUnderscores("A_B_C"));
+        assertEquals("a_bd_c", StringUtils.asStyleLowercaseUnderscores("A_BD_C"));
+        assertEquals("my_camel_call", StringUtils.asStyleLowercaseUnderscores("MyCamelCall"));
+        assertEquals("__a__b__c__", StringUtils.asStyleLowercaseUnderscores("__a__b__c__"));
+        assertEquals("__a__b__c__", StringUtils.asStyleLowercaseUnderscores("__a__B__c__"));
+        assertEquals("__a_b__b__c__", StringUtils.asStyleLowercaseUnderscores("__aB__B__c__"));
+        assertEquals("", StringUtils.asStyleLowercaseUnderscores(""));
+        assertEquals("a", StringUtils.asStyleLowercaseUnderscores("a"));
+        assertEquals("a", StringUtils.asStyleLowercaseUnderscores("A"));
+        assertEquals("aa", StringUtils.asStyleLowercaseUnderscores("AA"));
+        assertEquals("aab", StringUtils.asStyleLowercaseUnderscores("AAb"));
+        assertEquals("-*&()1", StringUtils.asStyleLowercaseUnderscores("-*&()1"));
+        
+        
+        assertEquals("myCamelCall", StringUtils.asStyleCamelCaseFirstLower("MyCamelCall"));
+        assertEquals("myLowerCall", StringUtils.asStyleCamelCaseFirstLower("my_lower_call"));
+        assertEquals("__myLowerCall__", StringUtils.asStyleCamelCaseFirstLower("__my__lower__call__"));
+        assertEquals("__myLOowerCall__", StringUtils.asStyleCamelCaseFirstLower("__my__lOower__call__"));
+        assertEquals("", StringUtils.asStyleCamelCaseFirstLower(""));
+        assertEquals("a", StringUtils.asStyleCamelCaseFirstLower("a"));
+        assertEquals("a", StringUtils.asStyleCamelCaseFirstLower("A"));
+        assertEquals("ab", StringUtils.asStyleCamelCaseFirstLower("Ab"));
+        
+        assertEquals("Ab", StringUtils.asStyleCamelCaseFirstUpper("Ab"));
+        assertEquals("", StringUtils.asStyleCamelCaseFirstUpper(""));
+        assertEquals("A", StringUtils.asStyleCamelCaseFirstUpper("a"));
+        assertEquals("AB", StringUtils.asStyleCamelCaseFirstUpper("a_b"));
+        assertEquals("ABc", StringUtils.asStyleCamelCaseFirstUpper("a_bc"));
+        assertEquals("-*&()1", StringUtils.asStyleCamelCaseFirstUpper("-*&()1"));
+        
     }
 }
 
