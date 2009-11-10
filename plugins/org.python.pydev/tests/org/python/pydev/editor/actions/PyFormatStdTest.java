@@ -26,7 +26,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testKeepTab();
+            n.testUnaryOpWithSpace();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -687,6 +687,7 @@ public class PyFormatStdTest extends TestCase {
         "   e = (a, +2)\n" +
         "   e = (a, + 2)\n" +
         "   e = 1e - 3\n" +
+        "   e = 1E - 3\n" +
         "   pass\n" +
         "";
         
@@ -697,6 +698,7 @@ public class PyFormatStdTest extends TestCase {
         "   e = (a, +2)\n" +
         "   e = (a, +2)\n" +
         "   e = 1e-3\n" +
+        "   e = 1E-3\n" +
         "   pass\n" +
         "";
         checkFormatResults(s, s1);
@@ -704,11 +706,13 @@ public class PyFormatStdTest extends TestCase {
         s1 = "" +
         "def test_formatter_unary():\n" +
         "   e = 1e-3\n" +
+        "   e = 1E-3\n" +
         "";
         
         s = "" +
         "def test_formatter_unary():\n" +
         "   e = 1e - 3\n" +
+        "   e = 1E - 3\n" +
         "";
         
         checkFormatResults(s, s1);

@@ -344,7 +344,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                             isExponential = false;
                         }else{
                             //first char checked... now, if the last is an 'e', we must leave it together no matter what
-                            if(partialNumber.charAt(partialLen-1) != 'e'){
+                            if(partialNumber.charAt(partialLen-1) != 'e' && partialNumber.charAt(partialLen-1) != 'E'){
                                 isExponential = false;
                             }
                         }
