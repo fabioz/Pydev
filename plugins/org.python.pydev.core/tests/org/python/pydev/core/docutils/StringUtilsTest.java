@@ -208,6 +208,7 @@ public class StringUtilsTest extends TestCase {
         assertEquals("aa", StringUtils.asStyleLowercaseUnderscores("AA"));
         assertEquals("aab", StringUtils.asStyleLowercaseUnderscores("AAb"));
         assertEquals("-*&()1", StringUtils.asStyleLowercaseUnderscores("-*&()1"));
+        assertEquals("my_constant", StringUtils.asStyleLowercaseUnderscores("MY_CONSTANT"));
         
         
         assertEquals("myCamelCall", StringUtils.asStyleCamelCaseFirstLower("MyCamelCall"));
@@ -218,6 +219,7 @@ public class StringUtilsTest extends TestCase {
         assertEquals("a", StringUtils.asStyleCamelCaseFirstLower("a"));
         assertEquals("a", StringUtils.asStyleCamelCaseFirstLower("A"));
         assertEquals("ab", StringUtils.asStyleCamelCaseFirstLower("Ab"));
+        assertEquals("myConstant", StringUtils.asStyleCamelCaseFirstLower("MY_CONSTANT"));
         
         assertEquals("Ab", StringUtils.asStyleCamelCaseFirstUpper("Ab"));
         assertEquals("", StringUtils.asStyleCamelCaseFirstUpper(""));
@@ -225,6 +227,7 @@ public class StringUtilsTest extends TestCase {
         assertEquals("AB", StringUtils.asStyleCamelCaseFirstUpper("a_b"));
         assertEquals("ABc", StringUtils.asStyleCamelCaseFirstUpper("a_bc"));
         assertEquals("-*&()1", StringUtils.asStyleCamelCaseFirstUpper("-*&()1"));
+        assertEquals("MyConstant", StringUtils.asStyleCamelCaseFirstUpper("MY_CONSTANT"));
         
     }
 }

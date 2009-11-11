@@ -1,6 +1,5 @@
 package org.python.pydev.plugin.preferences;
 
-import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -17,7 +16,7 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     
     public static final String USE_METHODS_FORMAT = "USE_METHODS_FORMAT";
 
-    public static final boolean DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE = true;
+    public static final boolean DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE = false;
     
     public static final int METHODS_FORMAT_CAMELCASE_FIRST_LOWER = 0;
     public static final int METHODS_FORMAT_CAMELCASE_FIRST_UPPER = 1;
@@ -30,11 +29,16 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
         {"CamelCase() with first upper"  , String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_LOWER)},
         {"camelCase() with first lower", String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_UPPER)},
     };
+    
+    public static final String[][] LOCALS_LABEL_AND_VALUE = new String[][]{
+        {"underscore_separated" , String.valueOf(false)},
+        {"camelCase with first lower", String.valueOf(true)},
+    };
 
     private Label labelLocalsFormat;
     private Label labelMethodsFormat;
 
-    private BooleanFieldEditor useCamelCase;
+    private RadioGroupFieldEditor useLocalsAndAttrsCamelCase;
     private RadioGroupFieldEditor useMethodsFormat;
 
     public PyCodeStylePreferencesPage() {
@@ -49,16 +53,19 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
         Composite p = getFieldEditorParent();
         
 
-        useCamelCase = new BooleanFieldEditor(USE_LOCALS_AND_ATTRS_CAMELCASE, "Use locals and attrs in camel case (used for assign quick-assist)?", p);
-        addField(useCamelCase);
+        useLocalsAndAttrsCamelCase = new RadioGroupFieldEditor(
+                USE_LOCALS_AND_ATTRS_CAMELCASE, "Locals and attributes format (used for assign quick-assist)?", 1, LOCALS_LABEL_AND_VALUE, p, true);
+        addField(useLocalsAndAttrsCamelCase);
         
-        useMethodsFormat = new RadioGroupFieldEditor(USE_METHODS_FORMAT, "Methods format", 1, LABEL_AND_VALUE, p, true);
+        useMethodsFormat = new RadioGroupFieldEditor(
+                USE_METHODS_FORMAT, "Methods format (used for generate properties refactoring)", 1, LABEL_AND_VALUE, p, true);
         addField(useMethodsFormat);
         
         labelLocalsFormat = new Label(p, SWT.NONE);
         
         labelMethodsFormat = new Label(p, SWT.NONE);
-        updateLabel(useLocalsAndAttrsCamelCase(), useMethodsCamelCase());
+        updateLabelLocalsAndAttrs(useLocalsAndAttrsCamelCase());
+        updateLabelMethods(useMethodsCamelCase());
         
     }
 
@@ -66,12 +73,7 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     /**
      * Updates the label showing an example given the user suggestion.
      */
-    private void updateLabel(boolean useCamelCase, int useMethodsFormat){
-        if(useCamelCase){
-            labelLocalsFormat.setText("Ctrl+1 for assign to variable will suggest: myValue = MyValue()    ");
-        }else{
-            labelLocalsFormat.setText("Ctrl+1 for assign to variable will suggest: my_value = MyValue()   ");
-        }
+    private void updateLabelMethods(int useMethodsFormat){
         
         if(useMethodsFormat == METHODS_FORMAT_CAMELCASE_FIRST_UPPER){
             labelMethodsFormat.setText("Refactoring property methods in the format def MyMethod()    ");
@@ -82,6 +84,14 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
         }else{
             //camelcase first lower is the default
             labelMethodsFormat.setText("Refactoring property methods in the format def myMethod()    ");
+        }
+    }
+    
+    private void updateLabelLocalsAndAttrs(boolean useCamelCase){
+        if(useCamelCase){
+            labelLocalsFormat.setText("Ctrl+1 for assign to variable will suggest: myValue = MyValue()    ");
+        }else{
+            labelLocalsFormat.setText("Ctrl+1 for assign to variable will suggest: my_value = MyValue()   ");
         }
     }
 
@@ -111,20 +121,20 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     public void propertyChange(PropertyChangeEvent event){
         super.propertyChange(event);
         
-        if(useCamelCase.equals(event.getSource())){
-            boolean newValue = (Boolean) event.getNewValue();
-            updateLabel(newValue, useMethodsCamelCase());
+        if(useLocalsAndAttrsCamelCase.equals(event.getSource())){
+            boolean newValue = Boolean.parseBoolean((String)event.getNewValue());
+            updateLabelLocalsAndAttrs(newValue);
             
         }else if(useMethodsFormat.equals(event.getSource())){
-            String newValue = (String) event.getNewValue();
             int val;
             try{
+                String newValue = (String) event.getNewValue();
                 val = Integer.parseInt(newValue);
             }catch(NumberFormatException e){
                 val = DEFAULT_USE_METHODS_FORMAT;
             }
             
-            updateLabel(useLocalsAndAttrsCamelCase(), val);
+            updateLabelMethods(val);
         }
     }
 }

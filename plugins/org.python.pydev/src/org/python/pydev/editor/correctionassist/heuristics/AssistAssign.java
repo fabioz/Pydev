@@ -137,39 +137,18 @@ public class AssistAssign implements IAssistProps {
     }
 
     private String changeToLowerUppercaseConstant(String callName) {
-        char[] cs = callName.toCharArray();
-        for(char c: cs){
-            if(Character.isLetterOrDigit(c) && !Character.isUpperCase(c)){
-                return callName;
-            }
+        if(StringUtils.isAllUpper(callName)){
+            return callName.toLowerCase();
         }
-        return callName.toLowerCase();
+        return callName;
     }
 
     private String changeToCodingStd(String callName) {
-        if(!this.std.localsAndAttrsCamelcase()){
-            FastStringBuffer ret = new FastStringBuffer();
-            char[] cs = callName.toCharArray();
+        if(this.std.localsAndAttrsCamelcase()){
+            return StringUtils.asStyleCamelCaseFirstLower(callName);
             
-            boolean foundLower = false;
-            
-            for(char c: cs){
-                if(Character.isUpperCase(c)){
-                    if(foundLower){
-                        ret.append('_');
-                    }
-                    foundLower = false;
-                    ret.append(Character.toLowerCase(c));
-                }else{
-                    if(Character.isLowerCase(c)){
-                        foundLower = true;
-                    }
-                    ret.append(c);
-                }
-            }
-            return ret.toString();
         }else{
-            return callName;
+            return StringUtils.asStyleLowercaseUnderscores(callName);
         }
     }
 

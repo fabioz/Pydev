@@ -49,7 +49,7 @@ public class AssistAssignTest extends TestCase {
         try{
             AssistAssignTest test = new AssistAssignTest();
             test.setUp();
-            test.testSimple9();
+            test.testSimple7();
             test.tearDown();
             junit.textui.TestRunner.run(AssistAssignTest.class);
         }catch(Exception e){
@@ -227,7 +227,7 @@ public class AssistAssignTest extends TestCase {
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
         assertEquals(2, props.size());
-        assertContains("Assign to local (all_uppercase)", props);
+        assertContains("Assign to local (allUppercase)", props);
     }
     
     public void testSimple8() throws BadLocationException {

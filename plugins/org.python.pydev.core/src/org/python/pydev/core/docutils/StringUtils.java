@@ -565,7 +565,21 @@ public class StringUtils {
         return buf.toString();
     }
 
+    
+    public static boolean isAllUpper(String string) {
+        for(char c:string.toCharArray()){
+            if(Character.isLetter(c) && !Character.isUpperCase(c)){
+                return false;
+            }
+        }
+        return true;
+    }
+    
     public static String asStyleCamelCaseFirstLower(String string) {
+        if(isAllUpper(string)){
+            string = string.toLowerCase();
+        }
+        
         FastStringBuffer buf = new FastStringBuffer(string.length());
         char[] charArray = string.toCharArray();
         boolean first = true;
