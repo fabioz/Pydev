@@ -901,7 +901,14 @@ public class PySelection {
             if (!addSelf && trimmed.equals("self")) {
                 // don't add self...
             } else if(trimmed.length() > 0){
-                l.add(trimmed);
+                int colonPos;
+                if((colonPos = trimmed.indexOf(':')) != -1){
+                    trimmed = trimmed.substring(0, colonPos);
+                    trimmed = trimmed.trim();
+                }
+                if(trimmed.length() > 0){
+                    l.add(trimmed);
+                }
             }
         }
         return new Tuple<List<String>, Integer>(l, j);
@@ -1699,8 +1706,20 @@ public class PySelection {
         return ""; //unable to find a colon
     }
     
-    public boolean isInFunctionLine() {
-        return FunctionPattern.matcher(getToColon().trim()).matches();
+    /**
+     * @param matchOnlyComplete if true matches only if a complete signature is found. If false,
+     * matches even if only the 'def' and name are available.
+     */
+    public boolean isInFunctionLine(boolean matchOnlyComplete) {
+        String line;
+        if(!matchOnlyComplete){
+            //does not requires colon
+            line = this.getLine();
+        }else{
+            //requires colon
+            line = getToColon();
+        }
+        return FunctionPattern.matcher(line.trim()).matches();
     }
     
     public static boolean isIdentifier(String str) {
@@ -1708,16 +1727,17 @@ public class PySelection {
     }
 
     public boolean isInClassLine() {
-        return ClassPattern.matcher(getToColon().trim()).matches();
+        String line = this.getLine().trim();
+        return ClassPattern.matcher(line).matches();
     }
 
 
     
     //spaces* 'def' space+ identifier space* ( (space|char|.|,|=|*|(|)|'|")* ):
-    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+\\w*.*");
+    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+\\w*.*", Pattern.DOTALL);
 
     //spaces* 'class' space+ identifier space* (? (.|char|space |,)* )?
-    private static final Pattern ClassPattern = Pattern.compile("\\s*class\\s+\\w*\\s*\\(?(\\s|\\w|\\.|\\,)*\\)?\\s*:");
+    private static final Pattern ClassPattern = Pattern.compile("\\s*class\\s+\\w*.*", Pattern.DOTALL);
 
     private static final Pattern IdentifierPattern = Pattern.compile("\\w*");
 

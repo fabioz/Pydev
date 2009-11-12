@@ -290,27 +290,7 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
         return ret;
     }
     
-    /**
-     * @param ps
-     * @return string with the token or empty token if not found.
-     */
-    public static String getBeforeParentesisTok(PySelection ps) {
-        String string = getLineWithoutComments(ps);
-    
-        int i;
-    
-        String callName = "";
-        //get parentesis position and go backwards
-        if ((i = string.indexOf("(")) != -1) {
-            callName = "";
-    
-            for (int j = i-1; j >= 0 && PyAction.stillInTok(string, j); j--) {
-                callName = string.charAt(j) + callName;
-            }
-            
-        }
-        return callName;
-    }
+
 
     public static String lowerChar(String s, int pos){
         char[] ds = s.toCharArray(); 

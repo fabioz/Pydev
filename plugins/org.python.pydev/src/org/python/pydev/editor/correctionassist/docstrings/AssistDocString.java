@@ -51,7 +51,7 @@ public class AssistDocString implements IAssistProps {
         buf.append(inAndIndent);
 
         int newOffset = buf.length();
-        if (ps.isInFunctionLine()) {
+        if (ps.isInFunctionLine(true)) {
             for (String paramName : params) {
                 if(!PySelection.isIdentifier(paramName)){
                     continue;
@@ -84,7 +84,7 @@ public class AssistDocString implements IAssistProps {
      *      java.lang.String)
      */
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
-        return ps.isInFunctionLine() || ps.isInClassLine();
+        return ps.isInFunctionLine(true) || ps.isInClassLine();
     }
     
 }

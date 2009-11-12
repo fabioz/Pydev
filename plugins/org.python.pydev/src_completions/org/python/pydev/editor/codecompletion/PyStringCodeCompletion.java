@@ -133,7 +133,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion{
                 if(line.startsWith("def ")){
                     int currentLine = iterator.getCurrentLine() + 1;
                     PySelection selection = new PySelection(request.doc, currentLine, 0);
-                    if(selection.isInFunctionLine()){
+                    if(selection.isInFunctionLine(true)){
                         Tuple<List<String>,Integer> insideParentesisToks = selection.getInsideParentesisToks(false);
                         for (String str : insideParentesisToks.o1) {
                             if(str.startsWith(initial)){

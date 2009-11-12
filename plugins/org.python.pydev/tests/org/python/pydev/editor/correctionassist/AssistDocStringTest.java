@@ -17,6 +17,19 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 
 public class AssistDocStringTest extends TestCase {
+    
+    public static void main(String[] args) {
+        try{
+            AssistDocStringTest test = new AssistDocStringTest();
+            test.setUp();
+            test.testApply();
+            test.tearDown();
+            junit.textui.TestRunner.run(AssistDocStringTest.class);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    
     private AssistDocString assist;
     
     protected void setUp() throws Exception {
@@ -37,17 +50,26 @@ public class AssistDocStringTest extends TestCase {
          * Dummy class for keeping data together.
          */
         class TestEntry {
-            public TestEntry(String declaration, boolean expectedResult) {
+            
+            public TestEntry(String declaration, boolean expectedResult, int selectionOffset) {
                 this.declaration = declaration;
                 this.expectedResult = expectedResult;
+                this.selectionOffset = selectionOffset;
+            }
+            
+            public TestEntry(String declaration, boolean expectedResult) {
+                this(declaration, expectedResult, -1);
             }
 
-            public String declaration;
+            public final String declaration;
 
-            public boolean expectedResult;
+            public final boolean expectedResult;
+            
+            public final int selectionOffset;
         };
 
         TestEntry testData[] = { 
+                new TestEntry("def f( x,\nb,\nc ): #comment", true, 3),
                 new TestEntry("    def f(x, y,   z)  :", true),
                 new TestEntry("def f( x='' ): #comment", true),
                 new TestEntry("def f( x=\"\" ): #comment", true),
@@ -56,29 +78,37 @@ public class AssistDocStringTest extends TestCase {
                 new TestEntry("def f( x=1, *args, **kwargs ): #comment", true),
                 new TestEntry("def f():", true),
                 new TestEntry("def  f() : ", true),
+                new TestEntry("def seek(self, pos: int, whence: int) -> int:", true),
                 new TestEntry("def f( x ):", true),
                 new TestEntry("def f( x ): #comment", true),
                 new TestEntry("class X:", true),
                 new TestEntry("class    X(sfdsf.sdf):", true),
                 new TestEntry("clas    X(sfdsf.sdf):", false),
                 new TestEntry("    class    X(sfdsf.sdf):", true),
-                new TestEntry("class X():", true) };
+                new TestEntry("class X():", true) 
+                };
 
         for (int i = 0; i < testData.length; i++) {
-            Document d = new Document(testData[i].declaration);
-
-            PySelection ps = new PySelection(d, new TextSelection(d, testData[i].declaration.length(), 0));
+            TestEntry testEntry = testData[i];
+            Document d = new Document(testEntry.declaration);
+            int selectionOffset;
+            if(testEntry.selectionOffset == -1){
+                selectionOffset = testEntry.declaration.length();
+            }else{
+                selectionOffset = testEntry.selectionOffset;
+            }
+            
+            PySelection ps = new PySelection(d, new TextSelection(d, selectionOffset, 0));
             String sel = PyAction.getLineWithoutComments(ps);
-            boolean expected = testData[i].expectedResult;
-            boolean isValid = assist.isValid(ps, sel, null,testData[i].declaration.length());
+            boolean expected = testEntry.expectedResult;
+            boolean isValid = assist.isValid(ps, sel, null,selectionOffset);
             assertEquals(StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
         }
-        
-        
     }
     
     public void testApply() throws Exception {
-        String expected = "def foo(a): #comment\r\n" +
+        String expected;
+        expected = "def foo(a): #comment\r\n" +
                           "    '''\r\n" +
                           "    \r\n" +
                           "    @param a:\r\n" +
@@ -136,6 +166,17 @@ public class AssistDocStringTest extends TestCase {
         check("def f):", "def f):", 0     );
         
         
+        expected = "" +
+        		"def seek(self, pos:int, whence: int) -> int:\r\n" +
+        		"    '''\r\n" +
+        		"    \r\n" +
+        		"    @param pos:\r\n" +
+        		"    @type pos:\r\n" +
+        		"    @param whence:\r\n" +
+        		"    @type whence:\r\n" +
+        		"    '''" +
+        		"";
+        check(expected, "def seek(self, pos:int, whence: int) -> int:"     );
 
     }
 

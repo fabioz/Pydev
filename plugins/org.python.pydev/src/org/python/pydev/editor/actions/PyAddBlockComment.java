@@ -100,7 +100,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
             
             boolean functionBehaviour = false;
             if(startLineIndex == endLineIndex && getUseFunctionNameBehaviour()){
-                if(ps.isInFunctionLine()){
+                if(ps.isInFunctionLine(false)){
                     //just get the class name
                     functionBehaviour = true;
                 }

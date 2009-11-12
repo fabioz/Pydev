@@ -8,7 +8,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.python.pydev.refactoring.tests.codegenerator.constructorfield.ConstructorFieldTestSuite;
-import org.python.pydev.refactoring.tests.codegenerator.generatedocstring.GenerateDocstringTestSuite;
 import org.python.pydev.refactoring.tests.codegenerator.generateproperties.GeneratePropertiesTestSuite;
 import org.python.pydev.refactoring.tests.codegenerator.overridemethods.OverrideMethodsTestSuite;
 
@@ -21,7 +20,6 @@ public final class AllTests {
 		suite.addTest(ConstructorFieldTestSuite.suite());
 		suite.addTest(OverrideMethodsTestSuite.suite());
 		suite.addTest(GeneratePropertiesTestSuite.suite());
-		suite.addTest(GenerateDocstringTestSuite.suite());
 		// $JUnit-END$
 		return suite;
 	}

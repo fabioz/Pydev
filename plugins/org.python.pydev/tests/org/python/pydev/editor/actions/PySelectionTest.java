@@ -461,12 +461,14 @@ public class PySelectionTest extends TestCase {
     }
     
     public void testIsInClassOrFunctionLine() throws Exception {
+        matchFunc("def __foo__( *args,\n **kwargs ): #comment");
         matchFunc("def f( x ): #comment");
         matchFunc("def f( x, (a,b) ): #comment");
         matchFunc("def f( x=10 ): #comment");
         matchFunc("def f( x=10 )   : #comment");
         matchFunc("def f( *args, **kwargs ): #comment");
         matchFunc("def __foo__( *args, **kwargs ): #comment");
+        matchFunc("def f", false);
         
         matchClass("class __A( object ): #comment");
         matchClass("class A( object ): #comment");
@@ -474,9 +476,11 @@ public class PySelectionTest extends TestCase {
         matchClass("class A( class10 )   : #comment");
         matchClass("class A10( class10,b.b ): ");
         matchClass("class Information:");
-        matchClass("class Information( ", false);
-        matchClass("class Information ", false);
+        matchClass("class Information( ");
+        matchClass("class Information ");
         matchClass("class Information( UserDict.UserDict, IInformation ):");
+        dontMatchClass("noclass Information ");
+        dontMatchClass("noclass Information:");
     }
 
     
@@ -510,19 +514,21 @@ public class PySelectionTest extends TestCase {
         }
     }
 
-    private void matchClass(String cls) {
-        matchClass(cls, true);
+
+    private void dontMatchClass(String cls) {
+        assertFalse("Matched class (when it shouldn't match):"+cls, new PySelection(new Document(cls)).isInClassLine());
+        
     }
-    private void matchClass(String cls, boolean match) {
-        if(match){
-            assertTrue("Failed to match class:"+cls, new PySelection(new Document(cls)).isInClassLine());
-        }else{
-            assertFalse("Matched class (when it shouldn't match):"+cls, new PySelection(new Document(cls)).isInClassLine());
-        }
+    private void matchClass(String cls) {
+        assertTrue("Failed to match class:"+cls, new PySelection(new Document(cls)).isInClassLine());
     }
 
     private void matchFunc(String func) {
-        assertTrue("Failed to match func:"+func, new PySelection(new Document(func)).isInFunctionLine());
+        matchFunc(func, true);
+    }
+    
+    private void matchFunc(String func, boolean matchOnlyComplete) {
+        assertTrue("Failed to match func:"+func, new PySelection(new Document(func)).isInFunctionLine(matchOnlyComplete));
     }
     
     

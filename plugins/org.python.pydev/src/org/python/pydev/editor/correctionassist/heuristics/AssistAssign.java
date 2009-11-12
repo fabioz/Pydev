@@ -18,7 +18,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -193,10 +192,32 @@ public class AssistAssign implements IAssistProps {
 
     /**
      * @param ps
+     * @return string with the token or empty token if not found.
+     */
+    private static String getBeforeParentesisTok(PySelection ps) {
+        String string = PyAction.getLineWithoutComments(ps);
+    
+        int i;
+    
+        String callName = "";
+        //get parentesis position and go backwards
+        if ((i = string.lastIndexOf("(")) != -1) {
+            callName = "";
+    
+            for (int j = i-1; j >= 0 && PyAction.stillInTok(string, j); j--) {
+                callName = string.charAt(j) + callName;
+            }
+            
+        }
+        return callName;
+    }
+    
+    /**
+     * @param ps
      * @return
      */ 
     private String getTokToAssign(PySelection ps, String sel) {
-        String beforeParentesisTok = PyAction.getBeforeParentesisTok(ps);
+        String beforeParentesisTok = getBeforeParentesisTok(ps);
         if(beforeParentesisTok.length() > 0){
             return beforeParentesisTok;
         }
