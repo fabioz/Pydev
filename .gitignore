@@ -37,6 +37,7 @@ plugins/org.python.pydev.mylyn/bin/
 plugins/org.python.pydev.runalltests/bin/
 plugins/org.python.pydev/.pydevproject
 plugins/org.python.pydev/bin/
+plugins/com.python.pydev.pytoobjectivec/
 *.pyc
 *.idx
 *.orig
