@@ -3,21 +3,17 @@ Pydev VERSION Released
 
 Hi All,
 
-Pydev and Pydev Extensions VERSION have been released
+Pydev VERSION has been released
 
-Details on Pydev Extensions: http://pydev.org
-Details on Pydev: http://pydev.sf.net 
+Details on Pydev: http://pydev.org 
 Details on its development: http://pydev.blogspot.com
 
-Release Highlights in Pydev Extensions:
------------------------------------------------------------------
+Release Highlights:
+-------------------------------
 
-EXTENSIONS
 
-Release Highlights in Pydev:
-----------------------------------------------
+HIGHLIGHTS
 
-OPEN
 
 
 What is PyDev?

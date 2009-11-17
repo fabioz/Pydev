@@ -63,7 +63,7 @@ Update homepage:
 
 Tag repository: git tag -a pydev_1_5_1
 
-Add news in forum
+Add news in forum (same as e-mail)
 
 Send e-mail
 
@@ -74,6 +74,6 @@ update in eclipse plugin central:
 		find Pydev plugin > Modify link > add update site
 
 
-Add blog post
+Add blog post / twitter
 
 
