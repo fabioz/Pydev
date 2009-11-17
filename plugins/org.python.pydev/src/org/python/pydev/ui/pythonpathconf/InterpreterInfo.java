@@ -488,6 +488,75 @@ public class InterpreterInfo implements IInterpreterInfo{
                 forcedLibs.add("OpenGL");
                 forcedLibs.add("wxPython");
                 forcedLibs.add("wx");
+                forcedLibs.add("numpy");
+                forcedLibs.add("Image"); //for PIL
+                
+                //these are the builtins -- apparently sys.builtin_module_names is not ok in linux.
+                forcedLibs.add("_ast");
+                forcedLibs.add("_bisect");
+                forcedLibs.add("_bytesio");
+                forcedLibs.add("_codecs");
+                forcedLibs.add("_codecs_cn");
+                forcedLibs.add("_codecs_hk");
+                forcedLibs.add("_codecs_iso2022");
+                forcedLibs.add("_codecs_jp");
+                forcedLibs.add("_codecs_kr");
+                forcedLibs.add("_codecs_tw");
+                forcedLibs.add("_collections");
+                forcedLibs.add("_csv");
+                forcedLibs.add("_fileio");
+                forcedLibs.add("_functools");
+                forcedLibs.add("_heapq");
+                forcedLibs.add("_hotshot");
+                forcedLibs.add("_json");
+                forcedLibs.add("_locale");
+                forcedLibs.add("_lsprof");
+                forcedLibs.add("_md5");
+                forcedLibs.add("_multibytecodec");
+                forcedLibs.add("_random");
+                forcedLibs.add("_sha");
+                forcedLibs.add("_sha256");
+                forcedLibs.add("_sha512");
+                forcedLibs.add("_sre");
+                forcedLibs.add("_struct");
+                forcedLibs.add("_subprocess");
+                forcedLibs.add("_symtable");
+                forcedLibs.add("_warnings");
+                forcedLibs.add("_weakref");
+                forcedLibs.add("_winreg");
+                forcedLibs.add("array");
+                forcedLibs.add("audioop");
+                forcedLibs.add("binascii");
+                forcedLibs.add("cPickle");
+                forcedLibs.add("cStringIO");
+                forcedLibs.add("cmath");
+                forcedLibs.add("datetime");
+                forcedLibs.add("errno");
+                forcedLibs.add("exceptions");
+                forcedLibs.add("future_builtins");
+                forcedLibs.add("gc");
+                forcedLibs.add("imageop");
+                forcedLibs.add("imp");
+                forcedLibs.add("itertools");
+                forcedLibs.add("marshal");
+                forcedLibs.add("math");
+                forcedLibs.add("mmap");
+                forcedLibs.add("msvcrt");
+                forcedLibs.add("nt");
+                forcedLibs.add("operator");
+                forcedLibs.add("parser");
+                forcedLibs.add("signal");
+                forcedLibs.add("strop");
+                forcedLibs.add("sys");
+                forcedLibs.add("thread");
+                forcedLibs.add("time");
+                forcedLibs.add("xxsubtype");
+                forcedLibs.add("zipimport");
+                forcedLibs.add("zlib");
+                
+                
+                
+                
                 break;
                 
             case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
