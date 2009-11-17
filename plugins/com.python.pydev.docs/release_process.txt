@@ -4,6 +4,10 @@ For nightly just:
 
 
 Update homepage
+		- index.rst
+		- history_pydev.contents.html if needed
+		
+
 Update the versions on org.python.pydev.build/build_local.properties
 Commit everything
 

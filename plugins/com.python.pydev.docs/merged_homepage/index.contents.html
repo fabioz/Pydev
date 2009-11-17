@@ -24,6 +24,44 @@
 </blockquote>
 <p>For more details on the provided features, check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
 </div>
+<div class="section" id="release-1-5-1">
+<h1>Release 1.5.1</h1>
+<blockquote>
+<ul class="simple">
+<li>Improvements in the AST rewriter</li>
+<li>Improvements on the refactoring engine:<ul>
+<li>No longer using BRM</li>
+<li>Merged with the latest PEPTIC</li>
+<li>Inline local available</li>
+<li>Extract method bug-fixes</li>
+<li>Extract local on multi-line</li>
+<li>Generating properties using coding style defined in preferences</li>
+<li>Add after current method option added to extract method</li>
+<li>A bunch of other corner-case situations were fixed</li>
+</ul>
+</li>
+<li>Bug-fixes:<ul>
+<li>Minor editor improvements</li>
+<li>Adding default forced builtins on all platforms (e.g.: time, math, etc) which wouldn't be on sys.builtin_module_names on some python installations</li>
+<li>Adding 'numpy' and 'Image' to the forced builtins always</li>
+<li>Ctrl+1: Generate docstring minor fixes</li>
+<li>Ctrl+1: Assign to local now follows coding style preferences properly</li>
+<li>Exponential with uppercase E working on code-formatting</li>
+<li>When a set/get method is found in code-completion for a java class an NPE is no longer thrown</li>
+<li>Backspace properly treated in block mode</li>
+<li>Setting IRONPYTHONPATH when dealing with Iron Python (projects could not be referenced)</li>
+<li>No longer giving spurious 'statement has no effect' inside of lambda and decorators</li>
+<li>Fixed new exec in python 3k</li>
+<li>Fixed NPE when breakpoint is related to a resource in a removed project</li>
+<li>Fixed import problem on regexp that could lead to a recursion.</li>
+<li>No longer giving NPE when debugging with the register view open</li>
+<li>List access be treated as __getitem__() in the list -- patch from Tassilo Barth</li>
+<li>Fix for invalid auto-self added when typing</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+</div>
 <div class="section" id="release-1-5-0">
 <h1>Release 1.5.0</h1>
 <p><strong>Pydev Extensions is now Open Source!</strong></p>

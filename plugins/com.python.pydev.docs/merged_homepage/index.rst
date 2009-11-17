@@ -26,6 +26,40 @@ It comes with many goodies such as:
 For more details on the provided features, check the `Features Matrix`_.
 
 
+Release 1.5.1
+===============
+
+ * Improvements in the AST rewriter
+ * Improvements on the refactoring engine:
+ 
+   * No longer using BRM
+   * Merged with the latest PEPTIC
+   * Inline local available
+   * Extract method bug-fixes
+   * Extract local on multi-line
+   * Generating properties using coding style defined in preferences
+   * Add after current method option added to extract method
+   * A bunch of other corner-case situations were fixed
+	
+ * Bug-fixes:
+ 
+   * Minor editor improvements
+   * Adding default forced builtins on all platforms (e.g.: time, math, etc) which wouldn't be on sys.builtin_module_names on some python installations
+   * Adding 'numpy' and 'Image' to the forced builtins always
+   * Ctrl+1: Generate docstring minor fixes
+   * Ctrl+1: Assign to local now follows coding style preferences properly
+   * Exponential with uppercase E working on code-formatting
+   * When a set/get method is found in code-completion for a java class an NPE is no longer thrown
+   * Backspace properly treated in block mode
+   * Setting IRONPYTHONPATH when dealing with Iron Python (projects could not be referenced)
+   * No longer giving spurious 'statement has no effect' inside of lambda and decorators
+   * Fixed new exec in python 3k
+   * Fixed NPE when breakpoint is related to a resource in a removed project
+   * Fixed import problem on regexp that could lead to a recursion.
+   * No longer giving NPE when debugging with the register view open
+   * List access be treated as __getitem__() in the list -- patch from Tassilo Barth
+   * Fix for invalid auto-self added when typing
+
 Release 1.5.0
 ===============
 
