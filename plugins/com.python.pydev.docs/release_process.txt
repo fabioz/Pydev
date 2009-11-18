@@ -42,7 +42,15 @@ Update artifacts.jar and contents.jar
 
 Copy site.xml, artifacts.jar and contents.jar to W:\git_deploy_dir\Pydev 
 
-Copy zips from W:\git_deploy_dir\Pydev to sourceforge:
+
+Create zips to distribute
+
+
+		Update the pydev version at W:\git_deploy_dir\make_release.py
+		Run d:\bin\Python261\python.exe W:\git_deploy_dir\make_release.py to create zips
+
+
+Copy zips from W:\git_deploy_dir\pydev_zips to sourceforge:
  
  
 	    Create folder at: https://sourceforge.net/project/admin/explorer.php?group_id=85796
