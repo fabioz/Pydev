@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
@@ -42,9 +43,8 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  */
 public class PythonPathNature implements IPythonPathNature {
 
-    private IProject project;
-    private PythonNature nature;
-    private Object lock = new Object();
+    private volatile IProject fProject;
+    private volatile PythonNature fNature;
 
 
     /**
@@ -82,15 +82,13 @@ public class PythonPathNature implements IPythonPathNature {
 
 
     public void setProject(IProject project, IPythonNature nature){
-        synchronized(lock){
-            this.project = project;
-            this.nature = (PythonNature) nature;
-            clearCaches();
-        }
+        this.fProject = project;
+        this.fNature = (PythonNature) nature;
     }
+
     
     public IPythonNature getNature(){
-        return this.nature;
+        return this.fNature;
     }
     
 
@@ -109,174 +107,177 @@ public class PythonPathNature implements IPythonPathNature {
     }
     
     private IModulesManager getProjectModulesManager(){
-        if(project == null){
-            return null;
-        }
-        if(nature == null) {
+        IPythonNature nature = fNature;
+        if(nature == null){
             return null;
         }
         
-        if(nature.getAstManager() == null) {
+        ICodeCompletionASTManager astManager = nature.getAstManager();
+        if(astManager == null) {
             // AST manager might not be yet available
             // Code completion job is scheduled to be run
             return null;
         }
               
-        return nature.getAstManager().getModulesManager();
+        return astManager.getModulesManager();
     }
 
     /**
      * @return the project pythonpath with complete paths in the filesystem.
      */
     public String getOnlyProjectPythonPathStr() throws CoreException  {
-        synchronized(lock){
-            if(project == null){
-                return "";
-            }
-            
-            //Substitute with variables!
-            StringSubstitution stringSubstitution = new StringSubstitution(this.nature);
-            
-            String source = getProjectSourcePath(true);
-            String external = getProjectExternalSourcePath(true);
-            String contributed = stringSubstitution.performPythonpathStringSubstitution(getContributedSourcePath());
+        String source = null;
+        String external = null;
+        String contributed = null;
+        IProject project = fProject;
+        PythonNature nature = fNature;
 
+        if(project == null  || nature == null){
+            return "";
+        }
+        
+        //Substitute with variables!
+        StringSubstitution stringSubstitution = new StringSubstitution(nature);
+        
+        source = getProjectSourcePath(true);
+        external = getProjectExternalSourcePath(true);
+        contributed = stringSubstitution.performPythonpathStringSubstitution(getContributedSourcePath(project));
             
-            if(source == null){
-                source = "";
-            }
-            //we have to work on this one to resolve to full files, as what is stored is the position
-            //relative to the project location
-            List<String> strings = StringUtils.splitAndRemoveEmptyTrimmed(source, '|');
-            FastStringBuffer buf = new FastStringBuffer();
-            
-            IWorkspaceRoot root = null;
-            
-            boolean checkedFullSynch = false;
-            Set<String> directMembersChecked = new HashSet<String>();
-            
-            for (String currentPath:strings) {
-                if(currentPath.trim().length()>0){
-                    IPath p = new Path(currentPath);
+        if(source == null){
+            source = "";
+        }
+        //we have to work on this one to resolve to full files, as what is stored is the position
+        //relative to the project location
+        List<String> strings = StringUtils.splitAndRemoveEmptyTrimmed(source, '|');
+        FastStringBuffer buf = new FastStringBuffer();
+        
+        IWorkspaceRoot root = null;
+        
+        boolean checkedFullSynch = false;
+        Set<String> directMembersChecked = new HashSet<String>();
+        
+        ResourcesPlugin resourcesPlugin = ResourcesPlugin.getPlugin();
+        for (String currentPath:strings) {
+            if(currentPath.trim().length()>0){
+                IPath p = new Path(currentPath);
+                
+                if(resourcesPlugin == null){
+                    //in tests
+                    buf.append(currentPath);
+                    buf.append("|");
+                    continue;
+                }
+                
+                if(root == null){
+                    root = ResourcesPlugin.getWorkspace().getRoot();
+                }
+                
+                if(p.segmentCount() < 1){
+                    Log.log("Found no segment in: "+currentPath+" for: "+project);
+                    continue; //No segment? Really weird!
+                }
+                
+                //try to get relative to the workspace 
+                IContainer container = null;
+                IResource r = null;
+                try {
+                    r = root.findMember(p);
+                } catch (Exception e) {
+                    PydevPlugin.log(e);
+                }
+                
+                if(!(r instanceof IContainer) && !(r instanceof IFile)){
                     
-                    if(ResourcesPlugin.getPlugin() == null){
-                        //in tests
-                        buf.append(currentPath);
-                        buf.append("|");
-                        continue;
-                    }
+                    //If we didn't find the file, let's try to sync things, as this can happen if the workspace
+                    //is still not properly synchronized.
+                    String firstSegment = p.segment(0);
+                    IResource firstSegmentResource = root.findMember(firstSegment);
+                    if(!(firstSegmentResource instanceof IContainer) && !(firstSegmentResource instanceof IFile)){
+                        //we cannot even get the 1st part... let's do a full sync
+                        if(!checkedFullSynch){
+                            checkedFullSynch = true;
+                            try {
+                                root.refreshLocal(IResource.DEPTH_INFINITE, null);
+                            } catch (CoreException e) {
+                                //ignore
+                            } 
+                        }
+                        
+                    }else if(!directMembersChecked.contains(firstSegment)){
+                        directMembersChecked.add(firstSegment);
+                        //OK, we can get to the 1st segment, so, let's do a refresh just from that point on, not in the whole workspace...
+                        try {
+                            firstSegmentResource.refreshLocal(IResource.DEPTH_INFINITE, null);
+                        } catch (CoreException e) {
+                            //ignore
+                        }
+                        
+                    } 
                     
-                    if(root == null){
-                        root = ResourcesPlugin.getWorkspace().getRoot();
-                    }
-                    
-                    if(p.segmentCount() < 1){
-                        Log.log("Found no segment in: "+currentPath+" for: "+this.project);
-                        continue; //No segment? Really weird!
-                    }
-                    
-                    //try to get relative to the workspace 
-                    IContainer container = null;
-                    IResource r = null;
+                    //Now, try to get it knowing that it's properly synched (it may still not be there, but at least we tried it)
                     try {
                         r = root.findMember(p);
                     } catch (Exception e) {
                         PydevPlugin.log(e);
                     }
-                    
-                    if(!(r instanceof IContainer) && !(r instanceof IFile)){
+                }
+                
+                if(r instanceof IContainer){
+                    container = (IContainer) r;
+                    buf.append(REF.getFileAbsolutePath(container.getLocation().toFile()));
+                    buf.append("|");
+                
+                }else if(r instanceof IFile){ //zip/jar/egg file
+                    String extension = r.getFileExtension();
+                    if(extension == null || FileTypesPreferencesPage.isValidZipFile("."+extension) == false){
+                        PydevPlugin.log("Error: the path "+currentPath+" is a file but is not a recognized zip file.");
                         
-                        //If we didn't find the file, let's try to sync things, as this can happen if the workspace
-                        //is still not properly synchronized.
-                        String firstSegment = p.segment(0);
-                        IResource firstSegmentResource = root.findMember(firstSegment);
-                        if(!(firstSegmentResource instanceof IContainer) && !(firstSegmentResource instanceof IFile)){
-                            //we cannot even get the 1st part... let's do a full sync
-                            if(!checkedFullSynch){
-                                checkedFullSynch = true;
-                                try {
-                                    root.refreshLocal(IResource.DEPTH_INFINITE, null);
-                                } catch (CoreException e) {
-                                    //ignore
-                                } 
-                            }
-                            
-                        }else if(!directMembersChecked.contains(firstSegment)){
-                            directMembersChecked.add(firstSegment);
-                            //OK, we can get to the 1st segment, so, let's do a refresh just from that point on, not in the whole workspace...
-                            try {
-                                firstSegmentResource.refreshLocal(IResource.DEPTH_INFINITE, null);
-                            } catch (CoreException e) {
-                                //ignore
-                            }
-                            
-                        } 
-                        
-                        //Now, try to get it knowing that it's properly synched (it may still not be there, but at least we tried it)
-                        try {
-                            r = root.findMember(p);
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
-                        }
-                    }
-                    
-                    if(r instanceof IContainer){
-                        container = (IContainer) r;
-                        buf.append(REF.getFileAbsolutePath(container.getLocation().toFile()));
+                    }else{
+                        buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
                         buf.append("|");
+                    }
+                
+                }else{
+                    //We're now always making sure that it's all synchronized, so, if we got here, it really doesn't exist (let's warn about it)
                     
-                    }else if(r instanceof IFile){ //zip/jar/egg file
-                        String extension = r.getFileExtension();
-                        if(extension == null || FileTypesPreferencesPage.isValidZipFile("."+extension) == false){
-                            PydevPlugin.log("Error: the path "+currentPath+" is a file but is not a recognized zip file.");
+                    //Not in workspace?... maybe it was removed, so, let the user know about it (and still add it to the pythonpath as is)
+                    Log.log(IStatus.WARNING, "Unable to find the path "+currentPath+" in the project were it's \n" +
+                            "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
+                    
+                    //No good: try to get it relative to the project
+                    String curr = currentPath;
+                    IPath path = new Path(curr.trim());
+                    if(project.getFullPath().isPrefixOf(path)){
+                        path = path.removeFirstSegments(1);
+                        if(FileTypesPreferencesPage.isValidZipFile(curr)){
+                            r = project.getFile(path);
                             
                         }else{
+                            //get it relative to the project
+                            r = project.getFolder(path);
+                        }
+                        if(r!=null){
                             buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
                             buf.append("|");
+                            continue; //Don't go on to append it relative to the workspace root.
                         }
-                    
-                    }else{
-                        //We're now always making sure that it's all synchronized, so, if we got here, it really doesn't exist (let's warn about it)
-                        
-                        //Not in workspace?... maybe it was removed, so, let the user know about it (and still add it to the pythonpath as is)
-                        Log.log(IStatus.WARNING, "Unable to find the path "+currentPath+" in the project were it's \n" +
-                                "added as a source folder for pydev (project: "+project.getName()+") member:"+r, null);
-                        
-                        //No good: try to get it relative to the project
-                        String curr = currentPath;
-                        IPath path = new Path(curr.trim());
-                        if(project.getFullPath().isPrefixOf(path)){
-                            path = path.removeFirstSegments(1);
-                            if(FileTypesPreferencesPage.isValidZipFile(curr)){
-                                r = project.getFile(path);
-                                
-                            }else{
-                                //get it relative to the project
-                                r = project.getFolder(path);
-                            }
-                            if(r!=null){
-                                buf.append(REF.getFileAbsolutePath(r.getLocation().toFile()));
-                                buf.append("|");
-                                continue; //Don't go on to append it relative to the workspace root.
-                            }
-                        }
-                        
-                        //Nothing worked: force it to be relative to the workspace.
-                        IPath rootLocation = root.getRawLocation();
-                        
-                        //Note that this'll be cached for later use.
-                        buf.append(REF.getFileAbsolutePath(rootLocation.append(currentPath.trim()).toFile()));
-                        buf.append("|");
                     }
+                    
+                    //Nothing worked: force it to be relative to the workspace.
+                    IPath rootLocation = root.getRawLocation();
+                    
+                    //Note that this'll be cached for later use.
+                    buf.append(REF.getFileAbsolutePath(rootLocation.append(currentPath.trim()).toFile()));
+                    buf.append("|");
                 }
             }
-            
-            
-            if(external == null){
-                external = "";
-            }
-            return buf.append("|").append(external).append("|").append(contributed).toString();
         }
+        
+            
+        if(external == null){
+            external = "";
+        }
+        return buf.append("|").append(external).append("|").append(contributed).toString();
     }
 
 
@@ -288,7 +289,7 @@ public class PythonPathNature implements IPythonPathNature {
      * @throws CoreException
      */
     @SuppressWarnings("unchecked")
-    private String getContributedSourcePath() throws CoreException {
+    private String getContributedSourcePath(IProject project) throws CoreException {
         FastStringBuffer buff = new FastStringBuffer();
         List<IPythonPathContributor> contributors = ExtensionHelper.getParticipants("org.python.pydev.pydev_pythonpath_contrib");
         for (IPythonPathContributor contributor : contributors) {
@@ -306,19 +307,23 @@ public class PythonPathNature implements IPythonPathNature {
     
 
     public void setProjectSourcePath(String newSourcePath) throws CoreException {
-        synchronized(lock){
+        PythonNature nature = fNature;
+
+        if(nature != null){
             nature.getStore().setPathProperty(PythonPathNature.getProjectSourcePathQualifiedName(), newSourcePath);
         }
     }
 
     public void setProjectExternalSourcePath(String newExternalSourcePath) throws CoreException {
-        synchronized(lock){
+        PythonNature nature = fNature;
+        if(nature != null){
             nature.getStore().setPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName(), newExternalSourcePath);
         }
     }
     
     public void setVariableSubstitution(Map<String, String> variableSubstitution) throws CoreException {
-        synchronized(lock){
+        PythonNature nature = fNature;
+        if(nature != null){
             nature.getStore().setMapProperty(PythonPathNature.getProjectVariableSubstitutionQualifiedName(), variableSubstitution);
         }
     }
@@ -329,66 +334,69 @@ public class PythonPathNature implements IPythonPathNature {
 
     
     public Set<String> getProjectSourcePathSet(boolean replace) throws CoreException {
-        synchronized(lock){
-            if(project == null){
-                return new HashSet<String>();
-            }
-            String projectSourcePath = getProjectSourcePath(replace);
-            return new HashSet<String>(StringUtils.splitAndRemoveEmptyTrimmed(projectSourcePath, '|'));
+        String projectSourcePath;
+        PythonNature nature = fNature;
+        if(nature == null){
+            return new HashSet<String>();
         }
+        projectSourcePath = getProjectSourcePath(replace);
+        return new HashSet<String>(StringUtils.splitAndRemoveEmptyTrimmed(projectSourcePath, '|'));
     }
     
     public String getProjectSourcePath(boolean replace) throws CoreException {
-        synchronized(lock){
-            if(project == null){
-                return "";
-            }
-            boolean restore = false;
-            String projectSourcePath = nature.getStore().getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName());
-            if(projectSourcePath == null){
-                //has not been set
-                return "";
-            }
-            //we have to validate it, because as we store the values relative to the workspace, and not to the 
-            //project, the path may become invalid (in which case we have to make it compatible again).
-            StringBuffer buffer = new StringBuffer();
-            List<String> paths = StringUtils.splitAndRemoveEmptyTrimmed(projectSourcePath, '|');
-            IPath projectPath = project.getFullPath();
-            for (String path : paths) {
-                if(path.trim().length() > 0){
-                    IPath p = new Path(path);
-                    if(p.isEmpty()){
-                        continue; //go to the next...
-                    }
-                    if(projectPath != null && !projectPath.isPrefixOf(p)){
-                        p = p.removeFirstSegments(1);
-                        p = projectPath.append(p);
-                        restore = true;
-                    }
-                    buffer.append(p.toString());
-                    buffer.append("|");
-                }
-            }
-            
-            //it was wrong and has just been fixed
-            if(restore){
-                projectSourcePath = buffer.toString();
-                setProjectSourcePath(projectSourcePath);
-                if(nature != null){
-                    //yeap, everything has to be done from scratch, as all the filesystem paths have just
-                    //been turned to dust!
-                    nature.rebuildPath();
-                }
-            }
-            return trimAndReplaceVariablesIfNeeded(replace, projectSourcePath);
+        String projectSourcePath;
+        boolean restore = false;
+        IProject project = fProject;
+        PythonNature nature = fNature;
+        
+        if(project == null || nature == null){
+            return "";
         }
+        projectSourcePath = nature.getStore().getPathProperty(PythonPathNature.getProjectSourcePathQualifiedName());
+        if(projectSourcePath == null){
+            //has not been set
+            return "";
+        }
+        
+        //we have to validate it, because as we store the values relative to the workspace, and not to the 
+        //project, the path may become invalid (in which case we have to make it compatible again).
+        StringBuffer buffer = new StringBuffer();
+        List<String> paths = StringUtils.splitAndRemoveEmptyTrimmed(projectSourcePath, '|');
+        IPath projectPath = project.getFullPath();
+        for (String path : paths) {
+            if(path.trim().length() > 0){
+                IPath p = new Path(path);
+                if(p.isEmpty()){
+                    continue; //go to the next...
+                }
+                if(projectPath != null && !projectPath.isPrefixOf(p)){
+                    p = p.removeFirstSegments(1);
+                    p = projectPath.append(p);
+                    restore = true;
+                }
+                buffer.append(p.toString());
+                buffer.append("|");
+            }
+        }
+        
+        //it was wrong and has just been fixed
+        if(restore){
+            projectSourcePath = buffer.toString();
+            setProjectSourcePath(projectSourcePath);
+            if(nature != null){
+                //yeap, everything has to be done from scratch, as all the filesystem paths have just
+                //been turned to dust!
+                nature.rebuildPath();
+            }
+        }
+        return trimAndReplaceVariablesIfNeeded(replace, projectSourcePath, nature);
     }
 
 
     /**
      * Replaces the variables if needed.
      */
-    private String trimAndReplaceVariablesIfNeeded(boolean replace, String projectSourcePath) throws CoreException{
+    private String trimAndReplaceVariablesIfNeeded(boolean replace, String projectSourcePath, PythonNature nature) throws CoreException{
         String ret = StringUtils.leftAndRightTrim(projectSourcePath, '|');
         if(replace){
             StringSubstitution substitution = new StringSubstitution(nature);
@@ -398,27 +406,28 @@ public class PythonPathNature implements IPythonPathNature {
     }
 
     public String getProjectExternalSourcePath(boolean replace) throws CoreException {
-        synchronized(lock){
-            if(project == null){
-                return "";
-            }
-            //no need to validate because those are always 'file-system' related
-            String extPath = nature.getStore().getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
-            if(extPath == null){
-                extPath = "";
-            }
-            return trimAndReplaceVariablesIfNeeded(replace, extPath);
+        String extPath;
+
+        PythonNature nature = fNature;
+        if(nature == null){
+            return "";
         }
+        //no need to validate because those are always 'file-system' related
+        extPath = nature.getStore().getPathProperty(PythonPathNature.getProjectExternalSourcePathQualifiedName());
+        
+        if(extPath == null){
+            extPath = "";
+        }
+        return trimAndReplaceVariablesIfNeeded(replace, extPath, nature);
     }
     
     public Map<String,String> getVariableSubstitution() throws CoreException {
-        synchronized(lock){
-            if(project == null){
-                return new HashMap<String, String>();
-            }
-            //no need to validate because those are always 'file-system' related
-            return nature.getStore().getMapProperty(PythonPathNature.getProjectVariableSubstitutionQualifiedName());
+        PythonNature nature = fNature;
+        if(nature == null){
+            return new HashMap<String, String>();
         }
+        //no need to validate because those are always 'file-system' related
+        return nature.getStore().getMapProperty(PythonPathNature.getProjectVariableSubstitutionQualifiedName());
     }
 
 
