@@ -2,18 +2,66 @@
 How do I Report a BUG?
 --------------------------------------------------------------------------------------------------------------Answer
 
-Well, if you don't find anything that helps you, please check if it is a known BUG, if it is not, please, report it.<br>
-The place to search and report BUGS is <a href="http://sourceforge.net/tracker/?group_id=85796&atid=577329">here</a><br>
-When reporting a bug, don't forget to give the following information:<br><br>
+The place to search and report BUGS is at <a href="http://sourceforge.net/tracker/?group_id=85796&atid=577329">http://sourceforge.net/tracker/?group_id=85796&atid=577329</a><br>
+<br>
+When reporting a bug, the following information must be given:<br><br>
+
 - System (e.g windows XP)<br>
 - Eclipse version (e.g. 3.5)<br>
-- Pydev version (e.g. 1.4.7)<br>
+- Pydev version (e.g. 1.5.1)<br>
 - Pydev <strong>error log</strong> (if any): go to <strong>window > show view > other > PDE Runtime > Error log</strong>. (if you have the SDK installed, otherwise,
 you have to find the log file at <strong>your_workspace/.metadata/.log</strong>)<br>
 - Eclipse install location (e.g. D:\eclipse_3\352\eclipse)<br>
 - Project location where the bug appears (e.g. D:\eclipse\workspace\my project)<br>
+- What were you doing when the bug appeared<br>
+
 <br>
-NOTE: the <A href="http://sourceforge.net/forum/forum.php?forum_id=293649">Users Forum</A> may be used for
+<br>
+
+<strong>IMPORTANT</strong>: 
+If you're having a bug where there's a <strong>halting condition</strong>, it's important to give the information on 
+the available threads when that happens and whether there's actually a deadlock.
+<br>
+<br>
+
+To get that info, start eclipse with the <strong>java executable (not javaw)</strong> and add the <strong>-Dcom.sun.management.jmxremote</strong> flag to vmargs
+(note that the sun java 1.6 should be used).
+
+<br>
+<br>
+
+E.g.: d:\bin\eclipse_350\eclipse.exe -vm D:\bin\jdk_1_6_11\bin\java.exe -vmargs -Dcom.sun.management.jmxremote
+
+<br>
+<br>
+
+Now, open up jconsole (e.g.: d:\bin\jdk_1_6_11\bin\jconsole.exe) and press 'detect deadlock' -- if a deadlock is found, 
+paste the info on the deadlocked threads and that should be enough.
+
+<br>
+<br>
+
+If no deadlock is found, the bug should have the info on all the threads running attached to it 
+(below are instructions on how to get that info -- as it's too troublesome to pass every thread in jconsole copying it).
+
+<br>
+<br>
+
+If you're on windows, press <strong>Ctrl+Break</strong> to get a list of all the running threads (which should be attached to the bug).
+Note that you may have to increase the buffer of the console to get all info (so, in the console open the properties menu -- 
+Alt+Space -- select the 'properties' and in 'screen buffer size: height' raise it to something as 9999 -- and only then press Ctrl+Break) 
+
+<br>
+<br>
+
+On Linux (and other unix variants) that info is gotten with <strong>kill pid --QUIT</strong>
+
+<br>
+<br>
+
+
+
+<strong>NOTE</strong>: the <A href="http://sourceforge.net/forum/forum.php?forum_id=293649">Users Forum</A> may be used for
 some doubts, but if you have a bug, that's not the place to go (even though, it might be useful searching it to
 see if what you have is not really a bug or if someone has already asked about it).
 <br><br>

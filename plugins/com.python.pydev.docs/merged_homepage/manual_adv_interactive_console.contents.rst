@@ -7,9 +7,11 @@ Interactive Console
 Console View
 --------------
 
-**Ctrl+Alt+Enter** (while in the Pydev editor) can be used
-to open a console if there's no open console. With an open console, **Ctrl+Alt+Enter**
-will make an execfile of the current editor in the console, so that its symbols are available for further experimentation.
+**Ctrl+Alt+Enter** (while in the Pydev editor) can be used to:
+
+* Open a console if there's no open console
+* Send the selected text to the console
+* Make an execfile of the current editor in the console (if no text is selected), so that its symbols are available for further experimentation.
 
 Alternatively, it can be initialized from the console view from the dropdown for a new console 
 (rightmost corner icon in the console view)
