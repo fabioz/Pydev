@@ -59,6 +59,7 @@ except:
 #see module docstring for more details.
 PATHS_FROM_CLIENT_TO_SERVER = []
 
+
 #example:
 #PATHS_FROM_CLIENT_TO_SERVER = [
 #(normcase(r'd:\temp\temp_workspace_2\test_python\src\yyy\yyy'),
@@ -116,6 +117,26 @@ except:
 
 
 if PATHS_FROM_CLIENT_TO_SERVER:
+    #Work on the client and server slashes.
+    client_sep = None
+    server_sep = None
+    for client_prefix, server_prefix in PATHS_FROM_CLIENT_TO_SERVER:
+        if client_sep is not None and server_sep is not None:
+            break
+        
+        if client_sep is None:
+            for c in client_prefix:
+                if c in ('/', '\\'):
+                    client_sep = c
+                    break
+                
+        if server_sep is None:
+            for c in server_prefix:
+                if c in ('/', '\\'):
+                    server_sep = c
+                    break
+            
+                
     #only setup translation functions if absolutely needed! 
     def NormFileToServer(filename): 
         try:
@@ -133,10 +154,13 @@ if PATHS_FROM_CLIENT_TO_SERVER:
                     break
             else:
                 if DEBUG_CLIENT_SERVER_TRANSLATION:
-                    sys.stderr.write('pydev debugger: unable to find matching prefix for: %s in %s\n' % \
+                    sys.stderr.write('pydev debugger: to server: unable to find matching prefix for: %s in %s\n' % \
                         (translated, [x[0] for x in PATHS_FROM_CLIENT_TO_SERVER]))
                     
             ret = _NormFile(translated)
+            if client_sep is not None and server_sep is not None and client_sep != server_sep:
+                ret = ret.replace(server_sep, client_sep)
+                
             NORM_FILENAME_TO_SERVER_CONTAINER[filename] = translated
             return ret
         
@@ -157,10 +181,13 @@ if PATHS_FROM_CLIENT_TO_SERVER:
                     break
             else:
                 if DEBUG_CLIENT_SERVER_TRANSLATION:
-                    sys.stderr.write('pydev debugger: unable to find matching prefix for: %s in %s\n' % \
+                    sys.stderr.write('pydev debugger: to client: unable to find matching prefix for: %s in %s\n' % \
                         (translated, [x[1] for x in PATHS_FROM_CLIENT_TO_SERVER]))
                         
             ret = _NormFile(translated)
+            if client_sep is not None and server_sep is not None and client_sep != server_sep:
+                ret = ret.replace(client_sep, server_sep)
+                
             NORM_FILENAME_TO_CLIENT_CONTAINER[filename] = ret
             return ret
         
