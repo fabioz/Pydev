@@ -8,7 +8,7 @@ Regular Launch
 
 The easiest way of launching a python file from pydev is opening an editor and using the **F9 keybinding**. 
 Through that command, Pydev will create/reuse a **launch** config to run the current editor based on the **current settings 
-of the project** (i.e.: if the project is configured as iron python, it'll use an iron python interpreter).
+of the project** (i.e.: if the project is configured as IronPython, it'll use an IronPython interpreter).
 
 .. image:: images/debugger/f9.png
    :class: snap

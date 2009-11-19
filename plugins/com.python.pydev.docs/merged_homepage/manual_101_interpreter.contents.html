@@ -21,10 +21,10 @@
 </div>
 <div class="section" id="configure-interpreter">
 <h1><a class="toc-backref" href="#id2">Configure Interpreter</a></h1>
-<p>After installing it, the first thing you must do is configure the <strong>Python and/or Jython and/or Iron Python</strong> interpreter.
+<p>After installing it, the first thing you must do is configure the <strong>Python and/or Jython and/or IronPython</strong> interpreter.
 To configure the interpreter:</p>
 <ol class="arabic">
-<li><p class="first">Go to: <strong>window &gt; preferences &gt; pydev &gt; Interpreter - (Python/Jython/Iron Python)</strong>.</p>
+<li><p class="first">Go to: <strong>window &gt; preferences &gt; pydev &gt; Interpreter - (Python/Jython/IronPython)</strong>.</p>
 </li>
 <li><p class="first">Choose the interpreter you have installed in your computer (such as python.exe, jython.jar or ipy.exe).</p>
 <p>Note that the <strong>Auto Config</strong> will try to find it in your PATH, but it can fail if it's not there.</p>
@@ -78,7 +78,7 @@ is done, things are set in stone for Pydev)</p>
 <h2><a class="toc-backref" href="#id6">Libraries</a></h2>
 <blockquote>
 <p>The <strong>System libs</strong> are the libraries that will be added to the PYTHONPATH of any project that is using this interpreter.</p>
-<p>For <strong>Python and Iron Python</strong>, it's composed of <strong>folders, zip files and egg files</strong>. Note that if dlls should be added to
+<p>For <strong>Python and IronPython</strong>, it's composed of <strong>folders, zip files and egg files</strong>. Note that if dlls should be added to
 the PYTHONPATH, the folders actually containing those dlls should be added, and they must have the same name to be
 imported in the code (the case is important). I.e.: if you want to import iTextDll, it <strong>must</strong> be called iTextDll.dll
 (note that .pyd and .so extensions are also accepted).</p>
@@ -91,7 +91,7 @@ imported in the code (the case is important). I.e.: if you want to import iTextD
 <p>The Forced builtin libs are the libraries that are built-in the interpreter, such as <strong>__builtin__, sha, etc</strong>.</p>
 <p>For <strong>Python</strong>, you should have around <strong>50</strong> entries</p>
 <p>For <strong>Jython</strong> around <strong>30</strong> entries.</p>
-<p>For <strong>Iron Python</strong> more than <strong>100</strong> entries. All the packages built into .NET should be included here -- e.g.:
+<p>For <strong>IronPython</strong> more than <strong>100</strong> entries. All the packages built into .NET should be included here -- e.g.:
 Microsoft, Microsoft.Windows.Themes, System, System.IO, etc.</p>
 <p>Additionally, you may add other libraries that you want to treat as
 builtins, such as <strong>os, wxPython, OpenGL, cStringIO, etc</strong>. This is very important, because Pydev works

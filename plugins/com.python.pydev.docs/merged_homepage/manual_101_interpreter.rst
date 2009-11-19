@@ -3,11 +3,11 @@
 Configure Interpreter
 ======================
 
-After installing it, the first thing you must do is configure the **Python and/or Jython and/or Iron Python** interpreter. 
+After installing it, the first thing you must do is configure the **Python and/or Jython and/or IronPython** interpreter. 
 To configure the interpreter:
 
 
-1. Go to: **window > preferences > pydev > Interpreter - (Python/Jython/Iron Python)**.
+1. Go to: **window > preferences > pydev > Interpreter - (Python/Jython/IronPython)**.
 2. Choose the interpreter you have installed in your computer (such as python.exe, jython.jar or ipy.exe).
 
    Note that the **Auto Config** will try to find it in your PATH, but it can fail if it's not there.
@@ -74,7 +74,7 @@ Libraries
 
 	The **System libs** are the libraries that will be added to the PYTHONPATH of any project that is using this interpreter.
 	
-	For **Python and Iron Python**, it's composed of **folders, zip files and egg files**. Note that if dlls should be added to
+	For **Python and IronPython**, it's composed of **folders, zip files and egg files**. Note that if dlls should be added to
 	the PYTHONPATH, the folders actually containing those dlls should be added, and they must have the same name to be
 	imported in the code (the case is important). I.e.: if you want to import iTextDll, it **must** be called iTextDll.dll
 	(note that .pyd and .so extensions are also accepted).
@@ -93,7 +93,7 @@ _`Forced Builtins`
 	
 	For **Jython** around **30** entries.
 	
-	For **Iron Python** more than **100** entries. All the packages built into .NET should be included here -- e.g.:
+	For **IronPython** more than **100** entries. All the packages built into .NET should be included here -- e.g.:
 	Microsoft, Microsoft.Windows.Themes, System, System.IO, etc. 
 	
 	Additionally, you may add other libraries that you want to treat as 

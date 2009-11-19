@@ -16,7 +16,7 @@ Requirements
 
 .. _Python: http://www.python.org
 .. _Jython: http://www.jython.org
-.. _Iron Python: http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython
+.. _IronPython: http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython
 .. _Eclipse (3.2 to 3.5): http://www.eclipse.org
 .. _Java: http://www.javasoft.com
 .. _JDT: http://www.eclipse.org/jdt/
@@ -27,14 +27,14 @@ At least one of:
 
 * Python_ **(2.1 or newer)**
 * Jython_ **(2.1 or newer)**
-* `Iron Python`_ **(2.6 or newer)**
+* IronPython_ **(2.6 or newer)**
 
 and 
 
 
 * `Aptana Studio`_ or `Eclipse (3.2 to 3.5)`_ 
 
-	* Python_ and `Iron Python`_ require only the `Platform Runtime Binary`_ (download around 45-50 MB), and Jython_ also requires JDT_.
+	* Python_ and IronPython_ require only the `Platform Runtime Binary`_ (download around 45-50 MB), and Jython_ also requires JDT_.
 	
 * Java_ 1.4 or higher
 

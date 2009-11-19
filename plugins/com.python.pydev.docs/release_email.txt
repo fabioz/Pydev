@@ -19,7 +19,7 @@ HIGHLIGHTS
 What is PyDev?
 ---------------------------
 
-PyDev is a plugin that enables users to use Eclipse for Python, Jython and Iron Python development -- making Eclipse a first class Python IDE -- It comes with many goodies such as code completion, syntax highlighting, syntax analysis, refactor, debug and many others.
+PyDev is a plugin that enables users to use Eclipse for Python, Jython and IronPython development -- making Eclipse a first class Python IDE -- It comes with many goodies such as code completion, syntax highlighting, syntax analysis, refactor, debug and many others.
 
 
 Cheers,

@@ -6,7 +6,7 @@ What is Pydev?
 .. _History for Pydev: history_pydev.html
 .. _Pydev Blog: http://pydev.blogspot.com/
 
-Pydev is a plugin that enables users to use **Eclipse** for **Python**, **Jython** and **Iron Python** development, making Eclipse a first class **Python IDE**.
+Pydev is a plugin that enables users to use **Eclipse** for **Python**, **Jython** and **IronPython** development, making Eclipse a first class **Python IDE**.
 
 It comes with many goodies such as:
 
@@ -51,7 +51,7 @@ Release 1.5.1
    * Exponential with uppercase E working on code-formatting
    * When a set/get method is found in code-completion for a java class an NPE is no longer thrown
    * Backspace properly treated in block mode
-   * Setting IRONPYTHONPATH when dealing with Iron Python (projects could not be referenced)
+   * Setting IRONPYTHONPATH when dealing with IronPython (projects could not be referenced)
    * No longer giving spurious 'statement has no effect' inside of lambda and decorators
    * Fixed new exec in python 3k
    * Fixed NPE when breakpoint is related to a resource in a removed project
