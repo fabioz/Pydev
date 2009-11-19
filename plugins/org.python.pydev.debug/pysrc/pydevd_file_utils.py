@@ -135,6 +135,10 @@ if PATHS_FROM_CLIENT_TO_SERVER:
                 if c in ('/', '\\'):
                     server_sep = c
                     break
+        
+    #If they're the same or one of them cannot be determined, just make it all None.
+    if client_sep == server_sep or client_sep is None or server_sep is None:
+        client_sep = server_sep = None
             
                 
     #only setup translation functions if absolutely needed! 
@@ -157,9 +161,10 @@ if PATHS_FROM_CLIENT_TO_SERVER:
                     sys.stderr.write('pydev debugger: to server: unable to find matching prefix for: %s in %s\n' % \
                         (translated, [x[0] for x in PATHS_FROM_CLIENT_TO_SERVER]))
                     
+            #Note that when going to the server, we do the replace first and only later do the norm file.
+            if client_sep is not None:
+                translated = translated.replace(server_sep, client_sep)
             ret = _NormFile(translated)
-            if client_sep is not None and server_sep is not None and client_sep != server_sep:
-                ret = ret.replace(server_sep, client_sep)
                 
             NORM_FILENAME_TO_SERVER_CONTAINER[filename] = translated
             return ret
@@ -184,8 +189,9 @@ if PATHS_FROM_CLIENT_TO_SERVER:
                     sys.stderr.write('pydev debugger: to client: unable to find matching prefix for: %s in %s\n' % \
                         (translated, [x[1] for x in PATHS_FROM_CLIENT_TO_SERVER]))
                         
+            #When going to the client, first we do the norm file and only later the replace for slashes.
             ret = _NormFile(translated)
-            if client_sep is not None and server_sep is not None and client_sep != server_sep:
+            if client_sep is not None:
                 ret = ret.replace(client_sep, server_sep)
                 
             NORM_FILENAME_TO_CLIENT_CONTAINER[filename] = ret
