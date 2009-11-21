@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testNewFuncCall();
+            test.testNums();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -246,6 +246,8 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         "0700\n" +
         "0x700\n" +
         "0X700\n" +
+        "0b100\n" +
+        "0B100\n" +
         "";
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             

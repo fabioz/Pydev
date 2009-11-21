@@ -449,4 +449,23 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         checkPrettyPrintEqual(s, s, s, v3);
     }
 
+    
+    
+    public void testNums() throws Throwable {
+        final String s = "" +
+        "0o700\n" +
+        "0O700\n" +
+        "0x700\n" +
+        "0X700\n" +
+        "0b100\n" +
+        "0B100\n" +
+        "0o700l\n" +
+        "0O700L\n" +
+        "0x700l\n" +
+        "0X700L\n" +
+        "0b100l\n" +
+        "0B100L\n" +
+        "";
+        checkPrettyPrintEqual(s);
+    }
 }

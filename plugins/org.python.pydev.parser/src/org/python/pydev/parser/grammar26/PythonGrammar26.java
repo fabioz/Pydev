@@ -136,6 +136,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -150,7 +151,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           ;
           break;
         default:
@@ -198,6 +199,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -212,7 +214,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           stmt();
           break;
         default:
@@ -749,6 +751,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -763,7 +766,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
     case TRIPLE_USTRING2:
-    case 150:
+    case 151:
       simple_stmt();
       break;
     case IF:
@@ -833,6 +836,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -847,7 +851,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
     case TRIPLE_USTRING2:
-    case 150:
+    case 151:
       expr_stmt();
       break;
     case PRINT:
@@ -917,6 +921,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -931,7 +936,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -983,6 +988,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -997,7 +1003,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1049,6 +1055,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1063,7 +1070,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1115,6 +1122,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1129,7 +1137,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1181,6 +1189,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1195,7 +1204,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1247,6 +1256,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1261,7 +1271,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1313,6 +1323,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1327,7 +1338,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1379,6 +1390,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1393,7 +1405,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1445,6 +1457,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1459,7 +1472,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1511,6 +1524,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1525,7 +1539,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1577,6 +1591,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1591,7 +1606,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1643,6 +1658,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1657,7 +1673,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -1720,6 +1736,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
           case DECNUMBER:
           case HEXNUMBER:
           case OCTNUMBER:
+          case BINNUMBER:
           case FLOAT:
           case COMPLEX:
           case SINGLE_STRING:
@@ -1734,7 +1751,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
           case TRIPLE_USTRING2:
-          case 150:
+          case 151:
             SmartTestList();
             break;
           default:
@@ -2045,6 +2062,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -2059,7 +2077,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
       case TRIPLE_USTRING2:
-      case 150:
+      case 151:
         SmartTestList();
         break;
       default:
@@ -2161,6 +2179,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -2175,7 +2194,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
       case TRIPLE_USTRING2:
-      case 150:
+      case 151:
         SmartTestList();
         break;
       default:
@@ -2232,6 +2251,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -2246,7 +2266,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
       case TRIPLE_USTRING2:
-      case 150:
+      case 151:
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
@@ -3264,6 +3284,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -3278,7 +3299,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
       case TRIPLE_USTRING2:
-      case 150:
+      case 151:
         test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
@@ -3462,6 +3483,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -3476,7 +3498,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           simple_stmt();
           break;
         case NEWLINE:
@@ -3531,6 +3553,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
             case DECNUMBER:
             case HEXNUMBER:
             case OCTNUMBER:
+            case BINNUMBER:
             case FLOAT:
             case COMPLEX:
             case SINGLE_STRING:
@@ -3545,7 +3568,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
             case SINGLE_USTRING2:
             case TRIPLE_USTRING:
             case TRIPLE_USTRING2:
-            case 150:
+            case 151:
               ;
               break;
             default:
@@ -3603,6 +3626,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
             case DECNUMBER:
             case HEXNUMBER:
             case OCTNUMBER:
+            case BINNUMBER:
             case FLOAT:
             case COMPLEX:
             case SINGLE_STRING:
@@ -3617,7 +3641,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
             case SINGLE_USTRING2:
             case TRIPLE_USTRING:
             case TRIPLE_USTRING2:
-            case 150:
+            case 151:
               ;
               break;
             default:
@@ -3718,6 +3742,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -3732,7 +3757,7 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
     case TRIPLE_USTRING2:
-    case 150:
+    case 151:
       or_test();
       break;
     case LAMBDA:
@@ -3818,6 +3843,7 @@ else
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -3832,7 +3858,7 @@ else
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
       case TRIPLE_USTRING2:
-      case 150:
+      case 151:
         or_test();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IF:
@@ -4036,6 +4062,7 @@ else
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -4050,7 +4077,7 @@ else
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
     case TRIPLE_USTRING2:
-    case 150:
+    case 151:
       comparison();
       break;
     default:
@@ -4812,6 +4839,7 @@ else
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -4826,7 +4854,7 @@ else
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
     case TRIPLE_USTRING2:
-    case 150:
+    case 151:
       power();
       break;
     default:
@@ -5079,6 +5107,7 @@ else
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -5093,7 +5122,7 @@ else
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           SmartTestList();
           break;
         default:
@@ -5128,6 +5157,7 @@ else
           case DECNUMBER:
           case HEXNUMBER:
           case OCTNUMBER:
+          case BINNUMBER:
           case FLOAT:
           case COMPLEX:
           case SINGLE_STRING:
@@ -5142,7 +5172,7 @@ else
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
           case TRIPLE_USTRING2:
-          case 150:
+          case 151:
             listmaker();
             break;
           default:
@@ -5194,6 +5224,7 @@ else
           case DECNUMBER:
           case HEXNUMBER:
           case OCTNUMBER:
+          case BINNUMBER:
           case FLOAT:
           case COMPLEX:
           case SINGLE_STRING:
@@ -5208,7 +5239,7 @@ else
           case SINGLE_USTRING2:
           case TRIPLE_USTRING:
           case TRIPLE_USTRING2:
-          case 150:
+          case 151:
             dictmaker();
             break;
           default:
@@ -5239,15 +5270,15 @@ else
         }
                    addToPeek(spStr, false); addToPeek(spStr2, true);
         break;
-      case 150:
-        jj_consume_token(150);
+      case 151:
+        jj_consume_token(151);
         SmartTestList();
                           SimpleNode jjtn005 = jjtree.builder.openNode( JJTSTR_1OP);
                           boolean jjtc005 = true;
                           jjtree.openNodeScope(jjtn005);
                           jjtreeOpenNodeScope(jjtn005);
         try {
-          jj_consume_token(150);
+          jj_consume_token(151);
         } finally {
                           if (jjtc005) {
                             jjtree.closeNodeScope(jjtn005,  1);
@@ -5261,6 +5292,7 @@ else
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
         Number();
@@ -5483,6 +5515,7 @@ else
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -5497,7 +5530,7 @@ else
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
     case TRIPLE_USTRING2:
-    case 150:
+    case 151:
       SimpleNode jjtn002 = jjtree.builder.openNode( JJTSLICE);
       boolean jjtc002 = true;
       jjtree.openNodeScope(jjtn002);
@@ -5584,6 +5617,7 @@ else
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -5598,7 +5632,7 @@ else
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
     case TRIPLE_USTRING2:
-    case 150:
+    case 151:
       test();
       break;
     default:
@@ -5621,6 +5655,7 @@ else
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -5635,7 +5670,7 @@ else
       case SINGLE_USTRING2:
       case TRIPLE_USTRING:
       case TRIPLE_USTRING2:
-      case 150:
+      case 151:
         test();
         break;
       default:
@@ -6009,6 +6044,7 @@ else
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -6023,7 +6059,7 @@ else
         case SINGLE_USTRING2:
         case TRIPLE_USTRING:
         case TRIPLE_USTRING2:
-        case 150:
+        case 151:
           testlist();
           break;
         default:
@@ -6083,6 +6119,7 @@ else
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -6097,7 +6134,7 @@ else
     case SINGLE_USTRING2:
     case TRIPLE_USTRING:
     case TRIPLE_USTRING2:
-    case 150:
+    case 151:
       normalargs();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
@@ -6341,6 +6378,15 @@ else
         t = jj_consume_token(HEXNUMBER);
             String s = t.image.substring(2, t.image.length());
             makeInt(s, 16, t.image, (Num)jjtn000);
+            jjtree.closeNodeScope(jjtn000, true);
+            jjtc000 = false;
+            jjtreeCloseNodeScope(jjtn000);
+
+        break;
+      case BINNUMBER:
+        t = jj_consume_token(BINNUMBER);
+            s = t.image.substring(2, t.image.length());
+            makeInt(s, 2, t.image, (Num)jjtn000);
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtreeCloseNodeScope(jjtn000);
@@ -6912,7 +6958,7 @@ else
   }
 
   private boolean jj_3R_130() {
-    if (jj_scan_token(150)) return true;
+    if (jj_scan_token(151)) return true;
     return false;
   }
 
@@ -7452,57 +7498,57 @@ else
     return false;
   }
 
-  private boolean jj_3R_157() {
+  private boolean jj_3R_158() {
     if (jj_scan_token(TRIPLE_BSTRING2)) return true;
     return false;
   }
 
-  private boolean jj_3R_156() {
+  private boolean jj_3R_157() {
     if (jj_scan_token(TRIPLE_BSTRING)) return true;
     return false;
   }
 
-  private boolean jj_3R_155() {
+  private boolean jj_3R_156() {
     if (jj_scan_token(SINGLE_BSTRING2)) return true;
     return false;
   }
 
-  private boolean jj_3R_154() {
+  private boolean jj_3R_155() {
     if (jj_scan_token(SINGLE_BSTRING)) return true;
     return false;
   }
 
-  private boolean jj_3R_153() {
+  private boolean jj_3R_154() {
     if (jj_scan_token(TRIPLE_USTRING2)) return true;
     return false;
   }
 
-  private boolean jj_3R_152() {
+  private boolean jj_3R_153() {
     if (jj_scan_token(TRIPLE_USTRING)) return true;
     return false;
   }
 
-  private boolean jj_3R_151() {
+  private boolean jj_3R_152() {
     if (jj_scan_token(SINGLE_USTRING2)) return true;
     return false;
   }
 
-  private boolean jj_3R_150() {
+  private boolean jj_3R_151() {
     if (jj_scan_token(SINGLE_USTRING)) return true;
     return false;
   }
 
-  private boolean jj_3R_149() {
+  private boolean jj_3R_150() {
     if (jj_scan_token(TRIPLE_STRING2)) return true;
     return false;
   }
 
-  private boolean jj_3R_148() {
+  private boolean jj_3R_149() {
     if (jj_scan_token(TRIPLE_STRING)) return true;
     return false;
   }
 
-  private boolean jj_3R_147() {
+  private boolean jj_3R_148() {
     if (jj_scan_token(SINGLE_STRING2)) return true;
     return false;
   }
@@ -7510,8 +7556,6 @@ else
   private boolean jj_3R_138() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_146()) {
-    jj_scanpos = xsp;
     if (jj_3R_147()) {
     jj_scanpos = xsp;
     if (jj_3R_148()) {
@@ -7532,7 +7576,9 @@ else
     jj_scanpos = xsp;
     if (jj_3R_156()) {
     jj_scanpos = xsp;
-    if (jj_3R_157()) return true;
+    if (jj_3R_157()) {
+    jj_scanpos = xsp;
+    if (jj_3R_158()) return true;
     }
     }
     }
@@ -7547,7 +7593,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_146() {
+  private boolean jj_3R_147() {
     if (jj_scan_token(SINGLE_STRING)) return true;
     return false;
   }
@@ -7557,23 +7603,28 @@ else
     return false;
   }
 
-  private boolean jj_3R_145() {
+  private boolean jj_3R_146() {
     if (jj_scan_token(COMPLEX)) return true;
     return false;
   }
 
-  private boolean jj_3R_144() {
+  private boolean jj_3R_145() {
     if (jj_scan_token(FLOAT)) return true;
     return false;
   }
 
-  private boolean jj_3R_143() {
+  private boolean jj_3R_144() {
     if (jj_scan_token(DECNUMBER)) return true;
     return false;
   }
 
-  private boolean jj_3R_142() {
+  private boolean jj_3R_143() {
     if (jj_scan_token(OCTNUMBER)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_142() {
+    if (jj_scan_token(BINNUMBER)) return true;
     return false;
   }
 
@@ -7594,7 +7645,10 @@ else
     jj_scanpos = xsp;
     if (jj_3R_144()) {
     jj_scanpos = xsp;
-    if (jj_3R_145()) return true;
+    if (jj_3R_145()) {
+    jj_scanpos = xsp;
+    if (jj_3R_146()) return true;
+    }
     }
     }
     }
@@ -7859,10 +7913,10 @@ else
       jj_la1_2 = new int[] {0xddfff6e6,0xddfff6e6,0x600,0x0,0x8000000,0x10000000,0x0,0x0,0x0,0x10000000,0x0,0x0,0x10000000,0x0,0xddfff6e6,0x0,0xd1fff002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0xd0020002,0x0,0xd0020002,0x0,0x0,0x0,0x0,0x1000,0x23c000,0xd0000002,0xd0000002,0x0,0x0,0xd0000002,0xc0000,0x0,0x0,0x10000000,0x0,0x0,0x10000000,0x10000000,0x2000000,0x0,0x2000000,0x0,0x0,0x1,0x0,0xc0006e4,0x10,0x8,0x8,0x8,0x100,0x8,0x800,0x900,0x2000000,0x2000000,0xd0000002,0x2000000,0xddfff6e6,0xddfff6e6,0xd1fff002,0x0,0x0,0x0,0xd0000002,0x10000000,0x4,0xd0000002,0x0,0x0,0xd0000000,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd0000000,0x0,0x0,0x20000,0xd0000002,0xd0000002,0xd0000002,0x0,0xd0000000,0x40,0x10000000,0x0,0x0,0xd0000002,0xd0000002,0xd0000002,0x0,0x0,0x0,0x0,0x0,0x40,0x0,0x44,0x44,0x44,0xd0000002,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd0000002,0x0,0xc0000000,0x0,};
    }
    private static void jj_la1_init_3() {
-      jj_la1_3 = new int[] {0x1ffe0007,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x1ffe0007,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x0,0x0,0x0,0x1ffe0007,0x0,0x0,0x1ffe0007,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x1ffe0000,0x1ffe0007,0x0,0x0,0x0,0x0,0x1ffe0007,0x1ffe0007,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1ffe0007,0x0,0x7,0x1ffe0000,};
+      jj_la1_3 = new int[] {0x3ffc000f,0x3ffc000f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3ffc000f,0x0,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x0,0x3ffc000f,0x0,0x0,0x0,0x0,0x0,0x0,0x3ffc000f,0x3ffc000f,0x0,0x0,0x3ffc000f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3ffc000f,0x0,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x0,0x0,0x0,0x3ffc000f,0x0,0x0,0x3ffc000f,0x0,0x0,0x3ffc000f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3ffc000f,0x0,0x0,0x0,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x3ffc0000,0x3ffc000f,0x0,0x0,0x0,0x0,0x3ffc000f,0x3ffc000f,0x3ffc000f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3ffc000f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3ffc000f,0x0,0xf,0x3ffc0000,};
    }
    private static void jj_la1_init_4() {
-      jj_la1_4 = new int[] {0x400000,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x400000,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x400000,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x400000,0x400000,0x400000,0x0,0x0,0x0,0x400000,0x0,0x0,0x400000,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x0,0x0,0x400000,0x400000,0x400000,0x0,0x400000,0x0,0x0,0x0,0x0,0x400000,0x400000,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x0,0x0,0x0,};
+      jj_la1_4 = new int[] {0x800000,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x800000,0x0,0x800000,0x800000,0x800000,0x800000,0x800000,0x800000,0x800000,0x800000,0x800000,0x800000,0x800000,0x800000,0x800000,0x0,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x800000,0x800000,0x0,0x0,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x800000,0x0,0x800000,0x800000,0x800000,0x0,0x0,0x0,0x800000,0x0,0x0,0x800000,0x0,0x0,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x800000,0x0,0x0,0x0,0x800000,0x800000,0x800000,0x0,0x800000,0x0,0x0,0x0,0x0,0x800000,0x800000,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x800000,0x0,0x0,0x0,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[29];
   private boolean jj_rescan = false;
@@ -8018,7 +8072,7 @@ else
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[151];
+    boolean[] la1tokens = new boolean[152];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -8044,7 +8098,7 @@ else
         }
       }
     }
-    for (int i = 0; i < 151; i++) {
+    for (int i = 0; i < 152; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

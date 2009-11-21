@@ -191,37 +191,39 @@ public interface PythonGrammar26Constants {
   /** RegularExpression Id. */
   int OCTNUMBER = 96;
   /** RegularExpression Id. */
-  int FLOAT = 97;
+  int BINNUMBER = 97;
   /** RegularExpression Id. */
-  int COMPLEX = 98;
+  int FLOAT = 98;
   /** RegularExpression Id. */
-  int EXPONENT = 99;
+  int COMPLEX = 99;
   /** RegularExpression Id. */
-  int DIGIT = 100;
+  int EXPONENT = 100;
   /** RegularExpression Id. */
-  int SINGLE_STRING = 113;
+  int DIGIT = 101;
   /** RegularExpression Id. */
-  int SINGLE_STRING2 = 114;
+  int SINGLE_STRING = 114;
   /** RegularExpression Id. */
-  int TRIPLE_STRING = 115;
+  int SINGLE_STRING2 = 115;
   /** RegularExpression Id. */
-  int TRIPLE_STRING2 = 116;
+  int TRIPLE_STRING = 116;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING = 117;
+  int TRIPLE_STRING2 = 117;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING2 = 118;
+  int SINGLE_BSTRING = 118;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING = 119;
+  int SINGLE_BSTRING2 = 119;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING2 = 120;
+  int TRIPLE_BSTRING = 120;
   /** RegularExpression Id. */
-  int SINGLE_USTRING = 121;
+  int TRIPLE_BSTRING2 = 121;
   /** RegularExpression Id. */
-  int SINGLE_USTRING2 = 122;
+  int SINGLE_USTRING = 122;
   /** RegularExpression Id. */
-  int TRIPLE_USTRING = 123;
+  int SINGLE_USTRING2 = 123;
   /** RegularExpression Id. */
-  int TRIPLE_USTRING2 = 124;
+  int TRIPLE_USTRING = 124;
+  /** RegularExpression Id. */
+  int TRIPLE_USTRING2 = 125;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -371,11 +373,11 @@ public interface PythonGrammar26Constants {
     "<DECNUMBER>",
     "<HEXNUMBER>",
     "<OCTNUMBER>",
+    "<BINNUMBER>",
     "<FLOAT>",
     "<COMPLEX>",
     "<EXPONENT>",
     "<DIGIT>",
-    "<token of kind 101>",
     "<token of kind 102>",
     "<token of kind 103>",
     "<token of kind 104>",
@@ -387,6 +389,7 @@ public interface PythonGrammar26Constants {
     "<token of kind 110>",
     "<token of kind 111>",
     "<token of kind 112>",
+    "<token of kind 113>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
@@ -400,30 +403,30 @@ public interface PythonGrammar26Constants {
     "\"\\\'\\\'\\\'\"",
     "\"\\\"\\\"\\\"\"",
     "\"\\\\\\r\\n\"",
-    "<token of kind 126>",
+    "<token of kind 127>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 128>",
+    "<token of kind 129>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 130>",
+    "<token of kind 131>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 132>",
+    "<token of kind 133>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 134>",
+    "<token of kind 135>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 136>",
+    "<token of kind 137>",
     "\"\"",
     "\"\"",
     "\"\"",
     "\"\"",
     "\"\"",
     "\"\"",
-    "<token of kind 143>",
     "<token of kind 144>",
+    "<token of kind 145>",
     "\"\\r\\n\"",
     "\"\\n\"",
     "\"\\r\"",
-    "<token of kind 148>",
     "<token of kind 149>",
+    "<token of kind 150>",
     "\"`\"",
   };
 

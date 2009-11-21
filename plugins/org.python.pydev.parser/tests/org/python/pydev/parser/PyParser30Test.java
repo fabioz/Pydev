@@ -24,7 +24,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testUnpackingIn();
+            test.testBinNumber();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -542,5 +542,14 @@ public class PyParser30Test extends PyParserTestBase{
         parseFilesInDir(new File(TestDependent.PYTHON_30_LIB), false);
     }
 
-
+    public void testBinNumber() {
+        String s = "" +
+        "0b00010\n" +
+        "0B00010\n" +
+        "0b00010L\n" +
+        "0B00010l\n" +
+        "";
+        
+        parseLegalDocStr(s);
+    }
 }

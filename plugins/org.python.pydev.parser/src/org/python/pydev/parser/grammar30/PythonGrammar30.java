@@ -152,6 +152,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -212,6 +213,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -368,6 +370,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           case DECNUMBER:
           case HEXNUMBER:
           case OCTNUMBER:
+          case BINNUMBER:
           case FLOAT:
           case COMPLEX:
           case SINGLE_STRING:
@@ -1178,6 +1181,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -1261,6 +1265,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -1340,6 +1345,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1404,6 +1410,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1468,6 +1475,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1532,6 +1540,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1596,6 +1605,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1660,6 +1670,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1724,6 +1735,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1788,6 +1800,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1852,6 +1865,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1916,6 +1930,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -1980,6 +1995,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -2044,6 +2060,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -2120,6 +2137,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           case DECNUMBER:
           case HEXNUMBER:
           case OCTNUMBER:
+          case BINNUMBER:
           case FLOAT:
           case COMPLEX:
           case SINGLE_STRING:
@@ -2315,6 +2333,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -2429,6 +2448,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -2498,6 +2518,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -3529,6 +3550,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -3712,6 +3734,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -3779,6 +3802,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             case DECNUMBER:
             case HEXNUMBER:
             case OCTNUMBER:
+            case BINNUMBER:
             case FLOAT:
             case COMPLEX:
             case SINGLE_STRING:
@@ -3849,6 +3873,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
             case DECNUMBER:
             case HEXNUMBER:
             case OCTNUMBER:
+            case BINNUMBER:
             case FLOAT:
             case COMPLEX:
             case SINGLE_STRING:
@@ -3930,6 +3955,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -3994,6 +4020,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -4185,6 +4212,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -4944,6 +4972,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -5049,6 +5078,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -5214,6 +5244,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -5280,6 +5311,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           case DECNUMBER:
           case HEXNUMBER:
           case OCTNUMBER:
+          case BINNUMBER:
           case FLOAT:
           case COMPLEX:
           case SINGLE_STRING:
@@ -5344,6 +5376,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
           case DECNUMBER:
           case HEXNUMBER:
           case OCTNUMBER:
+          case BINNUMBER:
           case FLOAT:
           case COMPLEX:
           case SINGLE_STRING:
@@ -5432,6 +5465,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
         Number();
@@ -5682,6 +5716,7 @@ else
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -5781,6 +5816,7 @@ else
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -5816,6 +5852,7 @@ else
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -5893,6 +5930,7 @@ else
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -5936,6 +5974,7 @@ else
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -6084,6 +6123,7 @@ else
       case DECNUMBER:
       case HEXNUMBER:
       case OCTNUMBER:
+      case BINNUMBER:
       case FLOAT:
       case COMPLEX:
       case SINGLE_STRING:
@@ -6129,6 +6169,7 @@ else
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -6533,6 +6574,7 @@ else
         case DECNUMBER:
         case HEXNUMBER:
         case OCTNUMBER:
+        case BINNUMBER:
         case FLOAT:
         case COMPLEX:
         case SINGLE_STRING:
@@ -6605,6 +6647,7 @@ else
     case DECNUMBER:
     case HEXNUMBER:
     case OCTNUMBER:
+    case BINNUMBER:
     case FLOAT:
     case COMPLEX:
     case SINGLE_STRING:
@@ -6876,6 +6919,15 @@ else
         t = jj_consume_token(HEXNUMBER);
             String s = t.image.substring(2, t.image.length());
             makeInt(s, 16, t.image, (Num)jjtn000);
+            jjtree.closeNodeScope(jjtn000, true);
+            jjtc000 = false;
+            jjtreeCloseNodeScope(jjtn000);
+
+        break;
+      case BINNUMBER:
+        t = jj_consume_token(BINNUMBER);
+            s = t.image.substring(2, t.image.length());
+            makeInt(s, 2, t.image, (Num)jjtn000);
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtreeCloseNodeScope(jjtn000);
@@ -7720,7 +7772,7 @@ else
     return false;
   }
 
-  private boolean jj_3R_168() {
+  private boolean jj_3R_169() {
     if (jj_3R_61()) return true;
     return false;
   }
@@ -7770,7 +7822,7 @@ else
   }
 
   private boolean jj_3R_153() {
-    if (jj_3R_168()) return true;
+    if (jj_3R_169()) return true;
     return false;
   }
 
@@ -7977,8 +8029,38 @@ else
     return false;
   }
 
-  private boolean jj_3R_167() {
+  private boolean jj_3R_168() {
     if (jj_scan_token(TRIPLE_BSTRING2)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_167() {
+    if (jj_scan_token(TRIPLE_BSTRING)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_166() {
+    if (jj_scan_token(SINGLE_BSTRING2)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_165() {
+    if (jj_scan_token(SINGLE_BSTRING)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_164() {
+    if (jj_scan_token(TRIPLE_STRING2)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_163() {
+    if (jj_scan_token(TRIPLE_STRING)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_162() {
+    if (jj_scan_token(SINGLE_STRING2)) return true;
     return false;
   }
 
@@ -7988,38 +8070,36 @@ else
     return false;
   }
 
-  private boolean jj_3R_166() {
-    if (jj_scan_token(TRIPLE_BSTRING)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_165() {
-    if (jj_scan_token(SINGLE_BSTRING2)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_164() {
-    if (jj_scan_token(SINGLE_BSTRING)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_163() {
-    if (jj_scan_token(TRIPLE_STRING2)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_162() {
-    if (jj_scan_token(TRIPLE_STRING)) return true;
-    return false;
-  }
-
   private boolean jj_3R_161() {
-    if (jj_scan_token(SINGLE_STRING2)) return true;
+    if (jj_scan_token(SINGLE_STRING)) return true;
     return false;
   }
 
-  private boolean jj_3R_160() {
-    if (jj_scan_token(SINGLE_STRING)) return true;
+  private boolean jj_3R_152() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_161()) {
+    jj_scanpos = xsp;
+    if (jj_3R_162()) {
+    jj_scanpos = xsp;
+    if (jj_3R_163()) {
+    jj_scanpos = xsp;
+    if (jj_3R_164()) {
+    jj_scanpos = xsp;
+    if (jj_3R_165()) {
+    jj_scanpos = xsp;
+    if (jj_3R_166()) {
+    jj_scanpos = xsp;
+    if (jj_3R_167()) {
+    jj_scanpos = xsp;
+    if (jj_3R_168()) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
     return false;
   }
 
@@ -8034,62 +8114,39 @@ else
     return false;
   }
 
-  private boolean jj_3R_152() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_160()) {
-    jj_scanpos = xsp;
-    if (jj_3R_161()) {
-    jj_scanpos = xsp;
-    if (jj_3R_162()) {
-    jj_scanpos = xsp;
-    if (jj_3R_163()) {
-    jj_scanpos = xsp;
-    if (jj_3R_164()) {
-    jj_scanpos = xsp;
-    if (jj_3R_165()) {
-    jj_scanpos = xsp;
-    if (jj_3R_166()) {
-    jj_scanpos = xsp;
-    if (jj_3R_167()) return true;
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    return false;
-  }
-
   private boolean jj_3R_60() {
     if (jj_scan_token(NAME)) return true;
     return false;
   }
 
-  private boolean jj_3R_159() {
+  private boolean jj_3R_160() {
     if (jj_scan_token(COMPLEX)) return true;
     return false;
   }
 
-  private boolean jj_3R_158() {
+  private boolean jj_3R_159() {
     if (jj_scan_token(FLOAT)) return true;
     return false;
   }
 
-  private boolean jj_3R_157() {
+  private boolean jj_3R_158() {
     if (jj_scan_token(DECNUMBER)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_157() {
+    if (jj_scan_token(OCTNUMBER)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_156() {
+    if (jj_scan_token(BINNUMBER)) return true;
     return false;
   }
 
   private boolean jj_3_14() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_60()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_156() {
-    if (jj_scan_token(OCTNUMBER)) return true;
     return false;
   }
 
@@ -8109,7 +8166,10 @@ else
     jj_scanpos = xsp;
     if (jj_3R_158()) {
     jj_scanpos = xsp;
-    if (jj_3R_159()) return true;
+    if (jj_3R_159()) {
+    jj_scanpos = xsp;
+    if (jj_3R_160()) return true;
+    }
     }
     }
     }
@@ -8394,7 +8454,7 @@ else
       jj_la1_2 = new int[] {0x7efff6e6,0x7efff6e6,0x0,0x5c000002,0x0,0x20000000,0x40000000,0x0,0x0,0x0,0x0,0x0,0x40000000,0x40000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40000000,0x40000000,0x0,0x0,0x0,0x40000000,0x0,0x7efff6e6,0x0,0x5cfff002,0x5c010002,0x5c010002,0x5c010002,0x5c010002,0x5c010002,0x5c010002,0x5c010002,0x5c010002,0x5c010002,0x5c010002,0x5c010002,0x5c010002,0x0,0x5c010002,0x0,0x11e000,0x5c000002,0x5c000002,0x40000,0x5c000002,0x60000,0x0,0x0,0x40000000,0x0,0x0,0x40000000,0x40000000,0x1000000,0x0,0x1000000,0x0,0x0,0x0,0x0,0x220006e4,0x10,0x8,0x8,0x8,0x100,0x8,0x800,0x900,0x1000000,0x5c000002,0x1000000,0x7efff6e6,0x7efff6e6,0x5cfff002,0x4,0x5c000002,0x5c000002,0x0,0x0,0x5c000000,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x5c000000,0x0,0x5c000002,0x0,0x5c010002,0x5c000002,0x5c000002,0x0,0x5c000000,0x40000000,0x40000000,0x0,0x0,0x5c000002,0x5c000002,0x5c000002,0x0,0x5c000000,0x5c000000,0x0,0x0,0x0,0x5c000002,0x5c000002,0x0,0x0,0x40,0x0,0x0,0x0,0x40,0x0,0x44,0x44,0x44,0x600,0x5c000002,0x0,0x0,0x0,0x0,0x0,0x0,0x5c000002,0x40,0x0,0x0,};
    }
    private static void jj_la1_init_3() {
-      jj_la1_3 = new int[] {0x7f801f,0x7f801f,0x0,0x7f801f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7f801f,0x0,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x7f801f,0x0,0x7f801f,0x0,0x0,0x7f801f,0x7f801f,0x0,0x7f801f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7f801f,0x0,0x7f801f,0x7f801f,0x7f801f,0x0,0x7f801f,0x7f801f,0x0,0x0,0x7f801f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7f801f,0x0,0x7f801f,0x0,0x7f801f,0x7f801f,0x7f801f,0x7f8000,0x7f801f,0x0,0x0,0x0,0x0,0x7f801f,0x7f801f,0x7f801f,0x0,0x7f801f,0x7f801f,0x0,0x0,0x0,0x7f801f,0x7f801f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7f801f,0x0,0x0,0x0,0x0,0x0,0x0,0x7f801f,0x0,0x1f,0x7f8000,};
+      jj_la1_3 = new int[] {0xff003f,0xff003f,0x0,0xff003f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xff003f,0x0,0xff003f,0xff003f,0xff003f,0xff003f,0xff003f,0xff003f,0xff003f,0xff003f,0xff003f,0xff003f,0xff003f,0xff003f,0xff003f,0x0,0xff003f,0x0,0x0,0xff003f,0xff003f,0x0,0xff003f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xff003f,0x0,0xff003f,0xff003f,0xff003f,0x0,0xff003f,0xff003f,0x0,0x0,0xff003f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xff003f,0x0,0xff003f,0x0,0xff003f,0xff003f,0xff003f,0xff0000,0xff003f,0x0,0x0,0x0,0x0,0xff003f,0xff003f,0xff003f,0x0,0xff003f,0xff003f,0x0,0x0,0x0,0xff003f,0xff003f,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xff003f,0x0,0x0,0x0,0x0,0x0,0x0,0xff003f,0x0,0x3f,0xff0000,};
    }
    private static void jj_la1_init_4() {
       jj_la1_4 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
@@ -8553,7 +8613,7 @@ else
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[138];
+    boolean[] la1tokens = new boolean[139];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -8579,7 +8639,7 @@ else
         }
       }
     }
-    for (int i = 0; i < 138; i++) {
+    for (int i = 0; i < 139; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
