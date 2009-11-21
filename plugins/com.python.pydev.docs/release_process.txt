@@ -1,8 +1,13 @@
-For nightly just:
+--------- For nightly ---------
 	Update the versions on org.python.pydev.build/build_local.properties
-	execute the build command
+	Execute the build command
+	Remove zips from W:\git_deploy_dir\Pydev (they shouldn't be uploaded) 
+	w:
+	cd W:\git_deploy_dir\Pydev
 	d:\bin\Python261\python.exe pydev_uploader.py -s W:\git_deploy_dir\Pydev -d pydev/nightly
 
+
+--------- For full build ---------
 
 Update homepage
 		- index.rst

@@ -1032,6 +1032,7 @@
             <contentExtension pattern="org.python.pydev.navigator.filters.*"/> 
         </includes>
     </viewerContentBinding>
+    <dragAssistant class="org.eclipse.ui.navigator.resources.ResourceDragAdapterAssistant" viewerId="org.python.pydev.navigator.view"/>
 </extension>
    
   <!-- Declare a content extension that renders the contents of a properties file -->
