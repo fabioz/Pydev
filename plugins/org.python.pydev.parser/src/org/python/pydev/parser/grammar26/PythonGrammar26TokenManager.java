@@ -27,6 +27,8 @@ import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 /** Token Manager. */
 @SuppressWarnings("unused") public final class PythonGrammar26TokenManager extends AbstractTokenManager implements PythonGrammar26Constants
 {
+        public boolean usePrintAsFunction=false;
+
     protected Class<?> getConstantsClass(){
         return PythonGrammar26Constants.class;
     }
@@ -4548,6 +4550,11 @@ void TokenLexicalActions(Token matchedToken)
         image.append(jjstrLiteralImages[22]);
         lengthOfMatch = jjstrLiteralImages[22].length();
                        parens--;
+         break;
+      case 76 :
+        image.append(jjstrLiteralImages[76]);
+        lengthOfMatch = jjstrLiteralImages[76].length();
+                        if(usePrintAsFunction){matchedToken.kind=NAME;}
          break;
       case 113 :
         image.append(input_stream.GetSuffix(jjimageLen + (lengthOfMatch = jjmatchedPos + 1)));

@@ -71,6 +71,9 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
 
 
     void handleFutureImports(String importName){
+        if(importName.equals("print_function")){
+            token_source.usePrintAsFunction = true;
+        }
     }
 
 

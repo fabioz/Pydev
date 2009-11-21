@@ -31,6 +31,9 @@ $COMMOM_METHODS
 
 
     void handleFutureImports(String importName){
+        if(importName.equals("print_function")){
+            token_source.usePrintAsFunction = true;
+        }
     }
 
 
@@ -55,6 +58,8 @@ PARSER_END(PythonGrammar26)
 
 TOKEN_MGR_DECLS:
 {
+	public boolean usePrintAsFunction=false;
+	
     protected Class<?> getConstantsClass(){
         return PythonGrammar26Constants.class;
     }
@@ -213,7 +218,7 @@ TOKEN : /* KEYWORDS */
 |   < DEF: "def" >
 |   < CLASS: "class" >
 |   < FINALLY: "finally" >
-|   < PRINT: "print" >
+|   < PRINT: "print" > {if(usePrintAsFunction){matchedToken.kind=NAME;}}
 |   < PASS: "pass" >
 |   < BREAK: "break" >
 |   < CONTINUE: "continue" >
