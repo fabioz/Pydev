@@ -21,6 +21,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -49,7 +50,7 @@ public class PySourceFormatAction extends PyContainerAction implements IObjectAc
      * We need UI access because of opened editors.
      */
     protected boolean needsUIThread(){
-        return true;
+        return false;
     }
 
     /**
@@ -109,15 +110,29 @@ public class PySourceFormatAction extends PyContainerAction implements IObjectAc
                     formatted += this.doActionOnContainer((IContainer) c, monitor);
                     
                 }else if(c instanceof IFile){
-                    String name = c.getName();
+                    final String name = c.getName();
                     if(name != null){
+                        monitor.setTaskName("Formatting: "+name);
                         if(PythonPathHelper.isValidSourceFile(name)){
                             IFile file = (IFile) c;
-                            IDocument doc = REF.getDocFromResource(c);
+                            final IDocument doc = REF.getDocFromResource(c);
                             
-                            boolean isOpenedFile = openFiles.contains(file);
+                            final boolean isOpenedFile = openFiles.contains(file);
                             try{
-                                formatter.formatAll(doc, null, isOpenedFile, true);
+                                if(isOpenedFile){
+                                    RunInUiThread.async(new Runnable() {
+                                        
+                                        public void run() {
+                                            try{
+                                                formatter.formatAll(doc, null, isOpenedFile, true);
+                                            }catch(SyntaxErrorException e){
+                                                Log.log(IStatus.ERROR, "Could not source-format file: "+name+ " (invalid syntax).", e);
+                                            }
+                                        }
+                                    });
+                                }else{
+                                    formatter.formatAll(doc, null, isOpenedFile, true);
+                                }
                             }catch(SyntaxErrorException e){
                                 Log.log(IStatus.ERROR, "Could not source-format file: "+name+ " (invalid syntax).", e);
                             }

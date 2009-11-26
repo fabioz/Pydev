@@ -86,6 +86,7 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
             if(!nature.startRequests()){
                 return;
             }
+            IModule module;
             try{
                 if(!nature.isResourceInPythonpath(fileAdapter)){
                     AnalysisRunner.deleteMarkers(fileAdapter);
@@ -94,23 +95,25 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
     
                 String file = fileAdapter.getRawLocation().toOSString();
                 String moduleName = nature.resolveModule(fileAdapter);
-                IModule module = AbstractModule.createModule(root, new File(file), moduleName);
+                module = AbstractModule.createModule(root, new File(file), moduleName);
                 
-                //visit it
-                AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
-                visitor.memo = new HashMap<String, Object>();
-                visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
-                visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, info.documentTime);
-                visitor.visitingWillStart(new NullProgressMonitor(), false, null);
-                visitor.doVisitChangedResource(nature, fileAdapter, info.doc, null, module, new NullProgressMonitor(), force, 
-                        AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentTime); 
-                
-                visitor.visitingEnded(new NullProgressMonitor());
             }catch(MisconfigurationException e){
                 Log.log(e); //Not much we can do about it.
+                return;
             }finally{
                 nature.endRequests();
             }
+            
+            //visit it
+            AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
+            visitor.memo = new HashMap<String, Object>();
+            visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
+            visitor.memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, info.documentTime);
+            visitor.visitingWillStart(new NullProgressMonitor(), false, null);
+            visitor.doVisitChangedResource(nature, fileAdapter, info.doc, null, module, new NullProgressMonitor(), force, 
+                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, info.documentTime); 
+            
+            visitor.visitingEnded(new NullProgressMonitor());
         }
     }
 

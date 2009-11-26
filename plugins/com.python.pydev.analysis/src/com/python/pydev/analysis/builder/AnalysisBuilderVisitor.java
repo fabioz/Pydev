@@ -8,15 +8,13 @@ import java.io.File;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.concurrency.RunnableAsJobsPoolThread;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.PyCodeCompletionVisitor;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -29,7 +27,8 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
-
+    private static RunnableAsJobsPoolThread runnablePoolThread = new RunnableAsJobsPoolThread(10); 
+    
     @Override
     protected int getPriority() {
         return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION+1; //just after the code-completion priority
@@ -172,19 +171,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(isFullBuild()){
             runnable.run();
         }else{
-            final String name = "AnalysisBuilderThread :"+moduleName;
-            Job workbenchJob = new Job(name) {
-            
-                @Override
-                public IStatus run(IProgressMonitor monitor) {
-                    runnable.run();
-                    return Status.OK_STATUS;
-                }
-            
-            };
-            workbenchJob.setSystem(true);
-            workbenchJob.setPriority(Job.BUILD);
-            workbenchJob.schedule();
+            runnablePoolThread.scheduleToRun(runnable, "AnalysisBuilderThread :"+moduleName);
         }
     }
 

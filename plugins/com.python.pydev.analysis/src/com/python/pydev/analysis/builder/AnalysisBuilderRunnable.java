@@ -111,6 +111,11 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
     protected void doAnalysis(){
         
         try {
+            
+            if(!nature.startRequests()){
+                return;
+            }
+            
             if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
                 Log.toLogFile(this, "doAnalysis() - "+moduleName+" "+this.getAnalysisCauseStr());
             }
@@ -254,6 +259,11 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
         } catch (Exception e){
             PydevPlugin.log(e);
         } finally{
+            try{
+                nature.endRequests();
+            }catch(Throwable e){
+                PydevPlugin.log(e);
+            }
             try{
                 AnalysisBuilderRunnableFactory.removeFromThreads(key, this);
             }catch (Throwable e){

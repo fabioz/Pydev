@@ -28,6 +28,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.concurrency.Semaphore;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.logging.DebugSettings;
@@ -74,7 +75,7 @@ public abstract class AbstractShell {
     /**
      * Lock to know if there is someone already using this shell for some operation
      */
-    private boolean isInOperation = false;
+    private Semaphore isInOperation = new Semaphore(1);
 
     private static void dbg(String string, int priority) {
         if(priority <= DEBUG_SHELL){
@@ -771,10 +772,7 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     public synchronized Tuple<String, List<String[]>> getImportCompletions(String str, List<String> pythonpath) throws CoreException {
-        while(isInOperation){
-            sleepALittle(100);
-        }
-        isInOperation = true;
+        isInOperation.acquire();
         try {
             internalChangePythonPath(pythonpath);
 
@@ -785,7 +783,7 @@ public abstract class AbstractShell {
                 throw new RuntimeException(e);
             }
         } finally {
-            isInOperation = false;
+            isInOperation.release();
         }
     }
 
@@ -794,14 +792,11 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     public synchronized void changePythonPath(List<String> pythonpath) throws CoreException {
-        while(isInOperation){
-            sleepALittle(100);
-        }
-        isInOperation = true;
+        isInOperation.acquire();
         try {
             internalChangePythonPath(pythonpath); 
         } finally {
-            isInOperation = false;
+            isInOperation.release();
         } 
     }
 
@@ -928,10 +923,7 @@ public abstract class AbstractShell {
      * @return the file where the token was defined, its line and its column (or null if it was not found)
      */
     public synchronized Tuple<String[],int []> getLineCol(String moduleName, String token, List<String> pythonpath) {
-        while(isInOperation){
-            sleepALittle(100);
-        }
-        isInOperation = true;
+        isInOperation.acquire();
         try {
             String str = moduleName+"."+token;
             internalChangePythonPath(pythonpath);
@@ -962,7 +954,7 @@ public abstract class AbstractShell {
                 throw new RuntimeException(e);
             }
         } finally {
-            isInOperation = false;
+            isInOperation.release();
         }
     }
 
