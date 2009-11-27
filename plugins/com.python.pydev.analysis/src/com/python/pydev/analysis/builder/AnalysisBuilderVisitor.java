@@ -171,7 +171,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(isFullBuild()){
             runnable.run();
         }else{
-            runnablePoolThread.scheduleToRun(runnable, "AnalysisBuilderThread :"+moduleName);
+            runnablePoolThread.scheduleToRun(runnable, "Pydev: Code Analysis:"+moduleName);
         }
     }
 

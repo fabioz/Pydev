@@ -1,7 +1,9 @@
 package com.python.pydev.analysis.builder;
 
+import org.python.pydev.core.concurrency.IRunnableWithMonitor;
 
-public interface IAnalysisBuilderRunnable extends Runnable {
+
+public interface IAnalysisBuilderRunnable extends IRunnableWithMonitor {
 
     public static final int ANALYSIS_CAUSE_BUILDER = 1;
     public static final int ANALYSIS_CAUSE_PARSER = 2;
