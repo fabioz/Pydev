@@ -135,11 +135,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     protected transient ModulesKeyTreeMap<ModulesKey, ModulesKey> modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
 
-    protected static transient ModulesManagerCache cache = createCache();
-
-    private static ModulesManagerCache createCache() {
-        return new ModulesManagerCache();
-    }
+    protected static transient ModulesManagerCache cache = new ModulesManagerCache();
 
     /**
      * This is the set of files that was found just right after unpickle (it should not be changed after that,

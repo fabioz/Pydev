@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.core.ICallback;
+import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -317,13 +319,14 @@ public final class FastDefinitionsParser {
             }
             c = this.cs[currIndex];
         }
-        return new String(this.cs, currClassNameCol, currIndex-currClassNameCol);
+        return ObjectsPool.internLocal(interned, new String(this.cs, currClassNameCol, currIndex-currClassNameCol));
     }
 
     
+    private final ObjectsPoolMap interned = new ObjectsPoolMap(); 
+    
 
-    
-    
+
     /**
      * Start a new method scope with the given row and column.
      * @param startMethodRow the row where the scope should start

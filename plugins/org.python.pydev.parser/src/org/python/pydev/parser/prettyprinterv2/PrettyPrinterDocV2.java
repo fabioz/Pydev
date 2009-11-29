@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.commentType;
@@ -250,7 +250,7 @@ public class PrettyPrinterDocV2 {
                 continue;
             }
             if(!acceptToken){
-                if(p.getToken() instanceof ISpecialStrOrToken){
+                if(p.getToken() instanceof ISpecialStr){
                     continue;
                 }
             }

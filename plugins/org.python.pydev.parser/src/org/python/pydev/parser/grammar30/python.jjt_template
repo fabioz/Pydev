@@ -36,16 +36,17 @@ $COMMOM_METHODS
 
 
     protected final void addSpecialToArgDef(Object str){
+        Token token = (Token)str;
         SimpleNode peeked = jjtree.peekNode();
         if(peeked instanceof JfpDef){
             JfpDef jfpdef = (JfpDef) peeked;
             if(jfpdef.typeDef != null){
-                jfpdef.typeDef.getSpecialsAfter().add(str);
+                jfpdef.typeDef.getSpecialsAfter().add(token.asSpecialStr());
             }else{
-                jfpdef.nameNode.getSpecialsAfter().add(str);
+                jfpdef.nameNode.getSpecialsAfter().add(token.asSpecialStr());
             }
         }else{
-            peeked.getSpecialsAfter().add(str);
+            peeked.getSpecialsAfter().add(token.asSpecialStr());
         }
         
     }

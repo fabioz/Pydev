@@ -2,6 +2,8 @@ package org.python.pydev.parser.jython;
 
 import java.io.IOException;
 
+import org.python.pydev.core.ObjectsPool;
+import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
 
 /**
@@ -184,11 +186,13 @@ public final class FastCharStream implements CharStream {
         return c;
     }
 
+    private final ObjectsPoolMap interned = new ObjectsPoolMap(); 
+    
     public final String GetImage() {
         if (bufpos >= tokenBegin) {
-            return new String(buffer, tokenBegin, bufpos - tokenBegin+1);
+            return ObjectsPool.internLocal(interned, new String(buffer, tokenBegin, bufpos - tokenBegin+1));
         } else {
-            return new String(buffer, tokenBegin, buffer.length - tokenBegin+1);
+            return ObjectsPool.internLocal(interned, new String(buffer, tokenBegin, buffer.length - tokenBegin+1));
         }
     }
 

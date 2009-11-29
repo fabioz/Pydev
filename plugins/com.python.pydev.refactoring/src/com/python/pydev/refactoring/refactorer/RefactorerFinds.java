@@ -105,31 +105,21 @@ public class RefactorerFinds {
     private void findChildren(RefactoringRequest request, HierarchyNodeModel initialModel, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound) {
         //and now the children...
         List<AbstractAdditionalDependencyInfo> infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProjectAndReferencing(request.nature);
-        for (AbstractAdditionalDependencyInfo info : infoForProject) {
-            info.completeIndex.startGrowAsNeeded(2000); //let's stop the cache misses while we're in this process
-        }
         
-        try {
-            HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
-            foundOnRound.add(initialModel);
+        HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
+        foundOnRound.add(initialModel);
 
-            while(foundOnRound.size() > 0){
-                HashSet<HierarchyNodeModel> nextRound = new HashSet<HierarchyNodeModel>(foundOnRound);
-                foundOnRound.clear();
+        while(foundOnRound.size() > 0){
+            HashSet<HierarchyNodeModel> nextRound = new HashSet<HierarchyNodeModel>(foundOnRound);
+            foundOnRound.clear();
 
-                for (HierarchyNodeModel toFindOnRound : nextRound) {
-                    HashSet<SourceModule> modulesToAnalyze = findLikelyModulesWithChildren(request, toFindOnRound, infoForProject);
-                    request.communicateWork("Likely modules with matches:"+modulesToAnalyze.size());
-                    findChildrenOnModules(request, allFound, foundOnRound, toFindOnRound, modulesToAnalyze);
-                    
-                }
-            }               
-            
-        } finally{
-            for (AbstractAdditionalDependencyInfo info : infoForProject) {
-                info.completeIndex.stopGrowAsNeeded();
+            for (HierarchyNodeModel toFindOnRound : nextRound) {
+                HashSet<SourceModule> modulesToAnalyze = findLikelyModulesWithChildren(request, toFindOnRound, infoForProject);
+                request.communicateWork("Likely modules with matches:"+modulesToAnalyze.size());
+                findChildrenOnModules(request, allFound, foundOnRound, toFindOnRound, modulesToAnalyze);
+                
             }
-        }
+        }               
     }
     
     private void findChildrenOnModules(RefactoringRequest request, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound, HashSet<HierarchyNodeModel> foundOnRound, HierarchyNodeModel toFindOnRound, HashSet<SourceModule> modulesToAnalyze) {

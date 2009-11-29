@@ -155,20 +155,22 @@ public class CompiledModule extends AbstractModule{
                     String o1 = element[0]; //this one is really, really needed
                     String o2 = "";
                     String o3 = "";
-                    String o4;
                     
-                    if(element.length > 0)
+                    if(element.length > 0){
                         o2 = element[1];
+                    }
                     
-                    if(element.length > 0)
+                    if(element.length > 0){
                         o3 = element[2];
+                    }
                     
-                    if(element.length > 0)
-                        o4 = element[3];
-                    else
-                        o4 = ""+IToken.TYPE_BUILTIN;
+                    IToken t;
+                    if(element.length > 0){
+                        t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(element[3]));
+                    }else{
+                        t = new CompiledToken(o1, o2, o3, name, IToken.TYPE_BUILTIN);
+                    }
                     
-                    IToken t = new CompiledToken(o1, o2, o3, name, Integer.parseInt(o4));
                     array.add(t);
                 } catch (Exception e) {
                     String received = "";

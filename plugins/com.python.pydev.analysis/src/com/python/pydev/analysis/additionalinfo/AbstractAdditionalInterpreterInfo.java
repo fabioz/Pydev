@@ -20,7 +20,6 @@ import java.util.Map.Entry;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
@@ -224,14 +223,12 @@ public abstract class AbstractAdditionalInterpreterInfo {
         return lInfo;
     }
 
-    protected final static ObjectsPool<String> pool = new ObjectsPool<String>();
-    
     /**
      * adds a method to the definition
      * @param doOn 
      */
     protected void addMethod(FunctionDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
-        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path, pool);
+        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path);
         add(info2, generateDelta, doOn);
     }
     
@@ -240,7 +237,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param doOn 
      */
     protected void addClass(ClassDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
-        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path, pool);
+        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path);
         add(info, generateDelta, doOn);
     }
     
@@ -249,7 +246,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * Adds an attribute to the definition (this is either a global, a class attribute or an instance (self) attribute
      */
     protected void addAttribute(String def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
-        AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path, pool);
+        AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path);
         add(info, generateDelta, doOn);
     }
 

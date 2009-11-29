@@ -6,7 +6,7 @@ import java.util.List;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.IParserHost;
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -39,7 +39,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      */
     protected abstract Token getJJLastPos();
     
-    protected ISpecialStrOrToken temporaryToken;
+    protected Object temporaryToken;
 
     
     //---------------------------- Helpers to add special tokens.
@@ -61,15 +61,15 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     }
 
 
-    private ISpecialStrOrToken lastSpecial; 
+    private ISpecialStr lastSpecial; 
     private SimpleNode lastNodeWithSpecial; 
     
     public final void addSpecialTokenToLastOpened(Object o) throws ParseException{
         o = convertStringToSpecialStr(o);
         if(o != null){
             SimpleNode lastOpened = getJJTree().getLastOpened();
-            if(o instanceof ISpecialStrOrToken){
-                lastSpecial = (ISpecialStrOrToken) o;
+            if(o instanceof ISpecialStr){
+                lastSpecial = (ISpecialStr) o;
                 lastNodeWithSpecial = lastOpened;
             }
             
@@ -80,22 +80,26 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     
     
     private void addSpecial(SimpleNode node, Object special, boolean after) {
-        if(special instanceof Token && special.toString().trim().startsWith("#")){
+        if(special instanceof Token){
             Token t = (Token) special;
-            commentType comment = new commentType(t.image.trim());
-            comment.beginColumn = t.beginColumn;
-            comment.beginLine = t.beginLine;
-            special = comment;
-            
-            if(node.beginLine != comment.beginLine){
-                if(lastSpecial != null && lastNodeWithSpecial != null){
-                    if(comment.beginLine < lastSpecial.getBeginLine() ||
-                            (comment.beginLine == lastSpecial.getBeginLine() && comment.beginColumn < lastSpecial.getBeginCol())){
-                        List<Object> specialsBefore = lastNodeWithSpecial.getSpecialsBefore();
-                        specialsBefore.add(specialsBefore.indexOf(lastSpecial), comment);
-                        return;
+            if(t.toString().trim().startsWith("#")){
+                commentType comment = new commentType(t.image.trim());
+                comment.beginColumn = t.beginColumn;
+                comment.beginLine = t.beginLine;
+                special = comment;
+                
+                if(node.beginLine != comment.beginLine){
+                    if(lastSpecial != null && lastNodeWithSpecial != null){
+                        if(comment.beginLine < lastSpecial.getBeginLine() ||
+                                (comment.beginLine == lastSpecial.getBeginLine() && comment.beginColumn < lastSpecial.getBeginCol())){
+                            List<Object> specialsBefore = lastNodeWithSpecial.getSpecialsBefore();
+                            specialsBefore.add(specialsBefore.indexOf(lastSpecial), comment);
+                            return;
+                        }
                     }
                 }
+            }else{
+                special = t.asSpecialStr();
             }
         }
         
@@ -106,7 +110,6 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
      */
-    @SuppressWarnings("unchecked")
     protected final void addToPeek(Object t, boolean after, Class class_) throws ParseException {
         SimpleNode peeked = (SimpleNode) getJJTree().peekNode();
         addToPeek(peeked, t, after, class_);
@@ -115,7 +118,6 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
      */
-    @SuppressWarnings("unchecked")
     protected final void addToPeek(SimpleNode peeked, Object t, boolean after, Class class_) throws ParseException {
         if (class_ != null) {
             // just check if it is the class we were expecting.
@@ -234,22 +236,25 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     }
     
     public final void addSpecialToken(Object o, int strategy) throws ParseException {
-        ISpecialStrOrToken t = convertStringToSpecialStr(o);
+        ISpecialStr t = convertStringToSpecialStr(o);
         if(t != null){
             getTokenSourceSpecialTokensList().add(new Object[] { t, strategy });
         }
     }
 
-    private final ISpecialStrOrToken convertStringToSpecialStr(Object o) throws ParseException{
-        if (!(o instanceof ISpecialStrOrToken)) {
-            return createSpecialStr(((String) o).trim(), DEFAULT_SEARCH_ON_LAST, false);
+    private final ISpecialStr convertStringToSpecialStr(Object o) throws ParseException{
+        if (o instanceof ISpecialStr) {
+            return (ISpecialStr) o;
         }else{
-            return (ISpecialStrOrToken) o;
+            if(o instanceof Token){
+                return ((Token) o).asSpecialStr();
+            }
+            return createSpecialStr(((String) o).trim(), DEFAULT_SEARCH_ON_LAST, false);
         }
     }
 
     public final void addSpecialToken(Object o) throws ParseException {
-        if (!(o instanceof ISpecialStrOrToken)) {
+        if (!(o instanceof ISpecialStr)) {
             o = convertStringToSpecialStr(o);
         }
         //the default is adding after the previous token
@@ -257,11 +262,11 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     }
 
 
-    public final ISpecialStrOrToken createSpecialStr(String token) throws ParseException {
+    public final ISpecialStr createSpecialStr(String token) throws ParseException {
         return createSpecialStr(token, DEFAULT_SEARCH_ON_LAST);
     }
     
-    public final ISpecialStrOrToken createSpecialStr(String token, boolean searchOnLast) throws ParseException {
+    public final ISpecialStr createSpecialStr(String token, boolean searchOnLast) throws ParseException {
         return createSpecialStr(token, searchOnLast, true);
     }
     
@@ -269,7 +274,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      * This is where we do a lookahead to see if we find some token and if we do find it, but not on the correct
      * position, we skip some tokens to go to it.
      */
-    public final ISpecialStrOrToken createSpecialStr(String token, boolean searchOnLast, boolean throwException) throws ParseException {
+    public final ISpecialStr createSpecialStr(String token, boolean searchOnLast, boolean throwException) throws ParseException {
         final Token currentToken = getCurrentToken();
         
         Token firstTokenToIterate;
@@ -300,7 +305,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
             if(foundAtPos <= 2 //found at correct position. 
                 || searchOnLast //we already matched it... right now we're just adding it to the stack!
                 ){
-                return foundToken;
+                return foundToken.asSpecialStr();
                 
             }
         }
@@ -315,7 +320,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
                 addAndReport(e, "Found at wrong position: "+foundToken);
                 Token beforeLastReturned = iterTokens.getBeforeLastReturned();
                 setCurrentToken(beforeLastReturned);
-                return foundToken;
+                return foundToken.asSpecialStr();
             }
             
             //create a 'synthetic token' in the place we were expecting it.
@@ -372,9 +377,9 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      * @throws ParseException 
      */
     public final boolean findTokenAndAdd(String token, boolean searchOnLast) throws ParseException {
-        ISpecialStrOrToken s = createSpecialStr(token, searchOnLast);
+        ISpecialStr s = createSpecialStr(token, searchOnLast);
         getTokenSourceSpecialTokensList().add(new Object[] { s, STRATEGY_ADD_AFTER_PREV });
-        return s instanceof ISpecialStrOrToken;
+        return s instanceof ISpecialStr;
     }
 
     /**

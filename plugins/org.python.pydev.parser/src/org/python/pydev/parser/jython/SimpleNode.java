@@ -4,7 +4,7 @@ package org.python.pydev.parser.jython;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.commentType;
@@ -62,13 +62,23 @@ public class SimpleNode implements Node, ISimpleNode{
         throw new RuntimeException("Subclasses must reimplement");
     }
     
+    
     /**
      * @param special The 'special token' added (comment or some literal)
      * @param after defines if it was found before or after the token
      */
     public void addSpecial(Object special, boolean after) {
-        Assert.isTrue(!(special instanceof String), "Special: "+special+" is not valid");
         if(special != null){
+            
+            if(special instanceof Token){
+                special = ((Token) special).asSpecialStr();
+            }else{
+                if(special instanceof String){
+                    throw new AssertionFailedException("assertion failed: Special: "+special+" is not valid");
+                }
+            }
+            
+            
             
             if(after){
                 if(special instanceof commentType){
@@ -179,8 +189,8 @@ public class SimpleNode implements Node, ISimpleNode{
      * @return the line and column where that object starts (or null if it cannot get that information)
      */
     private int[] getLineCol(Object o) {
-        if (o instanceof ISpecialStrOrToken){
-            ISpecialStrOrToken s = (ISpecialStrOrToken) o;
+        if (o instanceof ISpecialStr){
+            ISpecialStr s = (ISpecialStr) o;
             return new int[]{s.getBeginLine(), s.getBeginCol()};
         }
         if (o instanceof commentType){
@@ -200,7 +210,7 @@ public class SimpleNode implements Node, ISimpleNode{
         }
         int i=0;
         for(Object o : l){
-            if (o instanceof String || o instanceof ISpecialStrOrToken){
+            if (o instanceof String || o instanceof ISpecialStr){
                 i++;
             }
         }

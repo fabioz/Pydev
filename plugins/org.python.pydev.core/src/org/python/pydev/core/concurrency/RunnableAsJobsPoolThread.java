@@ -115,4 +115,34 @@ public class RunnableAsJobsPoolThread extends Thread{
         }
         canRunSemaphore.release();
     }
+
+
+    
+    private static RunnableAsJobsPoolThread singleton;
+    
+    /**
+     * @return a singleton to be shared across multiple clases. Note that this class
+     * may still have locally created instances (so, its constructor is not private as
+     * is usual for singletons).
+     */
+    public synchronized static RunnableAsJobsPoolThread getSingleton() {
+        if(singleton == null){
+            //if a problem happens getting the number of processors, use 6
+            int maxSize = 6;
+            
+            try{
+                int availableProcessors = Runtime.getRuntime().availableProcessors();
+                if(availableProcessors > 0){
+                    //note that we create more threads than processes because some are very likely to 
+                    //be disk-bound processes.
+                    maxSize = availableProcessors * 3;
+                }
+            }catch(Throwable e){
+            }
+            
+            
+            singleton = new RunnableAsJobsPoolThread(maxSize);
+        }
+        return singleton;
+    }
 }

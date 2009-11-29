@@ -3,9 +3,11 @@ package org.python.pydev.parser.grammarcommon;
 import java.util.ArrayList;
 
 import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.BinOp;
@@ -62,6 +64,8 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         return lastOpened;
     }
 
+    private final FastStringBuffer tempBuffer = new FastStringBuffer(20);
+    
     /**
      * Constructor
      */
@@ -450,7 +454,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         
             case JJTDOTTED_NAME:
                 Name name = (Name) n;
-                StringBuffer sb = new StringBuffer();
+                FastStringBuffer sb = tempBuffer.clear();
                 for (int i = 0; i < arity; i++) {
                     if (i > 0){
                         sb.insert(0, '.');
@@ -587,7 +591,14 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             nT = makeName(NameTok.ImportModule);
         }else{
             nT = new NameTok("", NameTok.ImportModule);
-            ISpecialStrOrToken temporaryToken = this.stack.getGrammar().temporaryToken;
+            Object temporaryTok = this.stack.getGrammar().temporaryToken;
+            ISpecialStr temporaryToken;
+            if(temporaryTok instanceof ISpecialStr){
+                temporaryToken = (ISpecialStr) temporaryTok;
+            }else{
+                //must be a Token
+                temporaryToken = ((Token) temporaryTok).asSpecialStr();
+            }
             if(temporaryToken.toString().equals("from")){
                 nT.beginColumn = temporaryToken.getBeginCol();
                 nT.beginLine = temporaryToken.getBeginLine();

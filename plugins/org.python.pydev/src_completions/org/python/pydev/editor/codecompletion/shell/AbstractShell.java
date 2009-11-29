@@ -52,6 +52,8 @@ public abstract class AbstractShell {
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000; //1sec, so we can make the number of attempts be shown as elapsed in secs
     protected static final int DEBUG_SHELL = -1;
     
+    private final String TYPE_UNKNOWN_STR = ""+IToken.TYPE_UNKNOWN;
+    
     /**
      * Determines if we are already in a method that starts the shell
      */
@@ -896,19 +898,21 @@ public abstract class AbstractShell {
         if(tokenizer.hasMoreTokens()){
             file = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
             while(tokenizer.hasMoreTokens()){
-                String token       = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                String token = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
                 if(!tokenizer.hasMoreTokens()){
                     return new Tuple<String, List<String[]>>(file, list);
                 }
                 String description = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
                 
                 String args = "";
-                if(tokenizer.hasMoreTokens())
+                if(tokenizer.hasMoreTokens()){
                     args = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                }
                 
-                String type =""+IToken.TYPE_UNKNOWN;
-                if(tokenizer.hasMoreTokens())
+                String type = TYPE_UNKNOWN_STR;
+                if(tokenizer.hasMoreTokens()){
                     type = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                }
       
                 //dbg(token);
                 //dbg(description);

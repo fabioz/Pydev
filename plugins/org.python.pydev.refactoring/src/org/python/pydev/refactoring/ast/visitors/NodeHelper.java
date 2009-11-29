@@ -10,7 +10,7 @@ package org.python.pydev.refactoring.ast.visitors;
 
 import java.util.ArrayList;
 
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -356,7 +356,7 @@ public class NodeHelper {
     }
 
     public boolean isSpecialStr(Object o) {
-        return o instanceof ISpecialStrOrToken;
+        return o instanceof ISpecialStr;
     }
 
     public boolean isStr(SimpleNode node) {

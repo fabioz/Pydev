@@ -4,6 +4,7 @@
 package org.python.pydev.core;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -15,33 +16,30 @@ import java.util.WeakHashMap;
  * no other place has a reference to the same string.
  * 
  * Still, use this with care...
- * 
- * Note: should be safe to use in a threaded environment.
  */
-public class ObjectsPool<S> {
+public final class ObjectsPool {
+    
+    private ObjectsPool(){
+    }
 
-    private Map<S, WeakReference<S>> weakHashMap = new WeakHashMap<S, WeakReference<S>>();
+    private static Map<String, WeakReference<String>> weakHashMap = new WeakHashMap<String, WeakReference<String>>();
     
     /**
-     * Returns an object equal to the one passed as a parameter and puts it in the pool
-     * 
-     * E.g.: If an integer with the value 1 is requested, it will se if that value already exists and return it.
-     * If it doesn't exist, the parameter itself will be put in the pool.
+     * This is a way to intern a String in the regular heap (instead of the String.intern which uses the perm-gen).
      */
-    @SuppressWarnings("unchecked")
-    public synchronized S getFromPool(S o){
+    public static String intern(String o){
         synchronized(weakHashMap){
-            WeakReference<S> w = (WeakReference<S>)weakHashMap.get(o);
+            WeakReference<String> w = (WeakReference<String>)weakHashMap.get(o);
             if(w == null){
                 //garbage collected or still not there...
-                weakHashMap.put(o, new WeakReference<S>(o));
+                weakHashMap.put(o, new WeakReference<String>(o));
                 return o;
                 
             }else{
-                final S ret = w.get();
+                final String ret = w.get();
                 if(ret == null && o != null){
                     //garbage collected just in time hum?
-                    weakHashMap.put(o, new WeakReference<S>(o));
+                    weakHashMap.put(o, new WeakReference<String>(o));
                     return o;
                     
                 }else{
@@ -49,5 +47,33 @@ public class ObjectsPool<S> {
                 }
             }
         }
+    }
+    
+    /**
+     * Class used to store items interned locally in a map (without weak references)
+     */
+    public static class ObjectsPoolMap extends HashMap<String, String>{
+
+        private static final long serialVersionUID = 1L;
+        
+    }
+    
+    
+    /**
+     * Makes an intern unsynched and without weak-references in the passed map.
+     * Use when creating strings in objects that generate strings and when the map with
+     * the strings will be garbage-collected. 
+     * 
+     * This is a balance from the regular intern which uses weak references and is global to
+     * a local one that is faster (unsynched and doesn't use weak references).
+     */
+    public static String internLocal(ObjectsPoolMap mapWithInternedStrings, String string){
+        String existing = mapWithInternedStrings.get(string);
+        if(existing != null){
+            return existing;
+        }
+        mapWithInternedStrings.put(string, string);
+        return string;
+
     }
 }

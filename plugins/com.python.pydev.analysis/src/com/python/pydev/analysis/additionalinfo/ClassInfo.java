@@ -12,16 +12,16 @@ public class ClassInfo extends AbstractInfo{
 
     private static final long serialVersionUID = 1L;
 
-    public static ClassInfo fromClassDef(ClassDef def, String moduleDeclared, String path, ObjectsPool<String> pool) {
-        ClassInfo info = fromClassDef(def, moduleDeclared, pool);
+    public static ClassInfo fromClassDef(ClassDef def, String moduleDeclared, String path) {
+        ClassInfo info = fromClassDef(def, moduleDeclared);
         info.path = path;
         return info;
         
     }
     
-    public static ClassInfo fromClassDef(ClassDef def, String moduleDeclared, ObjectsPool<String> pool) {
+    public static ClassInfo fromClassDef(ClassDef def, String moduleDeclared) {
         ClassInfo info = new ClassInfo();
-        info.name = pool.getFromPool(((NameTok)def.name).id);
+        info.name = ObjectsPool.intern(((NameTok)def.name).id);
         info.moduleDeclared = moduleDeclared;
         return info;
     }
