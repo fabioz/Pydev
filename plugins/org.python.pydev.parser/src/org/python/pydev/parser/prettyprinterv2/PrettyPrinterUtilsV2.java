@@ -136,14 +136,6 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         doc.addDedent(emptyLinesRequiredAfterDedent);
     }
     
-    protected void indent(Token token) {
-        doc.addIndent(token, false);
-    }
-    
-    protected void indent(Token token, boolean requireNewLine) {
-        doc.addIndent(token, requireNewLine);
-    }
-
     protected SimpleNode lastNode;
     
     protected Object unhandled_node(SimpleNode node) throws Exception {

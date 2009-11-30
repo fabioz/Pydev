@@ -166,12 +166,6 @@ public class PrettyPrinterDocV2 {
     }
     
     
-    public void addIndent(Token token, boolean requireNewLine) {
-        PrettyPrinterDocLineEntry line = getLine(token.beginLine);
-        line.indent(token, requireNewLine);
-    }    
-
-
     public LinePartIndentMark addDedent() {
         return addDedent(0);
     }

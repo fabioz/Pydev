@@ -17,10 +17,12 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.performanceeval.Timer;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
@@ -40,7 +42,7 @@ public class PyParserTest extends PyParserTestBase{
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
             //timer.printDiff();
-            test.testParser15();
+            test.testPassSame();
 //            test.testErr();
             test.tearDown();
             
@@ -125,6 +127,25 @@ public class PyParserTest extends PyParserTestBase{
             }
         });
 
+    }
+    
+    public void testPassSame() throws Throwable {
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer arg) {
+                String s = "" +
+                "pass\n" +
+                "pass";
+                Module m = (Module) parseLegalDocStr(s);
+                assertEquals(2, m.body.length);
+                Pass p1 = (Pass) m.body[0];
+                Pass p2 = (Pass) m.body[1];
+                //must intern specials in the same pass.
+                assertSame(((SpecialStr)p1.specialsBefore.get(0)).str, ((SpecialStr)p2.specialsBefore.get(0)).str);
+                return true;
+            }
+        });
+        
     }
     
     public void testErr() throws Throwable {
