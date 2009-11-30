@@ -412,5 +412,12 @@ public final class FastStringBuffer{
     public void setCharAt(int i, char c) {
         this.value[i] = c;
     }
+
+    /**
+     * Careful: it doesn't check anything. Just sets the internal length.
+     */
+    public void setLength(int i) {
+        this.count = i;
+    }
     
 }

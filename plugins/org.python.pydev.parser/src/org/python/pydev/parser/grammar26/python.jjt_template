@@ -620,12 +620,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 void dotted_as_name(): {}
 { dotted_name() [$AS Name()] }
 
-//dotted_name: NAME ('.' NAME)*
-String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
-{ t=Name() { sb.append(t.image); }
-    (<DOT> t=Name() { sb.append("." + t.image); } )*
-        { return sb.toString(); }
-}
+$DOTTED_NAME
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }

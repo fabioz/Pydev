@@ -16,7 +16,7 @@ public class WriteStateV2 implements IWriterEraser {
 
     private IWriterEraser writer;
     private IPrettyPrinterPrefs prefs;
-    private StringBuffer indentation = new StringBuffer();
+    private FastStringBuffer indentation = new FastStringBuffer(40);
     private boolean nextMustBeNewLineOrComment=false;
     private boolean nextMustBeNewLine=true;
     

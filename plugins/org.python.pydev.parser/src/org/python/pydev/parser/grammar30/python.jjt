@@ -25,6 +25,7 @@ package org.python.pydev.parser.grammar30;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
@@ -52,6 +53,9 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements IGra
 {
 
 
+    
+    FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
+    
     /**
      * @return the current token found.
      */
@@ -798,12 +802,14 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 void dotted_as_name(): {}
 { dotted_name() [{this.findTokenAndAdd("as");}<AS> Name()] }
 
+
 //dotted_name: NAME ('.' NAME)*
-String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
+String dotted_name(): { Token t; FastStringBuffer sb = dottedNameStringBuffer.clear(); }
 { t=Name() { sb.append(t.image); }
-    (<DOT> t=Name() { sb.append("." + t.image); } )*
+    (<DOT> t=Name() { sb.append(".").append(t.image); } )*
         { return sb.toString(); }
 }
+
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }

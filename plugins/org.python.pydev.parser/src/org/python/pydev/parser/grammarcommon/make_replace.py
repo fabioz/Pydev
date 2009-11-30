@@ -132,6 +132,9 @@ void stmt() #void: {}
 #=======================================================================================================================
 def CreateCommomMethods():
     return '''
+    
+    FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
+    
     /**
      * @return the current token found.
      */
@@ -232,6 +235,7 @@ def CreateImports():
     return '''
 import java.util.List;
 import java.util.ArrayList;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
@@ -522,6 +526,15 @@ else
         IMPORT = '''{this.findTokenAndAdd("import");}<IMPORT>''',
 
         AS = '''{this.findTokenAndAdd("as");}<AS>''',
+        
+        DOTTED_NAME = '''
+//dotted_name: NAME ('.' NAME)*
+String dotted_name(): { Token t; FastStringBuffer sb = dottedNameStringBuffer.clear(); }
+{ t=Name() { sb.append(t.image); }
+    (<DOT> t=Name() { sb.append(".").append(t.image); } )*
+        { return sb.toString(); }
+}
+''',
         
         AS2 = '''{temporaryToken=createSpecialStr("as");}<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
         
