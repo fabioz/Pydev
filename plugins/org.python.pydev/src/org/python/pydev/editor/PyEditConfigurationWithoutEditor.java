@@ -28,7 +28,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorCache;
 
-public class PyEditConfigurationWithoutEditor  extends TextSourceViewerConfiguration {
+public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfiguration {
 
     private ColorCache colorCache;
 

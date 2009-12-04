@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -137,7 +138,7 @@ import org.python.pydev.ui.UIConstants;
  *  
  */
 @SuppressWarnings("deprecation")
-public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersionProvider {
+public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersionProvider, IPySyntaxHighlightingAndCodeCompletionEditor {
 
     static{
         ParseException.verboseExceptions = true;
@@ -164,7 +165,19 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return editConfiguration;
     }
     
+    public ISourceViewer getEditorSourceViewer() {
+        return super.getSourceViewer();
+    }
+    
 
+    public ColorCache getColorCache() {
+        return colorCache;
+    }
+    
+    public PySelection createPySelection() {
+        return new PySelection(this);
+    }
+    
     /**
      * AST that created python model
      */
@@ -407,7 +420,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * <p>
      * If the first indented line starts with a tab, then tabs override spaces.
      */
-    private void resetForceTabs() {
+    public void resetForceTabs() {
         IDocument doc = getDocumentProvider().getDocument(getEditorInput());
         if (doc == null){
             return;
@@ -513,38 +526,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     
             
             // listen to changes in TAB_WIDTH preference
-            prefListener = new Preferences.IPropertyChangeListener() {
-                public void propertyChange(Preferences.PropertyChangeEvent event) {
-                    String property = event.getProperty();
-                    //tab width
-                    if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
-                        ISourceViewer sourceViewer = getSourceViewer();
-                        if (sourceViewer == null){
-                            return;
-                        }
-                        getIndentPrefs().regenerateIndentString();
-                        sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
-                        
-                    }else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
-                        getIndentPrefs().regenerateIndentString();
-                       
-                    //auto adjust for file tabs
-                    } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
-                        resetForceTabs();
-                        
-                    //colors and styles
-                    } else if (property.equals(PydevEditorPrefs.CODE_COLOR) || property.equals(PydevEditorPrefs.DECORATOR_COLOR) || property.equals(PydevEditorPrefs.NUMBER_COLOR)
-                            || property.equals(PydevEditorPrefs.KEYWORD_COLOR) || property.equals(PydevEditorPrefs.SELF_COLOR) || property.equals(PydevEditorPrefs.COMMENT_COLOR) 
-                            || property.equals(PydevEditorPrefs.STRING_COLOR) || property.equals(PydevEditorPrefs.CLASS_NAME_COLOR) || property.equals(PydevEditorPrefs.FUNC_NAME_COLOR)
-                            || property.equals(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR)
-                            || property.endsWith("_STYLE")
-                            ) {
-                        colorCache.reloadNamedColor(property); //all reference this cache
-                        editConfiguration.updateSyntaxColorAndStyle(); //the style needs no reloading
-                        getSourceViewer().invalidateTextPresentation();
-                    } 
-                }
-            };
+            prefListener = createPrefChangeListener(this);
             resetForceTabs();
             PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
             
@@ -573,6 +555,41 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
     
     
+
+    public static IPropertyChangeListener createPrefChangeListener(final IPySyntaxHighlightingAndCodeCompletionEditor editor) {
+        return new Preferences.IPropertyChangeListener() {
+            public void propertyChange(Preferences.PropertyChangeEvent event) {
+                String property = event.getProperty();
+                //tab width
+                if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
+                    ISourceViewer sourceViewer = editor.getEditorSourceViewer();
+                    if (sourceViewer == null){
+                        return;
+                    }
+                    editor.getIndentPrefs().regenerateIndentString();
+                    sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
+                    
+                }else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
+                    editor.getIndentPrefs().regenerateIndentString();
+                   
+                //auto adjust for file tabs
+                } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
+                    editor.resetForceTabs();
+                    
+                //colors and styles
+                } else if (property.equals(PydevEditorPrefs.CODE_COLOR) || property.equals(PydevEditorPrefs.DECORATOR_COLOR) || property.equals(PydevEditorPrefs.NUMBER_COLOR)
+                        || property.equals(PydevEditorPrefs.KEYWORD_COLOR) || property.equals(PydevEditorPrefs.SELF_COLOR) || property.equals(PydevEditorPrefs.COMMENT_COLOR) 
+                        || property.equals(PydevEditorPrefs.STRING_COLOR) || property.equals(PydevEditorPrefs.CLASS_NAME_COLOR) || property.equals(PydevEditorPrefs.FUNC_NAME_COLOR)
+                        || property.equals(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR)
+                        || property.endsWith("_STYLE")
+                        ) {
+                    editor.getColorCache().reloadNamedColor(property); //all reference this cache
+                    editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
+                    editor.getEditorSourceViewer().invalidateTextPresentation();
+                } 
+            }
+        };
+    }
 
     /**
      * When we have the editor input re-set, we have to change the parser and the partition scanner to

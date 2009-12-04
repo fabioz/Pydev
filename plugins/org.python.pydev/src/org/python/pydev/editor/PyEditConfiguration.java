@@ -38,24 +38,24 @@ import org.python.pydev.ui.ColorCache;
  */
 public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
 
-    private PyEdit edit;
+    private IPySyntaxHighlightingAndCodeCompletionEditor edit;
 
     /**
      * @param edit The edit to set.
      */
-    private void setEdit(PyEdit edit) {
+    private void setEdit(IPySyntaxHighlightingAndCodeCompletionEditor edit) {
         this.edit = edit;
     }
 
     /**
      * @return Returns the edit.
      */
-    private PyEdit getEdit() {
+    private IPySyntaxHighlightingAndCodeCompletionEditor getEdit() {
         return edit;
     }
 
 
-    public PyEditConfiguration(ColorCache colorManager, PyEdit edit, IPreferenceStore preferenceStore) {
+    public PyEditConfiguration(ColorCache colorManager, IPySyntaxHighlightingAndCodeCompletionEditor edit, IPreferenceStore preferenceStore) {
         super(colorManager, preferenceStore);
         this.setEdit(edit); 
     }

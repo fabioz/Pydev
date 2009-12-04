@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
@@ -137,7 +137,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
      * @see ISimpleAssistParticipant
      */
     public Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier, 
-            PySelection ps, PyEdit edit, int offset) {
+            PySelection ps, IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset) {
         return innerComputeProposals(activationToken, qualifier, offset, false);
     }
     

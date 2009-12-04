@@ -23,6 +23,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.plugin.PydevPlugin;
@@ -82,7 +83,9 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             PySourceViewer pySourceViewer = (PySourceViewer) viewer;
             PyEdit pyEdit = pySourceViewer.getEdit();
             this.indentString = pyEdit.getIndentPrefs().getIndentationString();
-            
+        }else{
+            //happens on compare editor
+            this.indentString = new DefaultIndentPrefs().getIndentationString();
         }
         apply(document, trigger, stateMask, offset);
     }
