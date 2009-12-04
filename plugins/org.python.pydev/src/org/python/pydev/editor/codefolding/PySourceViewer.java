@@ -117,7 +117,6 @@ public class PySourceViewer extends ProjectionViewer {
     /**
      * @return a class that iterates through the markers available in this source viewer
      */
-    @SuppressWarnings("unchecked")
     public Iterator<MarkerAnnotationAndPosition> getMarkerIterator(){
         final IAnnotationModel annotationModel = getAnnotationModel();
         //it may be null on external files, because I simply cannot make it get the org.python.copiedfromeclipsesrc.PydevFileEditorInput

@@ -34,7 +34,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.expressions,
  org.junit;resolution:=optional,
  org.eclipse.jdt.core;resolution:=optional,
- org.eclipse.jdt.ui;resolution:=optional
+ org.eclipse.jdt.ui;resolution:=optional,
+ org.eclipse.compare,
+ org.eclipse.compare.core
 Eclipse-LazyStart: true
 Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.builder,

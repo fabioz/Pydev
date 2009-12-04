@@ -10,9 +10,17 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.TextSelection;
+import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 
 /**
@@ -313,6 +321,40 @@ public class PyBackspace extends PyAction {
 
     public void setDontEraseMoreThan(int offset) {
         this.dontEraseMoreThan = offset;
+    }
+
+    
+    /**
+     * Creates a handler that will properly treat backspaces considering python code.
+     */
+    public static VerifyKeyListener createVerifyKeyListener(final SourceViewer viewer, final PyEdit edit) {
+        return new VerifyKeyListener(){
+            
+            public void verifyKey(VerifyEvent event) {
+                if((event.doit && event.character == SWT.BS && event.stateMask == 0)){ //isBackspace
+                    boolean blockSelection = false;
+                    try{
+                        blockSelection = viewer.getTextWidget().getBlockSelection();
+                    }catch(Throwable e){
+                        //that's OK (only available in eclipse 3.5)
+                    }
+                    if(!blockSelection){
+                        Point selectionRange = viewer.getTextWidget().getSelectionRange();
+                        //Only do our custom backspace if we're not in block selection mode.
+                        PyBackspace pyBackspace = new PyBackspace();
+                        if(edit != null){
+                            pyBackspace.setEditor(edit);
+                        }else{
+                            pyBackspace.setIndentPrefs(new DefaultIndentPrefs());
+                        }
+                        PySelection ps = new PySelection(viewer.getDocument(), 
+                                new TextSelection(viewer.getDocument(), selectionRange.x, selectionRange.y));
+                        pyBackspace.perform(ps);
+                        event.doit = false;
+                    }
+                }
+            }
+        };        
     }
 
 

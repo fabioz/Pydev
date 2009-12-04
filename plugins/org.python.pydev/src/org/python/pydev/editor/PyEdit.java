@@ -38,12 +38,10 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
@@ -317,28 +315,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         textWidget.addMouseListener(cursorListener);
         textWidget.addKeyListener(cursorListener);
         
-        VerifyKeyListener verifyKeyListener = new VerifyKeyListener(){
-            
-            public void verifyKey(VerifyEvent event) {
-                if((event.doit && event.character == SWT.BS && event.stateMask == 0)){ //isBackspace
-                    boolean blockSelection = false;
-                    try{
-                        blockSelection = PyEdit.this.getSourceViewer().getTextWidget().getBlockSelection();
-                    }catch(Throwable e){
-                        //that's OK (only available in eclipse 3.5)
-                    }
-                    if(!blockSelection){
-                        //Only do our custom backspace if we're not in block selection mode.
-                        PyBackspace pyBackspace = new PyBackspace();
-                        pyBackspace.setEditor(PyEdit.this);
-                        pyBackspace.perform(new PySelection(PyEdit.this));
-                        event.doit = false;
-                    }
-                }
-            }
-        };
-        
-        viewer.appendVerifyKeyListener(verifyKeyListener);
+        viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, this));
         
         return viewer;
     }
