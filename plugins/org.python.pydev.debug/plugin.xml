@@ -383,9 +383,6 @@
 
 <!--- CONTRIBUTED VIEWS -->
 <extension point="org.eclipse.ui.views">
-   <category
-        name="Pydev"
-        id="org.python.pydev.debug"/>
    <view
         class="org.python.pydev.debug.codecoverage.PyCodeCoverageView"
         icon="icons/python_coverage.png"

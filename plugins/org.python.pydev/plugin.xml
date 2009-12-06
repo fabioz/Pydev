@@ -995,6 +995,9 @@
 
 <!-- Declare the view part to hold the default implementation --> 
 <extension point="org.eclipse.ui.views">
+   <category
+        name="Pydev"
+        id="org.python.pydev"/>
     <view
         allowMultiple="false"
         category="org.python.pydev"

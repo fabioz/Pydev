@@ -487,11 +487,6 @@ public class PyParser implements IPyParser {
         public int currentLine=-1;
         
         /**
-         * The initial document to be parsed
-         */
-        public String initial = null;
-        
-        /**
          * A set with the lines that were changed when trying to make the document parseable
          */
         public final Set<Integer> linesChanged = new HashSet<Integer>();
@@ -575,20 +570,14 @@ public class PyParser implements IPyParser {
             startDoc+="\n";
         }
         
-        if(info.initial == null){
-            info.initial = startDoc;
-        }
-
         CharStream in = null;
         if(USE_FAST_STREAM){
-            //we don't want to keep the string from being released, so, just get the char array from the string
-            char[] cs = startDoc.toCharArray();
-            in = new FastCharStream(cs);
+            in = new FastCharStream(startDoc.toCharArray());
         }else{
-            StringReader inString = new StringReader(startDoc);
-            in = new ReaderCharStream(inString);
-            throw new RuntimeException("This char stream reader was deprecated (was maintained only for testing purposes).");
+            in = new ReaderCharStream(new StringReader(startDoc));
+            throw new RuntimeException("This char stream reader was deprecated (it's maintained only for testing purposes).");
         }
+        startDoc = null; //it can be garbage-collected now.
         
 
         Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
