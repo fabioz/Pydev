@@ -50,7 +50,6 @@ import org.python.pydev.parser.grammar26.PythonGrammar26;
 import org.python.pydev.parser.grammar30.PythonGrammar30;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.FastCharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.ReaderCharStream;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -593,22 +592,21 @@ public class PyParser implements IPyParser {
         
 
         Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
-        IParserHost host = new CompilerAPI();
         IGrammar grammar = null;
         try {
             
             switch(info.grammarVersion){
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_4:
-                    grammar = new PythonGrammar24(in, host);
+                    grammar = new PythonGrammar24(in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
-                    grammar = new PythonGrammar25(in, host);
+                    grammar = new PythonGrammar25(in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_6:
-                    grammar = new PythonGrammar26(in, host);
+                    grammar = new PythonGrammar26(in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
-                    grammar = new PythonGrammar30(in, host);
+                    grammar = new PythonGrammar30(in);
                     break;
                 default:
                     throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
@@ -657,7 +655,6 @@ public class PyParser implements IPyParser {
             
             startDoc = null;
             in = null;
-            host = null;
             grammar = null;
             
             if(e instanceof ParseException || e instanceof TokenMgrError){

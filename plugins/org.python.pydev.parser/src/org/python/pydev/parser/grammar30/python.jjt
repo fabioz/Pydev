@@ -32,7 +32,6 @@ import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
 import org.python.pydev.parser.grammarcommon.JfpDef;
 import org.python.pydev.parser.jython.CharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -117,20 +116,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements IGra
         }
         
     }
-
-   // constructors taking a IParserHost impl
-
-   public PythonGrammar30(CharStream stream,IParserHost host) {
-       this(stream);
-       hostLiteralMkr = host;
-   }
-
-   public PythonGrammar30(PythonGrammar30TokenManager tm,
-                        IParserHost host)
-   {
-        this(tm);
-        hostLiteralMkr = host;
-   }
 
 }
 

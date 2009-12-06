@@ -9,7 +9,6 @@ import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
 import org.python.pydev.parser.grammarcommon.JfpDef;
 import org.python.pydev.parser.jython.CharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -3302,7 +3301,7 @@ public Token getNextToken()
       return matchedToken;
    }
    image = jjimage;
-   image.setLength(0);
+   image.count = 0;
    jjimageLen = 0;
 
    for (;;)
@@ -3529,48 +3528,48 @@ void MoreLexicalActions()
       case 117 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-                           image.setLength(image.length()-3);
+    image.count = image.length()-3;
          break;
       case 118 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-                           image.setLength(image.length()-2);
+    image.count = image.length()-2;
          break;
       case 119 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-                           image.setLength(image.length()-3);
+    image.count = image.length()-3;
          break;
       case 120 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-                           image.setLength(image.length()-2);
+    image.count = image.length()-2;
          break;
       case 121 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-                           image.setLength(image.length()-3);
+    image.count = image.length()-3;
          break;
       case 122 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-                           image.setLength(image.length()-2);
+    image.count = image.length()-2;
          break;
       case 123 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-                           image.setLength(image.length()-3);
+    image.count = image.length()-3;
          break;
       case 124 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-                           image.setLength(image.length()-2);
+    image.count = image.length()-2;
          break;
       case 131 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
         int l = image.length();
-        image.setLength(l-1);
+    image.count = l-1;
         image.setCharAt(l-2, '\u005cn');
          break;
       case 133 :

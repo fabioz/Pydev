@@ -37,20 +37,6 @@ $COMMOM_METHODS
     }
 
 
-   // constructors taking a IParserHost impl
-
-   public PythonGrammar26(CharStream stream,IParserHost host) {
-       this(stream);
-       hostLiteralMkr = host;
-   }
-
-   public PythonGrammar26(PythonGrammar26TokenManager tm,
-                        IParserHost host)
-   {
-        this(tm);
-        hostLiteralMkr = host;
-   }
-
 }
 
 

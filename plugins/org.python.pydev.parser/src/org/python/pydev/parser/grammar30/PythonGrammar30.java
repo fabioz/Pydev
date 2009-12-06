@@ -10,7 +10,6 @@ import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
 import org.python.pydev.parser.grammarcommon.JfpDef;
 import org.python.pydev.parser.jython.CharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -94,20 +93,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         }
 
     }
-
-   // constructors taking a IParserHost impl
-
-   public PythonGrammar30(CharStream stream,IParserHost host) {
-       this(stream);
-       hostLiteralMkr = host;
-   }
-
-   public PythonGrammar30(PythonGrammar30TokenManager tm,
-                        IParserHost host)
-   {
-        this(tm);
-        hostLiteralMkr = host;
-   }
 
 //file_input: (NEWLINE | stmt)* ENDMARKER
   final public modType file_input() throws ParseException {
@@ -7419,6 +7404,40 @@ else
     finally { jj_save(32, xla); }
   }
 
+  private boolean jj_3R_101() {
+    if (jj_3R_116()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_100() {
+    if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_64() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_99()) {
+    jj_scanpos = xsp;
+    if (jj_3R_100()) {
+    jj_scanpos = xsp;
+    if (jj_3R_101()) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_99() {
+    if (jj_scan_token(DOT)) return true;
+    return false;
+  }
+
+  private boolean jj_3_8() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_54()) return true;
+    return false;
+  }
+
   private boolean jj_3R_73() {
     if (jj_3R_74()) return true;
     return false;
@@ -8389,40 +8408,6 @@ else
 
   private boolean jj_3R_116() {
     if (jj_3R_131()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_101() {
-    if (jj_3R_116()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_100() {
-    if (jj_3R_52()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_64() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_99()) {
-    jj_scanpos = xsp;
-    if (jj_3R_100()) {
-    jj_scanpos = xsp;
-    if (jj_3R_101()) return true;
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_99() {
-    if (jj_scan_token(DOT)) return true;
-    return false;
-  }
-
-  private boolean jj_3_8() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_54()) return true;
     return false;
   }
 

@@ -10,7 +10,6 @@ import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
 import org.python.pydev.parser.grammarcommon.JfpDef;
 import org.python.pydev.parser.jython.CharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -79,21 +78,6 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements/*@bg
             token_source.usePrintAsFunction = true;
         }
     }
-
-
-   // constructors taking a IParserHost impl
-
-   public PythonGrammar26(CharStream stream,IParserHost host) {
-       this(stream);
-       hostLiteralMkr = host;
-   }
-
-   public PythonGrammar26(PythonGrammar26TokenManager tm,
-                        IParserHost host)
-   {
-        this(tm);
-        hostLiteralMkr = host;
-   }
 
 //file_input: (NEWLINE | stmt)* ENDMARKER
   final public modType file_input() throws ParseException {
@@ -6931,6 +6915,11 @@ else
     finally { jj_save(28, xla); }
   }
 
+  private boolean jj_3R_93() {
+    if (jj_scan_token(LAMBDA)) return true;
+    return false;
+  }
+
   private boolean jj_3R_50() {
     if (jj_3R_78()) return true;
     return false;
@@ -7876,11 +7865,6 @@ else
     if (jj_3R_82()) return true;
     }
     }
-    return false;
-  }
-
-  private boolean jj_3R_93() {
-    if (jj_scan_token(LAMBDA)) return true;
     return false;
   }
 

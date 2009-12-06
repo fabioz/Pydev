@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.jython.FastCharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
@@ -19,7 +18,6 @@ import org.python.pydev.parser.jython.ast.commentType;
 
 public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers implements ITreeConstants, IGrammar{
 
-    public IParserHost hostLiteralMkr;
     public SimpleNode prev;
     public final static boolean DEFAULT_SEARCH_ON_LAST = false;
 
@@ -393,7 +391,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
         
         if (s.endsWith("L") || s.endsWith("l")) {
             s = s.substring(0, s.length() - 1);
-            numberToFill.n = hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
+            numberToFill.n = new java.math.BigInteger(s, radix);
             numberToFill.type = Num.Long;
             return;
         }
@@ -402,37 +400,37 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
         while (i < ndigits && s.charAt(i) == '0')
             i++;
         if ((ndigits - i) > 11) {
-            numberToFill.n = hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
+            numberToFill.n = new java.math.BigInteger(s, radix);
             numberToFill.type = Num.Long;
             return;
         }
 
         long l = Long.valueOf(s, radix).longValue();
         if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
-            numberToFill.n = hostLiteralMkr.newLong(new java.math.BigInteger(s, radix));
+            numberToFill.n = new java.math.BigInteger(s, radix);
             numberToFill.type = Num.Long;
             return;
         }
-        numberToFill.n = hostLiteralMkr.newInteger((int) l);
+        numberToFill.n = (int) l;
         numberToFill.type = Num.Int;
     }
 
     protected final void makeFloat(String s, Num numberToFill) {
         numberToFill.num = s;
-        numberToFill.n = hostLiteralMkr.newFloat(Double.valueOf(s).doubleValue());
+        numberToFill.n = Float.valueOf(s);
         numberToFill.type = Num.Float;
     }
 
     protected final void makeLong(String s, Num numberToFill) {
         numberToFill.num = s;
-        numberToFill.n = hostLiteralMkr.newLong(s);
+        numberToFill.n = Long.valueOf(s);
         numberToFill.type = Num.Long;
     }
 
     protected final void makeComplex(String s, Num numberToFill) {
         String compNumber = s.substring(0, s.length() - 1);
         numberToFill.num = s;
-        numberToFill.n = hostLiteralMkr.newImaginary(Double.valueOf(compNumber).doubleValue());
+        numberToFill.n = Double.valueOf(compNumber);
         numberToFill.type = Num.Comp;
     }
 
@@ -473,7 +471,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
             int n = s.length() - quotes;
             int i = quotes + start;
 
-            String str = hostLiteralMkr.decode_UnicodeEscape(s, i, n, "strict", ustring);
+            String str = s.substring(i, n);
             //System.out.println("out: "+str);
             strToFill.type = getType(s.charAt(start), quotes);
             strToFill.s = str;
