@@ -3446,7 +3446,7 @@ public Token getNextToken()
       return matchedToken;
    }
    image = jjimage;
-   image.count = 0;
+   image.setLength(0);
    jjimageLen = 0;
 
    for (;;)
@@ -3673,48 +3673,48 @@ void MoreLexicalActions()
       case 120 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-    image.count = image.length()-3;
+                           image.setLength(image.length()-3);
          break;
       case 121 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-    image.count = image.length()-2;
+                           image.setLength(image.length()-2);
          break;
       case 122 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-    image.count = image.length()-3;
+                           image.setLength(image.length()-3);
          break;
       case 123 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-    image.count = image.length()-2;
+                           image.setLength(image.length()-2);
          break;
       case 124 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-    image.count = image.length()-3;
+                           image.setLength(image.length()-3);
          break;
       case 125 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-    image.count = image.length()-2;
+                           image.setLength(image.length()-2);
          break;
       case 126 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-    image.count = image.length()-3;
+                           image.setLength(image.length()-3);
          break;
       case 127 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
-    image.count = image.length()-2;
+                           image.setLength(image.length()-2);
          break;
       case 134 :
          image.append(input_stream.GetSuffix(jjimageLen));
          jjimageLen = 0;
         int l = image.length();
-    image.count = l-1;
+        image.setLength(l-1);
         image.setCharAt(l-2, '\u005cn');
          break;
       case 136 :
