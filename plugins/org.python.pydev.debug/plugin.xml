@@ -55,7 +55,7 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+F9"
+            sequence="M1+F9"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">

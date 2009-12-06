@@ -86,8 +86,7 @@
            tooltip="Pydev: Globals Browser"
            menubarPath="pyGeneralMenu/pyNavigateGroup"
            toolbarPath="pyNavigateGroup"
-           id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
-           definitionId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
+           id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
      </action>
   </actionSet>
 </extension>
@@ -112,7 +111,7 @@
 
 <extension point="org.eclipse.ui.bindings">
       <key
-            sequence="Ctrl+Shift+T"
+            sequence="M1+M2+T"
             contextId="org.eclipse.ui.contexts.window"
             commandId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">

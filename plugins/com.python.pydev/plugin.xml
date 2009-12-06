@@ -30,7 +30,7 @@
 <!-- binding: activate interactive console-->
    <extension point="org.eclipse.ui.bindings">
       <key
-            sequence="Ctrl+Alt+Enter"
+            sequence="M1+M3+Enter"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.interactiveconsole.evaluateActionSetter"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">

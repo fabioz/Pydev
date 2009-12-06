@@ -24,7 +24,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.jdt.core;resolution:=optional,
- org.eclipse.jdt.ui;resolution:=optional
+ org.eclipse.jdt.ui;resolution:=optional,
+ org.python.pydev.refactoring;bundle-version="0.9.7.1"
 Eclipse-LazyStart: true
 Bundle-ClassPath: refactoring.jar,
  retroweaver-rt.jar

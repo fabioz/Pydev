@@ -69,6 +69,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         setSelectionHistory(new InfoSelectionHistory());
 
         setTitle("Pydev: Globals Browser");
+        setMessage("Select an item to open (? = any character, * = any string).\nDotted names may be used to filter with package (e.g.: django.utils.In)");
 
         NameIInfoLabelProvider resourceItemLabelProvider = new NameIInfoStyledLabelProvider(true);
 
