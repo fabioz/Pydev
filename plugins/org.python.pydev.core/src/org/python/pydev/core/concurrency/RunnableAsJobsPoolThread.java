@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 
 /**
@@ -119,6 +120,7 @@ public class RunnableAsJobsPoolThread extends Thread{
 
     
     private static RunnableAsJobsPoolThread singleton;
+
     
     /**
      * @return a singleton to be shared across multiple clases. Note that this class
@@ -127,15 +129,41 @@ public class RunnableAsJobsPoolThread extends Thread{
      */
     public synchronized static RunnableAsJobsPoolThread getSingleton() {
         if(singleton == null){
-            //if a problem happens getting the number of processors, use 6
+            //if a problem happens getting the number of processors (although it shouldn't happen), use 6
             int maxSize = 6;
             
             try{
                 int availableProcessors = Runtime.getRuntime().availableProcessors();
-                if(availableProcessors > 0){
+                if(availableProcessors <= 1){
+                    maxSize = 3;
+                    
+                }else{
                     //note that we create more threads than processes because some are very likely to 
-                    //be disk-bound processes.
-                    maxSize = availableProcessors * 3;
+                    //be disk-bound processes (but with a logarithmic function, because we don't want 
+                    //to add up too fast as the number of processors increase because of the amount of memory
+                    //it'd consume).
+                    //
+                    //The progression we get with this formula is below.
+                    //
+                    //2: 4
+                    //3: 6
+                    //4: 8
+                    //5: 10
+                    //6: 11
+                    //7: 13
+                    //8: 14
+                    //9: 16
+                    //10: 17
+                    //11: 18
+                    //12: 19
+                    //13: 21
+                    //14: 22
+                    //15: 23
+                    //16: 24
+                    //17: 25
+                    //18: 27
+                    //19: 28
+                    maxSize = (int)(availableProcessors+Math.round(REF.log(availableProcessors, 1.4)));
                 }
             }catch(Throwable e){
             }
