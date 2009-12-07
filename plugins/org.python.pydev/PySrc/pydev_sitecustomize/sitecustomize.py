@@ -111,6 +111,7 @@ if not IS_PYTHON_3K: #For Python 3.0, the PYTHONIOENCODING should already treat 
 
 
 #remove the pydev site customize (and the pythonpath for it)
+paths_removed = []
 try:
     for c in sys.path[:]:
         #Pydev controls the whole classpath in Jython already, so, we don't want a a duplicate for
@@ -120,18 +121,28 @@ try:
         if c.find('pydev_sitecustomize') != -1 or c == '__classpath__' or c == '__pyclasspath__' or \
             c == '__classpath__/' or c == '__pyclasspath__/' or  c == '__classpath__\\' or c == '__pyclasspath__\\':
             sys.path.remove(c)
+            if c.find('pydev_sitecustomize') == -1:
+                #We'll re-add any paths removed but the pydev_sitecustomize we added from pydev.
+                paths_removed.append(c)
             
     del sys.modules['sitecustomize'] #this module
 except:
-    #print_ the error... should never happen (so, always show, and not only on debug)!
+    #print the error... should never happen (so, always show, and not only on debug)!
     import traceback;traceback.print_exc() #@Reimport
 else:
-    #and now execute the default sitecustomize
+    #Now, execute the default sitecustomize
     try:
         import sitecustomize #@UnusedImport
     except ImportError:
         pass
-        
+    
+    try:
+        #And after executing the default sitecustomize, restore the paths (if we didn't remove it before,
+        #the import sitecustomize would recurse).
+        sys.path.extend(paths_removed)
+    except:
+        #print the error... should never happen (so, always show, and not only on debug)!
+        import traceback;traceback.print_exc() #@Reimport
 
 
 
