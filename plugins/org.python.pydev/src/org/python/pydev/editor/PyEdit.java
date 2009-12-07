@@ -545,7 +545,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 }
             };
             Thread thread = new Thread(runnable);
-            thread.setPriority(Thread.MIN_PRIORITY);
             thread.setName("PyEdit initializer");
             thread.start();
         }catch (Throwable e) {
