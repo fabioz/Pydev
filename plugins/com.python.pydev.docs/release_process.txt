@@ -92,12 +92,7 @@ Add news in forum (same as e-mail)
 
 Send e-mail
 
-update in eclipse plugin central:
-
-
-		EPIC: Login -- http://www.eclipseplugincentral.com/user.html user:fabioz
-		find Pydev plugin > Modify link > add update site
-
+update version in eclipse marketplace: http://marketplace.eclipse.org/
 
 Add blog post / twitter
 
