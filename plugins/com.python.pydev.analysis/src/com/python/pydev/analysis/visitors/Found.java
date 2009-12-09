@@ -12,7 +12,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 
 import com.python.pydev.analysis.visitors.ImportChecker.ImportInfo;
 
-public class Found implements Iterable<GenAndTok>{
+public final class Found implements Iterable<GenAndTok>{
     
     private List<GenAndTok> found = new ArrayList<GenAndTok>();
     
