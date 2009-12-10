@@ -26,6 +26,12 @@ It comes with many goodies such as:
 For more details on the provided features, check the `Features Matrix`_.
 
 
+Release 1.5.3
+===============
+
+Fixed bug where an error was being print to the pydev console on a run.
+
+
 Release 1.5.2
 ===============
 
