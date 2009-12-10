@@ -136,7 +136,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
     public ICompletionProposal[] computeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
         int offset = invocationContext.getOffset();
         PySelection ps = edit.createPySelection();
-        if(!(this.edit instanceof PyEdit)){
+        if(!(this.edit instanceof PyEdit) || ps == null){
             return new ICompletionProposal[0];
         }
         PyEdit editor = (PyEdit) this.edit;

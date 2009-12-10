@@ -10,12 +10,11 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
@@ -339,18 +338,19 @@ public class PyBackspace extends PyAction {
                         //that's OK (only available in eclipse 3.5)
                     }
                     if(!blockSelection){
-                        Point selectionRange = viewer.getTextWidget().getSelectionRange();
-                        //Only do our custom backspace if we're not in block selection mode.
-                        PyBackspace pyBackspace = new PyBackspace();
-                        if(edit != null){
-                            pyBackspace.setEditor(edit);
-                        }else{
-                            pyBackspace.setIndentPrefs(new DefaultIndentPrefs());
+                        ISelection selection = viewer.getSelection();
+                        if(selection instanceof ITextSelection){
+                            //Only do our custom backspace if we're not in block selection mode.
+                            PyBackspace pyBackspace = new PyBackspace();
+                            if(edit != null){
+                                pyBackspace.setEditor(edit);
+                            }else{
+                                pyBackspace.setIndentPrefs(new DefaultIndentPrefs());
+                            }
+                            PySelection ps = new PySelection(viewer.getDocument(), (ITextSelection)selection);
+                            pyBackspace.perform(ps);
+                            event.doit = false;
                         }
-                        PySelection ps = new PySelection(viewer.getDocument(), 
-                                new TextSelection(viewer.getDocument(), selectionRange.x, selectionRange.y));
-                        pyBackspace.perform(ps);
-                        event.doit = false;
                     }
                 }
             }

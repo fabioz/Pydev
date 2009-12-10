@@ -15,13 +15,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.TextSelection;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
@@ -163,9 +163,12 @@ public class PyMergeViewer extends TextMergeViewer {
             }
 
             public PySelection createPySelection() {
-                Point selectionRange = sourceViewer.getTextWidget().getSelectionRange();
-                return new PySelection(sourceViewer.getDocument(), 
-                    new TextSelection(sourceViewer.getDocument(), selectionRange.x, selectionRange.y));
+                ISelection selection = sourceViewer.getSelection();
+                if(selection instanceof ITextSelection){
+                    return new PySelection(sourceViewer.getDocument(), (ITextSelection)selection);
+                }else{
+                    return null;
+                }
             }
 
             public File getEditorFile() {

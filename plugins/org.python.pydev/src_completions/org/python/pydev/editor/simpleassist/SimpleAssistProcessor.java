@@ -182,6 +182,9 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                 String qualifier = strs[1];
    
                 PySelection ps = edit.createPySelection();
+                if(ps == null){
+                    return new ICompletionProposal[0];
+                }
                 List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
    
                 for (ISimpleAssistParticipant participant : participants) {
