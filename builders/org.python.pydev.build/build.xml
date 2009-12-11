@@ -137,6 +137,8 @@
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: get.revision                      
+          Maybe we should use the date??
+          perl -e '($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(1260491365); $year = $year + 1900;printf "%04d%02d%02d%02d", $year,$mon,$mday,$hour,"\n"'
          - - - - - - - - - - - - - - - - - -->
     <target name="get.revision" unless="build.revision">
 	   	<echo message="Retrieving Git timestamp for latest revision" level="info" />
