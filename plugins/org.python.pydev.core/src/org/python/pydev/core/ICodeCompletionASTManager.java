@@ -265,5 +265,10 @@ public interface ICodeCompletionASTManager {
      */
     public IToken resolveImport(ICompletionState state, IToken imported) throws CompletionRecursionException;
 
+    /**
+     * @return object to lock on.
+     */
+    public Object getLock();
+
     
 }

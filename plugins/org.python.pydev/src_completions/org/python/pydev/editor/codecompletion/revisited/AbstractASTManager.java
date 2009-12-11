@@ -61,6 +61,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     public AbstractASTManager(){
     }
     
+    private transient Object lock;
+    public synchronized Object getLock(){
+        if(lock == null){
+            lock = new Object();
+        }
+        return lock;
+    }
+    
     public AssignAnalysis getAssignAnalysis() {
         if(assignAnalysis == null){
             assignAnalysis = new AssignAnalysis();

@@ -31,6 +31,7 @@ public class PyHierarchyView extends ViewPart implements HierarchyNodeViewListen
     private static HierarchyViewer viewer;
     private MouseListener treeMouseListener;
     private Tree tree;
+    private Object lock = new Object();
 
     @Override
     public void createPartControl(Composite parent) {
@@ -93,7 +94,7 @@ public class PyHierarchyView extends ViewPart implements HierarchyNodeViewListen
                 
 
                 public void run() {
-                    synchronized(tree){
+                    synchronized(lock){
                         ClassDef ast = view.model.ast;
                         if(ast != null){
                             tree.removeAll();

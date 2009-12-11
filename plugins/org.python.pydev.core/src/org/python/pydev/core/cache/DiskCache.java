@@ -47,7 +47,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
      * Custom deserialization is needed.
      */
     @SuppressWarnings("unchecked")
-    private synchronized void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
         lock = new Object(); //It's transient, so, we must restore it.
         aStream.defaultReadObject();
         keys = (Set<String>) aStream.readObject();
@@ -62,7 +62,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
     /**
      * Custom serialization is needed.
      */
-    private synchronized void writeObject(ObjectOutputStream aStream) throws IOException {
+    private void writeObject(ObjectOutputStream aStream) throws IOException {
         synchronized (lock) {
             aStream.defaultWriteObject();
             //write only the keys
@@ -85,7 +85,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
     }
     
     
-    public synchronized Serializable getObj(String key) {
+    public Serializable getObj(String key) {
         synchronized(lock){
             Serializable v = super.getObj(key);
             if(v == null && keys.contains(key)){
@@ -109,14 +109,16 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
         }
     }
 
-    private synchronized File getFileForKey(String o) {
-        return new File(folderToPersist, o+suffix);
+    private File getFileForKey(String o) {
+        synchronized(lock){
+            return new File(folderToPersist, o+suffix);
+        }
     }
 
     /**
      * Removes both: from the memory and from the disk
      */
-    public synchronized void remove(String key) {
+    public void remove(String key) {
         synchronized(lock){
             if(DEBUG){
                 System.out.println("Disk cache - Removing: "+key);
@@ -131,7 +133,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
     /**
      * Adds to both: the memory and the disk
      */
-    public synchronized void add(String key, Serializable n) {
+    public void add(String key, Serializable n) {
         synchronized(lock){
             super.add(key, n);
             File fileForKey = getFileForKey(key);
@@ -146,7 +148,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
     /**
      * Clear the whole cache.
      */
-    public synchronized void clear() {
+    public void clear() {
         synchronized(lock){
             for(String key : keys){
                 super.remove(key);
@@ -160,7 +162,7 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
     /**
      * @return a copy of the keys available 
      */
-    public synchronized Set<String> keys() {
+    public Set<String> keys() {
         synchronized(lock){
             return new HashSet<String>(keys);
         }
@@ -168,11 +170,15 @@ public class DiskCache extends LRUCache<String, Serializable> implements Seriali
 
 
     public void setFolderToPersist(String folderToPersist) {
-        this.folderToPersist = folderToPersist;
+        synchronized(lock){
+            this.folderToPersist = folderToPersist;
+        }
     }
 
 
     public String getFolderToPersist() {
-        return folderToPersist;
+        synchronized(lock){
+            return folderToPersist;
+        }
     }
 }

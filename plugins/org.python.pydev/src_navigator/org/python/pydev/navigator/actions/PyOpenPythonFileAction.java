@@ -103,7 +103,6 @@ public class PyOpenPythonFileAction extends Action {
      * This method will get the given selection and fill the related attributes to match the selection correctly
      * (files, nodes and containers).
      */
-    @SuppressWarnings("unchecked")
     private synchronized void fillSelections() {
         filesSelected.clear();
         nodesSelected.clear();

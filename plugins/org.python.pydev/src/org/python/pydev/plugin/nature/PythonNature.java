@@ -103,6 +103,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
     
     
+    private Object initLock = new Object();
+    
     
     
     /**
@@ -117,7 +119,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
           super("Python Nature: rebuilding modules");
         }
     
-        public synchronized void setParams(String paths) {
+        private void setParams(String paths) {
             submittedPaths = paths;
         }
 
@@ -135,7 +137,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     if (tempAstManager == null) {
                         tempAstManager = new ASTManager();
                     }
-                    synchronized(tempAstManager){
+                    synchronized(tempAstManager.getLock()){
                         astManager = tempAstManager;
                         tempAstManager.setProject(getProject(), nature, false); //it is a new manager, so, remove all deltas
 
@@ -306,7 +308,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     }
 
-    public static synchronized IPythonNature addNature(IEditorInput element) {
+    public static IPythonNature addNature(IEditorInput element) {
         if(element instanceof FileEditorInput){
             IFile file = (IFile)((FileEditorInput)element).getAdapter(IFile.class);
             if (file != null){
@@ -461,7 +463,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @param interpreter 
      */
     @SuppressWarnings("unchecked")
-    private synchronized void init(
+    private void init(
             String version, 
             String projectPythonpath, 
             String externalProjectPythonpath, 
@@ -470,78 +472,80 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             Map<String, String> variableSubstitution
         ) {
         
-        if(version != null || projectPythonpath != null || externalProjectPythonpath != null || variableSubstitution != null){
-            this.getStore().startInit();
-            try {
-                if(variableSubstitution != null){
-                    this.getPythonPathNature().setVariableSubstitution(variableSubstitution);
-                }
-                if(projectPythonpath != null){
-                    this.getPythonPathNature().setProjectSourcePath(projectPythonpath);
-                }
-                if(externalProjectPythonpath != null){
-                    this.getPythonPathNature().setProjectExternalSourcePath(externalProjectPythonpath);
-                }
-                if(version != null || interpreter != null){
-                    this.setVersion(version, interpreter);
-                }
-            } catch (CoreException e) {
-                PydevPlugin.log(e);
-            }finally{
-                this.getStore().endInit();
-            }
-        }else{
-            //Change: 1.3.10: it could be reloaded more than once... (when it shouldn't) 
-            if(astManager != null){
-                return; //already initialized...
-            }
-        }
-        
-        if(initializationStarted || monitor.isCanceled()){
-            return;
-        }
-        
-        initializationStarted = true;
-        //Change: 1.3.10: no longer in a Job... should already be called in a job if that's needed.
-
-        try {
-            astManager = ASTManager.loadFromFile(getAstOutputFile());
-            if (astManager != null) {
-                synchronized (astManager) {
-                    astManager.setProject(getProject(), this, true); // this is the project related to it, restore the deltas (we may have some crash)
-
-                    //just a little validation so that we restore the needed info if we did not get the modules
-                    if (astManager.getModulesManager().getOnlyDirectModules().length < 5) {
-                        astManager = null;
+        synchronized(initLock){
+            if(version != null || projectPythonpath != null || externalProjectPythonpath != null || variableSubstitution != null){
+                this.getStore().startInit();
+                try {
+                    if(variableSubstitution != null){
+                        this.getPythonPathNature().setVariableSubstitution(variableSubstitution);
                     }
-
-                    if (astManager != null) {
-                        List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-                        for (IInterpreterObserver observer : participants) {
-                            try {
-                                observer.notifyNatureRecreated(this, monitor);
-                            } catch (Exception e) {
-                                //let's not fail because of other plugins
-                                PydevPlugin.log(e);
+                    if(projectPythonpath != null){
+                        this.getPythonPathNature().setProjectSourcePath(projectPythonpath);
+                    }
+                    if(externalProjectPythonpath != null){
+                        this.getPythonPathNature().setProjectExternalSourcePath(externalProjectPythonpath);
+                    }
+                    if(version != null || interpreter != null){
+                        this.setVersion(version, interpreter);
+                    }
+                } catch (CoreException e) {
+                    PydevPlugin.log(e);
+                }finally{
+                    this.getStore().endInit();
+                }
+            }else{
+                //Change: 1.3.10: it could be reloaded more than once... (when it shouldn't) 
+                if(astManager != null){
+                    return; //already initialized...
+                }
+            }
+            
+            if(initializationStarted || monitor.isCanceled()){
+                return;
+            }
+            
+            initializationStarted = true;
+            //Change: 1.3.10: no longer in a Job... should already be called in a job if that's needed.
+    
+            try {
+                astManager = ASTManager.loadFromFile(getAstOutputFile());
+                if (astManager != null) {
+                    synchronized (astManager.getLock()) {
+                        astManager.setProject(getProject(), this, true); // this is the project related to it, restore the deltas (we may have some crash)
+    
+                        //just a little validation so that we restore the needed info if we did not get the modules
+                        if (astManager.getModulesManager().getOnlyDirectModules().length < 5) {
+                            astManager = null;
+                        }
+    
+                        if (astManager != null) {
+                            List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+                            for (IInterpreterObserver observer : participants) {
+                                try {
+                                    observer.notifyNatureRecreated(this, monitor);
+                                } catch (Exception e) {
+                                    //let's not fail because of other plugins
+                                    PydevPlugin.log(e);
+                                }
                             }
                         }
                     }
                 }
-            }
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-            astManager = null;
-        }
-        
-        //errors can happen when restoring it
-        if(astManager == null){
-            try {
-                rebuildPath();
             } catch (Exception e) {
                 PydevPlugin.log(e);
+                astManager = null;
             }
+            
+            //errors can happen when restoring it
+            if(astManager == null){
+                try {
+                    rebuildPath();
+                } catch (Exception e) {
+                    PydevPlugin.log(e);
+                }
+            }
+            initializationFinished = true;
         }
-        initializationFinished = true;
     }
 
 
@@ -587,13 +591,16 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
 
     private RebuildPythonNatureModules rebuildJob = new RebuildPythonNatureModules();
     
+    private Object setParamsLock = new Object();
     /**
      * This method is called whenever the pythonpath for the project with this nature is changed. 
      */
-    private synchronized void rebuildPath(final String paths) {
-        rebuildJob.cancel();
-        rebuildJob.setParams(paths);
-        rebuildJob.schedule(20L);
+    private void rebuildPath(final String paths) {
+        synchronized(setParamsLock){
+            rebuildJob.cancel();
+            rebuildJob.setParams(paths);
+            rebuildJob.schedule(20L);
+        }
     }
         
     
@@ -808,7 +815,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             REF.writeToFile(null, astOutputFile);
             
         }else{
-            synchronized(astManager){
+            synchronized(astManager.getLock()){
                 REF.writeToFile(astManager, astOutputFile);
             }
         }

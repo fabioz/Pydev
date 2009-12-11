@@ -99,6 +99,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * A stack for keeping the completion cache
      */
     protected transient volatile CompletionCache completionCache = null;
+    protected transient Object lockCompletionCache = new Object();
 
     private transient volatile int completionCacheI = 0;
 
@@ -106,20 +107,24 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * This method starts a new cache for this manager, so that needed info is kept while the request is happening
      * (so, some info may not need to be re-asked over and over for requests) 
      */
-    public synchronized boolean startCompletionCache() {
-        if (completionCache == null) {
-            completionCache = new CompletionCache();
+    public boolean startCompletionCache() {
+        synchronized(lockCompletionCache){
+            if (completionCache == null) {
+                completionCache = new CompletionCache();
+            }
+            completionCacheI += 1;
         }
-        completionCacheI += 1;
         return true;
     }
 
-    public synchronized void endCompletionCache() {
-        completionCacheI -= 1;
-        if (completionCacheI == 0) {
-            completionCache = null;
-        } else if (completionCacheI < 0) {
-            throw new RuntimeException("Completion cache negative (request unsynched)");
+    public void endCompletionCache() {
+        synchronized(lockCompletionCache){
+            completionCacheI -= 1;
+            if (completionCacheI == 0) {
+                completionCache = null;
+            } else if (completionCacheI < 0) {
+                throw new RuntimeException("Completion cache negative (request unsynched)");
+            }
         }
     }
 
@@ -169,6 +174,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     @SuppressWarnings("unchecked")
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
+        lockCompletionCache = new Object();
         modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
 
         files = new HashSet<File>();

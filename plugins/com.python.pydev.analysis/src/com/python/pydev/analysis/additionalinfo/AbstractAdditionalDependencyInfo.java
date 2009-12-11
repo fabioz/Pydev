@@ -191,7 +191,6 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
     
     
-    @SuppressWarnings("unchecked")
     @Override
     protected void restoreSavedInfo(Object o){
         synchronized (lock) {
