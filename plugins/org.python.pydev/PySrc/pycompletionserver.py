@@ -32,6 +32,7 @@ except ImportError:
     import importsTipper
     
 
+import sys
 if sys.platform == "darwin":
     #See: https://sourceforge.net/projects/pydev/forums/forum/293649/topic/3454227
     try:
@@ -40,7 +41,6 @@ if sys.platform == "darwin":
         pass
 
 
-import sys
 #initial sys.path
 _sys_path = []
 for p in sys.path:
