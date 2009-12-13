@@ -232,7 +232,8 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                     String docstring = d.getDocstring();
                     if(docstring != null && docstring.trim().length() > 0){
                         IIndentPrefs indentPrefs = edit.getIndentPrefs();
-                        temp.append(StringUtils.fixWhitespaceColumnsToLeftFromDocstring(docstring, indentPrefs.getIndentationString()));
+                        temp.append(StringUtils.fixWhitespaceColumnsToLeftFromDocstring(
+                                docstring, indentPrefs.getIndentationString()));
                     }
                 }
                 
@@ -253,7 +254,8 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
             
             Str docStr = NodeUtils.getNodeDocStringNode(astToPrint);
             if(docStr != null){
-                docStr.s = StringUtils.fixWhitespaceColumnsToLeftFromDocstring(docStr.s, indentPrefs.getIndentationString());
+                docStr.s = StringUtils.fixWhitespaceColumnsToLeftFromDocstring(
+                        docStr.s, indentPrefs.getIndentationString());
             }
             
             PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(
