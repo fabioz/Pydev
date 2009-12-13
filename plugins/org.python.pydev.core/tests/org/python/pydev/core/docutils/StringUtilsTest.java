@@ -80,6 +80,20 @@ public class StringUtilsTest extends TestCase {
         assertEquals("foo\n   foo\n", StringUtils.removeWhitespaceColumnsToLeft(" foo\n    foo\n"));
     }
     
+    public void testTrim() throws Exception {
+        assertEquals("  foo", StringUtils.rightTrim("  foo  "));
+        assertEquals("foo  ", StringUtils.leftTrim("  foo  "));
+        assertEquals("\t\tfoo", StringUtils.rightTrim("\t\tfoo\t\t"));
+        assertEquals("foo\t\t", StringUtils.leftTrim("\t\tfoo\t\t"));
+        
+    }
+    public void testFixWhitespaceColumnsToLeftFromDocstring() throws Exception {
+        assertEquals("foo", StringUtils.fixWhitespaceColumnsToLeftFromDocstring("foo", "    "));
+        assertEquals("\n    foo", StringUtils.fixWhitespaceColumnsToLeftFromDocstring("\nfoo", "    "));
+        assertEquals("\n    foo\n    ", StringUtils.fixWhitespaceColumnsToLeftFromDocstring("\nfoo\n", "    "));
+        assertEquals("\n    \n    foo\n    ", StringUtils.fixWhitespaceColumnsToLeftFromDocstring("\n\nfoo\n", "    "));
+    }
+    
     public void testSplitOn1st() throws Exception {
         assertEquals(new Tuple<String, String>("aa", "bb.cc"), StringUtils.splitOnFirst("aa.bb.cc", '.'));
         assertEquals(new Tuple<String, String>("aa_bb_cc", ""), StringUtils.splitOnFirst("aa_bb_cc", '.'));

@@ -69,7 +69,7 @@ public class PyDebugHover implements IPyHoverParticipant{
             IValue value = watchExpression.getValue();
             if(value != null){
                 try {
-                    return value.getValueString();
+                    return value.getValueString()+"\n";
                 } catch (DebugException e) {
                     PydevPlugin.log(e);
                 }

@@ -7,6 +7,8 @@ import java.util.ListIterator;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.commentType;
@@ -34,6 +36,17 @@ public class PrettyPrinterV2 {
     private final int LEVEL_BRACKETS = 1; //[]
     private final int LEVEL_BRACES = 2; //{} 
     
+    public static PrettyPrinterPrefsV2 createDefaultPrefs(IGrammarVersionProvider versionProvider, IIndentPrefs indentPrefs, String endLineDelim) {
+        PrettyPrinterPrefsV2 prettyPrinterPrefs = new PrettyPrinterPrefsV2(
+                endLineDelim, indentPrefs.getIndentationString(), versionProvider);
+        
+        prettyPrinterPrefs.setSpacesAfterComma(1);
+        prettyPrinterPrefs.setSpacesBeforeComment(1);
+        prettyPrinterPrefs.setLinesAfterMethod(1);
+        prettyPrinterPrefs.setLinesAfterClass(2);
+        prettyPrinterPrefs.setLinesAfterSuite(1);
+        return prettyPrinterPrefs;
+    }
     
 
     public PrettyPrinterV2(IPrettyPrinterPrefs prefs) {
@@ -386,4 +399,6 @@ public class PrettyPrinterV2 {
     public String toString() {
         return "PrettyPrinterV2[\n"+this.writeStateV2+"\n]";
     }
+
+
 }

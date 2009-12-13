@@ -342,6 +342,16 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
                 s = StringIO()
                 traceback.print_exc(file=s)
                 result = s.getvalue()
+
+                try:
+                    try:
+                        etype, value, tb = sys.exc_info()
+                        result = value
+                    finally:
+                        etype = value = tb = None
+                except:
+                    pass
+                
             return result
     finally:
         #Should not be kept alive if an exception happens and this frame is kept in the stack.

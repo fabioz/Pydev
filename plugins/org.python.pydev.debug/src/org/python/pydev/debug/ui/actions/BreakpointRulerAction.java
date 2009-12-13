@@ -42,6 +42,8 @@ import org.python.pydev.editorinput.PydevFileEditorInput;
 
 public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
 
+    public static final String PYDEV_BREAKPOINT = "Pydev breakpoint";
+
     private List<IMarker> fMarkers;
 
     private String fAddLabel;
@@ -108,7 +110,7 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
                 return;
             }
 
-            map.put(IMarker.MESSAGE, "Pydev breakpoint");
+            map.put(IMarker.MESSAGE, PYDEV_BREAKPOINT);
             map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
             map.put(IBreakpoint.ENABLED, new Boolean(true));
             map.put(IBreakpoint.ID, PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
