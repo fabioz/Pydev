@@ -2,7 +2,10 @@ package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
@@ -14,7 +17,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
           //DEBUG_TESTS_BASE = true;
           PythonCompletionCalltipsTest test = new PythonCompletionCalltipsTest();
           test.setUp();
-          test.testCalltips6();
+          test.testMakeArgsForDocumentReplacement();
           test.tearDown();
           System.out.println("Finished");
 
@@ -129,6 +132,26 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         assertFalse(validator.isContextInformationValid(0));
         assertTrue(validator.isContextInformationValid(requestOffset));
         assertFalse(validator.isContextInformationValid(requestOffset+1));
+        assertEquals("a, b", contextInformation.getContextDisplayString());
+    }
+    
+    public void testCalltips3a() throws Exception {
+        String s;
+        s = "" +
+        "def m1((a, b), c):\n" +
+        "    print a, b, c\n" +
+        "m1()";  
+        PyContextInformationValidator validator = new PyContextInformationValidator();
+        int requestOffset = s.length()-1;
+        ICompletionProposal[] proposals = requestCompl(s, requestOffset, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) proposals[0].getContextInformation();
+        
+        validator.install(contextInformation, new Document(s), requestOffset);
+        assertFalse(validator.isContextInformationValid(0));
+        assertTrue(validator.isContextInformationValid(requestOffset));
+        assertFalse(validator.isContextInformationValid(requestOffset+1));
+        assertEquals("(a, b), c", contextInformation.getContextDisplayString());
     }
     
     public void testCalltips4() throws Exception {
@@ -178,4 +201,28 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         requestCompl(s, s.length(), 4, new String[] {"__file__", "__name__", "method1(a, b)", "__path__"});
     }
         
+    
+    public void testMakeArgsForDocumentReplacement() throws Exception {
+        
+        FastStringBuffer temp = new FastStringBuffer();
+        FastStringBuffer result = new FastStringBuffer();
+        assertEquals("", AbstractPyCodeCompletion.makeArgsForDocumentReplacement("", result, temp));
+        assertEquals("()", AbstractPyCodeCompletion.makeArgsForDocumentReplacement("()", result, temp));
+        assertEquals("(a, b, c)", AbstractPyCodeCompletion.makeArgsForDocumentReplacement("(a, b, c)", result, temp));
+        assertEquals("((a, b), c)", AbstractPyCodeCompletion.makeArgsForDocumentReplacement("((a, b), c)", result, temp));
+        assertEquals("(a, b)", AbstractPyCodeCompletion.makeArgsForDocumentReplacement("(object a, object b)", result, temp));
+        assertEquals("(a, b)", AbstractPyCodeCompletion.makeArgsForDocumentReplacement("(o\ta,\to\tb)", result, temp));
+        assertEquals("(a, *b, **c)", AbstractPyCodeCompletion.makeArgsForDocumentReplacement("(o\ta,\to\t* b, o  **  c)", result, temp));
+        
+    }
+    public void testCalltipsArgs() throws Exception {
+        assertEquals("()", AbstractPyCodeCompletion.getArgs("", IToken.TYPE_FUNCTION, ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+        assertEquals("()", AbstractPyCodeCompletion.getArgs("(", IToken.TYPE_FUNCTION, ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+        assertEquals("()", AbstractPyCodeCompletion.getArgs(")", IToken.TYPE_FUNCTION, ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+        assertEquals("(a, b)", AbstractPyCodeCompletion.getArgs("(a, b)", IToken.TYPE_FUNCTION, ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+        assertEquals("(a, b)", AbstractPyCodeCompletion.getArgs("(self, a, b)", IToken.TYPE_FUNCTION, ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+        assertEquals("(a, b)", AbstractPyCodeCompletion.getArgs("(cls, a, b)", IToken.TYPE_FUNCTION, ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+        assertEquals("(clsParam, a, b)", AbstractPyCodeCompletion.getArgs("(clsParam, a, b)", IToken.TYPE_FUNCTION, ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+        assertEquals("(selfParam, a, b)", AbstractPyCodeCompletion.getArgs("(selfParam, a, b)", IToken.TYPE_FUNCTION, ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE));
+    }
 }

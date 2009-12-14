@@ -25,8 +25,10 @@ def _imp(name):
             s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
             raise ImportError(s)
         
-        
+
+IS_IPY = False
 if sys.platform == 'cli':
+    IS_IPY = True
     _old_imp = _imp
     def _imp(name):
         #We must add a reference in clr for .Net
@@ -204,45 +206,64 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                             #ok, let's see if we can get the arguments from the doc
                             args = '()'
                             try:
+                                found = False
                                 if len(doc) > 0:
-                                    i = doc.find('->')
-                                    if i < 0:
-                                        i = doc.find('--')
+                                    if IS_IPY:
+                                        #Handle case where we have the situation below
+                                        #sort(self, object cmp, object key)
+                                        #sort(self, object cmp, object key, bool reverse)
+                                        #sort(self)
+                                        #sort(self, object cmp)
+                                        if hasattr(obj, '__name__'):
+                                            name = obj.__name__+'('
+                                            major = ''
+                                            for line in doc.splitlines():
+                                                if line.startswith(name) and line.endswith(')'):
+                                                    if len(line) > len(major):
+                                                        major = line
+                                            if major:
+                                                args = major[major.index('('):]
+                                                found = True
+                                            
+                                    if not found:
+                                        i = doc.find('->')
                                         if i < 0:
-                                            i = doc.find('\n')
+                                            i = doc.find('--')
                                             if i < 0:
-                                                i = doc.find('\r')
+                                                i = doc.find('\n')
+                                                if i < 0:
+                                                    i = doc.find('\r')
+                                                
+                                                
+                                        if i > 0:
+                                            s = doc[0:i]
+                                            s = s.strip()
                                             
-                                            
-                                    if i > 0:
-                                        s = doc[0:i]
-                                        s = s.strip()
-                                        
-                                        #let's see if we have a docstring in the first line
-                                        if s[-1] == ')':
-                                            start = s.find('(')
-                                            if start >= 0:
-                                                end = s.find('[')
-                                                if end <= 0:
-                                                    end = s.find(')')
+                                            #let's see if we have a docstring in the first line
+                                            if s[-1] == ')':
+                                                start = s.find('(')
+                                                if start >= 0:
+                                                    end = s.find('[')
                                                     if end <= 0:
-                                                        end = len(s)
-                                                
-                                                args = s[start:end]
-                                                if not args[-1] == ')':
-                                                    args = args + ')'
-    
-                                                
-                                                #now, get rid of unwanted chars
-                                                l = len(args) - 1
-                                                r = []
-                                                for i in range(len(args)):
-                                                    if i == 0 or i == l:
-                                                        r.append(args[i])
-                                                    else:
-                                                        r.append(CheckChar(args[i]))
-                                                        
-                                                args = ''.join(r)
+                                                        end = s.find(')')
+                                                        if end <= 0:
+                                                            end = len(s)
+                                                    
+                                                    args = s[start:end]
+                                                    if not args[-1] == ')':
+                                                        args = args + ')'
+        
+                                                    
+                                                    #now, get rid of unwanted chars
+                                                    l = len(args) - 1
+                                                    r = []
+                                                    for i in range(len(args)):
+                                                        if i == 0 or i == l:
+                                                            r.append(args[i])
+                                                        else:
+                                                            r.append(CheckChar(args[i]))
+                                                            
+                                                    args = ''.join(r)
                                                 
                             except:
                                 pass

@@ -2,7 +2,6 @@ package org.python.pydev.editor.codecompletion;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -37,6 +36,9 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
      */
     protected void changeItokenToCompletionPropostal(ITextViewer viewer, CompletionRequest request, 
             List<ICompletionProposal> convertedProposals, List<Object> iTokenList, boolean importsTip, ICompletionState state) {
+        
+        FastStringBuffer result = new FastStringBuffer();
+        FastStringBuffer temp = new FastStringBuffer();
         
         for (Iterator<Object> iter = iTokenList.iterator(); iter.hasNext();) {
             
@@ -97,8 +99,12 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                 if(args.length() > 2){
                     pyContextInformation = new PyCalltipsContextInformation(args, replacementOffset+name.length()+notInCalltip); //just after the parenthesis
                 }
-                PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(name+args,
-                        replacementOffset, request.qlen, l, element, null, 
+                
+                
+                String replacementString = name+makeArgsForDocumentReplacement(args, result, temp);
+                String displayString = name+args;
+                PyCompletionProposal proposal = new PyLinkedModeCompletionProposal(replacementString,
+                        replacementOffset, request.qlen, l, element, displayString, 
                         pyContextInformation, priority, onApplyAction, args);
                 
 
@@ -133,7 +139,72 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
         }
     }
 
+    private static int STATE_INITIAL = 0;
+    private static int STATE_FOUND_CHAR = 1;
+    private static int STATE_FOUND_WHITESPACE = 2;
+    private static int STATE_FOUND_WHITESPACE_AFTER_CHAR = 3;
     
+    /**
+     * Converts the arguments received to arguments to be added to the document. See tests for examples.
+     * 
+     * result and temp are the buffers that are used in this function to build the arguments. They are cleared
+     * before use (this is an optimization so that we don't need to recreate them at each time here as it's
+     * called within a loop).
+     */
+    public static String makeArgsForDocumentReplacement(String args, FastStringBuffer result, FastStringBuffer temp) {
+        result = result.clear();
+        temp = temp.clear();
+        
+        int state=STATE_INITIAL;
+        int starsToAdd = 0;
+        
+        for(char c:args.toCharArray()){
+            if(c == '*'){
+                starsToAdd++;
+                continue;
+            }
+            if(c == ',' || c == '(' || c == ')'){
+                appendTempToResult(result, temp, starsToAdd);
+                result.append(c);
+                temp.clear();
+                starsToAdd = 0;
+                state = STATE_INITIAL;
+            }else{
+                if(Character.isWhitespace(c)){
+                    if(state == STATE_FOUND_CHAR){
+                        state = STATE_FOUND_WHITESPACE_AFTER_CHAR;
+                        
+                    }else if(state != STATE_FOUND_WHITESPACE_AFTER_CHAR){
+                        state = STATE_FOUND_WHITESPACE;
+                    }
+                    continue;
+                }else{
+                    if(state == STATE_FOUND_WHITESPACE_AFTER_CHAR){
+                        temp.clear();
+                    }
+                    state = STATE_FOUND_CHAR;
+                }
+                temp.append(c);
+            }
+        }
+        appendTempToResult(result, temp, starsToAdd);
+        return result.toString();
+    }
+
+
+
+
+    private static void appendTempToResult(FastStringBuffer result, FastStringBuffer temp, int starsToAdd) {
+        if(result.toString().trim().endsWith(",")){
+            result.append(' ');
+        }
+        result.appendN('*', starsToAdd);
+        result.append(temp);
+    }
+
+
+
+
     protected String getArgs(IToken element, ICompletionState state) {
         int lookingFor = state.getLookingFor();
         return getArgs(element, lookingFor);
@@ -146,35 +217,60 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
     /**
      * @return a string with the arguments to be shown for the given element.
      * 
-     * E.g.: >>(self, a, b)<<
+     * E.g.: >>(self, a, b)<< Returns (a, b)
      */
     public static String getArgs(String argsReceived, int type, int lookingFor) {
         String args = "";
         boolean lookingForInstance = lookingFor==ICompletionState.LOOKING_FOR_INSTANCE_UNDEFINED || 
                                      lookingFor==ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE ||
                                      lookingFor==ICompletionState.LOOKING_FOR_ASSIGN;
-        if(argsReceived.trim().length() > 0){
+        String trimmed = argsReceived.trim();
+        if(trimmed.length() > 0){
             FastStringBuffer buffer = new FastStringBuffer("(", 128);
-            StringTokenizer strTok = new StringTokenizer(argsReceived, "( ,)");
-
-            while(strTok.hasMoreTokens()){
-                String tok = strTok.nextToken();
-                boolean addIt;
-                if(lookingForInstance && tok.equals("self")){
-                    addIt=false;
-                }else if(!lookingForInstance && tok.equals("cls")){
-                    addIt=false;
-                }else{
-                    addIt=true;
-                }
-                
-                if(addIt){
-                    if(buffer.length() > 1){
-                        buffer.append(", ");
-                    }
-                    buffer.append(tok);
+            
+            
+            char c = trimmed.charAt(0);
+            if(c == '('){
+                trimmed = trimmed.substring(1);
+            }
+            if(trimmed.length() > 0){
+                c = trimmed.charAt(trimmed.length()-1);
+                if(c == ')'){
+                    trimmed = trimmed.substring(0, trimmed.length()-1);
                 }
             }
+            trimmed = trimmed.trim();
+            
+            
+            //Now, if it starts with self or cls, we may have to remove it.
+            String temp;
+            if(lookingForInstance && trimmed.startsWith("self")){
+                temp = trimmed.substring(4);
+                
+            }else if(trimmed.startsWith("cls")){
+                temp = trimmed.substring(3);
+            }else{
+                temp = trimmed;
+            }
+            temp = temp.trim();
+            if(temp.length()>0){
+                //but only if it wasn't a self or cls followed by a valid identifier part.
+                if(!Character.isJavaIdentifierPart(temp.charAt(0))){
+                    trimmed = temp;
+                }
+            }else{
+                trimmed = temp;
+            }
+            
+            
+            
+            trimmed = trimmed.trim();
+            if(trimmed.startsWith(",")){
+                trimmed = trimmed.substring(1);
+            }
+            trimmed = trimmed.trim();
+            buffer.append(trimmed);
+
             buffer.append(")");
             args = buffer.toString();
         } else if (type == IToken.TYPE_FUNCTION){
