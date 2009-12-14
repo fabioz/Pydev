@@ -37,6 +37,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyInformationPresenter;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
@@ -247,10 +248,15 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
         }
     }
 
-    private String printAst(PyEdit edit, SimpleNode astToPrint) {
+    public static String printAst(PyEdit edit, SimpleNode astToPrint) {
         String str = null;
         if(astToPrint != null){
-            IIndentPrefs indentPrefs = edit.getIndentPrefs();
+            IIndentPrefs indentPrefs;
+            if(edit != null){
+                indentPrefs = edit.getIndentPrefs();
+            }else{
+                indentPrefs = DefaultIndentPrefs.get();
+            }
             
             Str docStr = NodeUtils.getNodeDocStringNode(astToPrint);
             if(docStr != null){

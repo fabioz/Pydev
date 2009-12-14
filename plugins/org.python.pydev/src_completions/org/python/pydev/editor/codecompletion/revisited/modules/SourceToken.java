@@ -83,6 +83,10 @@ public class SourceToken extends AbstractToken{
     }
 
     
+    public void setAst(SimpleNode ast){
+        this.ast = ast;
+    }
+    
     public SimpleNode getAst(){
         return ast;
     }

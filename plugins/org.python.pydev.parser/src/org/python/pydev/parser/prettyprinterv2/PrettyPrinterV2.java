@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.commentType;
@@ -36,7 +37,16 @@ public class PrettyPrinterV2 {
     private final int LEVEL_BRACKETS = 1; //[]
     private final int LEVEL_BRACES = 2; //{} 
     
-    public static PrettyPrinterPrefsV2 createDefaultPrefs(IGrammarVersionProvider versionProvider, IIndentPrefs indentPrefs, String endLineDelim) {
+    public static PrettyPrinterPrefsV2 createDefaultPrefs(
+            IGrammarVersionProvider versionProvider, IIndentPrefs indentPrefs, String endLineDelim) {
+        if(versionProvider == null){
+            versionProvider = new IGrammarVersionProvider() {
+                
+                public int getGrammarVersion() throws MisconfigurationException {
+                    return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+                }
+            };
+        }
         PrettyPrinterPrefsV2 prettyPrinterPrefs = new PrettyPrinterPrefsV2(
                 endLineDelim, indentPrefs.getIndentationString(), versionProvider);
         
