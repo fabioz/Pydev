@@ -4,9 +4,11 @@ import java.lang.reflect.Modifier;
 import java.util.Enumeration;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.runner.ClassPathTestCollector;
 import junit.runner.TestCollector;
+
 
 public class AllTests {
     
@@ -23,7 +25,7 @@ public class AllTests {
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
             try {
-                suite.addTestSuite(Class.forName(name));
+                suite.addTestSuite((Class<? extends TestCase>) Class.forName(name));
             } catch (ClassNotFoundException e1) {
                 System.err.println("Cannot load test: " + e1);
             }
