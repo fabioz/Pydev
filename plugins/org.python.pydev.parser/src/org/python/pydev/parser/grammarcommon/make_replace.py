@@ -38,7 +38,17 @@ modType file_input(): {}
 #=======================================================================================================================
 # CreateNameDefinition
 #=======================================================================================================================
-def CreateNameDefinition():
+def CreateNameDefinition(accept_as, accept_with):
+    if accept_as:
+        accept_as = '|(t=<AS>)'
+    else:
+        accept_as = ''
+        
+    if accept_with:
+        accept_with = '|(t=<WITH>)'
+    else:
+        accept_with = ''
+        
     return '''
 Token Name() #Name:
 {
@@ -46,7 +56,7 @@ Token Name() #Name:
 }
 {
     try{
-        t = <NAME> 
+        (t = <NAME>)%s%s 
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
@@ -54,7 +64,7 @@ Token Name() #Name:
         { ((Name)jjtThis).id = t.image; return t; } {}
 
 }
-'''
+''' % (accept_as,accept_with)
 
 
 #=======================================================================================================================
@@ -436,12 +446,6 @@ Object[] begin_else_stmt(): {Object o1, o2;}
 # CreateGrammarFiles
 #=======================================================================================================================
 def CreateGrammarFiles():
-    files = [
-        os.path.join(parent_dir, 'grammar24', 'python.jjt_template'),
-        os.path.join(parent_dir, 'grammar25', 'python.jjt_template'),
-        os.path.join(parent_dir, 'grammar26', 'python.jjt_template'),
-        os.path.join(parent_dir, 'grammar30', 'python.jjt_template'),
-    ]
     
     NEWLINE = '''try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}'''
     
@@ -449,8 +453,6 @@ def CreateGrammarFiles():
         FILE_INPUT = CreateFileInput(NEWLINE),
         
         NEWLINE = NEWLINE,
-        
-        NAME_DEFINITION=CreateNameDefinition(),
         
         RPAREN ='''try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
         
@@ -557,7 +559,22 @@ void slice() #void: {}
     definitions['WHILE'] = CreateWhileWithDeps(definitions)
     definitions['BEGIN_ELSE'] = CreateBeginElseWithDeps(definitions)
     
-    for file in files:
+    
+    files = [
+        (os.path.join(parent_dir, 'grammar24', 'python.jjt_template'), 24),
+        (os.path.join(parent_dir, 'grammar25', 'python.jjt_template'), 25),
+        (os.path.join(parent_dir, 'grammar26', 'python.jjt_template'), 26),
+        (os.path.join(parent_dir, 'grammar30', 'python.jjt_template'), 30),
+    ]
+    
+    for file, version in files:
+        if version == 24:
+            definitions['NAME_DEFINITION']=CreateNameDefinition(True,False)
+        elif version == 25:
+            definitions['NAME_DEFINITION']=CreateNameDefinition(True,True)
+        else:
+            definitions['NAME_DEFINITION']=CreateNameDefinition(False,False)
+
         s = Template(open(file, 'r').read())
         s = s.substitute(**definitions)
         f = open(file[:-len('_template')], 'w')

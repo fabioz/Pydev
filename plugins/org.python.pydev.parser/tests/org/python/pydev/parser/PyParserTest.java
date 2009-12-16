@@ -38,14 +38,13 @@ public class PyParserTest extends PyParserTestBase{
             PyParserTest test = new PyParserTest();
             test.setUp();
             
-            Timer timer = new Timer();
+//            Timer timer = new Timer();
             //test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
-            for(int i=0;i<4;i++){
-                test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
-            }
-            timer.printDiff();
-//            test.testPassSame();
-//            test.testErr();
+//            for(int i=0;i<4;i++){
+//                test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
+//            }
+//            timer.printDiff();
+            test.testParserAs1();
             test.tearDown();
             
             
@@ -795,6 +794,25 @@ public class PyParserTest extends PyParserTestBase{
                 return true;
             }
         });
+    }
+    
+    public void testParserAs1() throws Throwable {
+        final String s = "" +
+        "as = 1\n"+
+        "print as\n" +
+        "" +
+        "with = 1\n"+
+        "print with\n" +
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4);
+        parseLegalDocStr(s);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        parseLegalDocStr(s);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
+        parseILegalDocStr(s);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        parseILegalDocStr(s);
     }
     
     

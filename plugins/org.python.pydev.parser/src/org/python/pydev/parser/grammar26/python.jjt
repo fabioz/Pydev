@@ -1305,7 +1305,7 @@ Token Name() #Name:
 }
 {
     try{
-        t = <NAME> 
+        (t = <NAME>) 
     }catch(ParseException e){
         t = handleErrorInName(e);
     }

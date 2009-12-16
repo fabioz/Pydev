@@ -1166,7 +1166,7 @@ Token Name() #Name:
 }
 {
     try{
-        t = <NAME> 
+        (t = <NAME>)|(t=<AS>) 
     }catch(ParseException e){
         t = handleErrorInName(e);
     }

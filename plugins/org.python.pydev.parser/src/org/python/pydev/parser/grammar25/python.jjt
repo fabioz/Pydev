@@ -1232,7 +1232,7 @@ Token Name() #Name:
 }
 {
     try{
-        t = <NAME> 
+        (t = <NAME>)|(t=<AS>)|(t=<WITH>) 
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
