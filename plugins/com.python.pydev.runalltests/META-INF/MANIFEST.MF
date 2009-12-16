@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.python.pydev.runalltests2
 Bundle-Version: 1.0.0
 Bundle-Activator: com.python.pydev.runalltests2.Activator
 Bundle-Vendor: PYTHON
-Require-Bundle: org.junit;resolution:=optional,
+Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
  org.eclipse.ui,
  org.eclipse.core.runtime,
  org.python.pydev,
@@ -22,5 +22,6 @@ Require-Bundle: org.junit;resolution:=optional,
  com.python.pydev.codecompletion,
  com.python.pydev.debug,
  com.python.pydev.fastparser,
- com.python.pydev.refactoring
+ com.python.pydev.refactoring,
+ org.python.pydev.customizations
 Eclipse-LazyStart: true
