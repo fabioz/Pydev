@@ -264,7 +264,6 @@ public class PyInformationPresenter implements DefaultInformationControl.IInform
                             if(tagReplaced.startsWith(start) && tagReplaced.endsWith(end)){
                                 String pointer = tagReplaced.substring(start.length(),tagReplaced.length()-end.length());
                                 new PyOpenAction().run(ItemPointer.fromPortableString(pointer));
-                                System.out.println(pointer);
                             }
                         }
                     }
