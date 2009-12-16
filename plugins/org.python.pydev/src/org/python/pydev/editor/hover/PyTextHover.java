@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.IInformationControlExtension3;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextHoverExtension;
@@ -33,6 +34,7 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringEscapeUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
@@ -42,6 +44,7 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -60,6 +63,14 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio
  */
 public class PyTextHover implements ITextHover, ITextHoverExtension{
+
+    private final class PyInformationControl extends DefaultInformationControl implements IInformationControlExtension3{
+        private PyInformationControl(Shell parent, int textStyles, IInformationPresenter presenter, String statusFieldText) {
+            super(parent, textStyles, presenter, statusFieldText);
+        }
+        
+    }
+
 
     /**
      * Whether we're in a comment or multiline string.
@@ -194,7 +205,6 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                 
                 temp = temp.clear();
                 if(def.value != null){
-                    temp.append("<pydev_hint_bold>");
                     if(astToPrint instanceof FunctionDef){
                         temp.append("def ");
                         
@@ -202,10 +212,10 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                         temp.append("class ");
                         
                     }
+                    temp.append("<pydev_hint_bold>");
                     temp.append(def.value);
-                    
-                    temp.append(' ');
                     temp.append("</pydev_hint_bold>");
+                    temp.append(' ');
                 }
                 
                 if(def.module != null){
@@ -216,18 +226,20 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                     temp.append(PyInformationPresenter.LINE_DELIM);
                 }
                 
+                if(def.module != null && def.value != null){
+                    ItemPointer pointer = PyRefactoringFindDefinition.createItemPointer(def);
+                    temp.replaceAll("</pydev_hint_bold>", "</pydev_link>");
+                    temp.replaceAll(
+                        "<pydev_hint_bold>", 
+                        StringUtils.format("<pydev_link pointer=\"%s\">", StringEscapeUtils.escapeXml(pointer.asPortableString())));
+                }
                 
                 
                 String str = printAst(edit, astToPrint);
                 
                 if(str != null && str.trim().length() > 0){
                     temp.append(PyInformationPresenter.LINE_DELIM);
-                    if(str.length() > 500){
-                        temp.append(str.substring(0, 500));
-                        temp.append(" ...");
-                    }else{
-                        temp.append(str);
-                    }
+                    temp.append(str);
                     
                 }else{ 
                     String docstring = d.getDocstring();
@@ -300,8 +312,8 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                 } catch (Throwable e) {
                     //Not available on Eclipse 3.2
                 }
-                return new DefaultInformationControl(parent, SWT.NONE, new PyInformationPresenter(), 
-                        tooltipAffordanceString);
+                DefaultInformationControl ret = new PyInformationControl(parent, SWT.NONE, new PyInformationPresenter(), tooltipAffordanceString);
+                return ret;
             }
         };
     }
