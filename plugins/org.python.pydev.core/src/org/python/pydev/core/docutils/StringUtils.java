@@ -253,25 +253,8 @@ public class StringUtils {
     }
 
     public static String replaceAll(String string, String replace, String with) {
-        FastStringBuffer ret = new FastStringBuffer();
-        int len = string.length();
-        int replaceLen = replace.length();
-        
-        for (int i = 0; i < len; i++) {
-            if(i+replaceLen > len){
-                ret.append(string.charAt(i));
-                continue;
-            }
-            String s = string.substring(i, i+replaceLen);
-            if(s.equals(replace)){
-                ret.append(with);
-                i = i+replaceLen-1;
-            }else{
-                ret.append(s.charAt(0));
-            }
-        }
-
-        return ret.toString();
+        FastStringBuffer ret = new FastStringBuffer(string, 16);
+        return ret.replaceAll(replace, with).toString();
     }
 
     /**
@@ -672,6 +655,8 @@ public class StringUtils {
     }
 
     
+    
+
 
 
 

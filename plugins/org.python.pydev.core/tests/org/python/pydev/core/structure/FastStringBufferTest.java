@@ -72,6 +72,16 @@ public class FastStringBufferTest extends TestCase{
         assertTrue(fastStringBuffer.startsWith("hb"));
     }
     
+    public void testReplace() throws Exception {
+        assertEquals("def", new FastStringBuffer("abcdefabc", 0).replaceAll("abc", "").toString());
+        assertEquals("xyzdef", new FastStringBuffer("abcdef", 0).replaceAll("abc", "xyz").toString());
+        assertEquals("xyzdefxyz", new FastStringBuffer("abcdefabc", 0).replaceAll("abc", "xyz").toString());
+        assertEquals("aaa", new FastStringBuffer("abcabcabc", 0).replaceAll("abc", "a").toString());
+        assertEquals("xyzxyzxyz", new FastStringBuffer("aaa", 0).replaceAll("a", "xyz").toString());
+        assertEquals("", new FastStringBuffer("aaa", 0).replaceAll("a", "").toString());
+        assertEquals("ba", new FastStringBuffer("aaa", 0).replaceAll("aa", "b").toString());
+    }
+    
     
 //    public void testFastString() throws Exception {
 //        

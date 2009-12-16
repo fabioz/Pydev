@@ -2,6 +2,8 @@ package org.python.pydev.core.structure;
 
 import java.util.Iterator;
 
+import org.eclipse.core.runtime.Assert;
+
 /**
  * This is a custom string buffer optimized for append(), clear() and deleteLast(). 
  * 
@@ -294,6 +296,35 @@ public final class FastStringBuffer{
         System.arraycopy(value, end, value, start + len, count - end);
         str.getChars(0, len, value, start);
         count = newCount;
+        return this;
+    }
+    
+    
+    /**
+     * Replaces all the occurrences of a string in this buffer for another string and returns the
+     * altered version.
+     */
+    public FastStringBuffer replaceAll(String replace, String with) {
+        int replaceLen = replace.length();
+        int withLen = with.length();
+        
+        Assert.isTrue(replaceLen > 0);
+        
+        int matchPos = 0;
+        for (int i = 0; i < this.count; i++) {
+            if(this.value[i] == replace.charAt(matchPos)){
+                matchPos ++;
+                if(matchPos == replaceLen){
+                    this.replace(i-(replaceLen-1), i+1, with);
+                    matchPos = 0;
+                    i = i-(replaceLen-withLen);
+                }
+                continue;
+            }else{
+                matchPos = 0;
+            }
+        }
+
         return this;
     }
 
