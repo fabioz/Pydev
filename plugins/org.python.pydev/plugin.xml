@@ -1058,7 +1058,7 @@
             contentProvider="org.python.pydev.navigator.PythonModelProvider"
             labelProvider="org.python.pydev.navigator.PythonLabelProvider" 
             activeByDefault="true"
-            priority="high">
+            priority="higher">
          <triggerPoints>
              <or>
                 <instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
@@ -1077,6 +1077,7 @@
                 <instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
                 <instanceof value="org.python.pydev.core.structure.TreeNode"/>
                 <instanceof value="org.python.pydev.navigator.elements.PythonNode"/>
+                <instanceof value="org.python.pydev.navigator.elements.ProjectConfigError"/>
             </or>
          </triggerPoints>
          <possibleChildren>
