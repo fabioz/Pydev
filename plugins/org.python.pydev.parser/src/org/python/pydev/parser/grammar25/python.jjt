@@ -28,9 +28,10 @@ import java.util.ArrayList;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
-import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
+import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -552,13 +553,20 @@ void fplist() #tuple: {}
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
 { 
-        simple_stmt() 
+        {Token curr = this.jj_lastpos;}
+        try{
+            simple_stmt()
+        }catch(WithNameInvalidException e){
+            setCurrentToken(curr);
+            with_stmt();
+        }
     | 
         try{
             compound_stmt()
         }catch(ParseException e){
-            handleErrorInCompountStmt(e);} 
-        }
+            handleErrorInCompountStmt(e);
+        } 
+}
 
 
 
@@ -762,7 +770,9 @@ void assert_stmt(): {}
 //compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
 void compound_stmt() #void : {}
 {
-    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef()
+	//Note that the with statement was removed... this is because we'll always match the with as a name and depending
+	//if we accept it as a name or as a statement we'll handle it differently.
+    if_stmt() | while_stmt() | for_stmt() | try_stmt() | /*with_stmt() |*/ funcdef() | classdef() 
 }
 
 
@@ -1236,6 +1246,13 @@ Token Name() #Name:
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
+    
+        {
+            if(acceptWithStmt && "with".equals(t.image)){
+                throw withNameInvalidException;
+            } 
+        }
+        
 
         { ((Name)jjtThis).id = t.image; return t; } {}
 

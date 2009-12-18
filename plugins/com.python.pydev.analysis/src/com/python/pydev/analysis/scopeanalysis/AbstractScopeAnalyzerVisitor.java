@@ -51,6 +51,7 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -752,8 +753,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         //then the generators...
         if (node.generators != null) {
             for (int i = 0; i < node.generators.length; i++) {
-                if (node.generators[i] != null)
+                if (node.generators[i] != null){
                     node.generators[i].accept(this);
+                }
             }
         }
     
@@ -778,14 +780,15 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
     
 
     private void visitListCompGenerators(ListComp node, List<exprType> eltsToVisit) throws Exception {
-        
-        Comprehension comp0 = (Comprehension) node.generators[0];
-        if(node.elt instanceof ListComp){
-            visitListCompGenerators((ListComp) node.elt, eltsToVisit);
-            comp0.accept(this);
-        }else{
-            comp0.accept(this);
-            eltsToVisit.add(node.elt);
+        for(comprehensionType c: node.generators){
+            Comprehension comp = (Comprehension) c;
+            if(node.elt instanceof ListComp){
+                visitListCompGenerators((ListComp) node.elt, eltsToVisit);
+                comp.accept(this);
+            }else{
+                comp.accept(this);
+                eltsToVisit.add(node.elt);
+            }
         }
     }
 

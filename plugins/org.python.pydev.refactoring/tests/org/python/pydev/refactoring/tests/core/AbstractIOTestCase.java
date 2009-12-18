@@ -79,7 +79,7 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
 	}
 	
 	protected String getGenerated() {
-		return generated.trim();
+		return StringUtils.replaceNewLines(generated.trim(), "\n");
 	}
 
 	public void setTestGenerated(String source) {
@@ -91,6 +91,6 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
 	}
 	
 	public String getExpected() {
-		return data.result;
+		return StringUtils.replaceNewLines(data.result, "\n");
 	}
 }

@@ -584,7 +584,9 @@ $ASSERT
 //compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
 void compound_stmt() #void : {}
 {
-    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef()
+	//Note that the with statement was removed... this is because we'll always match the with as a name and depending
+	//if we accept it as a name or as a statement we'll handle it differently.
+    if_stmt() | while_stmt() | for_stmt() | try_stmt() | /*with_stmt() |*/ funcdef() | classdef() 
 }
 
 

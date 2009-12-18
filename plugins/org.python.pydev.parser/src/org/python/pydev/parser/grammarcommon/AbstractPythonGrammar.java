@@ -38,7 +38,10 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     protected abstract Token getJJLastPos();
     
     protected Object temporaryToken;
-
+    
+    protected static WithNameInvalidException withNameInvalidException = 
+        new WithNameInvalidException("With cannot be used as identifier when future with_statement is available.");
+    
     
     //---------------------------- Helpers to add special tokens.
     

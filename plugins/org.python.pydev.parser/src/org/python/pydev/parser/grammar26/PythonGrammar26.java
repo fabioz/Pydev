@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
-import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
+import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -7253,13 +7254,13 @@ else
     return false;
   }
 
-  private boolean jj_3R_60() {
-    if (jj_scan_token(MULTIPLY)) return true;
+  private boolean jj_3R_85() {
+    if (jj_3R_101()) return true;
     return false;
   }
 
-  private boolean jj_3R_85() {
-    if (jj_3R_101()) return true;
+  private boolean jj_3R_60() {
+    if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
 

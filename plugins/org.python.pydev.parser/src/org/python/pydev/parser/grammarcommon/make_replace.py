@@ -46,8 +46,16 @@ def CreateNameDefinition(accept_as, accept_with):
         
     if accept_with:
         accept_with = '|(t=<WITH>)'
+        accept_with_part_2 = '''
+        {
+            if(acceptWithStmt && "with".equals(t.image)){
+                throw withNameInvalidException;
+            } 
+        }
+        '''
     else:
         accept_with = ''
+        accept_with_part_2 = ''
         
     return '''
 Token Name() #Name:
@@ -60,11 +68,12 @@ Token Name() #Name:
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
+    %s
 
         { ((Name)jjtThis).id = t.image; return t; } {}
 
 }
-''' % (accept_as,accept_with)
+''' % (accept_as, accept_with, accept_with_part_2)
 
 
 #=======================================================================================================================
@@ -133,8 +142,32 @@ void stmt() #void: {}
         try{
             compound_stmt()
         }catch(ParseException e){
-            handleErrorInCompountStmt(e);} 
+            handleErrorInCompountStmt(e);
+        } 
+}
+'''
+#=======================================================================================================================
+# CreateStmt25
+#=======================================================================================================================
+def CreateStmt25():
+    return '''
+//stmt: simple_stmt | compound_stmt
+void stmt() #void: {}
+{ 
+        {Token curr = this.jj_lastpos;}
+        try{
+            simple_stmt()
+        }catch(WithNameInvalidException e){
+            setCurrentToken(curr);
+            with_stmt();
         }
+    | 
+        try{
+            compound_stmt()
+        }catch(ParseException e){
+            handleErrorInCompountStmt(e);
+        } 
+}
 '''
 
 #=======================================================================================================================
@@ -248,9 +281,10 @@ import java.util.ArrayList;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
-import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
+import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -466,8 +500,6 @@ def CreateGrammarFiles():
         
         SUITE = CreateSuite(NEWLINE),
         
-        STMT = CreateStmt(),
-        
         SIMPLE_STMT=CreateSimpleStmt(NEWLINE),
         
         IMPORTS=CreateImports(),
@@ -574,6 +606,12 @@ void slice() #void: {}
             definitions['NAME_DEFINITION']=CreateNameDefinition(True,True)
         else:
             definitions['NAME_DEFINITION']=CreateNameDefinition(False,False)
+            
+        if version == 25:
+            definitions['STMT'] = CreateStmt25()
+
+        else:
+            definitions['STMT'] = CreateStmt()
 
         s = Template(open(file, 'r').read())
         s = s.substitute(**definitions)
