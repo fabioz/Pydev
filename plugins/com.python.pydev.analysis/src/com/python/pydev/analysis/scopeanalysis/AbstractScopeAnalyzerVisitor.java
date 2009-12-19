@@ -718,64 +718,77 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * 
      * @see org.python.pydev.parser.jython.ast.VisitorIF#visitListComp(org.python.pydev.parser.jython.ast.ListComp)
      */
-    public Object visitListComp(ListComp node) throws Exception {
+    public Object visitListComp(final ListComp node) throws Exception {
         unhandled_node(node);
-        Comprehension type = null;
-        if(node.generators != null && node.generators.length > 0){
-            type = (Comprehension) node.generators[0];
+        if(node.ctx == ListComp.TupleCtx){
+            startScope(Scope.SCOPE_TYPE_LIST_COMP, node);
         }
-        List<exprType> eltsToVisit = new ArrayList<exprType>();
-        
-        //we need to take care of 'nested list comprehensions'
-        if(type != null && type.iter instanceof ListComp){
-            //print dict((day, index) for index, daysRep in (day for day in enumeratedDays))
-            ListComp listComp = (ListComp)type.iter;
+        try{
+            Comprehension type = null;
+            if(node.generators != null && node.generators.length > 0){
+                type = (Comprehension) node.generators[0];
+            }
+            List<exprType> eltsToVisit = new ArrayList<exprType>();
             
-            //the "(day for day in enumeratedDays)" is in its own scope
-            startScope(Scope.SCOPE_TYPE_LIST_COMP, listComp);
-            try{
-                visitListCompGenerators(listComp, eltsToVisit);
+            //we need to take care of 'nested list comprehensions'
+            if(type != null && type.iter instanceof ListComp){
+                //print dict((day, index) for index, daysRep in (day for day in enumeratedDays))
+                final ListComp listComp = (ListComp)type.iter;
+                
+                //the "(day for day in enumeratedDays)" is in its own scope
+                if(listComp.ctx == ListComp.TupleCtx){
+                    startScope(Scope.SCOPE_TYPE_LIST_COMP, listComp);
+                }
+                try{
+                    visitListCompGenerators(listComp, eltsToVisit);
+                    for (exprType type2 : eltsToVisit) {
+                        type2.accept(this);
+                    }
+                }finally{
+                    if(listComp.ctx == ListComp.TupleCtx){
+                        endScope(listComp);
+                    }
+                }
+                type.target.accept(this);
+                if (node.elt != null){
+                    node.elt.accept(this);
+                }
+    
+    
+                return null;
+            }
+            
+            //then the generators...
+            if (node.generators != null) {
+                for (int i = 0; i < node.generators.length; i++) {
+                    if (node.generators[i] != null){
+                        node.generators[i].accept(this);
+                    }
+                }
+            }
+        
+            
+            //we need to take care of 'nested list comprehensions'
+            if(node.elt instanceof ListComp){
+                //print dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)
+                //note that the daysRep is actually generated and used later in the expression
+                visitListCompGenerators((ListComp)node.elt, eltsToVisit);
                 for (exprType type2 : eltsToVisit) {
                     type2.accept(this);
                 }
-            }finally{
-                endScope(listComp);
+                return null;
             }
-            type.target.accept(this);
+            
             if (node.elt != null){
                 node.elt.accept(this);
             }
-
-
-            return null;
-        }
-        
-        //then the generators...
-        if (node.generators != null) {
-            for (int i = 0; i < node.generators.length; i++) {
-                if (node.generators[i] != null){
-                    node.generators[i].accept(this);
-                }
-            }
-        }
     
-        
-        //we need to take care of 'nested list comprehensions'
-        if(node.elt instanceof ListComp){
-            //print dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)
-            //note that the daysRep is actually generated and used later in the expression
-            visitListCompGenerators((ListComp)node.elt, eltsToVisit);
-            for (exprType type2 : eltsToVisit) {
-                type2.accept(this);
-            }
             return null;
+        }finally{
+            if(node.ctx == ListComp.TupleCtx){
+                endScope(node);
+            }
         }
-        
-        if (node.elt != null){
-            node.elt.accept(this);
-        }
-
-        return null;
     }
     
 

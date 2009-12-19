@@ -24,7 +24,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testListCompFalsePositive();
+            analyzer2.testNoLeakageInGenerator();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -277,11 +277,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 "(a for a in range(5))\n"+
                 "print a\n"
         );
-        try{
-            checkError(1);
-        }catch(Throwable e){
-            fail("Ongoing work: Expected to fail.");
-        }
+        checkError(1);
     }
     
     public void testLeakageInListComp() throws IOException{
@@ -291,6 +287,15 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         );
         checkNoError();
     }
+    
+    public void testLeakageInListComp2() throws IOException{
+        doc = new Document(
+                "[x for x in [y for y in range(3)]]\n"+
+                "print x, y\n"
+        );
+        checkNoError();
+    }
+    
     
     public void testListCompFalsePositive() throws IOException{
         doc = new Document(
