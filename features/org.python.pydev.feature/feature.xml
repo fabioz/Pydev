@@ -12,7 +12,7 @@ build matches when doing a replace (so, the version of the xml has some extra sp
       plugin="org.python.pydev">
 
    <description>
-      Python development environment
+      Python Development Environment
    </description>
 
    <copyright>
