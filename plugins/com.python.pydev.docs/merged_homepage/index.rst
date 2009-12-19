@@ -1,26 +1,39 @@
 What is Pydev?
 =================
 
+Pydev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jython** and **IronPython** development.
+
 .. _Features Matrix: manual_adv_features.html
 .. _History for Pydev Extensions: history_pydev_extensions.html
 .. _History for Pydev: history_pydev.html
 .. _Pydev Blog: http://pydev.blogspot.com/
 
-Pydev is a plugin that enables users to use **Eclipse** for **Python**, **Jython** and **IronPython** development, making Eclipse a first class **Python IDE**.
+.. _Code Completion: manual_adv_complctx.html
+.. _Code completion with auto import: manual_adv_complnoctx.html
+.. _Code Analysis: manual_adv_code_analysis.html
+.. _Go to definition: manual_adv_gotodef.html
+.. _Refactoring: manual_adv_refactoring.html
+.. _Mark occurrences: manual_adv_markoccurrences.html
+.. _Debugger: manual_adv_debugger.html
+.. _Remote debugger: manual_adv_remote_debugger.html
+.. _Tokens browser: manual_adv_open_decl_quick.html
+.. _Interactive console: manual_adv_interactive_console.html
+.. _Syntax highlighting: manual_adv_editor_prefs.html
+
 
 It comes with many goodies such as:
 
- * code completion
- * code completion with auto import
- * syntax highlighting
- * syntax analysis
- * code analysis
- * go to definition
- * refactor
- * mark occurrences
- * debug
- * tokens browser
- * interactive console
+ * `Code completion`_
+ * `Code completion with auto import`_
+ * `Syntax highlighting`_
+ * `Code analysis`_
+ * `Go to definition`_
+ * `Refactoring`_
+ * `Mark occurrences`_
+ * `Debugger`_
+ * `Remote debugger`_
+ * `Tokens browser`_
+ * `Interactive console`_
  * **and many others**:
 
 For more details on the provided features, check the `Features Matrix`_.
