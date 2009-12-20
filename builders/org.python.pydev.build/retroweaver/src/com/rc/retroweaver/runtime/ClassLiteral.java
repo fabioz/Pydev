@@ -23,22 +23,36 @@ import java.util.*;
  *   21:	astore_1
  *
  * 3) A method:
- *  static java.lang.Class class$(java.lang.String);
- *    Signature: (Ljava/lang/String;)Ljava/lang/Class;
- *    Code:
- *     0:	aload_0
- *     1:	invokestatic	#1; //Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
- *     4:	areturn
- *     5:	astore_1
- *     6:	new	#3; //class NoClassDefFoundError
- *     9:	dup
- *     10:	aload_1
- *     11:	invokevirtual	#4; //Method java/lang/ClassNotFoundException.getMessage:()Ljava/lang/String;
- *     14:	invokespecial	#5; //Method java/lang/NoClassDefFoundError."<init>":(Ljava/lang/String;)V
- *     17:	athrow
+ *  static java.lang.Class class$(java.lang.String);
+
+ *    Signature: (Ljava/lang/String;)Ljava/lang/Class;
+
+ *    Code:
+
+ *     0:	aload_0
+
+ *     1:	invokestatic	#1; //Method java/lang/Class.forName:(Ljava/lang/String;)Ljava/lang/Class;
+
+ *     4:	areturn
+
+ *     5:	astore_1
+
+ *     6:	new	#3; //class NoClassDefFoundError
+
+ *     9:	dup
+
+ *     10:	aload_1
+
+ *     11:	invokevirtual	#4; //Method java/lang/ClassNotFoundException.getMessage:()Ljava/lang/String;
+
+ *     14:	invokespecial	#5; //Method java/lang/NoClassDefFoundError."<init>":(Ljava/lang/String;)V
+
+ *     17:	athrow
+
  *    Exception table:
  *     from   to  target type
- *       0     4     5   Class java/lang/ClassNotFoundException
+ *       0     4     5   Class java/lang/ClassNotFoundException
+
  *
  * In 1.5, ldc was updated to additionally support CONSTANT_Class. All of the 1.4 generated code is 
  * replaced by ldc. In our code, we're going to mimic the 1.4 behavior, but do it without
