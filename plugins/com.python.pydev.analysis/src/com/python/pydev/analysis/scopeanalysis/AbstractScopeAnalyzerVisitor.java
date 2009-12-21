@@ -4,6 +4,7 @@
 package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -112,6 +114,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
      * Helper so that we can keep a cache among the many requests to the code-completion engine.
      */
     protected volatile ICompletionCache completionCache;
+
+    private LocalScope currentLocalScope = new LocalScope();
     
     /**
      * Constructor
@@ -127,6 +131,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         this.moduleName = moduleName;
         this.document = document;
         this.scope = new Scope(this, nature, moduleName);
+        if(current instanceof SourceModule){
+            this.currentLocalScope.getScopeStack().push(((SourceModule) current).getAst());
+        }
         
         startScope(Scope.SCOPE_TYPE_GLOBAL, null); //initial scope - there is only one 'global' 
         ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(nature, new CompletionCache());
@@ -193,6 +200,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             }
         }
 
+        this.currentLocalScope.getScopeStack().push(node);
         startScope(Scope.SCOPE_TYPE_CLASS, node);
         
         if (node.name != null){
@@ -207,6 +215,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         
         endScope(node);
+        this.currentLocalScope.getScopeStack().pop();
         
         //the class is only added to the names to ignore when it's scope is resolved!
         addToNamesToIgnore(node, true);
@@ -285,6 +294,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         handleDecorators(node.decs);
 
         startScope(Scope.SCOPE_TYPE_METHOD, node);
+        this.currentLocalScope.getScopeStack().push(node);
 
 
         scope.isInMethodDefinition = true;
@@ -316,6 +326,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
 
         endScope(node); //don't report unused variables if the method is virtual
+        this.currentLocalScope.getScopeStack().pop();
         return null;
     }
 
@@ -990,8 +1001,22 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                         
                         if (inGlobalTokens == IModule.NOT_FOUND) {
                             if(!isDefinitionUnknown(m, repToCheck)){
-                                IToken foundTok = findNameTok(token, repToCheck);
-                                onAddUndefinedVarInImportMessage(foundTok, foundAs);
+                                //Check if there's some hasattr (if there is, we'll consider that the token which
+                                //had the hasattr checked will actually have it).
+                                Collection<IToken> interfaceForLocal = this.currentLocalScope.getInterfaceForLocal(
+                                        foundAsStr, false, true);
+                                boolean foundInHasAttr = false;
+                                for(IToken iToken:interfaceForLocal){
+                                    if(iToken.getRepresentation().equals(repToCheck)){
+                                        foundInHasAttr = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if(!foundInHasAttr){
+                                    IToken foundTok = findNameTok(token, repToCheck);
+                                    onAddUndefinedVarInImportMessage(foundTok, foundAs);
+                                }
                             }
                             break;//no need to keep checking once one is not defined
                             

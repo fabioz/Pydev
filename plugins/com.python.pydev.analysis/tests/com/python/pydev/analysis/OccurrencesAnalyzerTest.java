@@ -31,7 +31,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testNotDefinedInAlll();
+            analyzer2.testHasAttrDefinesIt2();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2661,6 +2661,40 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("Undefined variable: ThisDoesnt", msgs[0].toString());
     }
     
+    public void testHasAttrDefinesIt() {
+        String s = 
+            "import extendable\n" +
+            "if hasattr(extendable, 'errrrrrr'):\n" +
+            "    extendable.errrrrrr\n" +
+            "";
+        
+        doc = new Document(s);
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0);
+    }
+    
+    
+    public void testHasAttrDefinesIt2() {
+        String s = 
+            "import extendable\n" +
+            "\n" +
+            "def m1():\n" +
+            "    if hasattr(extendable, 'bbb'):\n" +
+            "        extendable.bbb\n" + //this is ok
+            "        \n" +
+            "def m2():\n" + //but this should give an error
+            "    extendable.bbb\n" +
+            "";
+        
+        doc = new Document(s);
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 1);
+    }
+    
     public void testNoImportRedefinition() throws Exception {
         String s = 
             "import extendable.all_check\n" +
@@ -2701,6 +2735,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs, 0);
     }
 
+    
     
 
 }

@@ -627,14 +627,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 //first check if the token is a module... if it is, get the completions for that module.
                 IToken[] tokens = findTokensOnImportedMods(importedModules.toArray(EMPTY_ITOKEN_ARRAY), state, module);
                 if(tokens != null && tokens.length > 0){
-                    return tokens;
+                    return decorateWithLocal(tokens, localScope, state);
                 }
                 
                 //if it is an __init__, modules on the same level are treated as local tokens
                 if(searchSameLevelMods){
                     tokens = searchOnSameLevelMods(initial, state);
                     if(tokens != null && tokens.length > 0){
-                        return tokens;
+                        return decorateWithLocal(tokens, localScope, state);
                     }
                 }
 
@@ -654,7 +654,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                         state.checkFindModuleCompletionsMemory(mod, state.getActivationToken());
                         IToken[] completionsForModule = getCompletionsForModule(mod, state);
                         if(completionsForModule.length > 0)
-                            return completionsForModule;
+                            return decorateWithLocal(completionsForModule, localScope, state);
                     } else {
                         //"Module not found:" + name.getRepresentation()
                     }
@@ -663,7 +663,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 //it was not a module (would have returned already), so, try to get the completions for a global token defined.
                 tokens = module.getGlobalTokens(state, this);
                 if (tokens.length > 0){
-                    return tokens;
+                    return decorateWithLocal(tokens, localScope, state);
                 }
                 
                 //If it was still not found, go to builtins.
@@ -672,7 +672,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     tokens = getCompletionsForModule( builtinsMod, state);
                     if (tokens.length > 0){
                         if (tokens[0].getRepresentation().equals("ERROR:") == false){
-                            return tokens;
+                            return decorateWithLocal(tokens, localScope, state);
                         }
                     }
                 }
@@ -681,17 +681,15 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     
                     //now, if we have to look for arguments and search things in the local scope, let's also
                     //check for assert (isinstance...) in this scope with the given variable.
-                    {
-                        List<String> lookForClass = localScope.getPossibleClassesForActivationToken(state.getActivationToken());
-                        if(lookForClass.size() > 0){
-                            HashSet<IToken> hashSet = new HashSet<IToken>();
-                            
-                            getCompletionsForClassInLocalScope(module, state, searchSameLevelMods, 
-                                    lookForArgumentCompletion, lookForClass, hashSet);
-                            
-                            if(hashSet.size() > 0){
-                                return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
-                            }
+                    List<String> lookForClass = localScope.getPossibleClassesForActivationToken(state.getActivationToken());
+                    if(lookForClass.size() > 0){
+                        HashSet<IToken> hashSet = new HashSet<IToken>();
+                        
+                        getCompletionsForClassInLocalScope(module, state, searchSameLevelMods, 
+                                lookForArgumentCompletion, lookForClass, hashSet);
+                        
+                        if(hashSet.size() > 0){
+                            return hashSet.toArray(EMPTY_ITOKEN_ARRAY);
                         }
                     }
                     
@@ -705,30 +703,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                 }
                 
                 //nothing worked so far, so, let's look for an assignment...
-                AssignCompletionInfo assignCompletions = getAssignAnalysis().getAssignCompletions(this, module, state);
-                
-                boolean useExtensions = assignCompletions.completions.size() == 0;
-                
-                if(lookForArgumentCompletion && localScope != null && 
-                        assignCompletions.completions.size() == 0 && 
-                        assignCompletions.defs.length > 0){
-                    //Now, if a definition found was available in the same scope we started on, let's add the
-                    //tokens that are available from that scope.
-                    for(Definition d:assignCompletions.defs){
-                        if(d.module.equals(module) && localScope.equals(d.scope)){
-                            Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
-                            assignCompletions.completions.addAll(interfaceForLocal);
-                            break;
-                        }
-                    }
-                }
-                
-                if(useExtensions && localScope != null){
-                    assignCompletions.completions.addAll(
-                            CompletionParticipantsHelper.getCompletionsForTokenWithUndefinedType(state, localScope));
-                }
-                
-                return assignCompletions.completions.toArray(EMPTY_ITOKEN_ARRAY);
+                return getAssignCompletions(module, state, lookForArgumentCompletion, localScope);
             }
 
             
@@ -738,6 +713,49 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
         return EMPTY_ITOKEN_ARRAY;
     }
+
+    
+    private IToken[] decorateWithLocal(IToken[] tokens, ILocalScope localScope, ICompletionState state) {
+        if(localScope != null){
+            Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
+            if(interfaceForLocal != null && interfaceForLocal.size() > 0){
+                IToken[] ret = new IToken[tokens.length + interfaceForLocal.size()];
+                Object[] array = interfaceForLocal.toArray();
+                System.arraycopy(array, 0, ret, 0, array.length);
+                System.arraycopy(tokens, 0, ret, array.length, tokens.length);
+                return ret;
+            }
+        }
+        return tokens;
+    }
+
+    private IToken[] getAssignCompletions(IModule module, ICompletionState state, boolean lookForArgumentCompletion, ILocalScope localScope) {
+        AssignCompletionInfo assignCompletions = getAssignAnalysis().getAssignCompletions(this, module, state);
+        
+        boolean useExtensions = assignCompletions.completions.size() == 0;
+        
+        if(lookForArgumentCompletion && localScope != null && 
+                assignCompletions.completions.size() == 0 && 
+                assignCompletions.defs.length > 0){
+            //Now, if a definition found was available in the same scope we started on, let's add the
+            //tokens that are available from that scope.
+            for(Definition d:assignCompletions.defs){
+                if(d.module.equals(module) && localScope.equals(d.scope)){
+                    Collection<IToken> interfaceForLocal = localScope.getInterfaceForLocal(state.getActivationToken());
+                    assignCompletions.completions.addAll(interfaceForLocal);
+                    break;
+                }
+            }
+        }
+        
+        if(useExtensions && localScope != null){
+            assignCompletions.completions.addAll(
+                    CompletionParticipantsHelper.getCompletionsForTokenWithUndefinedType(state, localScope));
+        }
+        
+        return assignCompletions.completions.toArray(EMPTY_ITOKEN_ARRAY);
+    }
+    
 
     /**
      * @see ICodeCompletionASTManager#getCompletionsForClassInLocalScope(IModule, ICompletionState, boolean, boolean, List, HashSet)

@@ -51,7 +51,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testFromImportAs2();
+            test.testAttributeAfterHasAttr2();
             test.tearDown();
             System.out.println("Finished");
 
@@ -1417,6 +1417,28 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         "lst[0].";
         requestCompl(s, -1, new String[] {});
     }
+    
+    public void testAttributeAfterHasAttr() throws Exception {
+        String s = 
+            "def m1(a)\n" +
+            "    if hasattr(a, 'method'):\n" +
+            "        a.";
+        
+        requestCompl(s, -1, new String[] {"method"});        
+    }
+    
+    
+    public void testAttributeAfterHasAttr2() throws Exception {
+        String s = 
+            "import extendable\n" +
+            "def m1()\n" +
+            "    if hasattr(extendable, 'method'):\n" +
+            "        extendable.";
+        
+        requestCompl(s, -1, new String[] {"method"});        
+    }
+    
+    
 }
 
 

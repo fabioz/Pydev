@@ -26,6 +26,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -45,6 +46,15 @@ public class LocalScope implements ILocalScope {
     public int scopeEndLine = -1;
 
     public int ifMainLine = -1;
+    
+    
+    /**
+     * Used to create without an initial scope. It may be changed later by using the getScopeStack() and
+     * adding tokens.
+     */
+    public LocalScope(){
+        
+    }
     
     public LocalScope(FastStack<SimpleNode> scope){
         this.scope.addAll(scope);
@@ -206,6 +216,10 @@ public class LocalScope implements ILocalScope {
      * @return a list of tokens for the local 
      */
     public Collection<IToken> getInterfaceForLocal(String activationToken) {
+        return getInterfaceForLocal(activationToken, true, true);
+    }
+    
+    public Collection<IToken> getInterfaceForLocal(String activationToken, boolean addAttributeAccess, boolean addLocalsFromHasAttr) {
         Set<SourceToken> comps = new HashSet<SourceToken>();
 
         Iterator<SimpleNode> it = this.scope.topDownIterator();
@@ -218,16 +232,43 @@ public class LocalScope implements ILocalScope {
         String dottedActTok = activationToken+'.';
         //ok, that's the scope we have to analyze
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element);
-        Iterator<ASTEntry> iterator = visitor.getIterator(Attribute.class);
+        
+        ArrayList<Class> classes = new ArrayList<Class>(2);
+        if(addAttributeAccess){
+            classes.add(Attribute.class);
+            
+        }
+        if(addLocalsFromHasAttr){
+            classes.add(Call.class);
+        }
+        Iterator<ASTEntry> iterator = visitor.getIterator(classes.toArray(new Class[classes.size()]));
         
         while(iterator.hasNext()){
             ASTEntry entry = iterator.next();
-            String rep = NodeUtils.getFullRepresentationString(entry.node);
-            if(rep.startsWith(dottedActTok)){
-                rep = rep.substring(dottedActTok.length());
-                if(NodeUtils.isValidNameRepresentation(rep)){ //that'd be something that can happen when trying to recreate the parsing
-                    comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", IToken.TYPE_OBJECT_FOUND_INTERFACE));
+            if(entry.node instanceof Attribute){
+                String rep = NodeUtils.getFullRepresentationString(entry.node);
+                if(rep.startsWith(dottedActTok)){
+                    rep = rep.substring(dottedActTok.length());
+                    if(NodeUtils.isValidNameRepresentation(rep)){ //that'd be something that can happen when trying to recreate the parsing
+                        comps.add(new SourceToken(entry.node, FullRepIterable.getFirstPart(rep), "", "", "", IToken.TYPE_OBJECT_FOUND_INTERFACE));
+                    }
                 }
+            }else if(entry.node instanceof Call){
+                Call call = (Call) entry.node;
+                if("hasattr".equals(NodeUtils.getFullRepresentationString(call.func)) && call.args != null && call.args.length == 2){
+                    String rep = NodeUtils.getFullRepresentationString(call.args[0]);
+                    if(rep.equals(activationToken)){
+                        exprType node = call.args[1];
+                        if(node instanceof Str){
+                            Str str = (Str) node;
+                            String attrName = str.s;
+                            if(NodeUtils.isValidNameRepresentation(attrName)){
+                                comps.add(new SourceToken(node, attrName, "", "", "", IToken.TYPE_OBJECT_FOUND_INTERFACE));
+                            }
+                        }
+                    }
+                }
+                
             }
         }
         return new ArrayList<IToken>(comps);
@@ -278,7 +319,6 @@ public class LocalScope implements ILocalScope {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     public Iterator iterator() {
         return scope.topDownIterator();
     }
