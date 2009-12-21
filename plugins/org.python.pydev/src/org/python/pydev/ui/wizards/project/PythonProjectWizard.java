@@ -48,7 +48,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
     /**
      * The workbench.
      */
-    private IWorkbench workbench;
+    protected IWorkbench workbench;
 
     /**
      * The current selection.

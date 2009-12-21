@@ -33,7 +33,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
-public abstract class SimpleRunner {
+public class SimpleRunner {
 
     /**
      * Passes the commands directly to Runtime.exec (with the passed envp)

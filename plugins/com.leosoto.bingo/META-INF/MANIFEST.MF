@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Yingo
+Bundle-SymbolicName: com.leosoto.bingo;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: Leo Soto M.
+Bundle-Activator: com.leosoto.bingo.BingoPlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.python.pydev;bundle-version="0.9.7.1",
+ org.python.pydev.core,
+ org.junit;resolution:=optional,
+ org.python.pydev.ast,
+ org.python.pydev.parser,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.core.resources,
+ org.eclipse.core.variables,
+ org.eclipse.debug.core,
+ org.eclipse.debug.ui,
+ org.python.pydev.debug,
+ org.eclipse.ui.console,
+ org.python.pydev.jython,
+ org.eclipse.search,
+ org.eclipse.ui.ide
+Bundle-ActivationPolicy: lazy

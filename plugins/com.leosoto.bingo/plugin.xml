@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            canFinishEarly="false"
+            category="org.python.pydev.PythonCategory"
+            class="com.leosoto.bingo.ui.wizards.project.DjangoProjectWizard"
+            descriptionImage="icons/django_logo.png"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/django_16x16.png"
+            id="com.leosoto.bingo.ui.wizards.project.DjangoProjectWizard"
+            name="Django Project"
+            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            project="true"/>         
+   </extension>
+<!-- Python nature -->
+   <extension
+         id="djangoNature"
+         name="Django Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run class="com.leosoto.bingo.plugin.nature.DjangoNature"/>
+      </runtime>
+	</extension>   
+</plugin>
