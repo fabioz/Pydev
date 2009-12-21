@@ -23,7 +23,6 @@ import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.AnalysisPreferences;
@@ -39,7 +38,6 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
 
     public static final String ANALYSIS_PARSER_OBSERVER_FORCE = "AnalysisParserObserver:force";
 
-    @SuppressWarnings("unchecked")
     public void parserChanged(ChangedParserInfoForObservers info) {
         SimpleNode root = (SimpleNode) info.root;
         if(info.file == null){

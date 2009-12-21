@@ -165,8 +165,7 @@ public class PyParserManager {
             
             makeParserAssociations(edit, pyParser);
             IDocument doc = edit.getDocument();
-            long documentTime = System.currentTimeMillis();
-            pyParser.setDocument(doc, edit.getEditorInput(), documentTime);
+            pyParser.setDocument(doc, edit.getEditorInput());
             
             if(DEBUG){
                 System.out.println("Available parsers:"+this.parsers.size());
@@ -237,8 +236,7 @@ public class PyParserManager {
                 //otherwise, just set its new input
                 IPyEdit pyEdit = lst.get(0);
                 IDocument doc = pyEdit.getDocument();
-                long documentTime = System.currentTimeMillis();
-                parser.setDocument(doc, pyEdit.getEditorInput(), documentTime);
+                parser.setDocument(doc, pyEdit.getEditorInput());
             }
         }
     }

@@ -42,9 +42,8 @@ public interface IPyParser {
      * @param document this is the document that is used in parses (the parser observes it for 
      * change notifications)
      * @param input this is the input from the editor. Used to get the file for creating markers if needed.
-     * @param documentTime the time in millis of the document creation
      */
-    void setDocument(IDocument document, IEditorInput input, long documentTime);
+    void setDocument(IDocument document, IEditorInput input);
     
     /**
      * Schedules a reparse in the parser.

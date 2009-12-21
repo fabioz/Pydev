@@ -79,6 +79,11 @@ public class AnalysisBuilderRunnableFactory {
     // End Logging Helpers -------------------------------
 
 
+    /**
+     * We use this delta because when saving we may get one analysis request from the builder and one from the parser
+     * which are almost the same (but with a small difference), so, this is used so that they become closer.
+     */
+    private static final int DELTA_TO_CONSIDER_SAME = 500;
     
     /**
      * This will check if the nature is not null, related project is open and if the documentTime for the new request
@@ -108,16 +113,18 @@ public class AnalysisBuilderRunnableFactory {
         KeyForAnalysisRunnable analysisKey = new KeyForAnalysisRunnable(project.getName(), moduleName);
         IAnalysisBuilderRunnable oldAnalysisBuilderThread = available.get(analysisKey);
         
-        if(oldAnalysisBuilderThread != null && oldAnalysisBuilderThread.getDocumentTime() > documentTime){
+        if(oldAnalysisBuilderThread != null && oldAnalysisBuilderThread.getDocumentTime() > documentTime-DELTA_TO_CONSIDER_SAME){
             //If the document version of the new one is lower than the one already active, don't do the analysis
-            logExistingDocumentTimeHigher(oldAnalysisBuilderThread, oldAnalysisBuilderThread.getDocumentTime()+" > "+documentTime);
+            logExistingDocumentTimeHigher(
+                    oldAnalysisBuilderThread, oldAnalysisBuilderThread.getDocumentTime()+" > "+documentTime+" - "+DELTA_TO_CONSIDER_SAME+" (delta to consider equal)");
             return null;
         }
         
         Long lastTime = analysisTimeCache.getObj(analysisKey);
-        if(lastTime != null && lastTime > documentTime){
+        if(lastTime != null && lastTime > documentTime-DELTA_TO_CONSIDER_SAME){
             //If the document version of the new one is lower than the one already active, don't do the analysis
-            logExistingDocumentTimeHigher(oldAnalysisBuilderThread, lastTime+" > "+documentTime);
+            logExistingDocumentTimeHigher(
+                    oldAnalysisBuilderThread, lastTime+" > "+documentTime+" - "+DELTA_TO_CONSIDER_SAME+" (delta to consider equal)");
             return null;
         }
         analysisTimeCache.add(analysisKey, documentTime);

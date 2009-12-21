@@ -97,11 +97,6 @@ public class PyParser implements IPyParser {
     private SimpleNode root = null; 
     
     /**
-     * The time the document set was created.
-     */
-    private long documentTime;
-
-    /**
      * listens to changes in the document
      */
     private IDocumentListener documentListener; 
@@ -258,13 +253,12 @@ public class PyParser implements IPyParser {
      */
     private IEditorInput input;
     
-    public void setDocument(IDocument document, IEditorInput input, long documentTime) {
-        setDocument(document, true, input, documentTime);
+    public void setDocument(IDocument document, IEditorInput input) {
+        setDocument(document, true, input);
     }
     
-    public synchronized void setDocument(IDocument doc, boolean addToScheduler, IEditorInput input, long documentTime) {
+    public synchronized void setDocument(IDocument doc, boolean addToScheduler, IEditorInput input) {
         this.input = input;
-        this.documentTime = documentTime;
         // Cleans up old listeners
         if (this.document != null) {
             this.document.removeDocumentListener(documentListener);
@@ -397,6 +391,7 @@ public class PyParser implements IPyParser {
             //Ok, we cannot get it... let's put on the default
             version = IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
         }
+        long documentTime = System.currentTimeMillis();
         Tuple<SimpleNode, Throwable> obj = reparseDocument(new ParserInfo(document, true, version));
         
         IFile original = null;

@@ -74,7 +74,7 @@ public class PyParserTestBase extends TestCase {
     }
     
     protected Throwable parseILegalDoc(IDocument doc) {
-        parser.setDocument(doc, false, null, System.currentTimeMillis());
+        parser.setDocument(doc, false, null);
         Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
         Throwable err = objects.o2;
         if(err == null){
@@ -91,7 +91,7 @@ public class PyParserTestBase extends TestCase {
     }
     
     protected Tuple<SimpleNode, Throwable> parseILegalDocSuccessfully(IDocument doc) {
-        parser.setDocument(doc, false, null, System.currentTimeMillis());
+        parser.setDocument(doc, false, null);
         Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
         Throwable err = objects.o2;
         if(err == null){
@@ -112,7 +112,7 @@ public class PyParserTestBase extends TestCase {
      * @param parser the parser to be used to do the parsing.
      */
     protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, PyParser parser) {
-        parser.setDocument(doc, false, null, System.currentTimeMillis());
+        parser.setDocument(doc, false, null);
         Tuple<SimpleNode, Throwable> objects = parser.reparseDocument();
         Object err = objects.o2;
         if(err != null){
