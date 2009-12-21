@@ -17,7 +17,7 @@ import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-public class ScopeItems {
+public final class ScopeItems {
 
     /**
      * This is the class that is used to wrap the try..except node (so that we can add additional info to it).

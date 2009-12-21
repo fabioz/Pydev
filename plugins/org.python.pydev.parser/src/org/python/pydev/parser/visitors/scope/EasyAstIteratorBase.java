@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -45,8 +45,8 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         }
         if(node.specialsAfter != null){
             for(Object o : node.specialsAfter){
-                if(o instanceof ISpecialStrOrToken){
-                    ISpecialStrOrToken str = (ISpecialStrOrToken) o;
+                if(o instanceof ISpecialStr){
+                    ISpecialStr str = (ISpecialStr) o;
                     if (str.getBeginLine() > higherLine){
                         higherLine = str.getBeginLine();
                     }

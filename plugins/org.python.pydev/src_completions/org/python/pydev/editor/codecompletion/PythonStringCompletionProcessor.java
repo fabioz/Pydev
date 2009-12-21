@@ -3,11 +3,11 @@ package org.python.pydev.editor.codecompletion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
-import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 
 public class PythonStringCompletionProcessor extends PythonCompletionProcessor{
 
-    public PythonStringCompletionProcessor(PyEdit edit, PyContentAssistant pyContentAssistant) {
+    public PythonStringCompletionProcessor(IPySyntaxHighlightingAndCodeCompletionEditor edit, PyContentAssistant pyContentAssistant) {
         super(edit, pyContentAssistant);
     }
     

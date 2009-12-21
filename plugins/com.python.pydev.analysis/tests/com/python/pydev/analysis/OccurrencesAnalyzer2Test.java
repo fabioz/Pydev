@@ -24,7 +24,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testAssignNotAcknowledged();
+            analyzer2.testNoLeakageInGenerator();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -270,5 +270,42 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         );
         checkNoError();
     }
+    
+    
+    public void testNoLeakageInGenerator() throws IOException{
+        doc = new Document(
+                "(a for a in range(5))\n"+
+                "print a\n"
+        );
+        checkError(1);
+    }
+    
+    public void testLeakageInListComp() throws IOException{
+        doc = new Document(
+                "[b for b in range(5)]\n"+
+                "print b\n"
+        );
+        checkNoError();
+    }
+    
+    public void testLeakageInListComp2() throws IOException{
+        doc = new Document(
+                "[x for x in [y for y in range(3)]]\n"+
+                "print x, y\n"
+        );
+        checkNoError();
+    }
+    
+    
+    public void testListCompFalsePositive() throws IOException{
+        doc = new Document(
+                "alist = []\n"+
+                "blist = []\n"+
+                "clist = [c for c in (a + b for b in blist for a in alist)]\n"
+        );
+        checkNoError();
+    }
+    
+    
     
 }

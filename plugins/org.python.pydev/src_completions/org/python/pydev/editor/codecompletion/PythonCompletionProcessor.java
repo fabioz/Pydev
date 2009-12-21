@@ -26,7 +26,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
@@ -54,7 +54,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     /**
      * Edit.
      */
-    private PyEdit edit;
+    private IPySyntaxHighlightingAndCodeCompletionEditor edit;
 
     /**
      * Some error...
@@ -77,7 +77,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * @param edit the editor that works with this processor
      * @param pyContentAssistant the content assistant that will invoke this completion
      */
-    public PythonCompletionProcessor(PyEdit edit, PyContentAssistant pyContentAssistant) {
+    public PythonCompletionProcessor(IPySyntaxHighlightingAndCodeCompletionEditor edit, PyContentAssistant pyContentAssistant) {
         super(pyContentAssistant);
         this.edit = edit;
         this.pyContentAssistant = pyContentAssistant;

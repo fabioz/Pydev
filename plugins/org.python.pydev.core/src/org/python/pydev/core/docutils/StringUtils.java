@@ -74,7 +74,7 @@ public class StringUtils {
     }
 
     /**
-     * Removes whitespaces at the beggining of the string.
+     * Removes whitespaces and tabs at the end of the string.
      */
     public static String rightTrim(String input) {
         int len = input.length();
@@ -89,7 +89,7 @@ public class StringUtils {
     }
 
     /**
-     * Removes whitespaces at the end of the string.
+     * Removes whitespaces and tabs at the beggining of the string.
      */
     public static String leftTrim(String input) {
         int len = input.length();
@@ -253,27 +253,57 @@ public class StringUtils {
     }
 
     public static String replaceAll(String string, String replace, String with) {
-        FastStringBuffer ret = new FastStringBuffer();
-        int len = string.length();
-        int replaceLen = replace.length();
-        
-        for (int i = 0; i < len; i++) {
-            if(i+replaceLen > len){
-                ret.append(string.charAt(i));
-                continue;
-            }
-            String s = string.substring(i, i+replaceLen);
-            if(s.equals(replace)){
-                ret.append(with);
-                i = i+replaceLen-1;
-            }else{
-                ret.append(s.charAt(0));
-            }
-        }
-
-        return ret.toString();
+        FastStringBuffer ret = new FastStringBuffer(string, 16);
+        return ret.replaceAll(replace, with).toString();
     }
 
+    /**
+     * Formats a docstring to be shown and adds the indentation passed to all the docstring lines but the 1st one.
+     */
+    public static String fixWhitespaceColumnsToLeftFromDocstring(String docString, String indentationToAdd) {
+        FastStringBuffer buf = new FastStringBuffer();
+        List<String> splitted = splitInLines(docString);
+        for(int i=0;i<splitted.size();i++){
+            String initialString = splitted.get(i);
+            if(i == 0){
+                buf.append(initialString);//first is unchanged
+            }else{
+                String string = StringUtils.leftTrim(initialString);
+                buf.append(indentationToAdd);
+                
+                if(string.length() > 0){
+                    buf.append(string);
+                }else{
+                    int length = initialString.length();
+                    if(length > 0){
+                        char c;
+                        if(length > 1){
+                            //check 2 chars
+                            c = initialString.charAt(length-2);
+                            if(c == '\n' || c == '\r'){
+                                buf.append(c);
+                            }
+                        }
+                        c = initialString.charAt(length-1);
+                        if(c == '\n' || c == '\r'){
+                            buf.append(c);
+                        }
+                    }
+                }
+            }
+        }
+        
+        //last line
+        if(buf.length() > 0){
+            char c = buf.lastChar();
+            if(c == '\r' || c == '\n'){
+                buf.append(indentationToAdd);
+            }
+        }
+        
+        return buf.toString();
+    }
+    
     public static String removeWhitespaceColumnsToLeft(String hoverInfo) {
         FastStringBuffer buf = new FastStringBuffer();
         int firstCharPosition = Integer.MAX_VALUE;
@@ -625,6 +655,8 @@ public class StringUtils {
     }
 
     
+    
+
 
 
 

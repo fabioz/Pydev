@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.text,
  org.python.pydev;bundle-version="0.9.7.1",
  com.python.pydev,
- org.junit;resolution:=optional,
+ org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
  org.eclipse.search,
  org.python.pydev.ast,
  org.python.pydev.core,
@@ -24,7 +24,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.jdt.core;resolution:=optional,
- org.eclipse.jdt.ui;resolution:=optional
+ org.eclipse.jdt.ui;resolution:=optional,
+ org.python.pydev.refactoring;bundle-version="0.9.7.1"
 Eclipse-LazyStart: true
 Bundle-ClassPath: refactoring.jar,
  retroweaver-rt.jar

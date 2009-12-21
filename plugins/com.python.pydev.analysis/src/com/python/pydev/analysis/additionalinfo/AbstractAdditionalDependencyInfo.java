@@ -127,7 +127,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     }else{
                         for(String infoName: obj){
                             if(filter.doCompare(qualToCompare, infoName)){
-                                toks.add(NameInfo.fromName(infoName, modName, null, pool));
+                                toks.add(NameInfo.fromName(infoName, modName, null));
                             }    
                         }
                     }
@@ -191,7 +191,6 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
     
     
-    @SuppressWarnings("unchecked")
     @Override
     protected void restoreSavedInfo(Object o){
         synchronized (lock) {

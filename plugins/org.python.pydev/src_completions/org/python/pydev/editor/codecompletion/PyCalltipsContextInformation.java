@@ -29,7 +29,7 @@ public class PyCalltipsContextInformation implements IContextInformation{
     /**
      * The place where the replacement started.
      */
-    private int fReplacementOffset;
+    private final int fReplacementOffset;
     
     /**
      * Creates a new context information without an image.

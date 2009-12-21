@@ -3,7 +3,7 @@ package org.python.pydev.parser.grammarcommon;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
@@ -81,8 +81,8 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                         Object[] objects = (Object[]) object;
                         object=objects[0];
                     }
-                    if(object instanceof ISpecialStrOrToken){
-                        ISpecialStrOrToken specialStr = (ISpecialStrOrToken) object;
+                    if(object instanceof ISpecialStr){
+                        ISpecialStr specialStr = (ISpecialStr) object;
                         if(specialStr.toString().equals(",")){
                             endsWithComma = true;
                             break;

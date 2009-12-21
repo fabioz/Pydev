@@ -17,8 +17,27 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
 
     
     // -------------------------------------------------------------------------------------------- ATTRIBUTES
+    protected IProgressMonitor monitorSetExternally;
+    
+    //from IRunnableWithMonitor
+    public void setMonitor(IProgressMonitor monitor) {
+        monitorSetExternally = monitor;
+    }
 
-    final protected IProgressMonitor internalCancelMonitor = new NullProgressMonitor();
+    final protected IProgressMonitor internalCancelMonitor = new NullProgressMonitor(){
+        public final boolean isCanceled() {
+            if(super.isCanceled()){
+                return true;
+            }
+            IProgressMonitor ext = AbstractAnalysisBuilderRunnable.this.monitorSetExternally;
+            if(ext != null && ext.isCanceled()){
+                return true;
+            }
+            return false;
+        };
+    };
+    
+    
     final protected String moduleName;
     final protected boolean isFullBuild;
     final protected boolean forceAnalysis;
@@ -30,6 +49,7 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
     protected volatile boolean runFinished = false;
     private IAnalysisBuilderRunnable oldAnalysisBuilderThread;
     private long documentTime;
+    
     
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
     
@@ -165,12 +185,14 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
     }
 
     
+    private final static OperationCanceledException operationCanceledException = new OperationCanceledException();
+    
     /**
      * Checks if the analysis in this runnable should be stopped (raises an OperationCanceledException if it should be stopped)
      */
     protected void checkStop(){
         if(this.internalCancelMonitor.isCanceled()){
-            throw new OperationCanceledException();
+            throw operationCanceledException;
         }
     }
     

@@ -33,9 +33,11 @@ import org.python.pydev.editor.actions.PyAction;
  * This class uses the org.python.pydev.core.docutils.DocUtils class extensively
  * for some document-related operations.
  */
-public class PyAutoIndentStrategy implements IAutoEditStrategy{
+public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 
     private IIndentPrefs prefs;
+    
+    private boolean blockSelection;
     
     public PyAutoIndentStrategy(){
     }
@@ -287,6 +289,12 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @see org.eclipse.jface.text.IAutoEditStrategy#customizeDocumentCommand(IDocument, DocumentCommand)
      */
     public void customizeDocumentCommand(IDocument document, DocumentCommand command) {
+        if(blockSelection){
+            //in block selection, leave all as is and just change tabs/spaces.
+            getIndentPrefs().convertToStd(document, command);
+            return;
+        }
+        
         // super idents newlines the same amount as the previous line
         final boolean isNewLine = isNewLineText(document, command.length, command.text);
         
@@ -930,5 +938,9 @@ public class PyAutoIndentStrategy implements IAutoEditStrategy{
         }
         return new Tuple<Integer,Boolean>(len, true);
         
+    }
+
+    public void setBlockSelection(boolean blockSelection) {
+        this.blockSelection = blockSelection;
     }
 }

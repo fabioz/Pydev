@@ -24,6 +24,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
@@ -74,7 +75,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
-    private PyEdit edit;
+    private IPySyntaxHighlightingAndCodeCompletionEditor edit;
 
     /**
      * Contains additional assists (used from the jython scripting: pyedit_assign_params_to_attributes.py to add new assists)
@@ -119,7 +120,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
     /**
      * @param edit
      */
-    public PythonCorrectionProcessor(PyEdit edit) {
+    public PythonCorrectionProcessor(IPySyntaxHighlightingAndCodeCompletionEditor edit) {
         this.edit = edit;
     }
 
@@ -134,7 +135,11 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
     @SuppressWarnings("unchecked")
     public ICompletionProposal[] computeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
         int offset = invocationContext.getOffset();
-        PySelection ps = new PySelection(edit);
+        PySelection ps = edit.createPySelection();
+        if(!(this.edit instanceof PyEdit) || ps == null){
+            return new ICompletionProposal[0];
+        }
+        PyEdit editor = (PyEdit) this.edit;
 
         List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
         String sel = PyAction.getLineWithoutComments(ps);
@@ -155,14 +160,14 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
         for (IAssistProps assist : assists) {
             try {
-                if (assist.isValid(ps, sel, edit, offset)) {
+                if (assist.isValid(ps, sel, editor, offset)) {
                     try {
                         results.addAll(assist.getProps(
                                 ps, 
                                 PydevPlugin.getImageCache(), 
                                 edit.getEditorFile(), 
                                 edit.getPythonNature(), 
-                                edit, 
+                                editor, 
                                 offset)
                         );
                     } catch (BadLocationException e) {
@@ -183,7 +188,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
             //as no annotations on spelling will be here if the spelling is not enabled). 
             ICompletionProposal[] spellProps = null;
             
-            IAnnotationModel annotationModel = edit.getPySourceViewer().getAnnotationModel();
+            IAnnotationModel annotationModel = editor.getPySourceViewer().getAnnotationModel();
             Iterator it = annotationModel.getAnnotationIterator();
             while(it.hasNext()){
                 Object annotation = it.next();

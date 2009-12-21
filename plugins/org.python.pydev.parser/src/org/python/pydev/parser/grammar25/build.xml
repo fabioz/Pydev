@@ -94,6 +94,7 @@ Current setting is: ${javaccHome}
         <replace file="${parser.dir}/PythonGrammar25.java" token="PythonGrammar25TreeConstants," value=""/>
     	<replace file="${parser.dir}/PythonGrammar25.java" token="protected JJTPythonGrammar25State jjtree = new JJTPythonGrammar25State();" 
     		value="protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder25.class, this);"/>
+    	<replace file="${parser.dir}/PythonGrammar25TokenManager.java" token=" StringBuffer" value=" FastStringBuffer"/>
     	<fixcrlf srcdir="${parser.dir}"></fixcrlf>
     </target>
 

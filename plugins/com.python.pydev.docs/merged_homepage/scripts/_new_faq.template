@@ -138,7 +138,7 @@ and <strong>input()</strong> should be changed for: <strong>eval(raw_input().rep
 --------------------------------------------------------------------------------------------------------------Title
 My todo-tasks are not showing, is there something wrong?
 --------------------------------------------------------------------------------------------------------------Answer
-Check the <a href="tasks.html">tasks</a> page for info on tasks.
+Check the <a href="manual_adv_tasks.html">tasks</a> page for info on tasks.
 
 
 --------------------------------------------------------------------------------------------------------------Title
@@ -196,19 +196,8 @@ is gotten with a python shell).
 --------------------------------------------------------------------------------------------------------------Title
 How do I configure a python shell for experimenting with Python?
 --------------------------------------------------------------------------------------------------------------Answer
-Well, for that, you have to configure an external tool.
-Go to the menu > Run > External Tools and configure the location, working dir and don't forget to put the
--i argument so that you enter in interactive mode! <br/><br/>
-The picture below shows what I mean...<br/><br/>
-<IMG src="images/faq/conf_python_external.png" border="1" >
-
-<br>
-<br>
-Now, the only thing missing is running it! And don't forget to add a keybinding to rerun the last executed external
-tool, so that you don't have to go through the menu every time!
-<br>
-<br>
-
+Pydev has an interactive console you can use. See: <a href="manual_adv_interactive_console.html">manual_adv_interactive_console.html</a>
+<br><br>
 
 
 
@@ -216,7 +205,7 @@ tool, so that you don't have to go through the menu every time!
 The Pydev builder is taking too much of my time, what can I do about it?
 --------------------------------------------------------------------------------------------------------------Answer
 Well, if you have PyLint active, you can disable it, as it is the process that takes most time when building.<br>
-Another alternative is disabling the builder altoghether. To do it you can go to window > preferences > pydev > builder 
+Another alternative is disabling the builder altogether. To do it you can go to window > preferences > pydev > builder 
 and disable it. <br>
 NOTE: Disabling the builders may have many side-effects, such as code completion not working, pylint, tasks, etc. So,
 if you really want it, you can disable it, but do it with care.

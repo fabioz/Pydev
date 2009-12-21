@@ -174,12 +174,6 @@ public class PrettyPrinterDocLineEntry {
         return dedentMark;
     }
 
-    public void indent(Token token, boolean requireNewLine) {
-        this.indentDiff += 1;
-        LinePartIndentMark linePartIndentMark = new LinePartIndentMark(token.beginColumn, token, true, this);
-        linePartIndentMark.setRequireNewLine(requireNewLine);
-        addPart(linePartIndentMark);
-    }
     
     public LinePartIndentMark indentAfter(ILinePart after, boolean requireNewLine) {
         this.indentDiff += 1;

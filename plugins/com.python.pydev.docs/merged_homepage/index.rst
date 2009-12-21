@@ -1,77 +1,82 @@
 What is Pydev?
 =================
 
+Pydev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jython** and **IronPython** development.
+
 .. _Features Matrix: manual_adv_features.html
 .. _History for Pydev Extensions: history_pydev_extensions.html
 .. _History for Pydev: history_pydev.html
 .. _Pydev Blog: http://pydev.blogspot.com/
 
-Pydev is a plugin that enables users to use **Eclipse** for **Python**, **Jython** and **IronPython** development, making Eclipse a first class **Python IDE**.
+.. _Code Completion: manual_adv_complctx.html
+.. _Code completion with auto import: manual_adv_complnoctx.html
+.. _Code Analysis: manual_adv_code_analysis.html
+.. _Go to definition: manual_adv_gotodef.html
+.. _Refactoring: manual_adv_refactoring.html
+.. _Mark occurrences: manual_adv_markoccurrences.html
+.. _Debugger: manual_adv_debugger.html
+.. _Remote debugger: manual_adv_remote_debugger.html
+.. _Tokens browser: manual_adv_open_decl_quick.html
+.. _Interactive console: manual_adv_interactive_console.html
+.. _Syntax highlighting: manual_adv_editor_prefs.html
+
 
 It comes with many goodies such as:
 
- * code completion
- * code completion with auto import
- * syntax highlighting
- * syntax analysis
- * code analysis
- * go to definition
- * refactor
- * mark occurrences
- * debug
- * tokens browser
- * interactive console
+ * `Code completion`_
+ * `Code completion with auto import`_
+ * `Syntax highlighting`_
+ * `Code analysis`_
+ * `Go to definition`_
+ * `Refactoring`_
+ * `Mark occurrences`_
+ * `Debugger`_
+ * `Remote debugger`_
+ * `Tokens browser`_
+ * `Interactive console`_
  * **and many others**:
 
 For more details on the provided features, check the `Features Matrix`_.
 
 
-Release 1.5.1
+Release 1.5.3
 ===============
 
- * Improvements in the AST rewriter
- * Improvements on the refactoring engine:
- 
-   * No longer using BRM
-   * Merged with the latest PEPTIC
-   * Inline local available
-   * Extract method bug-fixes
-   * Extract local on multi-line
-   * Generating properties using coding style defined in preferences
-   * Add after current method option added to extract method
-   * A bunch of other corner-case situations were fixed
-	
- * Bug-fixes:
- 
-   * Minor editor improvements
-   * Adding default forced builtins on all platforms (e.g.: time, math, etc) which wouldn't be on sys.builtin_module_names on some python installations
-   * Adding 'numpy' and 'Image' to the forced builtins always
-   * Ctrl+1: Generate docstring minor fixes
-   * Ctrl+1: Assign to local now follows coding style preferences properly
-   * Exponential with uppercase E working on code-formatting
-   * When a set/get method is found in code-completion for a java class an NPE is no longer thrown
-   * Backspace properly treated in block mode
-   * Setting IRONPYTHONPATH when dealing with IronPython (projects could not be referenced)
-   * No longer giving spurious 'statement has no effect' inside of lambda and decorators
-   * Fixed new exec in python 3k
-   * Fixed NPE when breakpoint is related to a resource in a removed project
-   * Fixed import problem on regexp that could lead to a recursion.
-   * No longer giving NPE when debugging with the register view open
-   * List access be treated as __getitem__() in the list -- patch from Tassilo Barth
-   * Fix for invalid auto-self added when typing
+Fixed bug where an error was being print to the pydev console on a run.
 
-Release 1.5.0
+
+Release 1.5.2
 ===============
 
-**Pydev Extensions is now Open Source!**
+ * Profile to have **much** lower memory requirements (especially on code-analysis rebuilds)
+ * Profile for parsing to be faster
+ 
+ * Compare Editor
+ 
+   * Syntax highlighting integrated 
+   * Editions use the pydev editor behaviour
+   * Code completion works
+   
+ * Fixed issue where pydev could deadlock
+ * No longer reporting import redefinitions and unused variables for the initial parts of imports such as import os.path
+ * Fixed issue where pydev was removing __classpath__ from the pythonpath in jython
+ * Using M1, M2 and M3 for keys instead of hardcoding Ctrl, Shift and Alt (which should make keybindings right on Mac OS)
+ * Fixed some menus and popups
+ * Properly categorizing Pydev views
+ * Handling binary numbers in the python 2.6 and 3.0 grammar
+ * from __future__ import print_function works on python 2.6
+ * Added drag support from the pydev package explorer
+ * Properly translating slashes on client/server debug
+ * Other minor fixes
+ 
 
 
 What happened to Pydev Extensions?
 ====================================
 
 
-Pydev Extensions is now merged with Pydev, and its once closed source code has become open source. Thus,
-there is no more Pydev Extensions, only the open source Pydev, with all the capabilities of Pydev Extensions
+Pydev Extensions is now merged with Pydev, and its once closed source code has become open source (on version 1.5.0). 
+Thus, there is no more Pydev Extensions, only the open source Pydev, with all the capabilities of Pydev Extensions
 incorporated.
 
 Development Info
@@ -82,7 +87,8 @@ Development Info
 Releases History:
 ==================
 
- * `History for Pydev`_
- * `History for Pydev Extensions`_
+`History for Pydev`_
+
+`History for Pydev Extensions`_
 
  

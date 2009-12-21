@@ -6,6 +6,7 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.FullRepIterable;
@@ -140,6 +141,31 @@ public abstract class AbstractVisitor extends VisitorBase{
         
         return makeImportToken(node, tokens, names, moduleName, importName, allowForMultiple);
     }
+    
+    /**
+     * This class is the same as a regular source token, just used to know that this
+     * is a token that was created to identify a part of an import declaration.
+     * 
+     * E.g.:
+     * 
+     * import os.path
+     * 
+     * Will create an 'os' part -- which is leaked to the namespace (but we must
+     * identify that because we don't want to report import redefinitions nor unused
+     * variables for those).
+     * 
+     * See: https://sourceforge.net/tracker/index.php?func=detail&aid=2879058&group_id=85796&atid=577329
+     * and  https://sourceforge.net/tracker/index.php?func=detail&aid=2008026&group_id=85796&atid=577329
+     */
+    public static class ImportPartSourceToken extends SourceToken{
+        
+        private static final long serialVersionUID = 1L;
+
+        public ImportPartSourceToken(
+                SimpleNode node, String rep, String doc, String args, String parentPackage, String originalRep, boolean originalHasRep) {
+            super(node, rep, doc, args, parentPackage, originalRep, originalHasRep);
+        }
+    }
 
     /**
      * The same as above
@@ -165,8 +191,16 @@ public abstract class AbstractVisitor extends VisitorBase{
             
             if(name == null){
                 FullRepIterable iterator = new FullRepIterable(original);
-                for (String rep : iterator) {
-                    SourceToken sourceToken = new SourceToken(node, rep, "", "", module, initialImportName+rep, true);
+                Iterator<String> it = iterator.iterator();
+                while(it.hasNext()){
+                    String rep = it.next();
+                    SourceToken sourceToken;
+                    if(it.hasNext()){
+                        sourceToken = new ImportPartSourceToken(node, rep, "", "", module, initialImportName+rep, true);
+                        
+                    }else{
+                        sourceToken = new SourceToken(node, rep, "", "", module, initialImportName+rep, true);
+                    }
                     tokens.add(sourceToken);
                 }
             }else{

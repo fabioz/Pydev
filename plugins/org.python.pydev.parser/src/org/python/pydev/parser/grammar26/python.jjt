@@ -25,13 +25,14 @@ package org.python.pydev.parser.grammar26;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
-import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
+import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
 import org.python.pydev.parser.jython.CharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -52,6 +53,9 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements IGra
 {
 
 
+    
+    FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
+    
     /**
      * @return the current token found.
      */
@@ -99,20 +103,6 @@ public final class PythonGrammar26 extends AbstractPythonGrammar implements IGra
         }
     }
 
-
-   // constructors taking a IParserHost impl
-
-   public PythonGrammar26(CharStream stream,IParserHost host) {
-       this(stream);
-       hostLiteralMkr = host;
-   }
-
-   public PythonGrammar26(PythonGrammar26TokenManager tm,
-                        IParserHost host)
-   {
-        this(tm);
-        hostLiteralMkr = host;
-   }
 
 }
 
@@ -611,8 +601,9 @@ void stmt() #void: {}
         try{
             compound_stmt()
         }catch(ParseException e){
-            handleErrorInCompountStmt(e);} 
-        }
+            handleErrorInCompountStmt(e);
+        } 
+}
 
 
 
@@ -784,12 +775,14 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 void dotted_as_name(): {}
 { dotted_name() [{this.findTokenAndAdd("as");}<AS> Name()] }
 
+
 //dotted_name: NAME ('.' NAME)*
-String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
+String dotted_name(): { Token t; FastStringBuffer sb = dottedNameStringBuffer.clear(); }
 { t=Name() { sb.append(t.image); }
-    (<DOT> t=Name() { sb.append("." + t.image); } )*
+    (<DOT> t=Name() { sb.append(".").append(t.image); } )*
         { return sb.toString(); }
 }
+
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }
@@ -1314,10 +1307,11 @@ Token Name() #Name:
 }
 {
     try{
-        t = <NAME> 
+        (t = <NAME>) 
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
+    
 
         { ((Name)jjtThis).id = t.image; return t; } {}
 

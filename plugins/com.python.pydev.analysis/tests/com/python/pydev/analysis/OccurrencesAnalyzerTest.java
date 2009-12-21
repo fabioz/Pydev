@@ -31,7 +31,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testClassDecoratorUndefined();
+            analyzer2.testNotDefinedInAlll();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -452,13 +452,9 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
         
-        printMessages(msgs,2);
+        printMessages(msgs,1);
         
-        IMessage message = assertContainsMsg("Unused import: os", msgs);
-        assertEquals(8, message.getStartCol(doc));
-        assertEquals(10, message.getEndCol(doc));
-
-        message = assertContainsMsg("Unused import: os.path", msgs);
+        IMessage message = assertContainsMsg("Unused import: os.path", msgs);
         assertEquals(8, message.getStartCol(doc));
         assertEquals(15, message.getEndCol(doc));
         
@@ -676,9 +672,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
         
-        printMessages(msgs,3);
+        printMessages(msgs,2);
         assertContainsMsg("Unused import: os.notDefined", msgs);
-        assertContainsMsg("Unused import: os", msgs);
         assertContainsMsg("Unresolved import: os.notDefined", msgs);
     }
     
@@ -2666,6 +2661,21 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals("Undefined variable: ThisDoesnt", msgs[0].toString());
     }
     
+    public void testNoImportRedefinition() throws Exception {
+        String s = 
+            "import extendable.all_check\n" +
+            "import extendable.all_check2\n" +
+            "print extendable.all_check\n" +
+            "print extendable.all_check2\n" +
+            "";
+        
+        doc = new Document(s);
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0);
+    }
+    
     
     public void testRecursionCondition() throws Exception {
         
@@ -2690,5 +2700,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	
     	printMessages(msgs, 0);
     }
+
     
+
 }

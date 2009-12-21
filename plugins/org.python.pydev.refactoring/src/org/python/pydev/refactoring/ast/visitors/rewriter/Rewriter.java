@@ -36,15 +36,11 @@ public final class Rewriter  {
     
     
     public static String createSourceFromAST(SimpleNode root, boolean ignoreComments, AdapterPrefs adapterPrefs) {
+        IGrammarVersionProvider versionProvider = adapterPrefs.versionProvider;
         IIndentPrefs indentPrefs = DefaultIndentPrefs.get();
-        PrettyPrinterPrefsV2 prettyPrinterPrefs = new PrettyPrinterPrefsV2(
-                adapterPrefs.endLineDelim, indentPrefs.getIndentationString(), adapterPrefs.versionProvider);
+        String endLineDelim = adapterPrefs.endLineDelim;
         
-        prettyPrinterPrefs.setSpacesAfterComma(1);
-        prettyPrinterPrefs.setSpacesBeforeComment(1);
-        prettyPrinterPrefs.setLinesAfterMethod(1);
-        prettyPrinterPrefs.setLinesAfterClass(2);
-        prettyPrinterPrefs.setLinesAfterSuite(1);
+        PrettyPrinterPrefsV2 prettyPrinterPrefs = PrettyPrinterV2.createDefaultPrefs(versionProvider, indentPrefs, endLineDelim);
         
         PrettyPrinterV2 printer = new PrettyPrinterV2(prettyPrinterPrefs);
         try {

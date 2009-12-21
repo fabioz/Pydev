@@ -58,7 +58,7 @@ public class Log {
     private final static Object lock = new Object(); 
     private final static StringBuffer logIndent = new StringBuffer();
     
-    public synchronized static void toLogFile(Object obj, String string) {
+    public static void toLogFile(Object obj, String string) {
         synchronized(lock){
             if(obj == null){
                 obj = new Object();
@@ -78,7 +78,7 @@ public class Log {
         toLogFile(buffer.toString());
     }
 
-    private synchronized static void toLogFile(final String buffer) {
+    private static void toLogFile(final String buffer) {
         final Runnable r = new Runnable(){
 
             public void run() {
@@ -143,13 +143,13 @@ public class Log {
         return msg;
     }
 
-    public synchronized static void addLogLevel() {
+    public static void addLogLevel() {
         synchronized(lock){
             logIndent.append("    ");
         }        
     }
 
-    public synchronized static void remLogLevel() {
+    public static void remLogLevel() {
         synchronized(lock){
             if(logIndent.length() > 3){
                 logIndent.delete(0,4);

@@ -38,7 +38,25 @@ modType file_input(): {}
 #=======================================================================================================================
 # CreateNameDefinition
 #=======================================================================================================================
-def CreateNameDefinition():
+def CreateNameDefinition(accept_as, accept_with):
+    if accept_as:
+        accept_as = '|(t=<AS>)'
+    else:
+        accept_as = ''
+        
+    if accept_with:
+        accept_with = '|(t=<WITH>)'
+        accept_with_part_2 = '''
+        {
+            if(acceptWithStmt && "with".equals(t.image)){
+                throw withNameInvalidException;
+            } 
+        }
+        '''
+    else:
+        accept_with = ''
+        accept_with_part_2 = ''
+        
     return '''
 Token Name() #Name:
 {
@@ -46,15 +64,16 @@ Token Name() #Name:
 }
 {
     try{
-        t = <NAME> 
+        (t = <NAME>)%s%s 
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
+    %s
 
         { ((Name)jjtThis).id = t.image; return t; } {}
 
 }
-'''
+''' % (accept_as, accept_with, accept_with_part_2)
 
 
 #=======================================================================================================================
@@ -123,8 +142,32 @@ void stmt() #void: {}
         try{
             compound_stmt()
         }catch(ParseException e){
-            handleErrorInCompountStmt(e);} 
+            handleErrorInCompountStmt(e);
+        } 
+}
+'''
+#=======================================================================================================================
+# CreateStmt25
+#=======================================================================================================================
+def CreateStmt25():
+    return '''
+//stmt: simple_stmt | compound_stmt
+void stmt() #void: {}
+{ 
+        {Token curr = this.jj_lastpos;}
+        try{
+            simple_stmt()
+        }catch(WithNameInvalidException e){
+            setCurrentToken(curr);
+            with_stmt();
         }
+    | 
+        try{
+            compound_stmt()
+        }catch(ParseException e){
+            handleErrorInCompountStmt(e);
+        } 
+}
 '''
 
 #=======================================================================================================================
@@ -132,6 +175,9 @@ void stmt() #void: {}
 #=======================================================================================================================
 def CreateCommomMethods():
     return '''
+    
+    FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
+    
     /**
      * @return the current token found.
      */
@@ -232,13 +278,14 @@ def CreateImports():
     return '''
 import java.util.List;
 import java.util.ArrayList;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
-import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
+import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
 import org.python.pydev.parser.jython.CharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -433,12 +480,6 @@ Object[] begin_else_stmt(): {Object o1, o2;}
 # CreateGrammarFiles
 #=======================================================================================================================
 def CreateGrammarFiles():
-    files = [
-        os.path.join(parent_dir, 'grammar24', 'python.jjt_template'),
-        os.path.join(parent_dir, 'grammar25', 'python.jjt_template'),
-        os.path.join(parent_dir, 'grammar26', 'python.jjt_template'),
-        os.path.join(parent_dir, 'grammar30', 'python.jjt_template'),
-    ]
     
     NEWLINE = '''try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);}'''
     
@@ -446,8 +487,6 @@ def CreateGrammarFiles():
         FILE_INPUT = CreateFileInput(NEWLINE),
         
         NEWLINE = NEWLINE,
-        
-        NAME_DEFINITION=CreateNameDefinition(),
         
         RPAREN ='''try{{this.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
         
@@ -460,8 +499,6 @@ def CreateGrammarFiles():
         YIELD = CreateYield(),
         
         SUITE = CreateSuite(NEWLINE),
-        
-        STMT = CreateStmt(),
         
         SIMPLE_STMT=CreateSimpleStmt(NEWLINE),
         
@@ -523,6 +560,15 @@ else
 
         AS = '''{this.findTokenAndAdd("as");}<AS>''',
         
+        DOTTED_NAME = '''
+//dotted_name: NAME ('.' NAME)*
+String dotted_name(): { Token t; FastStringBuffer sb = dottedNameStringBuffer.clear(); }
+{ t=Name() { sb.append(t.image); }
+    (<DOT> t=Name() { sb.append(".").append(t.image); } )*
+        { return sb.toString(); }
+}
+''',
+        
         AS2 = '''{temporaryToken=createSpecialStr("as");}<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
         
         IF_EXP = '''void if_exp():{}
@@ -545,7 +591,28 @@ void slice() #void: {}
     definitions['WHILE'] = CreateWhileWithDeps(definitions)
     definitions['BEGIN_ELSE'] = CreateBeginElseWithDeps(definitions)
     
-    for file in files:
+    
+    files = [
+        (os.path.join(parent_dir, 'grammar24', 'python.jjt_template'), 24),
+        (os.path.join(parent_dir, 'grammar25', 'python.jjt_template'), 25),
+        (os.path.join(parent_dir, 'grammar26', 'python.jjt_template'), 26),
+        (os.path.join(parent_dir, 'grammar30', 'python.jjt_template'), 30),
+    ]
+    
+    for file, version in files:
+        if version == 24:
+            definitions['NAME_DEFINITION']=CreateNameDefinition(True,False)
+        elif version == 25:
+            definitions['NAME_DEFINITION']=CreateNameDefinition(True,True)
+        else:
+            definitions['NAME_DEFINITION']=CreateNameDefinition(False,False)
+            
+        if version == 25:
+            definitions['STMT'] = CreateStmt25()
+
+        else:
+            definitions['STMT'] = CreateStmt()
+
         s = Template(open(file, 'r').read())
         s = s.substitute(**definitions)
         f = open(file[:-len('_template')], 'w')

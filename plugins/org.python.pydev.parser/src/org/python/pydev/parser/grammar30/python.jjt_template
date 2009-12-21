@@ -36,33 +36,20 @@ $COMMOM_METHODS
 
 
     protected final void addSpecialToArgDef(Object str){
+        Token token = (Token)str;
         SimpleNode peeked = jjtree.peekNode();
         if(peeked instanceof JfpDef){
             JfpDef jfpdef = (JfpDef) peeked;
             if(jfpdef.typeDef != null){
-                jfpdef.typeDef.getSpecialsAfter().add(str);
+                jfpdef.typeDef.getSpecialsAfter().add(token.asSpecialStr());
             }else{
-                jfpdef.nameNode.getSpecialsAfter().add(str);
+                jfpdef.nameNode.getSpecialsAfter().add(token.asSpecialStr());
             }
         }else{
-            peeked.getSpecialsAfter().add(str);
+            peeked.getSpecialsAfter().add(token.asSpecialStr());
         }
         
     }
-
-   // constructors taking a IParserHost impl
-
-   public PythonGrammar30(CharStream stream,IParserHost host) {
-       this(stream);
-       hostLiteralMkr = host;
-   }
-
-   public PythonGrammar30(PythonGrammar30TokenManager tm,
-                        IParserHost host)
-   {
-        this(tm);
-        hostLiteralMkr = host;
-   }
 
 }
 
@@ -633,12 +620,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 void dotted_as_name(): {}
 { dotted_name() [$AS Name()] }
 
-//dotted_name: NAME ('.' NAME)*
-String dotted_name(): { Token t; StringBuffer sb = new StringBuffer(); }
-{ t=Name() { sb.append(t.image); }
-    (<DOT> t=Name() { sb.append("." + t.image); } )*
-        { return sb.toString(); }
-}
+$DOTTED_NAME
 
 //import_as_name: NAME [NAME NAME]
 String import_as_name(): { Token t; }

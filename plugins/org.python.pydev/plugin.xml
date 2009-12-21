@@ -46,6 +46,16 @@
             id="pythonfile"
             base-type="org.eclipse.core.runtime.text"/>
    </extension>
+   
+   <!-- new way of handling the content type -->
+  <extension point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            file-extensions="py,pyw"
+            name="Python File"
+            id="org.python.pydev.pythonfile"
+            base-type="org.eclipse.core.runtime.text"/>
+   </extension>
+   
 
 <!-- Python nature -->
    <extension
@@ -699,109 +709,109 @@
       </key>
       -->
       <key
-            sequence="Ctrl+Shift+Arrow_Up"
+            sequence="M1+M2+Arrow_Up"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.previousMethod"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+5"
+            sequence="M1+5"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.removeBlockComment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+4"
+            sequence="M1+4"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.addBlockComment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+Shift+4"
+            sequence="M1+M2+4"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.addSingleBlockComment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+\"
+            sequence="M1+\"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.uncomment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+Shift+3"
+            sequence="M1+M2+3"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.uncomment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+Shift+Arrow_Down"
+            sequence="M1+M2+Arrow_Down"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.nextMethod"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+/"
+            sequence="M1+/"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.togglecomment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+3"
+            sequence="M1+3"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.comment"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+-"
+            sequence="M1+-"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.pyCollapse"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+="
+            sequence="M1+="
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.pyUnCollapse"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+9"
+            sequence="M1+9"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.pyCollapseAll"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+0"
+            sequence="M1+0"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.navigation.pyUnCollapseAll"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+O"
+            sequence="M1+O"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyShowOutline"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+Shift+T"
+            sequence="M1+M2+T"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyShowBrowser"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+Shift+O"
+            sequence="M1+M2+O"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyOrganizeImports"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+Shift+F"
+            sequence="M1+M2+F"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.pyFormatStd"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+2"
+            sequence="M1+2"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.scriptEngine"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
@@ -881,7 +891,7 @@
    <extension-point id="pydev_completion" name="Pydev completion" schema="schema/pydev_completion.exsd"/>
    <extension-point id="pydev_modules_observer" name="Pydev modules observer" schema="schema/pydev_modules_observer.exsd"/>
    <extension-point id="pydev_interpreter_observer" name="Pydev Interpreter Observer" schema="schema/pydev_interpreter_observer.exsd"/>
-   <extension-point id="pydev_ctrl_1" name="Pydev Ctrl1 participant" schema="schema/pydev_ctrl_1.exsd"/>
+   <extension-point id="pydev_ctrl_1" name="Pydev M11 participant" schema="schema/pydev_ctrl_1.exsd"/>
    <extension-point id="pydev_simpleassist" name="Pydev Simple Assist" schema="schema/pydev_simpleassist.exsd"/>
    <extension-point id="pydev_organize_imports" name="Pydev Organize Imports" schema="schema/pydev_organize_imports.exsd"/>
    <extension-point id="pydev_refactoring" name="Pydev Refactoring" schema="schema/pydev_refactoring.exsd"/>
@@ -985,6 +995,9 @@
 
 <!-- Declare the view part to hold the default implementation --> 
 <extension point="org.eclipse.ui.views">
+   <category
+        name="Pydev"
+        id="org.python.pydev"/>
     <view
         allowMultiple="false"
         category="org.python.pydev"
@@ -1045,7 +1058,7 @@
             contentProvider="org.python.pydev.navigator.PythonModelProvider"
             labelProvider="org.python.pydev.navigator.PythonLabelProvider" 
             activeByDefault="true"
-            priority="high">
+            priority="higher">
          <triggerPoints>
              <or>
                 <instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
@@ -1064,6 +1077,7 @@
                 <instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
                 <instanceof value="org.python.pydev.core.structure.TreeNode"/>
                 <instanceof value="org.python.pydev.navigator.elements.PythonNode"/>
+                <instanceof value="org.python.pydev.navigator.elements.ProjectConfigError"/>
             </or>
          </triggerPoints>
          <possibleChildren>
@@ -1325,5 +1339,19 @@
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="org.python.pydev.plugin.nature.PyNatureReindexer"/>
    </extension>
+
+
+<extension
+	point="org.eclipse.compare.contentMergeViewers">
+	<viewer
+		extensions="py,pyw"
+		class="org.python.pydev.compare.PyContentViewerCreator"
+		id="org.python.pydev.compare.PyContentViewerCreator">
+	</viewer>
+	<contentTypeBinding
+		contentTypeId="org.python.pydev.pythonfile"
+		contentMergeViewerId="org.python.pydev.compare.PyContentViewerCreator">
+	</contentTypeBinding>
+</extension>
 	
  </plugin>

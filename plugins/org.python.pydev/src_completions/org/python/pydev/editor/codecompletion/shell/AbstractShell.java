@@ -28,7 +28,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.concurrency.Semaphore;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.logging.DebugSettings;
@@ -53,6 +52,8 @@ public abstract class AbstractShell {
     protected static final int DEFAULT_SLEEP_BETWEEN_ATTEMPTS = 1000; //1sec, so we can make the number of attempts be shown as elapsed in secs
     protected static final int DEBUG_SHELL = -1;
     
+    private final String TYPE_UNKNOWN_STR = ""+IToken.TYPE_UNKNOWN;
+    
     /**
      * Determines if we are already in a method that starts the shell
      */
@@ -75,7 +76,7 @@ public abstract class AbstractShell {
     /**
      * Lock to know if there is someone already using this shell for some operation
      */
-    private Semaphore isInOperation = new Semaphore(1);
+    private boolean isInOperation = false;
 
     private static void dbg(String string, int priority) {
         if(priority <= DEBUG_SHELL){
@@ -772,7 +773,10 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     public synchronized Tuple<String, List<String[]>> getImportCompletions(String str, List<String> pythonpath) throws CoreException {
-        isInOperation.acquire();
+        while(isInOperation){
+            sleepALittle(25);
+        }
+        isInOperation = true;
         try {
             internalChangePythonPath(pythonpath);
 
@@ -783,7 +787,7 @@ public abstract class AbstractShell {
                 throw new RuntimeException(e);
             }
         } finally {
-            isInOperation.release();
+            isInOperation = false;
         }
     }
 
@@ -792,11 +796,14 @@ public abstract class AbstractShell {
      * @throws CoreException
      */
     public synchronized void changePythonPath(List<String> pythonpath) throws CoreException {
-        isInOperation.acquire();
+        while(isInOperation){
+            sleepALittle(25);
+        }
+        isInOperation = true;
         try {
             internalChangePythonPath(pythonpath); 
         } finally {
-            isInOperation.release();
+            isInOperation = false;
         } 
     }
 
@@ -891,19 +898,21 @@ public abstract class AbstractShell {
         if(tokenizer.hasMoreTokens()){
             file = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
             while(tokenizer.hasMoreTokens()){
-                String token       = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                String token = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
                 if(!tokenizer.hasMoreTokens()){
                     return new Tuple<String, List<String[]>>(file, list);
                 }
                 String description = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
                 
                 String args = "";
-                if(tokenizer.hasMoreTokens())
+                if(tokenizer.hasMoreTokens()){
                     args = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                }
                 
-                String type =""+IToken.TYPE_UNKNOWN;
-                if(tokenizer.hasMoreTokens())
+                String type = TYPE_UNKNOWN_STR;
+                if(tokenizer.hasMoreTokens()){
                     type = URLDecoder.decode(tokenizer.nextToken(), ENCODING_UTF_8);
+                }
       
                 //dbg(token);
                 //dbg(description);
@@ -923,7 +932,10 @@ public abstract class AbstractShell {
      * @return the file where the token was defined, its line and its column (or null if it was not found)
      */
     public synchronized Tuple<String[],int []> getLineCol(String moduleName, String token, List<String> pythonpath) {
-        isInOperation.acquire();
+        while(isInOperation){
+            sleepALittle(25);
+        }
+        isInOperation = true;
         try {
             String str = moduleName+"."+token;
             internalChangePythonPath(pythonpath);
@@ -954,7 +966,7 @@ public abstract class AbstractShell {
                 throw new RuntimeException(e);
             }
         } finally {
-            isInOperation.release();
+            isInOperation = false;
         }
     }
 

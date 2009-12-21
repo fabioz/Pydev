@@ -23,7 +23,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.codecompletion.CompletionError;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
@@ -96,7 +96,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     /**
      * The editor that contains this processor
      */
-    private PyEdit edit;
+    private IPySyntaxHighlightingAndCodeCompletionEditor edit;
 
     /**
      * The 'default' processor (gets python completions)
@@ -137,7 +137,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     
     
     @SuppressWarnings("unchecked")
-    public SimpleAssistProcessor(PyEdit edit, PythonCompletionProcessor defaultPythonProcessor, final PyContentAssistant assistant){
+    public SimpleAssistProcessor(IPySyntaxHighlightingAndCodeCompletionEditor edit, PythonCompletionProcessor defaultPythonProcessor, final PyContentAssistant assistant){
         this.edit = edit;
         this.defaultPythonProcessor = defaultPythonProcessor;
         this.assistant = assistant;
@@ -181,7 +181,10 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
                 String activationToken = strs[0];
                 String qualifier = strs[1];
    
-                PySelection ps = new PySelection(edit);
+                PySelection ps = edit.createPySelection();
+                if(ps == null){
+                    return new ICompletionProposal[0];
+                }
                 List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
    
                 for (ISimpleAssistParticipant participant : participants) {

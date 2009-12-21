@@ -28,6 +28,7 @@ import org.python.pydev.core.docutils.PySelection.DocIterator;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.ErrorDescription;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.Token;
@@ -420,14 +421,14 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         if (orelse != null){
             if(orelse.specialsBefore != null){
                 for(Object o:orelse.specialsBefore){
-                    if(o instanceof Token){
-                        Token specialStr = (Token) o;
+                    if(o instanceof ISpecialStr){
+                        ISpecialStr specialStr = (ISpecialStr) o;
                         if(specialStr.toString().equals(specialToken)){
-                            foldingEntry.endLine = specialStr.beginLine-1;
+                            foldingEntry.endLine = specialStr.getBeginLine()-1;
                             if(addPrevious){
                                 addFoldingEntry(ret, foldingEntry);
                             }
-                            foldingEntry = new FoldingEntry(type, specialStr.beginLine-1, blockEndLine, entry);
+                            foldingEntry = new FoldingEntry(type, specialStr.getBeginLine()-1, blockEndLine, entry);
                         }
                     }
                 }

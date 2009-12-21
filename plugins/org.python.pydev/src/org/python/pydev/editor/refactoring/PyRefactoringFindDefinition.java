@@ -252,16 +252,22 @@ public class PyRefactoringFindDefinition {
      */
     public static void getAsPointers(List<ItemPointer> pointers, IDefinition[] definitions) {
         for (IDefinition definition : definitions) {
-            File file = definition.getModule().getFile();
-            int line = definition.getLine();
-            int col = definition.getCol();
-            
-            pointers.add(new ItemPointer(file,
-                    new Location(line-1, col-1),
-                    new Location(line-1, col-1), 
-                    (Definition)definition,
-                    definition.getModule().getZipFilePath())
-                    );
+            ItemPointer itemPointer = createItemPointer(definition);
+            pointers.add(itemPointer);
         }
+    }
+
+
+    public static ItemPointer createItemPointer(IDefinition definition) {
+        File file = definition.getModule().getFile();
+        int line = definition.getLine();
+        int col = definition.getCol();
+        
+        ItemPointer itemPointer = new ItemPointer(file,
+                new Location(line-1, col-1),
+                new Location(line-1, col-1), 
+                (Definition)definition,
+                definition.getModule().getZipFilePath());
+        return itemPointer;
     }
 }

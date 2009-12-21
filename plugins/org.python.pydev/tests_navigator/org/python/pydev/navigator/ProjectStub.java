@@ -9,12 +9,14 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFileInfoMatcherDescription;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceFilterDescription;
 import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -680,6 +682,8 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
         
     }
 
+
+
     public boolean isHidden(int options) {
         throw new RuntimeException("Not implemented");
     }
@@ -688,5 +692,28 @@ public class ProjectStub implements IProject, IWorkbenchAdapter{
         throw new RuntimeException("Not implemented");
     }
 
+    public IResourceFilterDescription createFilter(int type, IFileInfoMatcherDescription matcherDescription, int updateFlags, IProgressMonitor monitor) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public void removeFilter(IResourceFilterDescription filterDescription, int updateFlags, IProgressMonitor monitor) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public IResourceFilterDescription[] getFilters() throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean isGroup() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean hasFilters() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public void setDerived(boolean isDerived, IProgressMonitor monitor) throws CoreException {
+        throw new RuntimeException("Not implemented");
+    }
 
 }

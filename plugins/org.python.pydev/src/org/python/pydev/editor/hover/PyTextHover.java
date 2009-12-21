@@ -6,6 +6,7 @@
  */
 package org.python.pydev.editor.hover;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.IInformationControlExtension3;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextHoverExtension;
@@ -28,19 +30,31 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringEscapeUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyInformationPresenter;
+import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -49,6 +63,14 @@ import org.python.pydev.plugin.PydevPlugin;
  * @author Fabio
  */
 public class PyTextHover implements ITextHover, ITextHoverExtension{
+
+    private final class PyInformationControl extends DefaultInformationControl implements IInformationControlExtension3{
+        private PyInformationControl(Shell parent, int textStyles, IInformationPresenter presenter, String statusFieldText) {
+            super(parent, textStyles, presenter, statusFieldText);
+        }
+        
+    }
+
 
     /**
      * Whether we're in a comment or multiline string.
@@ -93,12 +115,6 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                 PySourceViewer s = (PySourceViewer) textViewer;
                 PySelection ps = new PySelection(s.getDocument(), hoverRegion.getOffset()+hoverRegion.getLength());
 
-                
-                getMarkerHover(hoverRegion, s);
-                if(PyHoverPreferencesPage.getShowDocstringOnHover()){
-                    getDocstringHover(hoverRegion, s, ps);
-                }
-                
                 List<IPyHoverParticipant> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_HOVER);
                 for (IPyHoverParticipant pyHoverParticipant : participants) {
                     try {
@@ -114,6 +130,12 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                         PydevPlugin.log(e);
                     }
                 }
+                
+                getMarkerHover(hoverRegion, s);
+                if(PyHoverPreferencesPage.getShowDocstringOnHover()){
+                    getDocstringHover(hoverRegion, s, ps);
+                }
+                
             }
         }
         return buf.toString();
@@ -135,7 +157,10 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                     if(buf.length() >0){
                         buf.append(PyInformationPresenter.LINE_DELIM);
                     }
-                    buf.appendObject(marker.markerAnnotation.getMarker().getAttribute(IMarker.MESSAGE));
+                    Object msg = marker.markerAnnotation.getMarker().getAttribute(IMarker.MESSAGE);
+                    if(!"Pydev breakpoint".equals(msg)){
+                        buf.appendObject(msg);
+                    }
                 }
             } catch (CoreException e) {
                 //ignore marker does not exist anymore
@@ -162,37 +187,107 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
         String[] tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
         
         
+        FastStringBuffer temp = new FastStringBuffer();
+        
         if(tokenAndQual != null && selected.size() > 0){
             for (IDefinition d : selected) {
                 Definition def = (Definition) d;
-                String docstring = d.getDocstring();
                 
-                if(buf.length() > 0 && (docstring != null || def.value != null || def.module != null)){
-                    buf.append(PyInformationPresenter.LINE_DELIM);
+                SimpleNode astToPrint = null;
+                if(def.ast != null){
+                    try{
+                        astToPrint = def.ast.createCopy();
+                        MakeAstValidForPrettyPrintingVisitor.makeValid(astToPrint);
+                    }catch(Exception e){
+                        PydevPlugin.log(e);
+                    }
                 }
                 
-                
+                temp = temp.clear();
                 if(def.value != null){
-                    buf.append("<pydev_hint_bold>");
-                    buf.append(def.value);
-                    buf.append(' ');
-                    buf.append("</pydev_hint_bold>");
+                    if(astToPrint instanceof FunctionDef){
+                        temp.append("def ");
+                        
+                    }else if(astToPrint instanceof ClassDef){
+                        temp.append("class ");
+                        
+                    }
+                    temp.append("<pydev_hint_bold>");
+                    temp.append(def.value);
+                    temp.append("</pydev_hint_bold>");
+                    temp.append(' ');
                 }
                 
                 if(def.module != null){
-                    buf.append("(");
-                    buf.append("<pydev_hint_bold>");
-                    buf.append(def.module.getName());
-                    buf.append("</pydev_hint_bold>");
-                    buf.append(")");
-                    buf.append(PyInformationPresenter.LINE_DELIM);
+                    temp.append("Found at: ");
+                    temp.append("<pydev_hint_bold>");
+                    temp.append(def.module.getName());
+                    temp.append("</pydev_hint_bold>");
+                    temp.append(PyInformationPresenter.LINE_DELIM);
                 }
                 
-                if(docstring != null && docstring.trim().length() > 0){
-                    buf.append(StringUtils.removeWhitespaceColumnsToLeft(docstring));
+                if(def.module != null && def.value != null){
+                    ItemPointer pointer = PyRefactoringFindDefinition.createItemPointer(def);
+                    temp.replaceAll("</pydev_hint_bold>", "</pydev_link>");
+                    temp.replaceAll(
+                        "<pydev_hint_bold>", 
+                        StringUtils.format("<pydev_link pointer=\"%s\">", StringEscapeUtils.escapeXml(pointer.asPortableString())));
+                }
+                
+                
+                String str = printAst(edit, astToPrint);
+                
+                if(str != null && str.trim().length() > 0){
+                    temp.append(PyInformationPresenter.LINE_DELIM);
+                    temp.append(str);
+                    
+                }else{ 
+                    String docstring = d.getDocstring();
+                    if(docstring != null && docstring.trim().length() > 0){
+                        IIndentPrefs indentPrefs = edit.getIndentPrefs();
+                        temp.append(StringUtils.fixWhitespaceColumnsToLeftFromDocstring(
+                                docstring, indentPrefs.getIndentationString()));
+                    }
+                }
+                
+                if(temp.length() > 0){
+                    if(buf.length() > 0){
+                        buf.append(PyInformationPresenter.LINE_DELIM);
+                    }
+                    buf.append(temp);
                 }
             }
         }
+    }
+
+    public static String printAst(PyEdit edit, SimpleNode astToPrint) {
+        String str = null;
+        if(astToPrint != null){
+            IIndentPrefs indentPrefs;
+            if(edit != null){
+                indentPrefs = edit.getIndentPrefs();
+            }else{
+                indentPrefs = DefaultIndentPrefs.get();
+            }
+            
+            Str docStr = NodeUtils.getNodeDocStringNode(astToPrint);
+            if(docStr != null){
+                docStr.s = StringUtils.fixWhitespaceColumnsToLeftFromDocstring(
+                        docStr.s, indentPrefs.getIndentationString());
+            }
+            
+            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(
+                    edit, indentPrefs, PyInformationPresenter.LINE_DELIM);
+            
+            PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);
+            try{
+
+                str = prettyPrinterV2.print(astToPrint);
+            }catch(IOException e){
+                PydevPlugin.log(e);
+            }
+        }
+        return str;
     }
 
     /*
@@ -217,8 +312,8 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                 } catch (Throwable e) {
                     //Not available on Eclipse 3.2
                 }
-                return new DefaultInformationControl(parent, SWT.NONE, new PyInformationPresenter(), 
-                        tooltipAffordanceString);
+                DefaultInformationControl ret = new PyInformationControl(parent, SWT.NONE, new PyInformationPresenter(), tooltipAffordanceString);
+                return ret;
             }
         };
     }

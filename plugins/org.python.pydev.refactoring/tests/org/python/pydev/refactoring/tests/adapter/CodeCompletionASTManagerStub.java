@@ -25,7 +25,9 @@ import org.python.pydev.parser.jython.ast.Name;
 
 public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
-	public void changePythonPath(String pythonpath, IProject project,
+	private Object lock = new Object();
+
+    public void changePythonPath(String pythonpath, IProject project,
 			IProgressMonitor monitor, String defaultSelectedInterpreter) {
 		throw new RuntimeException("Not implemented");
 	}
@@ -160,6 +162,10 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
     public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions, IToken wildImport) {
         throw new RuntimeException("Not implemented");
+    }
+
+    public Object getLock() {
+        return lock;
     }
 
 }

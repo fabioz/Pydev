@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import org.python.pydev.core.Tuple;
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -64,8 +64,8 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
                 Name name = (Name) c;
                 doc.add(name.beginLine, name.beginColumn, name.id, name);
                 
-            }else if(c instanceof ISpecialStrOrToken){
-                ISpecialStrOrToken specialStr = (ISpecialStrOrToken) c;
+            }else if(c instanceof ISpecialStr){
+                ISpecialStr specialStr = (ISpecialStr) c;
                 doc.add(specialStr.getBeginLine(), specialStr.getBeginCol(), specialStr.toString(), specialStr);
                 
             }else{
@@ -136,14 +136,6 @@ public class PrettyPrinterUtilsV2 extends VisitorBase{
         doc.addDedent(emptyLinesRequiredAfterDedent);
     }
     
-    protected void indent(Token token) {
-        doc.addIndent(token, false);
-    }
-    
-    protected void indent(Token token, boolean requireNewLine) {
-        doc.addIndent(token, requireNewLine);
-    }
-
     protected SimpleNode lastNode;
     
     protected Object unhandled_node(SimpleNode node) throws Exception {

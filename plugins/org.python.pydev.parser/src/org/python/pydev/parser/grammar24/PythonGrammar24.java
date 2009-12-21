@@ -3,13 +3,14 @@ package org.python.pydev.parser.grammar24;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
-import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
+import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
 import org.python.pydev.parser.jython.CharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -29,6 +30,9 @@ import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 
 public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bgen(jjtree)*/ IGrammar, PythonGrammar24Constants {/*@bgen(jjtree)*/
   protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder24.class, this);
+
+
+    FastStringBuffer dottedNameStringBuffer = new FastStringBuffer();
 
     /**
      * @return the current token found.
@@ -69,23 +73,6 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
         return jj_lastpos;
     }
 
-
-
-
-   // constructors taking a IParserHost impl
-
-   public PythonGrammar24(CharStream stream,IParserHost host) {
-       this(stream);
-       hostLiteralMkr = host;
-   }
-
-   public PythonGrammar24(PythonGrammar24TokenManager tm,
-                        IParserHost host)
-   {
-        this(tm);
-        hostLiteralMkr = host;
-   }
-
 //file_input: (NEWLINE | stmt)* ENDMARKER
   final public modType file_input() throws ParseException {
                        /*@bgen(jjtree) file_input */
@@ -125,6 +112,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
         case GLOBAL:
         case EXEC:
         case ASSERT:
+        case AS:
         case AT:
         case NAME:
         case DECNUMBER:
@@ -182,6 +170,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
         case GLOBAL:
         case EXEC:
         case ASSERT:
+        case AS:
         case AT:
         case NAME:
         case DECNUMBER:
@@ -380,6 +369,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
     case LPAREN:
     case MULTIPLY:
     case POWER:
+    case AS:
     case NAME:
       varargslist();
       break;
@@ -399,6 +389,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
   final public void varargslist() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LPAREN:
+    case AS:
     case NAME:
       defaultarg();
       label_3:
@@ -591,6 +582,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
 //fpdef: NAME | '(' fplist ')'
   final public void fpdef() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case AS:
     case NAME:
       Name();
       break;
@@ -687,6 +679,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
     case GLOBAL:
     case EXEC:
     case ASSERT:
+    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -766,6 +759,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
     case NOT:
     case NOT_BOOL:
     case LAMBDA:
+    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -1492,6 +1486,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
       case NOT:
       case NOT_BOOL:
       case LAMBDA:
+      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -1611,6 +1606,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
       case NOT:
       case NOT_BOOL:
       case LAMBDA:
+      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -1769,6 +1765,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
                                     jjtreeCloseNodeScope(jjtn000);
                                    this.addSpecialToken(temporaryToken,STRATEGY_ADD_AFTER_PREV);
         break;
+      case AS:
       case NAME:
         name = import_as_name();
         label_10:
@@ -1808,6 +1805,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
               this.findTokenAndAdd(",");
           jj_consume_token(COMMA);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case AS:
           case NAME:
                                                     state=0;
             import_as_name();
@@ -1898,7 +1896,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
                         SimpleNode jjtn000 = jjtree.builder.openNode( JJTDOTTED_NAME);
                         boolean jjtc000 = true;
                         jjtree.openNodeScope(jjtn000);
-                        jjtreeOpenNodeScope(jjtn000);Token t; StringBuffer sb = new StringBuffer();
+                        jjtreeOpenNodeScope(jjtn000);Token t; FastStringBuffer sb = dottedNameStringBuffer.clear();
     try {
       t = Name();
              sb.append(t.image);
@@ -1914,7 +1912,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
         }
         jj_consume_token(DOT);
         t = Name();
-                      sb.append("." + t.image);
+                      sb.append(".").append(t.image);
       }
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
@@ -2571,6 +2569,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
       case NOT:
       case NOT_BOOL:
       case LAMBDA:
+      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -2674,6 +2673,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
         case GLOBAL:
         case EXEC:
         case ASSERT:
+        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -2737,6 +2737,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
             case GLOBAL:
             case EXEC:
             case ASSERT:
+            case AS:
             case AT:
             case NAME:
             case DECNUMBER:
@@ -2804,6 +2805,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
             case GLOBAL:
             case EXEC:
             case ASSERT:
+            case AS:
             case AT:
             case NAME:
             case DECNUMBER:
@@ -2884,6 +2886,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
       case MINUS:
       case NOT:
       case NOT_BOOL:
+      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -3023,6 +3026,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
     case PLUS:
     case MINUS:
     case NOT:
+    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -3795,6 +3799,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
     case LPAREN:
     case LBRACE:
     case LBRACKET:
+    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -4051,6 +4056,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
         case NOT:
         case NOT_BOOL:
         case LAMBDA:
+        case AS:
         case NAME:
         case DECNUMBER:
         case HEXNUMBER:
@@ -4096,6 +4102,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
           case NOT:
           case NOT_BOOL:
           case LAMBDA:
+          case AS:
           case NAME:
           case DECNUMBER:
           case HEXNUMBER:
@@ -4158,6 +4165,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
           case NOT:
           case NOT_BOOL:
           case LAMBDA:
+          case AS:
           case NAME:
           case DECNUMBER:
           case HEXNUMBER:
@@ -4219,6 +4227,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
                           }
         }
         break;
+      case AS:
       case NAME:
         Name();
         break;
@@ -4322,6 +4331,7 @@ public final class PythonGrammar24 extends AbstractPythonGrammar implements/*@bg
       case LPAREN:
       case MULTIPLY:
       case POWER:
+      case AS:
       case NAME:
         varargslist();
                           hasArgs=true;
@@ -4435,6 +4445,7 @@ else
     case NOT:
     case NOT_BOOL:
     case LAMBDA:
+    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -4532,6 +4543,7 @@ else
     case NOT:
     case NOT_BOOL:
     case LAMBDA:
+    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -4565,6 +4577,7 @@ else
       case NOT:
       case NOT_BOOL:
       case LAMBDA:
+      case AS:
       case NAME:
       case DECNUMBER:
       case HEXNUMBER:
@@ -4975,6 +4988,7 @@ else
     case NOT:
     case NOT_BOOL:
     case LAMBDA:
+    case AS:
     case NAME:
     case DECNUMBER:
     case HEXNUMBER:
@@ -5285,7 +5299,18 @@ else
     jjtreeOpenNodeScope(jjtn000);Token t;
     try {
       try {
-        t = jj_consume_token(NAME);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case NAME:
+          t = jj_consume_token(NAME);
+          break;
+        case AS:
+          t = jj_consume_token(AS);
+          break;
+        default:
+          jj_la1[104] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
       } catch (ParseException e) {
         t = handleErrorInName(e);
       }
@@ -5459,7 +5484,7 @@ else
       }
       break;
     default:
-      jj_la1[104] = jj_gen;
+      jj_la1[105] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -5647,6 +5672,50 @@ else
     finally { jj_save(25, xla); }
   }
 
+  private boolean jj_3R_87() {
+    if (jj_3R_103()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_131() {
+    if (jj_scan_token(HEXNUMBER)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_127() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_131()) {
+    jj_scanpos = xsp;
+    if (jj_3R_132()) {
+    jj_scanpos = xsp;
+    if (jj_3R_133()) {
+    jj_scanpos = xsp;
+    if (jj_3R_134()) {
+    jj_scanpos = xsp;
+    if (jj_3R_135()) return true;
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_71() {
+    if (jj_3R_87()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_70() {
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_69() {
+    if (jj_scan_token(MINUS)) return true;
+    return false;
+  }
+
   private boolean jj_3R_46() {
     Token xsp;
     xsp = jj_scanpos;
@@ -5682,25 +5751,20 @@ else
     return false;
   }
 
-  private boolean jj_3_5() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_43()) return true;
-    return false;
-  }
-
   private boolean jj_3_25() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_51()) return true;
     return false;
   }
 
-  private boolean jj_3R_126() {
-    if (jj_3R_46()) return true;
+  private boolean jj_3_5() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_43()) return true;
     return false;
   }
 
-  private boolean jj_3R_56() {
-    if (jj_scan_token(LPAREN)) return true;
+  private boolean jj_3R_126() {
+    if (jj_3R_46()) return true;
     return false;
   }
 
@@ -5724,6 +5788,11 @@ else
     return false;
   }
 
+  private boolean jj_3R_56() {
+    if (jj_scan_token(LPAREN)) return true;
+    return false;
+  }
+
   private boolean jj_3R_84() {
     if (jj_scan_token(EXEC)) return true;
     return false;
@@ -5737,21 +5806,6 @@ else
 
   private boolean jj_3R_115() {
     if (jj_3R_126()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_43() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_55()) {
-    jj_scanpos = xsp;
-    if (jj_3R_56()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_55() {
-    if (jj_3R_52()) return true;
     return false;
   }
 
@@ -5775,8 +5829,18 @@ else
     return false;
   }
 
-  private boolean jj_3R_40() {
-    if (jj_3R_43()) return true;
+  private boolean jj_3R_43() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_55()) {
+    jj_scanpos = xsp;
+    if (jj_3R_56()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_55() {
+    if (jj_3R_52()) return true;
     return false;
   }
 
@@ -5792,12 +5856,6 @@ else
     return false;
   }
 
-  private boolean jj_3_1() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_40()) return true;
-    return false;
-  }
-
   private boolean jj_3R_107() {
     if (jj_3R_115()) return true;
     return false;
@@ -5808,23 +5866,19 @@ else
     return false;
   }
 
-  private boolean jj_3R_42() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_53()) {
-    jj_scanpos = xsp;
-    if (jj_3R_54()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_53() {
-    if (jj_scan_token(POWER)) return true;
+  private boolean jj_3R_40() {
+    if (jj_3R_43()) return true;
     return false;
   }
 
   private boolean jj_3R_88() {
     if (jj_3R_104()) return true;
+    return false;
+  }
+
+  private boolean jj_3_1() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_40()) return true;
     return false;
   }
 
@@ -5844,13 +5898,33 @@ else
     return false;
   }
 
+  private boolean jj_3R_112() {
+    if (jj_3R_117()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_42() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_53()) {
+    jj_scanpos = xsp;
+    if (jj_3R_54()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_53() {
+    if (jj_scan_token(POWER)) return true;
+    return false;
+  }
+
   private boolean jj_3_4() {
     if (jj_3R_41()) return true;
     return false;
   }
 
-  private boolean jj_3R_112() {
-    if (jj_3R_117()) return true;
+  private boolean jj_3R_91() {
+    if (jj_3R_107()) return true;
     return false;
   }
 
@@ -5863,11 +5937,6 @@ else
   private boolean jj_3_3() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_42()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_91() {
-    if (jj_3R_107()) return true;
     return false;
   }
 
@@ -5956,24 +6025,24 @@ else
     return false;
   }
 
-  private boolean jj_3R_101() {
-    if (jj_scan_token(FROM)) return true;
-    return false;
-  }
-
   private boolean jj_3R_66() {
     if (jj_3R_85()) return true;
     return false;
   }
 
-  private boolean jj_3R_100() {
-    if (jj_scan_token(IMPORT)) return true;
+  private boolean jj_3R_101() {
+    if (jj_scan_token(FROM)) return true;
     return false;
   }
 
   private boolean jj_3_18() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_49()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_100() {
+    if (jj_scan_token(IMPORT)) return true;
     return false;
   }
 
@@ -6100,18 +6169,13 @@ else
     return false;
   }
 
-  private boolean jj_3R_80() {
-    if (jj_scan_token(PASS)) return true;
-    return false;
-  }
-
   private boolean jj_3R_47() {
     if (jj_3R_72()) return true;
     return false;
   }
 
-  private boolean jj_3R_94() {
-    if (jj_scan_token(DEL)) return true;
+  private boolean jj_3R_80() {
+    if (jj_scan_token(PASS)) return true;
     return false;
   }
 
@@ -6125,14 +6189,24 @@ else
     return false;
   }
 
-  private boolean jj_3_8() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_45()) return true;
+  private boolean jj_3R_94() {
+    if (jj_scan_token(DEL)) return true;
     return false;
   }
 
   private boolean jj_3R_122() {
     if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_121() {
+    if (jj_scan_token(136)) return true;
+    return false;
+  }
+
+  private boolean jj_3_8() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_45()) return true;
     return false;
   }
 
@@ -6147,11 +6221,6 @@ else
     return false;
   }
 
-  private boolean jj_3R_121() {
-    if (jj_scan_token(136)) return true;
-    return false;
-  }
-
   private boolean jj_3R_143() {
     if (jj_scan_token(TRIPLE_USTRING2)) return true;
     return false;
@@ -6162,23 +6231,13 @@ else
     return false;
   }
 
-  private boolean jj_3R_120() {
-    if (jj_scan_token(LBRACE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_93() {
-    if (jj_scan_token(PRINT)) return true;
-    return false;
-  }
-
   private boolean jj_3R_141() {
     if (jj_scan_token(SINGLE_USTRING2)) return true;
     return false;
   }
 
-  private boolean jj_3R_54() {
-    if (jj_scan_token(MULTIPLY)) return true;
+  private boolean jj_3R_120() {
+    if (jj_scan_token(LBRACE)) return true;
     return false;
   }
 
@@ -6192,14 +6251,13 @@ else
     return false;
   }
 
-  private boolean jj_3R_138() {
-    if (jj_scan_token(TRIPLE_STRING)) return true;
+  private boolean jj_3R_93() {
+    if (jj_scan_token(PRINT)) return true;
     return false;
   }
 
-  private boolean jj_3_10() {
-    if (jj_scan_token(PRINT)) return true;
-    if (jj_3R_45()) return true;
+  private boolean jj_3R_138() {
+    if (jj_scan_token(TRIPLE_STRING)) return true;
     return false;
   }
 
@@ -6208,8 +6266,8 @@ else
     return false;
   }
 
-  private boolean jj_3R_119() {
-    if (jj_scan_token(LBRACKET)) return true;
+  private boolean jj_3R_54() {
+    if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
 
@@ -6246,6 +6304,22 @@ else
     return false;
   }
 
+  private boolean jj_3R_119() {
+    if (jj_scan_token(LBRACKET)) return true;
+    return false;
+  }
+
+  private boolean jj_3_10() {
+    if (jj_scan_token(PRINT)) return true;
+    if (jj_3R_45()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_118() {
+    if (jj_scan_token(LPAREN)) return true;
+    return false;
+  }
+
   private boolean jj_3_9() {
     if (jj_scan_token(PRINT)) return true;
     if (jj_scan_token(RSHIFT)) return true;
@@ -6262,11 +6336,6 @@ else
     if (jj_3R_93()) return true;
     }
     }
-    return false;
-  }
-
-  private boolean jj_3R_118() {
-    if (jj_scan_token(LPAREN)) return true;
     return false;
   }
 
@@ -6319,7 +6388,12 @@ else
   }
 
   private boolean jj_3R_52() {
-    if (jj_scan_token(NAME)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(92)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(90)) return true;
+    }
     return false;
   }
 
@@ -6348,6 +6422,11 @@ else
     return false;
   }
 
+  private boolean jj_3R_135() {
+    if (jj_scan_token(COMPLEX)) return true;
+    return false;
+  }
+
   private boolean jj_3_6() {
     if (jj_scan_token(SEMICOLON)) return true;
     if (jj_3R_44()) return true;
@@ -6359,13 +6438,20 @@ else
     return false;
   }
 
+  private boolean jj_3_12() {
+    if (jj_scan_token(POWER)) return true;
+    if (jj_3R_46()) return true;
+    return false;
+  }
+
   private boolean jj_3R_60() {
     if (jj_3R_80()) return true;
     return false;
   }
 
-  private boolean jj_3R_135() {
-    if (jj_scan_token(COMPLEX)) return true;
+  private boolean jj_3_14() {
+    if (jj_scan_token(LPAREN)) return true;
+    if (jj_3R_47()) return true;
     return false;
   }
 
@@ -6374,20 +6460,13 @@ else
     return false;
   }
 
-  private boolean jj_3_12() {
-    if (jj_scan_token(POWER)) return true;
-    if (jj_3R_46()) return true;
+  private boolean jj_3R_134() {
+    if (jj_scan_token(FLOAT)) return true;
     return false;
   }
 
   private boolean jj_3R_58() {
     if (jj_3R_78()) return true;
-    return false;
-  }
-
-  private boolean jj_3_14() {
-    if (jj_scan_token(LPAREN)) return true;
-    if (jj_3R_47()) return true;
     return false;
   }
 
@@ -6427,11 +6506,6 @@ else
     return false;
   }
 
-  private boolean jj_3R_134() {
-    if (jj_scan_token(FLOAT)) return true;
-    return false;
-  }
-
   private boolean jj_3R_133() {
     if (jj_scan_token(DECNUMBER)) return true;
     return false;
@@ -6453,50 +6527,6 @@ else
     return false;
   }
 
-  private boolean jj_3R_87() {
-    if (jj_3R_103()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_131() {
-    if (jj_scan_token(HEXNUMBER)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_127() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_131()) {
-    jj_scanpos = xsp;
-    if (jj_3R_132()) {
-    jj_scanpos = xsp;
-    if (jj_3R_133()) {
-    jj_scanpos = xsp;
-    if (jj_3R_134()) {
-    jj_scanpos = xsp;
-    if (jj_3R_135()) return true;
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_71() {
-    if (jj_3R_87()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_70() {
-    if (jj_scan_token(NOT)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_69() {
-    if (jj_scan_token(MINUS)) return true;
-    return false;
-  }
-
   /** Generated Token Manager. */
   public PythonGrammar24TokenManager token_source;
   /** Current token. */
@@ -6507,7 +6537,7 @@ else
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[105];
+  final private int[] jj_la1 = new int[106];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -6521,19 +6551,19 @@ else
       jj_la1_init_4();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x30540040,0x30540040,0x0,0x40000,0x40040000,0x2000000,0x2000000,0x40000000,0x40040000,0x40000000,0x0,0x40000,0x2000000,0x30540000,0x1000000,0x30540000,0x0,0x0,0x2000000,0x2000000,0x2000000,0x0,0x0,0x30540000,0x2000000,0x2000000,0x30540000,0x0,0x2000000,0x2000000,0x2000000,0x0,0x40040000,0x0,0x4000000,0x0,0x2000000,0x2000000,0x0,0x2000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2000000,0x30540000,0x30540000,0x30540000,0x30548040,0x0,0x30540000,0x0,0x30540000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x30000000,0x30000000,0xc0000000,0xc0000000,0x30540000,0x4440000,0x4400000,0x30540000,0x30540000,0x30540000,0x0,0x540000,0x0,0x40040000,0x2000000,0x8000000,0x3c540000,0x30540000,0x30540000,0x8000000,0x2000000,0x2000000,0x2000000,0x2000000,0x0,0x2000000,0x0,0x0,0x40000,0x2000000,0x40000000,0x40000000,0x2000000,0x2000000,0x40000000,0x40000000,0x30540000,0x40000000,0x0,0x0,};
+      jj_la1_0 = new int[] {0x30540040,0x30540040,0x0,0x40000,0x40040000,0x2000000,0x2000000,0x40000000,0x40040000,0x40000000,0x0,0x40000,0x2000000,0x30540000,0x1000000,0x30540000,0x0,0x0,0x2000000,0x2000000,0x2000000,0x0,0x0,0x30540000,0x2000000,0x2000000,0x30540000,0x0,0x2000000,0x2000000,0x2000000,0x0,0x40040000,0x0,0x4000000,0x0,0x2000000,0x2000000,0x0,0x2000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2000000,0x30540000,0x30540000,0x30540000,0x30548040,0x0,0x30540000,0x0,0x30540000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x30000000,0x30000000,0xc0000000,0xc0000000,0x30540000,0x4440000,0x4400000,0x30540000,0x30540000,0x30540000,0x0,0x540000,0x0,0x40040000,0x2000000,0x8000000,0x3c540000,0x30540000,0x30540000,0x8000000,0x2000000,0x2000000,0x2000000,0x2000000,0x0,0x2000000,0x0,0x0,0x40000,0x2000000,0x40000000,0x40000000,0x2000000,0x2000000,0x40000000,0x40000000,0x30540000,0x40000000,0x0,0x0,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x80000020,0x80000020,0x0,0x0,0x2,0x0,0x0,0x2,0x2,0x2,0x200,0x0,0x0,0x80000020,0x0,0x80000020,0x200,0x1ffe0000,0x0,0x0,0x0,0x0,0x0,0x80000020,0x0,0x0,0x80000020,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x80000020,0x80000020,0x80000020,0x80000020,0x20000000,0x80000020,0x40000000,0x80000020,0x8001fc00,0x8001fc00,0x0,0x80,0x40,0x100,0xc,0xc,0x0,0x0,0x11,0x11,0x20,0x0,0x0,0x80000020,0x80000020,0x80000020,0x0,0x0,0x0,0x2,0x0,0x0,0x80000020,0x80000020,0x80000020,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2,0x2,0x0,0x0,0x2,0x2,0x80000020,0x2,0x0,0x0,};
+      jj_la1_1 = new int[] {0x80000020,0x80000020,0x0,0x0,0x2,0x0,0x0,0x2,0x2,0x2,0x200,0x0,0x0,0x80000020,0x0,0x80000020,0x200,0x1ffe0000,0x0,0x0,0x0,0x0,0x0,0x80000020,0x0,0x0,0x80000020,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x80000020,0x80000020,0x80000020,0x80000020,0x20000000,0x80000020,0x40000000,0x80000020,0x8001fc00,0x8001fc00,0x0,0x80,0x40,0x100,0xc,0xc,0x0,0x0,0x11,0x11,0x20,0x0,0x0,0x80000020,0x80000020,0x80000020,0x0,0x0,0x0,0x2,0x0,0x0,0x80000020,0x80000020,0x80000020,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2,0x2,0x0,0x0,0x2,0x2,0x80000020,0x2,0x0,0x0,0x0,};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0xdbffedcc,0xdbffedcc,0x8000000,0x0,0x10000000,0x0,0x0,0x0,0x10000000,0x0,0x0,0x10000000,0x0,0xdbffedcc,0x0,0xd3ffe004,0x0,0x0,0x0,0x0,0x0,0x2000,0x478000,0xd0000004,0x0,0x0,0xd0000004,0x180000,0x0,0x0,0x0,0x10000000,0x10000000,0x4000000,0x0,0x4000000,0x0,0x0,0x2,0x0,0x8000dc8,0x20,0x10,0x10,0x10,0x200,0x10,0x1200,0x0,0xd0000004,0xdbffedcc,0xdbffedcc,0xd3ffe004,0x0,0xd0000004,0x0,0xd0000000,0x3,0x2,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd0000000,0x0,0x0,0xd0000004,0xd0000004,0xd0000004,0x0,0xd0000000,0x80,0x10000000,0x0,0x0,0xd0000004,0xd0000004,0xd0000004,0x0,0x0,0x0,0x0,0x0,0x80,0x0,0x80,0x8,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd0000004,0x0,0xc0000000,0x0,};
+      jj_la1_2 = new int[] {0xdfffedcc,0xdfffedcc,0x8000000,0x0,0x14000000,0x0,0x0,0x0,0x14000000,0x0,0x0,0x14000000,0x0,0xdfffedcc,0x0,0xd7ffe004,0x0,0x0,0x0,0x0,0x0,0x2000,0x478000,0xd4000004,0x0,0x0,0xd4000004,0x180000,0x0,0x0,0x0,0x14000000,0x14000000,0x4000000,0x0,0x4000000,0x0,0x0,0x2,0x0,0x8000dc8,0x20,0x10,0x10,0x10,0x200,0x10,0x1200,0x0,0xd4000004,0xdfffedcc,0xdfffedcc,0xd7ffe004,0x0,0xd4000004,0x0,0xd4000000,0x3,0x2,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd4000000,0x0,0x0,0xd4000004,0xd4000004,0xd4000004,0x0,0xd4000000,0x80,0x14000000,0x0,0x0,0xd4000004,0xd4000004,0xd4000004,0x0,0x0,0x0,0x0,0x0,0x80,0x0,0x80,0x8,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd4000004,0x0,0xc0000000,0x14000000,0x0,};
    }
    private static void jj_la1_init_3() {
-      jj_la1_3 = new int[] {0x1fe007,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x0,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x0,0x0,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x1fe007,0x1fe007,0x1fe007,0x0,0x1fe007,0x0,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x0,0x0,0x1fe007,0x1fe007,0x1fe007,0x1fe000,0x1fe007,0x0,0x0,0x0,0x0,0x1fe007,0x1fe007,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x0,0x7,0x1fe000,};
+      jj_la1_3 = new int[] {0x1fe007,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x0,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x0,0x0,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x1fe007,0x1fe007,0x1fe007,0x0,0x1fe007,0x0,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x0,0x0,0x1fe007,0x1fe007,0x1fe007,0x1fe000,0x1fe007,0x0,0x0,0x0,0x0,0x1fe007,0x1fe007,0x1fe007,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1fe007,0x0,0x7,0x0,0x1fe000,};
    }
    private static void jj_la1_init_4() {
-      jj_la1_4 = new int[] {0x100,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x0,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x0,0x0,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x100,0x100,0x100,0x0,0x100,0x0,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x0,0x0,0x100,0x100,0x100,0x0,0x100,0x0,0x0,0x0,0x0,0x100,0x100,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x0,0x0,0x0,};
+      jj_la1_4 = new int[] {0x100,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x0,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x0,0x0,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x100,0x100,0x100,0x0,0x100,0x0,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x0,0x0,0x100,0x100,0x100,0x0,0x100,0x0,0x0,0x0,0x0,0x100,0x100,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100,0x0,0x0,0x0,0x0,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[26];
   private boolean jj_rescan = false;
@@ -6545,7 +6575,7 @@ else
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 105; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 106; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -6556,7 +6586,7 @@ else
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 105; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 106; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -6566,7 +6596,7 @@ else
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 105; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 106; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -6577,7 +6607,7 @@ else
     jj_ntk = -1;
     jjtree.reset();
     jj_gen = 0;
-    for (int i = 0; i < 105; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 106; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -6694,7 +6724,7 @@ else
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 105; i++) {
+    for (int i = 0; i < 106; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

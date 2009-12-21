@@ -24,6 +24,11 @@ import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.hover.PyTextHover;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposalExtension2 implements ICompletionProposalExtension{
@@ -97,10 +102,28 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
         }
     }
     
+    private String computedInfo = null;
+    
     @Override
     public String getAdditionalProposalInfo() {
+        if(computedInfo != null){
+            return computedInfo;
+        }
+        
         if(element != null){
-            return element.getDocStr();
+            if(element instanceof SourceToken){
+                SourceToken sourceToken = (SourceToken) element;
+                SimpleNode ast = sourceToken.getAst();
+                if(ast != null && (ast instanceof FunctionDef || ast instanceof ClassDef)){
+                    computedInfo = PyTextHover.printAst(null, ast);
+                }
+                if(computedInfo != null){
+                    return computedInfo;
+                }
+                
+            }
+            computedInfo = element.getDocStr();
+            return computedInfo;
         }else{
             return super.getAdditionalProposalInfo();
         }

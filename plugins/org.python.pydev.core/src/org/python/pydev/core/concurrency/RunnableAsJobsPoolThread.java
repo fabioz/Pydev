@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 
 /**
@@ -60,43 +61,116 @@ public class RunnableAsJobsPoolThread extends Thread{
             
             //get the runnable to run.
             Tuple<Runnable, String> execute = null;
+            int size;
             synchronized(lockRunnables){
-                if(runnables.size() > 0){
+                size = runnables.size();
+                if(size > 0){
                     execute = runnables.remove(0);
+                    size--;
                 }
             }
             
             if(execute != null){
                 //this will make certain that only X jobs are running.
                 jobsCreationSemaphore.acquire();
-                final Runnable runnable = execute.o1;
-                final String name = execute.o2;
+                final Runnable[] runnable = new Runnable[]{execute.o1};
+                String name = execute.o2;
+                execute = null;
+                
+                if(size > 1){
+                    name += " ("+size+" scheduled)";
+                }
                 
                 Job workbenchJob = new Job(name) {
                 
                     @Override
                     public IStatus run(IProgressMonitor monitor) {
+                        Runnable r;
                         try{
-                            runnable.run();
+                            r = runnable[0];
+                            if(r instanceof IRunnableWithMonitor){
+                                ((IRunnableWithMonitor) r).setMonitor(monitor);
+                            }
+                            runnable[0] = null;//make sure it'll be available for garbage collection ASAP.
+                            r.run();
                         }finally{
+                            r = null; //make sure it'll be available for garbage collection ASAP.
                             jobsCreationSemaphore.release();
                         }
                         return Status.OK_STATUS;
                     }
                 
                 };
-                workbenchJob.setSystem(true);
-                workbenchJob.setPriority(Job.BUILD);
+//                workbenchJob.setSystem(true);
+//                workbenchJob.setPriority(Job.BUILD);
+                workbenchJob.setPriority(Job.INTERACTIVE);
                 workbenchJob.schedule();
             }
             
         }
     }
 
-    public void scheduleToRun(final Runnable runnable, final String name){
+    public void scheduleToRun(final IRunnableWithMonitor runnable, final String name){
         synchronized(lockRunnables){
             runnables.add(new Tuple<Runnable, String>(runnable, name));
         }
         canRunSemaphore.release();
+    }
+
+
+    
+    private static RunnableAsJobsPoolThread singleton;
+
+    
+    /**
+     * @return a singleton to be shared across multiple clases. Note that this class
+     * may still have locally created instances (so, its constructor is not private as
+     * is usual for singletons).
+     */
+    public synchronized static RunnableAsJobsPoolThread getSingleton() {
+        if(singleton == null){
+            //if a problem happens getting the number of processors (although it shouldn't happen), use 6
+            int maxSize = 6;
+            
+            try{
+                int availableProcessors = Runtime.getRuntime().availableProcessors();
+                if(availableProcessors <= 1){
+                    maxSize = 3;
+                    
+                }else{
+                    //note that we create more threads than processes because some are very likely to 
+                    //be disk-bound processes (but with a logarithmic function, because we don't want 
+                    //to add up too fast as the number of processors increase because of the amount of memory
+                    //it'd consume).
+                    //
+                    //The progression we get with this formula is below.
+                    //
+                    //2: 4
+                    //3: 6
+                    //4: 8
+                    //5: 10
+                    //6: 11
+                    //7: 13
+                    //8: 14
+                    //9: 16
+                    //10: 17
+                    //11: 18
+                    //12: 19
+                    //13: 21
+                    //14: 22
+                    //15: 23
+                    //16: 24
+                    //17: 25
+                    //18: 27
+                    //19: 28
+                    maxSize = (int)(availableProcessors+Math.round(REF.log(availableProcessors, 1.4)));
+                }
+            }catch(Throwable e){
+            }
+            
+            
+            singleton = new RunnableAsJobsPoolThread(maxSize);
+        }
+        return singleton;
     }
 }

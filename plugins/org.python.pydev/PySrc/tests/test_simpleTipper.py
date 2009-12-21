@@ -5,9 +5,8 @@ import os
 import sys
 #make it as if we were executing from the directory above this one (so that we can use pycompletionserver
 #without the need for it being in the pythonpath)
-sys.argv[0] = os.path.dirname(sys.argv[0]) 
 #twice the dirname to get the previous level from this file.
-sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
+sys.path.insert(1, os.path.split(os.path.split(__file__)[0])[0])
 
 try:
     import __builtin__ #@UnusedImport
@@ -21,11 +20,8 @@ if sys.platform.find('java') == -1:
     HAS_WX = False
     
     import unittest
-    try:
-        import importsTipper
-        import inspect
-    except ImportError:
-        pass #Not available in jython
+    import importsTipper
+    import inspect
     
     class Test(unittest.TestCase):
     
@@ -56,7 +52,7 @@ if sys.platform.find('java') == -1:
         def testImports5(self):
             tip = importsTipper.GenerateTip('__builtin__.list')
             s = self.assertIn('sort', tip)
-            self.CheckArgs(s, '(cmp=None, key=None, reverse=False)', '(self, object cmp, object key)')
+            self.CheckArgs(s, '(cmp=None, key=None, reverse=False)', '(self, object cmp, object key, bool reverse)')
             
         def testImports2a(self):
             tips = importsTipper.GenerateTip('%s.RuntimeError' % BUILTIN_MOD)
@@ -95,6 +91,7 @@ if sys.platform.find('java') == -1:
     #            print_ t
             self.assertIn('object'         , tip)
             self.assertIn('tuple'          , tip)
+            self.assertIn('list'          , tip)
             self.assertIn('RuntimeError'   , tip)
             self.assertIn('RuntimeWarning' , tip)
             t = self.assertIn('cmp' , tip)
@@ -108,7 +105,7 @@ if sys.platform.find('java') == -1:
             self.CheckArgs(t, '(source, filename, mode)', '()') #args
             
             t = self.assertIn('setattr' , tip)
-            self.CheckArgs(t, '(object, name, value)', '()') #args
+            self.CheckArgs(t, '(object, name, value)', '(object o, str name, object val)') #args
             
             try:
                 import compiler
@@ -183,12 +180,13 @@ if sys.platform.find('java') == -1:
             
     def suite():
         s = unittest.TestSuite()
-        s.addTest(Test("testSearch"))
+        s.addTest(Test("testImports5"))
         unittest.TextTestRunner(verbosity=2).run(s)
 
 
 if __name__ == '__main__':
     if sys.platform.find('java') == -1:
+#        suite()
         unittest.main()
     else:
         sys.stdout.write('Not running python tests in platform: %s\n' % (sys.platform,))

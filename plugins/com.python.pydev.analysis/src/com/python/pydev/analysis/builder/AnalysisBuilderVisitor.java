@@ -27,8 +27,6 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
 
-    private static RunnableAsJobsPoolThread runnablePoolThread = new RunnableAsJobsPoolThread(10); 
-    
     @Override
     protected int getPriority() {
         return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION+1; //just after the code-completion priority
@@ -171,7 +169,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         if(isFullBuild()){
             runnable.run();
         }else{
-            runnablePoolThread.scheduleToRun(runnable, "AnalysisBuilderThread :"+moduleName);
+            RunnableAsJobsPoolThread.getSingleton().scheduleToRun(runnable, "Pydev: Code Analysis:"+moduleName);
         }
     }
 

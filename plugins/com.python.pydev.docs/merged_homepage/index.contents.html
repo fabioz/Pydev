@@ -4,72 +4,60 @@
 
 <div class="section" id="what-is-pydev">
 <h1>What is Pydev?</h1>
-<p>Pydev is a plugin that enables users to use <strong>Eclipse</strong> for <strong>Python</strong>, <strong>Jython</strong> and <strong>IronPython</strong> development, making Eclipse a first class <strong>Python IDE</strong>.</p>
+<p>Pydev is a <strong>Python IDE</strong> for <strong>Eclipse</strong>, which may be used in <strong>Python</strong>, <strong>Jython</strong> and <strong>IronPython</strong> development.</p>
 <p>It comes with many goodies such as:</p>
 <blockquote>
 <ul class="simple">
-<li>code completion</li>
-<li>code completion with auto import</li>
-<li>syntax highlighting</li>
-<li>syntax analysis</li>
-<li>code analysis</li>
-<li>go to definition</li>
-<li>refactor</li>
-<li>mark occurrences</li>
-<li>debug</li>
-<li>tokens browser</li>
-<li>interactive console</li>
+<li><a class="reference external" href="manual_adv_complctx.html">Code completion</a></li>
+<li><a class="reference external" href="manual_adv_complnoctx.html">Code completion with auto import</a></li>
+<li><a class="reference external" href="manual_adv_editor_prefs.html">Syntax highlighting</a></li>
+<li><a class="reference external" href="manual_adv_code_analysis.html">Code analysis</a></li>
+<li><a class="reference external" href="manual_adv_gotodef.html">Go to definition</a></li>
+<li><a class="reference external" href="manual_adv_refactoring.html">Refactoring</a></li>
+<li><a class="reference external" href="manual_adv_markoccurrences.html">Mark occurrences</a></li>
+<li><a class="reference external" href="manual_adv_debugger.html">Debugger</a></li>
+<li><a class="reference external" href="manual_adv_remote_debugger.html">Remote debugger</a></li>
+<li><a class="reference external" href="manual_adv_open_decl_quick.html">Tokens browser</a></li>
+<li><a class="reference external" href="manual_adv_interactive_console.html">Interactive console</a></li>
 <li><strong>and many others</strong>:</li>
 </ul>
 </blockquote>
 <p>For more details on the provided features, check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
 </div>
-<div class="section" id="release-1-5-1">
-<h1>Release 1.5.1</h1>
+<div class="section" id="release-1-5-3">
+<h1>Release 1.5.3</h1>
+<p>Fixed bug where an error was being print to the pydev console on a run.</p>
+</div>
+<div class="section" id="release-1-5-2">
+<h1>Release 1.5.2</h1>
 <blockquote>
 <ul class="simple">
-<li>Improvements in the AST rewriter</li>
-<li>Improvements on the refactoring engine:<ul>
-<li>No longer using BRM</li>
-<li>Merged with the latest PEPTIC</li>
-<li>Inline local available</li>
-<li>Extract method bug-fixes</li>
-<li>Extract local on multi-line</li>
-<li>Generating properties using coding style defined in preferences</li>
-<li>Add after current method option added to extract method</li>
-<li>A bunch of other corner-case situations were fixed</li>
+<li>Profile to have <strong>much</strong> lower memory requirements (especially on code-analysis rebuilds)</li>
+<li>Profile for parsing to be faster</li>
+<li>Compare Editor<ul>
+<li>Syntax highlighting integrated</li>
+<li>Editions use the pydev editor behaviour</li>
+<li>Code completion works</li>
 </ul>
 </li>
-<li>Bug-fixes:<ul>
-<li>Minor editor improvements</li>
-<li>Adding default forced builtins on all platforms (e.g.: time, math, etc) which wouldn't be on sys.builtin_module_names on some python installations</li>
-<li>Adding 'numpy' and 'Image' to the forced builtins always</li>
-<li>Ctrl+1: Generate docstring minor fixes</li>
-<li>Ctrl+1: Assign to local now follows coding style preferences properly</li>
-<li>Exponential with uppercase E working on code-formatting</li>
-<li>When a set/get method is found in code-completion for a java class an NPE is no longer thrown</li>
-<li>Backspace properly treated in block mode</li>
-<li>Setting IRONPYTHONPATH when dealing with IronPython (projects could not be referenced)</li>
-<li>No longer giving spurious 'statement has no effect' inside of lambda and decorators</li>
-<li>Fixed new exec in python 3k</li>
-<li>Fixed NPE when breakpoint is related to a resource in a removed project</li>
-<li>Fixed import problem on regexp that could lead to a recursion.</li>
-<li>No longer giving NPE when debugging with the register view open</li>
-<li>List access be treated as __getitem__() in the list -- patch from Tassilo Barth</li>
-<li>Fix for invalid auto-self added when typing</li>
-</ul>
-</li>
+<li>Fixed issue where pydev could deadlock</li>
+<li>No longer reporting import redefinitions and unused variables for the initial parts of imports such as import os.path</li>
+<li>Fixed issue where pydev was removing __classpath__ from the pythonpath in jython</li>
+<li>Using M1, M2 and M3 for keys instead of hardcoding Ctrl, Shift and Alt (which should make keybindings right on Mac OS)</li>
+<li>Fixed some menus and popups</li>
+<li>Properly categorizing Pydev views</li>
+<li>Handling binary numbers in the python 2.6 and 3.0 grammar</li>
+<li>from __future__ import print_function works on python 2.6</li>
+<li>Added drag support from the pydev package explorer</li>
+<li>Properly translating slashes on client/server debug</li>
+<li>Other minor fixes</li>
 </ul>
 </blockquote>
 </div>
-<div class="section" id="release-1-5-0">
-<h1>Release 1.5.0</h1>
-<p><strong>Pydev Extensions is now Open Source!</strong></p>
-</div>
 <div class="section" id="what-happened-to-pydev-extensions">
 <h1>What happened to Pydev Extensions?</h1>
-<p>Pydev Extensions is now merged with Pydev, and its once closed source code has become open source. Thus,
-there is no more Pydev Extensions, only the open source Pydev, with all the capabilities of Pydev Extensions
+<p>Pydev Extensions is now merged with Pydev, and its once closed source code has become open source (on version 1.5.0).
+Thus, there is no more Pydev Extensions, only the open source Pydev, with all the capabilities of Pydev Extensions
 incorporated.</p>
 </div>
 <div class="section" id="development-info">
@@ -78,12 +66,8 @@ incorporated.</p>
 </div>
 <div class="section" id="releases-history">
 <h1>Releases History:</h1>
-<blockquote>
-<ul class="simple">
-<li><a class="reference external" href="history_pydev.html">History for Pydev</a></li>
-<li><a class="reference external" href="history_pydev_extensions.html">History for Pydev Extensions</a></li>
-</ul>
-</blockquote>
+<p><a class="reference external" href="history_pydev.html">History for Pydev</a></p>
+<p><a class="reference external" href="history_pydev_extensions.html">History for Pydev Extensions</a></p>
 </div>
 </contents_area>
 

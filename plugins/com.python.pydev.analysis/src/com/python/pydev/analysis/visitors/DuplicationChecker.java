@@ -21,7 +21,7 @@ import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
  * 
  * @author Fabio
  */
-public class DuplicationChecker {
+public final class DuplicationChecker {
 
     /**
      * used to know the defined signatures

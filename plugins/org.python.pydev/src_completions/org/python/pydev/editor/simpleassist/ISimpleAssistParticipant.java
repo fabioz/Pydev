@@ -7,7 +7,7 @@ import java.util.Collection;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 
 public interface ISimpleAssistParticipant {
     
@@ -23,6 +23,6 @@ public interface ISimpleAssistParticipant {
      * @return a list of completions
      */
     Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier, PySelection ps, 
-            PyEdit edit, int offset);
+            IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset);
 
 }

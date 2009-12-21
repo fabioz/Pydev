@@ -13,6 +13,7 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
@@ -28,6 +29,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
+import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 
 
 public class PySourceViewer extends ProjectionViewer {
@@ -117,7 +119,6 @@ public class PySourceViewer extends ProjectionViewer {
     /**
      * @return a class that iterates through the markers available in this source viewer
      */
-    @SuppressWarnings("unchecked")
     public Iterator<MarkerAnnotationAndPosition> getMarkerIterator(){
         final IAnnotationModel annotationModel = getAnnotationModel();
         //it may be null on external files, because I simply cannot make it get the org.python.copiedfromeclipsesrc.PydevFileEditorInput
@@ -227,6 +228,20 @@ public class PySourceViewer extends ProjectionViewer {
                 fUndoManager.endCompoundChange();
         }
     }
+ 
     
+    private final PyAutoIndentStrategy pyAutoIndentStrategy = new PyAutoIndentStrategy();
+ 
+    /**
+     * Overridden because we want to do things differently in block selection mode.
+     */
+    @Override
+    protected void customizeDocumentCommand(DocumentCommand command) {
+        boolean blockSelection = this.getTextWidget().getBlockSelection();
+        
+        IDocument document= getDocument();
+        pyAutoIndentStrategy.setBlockSelection(blockSelection);
+        pyAutoIndentStrategy.customizeDocumentCommand(document, command);
+    }
 
 }

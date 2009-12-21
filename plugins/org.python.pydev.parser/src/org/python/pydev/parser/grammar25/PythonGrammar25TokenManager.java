@@ -2,13 +2,14 @@
 package org.python.pydev.parser.grammar25;
 import java.util.List;
 import java.util.ArrayList;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
-import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.AbstractTokenManager;
+import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
+import org.python.pydev.parser.grammarcommon.WithNameInvalidException;
 import org.python.pydev.parser.jython.CharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
@@ -3187,8 +3188,8 @@ static final long[] jjtoMore = {
 protected CharStream input_stream;
 private final int[] jjrounds = new int[78];
 private final int[] jjstateSet = new int[156];
-private final StringBuffer jjimage = new StringBuffer();
-private StringBuffer image = jjimage;
+private final FastStringBuffer jjimage = new FastStringBuffer();
+private FastStringBuffer image = jjimage;
 private int jjimageLen;
 private int lengthOfMatch;
 protected char curChar;

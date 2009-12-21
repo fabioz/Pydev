@@ -140,7 +140,7 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
             
             if(curr == null){
                 //set the new one
-                FastPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), getTypes());
+                FastPartitioner partitioner = createPyPartitioner();
                 partitioner.connect(document);
                 docExtension.setDocumentPartitioner(IPythonPartitions.PYTHON_PARTITION_TYPE,partitioner);
                 return partitioner;
@@ -149,6 +149,10 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
             }
         }
         return null;
+    }
+
+    public static PyPartitioner createPyPartitioner() {
+        return new PyPartitioner(new PyPartitionScanner(), getTypes());
     }
     
     

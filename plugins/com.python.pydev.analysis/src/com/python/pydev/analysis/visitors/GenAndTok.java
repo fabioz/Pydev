@@ -9,7 +9,7 @@ import java.util.List;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.FastStringBuffer;
 
-public class GenAndTok{
+public final class GenAndTok{
     
     /**
      * This is the token that is from the current module that created the token (if on some wild import)

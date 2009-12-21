@@ -11,7 +11,7 @@ import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
  */
 final class ModulesManagerCache  {
     /**
-     * Defines the maximun amount of modules that can be in the memory at any time (for all the managers)
+     * Defines the maximum amount of modules that can be in the memory at any time (for all the managers)
      */
     private static final int MAX_NUMBER_OF_MODULES = 400;
 

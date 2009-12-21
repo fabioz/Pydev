@@ -55,7 +55,7 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="Ctrl+F9"
+            sequence="M1+F9"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
@@ -383,9 +383,6 @@
 
 <!--- CONTRIBUTED VIEWS -->
 <extension point="org.eclipse.ui.views">
-   <category
-        name="Pydev"
-        id="org.python.pydev.debug"/>
    <view
         class="org.python.pydev.debug.codecoverage.PyCodeCoverageView"
         icon="icons/python_coverage.png"

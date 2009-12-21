@@ -10,7 +10,7 @@ package org.python.pydev.refactoring.ast.adapters.offsetstrategy;
 
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Str;
@@ -44,7 +44,7 @@ public class BeginOffset extends AbstractOffsetStrategy {
                     }
                 }
                 SimpleNode lastNode = findLastLineVisitor.getLastNode();
-                ISpecialStrOrToken lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
+                ISpecialStr lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
                 if(lastSpecialStr != null && (lastSpecialStr.toString().equals(":") || lastSpecialStr.toString().equals(")"))){
                     // it was an from xxx import (euheon, utehon)
                     return lastSpecialStr.getBeginLine();

@@ -13,7 +13,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
@@ -515,7 +515,7 @@ public class NodeUtils {
             try {
                 f.accept(findLastLineVisitor);
                 SimpleNode lastNode = findLastLineVisitor.getLastNode();
-                ISpecialStrOrToken lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
+                ISpecialStr lastSpecialStr = findLastLineVisitor.getLastSpecialStr();
                 if(lastSpecialStr != null && lastSpecialStr.toString().equals(")")){
                     //it was an from xxx import (euheon, utehon)
                     return lastSpecialStr.getBeginLine();

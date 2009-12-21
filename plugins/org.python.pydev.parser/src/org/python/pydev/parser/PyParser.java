@@ -50,7 +50,6 @@ import org.python.pydev.parser.grammar26.PythonGrammar26;
 import org.python.pydev.parser.grammar30.PythonGrammar30;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.FastCharStream;
-import org.python.pydev.parser.jython.IParserHost;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.ReaderCharStream;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -488,11 +487,6 @@ public class PyParser implements IPyParser {
         public int currentLine=-1;
         
         /**
-         * The initial document to be parsed
-         */
-        public String initial = null;
-        
-        /**
          * A set with the lines that were changed when trying to make the document parseable
          */
         public final Set<Integer> linesChanged = new HashSet<Integer>();
@@ -576,39 +570,32 @@ public class PyParser implements IPyParser {
             startDoc+="\n";
         }
         
-        if(info.initial == null){
-            info.initial = startDoc;
-        }
-
         CharStream in = null;
         if(USE_FAST_STREAM){
-            //we don't want to keep the string from being released, so, just get the char array from the string
-            char[] cs = startDoc.toCharArray();
-            in = new FastCharStream(cs);
+            in = new FastCharStream(startDoc.toCharArray());
         }else{
-            StringReader inString = new StringReader(startDoc);
-            in = new ReaderCharStream(inString);
-            throw new RuntimeException("This char stream reader was deprecated (was maintained only for testing purposes).");
+            in = new ReaderCharStream(new StringReader(startDoc));
+            throw new RuntimeException("This char stream reader was deprecated (it's maintained only for testing purposes).");
         }
+        startDoc = null; //it can be garbage-collected now.
         
 
         Tuple<SimpleNode, Throwable> returnVar = new Tuple<SimpleNode, Throwable>(null, null);
-        IParserHost host = new CompilerAPI();
         IGrammar grammar = null;
         try {
             
             switch(info.grammarVersion){
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_4:
-                    grammar = new PythonGrammar24(in, host);
+                    grammar = new PythonGrammar24(in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
-                    grammar = new PythonGrammar25(in, host);
+                    grammar = new PythonGrammar25(in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_6:
-                    grammar = new PythonGrammar26(in, host);
+                    grammar = new PythonGrammar26(in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
-                    grammar = new PythonGrammar30(in, host);
+                    grammar = new PythonGrammar30(in);
                     break;
                 default:
                     throw new RuntimeException("The grammar specified for parsing is not valid: "+info.grammarVersion);
@@ -657,7 +644,6 @@ public class PyParser implements IPyParser {
             
             startDoc = null;
             in = null;
-            host = null;
             grammar = null;
             
             if(e instanceof ParseException || e instanceof TokenMgrError){

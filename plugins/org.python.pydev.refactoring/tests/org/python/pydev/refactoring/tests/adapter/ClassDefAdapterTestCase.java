@@ -49,7 +49,8 @@ public class ClassDefAdapterTestCase extends AbstractIOTestCase {
 		}
 
 		String generated = (buffer.toString().trim());
-		assertEquals(data.result, generated);
+		setTestGenerated(generated);
+		assertEquals(getExpected(), getGenerated());
 	}
 
 	private void printBaseDefClass(StringBuffer buffer, IClassDefAdapter base) {

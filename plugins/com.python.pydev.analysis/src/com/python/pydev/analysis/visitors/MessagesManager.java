@@ -17,6 +17,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor.ImportPartSourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -34,7 +35,7 @@ import com.python.pydev.analysis.messages.CompositeMessage;
 import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.messages.Message;
 
-public class MessagesManager {
+public final class MessagesManager {
 
     /**
      * preferences for indicating the severities
@@ -230,7 +231,7 @@ public class MessagesManager {
                 if (ast instanceof Import || ast instanceof ImportFrom) {
                     if (AbstractVisitor.isWildImport(ast)) {
                         addMessage(IAnalysisPreferences.TYPE_UNUSED_WILD_IMPORT, g.generator, g.tok);
-                    } else {
+                    } else if(!(g.generator instanceof ImportPartSourceToken)){
                         addMessage(IAnalysisPreferences.TYPE_UNUSED_IMPORT, g.generator, g.tok);
                     }
                     continue; // finish it...
@@ -328,7 +329,7 @@ public class MessagesManager {
     public void addReimportMessage(Found f) {
         for (GenAndTok g : f){
             //we don't want to add reimport messages if they are found in a wild import
-            if(g.generator instanceof SourceToken && AbstractVisitor.isWildImport(g.generator) == false){
+            if(g.generator instanceof SourceToken && !(g.generator instanceof ImportPartSourceToken) && AbstractVisitor.isWildImport(g.generator) == false){
                 addMessage(IAnalysisPreferences.TYPE_REIMPORT, g.generator, g.tok);
             }
         }

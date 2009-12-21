@@ -7,6 +7,8 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -35,7 +37,7 @@ public class IronpythonCompletionWithBuiltinsTest extends CodeCompletionTestsBas
         try {
             IronpythonCompletionWithBuiltinsTest builtins = new IronpythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testBuiltinsInNamespace();
+            builtins.testSortParamsCorrect();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(IronpythonCompletionWithBuiltinsTest.class);
@@ -163,7 +165,7 @@ public class IronpythonCompletionWithBuiltinsTest extends CodeCompletionTestsBas
         "                  keepGoing) \n";
 
         //If we improve the parser to get the error above, uncomment line below to check it...
-        requestCompl(s, s.indexOf('#'), 1, new String[]{"__getattribute__(object, self, str, name)"});
+        requestCompl(s, s.indexOf('#'), 1, new String[]{"__getattribute__(object self, str name)"});
 
 
         //check for builtins..1
@@ -193,7 +195,7 @@ public class IronpythonCompletionWithBuiltinsTest extends CodeCompletionTestsBas
         requestCompl(s, s.length(), -1, new String[]{"RuntimeError", "list"});
         
         s = "__builtins__.list.";
-        requestCompl(s, s.length(), -1, new String[]{"sort(object, cmp, object, key)"});
+        requestCompl(s, s.length(), -1, new String[]{"sort(object cmp, object key, bool reverse)"});
     }
     
     public void testBuiltinsInNamespace2() throws BadLocationException, IOException, Exception{
@@ -307,7 +309,7 @@ public class IronpythonCompletionWithBuiltinsTest extends CodeCompletionTestsBas
             "    a = A()\n" +
             "    a.list1.";
         
-        requestCompl(s, -1, new String[] {"pop(int, index)", "remove()"});
+        requestCompl(s, -1, new String[] {"pop(int index)", "remove(object value)"});
     }
     
     
@@ -327,7 +329,11 @@ public class IronpythonCompletionWithBuiltinsTest extends CodeCompletionTestsBas
             "";
         
         //should keep the variables from the __builtins__ in this module
-        requestCompl(s, -1, new String[] {"sort(object, cmp, object, key)"});
+        ICompletionProposal[] requestCompl = requestCompl(s, -1, new String[] {"sort(object cmp, object key, bool reverse)"});
+        assertEquals(1, requestCompl.length);
+        IDocument doc = new Document(s);
+        requestCompl[0].apply(doc);
+        assertEquals("[].sort(cmp, key, reverse)", doc.get());
     }
 
     

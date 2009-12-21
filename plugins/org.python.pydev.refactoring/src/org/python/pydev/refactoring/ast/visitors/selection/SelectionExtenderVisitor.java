@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.structure.FastStack;
-import org.python.pydev.parser.jython.ISpecialStrOrToken;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
@@ -124,8 +124,8 @@ public class SelectionExtenderVisitor extends VisitorBase {
 
     private Str convertSpecialToStr(Object o) {
         Str stringNode = null;
-        if(o instanceof ISpecialStrOrToken){
-            ISpecialStrOrToken special = (ISpecialStrOrToken) o;
+        if(o instanceof ISpecialStr){
+            ISpecialStr special = (ISpecialStr) o;
             stringNode = new Str(special.toString(), Str.SingleDouble, false, false, false);
             stringNode.beginLine = special.getBeginLine();
             stringNode.beginColumn = special.getBeginCol();
@@ -166,8 +166,8 @@ public class SelectionExtenderVisitor extends VisitorBase {
     private SimpleNode checkSpecials(SimpleNode node, List<Object> specials) {
         if(specials.size() > 0){
             for(Object o:specials){
-                if(o instanceof ISpecialStrOrToken){
-                    ISpecialStrOrToken str = (ISpecialStrOrToken) o;
+                if(o instanceof ISpecialStr){
+                    ISpecialStr str = (ISpecialStr) o;
                     if(str.getBeginLine() >= extendNodeInSelection.beginLine){
                         return convertSpecialToStr(o);
                     }

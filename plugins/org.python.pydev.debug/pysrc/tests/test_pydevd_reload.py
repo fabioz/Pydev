@@ -6,7 +6,21 @@ import sys
 import os
 sys.path.append(os.path.split(os.path.split(__file__)[0])[0])
 
-SAMPLE_CODE = """
+if sys.version_info[0] == 2 and sys.version_info[1] <= 4:
+    SAMPLE_CODE = """
+class C:
+    attr = 42
+    def foo(self):
+        return 42
+    
+    def bar(cls):
+        return 42, 42
+    
+    def stomp():
+        return 42, 42, 42
+"""
+else:
+    SAMPLE_CODE = """
 class C:
     attr = 42
     def foo(self):
@@ -32,7 +46,9 @@ class Test(unittest.TestCase):
 
     def setUp(self, nused=None):
         global tempdir, save_path
-        tempdir = tempfile.mkdtemp()
+        tempdir = tempfile.mktemp()
+        print tempdir
+        os.makedirs(tempdir)
         save_path = list(sys.path)
         sys.path.append(tempdir)
     
