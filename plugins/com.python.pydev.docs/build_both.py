@@ -47,6 +47,7 @@ def BuildFromRst(source_filename, is_new_homepage=False):
         contents = f.read()
         f.close()
         final = contents.replace('<contents_area></contents_area>', '<contents_area>%s</contents_area>' % final)
+        contents = contents.replace('\r\n','\n').replace('\r','\n')
         
         #make the output html (and not htm)
         postfix += 'l'
