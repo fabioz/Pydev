@@ -46,6 +46,7 @@ not compile, it may mean that:
 
 
 .. _`jython scripting in pydev`: manual_articles_scripting.html
+.. _`Pydev Grammar`: developers_grammar.html
 .. _`Eclipse FAQ`: http://wiki.eclipse.org/index.php/Eclipse_FAQs
 .. _`pydev-code list`: http://lists.sourceforge.net/lists/listinfo/pydev-code
 
@@ -59,13 +60,15 @@ outlined 2 different approaches:
  * Extending Pydev **with Jython**: recommended if you want to add some editor-related action or something that does not need implementing some Eclipse extension-point.
  * Extending Pydev **in Java**: if you want something that won't map to an action, this might be the better way to go.
 
-
 To start in any of those approaches it might be worth taking a look at some Eclipse documentation, to try to grasp some of its concepts. One of
 the finest documentations for that is the `Eclipse FAQ`_.
 
 
 If you want to take the Jython approach, check out this article on how to do
 `jython scripting in pydev`_
+
+For supporting a new Python based language, the first step would be creating a grammar that can parse it while providing a Python like AST.
+See: `Pydev Grammar`_ for instructions on that. 
 
 And that's it. If you have further doubts about how to code in pydev, direct your questions to 
 the `pydev-code list`_ at sourceforge.

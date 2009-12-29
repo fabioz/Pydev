@@ -1,7 +1,21 @@
 <body>
 	Thanks to jython's team for this implementation of JavaCC python parser.
 	
-
 	To generate things:
 	- asdl_java.py Python.asdl
+	
+	This package contains the AST (Abstract Syntax Tree) structure used by Pydev. It implements a visitor pattern
+	so that clients can traverse the structure.
+	
+	All the grammars generate the same AST. This means, it must remain compatible with all versions of 
+	Python -- that isn't much a problem as new features arrive, as it'd be just a matter of creating 
+	new AST nodes which will only exist on certain versions and not others or simply creating new fields in the nodes.
+	
+	E.g.: The 'with' construct was introduced on Python 2.5, so, there is a 'With' AST node but the Python 2.4 grammar
+	doesn't generate it. 
+	
+	To change this structure, the file to be changed is Python.asdl and adsl_java.py should be run after it's changed
+	(with the Python.asdl file as a parameter) so that the nodes are regenerated (and the asdl_java.py is also the place
+	to be edited if more features are needed in the nodes structure).  
+
 </body>

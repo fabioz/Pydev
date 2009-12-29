@@ -114,6 +114,7 @@ def main():
     template('template1.html', 'index'                     , 'Pydev'          )
     template('template1.html', 'download'                  , 'Download'                  )
     template('template1.html', 'developers'                , 'Developers'                )
+    template('template1.html', 'developers_grammar'                , 'Developers: Grammar'                )
     template('template1.html', 'manual'                    , 'Manual'                    )
     template('template1.html', 'about'                     , 'About'                     )
     template('template1.html', 'history_pydev'             , 'Pydev Releases'            )
