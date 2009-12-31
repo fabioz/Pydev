@@ -229,19 +229,24 @@ public class PySourceViewer extends ProjectionViewer {
         }
     }
  
+    private PyAutoIndentStrategy pyAutoIndentStrategy;
     
-    private final PyAutoIndentStrategy pyAutoIndentStrategy = new PyAutoIndentStrategy();
- 
     /**
      * Overridden because we want to do things differently in block selection mode.
      */
     @Override
     protected void customizeDocumentCommand(DocumentCommand command) {
+    	if(pyAutoIndentStrategy == null){
+    		pyAutoIndentStrategy = this.getEdit().getAutoEditStrategy();
+    	}
+    	
         boolean blockSelection = this.getTextWidget().getBlockSelection();
         
-        IDocument document= getDocument();
         pyAutoIndentStrategy.setBlockSelection(blockSelection);
-        pyAutoIndentStrategy.customizeDocumentCommand(document, command);
+        super.customizeDocumentCommand(command);
     }
+    
 
+
+    
 }

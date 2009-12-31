@@ -472,6 +472,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return indentStrategy.getIndentPrefs();
     }
 
+    public PyAutoIndentStrategy getAutoEditStrategy() {
+    	return indentStrategy;
+    }
+    
     /**
      * Overriden becaus pydev already handles spaces -> tabs
      */
