@@ -101,7 +101,7 @@ public class PyProjectProperties extends PropertyPage {
                 
                 createTabProjectSourceFolders(nature.getProjectSourcePath(false));
                 createTabExternalSourceFolders(nature.getProjectExternalSourcePath(false));
-                tabVariables = new TabVariables(tabFolder, nature.getVariableSubstitution());
+                tabVariables = new TabVariables(tabFolder, nature.getVariableSubstitution(false));
                 
                 createRestoreButton(topComp);
             } catch (Exception e) {
@@ -314,7 +314,7 @@ public class PyProjectProperties extends PropertyPage {
                 
                 String sourcePath = pythonPathNature.getProjectSourcePath(false);
                 String externalSourcePath = pythonPathNature.getProjectExternalSourcePath(false);
-                Map<String, String> variableSubstitution = pythonPathNature.getVariableSubstitution();
+                Map<String, String> variableSubstitution = pythonPathNature.getVariableSubstitution(false);
                 
                 String newSourcePath = StringUtils.leftAndRightTrim(treeSourceFolders.getTreeItemsAsStr(), '|');
                 String newExternalSourcePath = StringUtils.leftAndRightTrim(treeExternalLibs.getTreeItemsAsStr(), '|');
@@ -350,7 +350,7 @@ public class PyProjectProperties extends PropertyPage {
     }
 
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes" })
     private boolean checkIfShouldBeSet(Object oldVal, Object newVal){
         if(oldVal == null){
             if(newVal == null){

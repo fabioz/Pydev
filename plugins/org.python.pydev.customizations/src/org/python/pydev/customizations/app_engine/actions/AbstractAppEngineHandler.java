@@ -7,7 +7,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
@@ -69,7 +68,7 @@ public abstract class AbstractAppEngineHandler extends AbstractHandler{
             
             handleExecution(container, pythonPathNature, appcfg, appEngineLocation);
             
-        }catch(CoreException e){
+        }catch(Exception e){
             Log.log(e);
         }
         return null;

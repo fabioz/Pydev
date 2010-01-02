@@ -106,7 +106,7 @@ public class AppEngineConfigWizardPageTestWorkbench extends AbstractWorkbenchTes
                     assertTrue(projectExternalSourcePath.indexOf(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE) != -1);
                     projectExternalSourcePath = pythonPathNature.getProjectExternalSourcePath(true);
                     assertTrue(projectExternalSourcePath.indexOf(AppEngineConstants.GOOGLE_APP_ENGINE_VARIABLE) == -1);
-                }catch(CoreException e){
+                }catch(Exception e){
                     throw new RuntimeException(e);
                 }
                 

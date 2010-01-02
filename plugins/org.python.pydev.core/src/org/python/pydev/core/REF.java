@@ -681,7 +681,7 @@ public class REF {
 
     
     /**
-     * @param path tha path we're interested in
+     * @param path the path we're interested in
      * @return a file buffer to be used.
      */
     @SuppressWarnings("deprecation")

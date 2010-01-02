@@ -92,10 +92,13 @@ public class StringSubstitutionTest extends TestCase{
                         throw new RuntimeException("Not implemented");
                     }
                 
-                    public Map<String, String> getVariableSubstitution() throws CoreException{
+                    public Map<String, String> getVariableSubstitution(){
                         return variableSubstitution;
                     }
-                
+                    public Map<String, String> getVariableSubstitution(boolean b){
+                    	return variableSubstitution;
+                    }
+                    
                     public Set<String> getProjectSourcePathSet(boolean replace) throws CoreException{
                         throw new RuntimeException("Not implemented");
                     }
@@ -123,6 +126,7 @@ public class StringSubstitutionTest extends TestCase{
                     public IPythonNature getNature(){
                         throw new RuntimeException("Not implemented");
                     }
+
                 };
             }
 

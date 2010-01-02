@@ -66,8 +66,12 @@ public class PythonPathNatureStub implements IPythonPathNature{
         throw new RuntimeException("Not impl");
     }
 
-    public Map<String, String> getVariableSubstitution() throws CoreException{
+    public Map<String, String> getVariableSubstitution(){
         throw new RuntimeException("Not implemented");
+    }
+    
+    public Map<String, String> getVariableSubstitution(boolean b){
+    	throw new RuntimeException("Not implemented");
     }
 
     public IPythonNature getNature(){

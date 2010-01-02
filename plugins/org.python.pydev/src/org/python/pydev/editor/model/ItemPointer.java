@@ -5,16 +5,13 @@
  */
 package org.python.pydev.editor.model;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -171,22 +168,12 @@ public class ItemPointer {
             properties.put("ZIP", zipFilePath);
         }
         
-        OutputStream out = new ByteArrayOutputStream();
-        try{
-            properties.store(out, "");
-        }catch(IOException e){
-            throw new RuntimeException(e);
-        }
-        return out.toString();
+        return PropertiesHelper.createStringFromProperties(properties);
     }
+    
 
     public static ItemPointer fromPortableString(String asPortableString) {
-        Properties properties = new Properties();
-        try{
-            properties.load(new ByteArrayInputStream(asPortableString.getBytes()));
-        }catch(IOException e){
-            throw new RuntimeException(e);
-        }
+    	Properties properties = PropertiesHelper.createPropertiesFromString(asPortableString);
         String filePath = (String) properties.get("FILE_PATH");
         if(filePath == null){
             return null;

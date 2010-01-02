@@ -5,6 +5,7 @@ package org.python.pydev.core;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 public interface IInterpreterInfo {
@@ -86,4 +87,7 @@ public interface IInterpreterInfo {
      * @return an iterator that can traverse the forced builtins;
      */
     public Iterator<String> forcedLibsIterator();
+    
+    
+    public Properties getStringSubstitutionVariables();
 }

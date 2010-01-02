@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -30,6 +31,9 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PropertiesHelper;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
@@ -421,15 +425,41 @@ public class PythonPathNature implements IPythonPathNature {
         return trimAndReplaceVariablesIfNeeded(replace, extPath, nature);
     }
     
-    public Map<String,String> getVariableSubstitution() throws CoreException {
-        PythonNature nature = fNature;
-        if(nature == null){
-            return new HashMap<String, String>();
-        }
-        //no need to validate because those are always 'file-system' related
-        return nature.getStore().getMapProperty(PythonPathNature.getProjectVariableSubstitutionQualifiedName());
-    }
 
+    public Map<String,String> getVariableSubstitution() throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
+    	return getVariableSubstitution(true);
+    }
+    
+    /**
+     * Returns the variables in the python nature and in the interpreter.
+     */
+    public Map<String,String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions) throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
+    	PythonNature nature = this.fNature;
+    	if(nature == null){
+    		return new HashMap<String, String>();
+    	}
+    	
+    	Map<String, String> variableSubstitution;
+    	if(addInterpreterInfoSubstitutions){
+	    	
+	    	IInterpreterInfo info = nature.getProjectInterpreter();
+	    	Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
+	    	variableSubstitution = PropertiesHelper.createMapFromProperties(stringSubstitutionVariables);
+    	}else{
+    		variableSubstitution = new HashMap<String, String>();
+    	}
+    	
+        //no need to validate because those are always 'file-system' related
+    	Map<String, String> variableSubstitution2 = nature.getStore().getMapProperty(PythonPathNature.getProjectVariableSubstitutionQualifiedName());
+    	if(variableSubstitution2 != null){
+    		if(variableSubstitution != null){
+    			variableSubstitution.putAll(variableSubstitution2);
+    		}else{
+    			variableSubstitution = variableSubstitution2;
+    		}
+    	}
+    	return variableSubstitution;
+    }
 
 
 }

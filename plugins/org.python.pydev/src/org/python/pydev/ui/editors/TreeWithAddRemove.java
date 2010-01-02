@@ -12,6 +12,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -41,7 +42,7 @@ public abstract class TreeWithAddRemove extends Composite{
     /**
      * The actual tree.
      */
-    private Tree tree;
+    protected Tree tree;
     
     /**
      * Used if the initial items map to an array of strings.
@@ -58,10 +59,15 @@ public abstract class TreeWithAddRemove extends Composite{
      */
     private int editingStyle;
 
+    
+    public TreeWithAddRemove(Composite parent, int style, Object initialItems) {
+    	this(parent, style, initialItems, false);
+    }
+    
     /**
      * @param initialItems: Can be a String[] or a HashMap<String, String> (if null it's considered String[])
      */
-    public TreeWithAddRemove(Composite parent, int style, Object initialItems) {
+    public TreeWithAddRemove(Composite parent, int style, Object initialItems, boolean createEditButton) {
         super(parent, style);
         if(initialItems == null){
             initialItems = new String[]{};
@@ -79,22 +85,6 @@ public abstract class TreeWithAddRemove extends Composite{
         tree.setLayoutData(data);
 
         
-        if(initialItems instanceof String[]){
-            editingStyle = EDITING_STYLE_ARRAY_OF_STRINGS;
-            
-        }else if(initialItems instanceof Map){
-            editingStyle = EDITING_STYLE_MAP_OF_STRINGS;
-            tree.setHeaderVisible(true);
-            TreeColumn column1 = new TreeColumn(tree, SWT.LEFT);
-            column1.setText("Key");
-            column1.setWidth(200);
-            TreeColumn column2 = new TreeColumn(tree, SWT.LEFT);
-            column2.setText("Value");
-            column2.setWidth(200);
-            
-        }else{
-            throw new RuntimeException("Unexpected initial items: "+initialItems);
-        }
         
         Composite buttonsSourceFolders= new Composite(this, SWT.NONE);
         buttonsSourceFolders.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
@@ -109,24 +99,49 @@ public abstract class TreeWithAddRemove extends Composite{
         }
         
         createRemoveButton(buttonsSourceFolders);
+        createEditButton(buttonsSourceFolders);
+
+        
+		if(initialItems instanceof String[]){
+        	editingStyle = EDITING_STYLE_ARRAY_OF_STRINGS;
+        	
+        }else if(initialItems instanceof Map){
+        	editingStyle = EDITING_STYLE_MAP_OF_STRINGS;
+        	tree.setHeaderVisible(true);
+        	TreeColumn column1 = new TreeColumn(tree, SWT.LEFT);
+        	column1.setText("Key");
+        	column1.setWidth(200);
+        	TreeColumn column2 = new TreeColumn(tree, SWT.LEFT);
+        	column2.setText("Value");
+        	column2.setWidth(200);
+        	
+        }else{
+        	throw new RuntimeException("Unexpected initial items: "+initialItems);
+        }
+		
+        setTreeItems(initialItems);
+
+    }
+
+	public void setTreeItems(Object items) {
+		this.tree.removeAll();
 
         switch(editingStyle){
             case EDITING_STYLE_ARRAY_OF_STRINGS:
-                String[] its = (String[]) initialItems;
+                String[] its = (String[]) items;
                 for (int i = 0; i < its.length; i++) {
                     addTreeItem(its[i]);
                 }
                 break;
                 
             case EDITING_STYLE_MAP_OF_STRINGS:
-                Map<String, String> map = (Map<String, String>) initialItems;
+                Map<String, String> map = (Map<String, String>) items;
                 for (Map.Entry<String, String> entry:map.entrySet()) {
                     addTreeItem(entry.getKey(), entry.getValue());
                 }
                 break;
         }
-
-    }
+	}
 
     private void configButtonLayout(Button button){
         GridData data;
@@ -152,6 +167,13 @@ public abstract class TreeWithAddRemove extends Composite{
     }
     
     
+    protected void createEditButton(Composite buttonsSourceFolders){
+    	Button buttonEdit = new Button(buttonsSourceFolders, SWT.PUSH);
+    	customizeEditButton(buttonEdit);
+    	configButtonLayout(buttonEdit);
+    }
+    
+    
     /**
      * Remove is almost always default
      */
@@ -169,6 +191,25 @@ public abstract class TreeWithAddRemove extends Composite{
             }
             
         });
+    }
+    
+    /**
+     * Edit
+     */
+    protected void customizeEditButton(Button buttonEdit) {
+    	buttonEdit.setText(getButtonEditText());
+    	buttonEdit.setToolTipText("Edit the selected item");
+    	buttonEdit.addSelectionListener(new SelectionListener(){
+    		
+    		public void widgetSelected(SelectionEvent e) {
+    			handleEdit();
+    		}
+    		
+    		
+    		public void widgetDefaultSelected(SelectionEvent e) {
+    		}
+    		
+    	});
     }
 
     private static String lastDirectoryDialogPath = null;
@@ -194,10 +235,11 @@ public abstract class TreeWithAddRemove extends Composite{
 
     
     public void addItemWithDialog(MapOfStringsInputDialog dialog){
-        dialog.open();
-        Tuple<String, String> keyAndValueEntered = dialog.getKeyAndValueEntered();
-        if(keyAndValueEntered != null){
-            addTreeItem(keyAndValueEntered.o1, keyAndValueEntered.o2);
+        if(dialog.open() == Window.OK){
+	        Tuple<String, String> keyAndValueEntered = dialog.getKeyAndValueEntered();
+	        if(keyAndValueEntered != null){
+	            addTreeItem(keyAndValueEntered.o1, keyAndValueEntered.o2);
+	        }
         }
     }
     
@@ -281,7 +323,7 @@ public abstract class TreeWithAddRemove extends Composite{
     }
     
     
-    private void addTreeItem(String key, String value) {
+    protected void addTreeItem(String key, String value) {
         if(key != null && key.trim().length() > 0 && value != null && value.trim().length() > 0){
             TreeItem item = new TreeItem(tree, 0);
             item.setText(new String[]{key, value});
@@ -333,6 +375,10 @@ public abstract class TreeWithAddRemove extends Composite{
         return "Remove";
     }
     
+    protected String getButtonEditText() {
+    	return "Edit";
+    }
+    
     protected void handleRemove(){
         TreeItem[] selection = tree.getSelection();
         for (int i = 0; i < selection.length; i++) {
@@ -348,6 +394,13 @@ public abstract class TreeWithAddRemove extends Composite{
 
     
     protected abstract void handleAddButtonSelected(int nButton);
+    
+    /**
+     * If a subclass specified that edit should be treated, it should also implement the handleEdit.
+     */
+    protected void handleEdit(){
+    	throw new RuntimeException("Not implemented");
+    }
     
     protected int getNumberOfAddButtons(){
         return 3;

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.ui.EnvironmentTab;
@@ -52,11 +53,14 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.ui.TabVariables;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.dialogs.InterpreterInputDialog;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
@@ -94,11 +98,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * Images
      */
     private Image imageSystemLibRoot;
-
-    /**
-     * Images
-     */
     private Image imageSystemLib;
+    private Image environmentImage;
 
     private Composite box;
 
@@ -123,6 +124,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private SelectionListener selectionListenerSystem;
     
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
+
 
     public IInterpreterInfo[] getExesList(){
         TreeItem[] items = treeWithInterpreters.getItems();
@@ -161,8 +163,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         }
         
         if(USE_ICONS){
-            imageSystemLibRoot = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM_ROOT);
-            imageSystemLib = PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
+            ImageCache imageCache = PydevPlugin.getImageCache();
+			imageSystemLibRoot = imageCache.get(UIConstants.LIB_SYSTEM_ROOT);
+            imageSystemLib = imageCache.get(UIConstants.LIB_SYSTEM);
+            environmentImage = imageCache.get(UIConstants.ENVIRONMENT_ICON);
         }
         createControl(parent);
         updateTree();
@@ -313,6 +317,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     private MyEnvWorkingCopy workingCopy = new MyEnvWorkingCopy();
     
+    private TabVariables tabVariables;
+
     /**
      * @see org.eclipse.jface.preference.ListEditor#doFillIntoGrid(org.eclipse.swt.widgets.Composite, int)
      */
@@ -331,6 +337,16 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         createTreeLibsControlTab();
         createForcedBuiltinsTab();
         createEnvironmentVariablesTab();
+        createStringSubstitutionTab();
+        
+    }
+    
+    /**
+     * Creates tab to show the string substitution variables.
+     */
+    private void createStringSubstitutionTab() {
+    	Map<String, String> initialVariables = new HashMap<String, String>();
+		tabVariables = new TabVariables(tabFolder, initialVariables);
     }
     
     /**
@@ -340,7 +356,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         Composite parent;
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
         tabItem.setText("Environment");
-        
+        tabItem.setImage(environmentImage);
         
         Composite composite = new Composite(tabFolder, SWT.None);
         parent = composite;
@@ -373,6 +389,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         GridData gd;
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
         tabItem.setText("Libraries");
+        tabItem.setImage(imageSystemLibRoot);
 
         Composite composite = new Composite(tabFolder, SWT.None);
         parent = composite;
@@ -748,6 +765,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         //before any change, apply the changes in the previous info (if not set, that's ok)
         if(workingCopy.getInfo() != null){
             environmentTab.performApply(workingCopy);
+            workingCopy.getInfo().setStringSubstitutionVariables(
+            		PropertiesHelper.createPropertiesFromMap(this.tabVariables.getTreeItemsAsMap()));
         }
         
         if(name != null){
@@ -774,6 +793,13 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             
             workingCopy.setInfo(info);
             environmentTab.initializeFrom(workingCopy);
+            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
+            if(stringSubstitutionVariables != null){
+				this.tabVariables.setTreeItemsFromMap(
+	            		PropertiesHelper.createMapFromProperties(stringSubstitutionVariables));
+            }else{
+            	this.tabVariables.setTreeItemsFromMap(new HashMap<String, String>());
+            }
         }
         
 

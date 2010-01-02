@@ -24,10 +24,10 @@ public class StringSubstitution{
 
     public StringSubstitution(IPythonNature nature) {
         if(nature != null){
-            IPythonPathNature pythonPathNature = nature.getPythonPathNature();
             try{
+            	IPythonPathNature pythonPathNature = nature.getPythonPathNature();
                 variableSubstitution = pythonPathNature.getVariableSubstitution();
-            }catch(CoreException e){
+            }catch(Exception e){
                 Log.log(e);
             }
         }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -22,7 +23,7 @@ public class InterpreterInfoTest extends TestCase {
         InterpreterInfoTest test = new InterpreterInfoTest();
         try {
             test.setUp();
-            test.testInfo4();
+            test.testInfo3();
             test.tearDown();
             junit.textui.TestRunner.run(InterpreterInfoTest.class);
         } catch (Throwable e) {
@@ -144,13 +145,22 @@ public class InterpreterInfoTest extends TestCase {
     
     public void testInfo3() throws Exception {
         InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
+        
         info.setEnvVariables(new String[]{"PATH=c:\\bin;d:\\bin", "LIBPATH=k:\\foo"});
+        
+        Properties stringSubstitutionOriginal = new Properties();
+        stringSubstitutionOriginal.setProperty("my_prop", "prop_val");
+        info.setStringSubstitutionVariables(stringSubstitutionOriginal);
+
+        
         String string = info.toString();
         InterpreterInfo newInfo = InterpreterInfo.fromString(string);
+        assertEquals(info.getStringSubstitutionVariables(), newInfo.getStringSubstitutionVariables());
         assertEquals(info, newInfo);
         assertEquals(newInfo, info);
         compareArray(info.getEnvVariables(), newInfo.getEnvVariables());
         newInfo.setEnvVariables(null);
+        newInfo.setStringSubstitutionVariables(null);
         assertFalse(info.equals(newInfo));
         assertFalse(newInfo.equals(info));
         
@@ -161,6 +171,7 @@ public class InterpreterInfoTest extends TestCase {
         InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
         String[] original1 = new String[]{"LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin"};
         info.setEnvVariables(original1);
+        
         compareArray(info.updateEnv(null), original1);
         
         compareArray(info.updateEnv(new String[0]), original1);
@@ -170,6 +181,7 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(new HashSet<String>(Arrays.asList(info.updateEnv(original2))), new HashSet<String>(Arrays.asList(expected2)));
         
     }
+    
     
     public void testInfoIgnoreDjangoForcedBuiltin() throws Exception {
         List<String> l1 = new ArrayList<String>();

@@ -7,9 +7,11 @@ package org.python.pydev.ui.interpreters;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,6 +30,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
@@ -462,6 +465,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             }
             
 
+            FastStringBuffer buf = new FastStringBuffer();
             //Also notify that all the natures had the pythonpath changed (it's the system pythonpath, but still, 
             //clients need to know about it)
             List<IPythonNature> pythonNatures = PythonNature.getAllPythonNatures();
@@ -469,7 +473,46 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 try {
                     //If they have the same type of the interpreter manager, notify.
                     if (this.getInterpreterType() == nature.getInterpreterType()) {
-                        PythonNatureListenersManager.notifyPythonPathRebuilt(nature.getProject(), nature);
+                    	IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+                    	
+                    	
+                    	//There's a catch here: if the nature uses some variable defined in the string substitution
+                    	//from the interpreter info, we need to do a full build instead of only making a notification.
+                    	String complete = pythonPathNature.getProjectExternalSourcePath(false) + 
+                    			pythonPathNature.getProjectSourcePath(false);
+                    	
+                    	PythonNature n = (PythonNature) nature;
+                    	String projectInterpreterName = n.getProjectInterpreterName();
+                        if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
+                            //if it's the default, let's translate it to the outside world 
+                            projectInterpreterName = this.getDefaultInterpreter();
+                        }
+                        InterpreterInfo info = exeToInfo.get(projectInterpreterName);
+                        boolean makeCompleteRebuild = false;
+                        if(info != null){
+                        	Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
+                        	Enumeration<Object> keys = stringSubstitutionVariables.keys();
+                        	while(keys.hasMoreElements()){
+                        		Object key = keys.nextElement();
+                        		buf.clear();
+                        		buf.append("${");
+                        		buf.append(key.toString());
+                        		buf.append("}");
+                        		
+                        		if(complete.indexOf(buf.toString()) != -1){
+                        			makeCompleteRebuild = true;
+                        			break;
+                        		}
+                        	}
+                        }
+                        
+                        if(!makeCompleteRebuild){
+                        	//just notify that it changed
+                        	PythonNatureListenersManager.notifyPythonPathRebuilt(nature.getProject(), nature);
+                        }else{
+                        	//Rebuild the whole info.
+                        	nature.rebuildPath();
+                        }
                     }
                 } catch (Throwable e) {
                     PydevPlugin.log(e);

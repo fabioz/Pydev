@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map.Entry;
@@ -35,6 +36,7 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -109,6 +111,8 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     private String[] envVariables;
     
+    private Properties stringSubstitutionVariables;
+    
     /**
      * This is the way that the interpreter should be referred. Can be null (in which case the executable is
      * used as the name)
@@ -154,10 +158,18 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
     
     public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
-        this(version, exe, libs0, dlls, forced, null);
+        this(version, exe, libs0, dlls, forced, null, null);
     }
 
-    public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced, List<String> envVars) {
+    public InterpreterInfo(
+    		String version, 
+    		String exe, 
+    		List<String> libs0, 
+    		List<String> dlls, 
+    		List<String> forced, 
+    		List<String> envVars,
+    		Properties stringSubstitution
+    		){
         this(version, exe, libs0, dlls);
         for(String s:forced){
             if(!isForcedLibToIgnore(s)){
@@ -170,6 +182,8 @@ public class InterpreterInfo implements IInterpreterInfo{
         }else{
             this.setEnvVariables(envVars.toArray(new String[envVars.size()]));
         }
+        
+        this.setStringSubstitutionVariables(stringSubstitution);
         
         this.builtinsCache = null; //force cache recreation
     }
@@ -210,6 +224,20 @@ public class InterpreterInfo implements IInterpreterInfo{
             }
         }
         
+        if(this.stringSubstitutionVariables != null){
+        	if(info.stringSubstitutionVariables == null){
+        		return false;
+        	}
+        	//both not null
+        	if(!this.stringSubstitutionVariables.equals(info.stringSubstitutionVariables)){
+        		return false;
+        	}
+        }else{
+        	//ours is null -- the other must be too
+        	if(info.stringSubstitutionVariables != null){
+        		return false;
+        	}
+        }
         
         return true;
     }
@@ -221,16 +249,16 @@ public class InterpreterInfo implements IInterpreterInfo{
     /**
      * Format we receive should be:
      * 
-     * Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2
+     * Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2@PYDEV_STRING_SUBST_VARS@PropertiesObjectAsString
      * 
      * or
      * 
-     * Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2
+     * Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2@PYDEV_STRING_SUBST_VARS@PropertiesObjectAsString
      * (added only when version 2.5 was added, so, if the string does not have it, it is regarded as 2.4)
      * 
      * or
      * 
-     * Name:MyInterpreter:EndName:Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2
+     * Name:MyInterpreter:EndName:Version2.5Executable:python.exe|lib1|lib2|lib3@dll1|dll2|dll3$forcedBuitin1|forcedBuiltin2^envVar1|envVar2@PYDEV_STRING_SUBST_VARS@PropertiesObjectAsString
      * 
      * Symbols ': @ $'
      */
@@ -238,6 +266,11 @@ public class InterpreterInfo implements IInterpreterInfo{
         if(received.toLowerCase().indexOf("executable") == -1){
             throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"+received);
         }
+        
+        //Note that the new lines are important for the string substitution, so, we must remove it before removing new lines
+        Tuple<String, String> stringSubstitutionVarsSplit = StringUtils.splitOnFirst(received, "@PYDEV_STRING_SUBST_VARS@");
+        received = stringSubstitutionVarsSplit.o1;
+        
         received = received.replaceAll("\n", "").replaceAll("\r", "");
         String name=null;
         if(received.startsWith("Name:")){
@@ -378,7 +411,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
 
         if(result[0] == false){
-            //cancelled by the user
+            //Canceled by the user
             return null;
         }
         
@@ -396,7 +429,11 @@ public class InterpreterInfo implements IInterpreterInfo{
         if(envVarsSplit.o2.length() > 1){
             fillList(envVarsSplit, l3);
         }
-        InterpreterInfo info = new InterpreterInfo(version, executable, l, l1, l2, l3);
+        Properties p4 = null;
+        if(stringSubstitutionVarsSplit.o2.length() > 1){
+        	p4 = PropertiesHelper.createPropertiesFromString(stringSubstitutionVarsSplit.o2);
+        }
+		InterpreterInfo info = new InterpreterInfo(version, executable, l, l1, l2, l3, p4);
         info.setName(name);
         return info;
     }
@@ -446,6 +483,11 @@ public class InterpreterInfo implements IInterpreterInfo{
                 buffer.append(s);
                 buffer.append("|");
             }
+        }
+        
+        if(this.stringSubstitutionVariables != null && this.stringSubstitutionVariables.size() > 0){
+        	buffer.append("@PYDEV_STRING_SUBST_VARS@");
+        	buffer.append(PropertiesHelper.createStringFromProperties(this.stringSubstitutionVariables));
         }
         
         
@@ -1228,5 +1270,18 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
         return interpreter.equals(executableOrJar);
     }
+
+	public void setStringSubstitutionVariables(
+			Properties stringSubstitutionOriginal) {
+		if(stringSubstitutionOriginal == null){
+			this.stringSubstitutionVariables = null;
+		}else{
+			this.stringSubstitutionVariables = stringSubstitutionOriginal;
+		}
+	}
+	
+	public Properties getStringSubstitutionVariables(){
+		return this.stringSubstitutionVariables;
+	}
 
 }

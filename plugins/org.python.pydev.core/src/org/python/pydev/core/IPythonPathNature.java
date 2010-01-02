@@ -106,15 +106,23 @@ public interface IPythonPathNature {
     public void setVariableSubstitution(Map<String, String> variableSubstitution) throws CoreException;
 
     /**
-     * @see #setVariableSubstitution(Map)
+     * Same as getVariableSubstitution(true);
      */
-    public Map<String, String> getVariableSubstitution() throws CoreException;
+    public Map<String, String> getVariableSubstitution() throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException;
     
+    /**
+     * @param addInterpreterInfoSubstitutions if true the substitutions in the interpreter will also be added.
+     * Otherwise, only the substitutions from this nature will be returned.
+     */
+    public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions) throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException;
+
     
     /**
      * The nature that contains this pythonpath nature.
      * @return
      */
     public IPythonNature getNature();
+
+    
     
 }

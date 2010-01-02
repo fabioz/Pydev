@@ -48,7 +48,7 @@ public class DeltaSaver<X> {
             this.data = o;
         }
 
-        @SuppressWarnings("unchecked")
+        
         public abstract void processWith(IDeltaProcessor deltaProcessor);
         
         public void readData(ICallback<Object, ObjectInputStream> readFromFileMethod, ObjectInputStream in) {

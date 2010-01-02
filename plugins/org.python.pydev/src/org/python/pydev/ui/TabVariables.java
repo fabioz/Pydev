@@ -3,13 +3,17 @@ package org.python.pydev.ui;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.TreeItem;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.dialogs.MapOfStringsInputDialog;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
@@ -55,7 +59,9 @@ public class TabVariables {
         
         final Map<String, String> vars = initialVariables; 
         
-        treeVariables = new TreeWithAddRemove(topComp, 0, vars) {
+
+        
+        treeVariables = new TreeWithAddRemove(topComp, 0, vars, true) {
 
             @Override
             protected String getImageConstant() {
@@ -71,6 +77,42 @@ public class TabVariables {
                     throw new AssertionError("Unexpected (only 0 should be available)");
                 }
             }
+
+            @Override
+			protected void handleEdit() {
+                TreeItem[] selection = this.tree.getSelection();
+                if(selection.length != 1){
+                	return;
+                }
+                TreeItem treeItem = selection[0];
+                if(treeItem == null){
+                	return;
+                }
+                
+                final String fixedKeyText = treeItem.getText(0);
+
+                //Overridden because we want the key to be fixed.
+                MapOfStringsInputDialog dialog = new MapOfStringsInputDialog(
+                		getShell(), "Variable", "Enter the variable name/value.", vars){
+					
+					protected org.eclipse.swt.widgets.Control createDialogArea(Composite parent) {
+						Control control = super.createDialogArea(parent);
+						this.keyField.setText(fixedKeyText);
+						this.keyField.setEditable(false);
+						this.valueField.setFocus();
+						return control;
+					};
+				};
+
+            	
+                if(dialog.open() == Window.OK){
+	                Tuple<String, String> keyAndValueEntered = dialog.getKeyAndValueEntered();
+	                if(keyAndValueEntered != null){
+	                	treeItem.setText(1, keyAndValueEntered.o2);
+	                }
+                }
+
+            };
 
             
             @Override
@@ -96,8 +138,13 @@ public class TabVariables {
         tabItem.setControl(topComp);
     }
 
+	public void setTreeItemsFromMap(Map<String, String> treeVariables) {
+		this.treeVariables.setTreeItems(treeVariables);
+	}
+	
 	public Map<String, String> getTreeItemsAsMap() {
 		return this.treeVariables.getTreeItemsAsMap();
 	}
-    
+
+
 }

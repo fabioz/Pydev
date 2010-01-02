@@ -98,6 +98,9 @@ public class StringUtilsTest extends TestCase {
         assertEquals(new Tuple<String, String>("aa", "bb.cc"), StringUtils.splitOnFirst("aa.bb.cc", '.'));
         assertEquals(new Tuple<String, String>("aa_bb_cc", ""), StringUtils.splitOnFirst("aa_bb_cc", '.'));
         
+        assertEquals(new Tuple<String, String>("aa", "bb.cc"), StringUtils.splitOnFirst("aa<TAG>bb.cc", "<TAG>"));
+        assertEquals(new Tuple<String, String>("aa_bb_cc", ""), StringUtils.splitOnFirst("aa_bb_cc", "TAG"));
+        
     }
     
     public void testSplit() throws Exception{
