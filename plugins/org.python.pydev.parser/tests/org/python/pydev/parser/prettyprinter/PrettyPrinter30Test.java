@@ -15,7 +15,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinter30Test test = new PrettyPrinter30Test();
             test.setUp();
-            test.testMisc();
+            test.testTupleInDict();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinter30Test.class);
@@ -467,5 +467,20 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase{
         "0B100L\n" +
         "";
         checkPrettyPrintEqual(s);
+    }
+    
+    public void testWith() throws Throwable {
+    	final String s = "" +
+    	"with open(cfile,'rb') as chandle,open('cc') as d:\n" +
+    	"    pass\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
+    }
+    
+    public void testTupleInDict() throws Throwable {
+    	final String s = "" +
+    	"NAME_MAPPING = {(1,2):(3,4)}\n" +
+    	"";
+    	checkPrettyPrintEqual(s);
     }
 }

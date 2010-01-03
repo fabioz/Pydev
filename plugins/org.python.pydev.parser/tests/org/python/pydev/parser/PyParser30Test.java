@@ -24,7 +24,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testBinNumber();
+            test.testMultiWithStmt();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -367,6 +367,13 @@ public class PyParser30Test extends PyParserTestBase{
         "    print(a)\n" +
         "";
         parseLegalDocStr(s);
+    }
+    
+    public void testMultiWithStmt() {
+    	String s = "" +
+    	"with 1 as b, 2 as c:pass\n" +
+    	"";
+    	parseLegalDocStr(s);
     }
     
     public void testRaiseFrom() {

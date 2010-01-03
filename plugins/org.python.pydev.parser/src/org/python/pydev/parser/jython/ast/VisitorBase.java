@@ -33,6 +33,12 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
+    public Object visitWithItem(WithItem node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);

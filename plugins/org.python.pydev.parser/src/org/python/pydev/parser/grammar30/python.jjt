@@ -911,18 +911,20 @@ void begin_except_clause(): {}
 { <EXCEPT> }
 
 
-//with_stmt: 'with' test [ with_var ] ':' suite
+//with_stmt: 'with' with_item (',' with_item)*  ':' suite
 void with_stmt(): {}
 { <WITH> 
     {this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
     
-    test() 
-    
-    [with_var()] {this.findTokenAndAdd(":");}<COLON> suite() }
+	with_item()
+	({this.findTokenAndAdd(",");}<COMMA> with_item())*
+	
+    {this.findTokenAndAdd(":");}<COLON> suite() 
+}
 
-//with_var: 'as' expr
-void with_var():{}
-{ {temporaryToken=createSpecialStr("as");}<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} expr()}
+//with_item: test ['as' expr]
+void with_item():{}
+{ test() [{temporaryToken=createSpecialStr("as");}<AS> {this.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} expr()]}
 
 
 //suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT

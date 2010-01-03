@@ -22,6 +22,9 @@ module Python
 	-- in the constructs, but some information was lost in this way).
 	suite = (stmt* body)
 
+	--with item because the With() construct may have multiple items in the same construct in python 3.1
+	WithItem = WithItem(expr context_expr, expr? optional_vars)
+	
 	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs, expr? returns)
 	      | ClassDef(NameTok name, expr* bases, stmt* body, decorators* decs, keyword* keywords, expr? starargs, expr? kwargs)
 	      | Return(expr? value) 
@@ -37,7 +40,7 @@ module Python
 	      | For(expr target, expr iter, stmt* body, suite orelse)
 	      | While(expr test, stmt* body, suite orelse)
 	      | If(expr test, stmt* body, suite orelse)
-	      | With(expr context_expr, expr? optional_vars, suite body)
+	      | With(WithItem* with_item, suite body)
 	      
 	      -- 'type' is a bad name
 	      | Raise(expr? type, expr? inst, expr? tback, expr? cause)

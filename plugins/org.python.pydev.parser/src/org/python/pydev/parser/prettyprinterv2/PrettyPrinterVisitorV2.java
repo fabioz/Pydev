@@ -56,6 +56,7 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
+import org.python.pydev.parser.jython.ast.WithItem;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
@@ -238,8 +239,12 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             if(i>0){
                 doc.addRequire(",", lastNode);
             }
+            this.pushTupleNeedsParens();
             keys[i].accept(this);
+            this.popTupleNeedsParens();
+            
             doc.addRequire(":", lastNode);
+            
             this.pushTupleNeedsParens();
             values[i].accept(this);
             this.popTupleNeedsParens();
@@ -445,13 +450,18 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         startStatementPart();
         beforeNode(node);
         doc.addRequire("with", node);
-        if (node.context_expr != null)
-            node.context_expr.accept(this);
-        
-        if (node.optional_vars != null){
-            doc.addRequire("as", lastNode);
-            node.optional_vars.accept(this);
+        if (node.with_item != null){
+        	for(int i=0;i<node.with_item.length;i++){
+        		if(i>0){
+        			doc.addRequire(",", lastNode);
+        		}
+        		WithItem withItem = (WithItem) node.with_item[i];
+        		withItem.accept(this);
+        	}
         }
+        
+        
+        
         doc.addRequire(":", lastNode);
         this.doc.addRequireIndent(":", lastNode);
         endStatementPart(node);
@@ -462,6 +472,22 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         
         afterNode(node);
         return null;
+    }
+    
+    @Override
+    public Object visitWithItem(WithItem node) throws Exception {
+    	beforeNode(node);
+    	
+    	node.context_expr.accept(this);
+    	
+		exprType optional = node.optional_vars;
+		if (optional != null && optional != null){
+			doc.addRequire("as", lastNode);
+			optional.accept(this);
+		}
+    	
+    	afterNode(node);
+    	return null;
     }
 
     @Override

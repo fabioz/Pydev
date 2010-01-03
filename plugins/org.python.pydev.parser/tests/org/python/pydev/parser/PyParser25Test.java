@@ -12,6 +12,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.With;
+import org.python.pydev.parser.jython.ast.WithItem;
 
 /**
  * Test for parsing python 2.5
@@ -137,7 +138,7 @@ public class PyParser25Test extends PyParserTestBase{
         assertEquals(2, mod.body.length);
         assertTrue(mod.body[1] instanceof With);
         With w = (With) mod.body[1];
-        assertTrue(w.optional_vars == null);
+        assertTrue(((WithItem)w.with_item[0]).optional_vars == null);
         
     }
     
@@ -153,7 +154,7 @@ public class PyParser25Test extends PyParserTestBase{
         assertEquals(2, mod.body.length);
         assertTrue(mod.body[1] instanceof With);
         With w = (With) mod.body[1];
-        assertTrue(w.optional_vars != null);
+        assertTrue(((WithItem)w.with_item[0]).optional_vars != null);
         
     }
     
@@ -169,7 +170,7 @@ public class PyParser25Test extends PyParserTestBase{
         assertEquals(2, mod.body.length);
         assertTrue(mod.body[1] instanceof With);
         With w = (With) mod.body[1];
-        assertTrue(w.optional_vars != null);
+        assertTrue(((WithItem)w.with_item[0]).optional_vars != null);
         
     }
     
@@ -185,7 +186,7 @@ public class PyParser25Test extends PyParserTestBase{
         assertEquals(2, mod.body.length);
         assertTrue(mod.body[1] instanceof With);
         With w = (With) mod.body[1];
-        assertTrue(w.optional_vars != null);
+        assertTrue(((WithItem)w.with_item[0]).optional_vars != null);
         
     }
     

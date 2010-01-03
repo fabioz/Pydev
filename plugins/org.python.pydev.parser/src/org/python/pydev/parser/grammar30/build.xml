@@ -1,6 +1,6 @@
 <project name="jython-parser" default="parser">
 
-    <property name="javaccHome" value="D:\Install\javacc-4.2" />
+    <property name="javaccHome" value="D:\bin\javacc-5.0" />
     <property name="basedir" value="." />
     <property name="parser.dir" value="${basedir}" />
 
@@ -95,6 +95,7 @@ Current setting is: ${javaccHome}
     	<replace file="${parser.dir}/PythonGrammar30.java" token="protected JJTPythonGrammar30State jjtree = new JJTPythonGrammar30State();" 
     		value="protected JJTPythonGrammarState jjtree = new JJTPythonGrammarState(TreeBuilder30.class, this);"/>
     	<replace file="${parser.dir}/PythonGrammar30TokenManager.java" token=" StringBuffer" value=" FastStringBuffer"/>
+    	<replace file="${parser.dir}/PythonGrammar30TokenManager.java" token=" StringBuilder" value=" FastStringBuffer"/>
         <fixcrlf srcdir="${parser.dir}"></fixcrlf>
     </target>
 

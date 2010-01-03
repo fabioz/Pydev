@@ -58,6 +58,7 @@ import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
+import org.python.pydev.parser.jython.ast.WithItem;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.argumentsType;
@@ -395,13 +396,9 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitWith(With node) throws Exception {
 
         fixNode(node);
-        if(node.context_expr != null)
-            node.context_expr.accept(this);
-
-        if(node.optional_vars != null){
-            node.optional_vars.accept(this);
-        }
-
+    	for(SimpleNode n:node.with_item){
+    		n.accept(this);
+    	}
         
         if(node.body != null){
             node.body.accept(this);
@@ -409,6 +406,16 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         fixAfterNode(node);
         return null;
+    }
+    
+    @Override
+    public Object visitWithItem(WithItem node) throws Exception {
+    	fixNode(node);
+    	
+		traverse(node);
+    	
+    	fixAfterNode(node);
+    	return null;
     }
 
     @Override

@@ -46,6 +46,7 @@ import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
+import org.python.pydev.parser.jython.ast.WithItem;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
@@ -393,28 +394,28 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             suite = (Suite) stack.popNode();
             arity--;
             
-            exprType asOrExpr = (exprType) stack.popNode();
-            arity--;
-            
-            exprType expr=null;
-            if(arity > 0){
-                expr = (exprType) stack.popNode();
-                arity--;
-            }else{
-                expr = asOrExpr;
-                asOrExpr = null;
+            WithItem[] items = new WithItem[arity];
+            while(arity>0){
+            	items[arity-1] = (WithItem) stack.popNode();
+            	arity--;
             }
+            
             
             suiteType s = new suiteType(suite.body);
             addSpecialsAndClearOriginal(suite, s);
             
-            return new With(expr, asOrExpr, s);
-        case JJTWITH_VAR:
-            expr = (exprType) stack.popNode(); //expr
-            if (expr != null){    
-                ctx.setStore(expr);
+            return new With(items, s);
+        case JJTWITH_ITEM:
+        	exprType expr = (exprType) stack.popNode(); //expr
+            arity--;
+            
+            exprType asExpr = null;
+            if(arity > 0){
+            	asExpr = expr;
+            	expr = (exprType) stack.popNode();
+                ctx.setStore(asExpr);
             }
-            return expr;
+            return new WithItem(expr, asExpr);
         case JJTEXTRAKEYWORDVALUELIST:
             return new ExtraArgValue(((exprType) stack.popNode()), JJTEXTRAKEYWORDVALUELIST);
         case JJTEXTRAARGVALUELIST:

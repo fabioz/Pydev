@@ -709,18 +709,20 @@ void begin_except_clause(): {}
 { <EXCEPT> }
 
 
-//with_stmt: 'with' test [ with_var ] ':' suite
+//with_stmt: 'with' with_item (',' with_item)*  ':' suite
 void with_stmt(): {}
 { <WITH> 
     {this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
     
-    test() 
-    
-    [with_var()] $COLON suite() }
+	with_item()
+	($COMMA with_item())*
+	
+    $COLON suite() 
+}
 
-//with_var: 'as' expr
-void with_var():{}
-{ $AS2 expr()}
+//with_item: test ['as' expr]
+void with_item():{}
+{ test() [$AS2 expr()]}
 
 $SUITE
 
