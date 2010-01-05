@@ -893,19 +893,35 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     Integer interpreterType = null; //cache
     
     public void setBuiltinCompletions(IToken[] comps) {
-        this.getRelatedInterpreterManager().setBuiltinCompletions(comps);
+        try {
+			this.getRelatedInterpreterManager().setBuiltinCompletions(comps, this.getProjectInterpreterName());
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
     }
 
     public IToken[] getBuiltinCompletions() {
-        return this.getRelatedInterpreterManager().getBuiltinCompletions();
+        try {
+			return this.getRelatedInterpreterManager().getBuiltinCompletions(this.getProjectInterpreterName());
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
     }
 
-    public IModule getBuiltinMod() {
-        return this.getRelatedInterpreterManager().getBuiltinMod();
+    public IModule getBuiltinMod(){
+        try {
+			return this.getRelatedInterpreterManager().getBuiltinMod(this.getProjectInterpreterName());
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
     }
 
-    public void setBuiltinMod(IModule mod) {
-        this.getRelatedInterpreterManager().setBuiltinMod(mod);
+    public void setBuiltinMod(IModule mod){
+        try {
+			this.getRelatedInterpreterManager().setBuiltinMod(mod, this.getProjectInterpreterName());
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
     }
 
     public static List<IPythonNature> getPythonNaturesRelatedTo(int relatedTo) {

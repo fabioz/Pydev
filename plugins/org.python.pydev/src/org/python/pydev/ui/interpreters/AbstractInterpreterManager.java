@@ -62,27 +62,27 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * This is used to keep the builtin completions
      */
-    protected transient IToken[] builtinCompletions;
+    protected transient Map<String, IToken[]> builtinCompletions = new HashMap<String, IToken[]>();
     
     /**
      * This is used to keep the builtin module
      */
-    protected transient IModule builtinMod;
+    protected transient Map<String, IModule> builtinMod = new HashMap<String, IModule>();
 
-    public void setBuiltinCompletions(IToken[] comps) {
-        this.builtinCompletions = comps;
+    public void setBuiltinCompletions(IToken[] comps, String projectInterpreterName) {
+        this.builtinCompletions.put(projectInterpreterName, comps);
     }
 
-    public IToken[] getBuiltinCompletions() {
-        return builtinCompletions;
+    public IToken[] getBuiltinCompletions(String projectInterpreterName) {
+        return builtinCompletions.get(projectInterpreterName);
     }
 
-    public IModule getBuiltinMod() {
-        return builtinMod;
+    public IModule getBuiltinMod(String projectInterpreterName) {
+        return builtinMod.get(projectInterpreterName);
     }
 
-    public void setBuiltinMod(IModule mod) {
-        this.builtinMod = mod;
+    public void setBuiltinMod(IModule mod, String projectInterpreterName) {
+        this.builtinMod.put(projectInterpreterName, mod);
     }
 
 

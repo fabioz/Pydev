@@ -444,7 +444,11 @@ public class PythonPathNature implements IPythonPathNature {
 	    	
 	    	IInterpreterInfo info = nature.getProjectInterpreter();
 	    	Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
-	    	variableSubstitution = PropertiesHelper.createMapFromProperties(stringSubstitutionVariables);
+	    	if(stringSubstitutionVariables == null){
+	    		variableSubstitution = new HashMap<String, String>();
+	    	}else{
+	    		variableSubstitution = PropertiesHelper.createMapFromProperties(stringSubstitutionVariables);
+	    	}
     	}else{
     		variableSubstitution = new HashMap<String, String>();
     	}
