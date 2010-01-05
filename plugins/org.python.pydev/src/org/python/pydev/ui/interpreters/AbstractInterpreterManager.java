@@ -62,12 +62,12 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * This is used to keep the builtin completions
      */
-    protected transient Map<String, IToken[]> builtinCompletions = new HashMap<String, IToken[]>();
+    protected final Map<String, IToken[]> builtinCompletions = new HashMap<String, IToken[]>();
     
     /**
      * This is used to keep the builtin module
      */
-    protected transient Map<String, IModule> builtinMod = new HashMap<String, IModule>();
+    protected final Map<String, IModule> builtinMod = new HashMap<String, IModule>();
 
     public void setBuiltinCompletions(IToken[] comps, String projectInterpreterName) {
         this.builtinCompletions.put(projectInterpreterName, comps);
@@ -111,8 +111,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     public void clearCaches() {
-        builtinMod = null;
-        builtinCompletions = null;
+        builtinMod.clear();
+        builtinCompletions.clear();
         interpretersFromPersistedString = null;
         interpreterInfosFromPersistedString = null;
     }
