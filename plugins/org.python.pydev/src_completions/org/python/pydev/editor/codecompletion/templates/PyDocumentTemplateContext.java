@@ -32,8 +32,12 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
     
     private final String indentTo;
     private IIndentPrefs indentPrefs;
+	public ITextViewer viewer; //May be null
 
-    public PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length, String indentTo, IIndentPrefs indentPrefs) {
+    /**
+     * Note that it's in the default context because it should be used on subclasses.
+     */
+    /* default */ PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length, String indentTo, IIndentPrefs indentPrefs) {
         super(type, document, offset, length);
         this.indentTo = indentTo;
         this.indentPrefs = indentPrefs;
@@ -41,6 +45,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
     
     public PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length, String indentTo, ITextViewer viewer) {
         this(type, document, offset, length, indentTo, getIndentPrefs(viewer));
+        this.viewer = viewer;
     }
 
     /**

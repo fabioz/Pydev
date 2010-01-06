@@ -95,6 +95,8 @@ public final class FastParser {
     
 
     /**
+     * Note: Used from jython scripts.
+     * 
      * @param doc the document to be parsed
      * @param currentLine the line where the parsing should begin (inclusive -- starts at 0)
      * @return the path to the current statement (where the current is the last element and the top-level is the 1st).
@@ -136,8 +138,23 @@ public final class FastParser {
                 continue;
             }
             
-            if(firstCharCol == -1 && findGloballyAccessiblePath){
-                firstCharCol = PySelection.getFirstCharPosition(line);
+            if(findGloballyAccessiblePath){
+            	int currentFirstCharCol = PySelection.getFirstCharPosition(line);
+	            if(firstCharCol == -1){
+	                firstCharCol = currentFirstCharCol;
+	            }else{
+	            	//We must validate if this is a line we can accept based on the initial indentation
+	            	//E.g.:
+	            	//
+	            	//def m1():
+	            	//    def m2():
+	            	//        pass
+	            	//    pass <- If we're here, m2() should not be considered when getting the path
+	            	//            to the global scope.
+	            	if(firstCharCol <= currentFirstCharCol){
+	            		continue; // don't check this line as it's not valid in the current context.
+	            	}
+	            }
             }
             
             

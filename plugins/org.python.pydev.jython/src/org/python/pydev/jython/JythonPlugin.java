@@ -356,6 +356,9 @@ public class JythonPlugin extends AbstractUIPlugin {
         if(locals == null){
             locals = new HashMap<String, Object>();
         }
+        if(interpreter == null){
+        	return null; //already disposed
+        }
         locals.put("__file__", fileToExec.toString());
         synchronized (codeCache) { //hold on there... one at a time... please?
             try {

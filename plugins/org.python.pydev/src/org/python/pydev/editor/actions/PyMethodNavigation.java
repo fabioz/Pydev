@@ -29,7 +29,7 @@ public abstract class PyMethodNavigation extends PyAction {
      */
     public void run(IAction action) {
         PyEdit pyEdit = getPyEdit();
-        IDocument doc = pyEdit.getDocumentProvider().getDocument(pyEdit.getEditorInput());
+        IDocument doc = pyEdit.getDocument();
         ITextSelection selection = (ITextSelection) pyEdit.getSelectionProvider().getSelection();
 
         boolean searchForward = getSearchForward();

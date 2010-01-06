@@ -166,15 +166,23 @@ public class FastParserTest extends TestCase {
                 "    pass\n" +
                 "\n" +
                 "def a():\n" +
-                "    def f():\n" +
-                "        curr_widget_def = 10\n" +
-                "    def c():\n" +
-                "        curr_widget_def = 10\n" +
-                "\n" +
+                "    def f():\n" +                 //4
+                "        curr_widget_def = 10\n" + //5
+                "    def c():\n" +                 //6
+                "        curr_widget_def = 10\n" + //7
+                "    a = 10\n" +                   //8
+                "    print a" +                    //9
                 "" +
         "");
         
         List<stmtType> stmts;
+        
+        for (int i = 8; i <= 9; i++) {
+        	//8 and 9
+        	stmts = FastParser.parseToKnowGloballyAccessiblePath(doc, i);
+        	assertEquals(1, stmts.size());
+        	assertEquals("a", NodeUtils.getRepresentationString(stmts.get(0)));
+        }
         
         for (int i = 6; i <= 7; i++) {
             //6 and 7

@@ -57,5 +57,12 @@ public class TemplateHelper {
         }
         return fRegistry;
     }
+    
+    /**
+     * Used from jython scripts.
+     */
+    public static void clearTemplateRegistryCache(){
+    	fRegistry = null;
+    }
 
 }
