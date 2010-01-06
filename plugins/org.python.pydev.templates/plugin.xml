@@ -4,6 +4,35 @@
 <!-- templates -->
    <extension
          point="org.eclipse.ui.editors.templates">
+         
+         
+      <template
+            autoinsert="false"
+            name="super"
+            icon="icons/template.gif"
+            description="Call super(current_class, self).current_method()"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.super">
+<pattern>
+super(${current_class}, self).${current_method}(${cursor})
+</pattern>
+      </template>
+      
+         
+      <template
+            autoinsert="false"
+            name="super_raw"
+            icon="icons/template.gif"
+            description="Call current_class.current_method(self)"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.super_raw">
+<pattern>
+${current_class}.${current_method}(self${cursor})
+</pattern>
+      </template>
+      
+      
+         
       <template
             autoinsert="true"
             name="main"
@@ -16,6 +45,8 @@ if __name__ == '__main__':
     ${cursor}
 </pattern>
       </template>
+      
+      
       <template
             autoinsert="true"
             name="ifmain"
