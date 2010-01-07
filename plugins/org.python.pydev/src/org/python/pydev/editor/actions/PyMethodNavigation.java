@@ -25,7 +25,7 @@ public abstract class PyMethodNavigation extends PyAction {
 
     /**
      * This method will search for the next/previous function (depending on the abstract methods)
-     * and will go to the position in the document that corresponds to the name of the class/function definiton.
+     * and will go to the position in the document that corresponds to the name of the class/function definition.
      */
     public void run(IAction action) {
         PyEdit pyEdit = getPyEdit();

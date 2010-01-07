@@ -119,3 +119,41 @@ def GetCurrentMethod(context, editor):
 
 template_helper.AddTemplateVariable(py_context_type, 'current_method', 'Current method', GetCurrentMethod)    
 
+
+
+#===================================================================================================
+# _GetPreviousOrNextClassOrMethod
+#===================================================================================================
+def _GetPreviousOrNextClassOrMethod(editor, searchForward):
+    from org.python.pydev.parser.visitors import NodeUtils
+    from org.python.pydev.parser.fastparser import FastParser
+    from org.python.pydev.core.docutils import PySelection
+    doc = editor.getDocument()
+    selection = PySelection(editor)
+    startLine = selection.getStartLineIndex()
+    
+    found = FastParser.firstClassOrFunction(doc, startLine, searchForward)
+    if found:
+        return NodeUtils.getRepresentationString(found)
+    return ''
+        
+    
+    
+#===================================================================================================
+# GetPreviousClassOrMethod
+#===================================================================================================
+def GetPreviousClassOrMethod(context, editor):
+    return _GetPreviousOrNextClassOrMethod(editor, False)
+
+template_helper.AddTemplateVariable(
+    py_context_type, 'prev_class_or_method', 'Previous class or method', GetPreviousClassOrMethod)    
+    
+#===================================================================================================
+# GetNextClassOrMethod
+#===================================================================================================
+def GetNextClassOrMethod(context, editor):
+    return _GetPreviousOrNextClassOrMethod(editor, True)
+
+template_helper.AddTemplateVariable(
+    py_context_type, 'next_class_or_method', 'Next class or method', GetNextClassOrMethod)    
+        
