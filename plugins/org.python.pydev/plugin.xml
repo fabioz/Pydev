@@ -505,6 +505,13 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.pySelectWord">
          </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.wrapparagraph"
+               label="Wrap paragraph (Ctrl+2,w)"
+               class="org.python.pydev.editor.actions.PyWrapParagraph"
+               menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
+               id="org.python.pydev.editor.actions.wrapparagraph">
+         </action>
       </editorContribution>
    </extension>
 
@@ -684,7 +691,14 @@
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.pySelectWord">
       </command>
-      <!-- Offline Command -->
+<!-- command: wrap paragraph-->
+      <command
+            name="Wrap Paragraph (Ctrl+2,w)"
+            description="Wraps the current paragraph"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.wrapparagraph">
+      </command>
+  <!-- Offline Command -->
       <command
             name="Offline Action for scripting"
             description="Offline Action for scripting"
