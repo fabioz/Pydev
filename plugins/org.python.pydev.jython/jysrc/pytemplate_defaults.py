@@ -32,7 +32,7 @@ if False:
 #===================================================================================================
 def _CreateSelection(editor):
     '''
-    Created method for that to be mocked on tests.
+    Created method so that it can be mocked on tests.
     '''
     from org.python.pydev.core.docutils import PySelection
     selection = PySelection(editor)
