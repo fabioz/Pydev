@@ -491,17 +491,19 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         boolean makeCompleteRebuild = false;
                         if(info != null){
                         	Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
-                        	Enumeration<Object> keys = stringSubstitutionVariables.keys();
-                        	while(keys.hasMoreElements()){
-                        		Object key = keys.nextElement();
-                        		buf.clear();
-                        		buf.append("${");
-                        		buf.append(key.toString());
-                        		buf.append("}");
-                        		
-                        		if(complete.indexOf(buf.toString()) != -1){
-                        			makeCompleteRebuild = true;
-                        			break;
+                        	if(stringSubstitutionVariables!=null){
+	                        	Enumeration<Object> keys = stringSubstitutionVariables.keys();
+	                        	while(keys.hasMoreElements()){
+	                        		Object key = keys.nextElement();
+	                        		buf.clear();
+	                        		buf.append("${");
+	                        		buf.append(key.toString());
+	                        		buf.append("}");
+	                        		
+	                        		if(complete.indexOf(buf.toString()) != -1){
+	                        			makeCompleteRebuild = true;
+	                        			break;
+	                        		}
                         		}
                         	}
                         }
