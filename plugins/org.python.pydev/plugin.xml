@@ -512,6 +512,14 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.wrapparagraph">
          </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.copyqualifiedname"
+               label="Copy Context Qualified Name"
+               class="org.python.pydev.editor.actions.PyCopyQualifiedName"
+               menubarPath="edit/copy"
+               id="org.python.pydev.editor.actions.copyqualifiedname"
+               icon="icons/cpyqual_menu.gif">
+         </action>
       </editorContribution>
    </extension>
 
@@ -697,6 +705,13 @@
             description="Wraps the current paragraph"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.wrapparagraph">
+      </command>
+<!-- command: Copy Context Qualified Name-->
+      <command
+            name="Copy Context Qualified Name"
+            description="Copies the Path of the selected context"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.copyqualifiedname">
       </command>
   <!-- Offline Command -->
       <command
@@ -1000,6 +1015,25 @@
          <showInPart id="org.eclipse.ui.views.ContentOutline"/>
       </perspectiveExtension>
    </extension>
+   
+   
+
+   <extension
+         id="org.python.pydev.refactoring.popupContribution"
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="org.python.pydev.popupContribution"
+            targetID="#PyEditContext">
+         <action
+               class="org.python.pydev.editor.actions.PyCopyQualifiedName"
+               definitionId="org.python.pydev.editor.actions.copyqualifiedname"
+               id="org.python.pydev.editor.actions.copyqualifiedname"
+               label="Copy Context Qualified Name"
+               menubarPath="copy"
+               icon="icons/cpyqual_menu.gif"/>
+      </viewerContribution>
+   </extension>
+
 
 
 <!-- ********************** Pydev Package Explorer ********************** --> 

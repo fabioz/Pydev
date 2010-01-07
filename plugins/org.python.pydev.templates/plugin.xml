@@ -23,7 +23,7 @@ super(${current_class}, self).${current_method}(${cursor})
             autoinsert="false"
             name="super_raw"
             icon="icons/template.gif"
-            description="Call current_class.current_method(self)"
+            description="Call superclass.current_method(self)"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.super_raw">
 <pattern>
