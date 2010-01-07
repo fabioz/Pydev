@@ -5,19 +5,34 @@ from org.python.pydev.editor.templates import PyTemplateVariableResolver
 #===================================================================================================
 class CallableTemplateVariableResolver(PyTemplateVariableResolver):
     
+    
     def __init__(self, variable, description, callable):
         PyTemplateVariableResolver.__init__(self, variable, description)
         self._callable = callable
         
-    def evaluateContext(self, context):
+        
+    def getEdit(self, context):
         if context.viewer is not None and hasattr(context.viewer, 'getEdit'):
-            
             editor = context.viewer.getEdit()
-            if editor is not None:
-                return self._callable(context, editor)
+            return editor
+        
+        return None
+    
+        
+    def asList(self, v):
+        if type(v) != type([]):
+            v = [v]
+        return v
+    
+    def resolveAll(self, context):
+        ret = 'Unable to evaluate context. Invalid source viewer: '+str(context.viewer)
+        
+        editor = self.getEdit(context)
+        if editor is not None:
+            ret = self._callable(context, editor)
         
         #This means we don't have a viewer with a PyEdit.
-        return 'Unable to evaluate context. Invalid source viewer: '+str(context.viewer)
+        return self.asList(ret)
 
 
 #===================================================================================================

@@ -25,6 +25,19 @@ import template_helper
 if False:
     #Variables added externally by the runner of this module.
     py_context_type = org.python.pydev.editor.templates.PyContextType
+    
+    
+#===================================================================================================
+# _CreateSelection
+#===================================================================================================
+def _CreateSelection(editor):
+    '''
+    Created method for that to be mocked on tests.
+    '''
+    from org.python.pydev.core.docutils import PySelection
+    selection = PySelection(editor)
+    return selection
+
 
 #===================================================================================================
 # GetFile
@@ -56,8 +69,7 @@ def _GetCurrentASTPath(editor, reverse=False):
     @return: ArrayList(SimpleNode)
     '''
     from org.python.pydev.parser.fastparser import FastParser
-    from org.python.pydev.core.docutils import PySelection
-    selection = PySelection(editor)
+    selection = _CreateSelection(editor)
     ret = FastParser.parseToKnowGloballyAccessiblePath(
         editor.getDocument(), selection.getStartLineIndex())
     if reverse:
@@ -87,15 +99,29 @@ template_helper.AddTemplateVariable(
 
 
 #===================================================================================================
+# _GetCurrentClassStmt
+#===================================================================================================
+def _GetCurrentClassStmt(editor):
+    from org.python.pydev.parser.visitors import NodeUtils
+    from org.python.pydev.parser.jython.ast import ClassDef
+    
+    for stmt in _GetCurrentASTPath(editor, True):
+        if isinstance(stmt, ClassDef):
+            return stmt
+    return None
+
+
+#===================================================================================================
 # GetCurrentClass
 #===================================================================================================
 def GetCurrentClass(context, editor):
     from org.python.pydev.parser.visitors import NodeUtils
     from org.python.pydev.parser.jython.ast import ClassDef
     
-    for stmt in _GetCurrentASTPath(editor, True):
-        if isinstance(stmt, ClassDef):
-            return NodeUtils.getRepresentationString(stmt)
+    stmt = _GetCurrentClassStmt(editor)
+    if stmt is not None:
+        return NodeUtils.getRepresentationString(stmt)
+    
     return ''
         
 
@@ -120,16 +146,14 @@ def GetCurrentMethod(context, editor):
 template_helper.AddTemplateVariable(py_context_type, 'current_method', 'Current method', GetCurrentMethod)    
 
 
-
 #===================================================================================================
 # _GetPreviousOrNextClassOrMethod
 #===================================================================================================
 def _GetPreviousOrNextClassOrMethod(editor, searchForward):
     from org.python.pydev.parser.visitors import NodeUtils
     from org.python.pydev.parser.fastparser import FastParser
-    from org.python.pydev.core.docutils import PySelection
     doc = editor.getDocument()
-    selection = PySelection(editor)
+    selection = _CreateSelection(editor)
     startLine = selection.getStartLineIndex()
     
     found = FastParser.firstClassOrFunction(doc, startLine, searchForward)
@@ -156,4 +180,61 @@ def GetNextClassOrMethod(context, editor):
 
 template_helper.AddTemplateVariable(
     py_context_type, 'next_class_or_method', 'Next class or method', GetNextClassOrMethod)    
+
+
+
+#===================================================================================================
+# GetSuperclass
+#===================================================================================================
+def GetSuperclass(context, editor):
+    selection = _CreateSelection(editor)
+    stmt = _GetCurrentClassStmt(editor)
+    from org.eclipse.jface.text import BadLocationException
+    if hasattr(stmt, 'name'):
+        doc = editor.getDocument()
+        name = stmt.name
+        nameStartOffset = selection.getAbsoluteCursorOffset(name.beginLine-1, name.beginColumn-1)
+        nameStartOffset += len(name.id)
         
+        found_start = False
+        i = 0
+        contents = ''
+        while True:
+            try:
+                c = doc.get(nameStartOffset+i, 1)
+                i += 1
+                
+                if c == '(':
+                    found_start = True
+                    
+                elif c in (')', ':'):
+                    break
+                
+                elif c in ('\r', '\n', ' ', '\t'):
+                    pass
+                
+                elif c == '#': #skip comments
+                    while c not in ('\r', '\n'):
+                        c = doc.get(nameStartOffset+i, 1)
+                        i += 1
+                        
+                
+                else:
+                    if found_start:
+                        contents += c
+                        
+            except BadLocationException, e:
+                return '' #Seems the class declaration is not properly finished as we're now out of bounds in the doc.
+            
+        if ',' in contents:
+            ret = []
+            for c in contents.split(','):
+                ret.append(c.strip())
+            return ret
+        
+        return contents.strip()
+    
+    return '' 
+
+template_helper.AddTemplateVariable(
+    py_context_type, 'superclass', 'Superclass of the current class', GetSuperclass)    

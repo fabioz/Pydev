@@ -4,6 +4,10 @@ Changed the doctest frome the xreload to actual unittest.
 
 import sys
 import os
+
+import sys
+IS_JYTHON = sys.platform.find('java') != -1
+
 sys.path.append(os.path.split(os.path.split(__file__)[0])[0])
 
 if sys.version_info[0] == 2 and sys.version_info[1] <= 4:
@@ -111,4 +115,5 @@ class Test(unittest.TestCase):
 if __name__ == '__main__':
     #this is so that we can run it frem the jython tests -- because we don't actually have an __main__ module
     #(so, it won't try importing the __main__ module)
-    unittest.TextTestRunner().run(unittest.makeSuite(Test))
+    if not IS_JYTHON: #Doesn't really work in Jython 
+        unittest.TextTestRunner().run(unittest.makeSuite(Test))

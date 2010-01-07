@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.eclipse.core.runtime.IStatus;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -20,13 +21,26 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
-import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
-
-import junit.framework.TestCase;
 
 public class JythonTest extends TestCase {
 
+	final File[] foldersWithTestContentsOnSameProcess = new File[]{
+			new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC+"jysrc/tests"),
+			new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/jysrc/tests"),
+			new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC+"pysrc/tests"),
+	};
+	
+	final File[] additionalPythonpathFolders = new File[]{
+			new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC+"jysrc/"),
+			new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/"),
+			new File(TestDependent.JYTHON_ANT_JAR_LOCATION),
+			new File(TestDependent.JYTHON_JUNIT_JAR_LOCATION),
+	};
+	
+	private static final boolean RUN_TESTS_ON_SEPARATE_PROCESS = true;
+	private static final boolean RUN_TESTS_ON_SAME_PROCESS = true;
+	
     public static void main(String[] args) {
         junit.textui.TestRunner.run(JythonTest.class);
     }
@@ -44,47 +58,43 @@ public class JythonTest extends TestCase {
     
     
     public void testJythonTests() throws Exception {
-        //unittest.TestCase format: the __main__ is required in the global namespace 
-        HashMap<String, Object> locals = new HashMap<String, Object>();
-        locals.put("__name__", "__main__");
-        IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(false);
-        ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
-        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-        interpreter.setErr(stdErr);
-        interpreter.setOut(stdOut);
-        
-        List<Throwable> errors = JythonPlugin.execAll(locals, "test", interpreter, 
-                new File[]{
-//                    new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/tests"),
-                    new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/jysrc/tests"),
-                    new File(TestDependent.TEST_PYDEV_DEBUG_PLUGIN_LOC+"pysrc/tests"),
-                },
-                new File[]{
-                    new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/"),
-                    new File(TestDependent.JYTHON_ANT_JAR_LOCATION),
-                    new File(TestDependent.JYTHON_JUNIT_JAR_LOCATION),
-                });
-        
-        System.out.println(stdOut);
-        System.out.println(stdErr);
-        failIfErrorsRaised(errors, stdErr);
+    	if(RUN_TESTS_ON_SAME_PROCESS){
+	        //unittest.TestCase format: the __main__ is required in the global namespace 
+	        HashMap<String, Object> locals = new HashMap<String, Object>();
+	        locals.put("__name__", "__main__");
+	        IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(false);
+	        ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+	        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+	        interpreter.setErr(stdErr);
+	        interpreter.setOut(stdOut);
+	        
+			List<Throwable> errors = JythonPlugin.execAll(locals, "test", interpreter, 
+	                foldersWithTestContentsOnSameProcess,
+	                additionalPythonpathFolders);
+	        
+	        System.out.println(stdOut);
+	        System.out.println(stdErr);
+	        failIfErrorsRaised(errors, stdErr);
+    	}
     }
     
     
     public void testJythonTestsOnSeparateProcess() throws Exception {
-        //has to be run on a separate process because it'll call exit()
-        List<Throwable> errors = JythonTest.execAll("test", 
-                new File[]{
-                    new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"pysrc/tests"),
-        });
-        if(errors.size() > 0){
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            out.write("There have been errors while executing the test scripts in jython.\n\n".getBytes());
-            for (Throwable throwable : errors) {
-                throwable.printStackTrace(new PrintStream(out));
-            }
-            fail(new String(out.toByteArray()));
-        }
+    	if(RUN_TESTS_ON_SEPARATE_PROCESS){
+	        //has to be run on a separate process because it'll call exit()
+	        List<Throwable> errors = JythonTest.execAll("test", 
+	                new File[]{
+	                    new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"PySrc/tests"),
+	        });
+	        if(errors.size() > 0){
+	            ByteArrayOutputStream out = new ByteArrayOutputStream();
+	            out.write("There have been errors while executing the test scripts in jython.\n\n".getBytes());
+	            for (Throwable throwable : errors) {
+	                throwable.printStackTrace(new PrintStream(out));
+	            }
+	            fail(new String(out.toByteArray()));
+	        }
+    	}
     }
 
     private void failIfErrorsRaised(List<Throwable> errors, ByteArrayOutputStream stdErr) throws IOException {
