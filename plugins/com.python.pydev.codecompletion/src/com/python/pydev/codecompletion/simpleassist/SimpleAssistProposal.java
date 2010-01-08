@@ -55,10 +55,16 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
                 if(dedented != null){
                     changeInCursorPos = -dedented.o2;
                 }
-            }else{
-                int dif = offset - fReplacementOffset;
-                doc.replace(offset, 0, fReplacementString.substring(dif));
+                return;
             }
+            
+            if(fReplacementString.equals("print()")){
+				changeInCursorPos = -1;
+            }
+            
+            //execute default if it still hasn't returned.
+            int dif = offset - fReplacementOffset;
+            doc.replace(offset, 0, fReplacementString.substring(dif));
         } catch (BadLocationException x) {
             // ignore
         }

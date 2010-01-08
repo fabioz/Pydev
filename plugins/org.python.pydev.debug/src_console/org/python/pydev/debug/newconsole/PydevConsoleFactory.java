@@ -6,7 +6,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.Launch;
 import org.eclipse.ui.console.IConsoleFactory;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.Tuple4;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
@@ -71,7 +73,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         
         IProcessFactory iprocessFactory = new IProcessFactory();
         
-        Tuple3<Launch, Process, Integer> launchAndProcess = iprocessFactory.createInteractiveLaunch();
+        Tuple4<Launch, Process, Integer, IInterpreterInfo> launchAndProcess = iprocessFactory.createInteractiveLaunch();
         if(launchAndProcess == null){
             return null;
         }
@@ -84,6 +86,7 @@ public class PydevConsoleFactory implements IConsoleFactory {
         int port = Integer.parseInt(launch.getAttribute(IProcessFactory.INTERACTIVE_LAUNCH_PORT));
         consoleInterpreter.setConsoleCommunication(new PydevConsoleCommunication(port, launchAndProcess.o2, launchAndProcess.o3));
         consoleInterpreter.setNaturesUsed(iprocessFactory.getNaturesUsed());
+        consoleInterpreter.setInterpreterInfo(launchAndProcess.o4);
         
         PydevDebugPlugin.getDefault().addConsoleLaunch(launch);
         

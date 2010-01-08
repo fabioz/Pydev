@@ -79,24 +79,6 @@ if __name__ == '__main__':
       </template>
       <template
             autoinsert="true"
-            name="stdout"
-            icon="icons/template.gif"
-            description="Prints to sys.stdout"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.stdout">
-         <pattern>print >> sys.stdout, ${data}</pattern>
-      </template>
-      <template
-            autoinsert="true"
-            name="stderr"
-            icon="icons/template.gif"
-            description="Prints to sys.stderr"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.stderr">
-         <pattern>print >> sys.stderr, ${data}</pattern>
-      </template>
-      <template
-            autoinsert="true"
             name="eq"
             icon="icons/template.gif"
             description="equals and not equals"
@@ -104,7 +86,7 @@ if __name__ == '__main__':
             id="org.python.pydev.editor.templates.python.eq">
 <pattern>
 def __eq__(self, o):
-    if isinstance(o, self.__class__):
+    if isinstance(o, ${current_class}):
         ${pass}${cursor}
 
     return False
@@ -113,34 +95,6 @@ def __ne__(self, o):
 	return not self == o
 </pattern>
 
-      </template>
-      <template
-            autoinsert="true"
-            name="debugger"
-            icon="icons/template.gif"
-            description="Creates an in-module debugger"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            id="org.python.pydev.editor.templates.python.debug">
-<pattern>
-import sys
-debugToggle = 1
-def debug(*values):
-    if debugToggle == 0: return
-    print >> sys.stderr, "DBG>", 
-    for v in values: print >> sys.stderr,  v,
-    print >> sys.stderr, '.'
-${cursor}
-</pattern>
-      </template>
-      
-      <template
-            autoinsert="true"
-            contextTypeId="org.python.pydev.editor.templates.python"
-            description="print a debug line.(use the debugger macro to define an in-module global debug method first!)"
-            icon="icons/template.gif"
-            id="org.python.pydev.editor.templates.python.dbg"
-            name="dbg">
-         <pattern>debug('==>', ${data})${cursor}</pattern>
       </template>
       <template
             autoinsert="true"
@@ -209,10 +163,10 @@ ${cursor}
             autoinsert="true"
             name="print"
             icon="icons/template.gif"
-            description="print"
+            description="print (considers python 2 or 3)"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.print">
-         <pattern>print ${cursor}</pattern>
+         <pattern>print${space_if_py2}${lparen_if_py3}${cursor}${rparen_if_py3}</pattern>
       </template>
       <template
             autoinsert="true"

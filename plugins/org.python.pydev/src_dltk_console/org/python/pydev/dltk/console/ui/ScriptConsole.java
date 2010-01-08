@@ -24,6 +24,7 @@ import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.python.pydev.core.ICallback;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.REF;
 import org.python.pydev.dltk.console.IScriptConsoleInterpreter;
 import org.python.pydev.dltk.console.InterpreterResponse;
@@ -260,4 +261,8 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
             fPydevConsoleBackground = color;
         }
     }
+
+	public IInterpreterInfo getInterpreterInfo() {
+		return this.interpreter.getInterpreterInfo();
+	}
 }

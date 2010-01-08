@@ -30,22 +30,69 @@ if False:
 #===================================================================================================
 # _CreateSelection
 #===================================================================================================
-def _CreateSelection(editor):
+def _CreateSelection(context):
     '''
     Created method so that it can be mocked on tests.
     '''
     from org.python.pydev.core.docutils import PySelection
-    selection = PySelection(editor)
+    selection = PySelection(context.getDocument(), context.getStart())
     return selection
 
 
 #===================================================================================================
 # GetFile
 #===================================================================================================
-def GetFile(context, editor):
-    return str(editor.getEditorFile()).replace('\\', '/')
+def GetFile(context):
+    return str(context.getEditorFile()).replace('\\', '/')
         
 template_helper.AddTemplateVariable(py_context_type, 'file', 'Full path for file', GetFile)    
+
+
+#===================================================================================================
+# _IsGrammar3
+#===================================================================================================
+def _IsGrammar3(context):
+    if context is None:
+        return False #Default is Python 2
+    from org.python.pydev.core import IGrammarVersionProvider
+    if context.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0:
+        return True
+    return False
+    
+#===================================================================================================
+# GetSpaceIfPy2
+#===================================================================================================
+def GetSpaceIfPy2(context):
+    if _IsGrammar3(context):
+        return '' 
+    
+    #if not 3, it's 2
+    return ' '
+        
+template_helper.AddTemplateVariable(py_context_type, 'space_if_py2', 'Adds a space if python 2.', GetSpaceIfPy2)    
+
+    
+#===================================================================================================
+# GetRParenIfPy3
+#===================================================================================================
+def GetRParenIfPy3(context):
+    if _IsGrammar3(context):
+        return ')' 
+    
+    return ''
+        
+template_helper.AddTemplateVariable(py_context_type, 'rparen_if_py3', 'Adds a ) if python 3.', GetRParenIfPy3)    
+
+#===================================================================================================
+# GetLParenIfPy3
+#===================================================================================================
+def GetLParenIfPy3(context):
+    if _IsGrammar3(context):
+        return '(' 
+    
+    return ''
+        
+template_helper.AddTemplateVariable(py_context_type, 'lparen_if_py3', 'Adds a ( if python 3.', GetLParenIfPy3)    
 
 
 
@@ -53,10 +100,8 @@ template_helper.AddTemplateVariable(py_context_type, 'file', 'Full path for file
 #===================================================================================================
 # GetModuleName
 #===================================================================================================
-def GetModuleName(context, editor):
-    nature = editor.getPythonNature()
-    editor_file = editor.getEditorFile()
-    return nature.resolveModule(editor_file)
+def GetModuleName(context):
+    return context.getModuleName()
 
 template_helper.AddTemplateVariable(py_context_type, 'module', 'Current module', GetModuleName)    
 
@@ -64,14 +109,14 @@ template_helper.AddTemplateVariable(py_context_type, 'module', 'Current module',
 #===================================================================================================
 # _GetCurrentASTPath
 #===================================================================================================
-def _GetCurrentASTPath(editor, reverse=False):
+def _GetCurrentASTPath(context, reverse=False):
     '''
     @return: ArrayList(SimpleNode)
     '''
     from org.python.pydev.parser.fastparser import FastParser
-    selection = _CreateSelection(editor)
+    selection = _CreateSelection(context)
     ret = FastParser.parseToKnowGloballyAccessiblePath(
-        editor.getDocument(), selection.getStartLineIndex())
+        context.getDocument(), selection.getStartLineIndex())
     if reverse:
         from java.util import Collections
         Collections.reverse(ret)
@@ -82,11 +127,11 @@ def _GetCurrentASTPath(editor, reverse=False):
 #===================================================================================================
 # GetQualifiedNameScope
 #===================================================================================================
-def GetQualifiedNameScope(context, editor):
+def GetQualifiedNameScope(context):
     from org.python.pydev.parser.visitors import NodeUtils
     
     ret = ''
-    for stmt in _GetCurrentASTPath(editor):
+    for stmt in _GetCurrentASTPath(context):
         if ret:
             ret += '.'
         ret += NodeUtils.getRepresentationString(stmt)
@@ -101,11 +146,11 @@ template_helper.AddTemplateVariable(
 #===================================================================================================
 # _GetCurrentClassStmt
 #===================================================================================================
-def _GetCurrentClassStmt(editor):
+def _GetCurrentClassStmt(context):
     from org.python.pydev.parser.visitors import NodeUtils
     from org.python.pydev.parser.jython.ast import ClassDef
     
-    for stmt in _GetCurrentASTPath(editor, True):
+    for stmt in _GetCurrentASTPath(context, True):
         if isinstance(stmt, ClassDef):
             return stmt
     return None
@@ -114,11 +159,11 @@ def _GetCurrentClassStmt(editor):
 #===================================================================================================
 # GetCurrentClass
 #===================================================================================================
-def GetCurrentClass(context, editor):
+def GetCurrentClass(context):
     from org.python.pydev.parser.visitors import NodeUtils
     from org.python.pydev.parser.jython.ast import ClassDef
     
-    stmt = _GetCurrentClassStmt(editor)
+    stmt = _GetCurrentClassStmt(context)
     if stmt is not None:
         return NodeUtils.getRepresentationString(stmt)
     
@@ -132,11 +177,11 @@ template_helper.AddTemplateVariable(py_context_type, 'current_class', 'Current c
 #===================================================================================================
 # GetCurrentMethod
 #===================================================================================================
-def GetCurrentMethod(context, editor):
+def GetCurrentMethod(context):
     from org.python.pydev.parser.visitors import NodeUtils
     from org.python.pydev.parser.jython.ast import FunctionDef
     
-    for stmt in _GetCurrentASTPath(editor, True):
+    for stmt in _GetCurrentASTPath(context, True):
         if isinstance(stmt, FunctionDef):
             return NodeUtils.getRepresentationString(stmt)
     return ''
@@ -149,11 +194,11 @@ template_helper.AddTemplateVariable(py_context_type, 'current_method', 'Current 
 #===================================================================================================
 # _GetPreviousOrNextClassOrMethod
 #===================================================================================================
-def _GetPreviousOrNextClassOrMethod(editor, searchForward):
+def _GetPreviousOrNextClassOrMethod(context, searchForward):
     from org.python.pydev.parser.visitors import NodeUtils
     from org.python.pydev.parser.fastparser import FastParser
-    doc = editor.getDocument()
-    selection = _CreateSelection(editor)
+    doc = context.getDocument()
+    selection = _CreateSelection(context)
     startLine = selection.getStartLineIndex()
     
     found = FastParser.firstClassOrFunction(doc, startLine, searchForward)
@@ -166,8 +211,8 @@ def _GetPreviousOrNextClassOrMethod(editor, searchForward):
 #===================================================================================================
 # GetPreviousClassOrMethod
 #===================================================================================================
-def GetPreviousClassOrMethod(context, editor):
-    return _GetPreviousOrNextClassOrMethod(editor, False)
+def GetPreviousClassOrMethod(context):
+    return _GetPreviousOrNextClassOrMethod(context, False)
 
 template_helper.AddTemplateVariable(
     py_context_type, 'prev_class_or_method', 'Previous class or method', GetPreviousClassOrMethod)    
@@ -175,8 +220,8 @@ template_helper.AddTemplateVariable(
 #===================================================================================================
 # GetNextClassOrMethod
 #===================================================================================================
-def GetNextClassOrMethod(context, editor):
-    return _GetPreviousOrNextClassOrMethod(editor, True)
+def GetNextClassOrMethod(context):
+    return _GetPreviousOrNextClassOrMethod(context, True)
 
 template_helper.AddTemplateVariable(
     py_context_type, 'next_class_or_method', 'Next class or method', GetNextClassOrMethod)    
@@ -186,12 +231,12 @@ template_helper.AddTemplateVariable(
 #===================================================================================================
 # GetSuperclass
 #===================================================================================================
-def GetSuperclass(context, editor):
-    selection = _CreateSelection(editor)
-    stmt = _GetCurrentClassStmt(editor)
+def GetSuperclass(context):
+    selection = _CreateSelection(context)
+    stmt = _GetCurrentClassStmt(context)
     from org.eclipse.jface.text import BadLocationException
-    if hasattr(stmt, 'name'):
-        doc = editor.getDocument()
+    if stmt is not None:
+        doc = context.getDocument()
         name = stmt.name
         nameStartOffset = selection.getAbsoluteCursorOffset(name.beginLine-1, name.beginColumn-1)
         nameStartOffset += len(name.id)
@@ -223,7 +268,7 @@ def GetSuperclass(context, editor):
                     if found_start:
                         contents += c
                         
-            except BadLocationException, e:
+            except BadLocationException:
                 return '' #Seems the class declaration is not properly finished as we're now out of bounds in the doc.
             
         if ',' in contents:

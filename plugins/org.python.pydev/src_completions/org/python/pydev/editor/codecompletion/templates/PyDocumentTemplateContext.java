@@ -3,6 +3,7 @@
  */
 package org.python.pydev.editor.codecompletion.templates;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -14,13 +15,19 @@ import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.TemplateTranslator;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.editor.codefolding.PySourceViewer;
 
 /**
  * Makes a custom evaluation of the template buffer to be created (to put it in the correct indentation and 
@@ -47,14 +54,63 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
         this(type, document, offset, length, indentTo, getIndentPrefs(viewer));
         this.viewer = viewer;
     }
+    
+    
+    public File getEditorFile() {
+		if(this.viewer instanceof PySourceViewer){
+			return ((PySourceViewer) this.viewer).getEdit().getEditorFile();
+		}
+		return new File("");
+	}
+    
+    public int getGrammarVersion() {
+    	//Other possibilities
+        //org.eclipse.jface.text.source.SourceViewer (in compare)
+
+    	if(this.viewer instanceof PySourceViewer){
+    		try {
+				IPythonNature nature = ((PySourceViewer) this.viewer).getEdit().getPythonNature();
+				if(nature != null){
+					return nature.getGrammarVersion();
+				}
+			} catch (MisconfigurationException e) {
+			}
+    	}
+    	
+    	if(this.viewer instanceof ScriptConsoleViewer){
+    		//interactive console
+    		ScriptConsoleViewer v = (ScriptConsoleViewer) this.viewer;
+    		IInterpreterInfo interpreterInfo = v.getInterpreterInfo();
+    		if(interpreterInfo != null){
+    			return interpreterInfo.getGrammarVersion();
+    		}
+    		
+    	}
+    	return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+	}
+    
+    public String getModuleName() {
+    	if(this.viewer instanceof PySourceViewer){
+    		try {
+    			PySourceViewer pyViewer = (PySourceViewer) this.viewer;
+				PyEdit edit = pyViewer.getEdit();
+				IPythonNature nature = edit.getPythonNature();
+    			if(nature != null){
+    				return nature.resolveModule(edit.getEditorFile());
+    			}
+    		} catch (MisconfigurationException e) {
+    		}
+    	}
+    	return "";
+	}
 
     /**
      * @return the indent preferences to be used.
      */
     private static IIndentPrefs getIndentPrefs(ITextViewer viewer) {
-        if(viewer instanceof PyEdit){
-            PyEdit pyEdit = (PyEdit) viewer;
-            return pyEdit.getIndentPrefs();
+        if(viewer instanceof PySourceViewer){
+        	PySourceViewer pyViewer = (PySourceViewer) viewer;
+            return pyViewer.getEdit().getIndentPrefs();
         }else{
             return DefaultIndentPrefs.get();
         }

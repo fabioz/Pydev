@@ -40,6 +40,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
@@ -410,6 +411,10 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
     public int getCaretOffset() {
         return getTextWidget().getCaretOffset();
     }
+    
+    public IInterpreterInfo getInterpreterInfo() {
+		return this.console.getInterpreterInfo();
+	}
 
     /**
      * Sets the new caret position in the console.

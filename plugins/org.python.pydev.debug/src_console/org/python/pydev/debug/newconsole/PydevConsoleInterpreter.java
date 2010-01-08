@@ -16,6 +16,7 @@ import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
@@ -49,6 +50,8 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     private List<ISimpleAssistParticipant2> simpleParticipants;
 
     private List<IPythonNature> naturesUsed;
+
+	private IInterpreterInfo interpreterInfo;
 
     @SuppressWarnings("unchecked")
     public PydevConsoleInterpreter() {
@@ -247,6 +250,14 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
     public void setNaturesUsed(List<IPythonNature> naturesUsed) {
         this.naturesUsed = naturesUsed;
     }
+
+	public void setInterpreterInfo(IInterpreterInfo interpreterInfo) {
+		this.interpreterInfo = interpreterInfo;
+	}
+	
+	public IInterpreterInfo getInterpreterInfo() {
+		return this.interpreterInfo;
+	}
 
 
 }

@@ -10,28 +10,17 @@ class CallableTemplateVariableResolver(PyTemplateVariableResolver):
         PyTemplateVariableResolver.__init__(self, variable, description)
         self._callable = callable
         
-        
-    def getEdit(self, context):
-        if context.viewer is not None and hasattr(context.viewer, 'getEdit'):
-            editor = context.viewer.getEdit()
-            return editor
-        
-        return None
-    
-        
     def asList(self, v):
         if type(v) != type([]):
             v = [v]
         return v
     
     def resolveAll(self, context):
-        ret = 'Unable to evaluate context. Invalid source viewer: '+str(context.viewer)
+        ret = self._callable(context)
         
-        editor = self.getEdit(context)
-        if editor is not None:
-            ret = self._callable(context, editor)
+        if ret is None:
+            ret = '' #This is a safeguard.
         
-        #This means we don't have a viewer with a PyEdit.
         return self.asList(ret)
 
 
@@ -56,3 +45,4 @@ def AddTemplateVariable(py_context_type, variable, description, evaluate_callbac
     '''
     py_context_type.addResolver(
         CallableTemplateVariableResolver(variable, description, evaluate_callback))
+    

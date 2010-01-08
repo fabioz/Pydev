@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
@@ -138,7 +141,15 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
      */
     public Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier, 
             PySelection ps, IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset) {
-        return innerComputeProposals(activationToken, qualifier, offset, false);
+    	boolean isPy3Syntax = false;
+    	try {
+			IPythonNature nature = edit.getPythonNature();
+			if(nature != null){
+				isPy3Syntax = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+			}
+		} catch (MisconfigurationException e) {
+		}
+        return innerComputeProposals(activationToken, qualifier, offset, false, isPy3Syntax);
     }
     
 
@@ -146,7 +157,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
      * @see ISimpleAssistParticipant2
      */
     public Collection<ICompletionProposal> computeConsoleProposals(String activationToken, String qualifier, int offset) {
-        return innerComputeProposals(activationToken, qualifier, offset, true);
+        return innerComputeProposals(activationToken, qualifier, offset, true, false);
     }
     /**
      * Collects simple completions (keywords)
@@ -155,10 +166,11 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
      * @param qualifier qualifier used
      * @param offset offset at which the completion was requested
      * @param buildForConsole whether the completions should be built for the console or not
+     * @param isPy3Syntax if py 3 syntax we'll treat print differently.
      * @return a list with the completions available.
      */
     private Collection<ICompletionProposal> innerComputeProposals(String activationToken, String qualifier, 
-            int offset, boolean buildForConsole) {
+            int offset, boolean buildForConsole, boolean isPy3Syntax) {
         
         List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
         //check if we have to use it
@@ -170,6 +182,11 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
         int qlen = qualifier.length();
         if(activationToken.equals("") && qualifier.equals("") == false){
             for (String keyw : CodeCompletionPreferencesPage.getKeywords()) {
+            	if(isPy3Syntax){
+            		if("print".equals(keyw)){
+            			keyw = "print()";//Handling print in py3k.
+            		}
+            	}
                 if(keyw.startsWith(qualifier) && !keyw.equals(qualifier)){
                     if(buildForConsole){
                         results.add(new PyCompletionProposal(keyw, offset - qlen, qlen, keyw.length(), 

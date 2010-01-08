@@ -35,9 +35,6 @@ class Context:
         self.doc = doc
         self.viewer = self
         
-    def getEdit(self):
-        return self
-    
     def getDocument(self):
         return self.doc
 
@@ -63,14 +60,17 @@ class Test(unittest.TestCase):
             types[r.type] = r
             
         expected = [
-            'file', 
-            'module', 
-            'current_qualified_scope', 
             'current_class', 
             'current_method', 
-            'prev_class_or_method', 
+            'current_qualified_scope', 
+            'file', 
+            'lparen_if_py3', 
+            'module', 
             'next_class_or_method', 
-            'superclass',
+            'prev_class_or_method', 
+            'rparen_if_py3', 
+            'space_if_py2', 
+            'superclass'
         ]
         gotten = types.keys()
         gotten.sort()

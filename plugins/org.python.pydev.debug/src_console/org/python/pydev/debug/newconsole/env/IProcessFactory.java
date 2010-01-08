@@ -25,6 +25,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.Tuple4;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.editor.PyEdit;
@@ -70,7 +71,7 @@ public class IProcessFactory {
      * @throws UserCanceledException
      * @throws Exception
      */
-    public Tuple3<Launch, Process, Integer> createInteractiveLaunch()
+    public Tuple4<Launch, Process, Integer, IInterpreterInfo> createInteractiveLaunch()
             throws UserCanceledException, Exception {
         
         IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -175,7 +176,7 @@ public class IProcessFactory {
                 
                 launch.addProcess(spawnedInterpreterProcess);
                 
-                return new Tuple3<Launch, Process, Integer>(launch, process, clientPort);
+                return new Tuple4<Launch, Process, Integer, IInterpreterInfo>(launch, process, clientPort, interpreter);
             }
         }
         return null;
