@@ -715,6 +715,12 @@ public final class PythonGrammar25 extends AbstractPythonGrammar implements/*@bg
       try {
         simple_stmt();
       } catch (WithNameInvalidException e) {
+            while(!"with".equals(curr.next.image)){
+                curr = curr.next;
+                if(curr == null){
+                    {if (true) throw new RuntimeException("Unexpected: with not found when it should be already available");}
+                }
+            }
             setCurrentToken(curr);
             with_stmt();
       }
@@ -6649,27 +6655,6 @@ else
     finally { jj_save(26, xla); }
   }
 
-  private boolean jj_3R_113() {
-    if (jj_scan_token(COLON)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_92() {
-    if (jj_3R_109()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_89() {
-    if (jj_scan_token(GLOBAL)) return true;
-    return false;
-  }
-
-  private boolean jj_3_18() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_52()) return true;
-    return false;
-  }
-
   private boolean jj_3R_99() {
     if (jj_3R_46()) return true;
     return false;
@@ -6701,11 +6686,6 @@ else
     return false;
   }
 
-  private boolean jj_3R_60() {
-    if (jj_scan_token(LPAREN)) return true;
-    return false;
-  }
-
   private boolean jj_3_17() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_51()) return true;
@@ -6717,18 +6697,8 @@ else
     return false;
   }
 
-  private boolean jj_3R_44() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_59()) {
-    jj_scanpos = xsp;
-    if (jj_3R_60()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_59() {
-    if (jj_3R_56()) return true;
+  private boolean jj_3R_60() {
+    if (jj_scan_token(LPAREN)) return true;
     return false;
   }
 
@@ -6739,11 +6709,6 @@ else
 
   private boolean jj_3R_79() {
     if (jj_3R_46()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_41() {
-    if (jj_3R_44()) return true;
     return false;
   }
 
@@ -6762,6 +6727,26 @@ else
 
   private boolean jj_3R_78() {
     if (jj_scan_token(DOT)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_44() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_59()) {
+    jj_scanpos = xsp;
+    if (jj_3R_60()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_59() {
+    if (jj_3R_56()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_41() {
+    if (jj_3R_44()) return true;
     return false;
   }
 
@@ -6803,14 +6788,14 @@ else
     return false;
   }
 
-  private boolean jj_3_2() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_42()) return true;
+  private boolean jj_3R_91() {
+    if (jj_scan_token(LAMBDA)) return true;
     return false;
   }
 
-  private boolean jj_3R_91() {
-    if (jj_scan_token(LAMBDA)) return true;
+  private boolean jj_3_2() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_42()) return true;
     return false;
   }
 
@@ -7396,11 +7381,6 @@ else
     return false;
   }
 
-  private boolean jj_3R_58() {
-    if (jj_scan_token(MULTIPLY)) return true;
-    return false;
-  }
-
   private boolean jj_3R_69() {
     if (jj_scan_token(ASSERT)) return true;
     return false;
@@ -7451,6 +7431,11 @@ else
 
   private boolean jj_3R_65() {
     if (jj_3R_87()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_58() {
+    if (jj_scan_token(MULTIPLY)) return true;
     return false;
   }
 
@@ -7555,6 +7540,27 @@ else
   private boolean jj_3_19() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_46()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_113() {
+    if (jj_scan_token(COLON)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_92() {
+    if (jj_3R_109()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_89() {
+    if (jj_scan_token(GLOBAL)) return true;
+    return false;
+  }
+
+  private boolean jj_3_18() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_52()) return true;
     return false;
   }
 

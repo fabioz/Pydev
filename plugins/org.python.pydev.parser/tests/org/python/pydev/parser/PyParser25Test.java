@@ -24,7 +24,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testImportFails();
+            test.testNewWithStmt5();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -181,13 +181,27 @@ public class PyParser25Test extends PyParserTestBase{
         "with foo as x:\n" +
         "    print 'bla'\n" +
         "";
-        //we'll actually treat this as a try..finally with a body with try..except..else
         Module mod = (Module) parseLegalDocStr(str);
         assertEquals(2, mod.body.length);
         assertTrue(mod.body[1] instanceof With);
         With w = (With) mod.body[1];
         assertTrue(((WithItem)w.with_item[0]).optional_vars != null);
         
+    }
+    
+    public void testNewWithStmt5(){
+    	setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+    	String str = "" +
+    	"\n" +
+    	"from __future__ import with_statement\n" +
+    	"\n" +
+    	"def fun():\n" +
+    	"   with open('somepath') as f:\n" +
+    	"       return f.read()\n" +
+    	"";
+    	Module mod = (Module) parseLegalDocStr(str);
+    	assertEquals(2, mod.body.length);
+    	
     }
     
     public void testNewWithStmtError(){

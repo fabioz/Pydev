@@ -158,6 +158,12 @@ void stmt() #void: {}
         try{
             simple_stmt()
         }catch(WithNameInvalidException e){
+            while(!"with".equals(curr.next.image)){
+                curr = curr.next;
+                if(curr == null){
+                    throw new RuntimeException("Unexpected: with not found when it should be already available");
+                }
+            }
             setCurrentToken(curr);
             with_stmt();
         }
