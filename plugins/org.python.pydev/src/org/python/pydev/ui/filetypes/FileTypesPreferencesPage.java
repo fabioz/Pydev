@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.docutils.StringUtils;
-import org.python.pydev.core.docutils.WordUtils;
+import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.LabelFieldEditorWith2Cols;
@@ -44,7 +44,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
         final Composite p = getFieldEditorParent();
         
         addField(new LabelFieldEditorWith2Cols("Label_Info_File_Preferences1", 
-                WordUtils.wrap("These setting are used to know which files should be considered valid internally, and are " +
+                WrapAndCaseUtils.wrap("These setting are used to know which files should be considered valid internally, and are " +
                 "not used in the file association of those files to the pydev editor.\n\n", 80), 
                 p){
                     @Override
@@ -55,7 +55,7 @@ public class FileTypesPreferencesPage extends FieldEditorPreferencePage implemen
         
         
         addField(new LabelFieldEditorWith2Cols("Label_Info_File_Preferences2", 
-                WordUtils.wrap("After changing those settings, a manual reconfiguration of the interpreter and a manual rebuild " +
+                WrapAndCaseUtils.wrap("After changing those settings, a manual reconfiguration of the interpreter and a manual rebuild " +
                 "of the projects may be needed to update the inner caches that may be affected by those changes.\n\n", 80), 
                 p){
                     @Override

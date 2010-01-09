@@ -9,7 +9,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
@@ -35,7 +35,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
      */
     public String getIndentationString() {
         if (getUseSpaces() && !getForceTabs())
-            return DocUtils.createSpaceString(getTabWidth());
+            return StringUtils.createSpaceString(getTabWidth());
         else
             return "\t";
     }
@@ -106,7 +106,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
             String text, int offset, String indentString)
             throws BadLocationException
     {
-        String spaceStr = DocUtils.createSpaceString(getTabWidth());
+        String spaceStr = StringUtils.createSpaceString(getTabWidth());
         while(text.startsWith(spaceStr)){
             text = text.replaceAll(spaceStr, "\t");
         }
@@ -126,7 +126,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
             
             if (textAfter.length() > 0
                 && isWhitespace(textAfter)) {
-                document.replace(offset, textAfter.length(), DocUtils.EMPTY_STRING);
+                document.replace(offset, textAfter.length(), "");
             }
         }
     }

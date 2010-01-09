@@ -74,8 +74,8 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
                         str += delimiter+docIterator.next();
                     }
                 }
-                if(WordUtils.endsWith(str, '\\')){
-                    while(docIterator.hasNext() && WordUtils.endsWith(str, '\\')){
+                if(StringUtils.endsWith(str, '\\')){
+                    while(docIterator.hasNext() && StringUtils.endsWith(str, '\\')){
                         str += delimiter+docIterator.next();
                     }
                 }

@@ -20,7 +20,6 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -124,7 +123,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
         }
         
         
-         String spacesIndentString = DocUtils.createSpaceString(indentPrefs.getTabWidth());        
+         String spacesIndentString = StringUtils.createSpaceString(indentPrefs.getTabWidth());        
         
         
         

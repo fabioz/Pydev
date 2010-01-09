@@ -14,7 +14,6 @@ import org.eclipse.jface.text.IRegion;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.docutils.DocUtils;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.NoPeerAvailableException;
@@ -86,9 +85,9 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 
                 
                 //we have to check if smartIndent is -1 because otherwise we are inside some bracket
-                if(smartIndent == -1 && DocUtils.isClosingPeer(lastChar)){
+                if(smartIndent == -1 && StringUtils.isClosingPeer(lastChar)){
                     //ok, not inside brackets
-                    PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
+                    PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
                     int bracketOffset = selection.getLineOffset()+curr;
                     IRegion region = matcher.match(document, bracketOffset+1);
                     if(region != null){
@@ -113,7 +112,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             
             String trimmedLine = lineWithoutComments.trim();
             
-            if(smartIndent >= 0 && (DocUtils.hasOpeningBracket(trimmedLine) || DocUtils.hasClosingBracket(trimmedLine))){
+            if(smartIndent >= 0 && (StringUtils.hasOpeningBracket(trimmedLine) || StringUtils.hasClosingBracket(trimmedLine))){
                 return new Tuple<String, Boolean>(makeSmartIndent(text, smartIndent), isInsidePar);
             }
             //let's check for dedents...
@@ -391,7 +390,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                 char c = command.text.charAt(0);
                 if (shouldClose(ps, c)) {
                     command.shiftsCaret = false;
-                    command.text = c+""+DocUtils.getPeer(c);
+                    command.text = c+""+StringUtils.getPeer(c);
                     command.caretOffset = command.offset+1;
                 }
                 
@@ -471,8 +470,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                     // sees if the command has one of them
 
                     boolean found = false;
-                    for (int i = 1; i <= DocUtils.BRACKETS.length && !found; i += 2) {
-                        char c = DocUtils.BRACKETS[i];
+                    for (int i = 1; i <= StringUtils.BRACKETS.length && !found; i += 2) {
+                        char c = StringUtils.BRACKETS[i];
                         if (c == command.text.charAt(0)) {
                             found = true;
                             performPairReplacement(document, command);
@@ -624,7 +623,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             int tabWidth = getIndentPrefs().getTabWidth();
             
             int mod = (lineContentsToCursorLen+tabWidth) % tabWidth;
-            command.text = DocUtils.createSpaceString(tabWidth-mod);
+            command.text = StringUtils.createSpaceString(tabWidth-mod);
         }else{
             //do nothing (a tab is already a tab)
         }
@@ -770,7 +769,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                 char currentCharacter = document.getChar(absoluteOffset);
 
                 if (currentCharacter == ':') {
-                    command.text = DocUtils.EMPTY_STRING;
+                    command.text = "";
                     command.caretOffset = command.offset + 1;
                 }
 
@@ -800,7 +799,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         boolean skipChar = canSkipOpenParenthesis(document, command);
         if(skipChar){
             //if we have the same number of peers, we want to eat the char
-            command.text = DocUtils.EMPTY_STRING;
+            command.text = "";
             command.caretOffset = command.offset + 1;
         }
     }
@@ -811,7 +810,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         char c = ps.getCharAtCurrentOffset();
         
         try{
-            char peer = DocUtils.getPeer(c);
+            char peer = StringUtils.getPeer(c);
             
             FastStringBuffer doc = new FastStringBuffer(document.get(), 2);
             //it is not enough just counting the chars, we have to ignore those that are within comments or literals.
@@ -877,7 +876,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
     public static Tuple<Integer,Boolean> determineSmartIndent(int offset, PySelection ps, IIndentPrefs prefs)
             throws BadLocationException {
         IDocument document = ps.getDoc();
-        PythonPairMatcher matcher = new PythonPairMatcher(DocUtils.BRACKETS);
+        PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
         int openingPeerOffset = matcher.searchForAnyOpeningPeer(offset, document);
         if(openingPeerOffset == -1){
             return new Tuple<Integer,Boolean>(-1, false);

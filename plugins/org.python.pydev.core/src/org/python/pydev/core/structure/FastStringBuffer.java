@@ -14,6 +14,8 @@ import org.eclipse.core.runtime.Assert;
  * and null is not checked for in the common case -- use appendObject if it may be null).
  * 
  * clear() and deleteLast() only change the internal count and have almost zero overhead.
+ * 
+ * Note that it's also not synchronized.
  *
  * @author Fabio
  */
@@ -401,15 +403,27 @@ public final class FastStringBuffer{
     }
 
     public FastStringBuffer appendN(String val, int n){
-        for(int i=0;i<n;i++){
-            this.append(val);
+    	int min = count + (n*val.length());
+		if (min > value.length) {
+    		resizeForMinimum(min);
+    	}
+        
+		int strLen = val.length();
+    	while (n-- > 0){
+    		val.getChars(0, strLen, value, this.count);
+    		this.count += strLen;
         }
         return this;
     }
 
     public FastStringBuffer appendN(char val, int n){
-        for(int i=0;i<n;i++){
-            this.append(val);
+        if (count + n > value.length) {
+            resizeForMinimum(count + n);
+        }
+        
+        while (n-- > 0){
+	        value[count] = val;
+	        count++;
         }
         return this;
     }

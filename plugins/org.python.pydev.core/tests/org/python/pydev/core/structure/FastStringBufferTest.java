@@ -83,6 +83,15 @@ public class FastStringBufferTest extends TestCase{
     }
     
     
+    public void testAppendN() throws Exception {
+		FastStringBuffer buf = new FastStringBuffer(0);
+		assertEquals("   ", buf.appendN(' ', 3).toString());
+		assertEquals("   ", buf.clear().appendN(" ", 3).toString());
+		assertEquals("   aaa", buf.appendN('a', 3).toString());
+		assertEquals("   aaabbbbbb", buf.appendN("bb", 3).toString());
+	}
+    
+    
 //    public void testFastString() throws Exception {
 //        
 //        long total=0;

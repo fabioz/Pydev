@@ -346,7 +346,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
     public int eatPar(int i, FastStringBuffer buf, char par) throws SyntaxErrorException {
         char c = ' ';
         
-        char closingPar = DocUtils.getPeer(par);
+        char closingPar = StringUtils.getPeer(par);
         
         int j = i+1;
         int len = len();
@@ -709,7 +709,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
         if(!foundNewLine){
             buffer.append(delimiter);
         }else{
-            if(!WordUtils.endsWith(buffer, '\r') && !WordUtils.endsWith(buffer, '\n')){
+            if(!StringUtils.endsWith(buffer, '\r') && !StringUtils.endsWith(buffer, '\n')){
                 buffer.append(delimiter);
             }
             if(lastLine.length() > 0 && Character.isWhitespace(lastLine.charAt(0)) && 

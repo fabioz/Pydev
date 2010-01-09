@@ -14,7 +14,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ICharacterPairMatcher;
-import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * A character pair matcher finds to a character at a certain document offset the matching peer character. It
@@ -55,7 +55,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
     protected PythonCodeReader fReader = new PythonCodeReader();
 
     public PythonPairMatcher() {
-        this(DocUtils.BRACKETS);
+        this(StringUtils.BRACKETS);
     }
     
     /**
@@ -275,7 +275,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
             int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
                 if (c == ')' || c == ']' || c == '}' ){
-                    char peer = DocUtils.getPeer((char)c);
+                    char peer = StringUtils.getPeer((char)c);
                     Integer iStack = stack.get((char)peer);
                     iStack++;
                     stack.put(peer, iStack);

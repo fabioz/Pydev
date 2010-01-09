@@ -117,7 +117,7 @@ public class PyDocIterator implements Iterator<String> {
                 int initialOffset = offset;
                 String ret = nextInLiteral();
                 if(ret.length() > 0 && initialOffset < offset){ //if it didn't move in the offset, disregard the results
-                    if(WordUtils.endsWith(ret, '\r') || WordUtils.endsWith(ret, '\n')){
+                    if(StringUtils.endsWith(ret, '\r') || StringUtils.endsWith(ret, '\n')){
                         if(!addNewLinesToRet){
                             ret = ret.substring(0, ret.length() -1);
                         }
@@ -151,7 +151,7 @@ public class PyDocIterator implements Iterator<String> {
                         literalEnd = parsingUtils.getLiteralEnd(offset, ch);
                         String ret = nextInLiteral();
                         if(ret.length() > 0){
-                            if(WordUtils.endsWith(ret, '\r') || WordUtils.endsWith(ret, '\n')){
+                            if(StringUtils.endsWith(ret, '\r') || StringUtils.endsWith(ret, '\n')){
                                 if(!addNewLinesToRet){
                                     ret = ret.substring(0, ret.length() -1);
                                 }

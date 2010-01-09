@@ -217,7 +217,6 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * @throws IOException 
      * @throws PythonNatureWithoutProjectException 
      */
-    @SuppressWarnings("unchecked")
     private List getPythonProposals(ITextViewer viewer, int documentOffset, IDocument doc, CompletionRequest request) throws CoreException, BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
         //if non empty string, we're in imports section.
         String importsTipperStr = request.codeCompletion.getImportsTipperStr(request).importsTipperStr;
@@ -235,7 +234,6 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
     /**
      * Returns the template proposals as a list.
      */
-    @SuppressWarnings("unchecked")
     private List getTemplateProposals(ITextViewer viewer, int documentOffset, String activationToken, java.lang.String qualifier) {
         List<ICompletionProposal> propList = new ArrayList<ICompletionProposal>();
         this.templatesCompletion.addTemplateProposals(viewer, documentOffset, propList);

@@ -22,7 +22,7 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.docutils.DocUtils;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -150,7 +150,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
         
         RefactoringStatus status = new RefactoringStatus();
         try {
-            if (!DocUtils.isWord(request.initialName)) {
+            if (!StringUtils.isWord(request.initialName)) {
                 status.addFatalError("The initial name is not valid:" + request.initialName);
                 return status;
             }
@@ -160,7 +160,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                 return status;
             }
 
-            if (request.inputName != null && !DocUtils.isWord(request.inputName)) {
+            if (request.inputName != null && !StringUtils.isWord(request.inputName)) {
                 status.addFatalError("The new name is not valid:" + request.inputName);
                 return status;
             }

@@ -6,7 +6,7 @@ import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.docutils.WordUtils;
+import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.LabelFieldEditor;
@@ -46,14 +46,14 @@ public class ImportsPreferencesPage extends FieldEditorPreferencePage implements
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
         
-        addField(new LabelFieldEditor("Label_Info_File_Preferences1", WordUtils.wrap(
+        addField(new LabelFieldEditor("Label_Info_File_Preferences1", WrapAndCaseUtils.wrap(
             "These setting are used whenever imports are managed in the application\n\n",
             80), p));
         
         
         addField(new BooleanFieldEditor(GROUP_IMPORTS, "Group 'from' imports when possible?", p));
         
-        addField(new BooleanFieldEditor(MULTILINE_IMPORTS, WordUtils.wrap(
+        addField(new BooleanFieldEditor(MULTILINE_IMPORTS, WrapAndCaseUtils.wrap(
                 "Allow multiline imports when the import size would exceed the print margin?", 80), p));
         
         addField(new RadioGroupFieldEditor(BREAK_IMPORTS_MODE, "How to break imports in multiline?", 1, new String[][] {

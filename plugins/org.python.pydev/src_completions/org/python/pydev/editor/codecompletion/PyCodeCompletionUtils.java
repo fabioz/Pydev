@@ -8,39 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.docutils.DocUtils;
 
 public class PyCodeCompletionUtils {
 
-    /**
-     * Return a document to parse, using some heuristics to make it parseable.
-     * 
-     * @param doc
-     * @param documentOffset
-     * @return
-     */
-    public static String getDocToParse(IDocument doc, int documentOffset) {
-        int lineOfOffset = -1;
-        try {
-            lineOfOffset = doc.getLineOfOffset(documentOffset);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-
-        if (lineOfOffset != -1) {
-            String docToParseFromLine = DocUtils.getDocToParseFromLine(doc, lineOfOffset);
-            if (docToParseFromLine != null)
-                return docToParseFromLine;
-            // return "\n"+docToParseFromLine;
-            else
-                return "";
-        } else {
-            return "";
-        }
-    }
 
     /**
      * Filters the python completions so that only the completions we care about are shown (given the qualifier) 
@@ -49,7 +20,6 @@ public class PyCodeCompletionUtils {
      * @param onlyForCalltips if we should filter having in mind that we're going to show it for a calltip
      * @return the completions to show to the user
      */
-    @SuppressWarnings("unchecked")
     public static ICompletionProposal[] onlyValidSorted(List pythonAndTemplateProposals, String qualifier, boolean onlyForCalltips) {
         //FOURTH: Now, we have all the proposals, only thing is deciding wich ones are valid (depending on
         //qualifier) and sorting them correctly.

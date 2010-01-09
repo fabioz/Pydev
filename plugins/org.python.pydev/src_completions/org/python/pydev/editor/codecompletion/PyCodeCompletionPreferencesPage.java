@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.ICallback;
-import org.python.pydev.core.docutils.WordUtils;
+import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.LabelFieldEditor;
@@ -81,7 +81,7 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
         
         
-        String tooltip = WordUtils.wrap("Determines the number of chars in the qualifier request " +
+        String tooltip = WrapAndCaseUtils.wrap("Determines the number of chars in the qualifier request " +
                 "for which constructs such as 'from xxx import yyy' should be " +
                 "analyzed to get its actual token and if it maps to a method, its paramaters will be added in the completion.", 80);
         IntegerFieldEditor deepAnalysisFieldEditor = new IntegerFieldEditor(

@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.WordUtils;
+import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
@@ -71,7 +71,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
                     }
                     PythonRunnerConfig config = getConfig(fWorkingCopyForCommandLineGeneration, launchConfigurationDialog);
                     String commandLineAsString = config.getCommandLineAsString();
-                    commandLineAsString = WordUtils.wrap(commandLineAsString, 80);
+                    commandLineAsString = WrapAndCaseUtils.wrap(commandLineAsString, 80);
                     commandLineAsString += "\n\nThe PYTHONPATH that will be used is:\n\n";
                     commandLineAsString += config.pythonpathUsed;
                     fCommandLineText.setText(commandLineAsString);

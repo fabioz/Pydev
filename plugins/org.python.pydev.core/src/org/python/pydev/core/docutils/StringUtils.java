@@ -13,6 +13,8 @@ import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.cache.Cache;
+import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 public class StringUtils {
@@ -668,6 +670,114 @@ public class StringUtils {
         }
         return string;
     }
+
+	public static boolean endsWith(FastStringBuffer str, char c) {
+	    if(str.length() == 0){
+	        return false;
+	    }
+	    if(str.charAt(str.length()-1) == c){
+	        return true;
+	    }
+	    return false;
+	}
+
+	public static boolean endsWith(String str, char c) {
+	    if(str.length() == 0){
+	        return false;
+	    }
+	    if(str.charAt(str.length()-1) == c){
+	        return true;
+	    }
+	    return false;
+	}
+
+	public static boolean endsWith(StringBuffer str, char c) {
+	    if(str.length() == 0){
+	        return false;
+	    }
+	    if(str.charAt(str.length()-1) == c){
+	        return true;
+	    }
+	    return false;
+	}
+
+	/**
+	 * Tests whether each character in the given
+	 * string is a letter.
+	 *
+	 * @param str
+	 * @return <code>true</code> if the given string is a word
+	 */
+	public static boolean isWord(String str) {
+	    if (str == null || str.length() == 0)
+	        return false;
+	
+	    for (int i= 0; i < str.length(); i++) {
+	        if (!Character.isJavaIdentifierPart(str.charAt(i)))
+	            return false;
+	    }
+	    return true;
+	}
+
+	/**
+	 * An array of Python pairs of characters that you will find in any Python code.
+	 * 
+	 * Currently, the set contains:
+	 * <ul>
+	 * <ol>left and right brackets: [, ]</ol>
+	 * <ol>right and right parentheses: (, )
+	 * </ul>
+	 */
+	public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
+
+	public static char getPeer(char c){
+	    switch(c){
+	        case '{':return '}';
+	        case '}':return '{';
+	        case '(':return ')';
+	        case ')':return '(';
+	        case '[':return ']';
+	        case ']':return '[';
+	    }
+	    
+	    throw new NoPeerAvailableException("Unable to find peer for :"+c);
+	    
+	}
+
+	public static boolean isClosingPeer(char lastChar) {
+	    return lastChar == '}' || lastChar == ')' || lastChar == ']';
+	}
+
+	public static boolean hasOpeningBracket(String trimmedLine) {
+	    return trimmedLine.indexOf('{') != -1 || trimmedLine.indexOf('(') != -1 || trimmedLine.indexOf('[') != -1;
+	}
+
+	public static boolean hasClosingBracket(String trimmedLine) {
+	    return trimmedLine.indexOf('}') != -1 || trimmedLine.indexOf(')') != -1 || trimmedLine.indexOf(']') != -1;
+	}
+
+	/**
+	 * Small cache to hold strings only with spaces (so that each width has a created string).
+	 */
+	private static Cache<Integer, String> widthToSpaceString = new LRUCache<Integer, String>(8);
+	
+	/**
+	 * Creates a string of spaces of the designated length.
+	 * @param width number of spaces you want to create a string of
+	 * @return the created string
+	 */
+	public static String createSpaceString(int width) {
+	    String existing = StringUtils.widthToSpaceString.getObj(width);
+	    if(existing != null){
+	        return existing;
+	    }
+	    FastStringBuffer buf = new FastStringBuffer(width);
+	    buf.appendN(' ', width);
+	    String newStr = buf.toString();
+	    StringUtils.widthToSpaceString.add(width, newStr);
+	    return newStr;
+	}
+
 
     
     
