@@ -48,8 +48,8 @@ import org.python.pydev.ui.ColorCache;
  */
 public class PyMergeViewer extends TextMergeViewer {
 
-    private List<ColorCache> colorCache = new ArrayList<ColorCache>();
-    private List<IPropertyChangeListener> prefChangeListeners = new ArrayList<IPropertyChangeListener>();
+    private final List<ColorCache> colorCache = new ArrayList<ColorCache>();
+    private final List<IPropertyChangeListener> prefChangeListeners = new ArrayList<IPropertyChangeListener>();
 
 
     public PyMergeViewer(Composite parent, int style, CompareConfiguration configuration) {
