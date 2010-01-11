@@ -935,7 +935,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * @return an outline view
      */
-    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (OfflineActionTarget.class.equals(adapter)) {
             if (fOfflineActionTarget == null) {
@@ -1285,6 +1284,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     public boolean activatesAutomaticallyOn(String key){
         return offlineActionsManager.activatesAutomaticallyOn(key);
     }
+    
+    public boolean hasOfflineAction(String key){
+    	return offlineActionsManager.hasOfflineAction(key);
+    }
+    
     /**
      * @return if an action was binded and was successfully executed
      */

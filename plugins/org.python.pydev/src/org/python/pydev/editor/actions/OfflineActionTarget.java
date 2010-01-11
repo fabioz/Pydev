@@ -4,8 +4,11 @@
 package org.python.pydev.editor.actions;
 
 
-import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension;
@@ -18,12 +21,17 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.IStatusField;
 import org.eclipse.ui.texteditor.IStatusFieldExtension;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.KeyAssistDialog;
 import org.python.pydev.editor.PyEdit;
 
 /**
@@ -60,7 +68,17 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      */
     private boolean fIsStatusFieldExtension;
     private PyEdit fEdit;
+    
+    /**
+     * Shows a dialog with the available keys registered.
+     */
+	private KeyAssistDialog keyAssistDialog;
 
+	/**
+     * This lock should be used to check for fInstalled and accessing the keyAssistDialog.
+     */
+    private Object lock = new Object();
+    
 
 
     /**
@@ -97,7 +115,6 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * Installs this target. I.e. adds all required listeners.
      */
     private void install() {
-
         if (fInstalled)
             return;
 
@@ -118,36 +135,63 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         else
             text.addVerifyKeyListener(this);
 
+        keyAssistDialog = new KeyAssistDialog(this.fEdit);
         fInstalled= true;
+        
+        //Wait a bit until showing the key assist dialog
+        new UIJob("") {
+			
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				synchronized (lock) {
+					if(fInstalled && keyAssistDialog != null){
+						keyAssistDialog.open(
+								OfflineActionTarget.this.fEdit.getOfflineActionDescriptions(), 
+								OfflineActionTarget.this);
+					}
+				}
+				return Status.OK_STATUS;
+			}
+		}.schedule(700);
     }
 
+    
     /**
      * Uninstalls itself. I.e. removes all listeners installed in <code>install</code>.
      */
     private void uninstall() {
-
-        fTextViewer.removeTextListener(this);
-
-        ISelectionProvider selectionProvider= fTextViewer.getSelectionProvider();
-        if (selectionProvider != null)
-            selectionProvider.removeSelectionChangedListener(this);
-
-        StyledText text= fTextViewer.getTextWidget();
-        if (text != null) {
-            text.removeMouseListener(this);
-            text.removeFocusListener(this);
-        }
-
-        if (fTextViewer instanceof ITextViewerExtension) {
-            ((ITextViewerExtension) fTextViewer).removeVerifyKeyListener(this);
-
-        } else {
-            if (text != null)
-                text.removeVerifyKeyListener(this);
-        }
-
-        fInstalled= false;
+    	synchronized(lock){
+    		if(!fInstalled){
+    			return;
+    		}
+	        fTextViewer.removeTextListener(this);
+	
+	        ISelectionProvider selectionProvider= fTextViewer.getSelectionProvider();
+	        if (selectionProvider != null)
+	            selectionProvider.removeSelectionChangedListener(this);
+	
+	        StyledText text= fTextViewer.getTextWidget();
+	        if (text != null) {
+	            text.removeMouseListener(this);
+	            text.removeFocusListener(this);
+	        }
+	
+	        if (fTextViewer instanceof ITextViewerExtension) {
+	            ((ITextViewerExtension) fTextViewer).removeVerifyKeyListener(this);
+	
+	        } else {
+	            if (text != null)
+	                text.removeVerifyKeyListener(this);
+	        }
+	        
+	        if(keyAssistDialog != null){
+	        	keyAssistDialog.close();
+	        }
+	        keyAssistDialog = null;
+	        fInstalled= false;
+    	}
     }
+    	
 
     /**
      * Updates the status line.
@@ -174,6 +218,21 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
 
             switch (event.keyCode) {
 
+            case SWT.ARROW_DOWN:
+            	//special case: 
+            	//if there's a key dialog with a table shown, set its focus when down is pressed
+            	synchronized (lock) {
+            		KeyAssistDialog tempKeyAssistDialog = this.keyAssistDialog;
+            		if(tempKeyAssistDialog != null){
+            			Table completionsTable = this.keyAssistDialog.getCompletionsTable();
+            			if(completionsTable != null && !completionsTable.isDisposed()){
+            				completionsTable.setFocus();
+            				completionsTable.setSelection(0);
+            				event.doit = false;
+            				break;
+            			}
+            		}
+				}
             // ALT, CTRL, ARROW_LEFT, ARROW_RIGHT == leave
             case SWT.ARROW_LEFT:
             case SWT.ARROW_RIGHT:
@@ -181,7 +240,6 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
             case SWT.END:
             case SWT.PAGE_DOWN:
             case SWT.PAGE_UP:
-            case SWT.ARROW_DOWN:
             case SWT.ARROW_UP:
                 leave();
                 break;
@@ -234,11 +292,21 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     }
 
     /**
-     * @return
+     * @return whether an action was successfully executed.
      */
     private boolean doExec() {
         statusClear();
-        final boolean executed = fEdit.onOfflineAction(fFindString.toString(), this);
+        String key = fFindString.toString();
+		if(fEdit.hasOfflineAction(key)){
+        	synchronized (lock) {
+        		//if the user matched the key, don't show the key assist dialog anymore.
+        		if(this.keyAssistDialog != null){
+	        		this.keyAssistDialog.close();
+	        		this.keyAssistDialog = null;
+        		}
+			}
+        }
+        final boolean executed = fEdit.onOfflineAction(key, this);
         if(executed){
             //Don't use leave() because we don't want to clear the final status message
             //(in case the action actually changed it)
@@ -278,7 +346,7 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
     /**
      * Leaves this incremental search session.
      */
-    private void leave() {
+    public void leave() {
         statusClear();
         uninstall();
     }
@@ -323,7 +391,58 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
      * @see FocusListener#focusLost(org.eclipse.swt.events.FocusEvent)
      */
     public void focusLost(FocusEvent e) {
-        leave();
+		// When the focus is lost, we have to treat the case where the focus went to the key assist
+		// dialog, so, if that was the case, we won't leave right now, only when the focus is 
+    	// removed from that dialog or ESC is pressed.
+    	KeyAssistDialog tempKeyAssistDialog = keyAssistDialog;
+    	if(tempKeyAssistDialog != null){
+    		final Table completionsTable = tempKeyAssistDialog.getCompletionsTable();
+    		if(completionsTable != null && !completionsTable.isDisposed()){
+	    		
+	    		new UIJob("Check leave") {
+					
+					@Override
+					public IStatus runInUIThread(IProgressMonitor monitor) {
+						synchronized (lock) {
+							if(fInstalled && keyAssistDialog!= null && !completionsTable.isDisposed()){
+								if(!completionsTable.isFocusControl()){
+									leave();
+								}else{
+									completionsTable.addFocusListener(new FocusListener() {
+										
+										@Override
+										public void focusLost(FocusEvent e) {
+											leave();
+										}
+										
+										@Override
+										public void focusGained(FocusEvent e) {
+											leave();
+										}
+									});
+									completionsTable.addKeyListener(new KeyListener() {
+										
+										@Override
+										public void keyReleased(KeyEvent e) {
+											if(e.character == 0x1B){ //ESC
+												leave();
+											}
+										}
+										
+										@Override
+										public void keyPressed(KeyEvent e) {
+										}
+									});
+								}
+							}else{
+								leave();
+							}
+						}
+						return Status.OK_STATUS;
+					}
+				}.schedule(50);
+    		}
+    	}
     }
 
     /**

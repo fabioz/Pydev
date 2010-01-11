@@ -63,4 +63,8 @@ public class OfflineActionsManager {
         return true;
     }
 
+	public boolean hasOfflineAction(String key) {
+		return onOfflineActionListeners.get(key.toLowerCase()) != null;
+	}
+
 }

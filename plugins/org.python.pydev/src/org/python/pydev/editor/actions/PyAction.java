@@ -37,14 +37,19 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 public abstract class PyAction extends Action implements IEditorActionDelegate {
 
     public static Shell getShell() {
-        IWorkbench workbench = PlatformUI.getWorkbench();
-        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+        IWorkbenchWindow activeWorkbenchWindow = getActiveWorkbenchWindow();
         if(activeWorkbenchWindow == null){
             PydevPlugin.log("Error. Not currently with thread access (so, there is no activeWorkbenchWindow available)");
             return null;
         }
         return activeWorkbenchWindow.getShell();
     }
+
+	public static IWorkbenchWindow getActiveWorkbenchWindow() {
+		IWorkbench workbench = PlatformUI.getWorkbench();
+        IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
+		return activeWorkbenchWindow;
+	}
     
 
     // Always points to the current editor

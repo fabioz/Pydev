@@ -1,5 +1,8 @@
 '''
 This script lists all the bindings linked to Ctrl+2
+
+No longer enabled (notice the '__' before the module name) because of the new dialog that'll
+show the list that was previously shown here.
 '''
 
 if False:
