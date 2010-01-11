@@ -141,7 +141,6 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
         //Wait a bit until showing the key assist dialog
         new UIJob("") {
 			
-			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				synchronized (lock) {
 					if(fInstalled && keyAssistDialog != null){
@@ -401,7 +400,6 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
 	    		
 	    		new UIJob("Check leave") {
 					
-					@Override
 					public IStatus runInUIThread(IProgressMonitor monitor) {
 						synchronized (lock) {
 							if(fInstalled && keyAssistDialog!= null && !completionsTable.isDisposed()){
@@ -410,26 +408,22 @@ public class OfflineActionTarget implements VerifyKeyListener, MouseListener, Fo
 								}else{
 									completionsTable.addFocusListener(new FocusListener() {
 										
-										@Override
 										public void focusLost(FocusEvent e) {
 											leave();
 										}
 										
-										@Override
 										public void focusGained(FocusEvent e) {
 											leave();
 										}
 									});
 									completionsTable.addKeyListener(new KeyListener() {
 										
-										@Override
 										public void keyReleased(KeyEvent e) {
 											if(e.character == 0x1B){ //ESC
 												leave();
 											}
 										}
 										
-										@Override
 										public void keyPressed(KeyEvent e) {
 										}
 									});
