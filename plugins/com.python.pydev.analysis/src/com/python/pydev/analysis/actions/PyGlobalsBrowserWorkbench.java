@@ -5,10 +5,14 @@
 package com.python.pydev.analysis.actions;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.python.pydev.core.REF;
+import org.python.pydev.core.docutils.PySelection;
 
 public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate {
 
@@ -25,6 +29,19 @@ public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate
     	if(this.selection instanceof ITextSelection){
 			ITextSelection textSelection = (ITextSelection) this.selection;
 			text = textSelection.getText();
+			
+			if(text == null || text.length() == 0){
+				//No selection... let's see if we can get a word there...
+				Object document = REF.getAttrObj(textSelection, "fDocument");
+				if(document instanceof IDocument){ // document != null
+					PySelection ps = new PySelection((IDocument) document, textSelection);
+					try {
+						text = ps.getCurrToken().o1;
+					} catch (BadLocationException e) {
+						//ignore
+					}
+				}
+			}
     	}
     	
         PyGlobalsBrowser.getFromWorkspace(text);

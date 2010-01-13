@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterManager;
@@ -41,6 +42,13 @@ public class PyGlobalsBrowser extends PyAction{
         }
         PySelection ps = new PySelection(this.getPyEdit());
         String selectedText = ps.getSelectedText();
+        if(selectedText == null || selectedText.length() == 0){
+        	try {
+				selectedText = ps.getCurrToken().o1;
+			} catch (BadLocationException e) {
+				//ignore
+			}
+        }
 
         if(pythonNature != null){
             IInterpreterManager manager = pythonNature.getRelatedInterpreterManager();
