@@ -137,8 +137,6 @@
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: get.revision                      
-          Maybe we should use the date??
-          perl -e '($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(1260491365); $year = $year + 1900;printf "%04d%02d%02d%02d", $year,$mon,$mday,$hour,"\n"'
          - - - - - - - - - - - - - - - - - -->
     <target name="get.revision" unless="build.revision">
 	   	<echo message="Retrieving Git timestamp for latest revision" level="info" />
@@ -147,8 +145,13 @@
 		    	<arg value="--max-count=1" />
 		    	<arg value="--pretty=format:'%ct'" />
 	    	</exec>
-    	<property name="build.revision" value="${git.revision.max}" />
-        <echo message="Revision timestamp: ${build.revision} - Target: ${basedir}" level="info" />
+	    	<exec executable="python" dir="${basedir}" outputproperty="python.timestamp">
+		    	<arg value="-c" />
+		    	<arg value="import time;t=time.gmtime(float(${git.revision.max}));print '\'%d%02d%02d%02d\'' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour)" />
+	    	</exec>
+    	<property name="build.revision" value="${python.timestamp}" />
+        <echo message="Git ct : ${git.revision.max} - Target: ${basedir}" level="info" />
+        <echo message="Date ct: ${build.revision} - Target: ${basedir}" level="info" />
     </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
