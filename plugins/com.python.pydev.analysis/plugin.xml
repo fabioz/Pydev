@@ -86,7 +86,9 @@
            tooltip="Pydev: Globals Browser"
            menubarPath="pyGeneralMenu/pyNavigateGroup"
            toolbarPath="pyNavigateGroup"
-           id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench">
+           id="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
+           definitionId="com.python.pydev.analysis.actions.pyGlobalsBrowserWorkbench"
+           >
      </action>
   </actionSet>
 </extension>
@@ -99,7 +101,6 @@
     </perspectiveExtension>
 </extension>
 
-<!-- We cannot add another binding because Eclipse already has one
 <extension point="org.eclipse.ui.commands">
       <command
             name="Python Show Class Browser"
@@ -117,6 +118,6 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
 </extension>
--->
+
 
 </plugin>

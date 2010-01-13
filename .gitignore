@@ -1,6 +1,7 @@
 .hg
 .hgignore
 .metadata
+External Plug-in Libraries
 plugins/com.python.pydev.docs/merged_homepage/final/*.*
 plugins/org.python.pydev.releng/results/*
 plugins/com.python.pydev.releng/results/*

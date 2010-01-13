@@ -5,12 +5,15 @@
 package com.python.pydev.analysis.actions;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate {
 
+	private ISelection selection;
+	
     public void dispose() {
     }
 
@@ -18,10 +21,17 @@ public class PyGlobalsBrowserWorkbench implements IWorkbenchWindowActionDelegate
     }
 
     public void run(IAction action) {
-        PyGlobalsBrowser.getFromWorkspace(null);
+    	String text = null;
+    	if(this.selection instanceof ITextSelection){
+			ITextSelection textSelection = (ITextSelection) this.selection;
+			text = textSelection.getText();
+    	}
+    	
+        PyGlobalsBrowser.getFromWorkspace(text);
     }
 
     public void selectionChanged(IAction action, ISelection selection) {
+    	this.selection = selection;
     }
 
 }
