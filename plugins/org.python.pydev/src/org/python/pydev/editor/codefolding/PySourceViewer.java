@@ -240,7 +240,12 @@ public class PySourceViewer extends ProjectionViewer {
     		pyAutoIndentStrategy = this.getEdit().getAutoEditStrategy();
     	}
     	
-        boolean blockSelection = this.getTextWidget().getBlockSelection();
+    	boolean blockSelection = false;
+        try {
+			blockSelection = this.getTextWidget().getBlockSelection();
+        }catch(Throwable e){
+            //that's OK (only available in eclipse 3.5)
+        }
         
         pyAutoIndentStrategy.setBlockSelection(blockSelection);
         super.customizeDocumentCommand(command);

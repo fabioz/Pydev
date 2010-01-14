@@ -48,8 +48,8 @@ import org.python.pydev.ui.ColorCache;
  */
 public class PyMergeViewer extends TextMergeViewer {
 
-    private final List<ColorCache> colorCache = new ArrayList<ColorCache>();
-    private final List<IPropertyChangeListener> prefChangeListeners = new ArrayList<IPropertyChangeListener>();
+    private List<ColorCache> colorCache;
+    private List<IPropertyChangeListener> prefChangeListeners;
 
 
     public PyMergeViewer(Composite parent, int style, CompareConfiguration configuration) {
@@ -125,6 +125,21 @@ public class PyMergeViewer extends TextMergeViewer {
     }
     
     
+    private List<ColorCache> getColorCache() {
+    	if(this.colorCache == null){
+    		 this.colorCache = new ArrayList<ColorCache>();
+    	}
+		return this.colorCache;
+	}
+    
+
+    public List<IPropertyChangeListener> getPrefChangeListeners() {
+    	if(this.prefChangeListeners == null){
+    		this.prefChangeListeners = new ArrayList<IPropertyChangeListener>();
+    	}
+		return this.prefChangeListeners;
+	}
+    
     @SuppressWarnings("unchecked")
     @Override
     protected void configureTextViewer(TextViewer textViewer) {
@@ -138,7 +153,7 @@ public class PyMergeViewer extends TextMergeViewer {
         final WeakReference<PyEditConfigurationWithoutEditor>[] sourceViewerConfigurationObj = new WeakReference[1];
         
         final ColorCache c = new ColorCache(PydevPrefs.getChainedPrefStore());
-        this.colorCache.add(c); //add for it to be disposed later.
+        this.getColorCache().add(c); //add for it to be disposed later.
         
         IPySyntaxHighlightingAndCodeCompletionEditor editor = new IPySyntaxHighlightingAndCodeCompletionEditor() {
             
@@ -205,22 +220,25 @@ public class PyMergeViewer extends TextMergeViewer {
         
         
         IPropertyChangeListener prefChangeListener = PyEdit.createPrefChangeListener(editor);
-        prefChangeListeners.add(prefChangeListener);
+        getPrefChangeListeners().add(prefChangeListener);
         PydevPrefs.getPreferences().addPropertyChangeListener(prefChangeListener);
     }
     
 
 
-    @Override
+
+	@Override
     protected void handleDispose(DisposeEvent event) {
         super.handleDispose(event);
         
-        for(ColorCache c:colorCache){
+        List<ColorCache> colorCache = getColorCache();
+		for(ColorCache c:colorCache){
             c.dispose();
         }
-        this.colorCache.clear();
+        colorCache.clear();
         
-        for(IPropertyChangeListener l:prefChangeListeners){
+        List<IPropertyChangeListener> prefChangeListeners = getPrefChangeListeners();
+		for(IPropertyChangeListener l:prefChangeListeners){
             PydevPrefs.getPreferences().removePropertyChangeListener(l);
         }
         prefChangeListeners.clear();
