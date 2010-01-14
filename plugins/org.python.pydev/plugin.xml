@@ -520,6 +520,12 @@
                id="org.python.pydev.editor.actions.copyqualifiedname"
                icon="icons/cpyqual_menu.gif">
          </action>
+         <action
+               definitionId="org.python.pydev.editor.actions.goToMatchingBracket"
+               label="Go to Matching Bracket"
+               class="org.python.pydev.editor.actions.PyGoToMatchingBracket"
+               id="org.python.pydev.editor.actions.goToMatchingBracket">
+         </action>
       </editorContribution>
    </extension>
 
@@ -719,9 +725,21 @@
             description="Offline Action for scripting"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.scriptEngine"/>
+  <!-- Go to matching bracket -->
+      <command
+            name="Go to Matching Bracket"
+            description="Go to Matching Bracket"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.goToMatchingBracket"/>
    </extension>
             
    <extension point="org.eclipse.ui.bindings">
+      <!-- 
+      Note:
+      M1=Ctrl 
+      M2=Shift 
+      M3=Alt 
+      -->
       <key
             sequence="HOME"
             contextId="org.python.pydev.ui.editor.scope"
@@ -843,6 +861,12 @@
             sequence="M1+2"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.scriptEngine"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M1+M2+P"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.editor.actions.goToMatchingBracket"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>

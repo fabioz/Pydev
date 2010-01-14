@@ -1,0 +1,47 @@
+package org.python.pydev.editor.actions;
+
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.python.copiedfromeclipsesrc.PythonPairMatcher;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.editor.PyEdit;
+
+
+/**
+ * Selects the matching bracket for the current bracket.
+ */
+public class PyGoToMatchingBracket extends PyAction {
+
+	public void run(IAction action) {
+        PyEdit pyEdit = getPyEdit();
+        PySelection ps = new PySelection(pyEdit);
+        if(ps.getSelLength() != 0){
+        	return;
+        }
+		try {
+			IDocument doc = ps.getDoc();
+			char c = doc.getChar(ps.getAbsoluteCursorOffset()-1);
+			boolean opening = StringUtils.isOpeningPeer(c);
+			boolean closing = StringUtils.isClosingPeer(c);
+			
+			if(opening || closing){
+				PythonPairMatcher matcher = new PythonPairMatcher();
+				IRegion match = matcher.match(doc, ps.getAbsoluteCursorOffset());
+				if(match != null){
+					if(closing){
+						pyEdit.setSelection(match.getOffset()+1, 0);
+					}else{//opening
+						pyEdit.setSelection(match.getOffset()+match.getLength(), 0);
+					}
+				}
+			}
+		} catch (BadLocationException e) {
+			return;
+		}
+	}
+
+	
+}

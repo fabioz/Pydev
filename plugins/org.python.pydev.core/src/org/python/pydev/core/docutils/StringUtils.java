@@ -744,8 +744,12 @@ public class StringUtils {
 	    
 	}
 
+	public static boolean isOpeningPeer(char lastChar) {
+		return lastChar == '(' || lastChar == '[' || lastChar == '{';
+	}
+	
 	public static boolean isClosingPeer(char lastChar) {
-	    return lastChar == '}' || lastChar == ')' || lastChar == ']';
+	    return lastChar == ')' || lastChar == ']' || lastChar == '}';
 	}
 
 	public static boolean hasOpeningBracket(String trimmedLine) {
