@@ -72,11 +72,32 @@ class InterpreterInterface:
         #f_opened.write(line+'\n')
         
         original_in = sys.stdin
+        try:
+            help = None
+            if 'pydoc' in sys.modules:
+                pydoc = sys.modules['pydoc'] #Don't import it if it still is not there.
+                
+                
+                if hasattr(pydoc, 'help'):
+                    #You never know how will the API be changed, so, let's code defensively here
+                    help = pydoc.help
+                    if not hasattr(help, 'input'):
+                        help = None
+        except:
+            #Just ignore any error here
+            pass
+            
         sys.stdin = StdIn(self, self.host, self.client_port)
+        if help is not None:
+            #This will enable the help() function to work.
+            help.input = sys.stdin 
         
         try:
             more = self.interpreter.push(line)
         finally:
+            if help is not None:
+                help.input = original_in
+                
             sys.stdin = original_in
         
         #it's always false at this point
