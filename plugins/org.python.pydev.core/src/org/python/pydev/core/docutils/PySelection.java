@@ -240,7 +240,9 @@ public class PySelection {
                     firstNonCommentLine = line;
                 }
                 ImportInfo importInfo = ImportsSelection.getImportsTipperStr(str, false);
-                if(importInfo != null && importInfo.importsTipperStr != null && importInfo.importsTipperStr.trim().length() > 0){
+                //Don't check with trim (importInfo.importsTipperStr.trim().length()) because the string
+                //will be " " in an import without a 'from'
+                if(importInfo != null && importInfo.importsTipperStr != null && importInfo.importsTipperStr.length() > 0){
                     if((i = str.indexOf('(')) != -1){
                         //start of a multiline import
                         int lineOffset = -1;

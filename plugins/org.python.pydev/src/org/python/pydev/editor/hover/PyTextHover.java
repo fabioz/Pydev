@@ -228,10 +228,14 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                 
                 if(def.module != null && def.value != null){
                     ItemPointer pointer = PyRefactoringFindDefinition.createItemPointer(def);
-                    temp.replaceAll("</pydev_hint_bold>", "</pydev_link>");
-                    temp.replaceAll(
-                        "<pydev_hint_bold>", 
-                        StringUtils.format("<pydev_link pointer=\"%s\">", StringEscapeUtils.escapeXml(pointer.asPortableString())));
+                    String asPortableString = pointer.asPortableString();
+                    if(asPortableString != null){
+                    	//may happen if file is not in the pythonpath
+						temp.replaceAll(
+	                        "<pydev_hint_bold>", 
+	                        StringUtils.format("<pydev_link pointer=\"%s\">", StringEscapeUtils.escapeXml(asPortableString)));
+						temp.replaceAll("</pydev_hint_bold>", "</pydev_link>");
+                    }
                 }
                 
                 

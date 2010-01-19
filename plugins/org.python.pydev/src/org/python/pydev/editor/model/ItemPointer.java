@@ -147,6 +147,9 @@ public class ItemPointer {
         } else if (file instanceof String) {
             path = Path.fromOSString((String) file);
             
+        } else if (file == null) {
+        	path = null;
+         	
         }else{
             throw new RuntimeException("Don't know how to handle: "+file.getClass());
         }
