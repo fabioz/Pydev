@@ -4,7 +4,37 @@
 <h3>History For Pydev</h3>
 <br>
 
+
+<h1>Release 1.5.3</h1>
+
+<p>Fixed bug where an error was being print to the pydev console on a run.</p>
+
+<h1>Release 1.5.2</h1>
+
 <ul>
+<li>Profile to have <strong>much</strong> lower memory requirements (especially on code-analysis rebuilds)</li>
+<li>Profile for parsing to be faster</li>
+<li>Compare Editor
+<ul>
+	<li>Syntax highlighting integrated</li>
+	<li>Editions use the pydev editor behaviour</li>
+	<li>Code completion works</li>
+</ul>
+
+<li>Fixed issue where pydev could deadlock</li>
+<li>No longer reporting import redefinitions and unused variables for the initial parts of imports such as import os.path</li>
+<li>Fixed issue where pydev was removing __classpath__ from the pythonpath in jython</li>
+<li>Using M1, M2 and M3 for keys instead of hardcoding Ctrl, Shift and Alt (which should make keybindings right on Mac OS)</li>
+<li>Fixed some menus and popups</li>
+<li>Properly categorizing Pydev views</li>
+<li>Handling binary numbers in the python 2.6 and 3.0 grammar</li>
+<li>from __future__ import print_function works on python 2.6</li>
+<li>Added drag support from the pydev package explorer</li>
+<li>Properly translating slashes on client/server debug</li>
+<li>Other minor fixes</li>
+</ul>
+
+
 
 
 <h1>Release 1.5.1</h1>
@@ -59,9 +89,6 @@
 
 
 
-
-
-	<ul>
 
 
 
