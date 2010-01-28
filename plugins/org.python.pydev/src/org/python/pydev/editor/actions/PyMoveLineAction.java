@@ -214,7 +214,7 @@ public abstract class PyMoveLineAction extends TextEditorAction {
 		}
 		//Go to a non-empty line!
 		String line2 = skippedPs.getLine(line);
-		while(line > 0 && (line2.startsWith("#") || line2.trim().isEmpty())){
+		while(line > 0 && (line2.startsWith("#") || line2.trim().length() == 0)){
 			line--;
 			line2 = skippedPs.getLine(line);
 		}
