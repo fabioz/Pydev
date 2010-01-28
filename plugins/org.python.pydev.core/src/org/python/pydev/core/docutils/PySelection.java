@@ -963,12 +963,17 @@ public class PySelection {
         return getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, true, Integer.MAX_VALUE);
     }
     
+    
     public LineStartingScope getPreviousLineThatStartsScope(String [] indentTokens, boolean considerCurrentLine, int mustHaveIndentLowerThan) {
         int lineToStart=-1;
         if(!considerCurrentLine){
             lineToStart = getCursorLine()-1;
         }
         return getPreviousLineThatStartsScope(indentTokens, lineToStart, mustHaveIndentLowerThan);
+    }
+    
+    public LineStartingScope getPreviousLineThatStartsScope(int lineToStart) {
+    	return getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, lineToStart, Integer.MAX_VALUE);
     }
     
     public static class LineStartingScope{

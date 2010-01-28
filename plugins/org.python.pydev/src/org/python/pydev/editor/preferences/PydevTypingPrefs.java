@@ -3,12 +3,16 @@
  */
 package org.python.pydev.editor.preferences;
 
+import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
+import org.python.pydev.plugin.KeyBindingHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 
@@ -76,6 +80,16 @@ public class PydevTypingPrefs  extends AbstractPydevPrefs {
                 "'import' string when you write a space after you've written 'from xxx '.", TOOLTIP_WIDTH));
         
         addCheckBox(appearanceComposite, "Add 'self' automatically when declaring methods?", AUTO_ADD_SELF, 0);
+        
+        KeySequence down = KeyBindingHelper.getCommandKeyBinding(ITextEditorActionDefinitionIds.MOVE_LINES_DOWN);
+        KeySequence up = KeyBindingHelper.getCommandKeyBinding(ITextEditorActionDefinitionIds.MOVE_LINES_UP);
+        String downKey = down != null?down.format():"Alt+Down"; //set the default if not there
+        String upKey = up!= null?up.format():"Alt+Up"; //set the default if not there
+        addCheckBox(
+        		appearanceComposite, 
+        		StringUtils.format("Smart move for line up  (%s) and line down (%s)?", upKey, downKey),
+        		SMART_LINE_MOVE,
+				0);
 
         return appearanceComposite;
     }

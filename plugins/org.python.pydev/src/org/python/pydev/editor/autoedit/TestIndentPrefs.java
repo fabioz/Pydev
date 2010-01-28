@@ -78,6 +78,10 @@ public class TestIndentPrefs extends AbstractIndentPrefs {
       return indentAfterParWidth;
     }
     
+    public boolean getSmartLineMove() {
+    	return true;
+    }
+    
     public void regenerateIndentString() {
         //ignore it
     }

@@ -15,7 +15,7 @@ public class StringUtilsTest extends TestCase {
         try {
             StringUtilsTest test = new StringUtilsTest();
             test.setUp();
-            test.testCodingStd();
+            test.testRemoveWhitespaceColumnsToLeftAndApplyIndent();
             test.tearDown();
             junit.textui.TestRunner.run(StringUtilsTest.class);
         } catch (Throwable e) {
@@ -247,5 +247,12 @@ public class StringUtilsTest extends TestCase {
         assertEquals("MyConstant", StringUtils.asStyleCamelCaseFirstUpper("MY_CONSTANT"));
         
     }
+    
+    public void testRemoveWhitespaceColumnsToLeftAndApplyIndent() {
+		assertEquals("    a=10\n#comment", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("a=10\n#comment", "    ", false));
+		assertEquals("    a=10\n#comment\n    b=30", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("a=10\n#comment\nb=30", "    ", false));
+		assertEquals("    a=10\n    #comment", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("a=10\n#comment", "    ", true));
+		assertEquals("    a=10\n    #comment\n    b=30", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("a=10\n#comment\nb=30", "    ", true));
+	}
 }
 

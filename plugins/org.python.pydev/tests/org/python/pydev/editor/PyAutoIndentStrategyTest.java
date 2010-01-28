@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNoAutoSelf4();
+            s.testTab4();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -146,6 +146,25 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(document, docCmd);
         assertEquals("\t", docCmd.text); 
         assertEquals(str, document.get()); //as we already have a selection, nothing should be deleted
+    }
+    
+    public void testTab4() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String str = "" +
+    			"class MyClass:\n" +
+    			"    def NextMethod(self,\n" +
+    			"                    c):\n" +
+    			"\n" + //-3 :in this line
+    			"\n" + //-2 :this line
+    			"\n" + //-1 :and this one the indent should be the same (8 spaces)
+    			"";
+    	for(int i=3;i>0;i--){
+	    	DocCmd docCmd = new DocCmd(str.length()-i, 0, "\t");
+	    	Document document = new Document(str);
+	    	strategy.customizeDocumentCommand(document, docCmd);
+	    	assertEquals("Error when dealing with len-"+i, "        ", docCmd.text); 
+	    	assertEquals(str, document.get());
+    	}
     }
     
     public void testSpaces() {

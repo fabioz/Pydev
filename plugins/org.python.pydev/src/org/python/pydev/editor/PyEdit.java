@@ -59,6 +59,7 @@ import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.DefaultRangeIndicator;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
+import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.core.ExtensionHelper;
@@ -80,6 +81,8 @@ import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyFormatStd;
+import org.python.pydev.editor.actions.PyMoveLineDownAction;
+import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
@@ -886,6 +889,16 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             action.setId("org.python.pydev.editor.actions.scriptEngine");
             setAction("PydevScriptEngine", action);
             
+            action = new PyMoveLineUpAction(resources, "Pyedit.MoveLinesUp.", this);
+    		action.setActionDefinitionId(ITextEditorActionDefinitionIds.MOVE_LINES_UP);
+    		action.setId("org.python.pydev.editor.actions.moveLineUp");
+    		setAction(ITextEditorActionConstants.MOVE_LINE_UP, action);
+
+    		action = new PyMoveLineDownAction(resources, "Pyedit.MoveLinesDown.", this);
+    		action.setActionDefinitionId(ITextEditorActionDefinitionIds.MOVE_LINES_DOWN);
+    		action.setId("org.python.pydev.editor.actions.moveLineDown");
+    		setAction(ITextEditorActionConstants.MOVE_LINE_DOWN, action);
+
             
             notifier.notifyOnCreateActions(resources);
         }catch (Throwable e) {

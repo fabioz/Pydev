@@ -152,5 +152,9 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         return getCache().getInt(PydevEditorPrefs.AUTO_INDENT_AFTER_PAR_WIDTH, 1);
     }
 
+	public boolean getSmartLineMove() {
+		return getCache().getBoolean(PydevEditorPrefs.SMART_LINE_MOVE);
+	}
+
 
 }

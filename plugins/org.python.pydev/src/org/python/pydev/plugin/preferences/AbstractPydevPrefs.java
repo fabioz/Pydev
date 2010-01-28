@@ -108,6 +108,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String AUTO_ADD_SELF = "AUTO_ADD_SELF";
     public static final boolean DEFAULT_AUTO_ADD_SELF = true;
     
+    public static final String SMART_LINE_MOVE = "SMART_LINE_MOVE";
+    public static final boolean DEFAULT_SMART_LINE_MOVE = true;
+    
     public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
     public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
     
@@ -312,6 +315,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         //checkbox      
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SUBSTITUTE_TABS));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_ADD_SELF));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, SMART_LINE_MOVE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, GUESS_TAB_SUBSTITUTION));
         
         //colors

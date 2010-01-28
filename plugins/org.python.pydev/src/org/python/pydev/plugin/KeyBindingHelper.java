@@ -1,5 +1,11 @@
 package org.python.pydev.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.commands.ParameterizedCommand;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.bindings.Binding;
 import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.bindings.keys.KeyStroke;
@@ -7,6 +13,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.python.pydev.core.Tuple;
 
 /**
  * Helper for knowing about keybindings and related actions
@@ -82,10 +89,31 @@ public class KeyBindingHelper {
      * @return the 'best' key sequence that will activate the given command
      */
     public static KeySequence getCommandKeyBinding(String commandId) {
+    	Assert.isNotNull(commandId);
         final IBindingService bindingSvc = (IBindingService) PlatformUI.getWorkbench().getAdapter(IBindingService.class);
-        TriggerSequence binding = bindingSvc.getBestActiveBindingFor(commandId);
-        if (binding instanceof KeySequence){
-            return (KeySequence) binding;
+        
+        TriggerSequence keyBinding = bindingSvc.getBestActiveBindingFor(commandId);
+        if (keyBinding instanceof KeySequence){
+        	return (KeySequence) keyBinding;
+        }
+        
+        List<Tuple<Binding, ParameterizedCommand>> matches = new ArrayList<Tuple<Binding, ParameterizedCommand>>();
+        //Ok, it may be that the binding we're looking for is not active, so, let's give a spin on all
+        //the bindings
+        Binding[] bindings = bindingSvc.getBindings();
+        for (Binding binding : bindings) {
+        	ParameterizedCommand command = binding.getParameterizedCommand();
+        	if(command != null){
+	        	if(commandId.equals(command.getId())){
+	        		matches.add(new Tuple<Binding, ParameterizedCommand>(binding, command));
+	        	}
+        	}
+		}
+        for (Tuple<Binding, ParameterizedCommand> tuple : matches) {
+        	if(tuple.o1.getTriggerSequence() instanceof KeySequence){
+				KeySequence keySequence = (KeySequence) tuple.o1.getTriggerSequence();
+				return keySequence;
+        	}
         }
         
         return null;

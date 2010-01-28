@@ -47,7 +47,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 
     public IIndentPrefs getIndentPrefs() {
         if (this.prefs == null) {
-            this.prefs = new DefaultIndentPrefs(); //create a new one (because each pyedit may force the tabs differently).
+            this.prefs = DefaultIndentPrefs.get(); //create a new one (because each pyedit may force the tabs differently).
         }
         return this.prefs;
     }
@@ -131,7 +131,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             }
             
             if(indentBasedOnStartingScope && selection.getLineContentsToCursor().trim().length() == 0){
-                return new Tuple<String, Boolean>(indentBasedOnStartingScope(text, selection, true), isInsidePar);
+                return new Tuple<String, Boolean>(indentBasedOnStartingScope(text, selection, false), isInsidePar);
             }
             
         }
@@ -229,7 +229,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                 int currLine = d.getLineOfOffset(offset);
                 while(PySelection.containsOnlyWhitespaces(line)){
                     currLine--;
-                    if(currLine <= 0){
+                    if(currLine < 0){
                         break;
                     }
                     info= d.getLineInformation(currLine);
@@ -323,63 +323,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                 customizeNewLine(document, command);
                 
             }else if(command.text.equals("\t")){
-                PySelection ps = new PySelection(document, command.offset);
-                //it is a tab
-                String lineContentsToCursor = ps.getLineContentsToCursor();
-                int currSize = lineContentsToCursor.length();
-                int cursorLine = ps.getCursorLine();
-                if(cursorLine > 0){
-                    //this is to know which would be expected if it was a new line in the previous line
-                    //(so that we know the 'expected' output
-                    IRegion prevLineInfo = document.getLineInformation(cursorLine-1);
-                    int prevLineEndOffset = prevLineInfo.getOffset()+prevLineInfo.getLength();
-                    String prevExpectedIndent = autoIndentSameAsPrevious(document, prevLineEndOffset, "\n", false);
-                    String txt = prevExpectedIndent;
-                    Tuple<String, Boolean> prevLineTup = autoIndentNewline(document, 0, txt, prevLineEndOffset);
-                    txt = prevLineTup.o1;
-                    txt = txt.substring(1);//remove the newline
-                    prevExpectedIndent = prevExpectedIndent.substring(1);
-                    
-                    if (txt.length() > 0){
-                        //now, we should not apply that indent if we are already at the 'max' indent in this line
-                        //(or better: we should go to that max if it would pass it)
-                        int sizeExpected = txt.length();
-                        int sizeApplied = currSize + sizeExpected;
-
-                        if(currSize >= sizeExpected){
-                            //ok, we already passed what we expected from the indentation, so, let's indent
-                            //to the next 'expected' position...
-                            
-                            boolean applied = false;
-                            //handle within parenthesis
-                            if(prevLineTup.o2){
-                                int len = sizeApplied-sizeExpected;
-                                if(prevExpectedIndent.length() > len){
-                                    command.text = prevExpectedIndent.substring(len);
-                                    applied = true;
-                                }
-                            }
-                            
-                            if(!applied){
-                                applyDefaultForTab(command, currSize);
-                            }
-                            
-                        }else if(sizeExpected == sizeApplied){
-                            if(command.length == 0){
-                                ps.deleteSpacesAfter(command.offset);
-                            }
-                            command.text = txt;
-                        }else if(sizeApplied > sizeExpected){
-                            ps.deleteSpacesAfter(command.offset);
-                            command.text = txt.substring(0, sizeExpected - currSize);
-                        }
-                    }else{
-                        applyDefaultForTab(command, currSize);
-                    }
-                    
-                }else{ //cursorLine == 0
-                    applyDefaultForTab(command, currSize);
-                }
+                handleTab(document, command);
             }
             
             getIndentPrefs().convertToStd(document, command);
@@ -493,6 +437,66 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             throw new RuntimeException(e);
         }
     }
+
+	private void handleTab(IDocument document, DocumentCommand command) throws BadLocationException {
+		PySelection ps = new PySelection(document, command.offset);
+		//it is a tab
+		String lineContentsToCursor = ps.getLineContentsToCursor();
+		int currSize = lineContentsToCursor.length();
+		int cursorLine = ps.getCursorLine();
+		if(cursorLine > 0){
+		    //this is to know which would be expected if it was a new line in the previous line
+		    //(so that we know the 'expected' output
+		    IRegion prevLineInfo = document.getLineInformation(cursorLine-1);
+		    int prevLineEndOffset = prevLineInfo.getOffset()+prevLineInfo.getLength();
+		    String prevExpectedIndent = autoIndentSameAsPrevious(document, prevLineEndOffset, "\n", false);
+		    String txt = prevExpectedIndent;
+		    Tuple<String, Boolean> prevLineTup = autoIndentNewline(document, 0, txt, prevLineEndOffset);
+		    txt = prevLineTup.o1;
+		    txt = txt.substring(1);//remove the newline
+		    prevExpectedIndent = prevExpectedIndent.substring(1);
+		    
+		    if (txt.length() > 0){
+		        //now, we should not apply that indent if we are already at the 'max' indent in this line
+		        //(or better: we should go to that max if it would pass it)
+		        int sizeExpected = txt.length();
+		        int sizeApplied = currSize + sizeExpected;
+
+		        if(currSize >= sizeExpected){
+		            //ok, we already passed what we expected from the indentation, so, let's indent
+		            //to the next 'expected' position...
+		            
+		            boolean applied = false;
+		            //handle within parenthesis
+		            if(prevLineTup.o2){
+		                int len = sizeApplied-sizeExpected;
+		                if(prevExpectedIndent.length() > len){
+		                    command.text = prevExpectedIndent.substring(len);
+		                    applied = true;
+		                }
+		            }
+		            
+		            if(!applied){
+		                applyDefaultForTab(command, currSize);
+		            }
+		            
+		        }else if(sizeExpected == sizeApplied){
+		            if(command.length == 0){
+		                ps.deleteSpacesAfter(command.offset);
+		            }
+		            command.text = txt;
+		        }else if(sizeApplied > sizeExpected){
+		            ps.deleteSpacesAfter(command.offset);
+		            command.text = txt.substring(0, sizeExpected - currSize);
+		        }
+		    }else{
+		        applyDefaultForTab(command, currSize);
+		    }
+		    
+		}else{ //cursorLine == 0
+		    applyDefaultForTab(command, currSize);
+		}
+	}
 
     public void customizeParenthesis(IDocument document, DocumentCommand command, boolean considerOnlyCurrentLine) throws BadLocationException {
         if(prefs.getAutoParentesis()){

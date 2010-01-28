@@ -329,6 +329,38 @@ public class StringUtils {
             return hoverInfo;//return initial
         }
     }
+    
+    public static String removeWhitespaceColumnsToLeftAndApplyIndent(
+    		String code, String indent, boolean indentCommentLinesAt0Pos) {
+    	FastStringBuffer buf = new FastStringBuffer();
+    	int firstCharPosition = Integer.MAX_VALUE;
+    	
+    	List<String> splitted = splitInLines(code);
+    	for(String line:splitted){
+    		if(indentCommentLinesAt0Pos || !line.startsWith("#")){
+	    		if(line.trim().length() > 0){
+	    			int found = PySelection.getFirstCharPosition(line);
+	    			firstCharPosition = Math.min(found, firstCharPosition);
+	    		}
+    		}
+    	}
+    	
+    	if(firstCharPosition != Integer.MAX_VALUE){
+    		for(String line:splitted){
+    			if(indentCommentLinesAt0Pos || !line.startsWith("#")){
+    				buf.append(indent);
+    				if(line.length() > firstCharPosition){
+    					buf.append(line.substring(firstCharPosition));
+    				}
+    			}else{
+    				buf.append(line);
+    			}
+    		}
+    		return buf.toString();
+    	}else{
+    		return code;//return initial
+    	}
+    }
 
   
     /**

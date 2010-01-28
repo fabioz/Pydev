@@ -98,4 +98,9 @@ public interface IIndentPrefs {
      * Should be called to regenerate the indent string that's in the cache.
      */
     public void regenerateIndentString();
+
+    /**
+     * Should we make alt+up / alt+down considering indentation?
+     */
+	public boolean getSmartLineMove();
 }
