@@ -2,8 +2,6 @@
 Download (Current release: **LAST_VERSION_TAG**)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. contents::
-
 Notes
 ~~~~~~
 
