@@ -51,7 +51,6 @@ import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.EditorActionBarContributor;
@@ -85,7 +84,6 @@ import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyMoveLineDownAction;
 import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.actions.findreplace.FindReplaceAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -902,13 +900,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     		action.setActionDefinitionId(ITextEditorActionDefinitionIds.MOVE_LINES_DOWN);
     		action.setId("org.python.pydev.editor.actions.moveLineDown");
     		setAction(ITextEditorActionConstants.MOVE_LINE_DOWN, action);
-
-    		// -------------------------------------------------------------------------------------
-    		// Find/Replace 
-    		action = new FindReplaceAction(resources, "Editor.FindReplace.", this);
-    		action.setActionDefinitionId(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE);
-    		action.setId("org.python.pydev.editor.actions.findAndReplace");
-    		setAction(ITextEditorActionConstants.FIND, action);
 
             
             notifier.notifyOnCreateActions(resources);

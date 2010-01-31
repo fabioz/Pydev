@@ -13,6 +13,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
 public class PythonFileSearchResult extends AbstractTextSearchResult implements IEditorMatchAdapter, IFileMatchAdapter {
+	
     private final Match[] EMPTY_ARR= new Match[0];
     
     private AbstractPythonSearchQuery fQuery;

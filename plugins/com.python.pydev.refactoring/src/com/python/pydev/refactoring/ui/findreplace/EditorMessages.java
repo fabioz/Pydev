@@ -1,4 +1,4 @@
-package org.python.pydev.editor.actions.findreplace;
+package com.python.pydev.refactoring.ui.findreplace;
 
 import java.util.ResourceBundle;
 

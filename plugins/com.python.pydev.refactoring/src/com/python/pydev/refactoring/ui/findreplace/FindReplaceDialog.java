@@ -1,4 +1,4 @@
-package org.python.pydev.editor.actions.findreplace;
+package com.python.pydev.refactoring.ui.findreplace;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,7 +6,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
 import org.eclipse.jface.fieldassist.FieldDecoration;
@@ -20,6 +25,9 @@ import org.eclipse.jface.text.IFindReplaceTargetExtension3;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.search.ui.ISearchQuery;
+import org.eclipse.search.ui.ISearchResult;
+import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
@@ -166,7 +174,7 @@ class FindReplaceDialog extends Dialog {
 	 */
 	private Button fIsRegExCheckBox;
 
-	private Button fReplaceSelectionButton, fReplaceFindButton, fFindNextButton, fReplaceAllButton;
+	private Button fReplaceSelectionButton, fReplaceFindButton, fFindNextButton, fReplaceAllButton, fSearchCurrentOpenDocuments;
 	private Combo fFindField, fReplaceField;
 
 	/**
@@ -342,6 +350,8 @@ class FindReplaceDialog extends Dialog {
 
 		// Make the all the buttons the same size as the Remove Selection button.
 		fReplaceAllButton.setEnabled(isEditable());
+		
+		
 
 		return panel;
 	}
@@ -715,7 +725,7 @@ class FindReplaceDialog extends Dialog {
 
 		Composite panel= new Composite(parent, SWT.NULL);
 		GridLayout layout= new GridLayout();
-		layout.numColumns= 2;
+		layout.numColumns= 3;
 		layout.marginWidth= 0;
 		layout.marginHeight= 0;
 		panel.setLayout(layout);
@@ -726,6 +736,46 @@ class FindReplaceDialog extends Dialog {
 		String label= EditorMessages.FindReplace_CloseButton_label;
 		Button closeButton= createButton(panel, 101, label, false);
 		setGridData(closeButton, SWT.RIGHT, false, SWT.BOTTOM, false);
+		
+		
+		fSearchCurrentOpenDocuments= makeButton(panel, "&s", 106, false, new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				NewSearchUI.runQueryInForeground(null, new ISearchQuery() {
+					
+					
+					public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
+						return Status.OK_STATUS;
+					}
+					
+					
+					public ISearchResult getSearchResult() {
+						return null;
+					}
+					
+					
+					public String getLabel() {
+						return "Search open documents";
+					}
+					
+					
+					public boolean canRunInBackground() {
+						return true;
+					}
+					
+					
+					public boolean canRerun() {
+						return false;
+					}
+				});
+			}
+		});
+		
+		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		data.widthHint = 20;
+		data.horizontalAlignment= SWT.END;
+		data.grabExcessHorizontalSpace= false;
+		fSearchCurrentOpenDocuments.setLayoutData(data);
+
 
 		return panel;
 	}
