@@ -91,6 +91,8 @@ public class UIConstants {
     public static final String VARIABLE_ICON = "icons/build_var_obj.gif";
     public static final String ENVIRONMENT_ICON = "icons/environment_obj.gif";
     public static final String COPY_QUALIFIED_NAME = "icons/cpyqual_menu.gif";
+    public static final String SEARCH = "icons/search.gif";
+    public static final String SEARCH_DOCS = "icons/search_docs.gif";
     
 //browser
     public static final String STOP = "icons/showerr_tsk.gif";

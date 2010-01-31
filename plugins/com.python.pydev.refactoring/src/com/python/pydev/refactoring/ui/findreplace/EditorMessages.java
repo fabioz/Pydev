@@ -9,7 +9,7 @@ import org.eclipse.osgi.util.NLS;
  */
 final class EditorMessages extends NLS {
 
-	private static final String BUNDLE_FOR_CONSTRUCTED_KEYS= "org.python.pydev.editor.actions.findreplace.ConstructedEditorMessages";//$NON-NLS-1$
+	private static final String BUNDLE_FOR_CONSTRUCTED_KEYS= "com.python.pydev.refactoring.ui.findreplace.ConstructedEditorMessages";//$NON-NLS-1$
 	private static ResourceBundle fgBundleForConstructedKeys= ResourceBundle.getBundle(BUNDLE_FOR_CONSTRUCTED_KEYS);
 
 	/**

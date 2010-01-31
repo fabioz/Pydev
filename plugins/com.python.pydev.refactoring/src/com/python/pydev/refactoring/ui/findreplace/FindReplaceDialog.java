@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
 import org.eclipse.jface.fieldassist.FieldDecoration;
@@ -26,8 +24,10 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.search.ui.ISearchQuery;
-import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.NewSearchUI;
+import org.eclipse.search.ui.text.FileTextSearchScope;
+import org.eclipse.search.ui.text.TextSearchQueryProvider;
+import org.eclipse.search.ui.text.TextSearchQueryProvider.TextSearchInput;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.ModifyEvent;
@@ -37,6 +37,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -48,7 +49,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -59,10 +62,16 @@ import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
 import org.eclipse.ui.texteditor.IAbstractTextEditorHelpContextIds;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.IFindReplaceTargetExtension2;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
 
 /**
+ * Warning: code copied from Eclipse (it's not public -- and thus unavailable for extension)
+ * 
  * Find/Replace dialog. The dialog is opened on a particular
  * target but can be re-targeted. Internally used by the <code>FindReplaceAction</code>
  */
@@ -740,43 +749,76 @@ class FindReplaceDialog extends Dialog {
 		
 		fSearchCurrentOpenDocuments= makeButton(panel, "&s", 106, false, new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				NewSearchUI.runQueryInForeground(null, new ISearchQuery() {
-					
-					
-					public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
-						return Status.OK_STATUS;
-					}
-					
-					
-					public ISearchResult getSearchResult() {
-						return null;
-					}
-					
-					
-					public String getLabel() {
-						return "Search open documents";
-					}
-					
-					
-					public boolean canRunInBackground() {
-						return true;
-					}
-					
-					
-					public boolean canRerun() {
-						return false;
-					}
-				});
+	        	IWorkbenchWindow window = PyAction.getActiveWorkbenchWindow();
+	        	if(window == null){
+	        		statusError("Active workbench window is null.");
+	        		return;
+	        	}
+	    		IWorkbenchPage activePage = window.getActivePage();
+	    		if(activePage == null){
+	    			statusError("Active page is null.");
+	    			return;
+	    		}
+				IEditorReference editorsArray[]= activePage.getEditorReferences();
+	    		
+	    		final List<IFile> files = new ArrayList<IFile>();
+	    		for (int i= 0; i < editorsArray.length; i++) {
+	    			IEditorPart realEditor= editorsArray[i].getEditor(true);
+	    			if (realEditor instanceof ITextEditor) { // realEditor != null
+	    				ITextEditor textEditor= (ITextEditor)realEditor;
+	    				IEditorInput input= textEditor.getEditorInput();
+	    				if(input != null){
+	    					IFile file = (IFile) input.getAdapter(IFile.class);
+	    					if(file != null){
+	    						files.add(file);
+	    					}
+	    				}
+	    			}
+	    		}
+	    		
+	    		if(files.size() == 0){
+	    			statusError("No file was found to perform the search.");
+	    			return;
+	    		}
+
+				try {
+					ISearchQuery query = TextSearchQueryProvider.getPreferred().createQuery(new TextSearchInput() {
+						
+						public boolean isRegExSearch() {
+							return FindReplaceDialog.this.isRegExSearchAvailableAndChecked();
+						}
+						
+						
+						public boolean isCaseSensitiveSearch() {
+							return FindReplaceDialog.this.isCaseSensitiveSearch();
+						}
+						
+						
+						public String getSearchText() {
+							return FindReplaceDialog.this.getFindString();
+						}
+						
+						
+						public FileTextSearchScope getScope() {
+							return FileTextSearchScope.newSearchScope(
+					    			files.toArray(new IResource[files.size()]), new String[] { "*" }, true);
+						}
+					});
+					NewSearchUI.runQueryInBackground(query);
+				} catch (CoreException e1) {
+					PydevPlugin.log(e1);
+				}
+				close();
 			}
 		});
+		Image image = PydevPlugin.getImageCache().get(UIConstants.SEARCH_DOCS);
 		
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		data.widthHint = 20;
 		data.horizontalAlignment= SWT.END;
 		data.grabExcessHorizontalSpace= false;
 		fSearchCurrentOpenDocuments.setLayoutData(data);
-
-
+		fSearchCurrentOpenDocuments.setImage(image);
+		fSearchCurrentOpenDocuments.setToolTipText("Show matches in currently opened editors (in the Search View).");
 		return panel;
 	}
 

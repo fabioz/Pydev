@@ -21,6 +21,8 @@ import org.eclipse.ui.texteditor.ResourceAction;
 
 
 /**
+ * Warning: code copied from Eclipse (it doesn't provide any way to actually extend it)
+ * 
  * An action which opens a Find/Replace dialog.
  * The dialog while open, tracks the active workbench part
  * and retargets itself to the active find/replace target.
