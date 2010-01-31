@@ -328,7 +328,6 @@ public class FindReplaceAction extends ResourceAction implements IUpdate {
 	 *	@see IAction#run()
 	 */
 	public void run() {
-		System.out.println("Run");
 		if (fTarget == null)
 			return;
 
