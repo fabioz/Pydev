@@ -253,6 +253,7 @@ public class StringUtilsTest extends TestCase {
 		assertEquals("    a=10\n#comment\n    b=30", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("a=10\n#comment\nb=30", "    ", false));
 		assertEquals("    a=10\n    #comment", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("a=10\n#comment", "    ", true));
 		assertEquals("    a=10\n    #comment\n    b=30", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("a=10\n#comment\nb=30", "    ", true));
+		assertEquals("    a=10\n    \n    b=30", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("    a=10\n\n    b=30", "    ", true));
 	}
 }
 

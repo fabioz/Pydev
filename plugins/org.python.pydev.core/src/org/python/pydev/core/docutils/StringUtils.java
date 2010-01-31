@@ -351,6 +351,8 @@ public class StringUtils {
     				buf.append(indent);
     				if(line.length() > firstCharPosition){
     					buf.append(line.substring(firstCharPosition));
+    				}else{
+    					buf.append(line);
     				}
     			}else{
     				buf.append(line);

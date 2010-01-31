@@ -22,6 +22,7 @@ import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextEditorAction;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
@@ -126,13 +127,26 @@ public abstract class PyMoveLineAction extends TextEditorAction {
 				}
 			}
 			ILineRange selectionAfter;
+			boolean isStringPartition;
 			try {
 				if (getMoveUp()) {
+					//check partition in the start of the skipped line
+					isStringPartition = ParsingUtils.isStringPartition(document, skippedLine.getOffset());
 					delim= document.getLineDelimiter(skippedLine.getEndLine());
 					Assert.isNotNull(delim);
 					offset= skippedLine.getOffset();
 					length = moving.length()+delim.length()+skipped.length();
 				} else {
+					//check partition in the start of the line after the skipped line
+					int offsetToCheckPartition;
+					if(skippedLine.getEndLine() == document.getNumberOfLines() -1){
+						offsetToCheckPartition = document.getLength()-1; //check the last document char 
+					}else{
+						offsetToCheckPartition = skippedLine.getOffset()+skippedLine.getLength(); //that's always the '\n' of the line
+					}
+					
+					isStringPartition = ParsingUtils.isStringPartition(document, offsetToCheckPartition);
+					
 					delim= document.getLineDelimiter(movingArea.getEndLine());
 					Assert.isNotNull(delim);
 					offset= movingArea.getOffset();
@@ -153,10 +167,12 @@ public abstract class PyMoveLineAction extends TextEditorAction {
 					indentStrategy = new PyAutoIndentStrategy();
 				}
 				
-				if(indentStrategy.getIndentPrefs().getSmartLineMove()){
-					String prevExpectedIndent = calculateNewIndentationString(document, skippedPs, indentStrategy);
-					if(prevExpectedIndent != null){
-						moving = StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent(moving, prevExpectedIndent, false);
+				if(!isStringPartition){
+					if(indentStrategy.getIndentPrefs().getSmartLineMove()){
+						String prevExpectedIndent = calculateNewIndentationString(document, skippedPs, indentStrategy);
+						if(prevExpectedIndent != null){
+							moving = StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent(moving, prevExpectedIndent, false);
+						}
 					}
 				}
 				if(getMoveUp()){

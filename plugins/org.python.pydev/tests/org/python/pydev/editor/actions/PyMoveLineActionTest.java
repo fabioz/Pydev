@@ -15,7 +15,7 @@ public class PyMoveLineActionTest extends TestCase {
         try {
             PyMoveLineActionTest test = new PyMoveLineActionTest();
             test.setUp();
-            test.testMoveWithComments2();
+            test.testMoveWithString();
             test.tearDown();
             junit.textui.TestRunner.run(PyMoveLineActionTest.class);
         } catch (Throwable e) {
@@ -189,6 +189,60 @@ public class PyMoveLineActionTest extends TestCase {
 		//check if it properly disconsiders indentation when going from v2 to v1 here.
 		check(actionDown, content2, content1, content2.length()-"c=30\n#    b = 10".length(), 0);
 		
+		check(actionUp, content1, content2, content1.length(), 0);
+	}
+	
+	public void testMoveWithEmptyLines() {
+		
+		String content1 = "" +
+		"def m1(a):\n" +
+		"    b = 10\n" +
+		"\n" +
+		"    c=30";
+		
+		String content1a = "" +
+		"def m1(a):\n" +
+		"    b = 10\n" +
+		"    \n" +
+		"    c=30";
+		
+		String content2 = "" +
+		"b = 10\n" +
+		"\n" +
+		"c=30\n"+
+		"def m1(a):";
+		
+		
+		
+		check(actionUp, content1, content2, 17, 13);
+		check(actionDown, content2, content1a, 0, 13);
+	}
+	
+	public void testMoveWithString() {
+		
+		String content1 = "" +
+		"def m1(a):\n" +
+		"    '''\n" +
+		"        test\n" +
+		"    '''\n" +
+		"    c=30";
+		
+		String content2 = "" +
+		"def m1(a):\n" +
+		"    '''\n" +
+		"        test\n" +
+		"    c=30\n"+
+		"    '''";
+		
+		String content2a = "" +
+		"def m1(a):\n" +
+		"    '''\n" +
+		"        test\n" +
+		"        c=30\n"+
+		"    '''";
+		
+
+		check(actionDown, content2a, content1, content2a.length()-"c=30\n    '''".length(), 0);
 		check(actionUp, content1, content2, content1.length(), 0);
 	}
 

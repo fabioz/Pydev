@@ -43,6 +43,17 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, 17));
     }
     
+    public void testIsInCommOrStr2() {
+    	String str = "" +
+    	"'''\n" +
+    	"foo\n" +
+    	"'''" +
+    	"";
+    	assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, str.length()));
+    	assertEquals(ParsingUtils.PY_DEFAULT, ParsingUtils.getContentType(str, str.length()-1));
+    	assertEquals(ParsingUtils.PY_MULTILINE_STRING1, ParsingUtils.getContentType(str, str.length()-2));
+    }
+    
     public void testEatComments() {
         String str = "" +
         "#comm1\n" +

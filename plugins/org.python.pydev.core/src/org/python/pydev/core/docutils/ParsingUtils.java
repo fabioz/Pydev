@@ -615,15 +615,34 @@ public abstract class ParsingUtils implements IPythonPartitions{
             }
             
             if(ch == '\'' || ch == '"'){
-                curr = PY_SINGLELINE_STRING1;
-                if(ch == '"'){
-                    curr = PY_SINGLELINE_STRING2;
-                }
+            	boolean multi = parsingUtils.isMultiLiteral(i, ch);
+            	if(multi){
+            		curr = PY_MULTILINE_STRING1;
+            		if(ch == '"'){
+            			curr = PY_MULTILINE_STRING2;
+            		}
+            	}else{
+            		curr = PY_SINGLELINE_STRING1;
+            		if(ch == '"'){
+            			curr = PY_SINGLELINE_STRING2;
+            		}
+            	}
                 try{
-                    i = parsingUtils.getLiteralEnd(i, ch);
+                    if(multi){
+                        i = parsingUtils.findNextMulti(i+3, ch);
+                    }else{
+                        i = parsingUtils.findNextSingle(i+1, ch);
+                    }
                 }catch(SyntaxErrorException e){
                     throw new RuntimeException(e);
                 }
+                if(currPos < i){
+                	return curr; //found inside
+                }
+                //if currPos == i, this means it'll go to the next partition (we always prefer open
+                //partitions here, so, the last >>'<< from a string is actually treated as the start
+                //of the next partition).
+                curr = PY_DEFAULT;
             }
         }
         return curr;
@@ -728,6 +747,15 @@ public abstract class ParsingUtils implements IPythonPartitions{
         }
         return line;
     }
+
+	public static boolean isStringPartition(IDocument document, int offset) {
+		String contentType = getContentType(document, offset);
+		return IPythonPartitions.PY_MULTILINE_STRING1.equals(contentType) 
+				|| IPythonPartitions.PY_MULTILINE_STRING2.equals(contentType)
+				|| IPythonPartitions.PY_SINGLELINE_STRING1.equals(contentType)
+				|| IPythonPartitions.PY_SINGLELINE_STRING2.equals(contentType)
+				;
+	}
 
 
 
