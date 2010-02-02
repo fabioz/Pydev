@@ -1,5 +1,6 @@
 package com.python.pydev.refactoring.ui.findreplace;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -59,11 +60,12 @@ import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
 import org.eclipse.ui.internal.texteditor.NLSUtility;
 import org.eclipse.ui.internal.texteditor.SWTUtil;
 import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
+import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.texteditor.IAbstractTextEditorHelpContextIds;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.IFindReplaceTargetExtension2;
-import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -764,13 +766,40 @@ class FindReplaceDialog extends Dialog {
 	    		final List<IFile> files = new ArrayList<IFile>();
 	    		for (int i= 0; i < editorsArray.length; i++) {
 	    			IEditorPart realEditor= editorsArray[i].getEditor(true);
-	    			if (realEditor instanceof ITextEditor) { // realEditor != null
-	    				ITextEditor textEditor= (ITextEditor)realEditor;
-	    				IEditorInput input= textEditor.getEditorInput();
-	    				if(input != null){
-	    					IFile file = (IFile) input.getAdapter(IFile.class);
-	    					if(file != null){
-	    						files.add(file);
+	    			if (realEditor != null){
+	    				if(realEditor instanceof MultiPageEditorPart){
+							try {
+								Method getPageCount = MultiPageEditorPart.class.getDeclaredMethod("getPageCount");
+								getPageCount.setAccessible(true);
+								Method getEditor = MultiPageEditorPart.class.getDeclaredMethod("getEditor", int.class);
+								getEditor.setAccessible(true);
+								
+								Integer pageCount = (Integer)getPageCount.invoke(realEditor);
+								for(int j=0;j<pageCount;j++){
+									IEditorPart part = (IEditorPart) getEditor.invoke(realEditor, j);
+									if(part != null){
+										IEditorInput input= part.getEditorInput();
+										if(input != null){
+											IFile file = (IFile) input.getAdapter(IFile.class);
+											if(file != null){
+												files.add(file);
+											}
+										}
+									}
+								}
+							} catch (Throwable e1) {
+								//Log it but keep going on.
+								Log.log(e1);
+							}
+							
+	    					
+	    				}else{
+		    				IEditorInput input= realEditor.getEditorInput();
+		    				if(input != null){
+		    					IFile file = (IFile) input.getAdapter(IFile.class);
+		    					if(file != null){
+		    						files.add(file);
+		    					}
 	    					}
 	    				}
 	    			}
