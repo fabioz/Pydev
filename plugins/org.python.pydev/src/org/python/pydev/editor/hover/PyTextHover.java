@@ -31,6 +31,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
@@ -179,8 +180,10 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
         
         PyEdit edit = s.getEdit();
         RefactoringRequest request;
+        IPythonNature nature = null;
         try{
-            request = new RefactoringRequest(edit.getEditorFile(), ps, new NullProgressMonitor(), edit.getPythonNature(), edit);
+        	nature = edit.getPythonNature();
+            request = new RefactoringRequest(edit.getEditorFile(), ps, new NullProgressMonitor(), nature, edit);
         }catch(MisconfigurationException e){
             return;
         }
@@ -246,12 +249,12 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                     temp.append(str);
                     
                 }else{ 
-                    String docstring = d.getDocstring();
-                    if(docstring != null && docstring.trim().length() > 0){
-                        IIndentPrefs indentPrefs = edit.getIndentPrefs();
-                        temp.append(StringUtils.fixWhitespaceColumnsToLeftFromDocstring(
-                                docstring, indentPrefs.getIndentationString()));
-                    }
+                    String docstring = d.getDocstring(nature, completionCache);
+					if(docstring != null && docstring.trim().length() > 0){
+						IIndentPrefs indentPrefs = edit.getIndentPrefs();
+						temp.append(StringUtils.fixWhitespaceColumnsToLeftFromDocstring(
+								docstring, indentPrefs.getIndentationString()));
+					}
                 }
                 
                 if(temp.length() > 0){

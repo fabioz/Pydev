@@ -14,6 +14,6 @@ public interface IDefinition {
     /**
      * @return the docstring for the definition.
      */
-    String getDocstring();
+    String getDocstring(IPythonNature nature, ICompletionCache cache);
 
 }

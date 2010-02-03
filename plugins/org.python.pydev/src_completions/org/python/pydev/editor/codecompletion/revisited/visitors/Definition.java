@@ -6,10 +6,16 @@
 package org.python.pydev.editor.codecompletion.revisited.visitors;
 
 import org.eclipse.core.runtime.Assert;
+import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -175,12 +181,27 @@ public class Definition implements IDefinition {
         return col;
     }
     
-    public String getDocstring() {
+    public String getDocstring(IPythonNature nature, ICompletionCache cache) {
         if(this.ast != null){
             return NodeUtils.getNodeDocString(this.ast);
         }else{
             if(this.value == null || this.value.trim().length() == 0){
                 return this.module.getDocString();
+            }else{
+            	ICodeCompletionASTManager manager = nature.getAstManager();
+				//It's the identification for some token in a module, let's try to find it
+            	String[] headAndTail = FullRepIterable.headAndTail(value);
+            	String actToken = headAndTail[0];
+            	String qualifier = headAndTail[1];
+            	                              
+            	IToken[] globalTokens = this.module.getGlobalTokens(
+            			new CompletionState(line, col, actToken, nature, qualifier, cache), manager);
+            	
+            	for (IToken iToken : globalTokens) {
+					if(this.value.equals(iToken.getRepresentation())){
+						return iToken.getDocStr();
+					}
+				}
             }
         }
         

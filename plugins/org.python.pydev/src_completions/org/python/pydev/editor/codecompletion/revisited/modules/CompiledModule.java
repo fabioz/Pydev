@@ -251,7 +251,12 @@ public class CompiledModule extends AbstractModule{
      * @see org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule#getGlobalTokens(java.lang.String)
      */
     public IToken[] getGlobalTokens(ICompletionState state, ICodeCompletionASTManager manager) {
-        Map<String, IToken> v = cache.get(state.getActivationToken());
+        String activationToken = state.getActivationToken();
+        if(activationToken.length() == 0){
+        	return getGlobalTokens();
+        }
+        
+		Map<String, IToken> v = cache.get(activationToken);
         if(v != null){
             Collection<IToken> values = v.values();
             return values.toArray(new IToken[values.size()]);
@@ -270,7 +275,7 @@ public class CompiledModule extends AbstractModule{
                     throw new RuntimeException("Unable to create shell for CompiledModule: "+this.name, e);
                 }
                 synchronized(shell){
-                    String act = name+"."+state.getActivationToken();
+                    String act = name+"."+activationToken;
                     List<String[]> completions = shell.getImportCompletions(act, 
                             manager.getModulesManager().getCompletePythonPath(
                                     nature.getProjectInterpreter(), 
@@ -291,7 +296,7 @@ public class CompiledModule extends AbstractModule{
                     for (IToken token : toks) {
                         map.put(token.getRepresentation(), token);
                     }
-                    cache.put(state.getActivationToken(), map);
+                    cache.put(activationToken, map);
                 }
             } catch (Exception e) {
                 PydevPlugin.log("Error while getting info for module:"+this.name+". Project: "+manager.getNature().getProject(), e);
