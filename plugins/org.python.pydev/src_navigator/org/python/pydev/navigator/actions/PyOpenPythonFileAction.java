@@ -19,6 +19,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPage;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -31,19 +32,17 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyOpenPythonFileAction extends Action {
 
-    private List<IFile> filesSelected;
+    private final List<IFile> filesSelected = new ArrayList<IFile>();
 
-    private List<PythonNode> nodesSelected;
+    private final List<PythonNode> nodesSelected = new ArrayList<PythonNode>();
 
-    private List<Object> containersSelected; // IContainer or IWrappedResource
+    private final List<Object> containersSelected = new ArrayList<Object>(); // IContainer or IWrappedResource or PythonpathTreeNode(with folder file)
+    
+    private final List<PythonpathTreeNode> pythonPathFilesSelected = new ArrayList<PythonpathTreeNode>(); 
 
-    private ISelectionProvider provider;
+    private final ISelectionProvider provider;
 
     public PyOpenPythonFileAction(IWorkbenchPage page, ISelectionProvider selectionProvider) {
-        filesSelected = new ArrayList<IFile>();
-        nodesSelected = new ArrayList<PythonNode>();
-        containersSelected = new ArrayList<Object>();
-        
         this.setText("Open With Pydev");
         this.provider = selectionProvider;
     }
@@ -70,23 +69,33 @@ public class PyOpenPythonFileAction extends Action {
             openFiles(filesSelected);
 
         } else if (nodesSelected.size() > 0) {
-            PythonNode node = nodesSelected.iterator().next();
-            ParsedItem actualObject = node.getActualObject();
-            new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils.getNameTokFromNode(actualObject.getAstThis().node)));
+		    PythonNode node = nodesSelected.iterator().next();
+		    ParsedItem actualObject = node.getActualObject();
+		    new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils.getNameTokFromNode(actualObject.getAstThis().node)));
+		    
+		} else if (pythonPathFilesSelected.size() > 0) {
+			openFiles(pythonPathFilesSelected.toArray(new PythonpathTreeNode[pythonPathFilesSelected.size()]));
 
-        } else if (containersSelected.size() > 0) {
-            if (this.provider instanceof TreeViewer) {
-                TreeViewer viewer = (TreeViewer) this.provider;
-                for (Object container : containersSelected) {
-                    if (viewer.isExpandable(container)) {
-                        viewer.setExpandedState(container, !viewer.getExpandedState(container));
-                    }
-                }
-            } else {
-                PydevPlugin.log("Expecting the provider to be a TreeViewer -- it is:" + this.provider.getClass());
-            }
-        }
+		} else if (containersSelected.size() > 0) {
+		    if (this.provider instanceof TreeViewer) {
+		        TreeViewer viewer = (TreeViewer) this.provider;
+		        for (Object container : containersSelected) {
+		            if (viewer.isExpandable(container)) {
+		                viewer.setExpandedState(container, !viewer.getExpandedState(container));
+		            }
+		        }
+		    } else {
+		        PydevPlugin.log("Expecting the provider to be a TreeViewer -- it is:" + this.provider.getClass());
+		    }
+		}
     }
+
+	protected void openFiles(PythonpathTreeNode[] pythonPathFilesSelected) {
+		PyOpenAction pyOpenAction = new PyOpenAction();
+		for(PythonpathTreeNode n:pythonPathFilesSelected){
+			pyOpenAction.run(new ItemPointer(n.file));
+		}
+	}
 
     /**
      * Opens the given files with the Pydev editor. 
@@ -107,6 +116,7 @@ public class PyOpenPythonFileAction extends Action {
         filesSelected.clear();
         nodesSelected.clear();
         containersSelected.clear();
+        pythonPathFilesSelected.clear();
 
         ISelection selection = provider.getSelection();
         if (!selection.isEmpty()) {
@@ -118,6 +128,14 @@ public class PyOpenPythonFileAction extends Action {
                 if (element instanceof PythonNode) {
                     nodesSelected.add((PythonNode) element);
 
+                } else if (element instanceof PythonpathTreeNode) {
+                	PythonpathTreeNode node = (PythonpathTreeNode) element;
+                	if(node.file.isFile()){
+                		pythonPathFilesSelected.add(node);
+                	}else{
+                		containersSelected.add(node);
+                	}
+                	
                 } else if (element instanceof IAdaptable) {
                     IAdaptable adaptable = (IAdaptable) element;
                     IFile file = (IFile) adaptable.getAdapter(IFile.class);
@@ -140,7 +158,7 @@ public class PyOpenPythonFileAction extends Action {
      */
     public boolean isEnabledForSelectionWithoutContainers() {
         fillSelections();
-        if(filesSelected.size() > 0 || nodesSelected.size() > 0){
+        if(filesSelected.size() > 0 || nodesSelected.size() > 0 || pythonPathFilesSelected.size() > 0){
             return true;
         }
         return false;

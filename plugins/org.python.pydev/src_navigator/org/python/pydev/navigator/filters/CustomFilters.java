@@ -3,13 +3,10 @@ package org.python.pydev.navigator.filters;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.navigator.actions.PySetupCustomFilters;
 import org.python.pydev.navigator.properties.StringMatcherSimple;
@@ -20,7 +17,7 @@ import org.python.pydev.plugin.PydevPlugin;
  *
  * @author Fabio
  */
-public class CustomFilters extends ViewerFilter{
+public class CustomFilters extends AbstractFilter{
 
     /**
      * This property listener will just store a weak reference to the custom filter that actually needs the values
@@ -69,22 +66,23 @@ public class CustomFilters extends ViewerFilter{
      */
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
-        if(element instanceof IAdaptable){
-            IAdaptable adaptable = (IAdaptable) element;
-            Object adapted = adaptable.getAdapter(IResource.class);
-            if(adapted instanceof IResource){
-                IResource resource = (IResource) adapted;
-                String name = resource.getName();
-                StringMatcherSimple[] temp = filters;
-                for(int i=0; i<temp.length;i++){
-                    if(temp[i].match(name)){
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+    	String name = getName(element);
+    	return filterName(name);
     }
+
+
+	protected boolean filterName(String name) {
+		if(name == null){
+			return true;
+		}
+		StringMatcherSimple[] temp = filters;
+		for(int i=0; i<temp.length;i++){
+		    if(temp[i].match(name)){
+		        return false;
+		    }
+		}
+		return true;
+	}
 
     
     /**

@@ -479,7 +479,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         }
         if(element instanceof TreeNode<?>){
             TreeNode<?> treeNode = (TreeNode<?>) element;
-            return treeNode.getChildren().size() > 0;
+            return treeNode.hasChildren();
         }
         return getChildren(element).length > 0;
     }

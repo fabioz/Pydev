@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.python.pydev.core.structure.TreeNode;
+import org.python.pydev.navigator.PythonpathTreeNode;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
@@ -22,14 +23,23 @@ public class PythonModelSorter extends ViewerSorter{
         
         //now, on to the priorities (if both have different classes)
         if(e1 instanceof ISortedElement && e2 instanceof ISortedElement){
-            int r1 = ((ISortedElement) e1).getRank();
-            int r2 = ((ISortedElement) e2).getRank();
+            ISortedElement iSortedElement1 = (ISortedElement) e1;
+			int r1 = iSortedElement1.getRank();
+            ISortedElement iSortedElement2 = (ISortedElement) e2;
+			int r2 = iSortedElement2.getRank();
             if(r1 == r2){
                 if(e1 instanceof IWrappedResource && e2 instanceof IWrappedResource){
                     return super.compare(viewer, 
                             ((IWrappedResource)e1).getActualObject(), 
                             ((IWrappedResource)e2).getActualObject());
+                    
+                }else if(e1 instanceof PythonpathTreeNode && e2 instanceof PythonpathTreeNode){
+					PythonpathTreeNode p1 = (PythonpathTreeNode) e1;
+					PythonpathTreeNode p2 = (PythonpathTreeNode) e2;
+					return p1.file.getName().compareTo(p2.file.getName());
+                	
                 }else{
+                	
                     return 0;
                 }
             }else if(r1 < r2){
@@ -56,7 +66,7 @@ public class PythonModelSorter extends ViewerSorter{
             return 1;
         }
         
-        //Tree nodes coe right after containers.
+        //Tree nodes come right after containers.
         if(e1 instanceof TreeNode<?>){
             return -1;
         }

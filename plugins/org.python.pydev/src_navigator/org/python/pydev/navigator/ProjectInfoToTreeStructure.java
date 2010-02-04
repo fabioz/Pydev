@@ -1,5 +1,6 @@
 package org.python.pydev.navigator;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,9 +28,11 @@ public class ProjectInfoToTreeStructure {
             
             List<String> pythonPath = interpreterInfo.getPythonPath();
             for (String string : pythonPath) {
-                new InterpreterInfoTreeNode<LabelAndImage>(
+				new PythonpathTreeNode(
                         systemLibs, 
-                        new LabelAndImage(string, imageCache.get(UIConstants.LIB_SYSTEM))
+                        new File(string),
+                        imageCache.get(UIConstants.LIB_SYSTEM),
+                        true
                 );
             }
             

@@ -3,9 +3,8 @@ package org.python.pydev.navigator.filters;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 
-public class ClosedProjectsFilter extends ViewerFilter{
+public class ClosedProjectsFilter extends AbstractFilter{
 
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {

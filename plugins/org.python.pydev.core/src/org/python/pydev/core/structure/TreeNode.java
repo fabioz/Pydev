@@ -36,4 +36,8 @@ public class TreeNode<T> {
     public TreeNode<T> getParent() {
         return parent;
     }
+
+	public boolean hasChildren() {
+		return this.getChildren().size() > 0;
+	}
 }
