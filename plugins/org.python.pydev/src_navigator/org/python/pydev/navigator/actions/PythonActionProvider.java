@@ -23,6 +23,7 @@ public class PythonActionProvider extends CommonActionProvider{
     
     private PyOpenPythonFileAction openPythonAction;
     private PyOpenResourceAction openResourceAction;
+    private PyOpenExternalAction openExternalAction;
     private PyDeleteResourceAction deleteResourceAction;
     private PyCopyResourceAction copyResourceAction;
     private Clipboard clipboard;
@@ -42,6 +43,7 @@ public class PythonActionProvider extends CommonActionProvider{
             selectionProvider = site.getSelectionProvider();
             openPythonAction = new PyOpenPythonFileAction(site.getPage(), selectionProvider);
             openResourceAction = new PyOpenResourceAction(site.getPage(), selectionProvider);
+            openExternalAction = new PyOpenExternalAction(site.getPage(), selectionProvider);
             
             deleteResourceAction = new PyDeleteResourceAction(shell, selectionProvider);
             copyResourceAction = new PyCopyResourceAction(shell, selectionProvider, clipboard);
@@ -86,8 +88,14 @@ public class PythonActionProvider extends CommonActionProvider{
      * @see org.eclipse.ui.actions.ActionGroup#fillContextMenu(org.eclipse.jface.action.IMenuManager)
      */
     public void fillContextMenu(IMenuManager menu) {
+        if(openResourceAction.isEnabledForSelectionWithoutContainers()){
+            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openResourceAction);        
+        }
         if(openPythonAction.isEnabledForSelectionWithoutContainers()){
-            menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openPythonAction);        
+        	menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openPythonAction);        
+        }
+        if(openExternalAction.isEnabledForSelectionWithoutContainers()){
+        	menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openExternalAction);        
         }
         if(copyResourceAction.isEnabled()){
             menu.appendToGroup(ICommonMenuConstants.GROUP_EDIT, copyResourceAction);        

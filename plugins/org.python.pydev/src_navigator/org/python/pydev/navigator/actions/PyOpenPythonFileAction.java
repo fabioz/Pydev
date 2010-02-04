@@ -19,7 +19,9 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPage;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.editor.model.Location;
 import org.python.pydev.navigator.PythonpathTreeNode;
+import org.python.pydev.navigator.PythonpathZipChildTreeNode;
 import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -32,15 +34,17 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyOpenPythonFileAction extends Action {
 
-    private final List<IFile> filesSelected = new ArrayList<IFile>();
+    protected final List<IFile> filesSelected = new ArrayList<IFile>();
 
-    private final List<PythonNode> nodesSelected = new ArrayList<PythonNode>();
+    protected final List<PythonNode> nodesSelected = new ArrayList<PythonNode>();
 
-    private final List<Object> containersSelected = new ArrayList<Object>(); // IContainer or IWrappedResource or PythonpathTreeNode(with folder file)
+    protected final List<Object> containersSelected = new ArrayList<Object>(); // IContainer or IWrappedResource or PythonpathTreeNode(with folder file)
     
-    private final List<PythonpathTreeNode> pythonPathFilesSelected = new ArrayList<PythonpathTreeNode>(); 
+    protected final List<PythonpathTreeNode> pythonPathFilesSelected = new ArrayList<PythonpathTreeNode>(); 
+    
+    protected final List<PythonpathZipChildTreeNode> pythonPathZipFilesSelected = new ArrayList<PythonpathZipChildTreeNode>(); 
 
-    private final ISelectionProvider provider;
+    protected final ISelectionProvider provider;
 
     public PyOpenPythonFileAction(IWorkbenchPage page, ISelectionProvider selectionProvider) {
         this.setText("Open With Pydev");
@@ -73,6 +77,9 @@ public class PyOpenPythonFileAction extends Action {
 		    ParsedItem actualObject = node.getActualObject();
 		    new PyOpenAction().run(new ItemPointer(node.getPythonFile().getActualObject(), NodeUtils.getNameTokFromNode(actualObject.getAstThis().node)));
 		    
+        } else if (pythonPathZipFilesSelected.size() > 0) {
+        	openFiles(pythonPathZipFilesSelected.toArray(new PythonpathZipChildTreeNode[pythonPathZipFilesSelected.size()]));
+        	
 		} else if (pythonPathFilesSelected.size() > 0) {
 			openFiles(pythonPathFilesSelected.toArray(new PythonpathTreeNode[pythonPathFilesSelected.size()]));
 
@@ -88,6 +95,13 @@ public class PyOpenPythonFileAction extends Action {
 		        PydevPlugin.log("Expecting the provider to be a TreeViewer -- it is:" + this.provider.getClass());
 		    }
 		}
+    }
+    
+    protected void openFiles(PythonpathZipChildTreeNode[] pythonPathZipFilesSelected) {
+    	PyOpenAction pyOpenAction = new PyOpenAction();
+    	for(PythonpathZipChildTreeNode n:pythonPathZipFilesSelected){
+    		pyOpenAction.run(new ItemPointer(n.zipStructure.file, new Location(), new Location(), null, n.zipPath));
+    	}
     }
 
 	protected void openFiles(PythonpathTreeNode[] pythonPathFilesSelected) {
@@ -112,11 +126,12 @@ public class PyOpenPythonFileAction extends Action {
      * This method will get the given selection and fill the related attributes to match the selection correctly
      * (files, nodes and containers).
      */
-    private synchronized void fillSelections() {
+    protected synchronized void fillSelections() {
         filesSelected.clear();
         nodesSelected.clear();
         containersSelected.clear();
         pythonPathFilesSelected.clear();
+        pythonPathZipFilesSelected.clear();
 
         ISelection selection = provider.getSelection();
         if (!selection.isEmpty()) {
@@ -128,6 +143,15 @@ public class PyOpenPythonFileAction extends Action {
                 if (element instanceof PythonNode) {
                     nodesSelected.add((PythonNode) element);
 
+                } else if (element instanceof PythonpathZipChildTreeNode) {
+					PythonpathZipChildTreeNode node = (PythonpathZipChildTreeNode) element;
+					if(node.isDir){
+						containersSelected.add(node);
+					}else{
+						pythonPathZipFilesSelected.add(node);
+					}
+					
+                	
                 } else if (element instanceof PythonpathTreeNode) {
                 	PythonpathTreeNode node = (PythonpathTreeNode) element;
                 	if(node.file.isFile()){
@@ -158,7 +182,8 @@ public class PyOpenPythonFileAction extends Action {
      */
     public boolean isEnabledForSelectionWithoutContainers() {
         fillSelections();
-        if(filesSelected.size() > 0 || nodesSelected.size() > 0 || pythonPathFilesSelected.size() > 0){
+        if(filesSelected.size() > 0 || nodesSelected.size() > 0 
+        		|| pythonPathFilesSelected.size() > 0 || pythonPathZipFilesSelected.size() > 0){
             return true;
         }
         return false;

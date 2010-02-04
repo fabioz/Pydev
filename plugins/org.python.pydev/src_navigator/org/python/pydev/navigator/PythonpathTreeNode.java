@@ -2,6 +2,7 @@ package org.python.pydev.navigator;
 
 import java.io.File;
 import java.util.List;
+import java.util.zip.ZipFile;
 
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.bundle.ImageCache;
@@ -10,6 +11,7 @@ import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * This class represents nodes in the tree that are below the interpreter pythonpath information
@@ -45,6 +47,9 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
 	 * The files beneath this directory (if not a directory, it remains null)
 	 */
 	private File[] dirFiles;
+
+	private ZipFile zipFile;
+
 	
 	
 	public PythonpathTreeNode(TreeNode<LabelAndImage> parent, File file) {
@@ -69,6 +74,12 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
 					}
 				}
 				
+			}
+		}else if(file.isFile() && FileTypesPreferencesPage.isValidZipFile(file.getName())){
+			try {
+				this.zipFile = new ZipFile(file);
+			} catch (Exception e) {
+				//Just ignore
 			}
 		}
 		
@@ -100,7 +111,7 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
 	}
 
 	public boolean hasChildren() {
-		return isDir && dirFiles != null && dirFiles.length > 0;
+		return (isDir && dirFiles != null && dirFiles.length > 0) || (!isDir && zipFile != null);
 	}
 
 	public int getRank() {
@@ -109,13 +120,19 @@ public class PythonpathTreeNode extends TreeNode<LabelAndImage> implements ISort
 	
 	
 	public synchronized List<TreeNode<LabelAndImage>> getChildren() {
-		if(!calculated && isDir && dirFiles != null){
+		if(!calculated){
 			this.calculated = true;
-			for (File file : dirFiles) {
-				//just creating it will already add it to the children
-				new PythonpathTreeNode(
-						this, 
-						file);
+			if(isDir && dirFiles != null){
+				for (File file : dirFiles) {
+					//just creating it will already add it to the children
+					new PythonpathTreeNode(this, file);
+				}
+			}else if(!isDir && zipFile != null){
+				ZipStructure zipStructure = new ZipStructure(file, zipFile);
+				for(String content : zipStructure.contents("")){
+					//just creating it will already add it to the children
+					new PythonpathZipChildTreeNode(this, zipStructure, content, null, true);
+				}
 			}
 		}
 		return super.getChildren();

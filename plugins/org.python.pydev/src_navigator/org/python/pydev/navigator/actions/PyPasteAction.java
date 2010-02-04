@@ -32,7 +32,10 @@ public class PyPasteAction extends PasteAction{
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
     public boolean isEnabled() {
-        return true;
+    	fillSelection();
+        boolean enabled = selected != null && selected.size() > 0;
+        
+		return enabled;
     }
 
     private boolean fillSelection() {

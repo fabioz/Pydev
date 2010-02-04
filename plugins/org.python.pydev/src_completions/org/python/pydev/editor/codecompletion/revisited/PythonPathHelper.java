@@ -98,7 +98,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
      * @param monitor the monitor, to keep track of what is happening
      * @return a list with the name of the found modules in the jar
      */
-    protected static ModulesFoundStructure.ZipContents getFromJar(File root, IProgressMonitor monitor) {
+    protected static ModulesFoundStructure.ZipContents getFromZip(File root, IProgressMonitor monitor) {
 
         String fileName = root.getName();
         if (root.isFile() && FileTypesPreferencesPage.isValidZipFile(fileName)) { //ok, it may be a jar file, so let's get its contents and get the available modules
@@ -495,7 +495,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
                 }
 
             } else { //ok, it was null, so, maybe this is not a folder, but zip file with java classes...
-                ModulesFoundStructure.ZipContents zipContents = getFromJar(root, monitor);
+                ModulesFoundStructure.ZipContents zipContents = getFromZip(root, monitor);
                 if (zipContents != null) {
                     ret.zipContents.add(zipContents);
                 }

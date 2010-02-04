@@ -3,7 +3,8 @@ package org.python.pydev.navigator.filters;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.python.pydev.navigator.PythonpathTreeNode;
+import org.python.pydev.core.structure.TreeNode;
+import org.python.pydev.navigator.LabelAndImage;
 
 public abstract class AbstractFilter extends ViewerFilter{
 
@@ -16,10 +17,12 @@ public abstract class AbstractFilter extends ViewerFilter{
                 return resource.getName();
             }
             
-        }else if(element instanceof PythonpathTreeNode){
-			PythonpathTreeNode pythonpathTreeNode = (PythonpathTreeNode) element;
-			return pythonpathTreeNode.file.getName();
-        	
+        }else if(element instanceof TreeNode){
+			TreeNode treeNode = (TreeNode) element;
+			Object data = treeNode.getData();
+			if(data instanceof LabelAndImage){
+				return ((LabelAndImage) data).o1;
+			}
         }
 		return null;
 	}

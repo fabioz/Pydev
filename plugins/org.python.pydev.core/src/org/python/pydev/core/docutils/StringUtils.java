@@ -816,6 +816,17 @@ public class StringUtils {
 	    return newStr;
 	}
 
+	public static int count(String name, char c) {
+		int count=0;
+		int len = name.length();
+		for(int i=0;i<len;i++){
+			if(name.charAt(i) == c){
+				count++;
+			}
+		}
+		return count;
+	}
+
 
     
     

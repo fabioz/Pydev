@@ -31,7 +31,8 @@ public class PyCopyResourceAction extends CopyAction{
      * @see org.eclipse.jface.action.Action#isEnabled()
      */
     public boolean isEnabled() {
-        return true;
+    	fillSelection();
+        return selected != null && selected.size() > 0;
     }
 
     private boolean fillSelection() {

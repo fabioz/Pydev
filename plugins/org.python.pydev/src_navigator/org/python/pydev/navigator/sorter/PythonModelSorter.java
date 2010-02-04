@@ -8,7 +8,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.python.pydev.core.structure.TreeNode;
-import org.python.pydev.navigator.PythonpathTreeNode;
+import org.python.pydev.navigator.LabelAndImage;
 import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
@@ -33,10 +33,15 @@ public class PythonModelSorter extends ViewerSorter{
                             ((IWrappedResource)e1).getActualObject(), 
                             ((IWrappedResource)e2).getActualObject());
                     
-                }else if(e1 instanceof PythonpathTreeNode && e2 instanceof PythonpathTreeNode){
-					PythonpathTreeNode p1 = (PythonpathTreeNode) e1;
-					PythonpathTreeNode p2 = (PythonpathTreeNode) e2;
-					return p1.file.getName().compareTo(p2.file.getName());
+                }else if(e1 instanceof TreeNode && e2 instanceof TreeNode){
+					TreeNode p1 = (TreeNode) e1;
+					TreeNode p2 = (TreeNode) e2;
+					Object data2 = p2.getData();
+					Object data1 = p1.getData();
+					if(data1 instanceof LabelAndImage && data2 instanceof LabelAndImage){
+						return ((LabelAndImage)data1).o1.compareTo(((LabelAndImage)data2).o1);
+					}
+					return 0;
                 	
                 }else{
                 	
