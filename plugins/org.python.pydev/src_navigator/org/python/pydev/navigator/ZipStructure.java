@@ -79,7 +79,7 @@ public class ZipStructure {
 			if(length == 0){
 				ret.addAll(treeSet);
 			}else{
-				for(String s:treeSet.tailSet(name, true)){
+				for(String s:treeSet.tailSet(name)){
 					if(s.startsWith(name)){
 						ret.add(s);
 					}
