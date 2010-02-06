@@ -11,6 +11,8 @@ import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -21,13 +23,11 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.perspective.PythonPerspectiveFactory;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
 
 /**
@@ -43,12 +43,7 @@ import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
  * @author Mikko Ohtamaa
  * @author Fabio Zadrozny
  */
-public class PythonProjectWizard extends AbstractNewProjectWizard {
-
-    /**
-     * The workbench.
-     */
-    private IWorkbench workbench;
+public class PythonProjectWizard extends AbstractNewProjectWizard implements IExecutableExtension{
 
     /**
      * The current selection.
@@ -69,8 +64,9 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
 
     private IProject createdProject;
 
+	private IConfigurationElement fConfigElement;
+
     public void init(IWorkbench workbench, IStructuredSelection currentSelection) {
-        this.workbench = workbench;
         this.selection = currentSelection;
         initializeDefaultPageImageDescriptor();
         projectPage = createProjectPage();
@@ -196,20 +192,8 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
     public boolean performFinish() {
         createdProject = createNewProject();
 
-        // Switch to default perspective
-        IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-
-        try {
-            workbench.showPerspective(PythonPerspectiveFactory.PERSPECTIVE_ID, window);
-        } catch (WorkbenchException we) {
-            PydevPlugin.log(we);
-        }
-
-        // TODO: If initial program skeleton is generated, open default file
-        /*
-         * if(generatedProject != null) { IFile defaultFile = generatedProject.getFile(new Path("__init__.py")); try { window.getActivePage().openEditor(new FileEditorInput(defaultFile),
-         * PyDevPlugin.EDITOR_ID); } catch(CoreException ce) { ce.printStackTrace(); } }
-         */
+        // Switch to default perspective (will ask before changing)
+        BasicNewProjectResourceWizard.updatePerspective(fConfigElement);
 
         return true;
     }
@@ -225,4 +209,10 @@ public class PythonProjectWizard extends AbstractNewProjectWizard {
         ImageDescriptor desc = PydevPlugin.imageDescriptorFromPlugin(PydevPlugin.getPluginID(), "icons/python_logo.png");//$NON-NLS-1$
         setDefaultPageImageDescriptor(desc);
     }
+
+	
+	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
+			throws CoreException {
+		this.fConfigElement = config;
+	}
 }

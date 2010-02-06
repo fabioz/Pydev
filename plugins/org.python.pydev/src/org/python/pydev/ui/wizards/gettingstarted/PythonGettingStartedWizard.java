@@ -1,26 +1,24 @@
 package org.python.pydev.ui.wizards.gettingstarted;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.WorkbenchException;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.perspective.PythonPerspectiveFactory;
+import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
 /**
  * This is a getting started wizard for Pydev:
  * 
  * It'll guide the user to configure the initial interpreter and create an initial project.
  */
-public class PythonGettingStartedWizard extends AbstractNewProjectWizard {
+public class PythonGettingStartedWizard extends AbstractNewProjectWizard  implements IExecutableExtension{
 
-    private IWorkbench workbench;
+    private IConfigurationElement fConfigElement;
 
 
     public void init(IWorkbench workbench, IStructuredSelection selection) {
-        this.workbench = workbench;
-        
     }
     
     public void addPages() {
@@ -47,14 +45,15 @@ public class PythonGettingStartedWizard extends AbstractNewProjectWizard {
     @Override
     public boolean performFinish() {
         
-        // Switch to default 'Pydev' perspective
-        IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-        
-        try {
-            workbench.showPerspective(PythonPerspectiveFactory.PERSPECTIVE_ID, window);
-        } catch (WorkbenchException we) {
-            PydevPlugin.log(we);
-        }
+        // Switch to default 'Pydev' perspective (asks before changing)
+        BasicNewProjectResourceWizard.updatePerspective(fConfigElement);
         return true;
     }
+    
+
+	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
+	throws CoreException {
+		this.fConfigElement = config;
+	}
+    
 }
