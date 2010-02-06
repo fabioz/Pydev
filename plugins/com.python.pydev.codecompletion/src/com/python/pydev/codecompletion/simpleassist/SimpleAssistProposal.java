@@ -1,5 +1,8 @@
 package com.python.pydev.codecompletion.simpleassist;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -14,6 +17,8 @@ import org.python.pydev.editor.autoedit.DocCmd;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 
+import com.python.pydev.codecompletion.ui.CodeCompletionPreferencesPage;
+
 /**
  * by using this assist (with the extension), we are able to just validate it (without recomputing all completions each time).
  * 
@@ -23,6 +28,39 @@ import org.python.pydev.editor.codecompletion.PyCompletionProposal;
  */
 public class SimpleAssistProposal extends PyCompletionProposal implements ICompletionProposalExtension2{
     
+	private static final Set<String> ADD_SPACE_AND_COLOR_AFTER = new HashSet<String>();
+	
+	static{
+		ADD_SPACE_AND_COLOR_AFTER.add("if");
+		ADD_SPACE_AND_COLOR_AFTER.add("class");
+		ADD_SPACE_AND_COLOR_AFTER.add("for");
+		ADD_SPACE_AND_COLOR_AFTER.add("while");
+		ADD_SPACE_AND_COLOR_AFTER.add("with");
+	}
+	private static final Set<String> ADD_SPACE_AFTER = new HashSet<String>();
+	
+	static{
+		ADD_SPACE_AFTER.add("and");
+		ADD_SPACE_AFTER.add("assert");
+		ADD_SPACE_AFTER.add("del");
+		ADD_SPACE_AFTER.add("def");
+		ADD_SPACE_AFTER.add("from");
+		ADD_SPACE_AFTER.add("global");
+		ADD_SPACE_AFTER.add("import");
+		ADD_SPACE_AFTER.add("lambda");
+		ADD_SPACE_AFTER.add("not");
+		ADD_SPACE_AFTER.add("raise");
+		ADD_SPACE_AFTER.add("yield");
+		ADD_SPACE_AFTER.add("print"); //Py3K will be print() and won't be affected
+		
+		//not there by default but covered for
+		ADD_SPACE_AFTER.add("or");
+		ADD_SPACE_AFTER.add("as");
+		ADD_SPACE_AFTER.add("in");
+		ADD_SPACE_AFTER.add("is");
+	}
+	
+	
     public SimpleAssistProposal(String replacementString, int replacementOffset, int replacementLength, int cursorPosition, int priority) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, priority);
     }
@@ -41,29 +79,61 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         try {
             IDocument doc = viewer.getDocument();
-            if(fReplacementString.equals("else:") || fReplacementString.equals("except:") || fReplacementString.equals("finally:")){
-                //make the replacement for the 'else'
-                int dif = offset - fReplacementOffset;
-                String replacementString = fReplacementString.substring(0, fReplacementString.length()-1);
-                doc.replace(offset, 0, replacementString.substring(dif));
+            int dif = offset - fReplacementOffset;
+            if(fReplacementString.equals("elif")){ 
+                doc.replace(offset, 0, fReplacementString.substring(dif));
                 
-                //and now check the ':'
-                PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
-                DocCmd cmd = new DocCmd(offset+replacementString.length()-dif, 0, ":"); 
-                Tuple<String, Integer> dedented = strategy.autoDedentAfterColon(doc, cmd);
-                doc.replace(cmd.offset, 0, ":");
-                if(dedented != null){
-                    changeInCursorPos = -dedented.o2;
-                }
-                return;
+                //check if we should dedent
+            	PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
+            	DocCmd cmd = new DocCmd(offset+fReplacementString.length()-dif, 0, " "); 
+            	Tuple<String, Integer> dedented = strategy.autoDedentElif(doc, cmd);
+            	doc.replace(cmd.offset, 0, " :");
+            	//make up for the ' :' (right before ':')
+            	if(dedented != null){
+            		changeInCursorPos = -dedented.o2+1;
+            	}
+            	return;
+            	
+            }else if(fReplacementString.endsWith(":")){ //else:, finally:, except: ...
+            	//make the replacement for the 'else'
+            	String replacementString = fReplacementString.substring(0, fReplacementString.length()-1);
+            	doc.replace(offset, 0, replacementString.substring(dif));
+            	
+            	//dedent if needed
+            	PyAutoIndentStrategy strategy = new PyAutoIndentStrategy();
+            	DocCmd cmd = new DocCmd(offset+replacementString.length()-dif, 0, ":"); 
+            	Tuple<String, Integer> dedented = strategy.autoDedentAfterColon(doc, cmd);
+            	doc.replace(cmd.offset, 0, ":");
+            	//make up for the ':'
+            	if(dedented != null){
+            		changeInCursorPos = -dedented.o2;
+            	}
+            	return;
+            		
+            }else if(ADD_SPACE_AFTER.contains(fReplacementString) && CodeCompletionPreferencesPage.addSpaceWhenNeeded()){
+            	doc.replace(offset, 0, fReplacementString.substring(dif));
+            	
+            	doc.replace(offset+fReplacementString.length()-dif, 0, " ");
+            	//make up for the ''
+        		changeInCursorPos = 1;
+            	return;
+                
+            }else if(ADD_SPACE_AND_COLOR_AFTER.contains(fReplacementString) && CodeCompletionPreferencesPage.addSpaceAndColonWhenNeeded()){
+            	//it's something as 'class', 'for', etc, which will start a new block.
+            	//create it as "class space colon" (if the colon is still not there)
+                doc.replace(offset, 0, fReplacementString.substring(dif));
+                
+            	doc.replace(offset+fReplacementString.length()-dif, 0, " :"); //should we add a ':' here (basically changing ':<ENTER>' for '<SHIFT+ENTER>
+        		changeInCursorPos = 1; //make up for the ' '
+            	return;
             }
             
             if(fReplacementString.equals("print()")){
 				changeInCursorPos = -1;
             }
             
+            
             //execute default if it still hasn't returned.
-            int dif = offset - fReplacementOffset;
             doc.replace(offset, 0, fReplacementString.substring(dif));
         } catch (BadLocationException x) {
             // ignore

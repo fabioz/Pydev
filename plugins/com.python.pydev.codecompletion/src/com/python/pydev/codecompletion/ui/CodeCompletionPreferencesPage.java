@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.utils.LabelFieldEditor;
 
 import com.python.pydev.codecompletion.CodeCompletionPreferencesInitializer;
 import com.python.pydev.codecompletion.CodecompletionPlugin;
@@ -45,6 +46,24 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
         
         addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION, 
                 "Use common tokens auto code completion?", p));
+        addField(new LabelFieldEditor("LabelFieldEditor", "", p)); 
+
+        
+        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.ADD_SPACE_WHEN_NEEDED, 
+        		"Add <SPACE> for common cases (e.g.: \"and \", \"assert \", etc.)?", p));
+        addField(new LabelFieldEditor("LabelFieldEditor", "", p)); 
+        
+        
+        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.ADD_SPACE_AND_COLON_WHEN_NEEDED, 
+        		"Add <SPACE><COLON> for common cases (e.g.: \"class :\", \"if :\", etc.)?", p));
+        addField(new LabelFieldEditor("LabelFieldEditor", "", p)); 
+
+        
+        addField(new BooleanFieldEditor(CodeCompletionPreferencesInitializer.FORCE_PY3K_PRINT_ON_PY2, 
+        		"Force print() function on Python 2.x projects?", p));
+        addField(new LabelFieldEditor("LabelFieldEditor", "", p)); 
+        
+        
         addField(new ListEditor(CodeCompletionPreferencesInitializer.KEYWORDS_CODE_COMPLETION, "Tokens to use:", p){
 
                 @Override
@@ -109,6 +128,21 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
     public static boolean useKeywordsCodeCompletion(){
         return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(
                 CodeCompletionPreferencesInitializer.USE_KEYWORDS_CODE_COMPLETION);
+    }
+    
+    public static boolean addSpaceWhenNeeded(){
+    	return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(
+    			CodeCompletionPreferencesInitializer.ADD_SPACE_WHEN_NEEDED);
+    }
+    
+    public static boolean addSpaceAndColonWhenNeeded(){
+    	return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(
+    			CodeCompletionPreferencesInitializer.ADD_SPACE_AND_COLON_WHEN_NEEDED);
+    }
+    
+    public static boolean forcePy3kPrintOnPy2(){
+    	return CodecompletionPlugin.getDefault().getPreferenceStore().getBoolean(
+    			CodeCompletionPreferencesInitializer.FORCE_PY3K_PRINT_ON_PY2);
     }
 
     public static String[] getKeywords() {

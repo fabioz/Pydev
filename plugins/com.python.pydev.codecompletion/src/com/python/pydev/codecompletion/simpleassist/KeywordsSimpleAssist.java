@@ -61,41 +61,41 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
     
     public static String defaultKeywordsAsString(){
         String[] KEYWORDS = new String[]{
-                "and ",
-                "assert ",
+                "and",
+                "assert",
                 "break",
-                "class ",
+                "class",
                 "continue",
-                "def ",
-                "del ",
-//                "elif ",
-//                "else:",
-//                "except:",
-//                "exec",
-//                "finally:",
-                "for ",
-                "from ",
-                "global ",
-//                "if ",
-                "import ",
-//                "in ",
-//                "is ",
+                "def",
+                "del",
+//                "elif", -- starting with 'e'
+//                "else:", -- starting with 'e'
+//                "except:",  -- ctrl+1 covers for try..except/ starting with 'e'
+//                "exec", -- starting with 'e'
+                "finally:",
+                "for",
+                "from",
+                "global",
+//                "if", --too small
+                "import",
+//                "in", --too small
+//                "is", --too small
                 "lambda",
-                "not ",
-//                "or ",
+                "not",
+//                "or", --too small
                 "pass",
-                "print ",
-                "raise ",
+                "print",
+                "raise",
                 "return",
-//                "try:",
-                "while ",
-                "with ",
-                "yield ",
+//                "try:", -- ctrl+1 covers for try..except
+                "while",
+                "with",
+                "yield",
                 
                 //the ones below were not in the initial list
                 "self",
                 "__init__",
-//                "as ",
+//                "as", --too small
                 "False", 
                 "None", 
                 "object", 
@@ -142,13 +142,18 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
     public Collection<ICompletionProposal> computeCompletionProposals(String activationToken, String qualifier, 
             PySelection ps, IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset) {
     	boolean isPy3Syntax = false;
-    	try {
-			IPythonNature nature = edit.getPythonNature();
-			if(nature != null){
-				isPy3Syntax = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+    	if(CodeCompletionPreferencesPage.forcePy3kPrintOnPy2()){
+    		isPy3Syntax = true;
+    		
+    	}else{
+	    	try {
+				IPythonNature nature = edit.getPythonNature();
+				if(nature != null){
+					isPy3Syntax = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+				}
+			} catch (MisconfigurationException e) {
 			}
-		} catch (MisconfigurationException e) {
-		}
+    	}
         return innerComputeProposals(activationToken, qualifier, offset, false, isPy3Syntax);
     }
     
@@ -182,17 +187,19 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
         int qlen = qualifier.length();
         if(activationToken.equals("") && qualifier.equals("") == false){
             for (String keyw : CodeCompletionPreferencesPage.getKeywords()) {
-            	if(isPy3Syntax){
-            		if("print".equals(keyw)){
-            			keyw = "print()";//Handling print in py3k.
-            		}
-            	}
                 if(keyw.startsWith(qualifier) && !keyw.equals(qualifier)){
                     if(buildForConsole){
+                    	//In the console, only show the simple completions without any special treatment
                         results.add(new PyCompletionProposal(keyw, offset - qlen, qlen, keyw.length(), 
                                 PyCompletionProposal.PRIORITY_DEFAULT));
                         
                     }else{
+                    	//in the editor, we'll create a special proposal with more features
+                    	if(isPy3Syntax){
+                    		if("print".equals(keyw)){
+                    			keyw = "print()";//Handling print in py3k.
+                    		}
+                    	}
                         results.add(new SimpleAssistProposal(keyw, offset - qlen, qlen, keyw.length(), 
                                 PyCompletionProposal.PRIORITY_DEFAULT));
                     }

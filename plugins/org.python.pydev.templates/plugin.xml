@@ -346,7 +346,7 @@ for k in keyword.kwlist:
    icon="icons/template.gif"
    id="org.python.pydev.editor.templates.python.for"
    name="for">
-   <pattern>for ${cursor}</pattern>
+   <pattern>for ${cursor}:</pattern>
 </template>
 <template
    autoinsert="true"
