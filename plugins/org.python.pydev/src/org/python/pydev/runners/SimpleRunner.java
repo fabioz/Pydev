@@ -24,6 +24,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringSubstitution;
@@ -95,8 +96,9 @@ public abstract class SimpleRunner {
 
     /**
      * Same as the getEnvironment, but with a pre-specified pythonpath.
+     * @throws MisconfigurationException 
      */
-    public static String[] createEnvWithPythonpath(String pythonPathEnvStr, String interpreter, IInterpreterManager manager, IPythonNature nature) throws CoreException {
+    public static String[] createEnvWithPythonpath(String pythonPathEnvStr, String interpreter, IInterpreterManager manager, IPythonNature nature) throws CoreException, MisconfigurationException {
         String[] env = createEnvWithPythonpath(pythonPathEnvStr, nature, manager);
         IInterpreterInfo info = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
         env = info.updateEnv(env);

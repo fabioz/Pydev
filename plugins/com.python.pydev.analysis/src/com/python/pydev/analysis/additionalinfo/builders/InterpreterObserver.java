@@ -14,6 +14,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
@@ -79,7 +80,13 @@ public class InterpreterObserver implements IInterpreterObserver {
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
         for(final IInterpreterInfo interpreterInfo:iManager.getInterpreterInfos()){
-            if (!AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, interpreterInfo.getExecutableOrJar())) {
+            boolean loadedAdditionalSystemInfo;
+			try {
+				loadedAdditionalSystemInfo = AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, interpreterInfo.getExecutableOrJar());
+			} catch (MisconfigurationException e1) {
+				loadedAdditionalSystemInfo = false;
+			}
+			if (!loadedAdditionalSystemInfo) {
                 //not successfully loaded
                 Job j = new Job("Pydev... Restoring additional info") {
 
@@ -247,7 +254,14 @@ public class InterpreterObserver implements IInterpreterObserver {
     }
 
     public void notifyNatureRecreated(final PythonNature nature, IProgressMonitor monitor) {
-        if(!AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature)){
+        boolean loadAdditionalInfoForProject;
+		try {
+			loadAdditionalInfoForProject = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
+		} catch (MisconfigurationException e) {
+			PydevPlugin.log(e);
+			loadAdditionalInfoForProject = false;
+		}
+		if(!loadAdditionalInfoForProject){
             if(DEBUG_INTERPRETER_OBSERVER){
                 System.out.println("Unable to load the info correctly... restoring info from the pythonpath");
             }

@@ -166,7 +166,13 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         boolean ret = super.restoreProjectPythonPath(force, path);
         if(ret){
             //try to load it from previous session
-            if(forceAdditionalInfoRecreation || !AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature)){
+            boolean loaded;
+			try {
+				loaded = AdditionalProjectInterpreterInfo.loadAdditionalInfoForProject(nature);
+			} catch (MisconfigurationException e) {
+				throw new RuntimeException(e);
+			}
+			if(forceAdditionalInfoRecreation || !loaded){
                 observer.notifyProjectPythonpathRestored(nature, new NullProgressMonitor());
             }
         }

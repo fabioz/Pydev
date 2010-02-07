@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.PyCodeCompletion;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 
@@ -64,7 +65,7 @@ public class ParameterCompletionTest extends AdditionalInfoTestsBase {
 
     // ------------------------------------------------------------------------------------------------- tests
     
-    public void testSetup() {
+    public void testSetup() throws MisconfigurationException {
         AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
         assertTrue(additionalInfo.getAllTokens().size() > 0);
         List<IInfo> tokensStartingWith = additionalInfo.getTokensStartingWith("existingM", AbstractAdditionalInterpreterInfo.INNER);

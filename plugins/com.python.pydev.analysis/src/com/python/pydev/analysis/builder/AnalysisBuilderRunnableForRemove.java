@@ -1,8 +1,10 @@
 package com.python.pydev.analysis.builder;
 
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.logging.DebugSettings;
+import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
@@ -44,8 +46,14 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
      */
     public static void removeInfoForModule(String moduleName, IPythonNature nature, boolean isFullBuild) {
         if(moduleName != null && nature != null){
-            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.
-                getAdditionalInfoForProject(nature);
+            AbstractAdditionalDependencyInfo info;
+			try {
+				info = AdditionalProjectInterpreterInfo.
+				    getAdditionalInfoForProject(nature);
+			} catch (MisconfigurationException e) {
+				PydevPlugin.log(e);
+				return;
+			}
             
             boolean generateDelta;
             if(isFullBuild){

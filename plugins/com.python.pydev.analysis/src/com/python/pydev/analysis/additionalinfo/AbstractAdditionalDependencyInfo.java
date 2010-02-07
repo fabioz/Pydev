@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
@@ -56,12 +57,13 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
     /**
      * default constructor
+     * @throws MisconfigurationException 
      */
-    public AbstractAdditionalDependencyInfo() {
+    public AbstractAdditionalDependencyInfo() throws MisconfigurationException {
         init();
     }
 
-    public AbstractAdditionalDependencyInfo(boolean callInit) {
+    public AbstractAdditionalDependencyInfo(boolean callInit) throws MisconfigurationException {
         if(callInit){
             init();
         }
@@ -69,16 +71,18 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     
     /**
      * Initializes the internal DiskCache with the indexes.
+     * @throws MisconfigurationException 
      */
-    protected void init() {
+    protected void init() throws MisconfigurationException {
         File persistingFolder = getCompleteIndexPersistingFolder();
         completeIndex = new DiskCache(DISK_CACHE_IN_MEMORY, persistingFolder, ".indexcache");
     }
 
     /**
      * @return a folder where the index should be persisted
+     * @throws MisconfigurationException 
      */
-    protected File getCompleteIndexPersistingFolder() {
+    protected File getCompleteIndexPersistingFolder() throws MisconfigurationException {
         File persistingFolder = getPersistingFolder();
         persistingFolder = new File(persistingFolder, "indexcache");
         
@@ -192,7 +196,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     
     
     @Override
-    protected void restoreSavedInfo(Object o){
+    protected void restoreSavedInfo(Object o) throws MisconfigurationException{
         synchronized (lock) {
             Tuple readFromFile = (Tuple) o;
             if(!(readFromFile.o1 instanceof Tuple3)){

@@ -17,6 +17,7 @@ import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
@@ -150,7 +151,12 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         
         
         //2. check if it is some global class or method
-        List<AbstractAdditionalInterpreterInfo> additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
+        List<AbstractAdditionalInterpreterInfo> additionalInfo;
+		try {
+			additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfo(nature);
+		} catch (MisconfigurationException e) {
+			return;
+		}
         FastStringBuffer tempBuf = new FastStringBuffer();
         for (AbstractAdditionalInterpreterInfo info : additionalInfo) {
             List<IInfo> tokensEqualTo = info.getTokensEqualTo(markerContents, AbstractAdditionalInterpreterInfo.TOP_LEVEL);

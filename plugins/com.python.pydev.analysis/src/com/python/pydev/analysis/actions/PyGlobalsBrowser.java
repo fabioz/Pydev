@@ -52,11 +52,7 @@ public class PyGlobalsBrowser extends PyAction{
 
         if(pythonNature != null){
             IInterpreterManager manager = pythonNature.getRelatedInterpreterManager();
-            try{
-                getFromManagerAndRelatedNatures(selectedText, manager);
-            }catch(MisconfigurationException e){
-                handle(e);
-            }
+            getFromManagerAndRelatedNatures(selectedText, manager);
         }else{
             getFromSystemManager(selectedText);
         }
@@ -78,11 +74,7 @@ public class PyGlobalsBrowser extends PyAction{
             }
             
             IInterpreterManager manager = infoForFile.o1.getRelatedInterpreterManager();
-            try{
-                getFromManagerAndRelatedNatures(selectedText, manager);
-            }catch(MisconfigurationException e){
-                handle(e);
-            }
+            getFromManagerAndRelatedNatures(selectedText, manager);
             
         }else{
             getFromWorkspace(selectedText);
@@ -105,11 +97,7 @@ public class PyGlobalsBrowser extends PyAction{
             return;
         }
         
-        try{
-            getFromManagerAndRelatedNatures(selectedText, useManager);
-        }catch(MisconfigurationException e){
-            handle(e);
-        }
+        getFromManagerAndRelatedNatures(selectedText, useManager);
         
     }
 
@@ -121,23 +109,32 @@ public class PyGlobalsBrowser extends PyAction{
      * Gets it using all the natures that match a given interpreter manager.
      * @throws MisconfigurationException 
      */
-    private static void getFromManagerAndRelatedNatures(String selectedText, IInterpreterManager useManager) throws MisconfigurationException{
-        AbstractAdditionalInterpreterInfo additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                useManager, useManager.getDefaultInterpreter());
-        if(additionalSystemInfo == null){
-            MessageDialog.openError(getShell(), "Error", "Additional info is null.");
-            return;
-        }
+    private static void getFromManagerAndRelatedNatures(String selectedText, IInterpreterManager useManager){
+        AbstractAdditionalInterpreterInfo additionalSystemInfo;
+		try {
+			additionalSystemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
+			        useManager, useManager.getDefaultInterpreter());
+		} catch (MisconfigurationException e) {
+			MessageDialog.openError(getShell(), "Error", "Additional info is not available (default interpreter not configured).");
+			handle(e);
+			return;
+		}
         
         List<AbstractAdditionalInterpreterInfo> additionalInfo = new ArrayList<AbstractAdditionalInterpreterInfo>();
         additionalInfo.add(additionalSystemInfo);
         
         List<IPythonNature> natures = PythonNature.getPythonNaturesRelatedTo(useManager.getInterpreterType());
         for (IPythonNature nature : natures) {
-            AbstractAdditionalDependencyInfo info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
-            if(info != null){
-                additionalInfo.add(info);
-            }
+            AbstractAdditionalDependencyInfo info;
+			try {
+				info = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+				if(info != null){
+					additionalInfo.add(info);
+				}
+			} catch (MisconfigurationException e) {
+				//just go on to the next nature if one is not properly configured.
+				handle(e);
+			}
         }
         doSelect(natures, additionalInfo, selectedText);
     }

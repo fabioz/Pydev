@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
@@ -579,7 +580,13 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * this can be used to save the file
      */
     public void save() {
-        File persistingLocation = getPersistingLocation();
+        File persistingLocation;
+		try {
+			persistingLocation = getPersistingLocation();
+		} catch (MisconfigurationException e) {
+			PydevPlugin.log("Error. Unable to get persisting location for additional interprer info. Configuration may be corrupted.", e);
+			return;
+		}
         if(DEBUG_ADDITIONAL_INFO){
             System.out.println("Saving to "+persistingLocation);
         }
@@ -588,22 +595,30 @@ public abstract class AbstractAdditionalInterpreterInfo {
 
     /**
      * @return the location where we can persist this info.
+     * @throws MisconfigurationException 
      */
-    protected abstract File getPersistingLocation();
+    protected abstract File getPersistingLocation() throws MisconfigurationException;
 
 
     /**
      * save the information contained for the given manager
      */
     public static void saveAdditionalSystemInfo(IInterpreterManager manager, String interpreter) {
-        AbstractAdditionalInterpreterInfo info = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
-        info.save();
+        AbstractAdditionalInterpreterInfo info;
+		try {
+			info = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
+			info.save();
+		} catch (MisconfigurationException e) {
+			PydevPlugin.log(e);
+			return;
+		}
     }
 
     /**
      * @return the path to the folder we want to keep things on
+     * @throws MisconfigurationException 
      */
-    protected abstract File getPersistingFolder();
+    protected abstract File getPersistingFolder() throws MisconfigurationException;
     
 
     private void saveTo(File pathToSave) {
@@ -634,7 +649,13 @@ public abstract class AbstractAdditionalInterpreterInfo {
      */
     protected boolean load() {
         synchronized (lock) {
-            File file = getPersistingLocation();
+            File file;
+			try {
+				file = getPersistingLocation();
+			} catch (MisconfigurationException e) {
+				PydevPlugin.log("Unable to restore previous info... (persisting location not available).",e);
+				return false;
+			}
             if(file.exists() && file.isFile()){
                 try {
                     restoreSavedInfo(IOUtils.readFromFile(file));
@@ -651,9 +672,10 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * Restores the saved info in the object (if overridden, getInfoToSave should be overridden too)
      * @param o the read object from the file
+     * @throws MisconfigurationException 
      */
     @SuppressWarnings("unchecked")
-    protected void restoreSavedInfo(Object o){
+    protected void restoreSavedInfo(Object o) throws MisconfigurationException{
         synchronized (lock) {
             Tuple3 readFromFile = (Tuple3) o;
             this.topLevelInitialsToInfo = (TreeMap<String, List<IInfo>>) readFromFile.o1;

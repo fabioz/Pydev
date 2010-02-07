@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -100,7 +101,7 @@ public class SimpleJythonRunner extends SimpleRunner{
         
     }
 
-    public static String[] makeExecutableCommandStr(String jythonJar, String script, String basePythonPath, String ... args) throws IOException, JDTNotAvailableException {
+    public static String[] makeExecutableCommandStr(String jythonJar, String script, String basePythonPath, String ... args) throws IOException, JDTNotAvailableException, MisconfigurationException {
        return makeExecutableCommandStrWithVMArgs(jythonJar, script, basePythonPath, "", args); 
     }
     
@@ -108,9 +109,10 @@ public class SimpleJythonRunner extends SimpleRunner{
      * @param script
      * @return
      * @throws IOException
+     * @throws MisconfigurationException 
      */
     public static String[] makeExecutableCommandStrWithVMArgs(String jythonJar, String script, String basePythonPath, String vmArgs, 
-            String ... args) throws IOException, JDTNotAvailableException {
+            String ... args) throws IOException, JDTNotAvailableException, MisconfigurationException {
         
         IInterpreterManager interpreterManager = PydevPlugin.getJythonInterpreterManager();
         String javaLoc = JavaVmLocationFinder.findDefaultJavaExecutable().getCanonicalPath();

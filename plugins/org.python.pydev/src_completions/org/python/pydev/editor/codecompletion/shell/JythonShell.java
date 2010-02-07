@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PydevPlugin;
@@ -25,9 +26,10 @@ public class JythonShell extends AbstractShell{
 
     /**
      * Will create the jython shell and return a string to be shown to the user with the jython shell command line.
+     * @throws MisconfigurationException 
      */
     @Override
-    protected synchronized String createServerProcess(IInterpreterInfo jythonJar, int pWrite, int pRead) throws IOException, JDTNotAvailableException {
+    protected synchronized String createServerProcess(IInterpreterInfo jythonJar, int pWrite, int pRead) throws IOException, JDTNotAvailableException, MisconfigurationException {
         String script = REF.getFileAbsolutePath(serverFile);
         String[] executableStr = SimpleJythonRunner.makeExecutableCommandStr(jythonJar.getExecutableOrJar(), script, "", String.valueOf(pWrite), String.valueOf(pRead));
         

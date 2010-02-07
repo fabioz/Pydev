@@ -36,6 +36,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -165,12 +166,21 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     /**
      * @see org.python.pydev.core.IInterpreterManager#hasInfoOnInterpreter(java.lang.String)
      */
-    public boolean hasInfoOnInterpreter(String interpreter)  throws MisconfigurationException{
+    public boolean hasInfoOnInterpreter(String interpreter){
         if(interpreter == null){
-            InterpreterInfo info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
+            InterpreterInfo info;
+			try {
+				info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
+			} catch (NotConfiguredInterpreterException e) {
+				return false;
+			}
             return info != null;
         }
-        return getInterpreterInfo(interpreter, null) != null;
+        try {
+			return getInterpreterInfo(interpreter, null) != null;
+		} catch (MisconfigurationException e) {
+			return false;
+		}
     }
     
     /**
@@ -259,9 +269,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     /**
+     * @throws MisconfigurationException 
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String)
      */
-    public InterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) {
+    public InterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException {
         synchronized(lock){
             for(IInterpreterInfo info:this.exeToInfo.values()){
                 if(info.matchNameBackwardCompatible(nameOrExecutableOrJar)){
@@ -269,7 +280,16 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 }
             }
         }
-        return null;
+        FastStringBuffer available = new FastStringBuffer();
+        for(IInterpreterInfo info:this.exeToInfo.values()){
+        	if(available.length() > 0){
+        		available.append(", ");
+        	}
+        	available.append(info.getNameForUI());
+        }
+        
+        throw new MisconfigurationException(
+        		StringUtils.format("Unable to find interpreter named: %s. Available: %s", nameOrExecutableOrJar, available));
     }
 
     /**
@@ -451,17 +471,22 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public void restorePythopathForAllInterpreters(IProgressMonitor monitor) {
         synchronized(lock){
             for(String interpreter:exeToInfo.keySet()){
-                final InterpreterInfo info = getInterpreterInfo(interpreter, monitor);
-                info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
-                
-                List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-                for (IInterpreterObserver observer : participants) {
-                    try {
-                        observer.notifyDefaultPythonpathRestored(this, interpreter, monitor);
-                    } catch (Exception e) {
-                        PydevPlugin.log(e);
-                    }
-                }
+                InterpreterInfo info;
+				try {
+					info = getInterpreterInfo(interpreter, monitor);
+					info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
+					
+					List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+					for (IInterpreterObserver observer : participants) {
+						try {
+							observer.notifyDefaultPythonpathRestored(this, interpreter, monitor);
+						} catch (Exception e) {
+							PydevPlugin.log(e);
+						}
+					}
+				} catch (MisconfigurationException e1) {
+					PydevPlugin.log(e1);
+				}
             }
             
 

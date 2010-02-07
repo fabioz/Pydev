@@ -215,8 +215,9 @@ public abstract class AbstractShell {
      * 
      * @throws CoreException
      * @throws IOException
+     * @throws MisconfigurationException 
      */
-    private synchronized static AbstractShell getServerShell(IInterpreterInfo interpreter, int relatedTo, int id) throws IOException, JDTNotAvailableException, CoreException {
+    private synchronized static AbstractShell getServerShell(IInterpreterInfo interpreter, int relatedTo, int id) throws IOException, JDTNotAvailableException, CoreException, MisconfigurationException {
         AbstractShell pythonShell = null;
         synchronized(shells){
             if(DebugSettings.DEBUG_CODE_COMPLETION){
@@ -343,8 +344,9 @@ public abstract class AbstractShell {
      * @throws JDTNotAvailableException 
      * @throws CoreException 
      * @throws CoreException
+     * @throws MisconfigurationException 
      */
-    protected synchronized void startIt(IInterpreterInfo interpreter, int milisSleep) throws IOException, JDTNotAvailableException, CoreException {
+    protected synchronized void startIt(IInterpreterInfo interpreter, int milisSleep) throws IOException, JDTNotAvailableException, CoreException, MisconfigurationException {
         this.shellMillis = milisSleep;
         this.shellInterpreter = interpreter;
         if(inStart || isConnected){
@@ -531,8 +533,9 @@ public abstract class AbstractShell {
      * 
      * @throws IOException
      * @throws JDTNotAvailableException 
+     * @throws MisconfigurationException 
      */
-    protected abstract String createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead) throws IOException, JDTNotAvailableException;
+    protected abstract String createServerProcess(IInterpreterInfo interpreter, int pWrite, int pRead) throws IOException, JDTNotAvailableException, MisconfigurationException;
 
     protected synchronized void communicateWork(String desc, IProgressMonitor monitor) {
         if(monitor != null){

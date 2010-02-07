@@ -19,6 +19,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant;
@@ -108,7 +109,12 @@ public class AdditionalInfoTestsBase extends AnalysisTestsBase {
      */
     protected void addModuleToNature(final SimpleNode ast, String modName, PythonNature natureToAdd) {
         //this is to add the info from the module that we just created...
-        AbstractAdditionalInterpreterInfo additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureToAdd);
+        AbstractAdditionalInterpreterInfo additionalInfo;
+		try {
+			additionalInfo = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(natureToAdd);
+		} catch (MisconfigurationException e) {
+			throw new RuntimeException(e);
+		}
         additionalInfo.addAstInfo(ast, modName, natureToAdd, false);
         ModulesManager modulesManager = (ModulesManager) natureToAdd.getAstManager().getModulesManager();
         SourceModule mod = (SourceModule) AbstractModule.createModule(ast, null, modName);

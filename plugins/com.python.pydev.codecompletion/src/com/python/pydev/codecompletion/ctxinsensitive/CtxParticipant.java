@@ -15,7 +15,6 @@ import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
@@ -85,13 +84,17 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
             try {
                 additionalInfoForProject = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
                         PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
-            }catch(PythonNatureWithoutProjectException e){
-                throw new RuntimeException(e);
-            } catch (MisconfigurationException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+            	PydevPlugin.log(e);
+                return;
             }
         }else{
-            additionalInfoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+            try {
+				additionalInfoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProject(nature);
+			} catch (Exception e) {
+				PydevPlugin.log(e);
+				return;
+			}
         }
         
         List<IInfo> tokensStartingWith = additionalInfoForProject.getTokensStartingWith(
@@ -260,7 +263,13 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         String qual = state.getQualifier();
         if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion()){ //at least n characters
             
-            List<IInfo> tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(), AbstractAdditionalInterpreterInfo.INNER);
+            List<IInfo> tokensStartingWith;
+			try {
+				tokensStartingWith = AdditionalProjectInterpreterInfo.getTokensStartingWith(qual, state.getNature(), AbstractAdditionalInterpreterInfo.INNER);
+			} catch (MisconfigurationException e) {
+				PydevPlugin.log(e);
+				return ret;
+			}
             for (IInfo info : tokensStartingWith) {
                 ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(), info.getType()));
             }

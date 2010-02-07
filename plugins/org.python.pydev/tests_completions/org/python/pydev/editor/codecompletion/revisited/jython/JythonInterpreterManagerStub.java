@@ -7,7 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
-import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
@@ -30,13 +30,11 @@ public class JythonInterpreterManagerStub extends PythonInterpreterManagerStub{
     }
 
     /**
+     * @throws MisconfigurationException 
      * @see org.python.pydev.core.IInterpreterManager#getInterpreterInfo(java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
      */
-    public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) {
+    public InterpreterInfo getInterpreterInfo(String executable, IProgressMonitor monitor) throws MisconfigurationException {
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
-        if(info == null){
-            throw new RuntimeException("Unable to get info for: "+executable+". Available: "+this.exeToInfo.keySet());
-        }
         if(!info.executableOrJar.equals(TestDependent.JYTHON_JAR_LOCATION)){
             throw new RuntimeException("expected same");
         }

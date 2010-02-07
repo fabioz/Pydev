@@ -69,7 +69,7 @@ public interface IInterpreterManager {
      * @param executable this is the executable from where we want to get the info
      * @return information on the executable
      */
-    public IInterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor);
+    public IInterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException;
 
     /**
      * @param monitor monitor to report the progress.
@@ -167,7 +167,7 @@ public interface IInterpreterManager {
      * on the default interpreter
      * @return whether the interpreter has information on this manager.
      */
-    public boolean hasInfoOnInterpreter(String interpreter)  throws MisconfigurationException;
+    public boolean hasInfoOnInterpreter(String interpreter);
 
     
     //caches for the builtin tokens and module

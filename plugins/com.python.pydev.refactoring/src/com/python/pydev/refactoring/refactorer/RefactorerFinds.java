@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
@@ -29,6 +30,7 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
@@ -104,7 +106,13 @@ public class RefactorerFinds {
     
     private void findChildren(RefactoringRequest request, HierarchyNodeModel initialModel, HashMap<HierarchyNodeModel, HierarchyNodeModel> allFound) {
         //and now the children...
-        List<AbstractAdditionalDependencyInfo> infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProjectAndReferencing(request.nature);
+        List<AbstractAdditionalDependencyInfo> infoForProject;
+		try {
+			infoForProject = AdditionalProjectInterpreterInfo.getAdditionalInfoForProjectAndReferencing(request.nature);
+		} catch (MisconfigurationException e) {
+			PydevPlugin.log(e);
+			return;
+		}
         
         HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
         foundOnRound.add(initialModel);

@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -18,6 +19,7 @@ import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
+import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
@@ -56,20 +58,26 @@ public class RefactorerFindDefinition {
             
             if(pointers.size() == 0 && ((Boolean)request.getAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, true))){
                 String lookForInterface = tokenAndQual[1];
-                List<IInfo> tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
-                        AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
+                List<IInfo> tokensEqualTo;
+				try {
+					tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
+					        AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
+					ICodeCompletionASTManager manager = request.nature.getAstManager();
+					if (tokensEqualTo.size() > 100){
+						//too many matches for that...
+						throw new TooManyMatchesException("Too Many matches ("+tokensEqualTo.size()+") were found for the requested token:"+lookForInterface, tokensEqualTo.size());
+					}
+					request.communicateWork(StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
+					IPythonNature nature = request.nature;
+					for (IInfo info : tokensEqualTo) {
+						AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
+						request.checkCancelled();
+					}
+				} catch (MisconfigurationException e) {
+					PydevPlugin.log(e);
+					return new ItemPointer[0];
+				}
                 
-                ICodeCompletionASTManager manager = request.nature.getAstManager();
-                if (tokensEqualTo.size() > 100){
-                    //too many matches for that...
-                    throw new TooManyMatchesException("Too Many matches ("+tokensEqualTo.size()+") were found for the requested token:"+lookForInterface, tokensEqualTo.size());
-                }
-                request.communicateWork(StringUtils.format("Found: %s possible matches.", tokensEqualTo.size()));
-                IPythonNature nature = request.nature;
-                for (IInfo info : tokensEqualTo) {
-                    AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache);
-                    request.checkCancelled();
-                }
             }
             request.communicateWork(StringUtils.format("Found: %s matches.", pointers.size()));
             
