@@ -891,16 +891,22 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             
             // -------------------------------------------------------------------------------------
             //move lines
-            action = new PyMoveLineUpAction(resources, "Pyedit.MoveLinesUp.", this);
-    		action.setActionDefinitionId(ITextEditorActionDefinitionIds.MOVE_LINES_UP);
-    		action.setId("org.python.pydev.editor.actions.moveLineUp");
-    		setAction(ITextEditorActionConstants.MOVE_LINE_UP, action);
-
-    		action = new PyMoveLineDownAction(resources, "Pyedit.MoveLinesDown.", this);
-    		action.setActionDefinitionId(ITextEditorActionDefinitionIds.MOVE_LINES_DOWN);
-    		action.setId("org.python.pydev.editor.actions.moveLineDown");
-    		setAction(ITextEditorActionConstants.MOVE_LINE_DOWN, action);
-
+            if(this.getIndentPrefs().getSmartLineMove()){
+            	//Don't even bind the action if the smart line move is not set.
+            	//This means 2 things:
+            	//- Uses the default action when asked
+            	//- An editor restart will be needed to have it applied
+	            action = new PyMoveLineUpAction(resources, "Pyedit.MoveLinesUp.", this);
+	    		action.setActionDefinitionId(ITextEditorActionDefinitionIds.MOVE_LINES_UP);
+	    		action.setId("org.python.pydev.editor.actions.moveLineUp");
+	    		setAction(ITextEditorActionConstants.MOVE_LINE_UP, action);
+	
+	    		action = new PyMoveLineDownAction(resources, "Pyedit.MoveLinesDown.", this);
+	    		action.setActionDefinitionId(ITextEditorActionDefinitionIds.MOVE_LINES_DOWN);
+	    		action.setId("org.python.pydev.editor.actions.moveLineDown");
+	    		setAction(ITextEditorActionConstants.MOVE_LINE_DOWN, action);
+            }
+	    		
             
             notifier.notifyOnCreateActions(resources);
         }catch (Throwable e) {

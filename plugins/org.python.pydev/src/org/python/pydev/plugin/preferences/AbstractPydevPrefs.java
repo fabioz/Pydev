@@ -109,7 +109,10 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final boolean DEFAULT_AUTO_ADD_SELF = true;
     
     public static final String SMART_LINE_MOVE = "SMART_LINE_MOVE";
-    public static final boolean DEFAULT_SMART_LINE_MOVE = true;
+    //Disabled by default (doesn't seem as useful as I though because Python does not have the end
+    //braces and Java does (so, there are a number of cases where the indentation has to be hand-fixed
+    //anyways)
+    public static final boolean DEFAULT_SMART_LINE_MOVE = false; 
     
     public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
     public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
@@ -409,7 +412,6 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         }
     }
     
-    @SuppressWarnings("unchecked")
     protected void initializeFields() {
         
         Iterator e= fCheckBoxes.keySet().iterator();

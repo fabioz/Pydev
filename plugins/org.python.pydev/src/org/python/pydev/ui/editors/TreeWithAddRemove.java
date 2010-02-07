@@ -99,7 +99,9 @@ public abstract class TreeWithAddRemove extends Composite{
         }
         
         createRemoveButton(buttonsSourceFolders);
-        createEditButton(buttonsSourceFolders);
+        if(createEditButton){
+        	this.createEditButton(buttonsSourceFolders);
+        }
 
         
 		if(initialItems instanceof String[]){

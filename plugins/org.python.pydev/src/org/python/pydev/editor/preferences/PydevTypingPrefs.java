@@ -87,10 +87,11 @@ public class PydevTypingPrefs  extends AbstractPydevPrefs {
         String upKey = up!= null?up.format():"Alt+Up"; //set the default if not there
         addCheckBox(
         		appearanceComposite, 
-        		StringUtils.format("Smart move for line up  (%s) and line down (%s)?", upKey, downKey),
+        		StringUtils.format("Smart move for line up  (%s) and line down (%s)?.", upKey, downKey),
         		SMART_LINE_MOVE,
 				0);
 
+        addLabel(appearanceComposite, "Note: smart move line up/down change applied on editor restart.", 20);
         return appearanceComposite;
     }
 }
