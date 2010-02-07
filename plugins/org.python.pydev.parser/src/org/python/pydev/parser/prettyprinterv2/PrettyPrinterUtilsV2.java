@@ -7,7 +7,6 @@ import java.util.Stack;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;

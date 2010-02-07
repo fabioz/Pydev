@@ -124,7 +124,6 @@ public class PythonModelProvider extends PythonBaseModelProvider implements IPip
      * 
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedElements(java.lang.Object, java.util.Set)
      */
-    @SuppressWarnings("unchecked")
     public void getPipelinedElements(Object input, Set currentElements) {
         if(DEBUG){
             System.out.println("getPipelinedElements for: "+input);

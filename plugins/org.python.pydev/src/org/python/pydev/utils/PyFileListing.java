@@ -60,7 +60,6 @@ public class PyFileListing {
      * @param canonicalFolders used to know if we entered a loop in the listing (with symlinks)
      * @return An object with the results of making that listing.
      */
-    @SuppressWarnings("unchecked")
     private static PyFileListing getPyFilesBelow(PyFileListing result, File file, FileFilter filter, 
             IProgressMonitor monitor, boolean addSubFolders, int level, boolean checkHasInit, String currModuleRep,
             Set<File> canonicalFolders) {

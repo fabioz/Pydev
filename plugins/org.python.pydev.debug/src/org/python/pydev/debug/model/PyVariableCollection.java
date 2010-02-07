@@ -12,7 +12,6 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
-import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
 import org.python.pydev.plugin.PydevPlugin;

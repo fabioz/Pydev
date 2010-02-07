@@ -603,7 +603,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      * This function adds the input listener extension point, so that plugins that only care about
      * the input in the console can know about it.
      */
-    @SuppressWarnings({ "unchecked", "restriction" })
+    @SuppressWarnings({ "unchecked" })
     public void addConsoleInputListener(){
         IConsole console = DebugUITools.getConsole(this.getProcess());
         if (console instanceof ProcessConsole) {
@@ -683,7 +683,6 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         return disconnected;
     }
     
-    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {        
         AdapterDebug.print(this, adapter);
         

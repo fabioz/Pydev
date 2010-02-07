@@ -24,7 +24,6 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.Tuple4;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;

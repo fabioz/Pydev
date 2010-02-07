@@ -74,7 +74,6 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         return this.getActualObject().hashCode();
     }
     
-    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if(adapter == IContributorResourceAdapter.class){
             return this;

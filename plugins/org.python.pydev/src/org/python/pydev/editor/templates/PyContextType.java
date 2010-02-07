@@ -6,7 +6,6 @@
 package org.python.pydev.editor.templates;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.TemplateContextType;

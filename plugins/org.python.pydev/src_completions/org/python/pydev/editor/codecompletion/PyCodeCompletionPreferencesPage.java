@@ -15,7 +15,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.LabelFieldEditor;
 
 /**

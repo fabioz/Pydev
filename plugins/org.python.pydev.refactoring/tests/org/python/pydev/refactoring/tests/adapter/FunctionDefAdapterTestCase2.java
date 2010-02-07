@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.python.pydev.core.IGrammarVersionProvider;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;

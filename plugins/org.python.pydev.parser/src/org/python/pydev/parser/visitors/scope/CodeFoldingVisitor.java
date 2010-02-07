@@ -182,7 +182,6 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
      * Overriden so that we consider the children when iterating (and don't get only the roots)
      * because we're interested in having a flat list in this case, and not actually the hierachical info.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public List<ASTEntry> getAsList(Class ... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
@@ -194,7 +193,6 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor{
     }
 
 
-    @SuppressWarnings("unchecked")
     private void checkEntry(List<ASTEntry> newList, ASTEntryWithChildren entry, Class... classes) {
         if(isFromClass(entry.node, classes)){
             newList.add(entry);

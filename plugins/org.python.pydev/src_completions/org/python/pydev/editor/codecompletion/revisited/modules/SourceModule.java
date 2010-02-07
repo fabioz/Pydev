@@ -621,7 +621,6 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @param line: starts at 1
      * @param col: starts at 1
      */
-    @SuppressWarnings("unchecked")
     public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature) throws Exception{
         String rep = state.getActivationToken();
         //the line passed in starts at 1 and the lines for the visitor start at 0

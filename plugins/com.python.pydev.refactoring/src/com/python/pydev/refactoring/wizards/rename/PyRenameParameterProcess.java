@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.text.Region;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;

@@ -326,12 +326,10 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
     /**
      * @see EasyASTIteratorVisitor#getIterator(Class[])
      */
-    @SuppressWarnings("unchecked")
     public Iterator<ASTEntry> getIterator(Class class_) {
         return getIterator(new Class[]{class_});
     }
 
-    @SuppressWarnings("unchecked")
     public List<ASTEntry> getAsList(Class ... classes) {
         List<ASTEntry> newList = new ArrayList<ASTEntry>();
         for (Iterator<ASTEntry> iter = nodes.iterator(); iter.hasNext();) {
@@ -343,7 +341,6 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
         return newList;
     }
     
-    @SuppressWarnings("unchecked")
     public List<ASTEntry> getAsList(Class class_) {
         return getAsList(new Class[]{class_});
     }
@@ -352,7 +349,6 @@ public abstract class EasyAstIteratorBase  extends VisitorBase{
      * @param classes the classes we are searching for
      * @return an iterator with nodes found from the passed classes
      */
-    @SuppressWarnings("unchecked")
     public Iterator<ASTEntry> getIterator(Class ... classes) {
         return getAsList(classes).iterator();
     }

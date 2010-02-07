@@ -14,7 +14,6 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.Match;
 
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
-import com.python.pydev.refactoring.refactorer.search.PythonFileSearchQuery;
 import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
 import com.python.pydev.ui.search.FileMatch;
 import com.python.pydev.ui.search.LineElement;

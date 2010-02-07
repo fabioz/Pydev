@@ -132,14 +132,12 @@ public class ReplaceRefactoring extends Refactoring {
 	private final Object[] fSelection;
 	private final boolean fSkipFiltered;
 	
-	@SuppressWarnings("unchecked")
     private HashMap/*<IFile,Set<Match>*/ fMatches;
 	
 	private String fReplaceString;
 	
 	private Change fChange;
 	
-	@SuppressWarnings("unchecked")
     public ReplaceRefactoring(PythonFileSearchResult result, Object[] selection, boolean skipFiltered) {
 		Assert.isNotNull(result);
 		
@@ -227,7 +225,6 @@ public class ReplaceRefactoring extends Refactoring {
 		return fMatches.keySet().size();
 	}
 	
-	@SuppressWarnings("unchecked")
     public int getNumberOfMatches() {
 		int count= 0;
 		for (Iterator iterator= fMatches.values().iterator(); iterator.hasNext();) {

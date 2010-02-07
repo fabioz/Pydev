@@ -135,7 +135,6 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     /**
      * @return the process class that we're testing.
      */
-    @SuppressWarnings("unchecked")
     protected abstract Class getProcessUnderTest();
 
     /**

@@ -6,7 +6,6 @@ package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import org.python.pydev.parser.visitors.scope.ASTEntry;

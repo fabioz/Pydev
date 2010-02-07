@@ -1,7 +1,5 @@
 package org.python.pydev.editor.codecompletion;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.log.Log;

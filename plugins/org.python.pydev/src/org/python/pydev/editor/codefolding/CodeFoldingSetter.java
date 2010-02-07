@@ -30,8 +30,6 @@ import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.SpecialStr;
-import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -229,7 +227,6 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
      * 
      * Also, there should be no overlap for any of the entries
      */
-    @SuppressWarnings("unchecked")
     public static List<FoldingEntry> getMarks(IDocument doc, SimpleNode ast) {
 
         List<FoldingEntry> ret = new ArrayList<FoldingEntry>();

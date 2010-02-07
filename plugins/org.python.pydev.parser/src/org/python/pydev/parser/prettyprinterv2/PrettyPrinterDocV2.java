@@ -15,7 +15,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.commentType;
 
 /**

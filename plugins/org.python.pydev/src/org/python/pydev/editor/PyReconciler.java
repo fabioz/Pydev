@@ -49,7 +49,6 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         private IAnnotationModel fAnnotationModel;
 
         /** Annotations to add. */
-        @SuppressWarnings("unchecked")
         private Map fAddAnnotations;
 
         /**
@@ -73,7 +72,6 @@ public class PyReconciler implements IReconcilingStrategy, IReconcilingStrategyE
         /*
          * @see org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector#beginCollecting()
          */
-        @SuppressWarnings("unchecked")
         public void beginCollecting() {
             fAddAnnotations = new HashMap();
         }

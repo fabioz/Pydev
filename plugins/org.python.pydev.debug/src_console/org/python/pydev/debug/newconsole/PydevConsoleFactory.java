@@ -7,7 +7,6 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.Launch;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.Tuple4;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;

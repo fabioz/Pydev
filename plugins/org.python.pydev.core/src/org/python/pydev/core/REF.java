@@ -746,7 +746,6 @@ public class REF {
      * Returns a document, created with the contents of a resource (first tries to get from the 'FileBuffers',
      * and if that fails, it creates one reading the file.
      */
-    @SuppressWarnings("restriction")
     public static IDocument getDocFromResource(IResource resource) {
         IProject project = resource.getProject();
         if (project != null && resource instanceof IFile && resource.exists()) {

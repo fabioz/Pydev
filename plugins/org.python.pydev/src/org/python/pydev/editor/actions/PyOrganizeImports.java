@@ -424,7 +424,6 @@ public class PyOrganizeImports extends PyAction{
      * @param startLine the first line where the sort should happen
      * @param endLine the last line where the sort should happen
      */
-    @SuppressWarnings("unchecked")
     public static void performSimpleSort(IDocument doc, String endLineDelim, int startLine, int endLine) {
         try {
             ArrayList<String> list = new ArrayList<String>();

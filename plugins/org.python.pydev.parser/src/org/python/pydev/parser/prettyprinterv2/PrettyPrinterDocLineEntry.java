@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.commentType;
 
 /**

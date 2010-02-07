@@ -82,7 +82,6 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
     /**
      * @return the text for some debug element
      */
-    @SuppressWarnings("unchecked")
     public String getText(Object element) {
         if (element instanceof PyBreakpoint) {
             PyBreakpoint pyBreakpoint = (PyBreakpoint) element;

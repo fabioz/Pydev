@@ -344,7 +344,6 @@ public class MarkOccurrencesJob extends Job{
     /**
      * @param annotationModel
      */
-    @SuppressWarnings("unchecked")
     private synchronized void removeOccurenceAnnotations(IAnnotationModel annotationModel, PyEdit pyEdit) {
         //remove the annotations
         Map<String, Object> cache = pyEdit.cache;

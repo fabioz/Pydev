@@ -8,14 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.eclipse.jface.text.Document;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 public class ClassDefAdapterTestCase extends AbstractIOTestCase {

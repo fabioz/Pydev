@@ -160,7 +160,6 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
     /*
      * @see org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands.ExecutionEvent)
      */
-    @SuppressWarnings("unchecked")
     public Object execute(ExecutionEvent event) throws ExecutionException {
         EvaluationContext evalCtx = (org.eclipse.core.expressions.EvaluationContext) event.getApplicationContext();
         Object obj = evalCtx.getDefaultVariable();

@@ -196,6 +196,9 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      */
     boolean isResourceInPythonpath(IResource resource) throws MisconfigurationException;
     boolean isResourceInPythonpath(String resource) throws MisconfigurationException;
+	boolean isResourceInPythonpathProjectSources(IResource fileAdapter, boolean addExternal) throws MisconfigurationException, CoreException;
+	boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal) throws MisconfigurationException, CoreException;
+
 
     /**
      * @return true if it is ok to use the nature
@@ -216,4 +219,5 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     IInterpreterInfo getProjectInterpreter() throws MisconfigurationException, PythonNatureWithoutProjectException;
 
     boolean isOkToUse();
+
 }

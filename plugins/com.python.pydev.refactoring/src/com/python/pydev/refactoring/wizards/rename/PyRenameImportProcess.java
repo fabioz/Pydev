@@ -18,7 +18,6 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalyzerVisitor;

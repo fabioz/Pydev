@@ -84,7 +84,6 @@ public class WorkingSetStub implements IWorkingSet {
         throw new RuntimeException("Not implemented");
     }
 
-    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         throw new RuntimeException("Not implemented");
     }
