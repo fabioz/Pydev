@@ -360,6 +360,10 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             if (pythonNature.getInterpreterType() != IInterpreterManager.INTERPRETER_TYPE_PYTHON){
                 return;
             }
+            //must be in a source folder (not external)
+            if(!isResourceInPythonpathProjectSources(resource, pythonNature, false)){
+            	return;
+            }
         } catch (Exception e) {
             return;
         }

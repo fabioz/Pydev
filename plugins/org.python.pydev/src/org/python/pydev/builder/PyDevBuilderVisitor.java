@@ -46,7 +46,9 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * identifies the key for the module name in the cache
      */
-    private static final String MODULE_NAME_CACHE = "MODULE_NAME";
+    /*default*/ static final String MODULE_NAME_CACHE = "MODULE_NAME";
+    
+    /*default*/ static final String MODULE_IN_PROJECT_PYTHONPATH = "MODULE_IN_PROJECT_PYTHONPATH";
 
     /**
      * The default priority is 5. 
@@ -206,6 +208,20 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      */
     protected void setModuleNameInCache(String moduleName) {
         memo.put(MODULE_NAME_CACHE, moduleName);
+    }
+    
+    public boolean isResourceInPythonpathProjectSources(IResource resource, IPythonNature nature, boolean addExternal) throws CoreException, MisconfigurationException{
+    	Boolean isInProjectPythonpath = (Boolean) memo.get(MODULE_IN_PROJECT_PYTHONPATH+addExternal);
+    	if(isInProjectPythonpath == null){
+    		String moduleName = nature.resolveModuleOnlyInProjectSources(resource, addExternal);
+    		isInProjectPythonpath = (moduleName != null);
+    		if(isInProjectPythonpath){
+	    		if(memo.get(MODULE_NAME_CACHE) == null){
+	    			memo.put(MODULE_NAME_CACHE, moduleName);
+	    		}
+    		}
+    	}
+    	return isInProjectPythonpath;
     }
 
     /**

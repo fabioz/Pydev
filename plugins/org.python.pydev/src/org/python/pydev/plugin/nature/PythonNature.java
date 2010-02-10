@@ -42,6 +42,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
@@ -53,6 +54,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.ASTManager;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.interpreters.IInterpreterObserver;
@@ -240,6 +242,31 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return pythonProjectInterpreter;
     }
 
+    public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal) throws MisconfigurationException, CoreException {
+        String resourceOSString = PydevPlugin.getIResourceOSString(resource);
+        if(resourceOSString == null){
+            return false;
+        }
+        return isResourceInPythonpathProjectSources(resourceOSString, addExternal);
+        
+    }
+    
+    public boolean isResourceInPythonpathProjectSources(String absPath, boolean addExternal) throws MisconfigurationException, CoreException {
+        return resolveModuleOnlyInProjectSources(absPath, addExternal) != null; 
+    }
+    
+    @Override
+    public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
+    		throws CoreException, MisconfigurationException {
+    	
+    	String resourceOSString = PydevPlugin.getIResourceOSString(fileAbsolutePath);
+    	if(resourceOSString == null){
+    		return null;
+    	}
+    	return resolveModuleOnlyInProjectSources(resourceOSString, addExternal); 
+    }
+
+    
     /**
      * This method is called only when the project has the nature added..
      * 
@@ -584,7 +611,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      */
     public void rebuildPath() throws CoreException {
         clearCaches();
-        String paths = this.pythonPathNature.getOnlyProjectPythonPathStr();
+        String paths = this.pythonPathNature.getOnlyProjectPythonPathStr(true);
         this.rebuildPath(paths);
     }
 
@@ -852,8 +879,27 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             moduleName = astManager.getModulesManager().resolveModule(fileAbsolutePath);
         }
         return moduleName;
-        
     }
+    
+    /**
+     * Resolve the module given the absolute path of the file in the filesystem.
+     * 
+     * @param fileAbsolutePath the absolute file path
+     * @return the module name
+     * @throws CoreException 
+     */
+    public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException {
+    	String moduleName = null;
+    	
+    	if(astManager != null){
+    		IModulesManager modulesManager = astManager.getModulesManager();
+    		if(modulesManager instanceof ProjectModulesManager){
+    			moduleName = ((ProjectModulesManager)modulesManager).resolveModuleOnlyInProjectSources(fileAbsolutePath, addExternal);
+    		}
+    	}
+    	return moduleName;
+    }
+    
     
     public static String[] getStrAsStrItems(String str){
         return str.split("\\|");

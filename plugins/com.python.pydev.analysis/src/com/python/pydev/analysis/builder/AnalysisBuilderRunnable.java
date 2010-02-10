@@ -168,6 +168,13 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
                 analysisCause == ANALYSIS_CAUSE_BUILDER && 
                 PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
             
+            if(!onlyRecreateCtxInsensitiveInfo){
+            	//if not a source folder, we'll just want to recreate the context insensitive information
+                if(!nature.isResourceInPythonpathProjectSources(r, false)){
+                	onlyRecreateCtxInsensitiveInfo = true;
+                }
+            }
+            
             int moduleRequest;
             if(onlyRecreateCtxInsensitiveInfo){
             	moduleRequest = DEFINITIONS_MODULE;

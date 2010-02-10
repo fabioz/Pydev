@@ -25,7 +25,7 @@ public class PythonPathNatureStub implements IPythonPathNature{
         
     }
 
-    public String getOnlyProjectPythonPathStr() throws CoreException {
+    public String getOnlyProjectPythonPathStr(boolean b) throws CoreException {
         throw new RuntimeException("Not impl");
         
     }

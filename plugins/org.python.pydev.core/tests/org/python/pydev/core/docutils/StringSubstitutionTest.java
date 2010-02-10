@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -18,8 +20,6 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-
-import junit.framework.TestCase;
 
 public class StringSubstitutionTest extends TestCase{
 
@@ -111,7 +111,7 @@ public class StringSubstitutionTest extends TestCase{
                         throw new RuntimeException("Not implemented");
                     }
                 
-                    public String getOnlyProjectPythonPathStr() throws CoreException{
+                    public String getOnlyProjectPythonPathStr(boolean b) throws CoreException{
                         throw new RuntimeException("Not implemented");
                     }
                 
@@ -156,6 +156,14 @@ public class StringSubstitutionTest extends TestCase{
 
             public boolean isResourceInPythonpath(String resource) throws MisconfigurationException{
                 throw new RuntimeException("Not implemented");
+            }
+            
+            public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal) throws MisconfigurationException{
+            	throw new RuntimeException("Not implemented");
+            }
+            
+            public boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal) throws MisconfigurationException{
+            	throw new RuntimeException("Not implemented");
             }
 
             public void rebuildPath() throws CoreException{
@@ -212,7 +220,19 @@ public class StringSubstitutionTest extends TestCase{
 
             public int getGrammarVersion() throws MisconfigurationException{
                 throw new RuntimeException("Not implemented");
-            }});
+            }
+
+			@Override
+			public String resolveModuleOnlyInProjectSources(String fileAbsolutePath,
+					boolean addExternal) throws CoreException, MisconfigurationException {
+				throw new RuntimeException("Not implemented");
+			}
+
+			@Override
+			public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath,
+					boolean addExternal) throws CoreException, MisconfigurationException {
+				throw new RuntimeException("Not implemented");
+			}});
         return s;
     }
 }

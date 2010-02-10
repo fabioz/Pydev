@@ -28,7 +28,6 @@ import org.python.pydev.builder.todo.PyTodoVisitor;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -71,7 +70,6 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
      * 
      * @see org.eclipse.core.internal.events InternalBuilder#build(int, java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
      */
-    @SuppressWarnings("unchecked")
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 
         if (PyDevBuilderPrefPage.usePydevBuilders() == false)
@@ -273,11 +271,14 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 continue;
             }
             try{
+            	String moduleName;
                 try{
-                    if(!nature.isResourceInPythonpath(r)){
+                	//we visit external because we must index them
+                	moduleName = nature.resolveModuleOnlyInProjectSources(r, true);
+                    if(moduleName == null){
                         continue; // we only analyze resources that are in the pythonpath
                     }
-                }catch(MisconfigurationException e1){
+                }catch(Exception e1){
                     if(!loggedMisconfiguration){
                         loggedMisconfiguration = true; //No point in logging it over and over again.
                         Log.log(e1);
@@ -291,6 +292,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 
                 IDocument doc = REF.getDocFromResource(r);
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
+                
+                memo.put(PyDevBuilderVisitor.MODULE_NAME_CACHE, moduleName);
                 
                 if(doc != null){ //might be out of synch
                     for (Iterator<PyDevBuilderVisitor> it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {

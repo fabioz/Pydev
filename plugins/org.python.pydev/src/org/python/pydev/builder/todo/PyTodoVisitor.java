@@ -34,6 +34,15 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
     public void visitChangedResource(IResource resource, IDocument document, IProgressMonitor monitor) {
         if (document != null) {
             List<String> todoTags = PyTodoPrefPage.getTodoTags();
+            try {
+				if(!isResourceInPythonpathProjectSources(resource, this.getPythonNature(resource), false)){
+					return;
+				}
+			} catch (Exception e1) {
+				PydevPlugin.log(e1);
+				return;
+			}
+			
             if(todoTags.size() > 0){
 
                 int numberOfLines = document.getNumberOfLines();

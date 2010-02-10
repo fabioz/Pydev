@@ -154,6 +154,9 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     String resolveModule(String fileAbsolutePath) throws MisconfigurationException;
     
     String resolveModule(IResource resource) throws MisconfigurationException;
+    
+    String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException, MisconfigurationException;
+    String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal) throws CoreException, MisconfigurationException;
 
     ICodeCompletionASTManager getAstManager();
 

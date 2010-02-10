@@ -43,7 +43,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
     private static final long serialVersionUID = 2L;
 
     /**
-     * This is a list of Files containg the pythonpath.
+     * This is a list of Files containing the pythonpath.
      */
     private final List<String> pythonpath = new ArrayList<String>();
 
@@ -220,13 +220,21 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
         return resolveModule(fullPath, false);
     }
 
+	public String resolveModule(String fullPath, ArrayList<String> pythonPathToUse) {
+		return resolveModule(fullPath, false, pythonPathToUse);
+	}
+
+    
+	public String resolveModule(String fullPath, final boolean requireFileToExist) {
+		return resolveModule(fullPath, requireFileToExist, getPythonpath());
+	}
     /**
      * DAMN... when I started thinking this up, it seemed much better... (and easier)
      * 
      * @param module - this is the full path of the module. Only for directories or py,pyd,dll,pyo files.
      * @return a String with the module that the file or folder should represent. E.g.: compiler.ast
      */
-    public String resolveModule(String fullPath, final boolean requireFileToExist) {
+    public String resolveModule(String fullPath, final boolean requireFileToExist, List<String> pythonPathCopy) {
         fullPath = REF.getFileAbsolutePath(fullPath);
         fullPath = getDefaultPathStr(fullPath);
         String fullPathWithoutExtension;
@@ -245,7 +253,6 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
 
         boolean isFile = moduleFile.isFile();
 
-        List<String> pythonPathCopy = getPythonpath();
         //go through our pythonpath and check the beginning
         for(String pathEntry : pythonPathCopy) {
 

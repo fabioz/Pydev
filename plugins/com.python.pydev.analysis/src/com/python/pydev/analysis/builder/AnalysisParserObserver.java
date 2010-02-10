@@ -13,7 +13,6 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.ChangedParserInfoForObservers;
@@ -86,16 +85,17 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
             }
             IModule module;
             try{
-                if(!nature.isResourceInPythonpath(fileAdapter)){
+            	//we visit external because we must index them
+            	String moduleName = nature.resolveModuleOnlyInProjectSources(fileAdapter, true);
+                if(moduleName == null){
                     AnalysisRunner.deleteMarkers(fileAdapter);
                     return; // we only analyze resources that are in the pythonpath
                 }
     
                 String file = fileAdapter.getRawLocation().toOSString();
-                String moduleName = nature.resolveModule(fileAdapter);
                 module = AbstractModule.createModule(root, new File(file), moduleName);
                 
-            }catch(MisconfigurationException e){
+            }catch(Exception e){
                 Log.log(e); //Not much we can do about it.
                 return;
             }finally{

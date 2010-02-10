@@ -37,11 +37,14 @@ public interface IPythonPathNature {
     public List<String> getCompleteProjectPythonPath(IInterpreterInfo interpreter, IInterpreterManager info);
 
     /**
+     * @param addExternal if true, the external libraries will also be added (and not only the project 
+     * source folders)
+     * 
      * @return the pythonpath (source and externals) as a string (paths separated by | ), and always as
      * complete paths in the filesystem.
      * @throws CoreException
      */
-    public String getOnlyProjectPythonPathStr() throws CoreException;
+    public String getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException;
 
     /**
      * Sets the project source path (paths are relative to the project location and are separated by | ) 

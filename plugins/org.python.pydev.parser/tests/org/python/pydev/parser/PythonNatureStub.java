@@ -13,6 +13,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 
 public class PythonNatureStub implements IPythonNature {
 
@@ -71,7 +72,15 @@ public class PythonNatureStub implements IPythonNature {
     public boolean isResourceInPythonpath(String resource) {
         throw new RuntimeException("Not implemented");
     }
-
+    
+    public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal) throws MisconfigurationException{
+    	throw new RuntimeException("Not implemented");
+    }
+    
+    public boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal) throws MisconfigurationException{
+    	throw new RuntimeException("Not implemented");
+    }
+    
     public void rebuildPath() {
         throw new RuntimeException("Not implemented");
     }
@@ -139,4 +148,16 @@ public class PythonNatureStub implements IPythonNature {
     public boolean isOkToUse(){
         throw new RuntimeException("Not implemented");
     }
+
+	@Override
+	public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal)
+			throws CoreException, MisconfigurationException {
+		throw new RuntimeException("Not implemented");
+	}
+
+	@Override
+	public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
+			throws CoreException, MisconfigurationException {
+		throw new RuntimeException("Not implemented");
+	}
 }

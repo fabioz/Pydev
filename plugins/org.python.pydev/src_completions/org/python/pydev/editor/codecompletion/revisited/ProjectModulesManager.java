@@ -35,6 +35,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
@@ -310,6 +311,14 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         "is added as a source folder for pydev (project: "+project.getName()+")";
     }
 
+	public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException {
+		String onlyProjectPythonPathStr = this.nature.getPythonPathNature().getOnlyProjectPythonPathStr(addExternal);
+		HashSet<String> projectSourcePath = new HashSet<String>(StringUtils.splitAndRemoveEmptyTrimmed(onlyProjectPythonPathStr, '|'));
+		
+		return this.pythonPathHelper.resolveModule(fileAbsolutePath, new ArrayList<String>(projectSourcePath));
+	}
+
+    
     /** 
      * @see org.python.pydev.core.IProjectModulesManager#resolveModule(java.lang.String)
      */
@@ -530,7 +539,6 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         }
         return l;
     }
-
 
 
 

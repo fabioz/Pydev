@@ -129,7 +129,7 @@ public class PythonPathNature implements IPythonPathNature {
     /**
      * @return the project pythonpath with complete paths in the filesystem.
      */
-    public String getOnlyProjectPythonPathStr() throws CoreException  {
+    public String getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException  {
         String source = null;
         String external = null;
         String contributed = null;
@@ -144,7 +144,9 @@ public class PythonPathNature implements IPythonPathNature {
         StringSubstitution stringSubstitution = new StringSubstitution(nature);
         
         source = getProjectSourcePath(true);
-        external = getProjectExternalSourcePath(true);
+        if(addExternal){
+        	external = getProjectExternalSourcePath(true);
+        }
         contributed = stringSubstitution.performPythonpathStringSubstitution(getContributedSourcePath(project));
             
         if(source == null){

@@ -3,6 +3,7 @@ package org.python.pydev.plugin.nature;
 import java.io.File;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -35,6 +36,23 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     public SystemPythonNature(IInterpreterManager manager, IInterpreterInfo info){
         this.info = info;
         this.manager = manager;
+    }
+    
+    
+    public boolean isResourceInPythonpathProjectSources(IResource resource, boolean addExternal) throws MisconfigurationException{
+    	return super.isResourceInPythonpath(resource); //no source folders in the system nature (just treat it as default)
+    }
+    
+    public boolean isResourceInPythonpathProjectSources(String resource, boolean addExternal) throws MisconfigurationException{
+    	return super.isResourceInPythonpath(resource); //no source folders in the system nature (just treat it as default)
+    }
+    
+    public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal) throws CoreException, MisconfigurationException {
+    	return super.resolveModule(fileAbsolutePath);
+    }
+    
+    public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException, MisconfigurationException {
+    	return super.resolveModule(new File(fileAbsolutePath));
     }
     
     public String getVersion() throws CoreException {

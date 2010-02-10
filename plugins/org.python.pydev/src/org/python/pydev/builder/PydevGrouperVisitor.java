@@ -11,7 +11,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -53,16 +52,18 @@ public class PydevGrouperVisitor extends PydevInternalResourceDeltaVisitor {
         
         FastStringBuffer bufferToCreateString = new FastStringBuffer();
         
+        try{
+        	//we visit external because we must index them
+        	if(!isResourceInPythonpathProjectSources(resource, nature, true)){
+        		return; // we only analyze resources that are in the pythonpath
+        	}
+        }catch(Exception e1){
+        	Log.log(e1);
+        	return; // we only analyze resources that are in the pythonpath
+        }
+        
         HashMap<String, Object> copyMemo = new HashMap<String, Object>(this.memo);
         try{
-            try{
-                if(!nature.isResourceInPythonpath(resource)){
-                    return; // we only analyze resources that are in the pythonpath
-                }
-            }catch(MisconfigurationException e1){
-                Log.log(e1);
-                return; // we only analyze resources that are in the pythonpath
-            }
             
             for (PyDevBuilderVisitor visitor : visitors) {
                 // some visitors cannot visit too many elements because they do a lot of processing
