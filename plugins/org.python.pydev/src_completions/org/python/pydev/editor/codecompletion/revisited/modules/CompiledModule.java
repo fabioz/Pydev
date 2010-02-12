@@ -371,10 +371,11 @@ public class CompiledModule extends AbstractModule{
             String fPath = def.o1[0];
             if(fPath.equals("None")){
                 if(TRACE_COMPILED_MODULES){
-                    System.out.println("CompiledModule.findDefinition:"+token+" = empty");
+                    System.out.println("CompiledModule.findDefinition:"+token+" = None");
                 }
-                this.definitionsFoundCache.add(token, EMPTY_DEFINITION);
-                return EMPTY_DEFINITION;
+                Definition[] definition = new Definition[]{new Definition(def.o2[0], def.o2[1], token, null, null, this)};
+                this.definitionsFoundCache.add(token, definition);
+                return definition;
             }
             File f = new File(fPath);
             String foundModName = nature.resolveModule(f);

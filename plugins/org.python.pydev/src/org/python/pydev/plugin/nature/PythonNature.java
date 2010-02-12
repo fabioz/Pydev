@@ -255,7 +255,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return resolveModuleOnlyInProjectSources(absPath, addExternal) != null; 
     }
     
-    @Override
+
     public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
     		throws CoreException, MisconfigurationException {
     	

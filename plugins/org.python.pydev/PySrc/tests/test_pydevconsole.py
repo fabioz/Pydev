@@ -77,8 +77,18 @@ class Test(unittest.TestCase):
             'Did not find __add__ in : %s' % (comps,)
         )
         
-        self.assert_(('AssertionError', '', '', '1') in interpreter.getCompletions(''))
-        self.assert_(('RuntimeError', '', '', '1') not in interpreter.getCompletions('Assert'))
+        
+        completions = interpreter.getCompletions('')
+        for c in completions:
+            if c[0] == 'AssertionError':
+                break
+        else:
+            self.fail('Could not find AssertionError')
+            
+        completions = interpreter.getCompletions('Assert')
+        for c in completions:
+            if c[0] == 'RuntimeError':
+                self.fail('Did not expect to find RuntimeError there')
         
         self.assert_(('__doc__', None, '', '3') not in interpreter.getCompletions('foo.CO'))
         

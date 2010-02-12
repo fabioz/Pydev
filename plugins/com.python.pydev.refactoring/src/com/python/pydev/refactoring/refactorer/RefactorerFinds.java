@@ -94,6 +94,8 @@ public class RefactorerFinds {
                             Assert.isNotNull(model2);
                             toFindOnRound.parents.add(model2);
                         }
+                    }else{
+                    	withoutAstDefinitions.add(definition.value);
                     }
                 }
                 

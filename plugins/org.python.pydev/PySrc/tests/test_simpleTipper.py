@@ -58,6 +58,16 @@ if sys.platform.find('java') == -1:
             tips = importsTipper.GenerateTip('%s.RuntimeError' % BUILTIN_MOD)
             self.assertIn('__doc__', tips)
             
+        def testImports2b(self):
+            tips = importsTipper.GenerateTip('%s' % BUILTIN_MOD)
+            t = self.assertIn('file' , tips)
+            self.assert_('->' in t[1].strip() or 'file' in t[1])
+            
+        def testImports2c(self):
+            tips = importsTipper.GenerateTip('%s.file' % BUILTIN_MOD)
+            t = self.assertIn('readlines' , tips)
+            self.assert_('->' in t[1] or 'sizehint' in t[1])
+            
         def testImports(self):
             '''
             You can print_ the results to check...
@@ -94,6 +104,7 @@ if sys.platform.find('java') == -1:
             self.assertIn('list'          , tip)
             self.assertIn('RuntimeError'   , tip)
             self.assertIn('RuntimeWarning' , tip)
+            
             t = self.assertIn('cmp' , tip)
             
             self.CheckArgs(t, '(x, y)', '(object x, object y)') #args

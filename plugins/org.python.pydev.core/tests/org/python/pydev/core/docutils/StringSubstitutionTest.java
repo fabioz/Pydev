@@ -222,13 +222,13 @@ public class StringSubstitutionTest extends TestCase{
                 throw new RuntimeException("Not implemented");
             }
 
-			@Override
+			
 			public String resolveModuleOnlyInProjectSources(String fileAbsolutePath,
 					boolean addExternal) throws CoreException, MisconfigurationException {
 				throw new RuntimeException("Not implemented");
 			}
 
-			@Override
+			
 			public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath,
 					boolean addExternal) throws CoreException, MisconfigurationException {
 				throw new RuntimeException("Not implemented");

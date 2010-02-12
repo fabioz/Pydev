@@ -168,13 +168,13 @@ public class PythonNatureStub implements IPythonNature {
         
     }
 
-	@Override
+	
 	public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal)
 			throws CoreException {
 		throw new RuntimeException("Not implemented");
 	}
 
-	@Override
+	
 	public String resolveModuleOnlyInProjectSources(IResource fileAbsolutePath, boolean addExternal)
 			throws CoreException {
 		throw new RuntimeException("Not implemented");

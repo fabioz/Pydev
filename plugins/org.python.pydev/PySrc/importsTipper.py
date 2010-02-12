@@ -152,7 +152,7 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
         
         getCompleteInfo = False
     
-    dontGetDocsOn = (float, int, str, tuple, list, type)
+    dontGetDocsOn = (float, int, str, tuple, list)
     for d in dirComps:
         
         if d is None:
@@ -176,10 +176,11 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
                     #check if we have to get docs
                     getDoc = True
                     for class_ in dontGetDocsOn:
+                            
                         if isinstance(obj, class_):
                             getDoc = False
                             break
-                            
+                        
                     doc = ''
                     if getDoc:
                         #no need to get this info... too many constants are defined and 
