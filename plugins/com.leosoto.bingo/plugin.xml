@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
-         point="org.eclipse.ui.newWizards">
-      <wizard
+    <extension point="org.eclipse.ui.newWizards">
+        <wizard
             canFinishEarly="false"
             category="org.python.pydev.PythonCategory"
             class="com.leosoto.bingo.ui.wizards.project.DjangoProjectWizard"
@@ -15,14 +14,36 @@
             name="Django Project"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>         
-   </extension>
+    </extension>
 <!-- Python nature -->
-   <extension
+    <extension
          id="djangoNature"
          name="Django Nature"
          point="org.eclipse.core.resources.natures">
-      <runtime>
-         <run class="com.leosoto.bingo.plugin.nature.DjangoNature"/>
-      </runtime>
+        <runtime>
+            <run class="com.leosoto.bingo.plugin.nature.DjangoNature"/>
+        </runtime>
 	</extension>   
+	
+    <extension point="org.eclipse.ui.popupMenus">
+         <objectContribution
+             adaptable="true"
+             id="com.leosoto.bingo.ui.actions.DjangoCreateApp"
+             objectClass="org.eclipse.core.resources.IProject">
+			 <menu id="com.leosoto.bingo.ui.django.menu" label="Django" icon="icons/django_16x16.png">        
+                 <separator name="common"/>
+                 <separator name="db"/>
+                 <separator name="misc"/>
+             </menu>			  
+	         <action
+	                class="com.leosoto.bingo.debug.ui.actions.DjangoCreateApp"
+	                enablesFor="+"
+	                id="com.leosoto.bingo.ui.actions.project.djangoCreateApp"
+	                label="Create App"
+	                menubarPath="com.leosoto.bingo.ui.django.menu/misc"
+	                tooltip="Create a new Django App inside this project">
+             </action>
+             <visibility><objectState name="projectNature" value="com.leosoto.bingo.djangoNature"/></visibility>
+          </objectContribution>
+    </extension>
 </plugin>
