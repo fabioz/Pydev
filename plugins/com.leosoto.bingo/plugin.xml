@@ -59,6 +59,15 @@
 	               menubarPath="com.leosoto.bingo.ui.django.menu/misc"
 	               tooltip="Create deployable WAR package for Django project">
 	         </action>
+	         <action
+	               class="com.leosoto.bingo.debug.ui.actions.DjangoShell"
+	               enablesFor="+"
+	               id="com.leosoto.bingo.ui.actions.project.djangoShell"
+	               label="Python Shell"
+	               menubarPath="com.leosoto.bingo.ui.django.menu/common"
+	               tooltip="Run Python Interactive Interpreter">
+	         </action>
+	         
              <visibility><objectState name="projectNature" value="com.leosoto.bingo.djangoNature"/></visibility>
           </objectContribution>
     </extension>
