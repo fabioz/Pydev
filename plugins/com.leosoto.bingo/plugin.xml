@@ -28,7 +28,7 @@
     <extension point="org.eclipse.ui.popupMenus">
          <objectContribution
              adaptable="true"
-             id="com.leosoto.bingo.ui.actions.DjangoCreateApp"
+             id="com.leosoto.bingo.ui.actions.project"
              objectClass="org.eclipse.core.resources.IProject">
 			 <menu id="com.leosoto.bingo.ui.django.menu" label="Django" icon="icons/django_16x16.png">        
                  <separator name="common"/>
@@ -43,6 +43,13 @@
 	                menubarPath="com.leosoto.bingo.ui.django.menu/misc"
 	                tooltip="Create a new Django App inside this project">
              </action>
+	         <action
+	               class="com.leosoto.bingo.debug.ui.actions.DjangoDevServer"
+	               enablesFor="+"
+	               id="com.leosoto.bingo.ui.actions.project.djangoDevServer"
+	               label="Run Development Server"               menubarPath="com.leosoto.bingo.ui.django.menu/common"
+	               tooltip="Run single-threaded development server">
+	         </action>
              <visibility><objectState name="projectNature" value="com.leosoto.bingo.djangoNature"/></visibility>
           </objectContribution>
     </extension>
