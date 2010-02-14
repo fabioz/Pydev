@@ -266,7 +266,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                                 }else{
                                     if(commAttempts < maximumAttempts){
                                         commAttempts += 1;
-                                        Thread.sleep(50);
+                                        Thread.sleep(250);
                                         executed.o1 = stdErrReader.getAndClearContents();
                                         continue;
                                     }else{
