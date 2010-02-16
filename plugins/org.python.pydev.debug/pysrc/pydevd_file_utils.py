@@ -6,6 +6,10 @@
     
     To do that, the PATHS_FROM_CLIENT_TO_SERVER constant must be filled with the appropriate paths.
     
+    @note: 
+        in this context, the server is where your python process is running 
+        and the client is where eclipse is running.
+    
     E.g.: 
         If the server has the structure
             /user/projects/my_project/src/package/module1.py  
