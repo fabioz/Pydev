@@ -167,10 +167,10 @@ if PATHS_FROM_CLIENT_TO_SERVER:
                     
             #Note that when going to the server, we do the replace first and only later do the norm file.
             if client_sep is not None:
-                translated = translated.replace(server_sep, client_sep)
+                translated = translated.replace(client_sep, server_sep)
             ret = _NormFile(translated)
                 
-            NORM_FILENAME_TO_SERVER_CONTAINER[filename] = translated
+            NORM_FILENAME_TO_SERVER_CONTAINER[filename] = ret
             return ret
         
     
@@ -196,7 +196,7 @@ if PATHS_FROM_CLIENT_TO_SERVER:
             #When going to the client, first we do the norm file and only later the replace for slashes.
             ret = _NormFile(translated)
             if client_sep is not None:
-                ret = ret.replace(client_sep, server_sep)
+                ret = ret.replace(server_sep, client_sep)
                 
             NORM_FILENAME_TO_CLIENT_CONTAINER[filename] = ret
             return ret
