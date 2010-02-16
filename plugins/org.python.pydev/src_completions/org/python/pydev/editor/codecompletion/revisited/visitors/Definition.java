@@ -198,7 +198,12 @@ public class Definition implements IDefinition {
             			new CompletionState(line, col, actToken, nature, qualifier, cache), manager);
             	
             	for (IToken iToken : globalTokens) {
-					if(this.value.equals(iToken.getRepresentation())){
+					String rep = iToken.getRepresentation();
+					//if the value is file.readlines, when a compiled module is asked, it'll return
+					//the module __builtin__ with a parent package of __builtin__.file and a representation
+					//of readlines, so, the qualifier matches the representation (and not the full value).
+					//Note that if we didn't have a dot, we wouldn't really need to check that.
+					if(this.value.equals(rep) || qualifier.equals(rep)){
 						return iToken.getDocStr();
 					}
 				}
