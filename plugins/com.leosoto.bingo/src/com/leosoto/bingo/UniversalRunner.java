@@ -30,11 +30,9 @@ public class UniversalRunner {
 	        }
 	        String[] interpreter = getInterpreterCommandLine(project);
 	        SimpleRunner runner = new SimpleRunner(); // To avoid too much code
-	                                                  // duplication. But if
-	                                                  // this refactoring
-	                                                  // works, SimpleRunner
+	                                                  // duplication. SimpleRunner
 	                                                  // code should be moved
-	                        						  // to this class
+	                        						  // to another class perhaps?
 	        List<String> cmd = new ArrayList<String>();
 	        cmd.addAll(Arrays.asList(interpreter));
 	        cmd.add("-u");
