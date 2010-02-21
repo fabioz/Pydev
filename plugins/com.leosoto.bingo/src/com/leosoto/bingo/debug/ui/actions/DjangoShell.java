@@ -1,6 +1,5 @@
 package com.leosoto.bingo.debug.ui.actions;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple3;
-import org.python.pydev.debug.newconsole.PydevConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
@@ -36,10 +34,10 @@ public class DjangoShell extends PyRemoveNature{
     					nature,
     					natures);
     		PydevConsoleInterpreter interpreter = 
-    			consoleFactory.createPydevInterpreter(
+    			PydevConsoleFactory.createPydevInterpreter(
 					launchAndProcess.o1, launchAndProcess.o2,
 					launchAndProcess.o3, natures);
-    		PydevConsole console = consoleFactory.createConsole(interpreter);
+    		consoleFactory.createConsole(interpreter);
     		interpreter.exec(
     				"from django.core import management;" +
     				"from " + selectedProject.getName() + " import settings;" +
