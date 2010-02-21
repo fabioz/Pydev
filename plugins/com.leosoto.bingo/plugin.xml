@@ -67,6 +67,15 @@
 	               menubarPath="com.leosoto.bingo.ui.django.menu/common"
 	               tooltip="Run Python Interactive Interpreter">
 	         </action>
+
+	         <action
+	               class="com.leosoto.bingo.debug.ui.actions.DjangoTest"
+	               enablesFor="+"
+	               id="com.leosoto.bingo.debug.ui.actions.project.djangoTest"
+	               label="Run Tests" 
+	               menubarPath="com.leosoto.bingo.ui.django.menu/common"
+	               tooltip="Run Tests">
+	         </action>
 	         
              <visibility><objectState name="projectNature" value="com.leosoto.bingo.djangoNature"/></visibility>
           </objectContribution>
