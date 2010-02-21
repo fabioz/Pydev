@@ -113,6 +113,8 @@ public class SimpleRunner {
             
                 case IPythonNature.INTERPRETER_TYPE_JYTHON:
                     env.put("CLASSPATH", pythonPathEnvStr); //put the environment
+                    env.put("JYTHONPATH", pythonPathEnvStr); //put the environment
+                    break;
                     
                 case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
                     env.put("IRONPYTHONPATH", pythonPathEnvStr); //put the environment

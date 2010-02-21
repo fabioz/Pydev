@@ -403,6 +403,8 @@ public class PythonRunnerConfig {
             if(isJython()){
                 //Also update the classpath env variable.
                 updateVar(pythonNature, manager, win32, envMap, "CLASSPATH", pythonpath);
+                // And the jythonpath env variable
+                updateVar(pythonNature, manager, win32, envMap, "JYTHONPATH", pythonpath);
                 
             }else if(isIronpython()){
                 //Also update the ironpythonpath env variable.
