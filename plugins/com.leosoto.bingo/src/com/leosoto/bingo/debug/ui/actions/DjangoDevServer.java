@@ -8,7 +8,7 @@ public class DjangoDevServer extends PyRemoveNature{
 
     public void run(IAction action) {
     	try {
-    		DjangoManagementRunner.launch(selectedProject, "runserver");
+    		DjangoManagementRunner.launch(selectedProject, "runserver --noreload");
     	} catch (Exception e) {
     		throw new RuntimeException(e);
     	}

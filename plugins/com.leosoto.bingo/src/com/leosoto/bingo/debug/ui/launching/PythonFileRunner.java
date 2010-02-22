@@ -35,7 +35,7 @@ public class PythonFileRunner {
 	public static ILaunch launch(IFile file, String arguments) throws CoreException {
 		try {
 			ILaunchConfiguration conf = getLaunchConfiguration(file, arguments);
-			return conf.launch("run", null);
+			return conf.launch(ILaunchManager.DEBUG_MODE, null);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
