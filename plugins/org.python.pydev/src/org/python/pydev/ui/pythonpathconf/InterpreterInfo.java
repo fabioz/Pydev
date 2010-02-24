@@ -6,6 +6,7 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -85,6 +86,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * so, whenever the forcedLibs change, this should be changed too). 
      */
     private String[] builtinsCache;
+    private final Map<String, File> predefinedBuiltinsCache = new HashMap<String, File>();
     
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
@@ -112,6 +114,8 @@ public class InterpreterInfo implements IInterpreterInfo{
     private String[] envVariables;
     
     private Properties stringSubstitutionVariables;
+    
+    private final List<String> predefinedCompletionsPath = new ArrayList<String>();
     
     /**
      * This is the way that the interpreter should be referred. Can be null (in which case the executable is
@@ -185,7 +189,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         
         this.setStringSubstitutionVariables(stringSubstitution);
         
-        this.builtinsCache = null; //force cache recreation
+        this.clearBuiltinsCache(); //force cache recreation
     }
     
     /**
@@ -207,6 +211,10 @@ public class InterpreterInfo implements IInterpreterInfo{
         
         if (info.forcedLibs.equals(this.forcedLibs) == false){
             return false;
+        }
+        
+        if(info.predefinedCompletionsPath.equals(this.predefinedCompletionsPath) == false){
+        	return false;
         }
         
         if(this.envVariables != null){
@@ -266,6 +274,9 @@ public class InterpreterInfo implements IInterpreterInfo{
         if(received.toLowerCase().indexOf("executable") == -1){
             throw new RuntimeException("Unable to recreate the Interpreter info (Its format changed. Please, re-create your Interpreter information).Contents found:"+received);
         }
+        
+        Tuple<String, String> predefCompsPath = StringUtils.splitOnFirst(received, "@PYDEV_PREDEF_COMPS_PATHS@");
+        received = predefCompsPath.o1;
         
         //Note that the new lines are important for the string substitution, so, we must remove it before removing new lines
         Tuple<String, String> stringSubstitutionVarsSplit = StringUtils.splitOnFirst(received, "@PYDEV_STRING_SUBST_VARS@");
@@ -434,6 +445,15 @@ public class InterpreterInfo implements IInterpreterInfo{
         	p4 = PropertiesHelper.createPropertiesFromString(stringSubstitutionVarsSplit.o2);
         }
 		InterpreterInfo info = new InterpreterInfo(version, executable, l, l1, l2, l3, p4);
+		if(predefCompsPath.o2.length() > 1){
+			List<String> split = StringUtils.split(predefCompsPath.o2, '|');
+			for(String s:split){
+				s = s.trim();
+				if(s.length() > 0){
+					info.addPredefinedCompletionsPath(s);
+				}
+			}
+		}
         info.setName(name);
         return info;
     }
@@ -490,6 +510,13 @@ public class InterpreterInfo implements IInterpreterInfo{
         	buffer.append(PropertiesHelper.createStringFromProperties(this.stringSubstitutionVariables));
         }
         
+        if(this.predefinedCompletionsPath.size() > 0){
+        	buffer.append("@PYDEV_PREDEF_COMPS_PATHS@");
+        	for(String s:this.predefinedCompletionsPath){
+        		buffer.append("|");
+        		buffer.append(s);
+        	}
+        }
         
         return buffer.toString();
     }
@@ -957,7 +984,12 @@ public class InterpreterInfo implements IInterpreterInfo{
             default:
                 throw new RuntimeException("Don't know how to treat: "+interpreterType);
         }
-        this.builtinsCache = null; //force cache recreation
+        this.clearBuiltinsCache(); //force cache recreation
+    }
+    
+    private void clearBuiltinsCache(){
+    	this.builtinsCache = null; //force cache recreation
+    	this.predefinedBuiltinsCache.clear();
     }
 
     /**
@@ -1048,7 +1080,27 @@ public class InterpreterInfo implements IInterpreterInfo{
     //START: Things related to the builtins (forcedLibs) ---------------------------------------------------------------
     public String[] getBuiltins() {
         if(this.builtinsCache == null){
-            this.builtinsCache = forcedLibs.toArray(new String[0]);
+        	Set<String> set = new HashSet<String>(forcedLibs);
+        	for(String s:this.getPredefinedCompletionsPath()){
+        		File f = new File(s);
+        		if(f.exists()){
+        			File[] predefs = f.listFiles(new FilenameFilter() {
+						
+        				//Only accept names ending with .pypredef in the passed dirs
+						public boolean accept(File dir, String name) {
+							return name.endsWith(".pypredef");
+						}
+					});
+        			
+        			for (File file : predefs) {
+						String n = file.getName();
+						String modName = n.substring(0, n.length()-(".pypredef".length()));
+						this.predefinedBuiltinsCache.put(modName, file);
+						set.add(modName);
+					}
+        		}
+        	}
+            this.builtinsCache = set.toArray(new String[0]);
         }
         return this.builtinsCache;
     }
@@ -1058,7 +1110,7 @@ public class InterpreterInfo implements IInterpreterInfo{
             return;
         }
         this.forcedLibs.add(forcedLib);
-        this.builtinsCache = null;
+        this.clearBuiltinsCache();
     }
 
     /**
@@ -1079,7 +1131,7 @@ public class InterpreterInfo implements IInterpreterInfo{
 
     public void removeForcedLib(String forcedLib) {
         this.forcedLibs.remove(forcedLib);
-        this.builtinsCache = null;
+        this.clearBuiltinsCache();
     }
 
     public Iterator<String> forcedLibsIterator() {
@@ -1284,4 +1336,19 @@ public class InterpreterInfo implements IInterpreterInfo{
 		return this.stringSubstitutionVariables;
 	}
 
+	public void addPredefinedCompletionsPath(String path) {
+		this.predefinedCompletionsPath.add(path);
+	}
+
+	public List<String> getPredefinedCompletionsPath(){
+		return new ArrayList<String>(predefinedCompletionsPath); //Return a copy.
+	}
+	
+	/**
+	 * May return null if it doesn't exist.
+	 * @return the file that matches the passed module name with the predefined builtins.
+	 */
+	public File getPredefinedModule(String moduleName){
+		return this.predefinedBuiltinsCache.get(moduleName);
+	}
 }

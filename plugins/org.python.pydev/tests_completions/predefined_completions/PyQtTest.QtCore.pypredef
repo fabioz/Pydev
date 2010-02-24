@@ -1,0 +1,2488 @@
+Bool = int
+Double = int
+Int = int
+Invalid = int
+LongLong = int
+
+class QAbstractEventDispatcher:
+    
+    def __init__(self, parent=None):
+        '''
+        
+        @type parent: QObject
+        '''
+        
+    
+    def aboutToBlock():
+        '''
+        
+        '''
+        
+    
+    def awake():
+        '''
+        
+        '''
+        
+    
+    def closingDown():
+        '''
+        
+        '''
+        
+    
+    def flush():
+        '''
+        
+        '''
+        
+    
+    def hasPendingEvents():
+        '''
+        
+        '''
+        return bool
+    
+    def instance(thread=None):
+        '''
+        
+        @type thread: QThread
+        '''
+        return QAbstractEventDispatcher
+    
+    def interrupt():
+        '''
+        
+        '''
+        
+    
+    def processEvents(flags):
+        '''
+        
+        @type flags: QEventLoop.ProcessEventsFlags
+        '''
+        return bool
+    
+    def registerSocketNotifier(notifier):
+        '''
+        
+        @type notifier: QSocketNotifier
+        '''
+        
+    
+    def registerTimer(interval, object):
+        '''
+        
+        @type interval: int
+        @type object: QObject
+        '''
+        return int
+    
+    def registeredTimers(object):
+        '''
+        
+        @type object: QObject
+        '''
+        
+    
+    def startingUp():
+        '''
+        
+        '''
+        
+    
+    def unregisterSocketNotifier(notifier):
+        '''
+        
+        @type notifier: QSocketNotifier
+        '''
+        
+    
+    def unregisterTimer(timerId):
+        '''
+        
+        @type timerId: int
+        '''
+        return bool
+    
+    def unregisterTimers(object):
+        '''
+        
+        @type object: QObject
+        '''
+        return bool
+    
+    def wakeUp():
+        '''
+        
+        '''
+        
+
+
+class QAbstractItemModel:
+    
+    def __init__(self, parent=None):
+        '''
+        
+        @type parent: QObject
+        '''
+        
+    
+    def beginInsertColumns(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def beginInsertRows(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def beginRemoveColumns(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def beginRemoveRows(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def buddy(index):
+        '''
+        
+        @type index: QModelIndex
+        '''
+        return QModelIndex
+    
+    def canFetchMore(parent):
+        '''
+        
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def changePersistentIndex(from_, to):
+        '''
+        
+        @type from: QModelIndex
+        @type to: QModelIndex
+        '''
+        
+    
+    def changePersistentIndexList():
+        '''
+        
+        '''
+        
+    
+    def columnCount(parent=QModelIndex()):
+        '''
+        
+        @type parent: QModelIndex
+        '''
+        return int
+    
+    def columnsAboutToBeInserted(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def columnsAboutToBeRemoved(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def columnsInserted(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def columnsRemoved(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def createIndex(arow, acolumn, adata=0):
+        '''
+        
+        @type arow: int
+        @type acolumn: int
+        @type adata: object
+        '''
+        return QModelIndex
+    
+    def data(index, role=Qt.DisplayRole):
+        '''
+        
+        @type index: QModelIndex
+        @type role: int
+        '''
+        
+    
+    def dataChanged(topLeft, bottomRight):
+        '''
+        
+        @type topLeft: QModelIndex
+        @type bottomRight: QModelIndex
+        '''
+        
+    
+    def decodeData(row, column, parent, stream):
+        '''
+        
+        @type row: int
+        @type column: int
+        @type parent: QModelIndex
+        @type stream: QDataStream
+        '''
+        return bool
+    
+    def dropMimeData(data, action, row, column, parent):
+        '''
+        
+        @type data: QMimeData
+        @type action: Qt.DropAction
+        @type row: int
+        @type column: int
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def encodeData(stream):
+        '''
+        
+        @type stream: QDataStream
+        '''
+        
+    
+    def endInsertColumns():
+        '''
+        
+        '''
+        
+    
+    def endInsertRows():
+        '''
+        
+        '''
+        
+    
+    def endRemoveColumns():
+        '''
+        
+        '''
+        
+    
+    def endRemoveRows():
+        '''
+        
+        '''
+        
+    
+    def fetchMore(parent):
+        '''
+        
+        @type parent: QModelIndex
+        '''
+        
+    
+    def flags(index):
+        '''
+        
+        @type index: QModelIndex
+        '''
+        return Qt.ItemFlags
+    
+    def hasChildren(parent=QModelIndex()):
+        '''
+        
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def hasIndex(row, column, parent=QModelIndex()):
+        '''
+        
+        @type row: int
+        @type column: int
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def headerData(section, orientation, role=Qt.DisplayRole):
+        '''
+        
+        @type section: int
+        @type orientation: Qt.Orientation
+        @type role: int
+        '''
+        
+    
+    def headerDataChanged(orientation, first, last):
+        '''
+        
+        @type orientation: Qt.Orientation
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def index(row, column, parent=QModelIndex()):
+        '''
+        
+        @type row: int
+        @type column: int
+        @type parent: QModelIndex
+        '''
+        return QModelIndex
+    
+    def insertColumn(acolumn, aparent=QModelIndex()):
+        '''
+        
+        @type acolumn: int
+        @type aparent: QModelIndex
+        '''
+        return bool
+    
+    def insertColumns(column, count, parent=QModelIndex()):
+        '''
+        
+        @type column: int
+        @type count: int
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def insertRow(arow, aparent=QModelIndex()):
+        '''
+        
+        @type arow: int
+        @type aparent: QModelIndex
+        '''
+        return bool
+    
+    def insertRows(row, count, parent=QModelIndex()):
+        '''
+        
+        @type row: int
+        @type count: int
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def itemData(index):
+        '''
+        
+        @type index: QModelIndex
+        '''
+        
+    
+    def layoutAboutToBeChanged():
+        '''
+        
+        '''
+        
+    
+    def layoutChanged():
+        '''
+        
+        '''
+        
+    
+    def match(start, role, hits=1, flags=Qt.MatchStartsWith | Qt.MatchWrap):
+        '''
+        
+        @type start: QModelIndex
+        @type role: int
+        @type hits: int
+        @type flags: Qt.MatchFlags
+        '''
+        
+    
+    def mimeData():
+        '''
+        
+        '''
+        return QMimeData
+    
+    def mimeTypes():
+        '''
+        
+        '''
+        
+    
+    def modelAboutToBeReset():
+        '''
+        
+        '''
+        
+    
+    def modelReset():
+        '''
+        
+        '''
+        
+    
+    def parent(child):
+        '''
+        
+        @type child: QModelIndex
+        '''
+        return QModelIndex
+    
+    def persistentIndexList():
+        '''
+        
+        '''
+        
+    
+    def removeColumn(acolumn, aparent=QModelIndex()):
+        '''
+        
+        @type acolumn: int
+        @type aparent: QModelIndex
+        '''
+        return bool
+    
+    def removeColumns(column, count, parent=QModelIndex()):
+        '''
+        
+        @type column: int
+        @type count: int
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def removeRow(arow, aparent=QModelIndex()):
+        '''
+        
+        @type arow: int
+        @type aparent: QModelIndex
+        '''
+        return bool
+    
+    def removeRows(row, count, parent=QModelIndex()):
+        '''
+        
+        @type row: int
+        @type count: int
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def reset():
+        '''
+        
+        '''
+        
+    
+    def revert():
+        '''
+        
+        '''
+        
+    
+    def rowCount(parent=QModelIndex()):
+        '''
+        
+        @type parent: QModelIndex
+        '''
+        return int
+    
+    def rowsAboutToBeInserted(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def rowsAboutToBeRemoved(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def rowsInserted(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def rowsRemoved(parent, first, last):
+        '''
+        
+        @type parent: QModelIndex
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def setData(index, role=Qt.EditRole):
+        '''
+        
+        @type index: QModelIndex
+        @type role: int
+        '''
+        return bool
+    
+    def setHeaderData(section, orientation, role=Qt.EditRole):
+        '''
+        
+        @type section: int
+        @type orientation: Qt.Orientation
+        @type role: int
+        '''
+        return bool
+    
+    def setItemData(index):
+        '''
+        
+        @type index: QModelIndex
+        '''
+        return bool
+    
+    def setSupportedDragActions(param=Qt.DropActions):
+        '''
+        
+        '''
+        
+    
+    def sibling(row, column, idx):
+        '''
+        
+        @type row: int
+        @type column: int
+        @type idx: QModelIndex
+        '''
+        return QModelIndex
+    
+    def sort(column, order=Qt.AscendingOrder):
+        '''
+        
+        @type column: int
+        @type order: Qt.SortOrder
+        '''
+        
+    
+    def span(index):
+        '''
+        
+        @type index: QModelIndex
+        '''
+        return QSize
+    
+    def submit():
+        '''
+        
+        '''
+        return bool
+    
+    def supportedDragActions():
+        '''
+        
+        '''
+        return Qt.DropActions
+    
+    def supportedDropActions():
+        '''
+        
+        '''
+        return Qt.DropActions
+
+
+class QAbstractListModel:
+    
+    def __init__(self, parent=None):
+        '''
+        
+        @type parent: QObject
+        '''
+        
+    
+    def dropMimeData(data, action, row, column, parent):
+        '''
+        
+        @type data: QMimeData
+        @type action: Qt.DropAction
+        @type row: int
+        @type column: int
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def index(row, column=0, parent=QModelIndex()):
+        '''
+        
+        @type row: int
+        @type column: int
+        @type parent: QModelIndex
+        '''
+        return QModelIndex
+
+
+class QAbstractTableModel:
+    
+    def __init__(self, parent=None):
+        '''
+        
+        @type parent: QObject
+        '''
+        
+    
+    def dropMimeData(data, action, row, column, parent):
+        '''
+        
+        @type data: QMimeData
+        @type action: Qt.DropAction
+        @type row: int
+        @type column: int
+        @type parent: QModelIndex
+        '''
+        return bool
+    
+    def index(row, column, parent=QModelIndex()):
+        '''
+        
+        @type row: int
+        @type column: int
+        @type parent: QModelIndex
+        '''
+        return QModelIndex
+
+
+class QBasicTimer:
+    
+    def __init__(self):
+        '''
+        
+        '''
+        
+    
+    def isActive():
+        '''
+        
+        '''
+        return bool
+    
+    def start(msec, obj):
+        '''
+        
+        @type msec: int
+        @type obj: QObject
+        '''
+        
+    
+    def stop():
+        '''
+        
+        '''
+        
+    
+    def timerId():
+        '''
+        
+        '''
+        return int
+
+
+class QBitArray:
+    
+    def __init__(self):
+        '''
+        
+        '''
+        
+    
+    def at(i):
+        '''
+        
+        @type i: int
+        '''
+        return bool
+    
+    def clear():
+        '''
+        
+        '''
+        
+    
+    def clearBit(i):
+        '''
+        
+        @type i: int
+        '''
+        
+    
+    def count():
+        '''
+        
+        '''
+        return int
+    
+    def detach():
+        '''
+        
+        '''
+        
+    
+    def fill(val, first, last):
+        '''
+        
+        @type val: bool
+        @type first: int
+        @type last: int
+        '''
+        
+    
+    def isDetached():
+        '''
+        
+        '''
+        return bool
+    
+    def isEmpty():
+        '''
+        
+        '''
+        return bool
+    
+    def isNull():
+        '''
+        
+        '''
+        return bool
+    
+    def resize(size):
+        '''
+        
+        @type size: int
+        '''
+        
+    
+    def setBit(i):
+        '''
+        
+        @type i: int
+        '''
+        
+    
+    def size():
+        '''
+        
+        '''
+        return int
+    
+    def testBit(i):
+        '''
+        
+        @type i: int
+        '''
+        return bool
+    
+    def toggleBit(i):
+        '''
+        
+        @type i: int
+        '''
+        return bool
+    
+    def truncate(pos):
+        '''
+        
+        @type pos: int
+        '''
+        
+
+
+class QBuffer:
+    
+    def __init__(self, parent=None):
+        '''
+        
+        @type parent: QObject
+        '''
+        
+    
+    def atEnd():
+        '''
+        
+        '''
+        return bool
+    
+    def buffer():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def canReadLine():
+        '''
+        
+        '''
+        return bool
+    
+    def close():
+        '''
+        
+        '''
+        
+    
+    def connectNotify(param=SIGNAL()):
+        '''
+        
+        '''
+        
+    
+    def data():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def disconnectNotify(param=SIGNAL()):
+        '''
+        
+        '''
+        
+    
+    def open(openMode):
+        '''
+        
+        @type openMode: QIODevice.OpenMode
+        '''
+        return bool
+    
+    def pos():
+        '''
+        
+        '''
+        return long
+    
+    def readData(maxlen):
+        '''
+        
+        @type maxlen: long
+        '''
+        return object
+    
+    def seek(off):
+        '''
+        
+        @type off: long
+        '''
+        return bool
+    
+    def setBuffer(a):
+        '''
+        
+        @type a: QByteArray
+        '''
+        
+    
+    def setData(data):
+        '''
+        
+        @type data: QByteArray
+        '''
+        
+    
+    def size():
+        '''
+        
+        '''
+        return long
+    
+    def writeData(data):
+        '''
+        
+        @type data: str
+        '''
+        return long
+
+
+class QByteArray:
+    
+    def __init__(self):
+        '''
+        
+        '''
+        
+    
+    def append(a):
+        '''
+        
+        @type a: QByteArray
+        '''
+        return QByteArray
+    
+    def at(i):
+        '''
+        
+        @type i: int
+        '''
+        return char
+    
+    def capacity():
+        '''
+        
+        '''
+        return int
+    
+    def chop(n):
+        '''
+        
+        @type n: int
+        '''
+        
+    
+    def clear():
+        '''
+        
+        '''
+        
+    
+    def contains(a):
+        '''
+        
+        @type a: QByteArray
+        '''
+        return bool
+    
+    def count(a):
+        '''
+        
+        @type a: QByteArray
+        '''
+        return int
+    
+    def data():
+        '''
+        
+        '''
+        return object
+    
+    def endsWith(a):
+        '''
+        
+        @type a: QByteArray
+        '''
+        return bool
+    
+    def fill(c, size=-1):
+        '''
+        
+        @type c: char
+        @type size: int
+        '''
+        return QByteArray
+    
+    def fromBase64(base64):
+        '''
+        
+        @type base64: QByteArray
+        '''
+        return QByteArray
+    
+    def fromHex(hexEncoded):
+        '''
+        
+        @type hexEncoded: QByteArray
+        '''
+        return QByteArray
+    
+    def fromPercentEncoding(pctEncoded, percent='%'):
+        '''
+        
+        @type pctEncoded: QByteArray
+        @type percent: char
+        '''
+        return QByteArray
+    
+    def fromRawData(str):
+        '''
+        
+        '''
+        return QByteArray
+    
+    def indexOf(a, from_=0):
+        '''
+        
+        @type a: QByteArray
+        @type from: int
+        '''
+        return int
+    
+    def insert(i, a):
+        '''
+        
+        @type i: int
+        @type a: QByteArray
+        '''
+        return QByteArray
+    
+    def isEmpty():
+        '''
+        
+        '''
+        return bool
+    
+    def isNull():
+        '''
+        
+        '''
+        return bool
+    
+    def lastIndexOf(a, from_=-1):
+        '''
+        
+        @type a: QByteArray
+        @type from: int
+        '''
+        return int
+    
+    def left(len):
+        '''
+        
+        @type len: int
+        '''
+        return QByteArray
+    
+    def leftJustified(width, fill=' ', truncate=False):
+        '''
+        
+        @type width: int
+        @type fill: char
+        @type truncate: bool
+        '''
+        return QByteArray
+    
+    def length():
+        '''
+        
+        '''
+        return int
+    
+    def mid(index, len=-1):
+        '''
+        
+        @type index: int
+        @type len: int
+        '''
+        return QByteArray
+    
+    def number(param, base=10):
+        '''
+        
+        @type param: int
+        @type base: int
+        '''
+        return QByteArray
+    
+    def prepend(a):
+        '''
+        
+        @type a: QByteArray
+        '''
+        return QByteArray
+    
+    def push_back(a):
+        '''
+        
+        @type a: QByteArray
+        '''
+        
+    
+    def push_front(a):
+        '''
+        
+        @type a: QByteArray
+        '''
+        
+    
+    def remove(index, len):
+        '''
+        
+        @type index: int
+        @type len: int
+        '''
+        return QByteArray
+    
+    def repeated(times):
+        '''
+        
+        @type times: int
+        '''
+        return QByteArray
+    
+    def replace(index, len, s):
+        '''
+        
+        @type index: int
+        @type len: int
+        @type s: QByteArray
+        '''
+        return QByteArray
+    
+    def reserve(size):
+        '''
+        
+        @type size: int
+        '''
+        
+    
+    def resize(size):
+        '''
+        
+        @type size: int
+        '''
+        
+    
+    def right(len):
+        '''
+        
+        @type len: int
+        '''
+        return QByteArray
+    
+    def rightJustified(width, fill=' ', truncate=False):
+        '''
+        
+        @type width: int
+        @type fill: char
+        @type truncate: bool
+        '''
+        return QByteArray
+    
+    def setNum(n, base=10):
+        '''
+        
+        @type n: int
+        @type base: int
+        '''
+        return QByteArray
+    
+    def simplified():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def size():
+        '''
+        
+        '''
+        return int
+    
+    def split(sep):
+        '''
+        
+        @type sep: char
+        '''
+        
+    
+    def squeeze():
+        '''
+        
+        '''
+        
+    
+    def startsWith(a):
+        '''
+        
+        @type a: QByteArray
+        '''
+        return bool
+    
+    def toBase64():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def toDouble():
+        '''
+        
+        '''
+        return (float, bool_ok)
+    
+    def toFloat():
+        '''
+        
+        '''
+        return (float, bool_ok)
+    
+    def toHex():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def toInt(base=10):
+        '''
+        
+        @type base: int
+        '''
+        return (int, bool_ok)
+    
+    def toLong(base=10):
+        '''
+        
+        @type base: int
+        '''
+        return (long, bool_ok)
+    
+    def toLongLong(base=10):
+        '''
+        
+        @type base: int
+        '''
+        return (long, bool_ok)
+    
+    def toLower():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def toPercentEncoding(exclude=QByteArray(), include=QByteArray(), percent='%'):
+        '''
+        
+        @type exclude: QByteArray
+        @type include: QByteArray
+        @type percent: char
+        '''
+        return QByteArray
+    
+    def toShort(base=10):
+        '''
+        
+        @type base: int
+        '''
+        return (int, bool_ok)
+    
+    def toUInt(base=10):
+        '''
+        
+        @type base: int
+        '''
+        return (unsigned_long, bool_ok)
+    
+    def toULong(base=10):
+        '''
+        
+        @type base: int
+        '''
+        return (unsigned_long, bool_ok)
+    
+    def toULongLong(base=10):
+        '''
+        
+        @type base: int
+        '''
+        return (unsigned_long, bool_ok)
+    
+    def toUShort(base=10):
+        '''
+        
+        @type base: int
+        '''
+        return (unsigned_long, bool_ok)
+    
+    def toUpper():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def trimmed():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def truncate(pos):
+        '''
+        
+        @type pos: int
+        '''
+        
+
+
+class QByteArrayMatcher:
+    
+    def __init__(self):
+        '''
+        
+        '''
+        
+    
+    def indexIn(ba, from_=0):
+        '''
+        
+        @type ba: QByteArray
+        @type from: int
+        '''
+        return int
+    
+    def pattern():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def setPattern(pattern):
+        '''
+        
+        @type pattern: QByteArray
+        '''
+        
+
+
+class QCoreApplication:
+    CodecForTr = int
+    DefaultCodec = int
+    Encoding = int
+    UnicodeUTF8 = int
+    
+    def __init__(self, argv):
+        '''
+        
+        @type argv: list
+        '''
+        
+    
+    def aboutToQuit():
+        '''
+        
+        '''
+        
+    
+    def addLibraryPath():
+        '''
+        
+        '''
+        
+    
+    def applicationDirPath():
+        '''
+        
+        '''
+        
+    
+    def applicationFilePath():
+        '''
+        
+        '''
+        
+    
+    def applicationName():
+        '''
+        
+        '''
+        
+    
+    def applicationPid():
+        '''
+        
+        '''
+        return long
+    
+    def applicationVersion():
+        '''
+        
+        '''
+        
+    
+    def argc():
+        '''
+        
+        '''
+        return int
+    
+    def arguments():
+        '''
+        
+        '''
+        
+    
+    def argv():
+        '''
+        
+        '''
+        return list
+    
+    def closingDown():
+        '''
+        
+        '''
+        return bool
+    
+    def event(QEvent):
+        '''
+        
+        '''
+        return bool
+    
+    def exec_():
+        '''
+        
+        '''
+        return int
+    
+    def exit(retcode=0):
+        '''
+        
+        @type retcode: int
+        '''
+        
+    
+    def flush():
+        '''
+        
+        '''
+        
+    
+    def hasPendingEvents():
+        '''
+        
+        '''
+        return bool
+    
+    def installTranslator(QTranslator):
+        '''
+        
+        '''
+        
+    
+    def instance():
+        '''
+        
+        '''
+        return QCoreApplication
+    
+    def libraryPaths():
+        '''
+        
+        '''
+        
+    
+    def notify(param, param):
+        '''
+        
+        @type param: QObject
+        @type param: QEvent
+        '''
+        return bool
+    
+    def organizationDomain():
+        '''
+        
+        '''
+        
+    
+    def organizationName():
+        '''
+        
+        '''
+        
+    
+    def postEvent(receiver, event):
+        '''
+        
+        @type receiver: QObject
+        @type event: QEvent
+        '''
+        
+    
+    def processEvents(flags=QEventLoop.AllEvents):
+        '''
+        
+        @type flags: QEventLoop.ProcessEventsFlags
+        '''
+        
+    
+    def quit():
+        '''
+        
+        '''
+        
+    
+    def removeLibraryPath():
+        '''
+        
+        '''
+        
+    
+    def removePostedEvents(receiver):
+        '''
+        
+        @type receiver: QObject
+        '''
+        
+    
+    def removeTranslator(QTranslator):
+        '''
+        
+        '''
+        
+    
+    def sendEvent(receiver, event):
+        '''
+        
+        @type receiver: QObject
+        @type event: QEvent
+        '''
+        return bool
+    
+    def sendPostedEvents(receiver, event_type):
+        '''
+        
+        @type receiver: QObject
+        @type event_type: int
+        '''
+        
+    
+    def setApplicationName():
+        '''
+        
+        '''
+        
+    
+    def setApplicationVersion():
+        '''
+        
+        '''
+        
+    
+    def setAttribute(attribute, on=True):
+        '''
+        
+        @type attribute: Qt.ApplicationAttribute
+        @type on: bool
+        '''
+        
+    
+    def setLibraryPaths():
+        '''
+        
+        '''
+        
+    
+    def setOrganizationDomain():
+        '''
+        
+        '''
+        
+    
+    def setOrganizationName():
+        '''
+        
+        '''
+        
+    
+    def startingUp():
+        '''
+        
+        '''
+        return bool
+    
+    def testAttribute(attribute):
+        '''
+        
+        @type attribute: Qt.ApplicationAttribute
+        '''
+        return bool
+    
+    def translate(context, key, comment=None, encoding=QCoreApplication.CodecForTr):
+        '''
+        
+        @type context: str
+        @type key: object
+        @type comment: str
+        @type encoding: QCoreApplication.Encoding
+        '''
+        
+
+
+class QIODevice:
+    Append = int
+    NotOpen = int
+    OpenModeFlag = int
+    ReadOnly = int
+    ReadWrite = int
+    Text = int
+    Truncate = int
+    Unbuffered = int
+    WriteOnly = int
+    
+    def __init__(self):
+        '''
+        
+        '''
+        
+    
+    def aboutToClose():
+        '''
+        
+        '''
+        
+    
+    def atEnd():
+        '''
+        
+        '''
+        return bool
+    
+    def bytesAvailable():
+        '''
+        
+        '''
+        return long
+    
+    def bytesToWrite():
+        '''
+        
+        '''
+        return long
+    
+    def bytesWritten(bytes):
+        '''
+        
+        @type bytes: long
+        '''
+        
+    
+    def canReadLine():
+        '''
+        
+        '''
+        return bool
+    
+    def close():
+        '''
+        
+        '''
+        
+    
+    def errorString():
+        '''
+        
+        '''
+        
+    
+    def getChar():
+        '''
+        
+        '''
+        return (bool, str_c)
+    
+    def isOpen():
+        '''
+        
+        '''
+        return bool
+    
+    def isReadable():
+        '''
+        
+        '''
+        return bool
+    
+    def isSequential():
+        '''
+        
+        '''
+        return bool
+    
+    def isTextModeEnabled():
+        '''
+        
+        '''
+        return bool
+    
+    def isWritable():
+        '''
+        
+        '''
+        return bool
+    
+    def open(mode):
+        '''
+        
+        @type mode: QIODevice.OpenMode
+        '''
+        return bool
+    
+    def openMode():
+        '''
+        
+        '''
+        return QIODevice.OpenMode
+    
+    def peek(maxlen):
+        '''
+        
+        @type maxlen: long
+        '''
+        return QByteArray
+    
+    def pos():
+        '''
+        
+        '''
+        return long
+    
+    def putChar(c):
+        '''
+        
+        @type c: char
+        '''
+        return bool
+    
+    def read(maxlen):
+        '''
+        
+        @type maxlen: long
+        '''
+        return object
+    
+    def readAll():
+        '''
+        
+        '''
+        return QByteArray
+    
+    def readChannelFinished():
+        '''
+        
+        '''
+        
+    
+    def readData(maxlen):
+        '''
+        
+        @type maxlen: long
+        '''
+        return object
+    
+    def readLine(maxlen=0):
+        '''
+        
+        @type maxlen: long
+        '''
+        return object
+    
+    def readLineData(maxlen):
+        '''
+        
+        @type maxlen: long
+        '''
+        return object
+    
+    def readyRead():
+        '''
+        
+        '''
+        
+    
+    def reset():
+        '''
+        
+        '''
+        return bool
+    
+    def seek(pos):
+        '''
+        
+        @type pos: long
+        '''
+        return bool
+    
+    def setErrorString():
+        '''
+        
+        '''
+        
+    
+    def setOpenMode(openMode):
+        '''
+        
+        @type openMode: QIODevice.OpenMode
+        '''
+        
+    
+    def setTextModeEnabled(enabled):
+        '''
+        
+        @type enabled: bool
+        '''
+        
+    
+    def size():
+        '''
+        
+        '''
+        return long
+    
+    def ungetChar(c):
+        '''
+        
+        @type c: char
+        '''
+        
+    
+    def waitForBytesWritten(msecs):
+        '''
+        
+        @type msecs: int
+        '''
+        return bool
+    
+    def waitForReadyRead(msecs):
+        '''
+        
+        @type msecs: int
+        '''
+        return bool
+    
+    def write(data):
+        '''
+        
+        @type data: QByteArray
+        '''
+        return long
+    
+    def writeData(data):
+        '''
+        
+        @type data: str
+        '''
+        return long
+
+
+class QLatin1Char:
+    
+    def __init__(self):
+        '''
+        
+        '''
+        
+    
+    def toLatin1():
+        '''
+        
+        '''
+        return char
+    
+    def unicode():
+        '''
+        
+        '''
+        return unsigned_long
+
+
+class QModelIndex:
+    
+    def __init__(self):
+        '''
+        
+        '''
+        
+    
+    def child(arow, acolumn):
+        '''
+        
+        @type arow: int
+        @type acolumn: int
+        '''
+        return QModelIndex
+    
+    def column():
+        '''
+        
+        '''
+        return int
+    
+    def data(arole=Qt.DisplayRole):
+        '''
+        
+        @type arole: int
+        '''
+        
+    
+    def flags():
+        '''
+        
+        '''
+        return Qt.ItemFlags
+    
+    def internalId():
+        '''
+        
+        '''
+        return object
+    
+    def internalPointer():
+        '''
+        
+        '''
+        return object
+    
+    def isValid():
+        '''
+        
+        '''
+        return bool
+    
+    def model():
+        '''
+        
+        '''
+        return QAbstractItemModel
+    
+    def parent():
+        '''
+        
+        '''
+        return QModelIndex
+    
+    def row():
+        '''
+        
+        '''
+        return int
+    
+    def sibling(arow, acolumn):
+        '''
+        
+        @type arow: int
+        @type acolumn: int
+        '''
+        return QModelIndex
+
+
+class QObject:
+    
+    def __init__(self, parent=None):
+        '''
+        
+        @type parent: QObject
+        '''
+        
+    
+    def blockSignals(b):
+        '''
+        
+        @type b: bool
+        '''
+        return bool
+    
+    def childEvent(QChildEvent):
+        '''
+        
+        '''
+        
+    
+    def children():
+        '''
+        
+        '''
+        
+    
+    def connect(param, param, param, param, param):
+        '''
+        
+        @type param: QObject
+        @type param: SIGNAL()
+        @type param: QObject
+        @type param: SLOT()
+        @type param: Qt.ConnectionType=Qt.AutoConnection
+        '''
+        return object
+    
+    def connectNotify(signal):
+        '''
+        
+        @type signal: SIGNAL()
+        '''
+        
+    
+    def customEvent(QEvent):
+        '''
+        
+        '''
+        
+    
+    def deleteLater():
+        '''
+        
+        '''
+        
+    
+    def destroyed(QObject=None):
+        '''
+        
+        '''
+        
+    
+    def disconnect(param, param, param, param):
+        '''
+        
+        @type param: QObject
+        @type param: SIGNAL()
+        @type param: QObject
+        @type param: SLOT()
+        '''
+        return object
+    
+    def disconnectNotify(signal):
+        '''
+        
+        @type signal: SIGNAL()
+        '''
+        
+    
+    def dumpObjectInfo():
+        '''
+        
+        '''
+        
+    
+    def dumpObjectTree():
+        '''
+        
+        '''
+        
+    
+    def dynamicPropertyNames():
+        '''
+        
+        '''
+        
+    
+    def emit(param, param):
+        '''
+        
+        @type param: SIGNAL()
+        @type param: ...
+        '''
+        
+    
+    def event(QEvent):
+        '''
+        
+        '''
+        return bool
+    
+    def eventFilter(param, param):
+        '''
+        
+        @type param: QObject
+        @type param: QEvent
+        '''
+        return bool
+    
+    def findChild(type):
+        '''
+        
+        @type type: type
+        '''
+        return object
+    
+    def findChildren(type):
+        '''
+        
+        @type type: type
+        '''
+        return list
+    
+    def inherits(classname):
+        '''
+        
+        @type classname: str
+        '''
+        return bool
+    
+    def installEventFilter(QObject):
+        '''
+        
+        '''
+        
+    
+    def isWidgetType():
+        '''
+        
+        '''
+        return bool
+    
+    def killTimer(id):
+        '''
+        
+        @type id: int
+        '''
+        
+    
+    def metaObject():
+        '''
+        
+        '''
+        return QMetaObject
+    
+    def moveToThread(thread):
+        '''
+        
+        @type thread: QThread
+        '''
+        
+    
+    def objectName():
+        '''
+        
+        '''
+        
+    
+    def parent():
+        '''
+        
+        '''
+        return QObject
+    
+    def property(name):
+        '''
+        
+        @type name: str
+        '''
+        
+    
+    def pyqtConfigure(object):
+        '''
+        
+        '''
+        
+    
+    def receivers(signal):
+        '''
+        
+        @type signal: SIGNAL()
+        '''
+        return int
+    
+    def removeEventFilter(QObject):
+        '''
+        
+        '''
+        
+    
+    def sender():
+        '''
+        
+        '''
+        return QObject
+    
+    def setObjectName():
+        '''
+        
+        '''
+        
+    
+    def setParent(QObject):
+        '''
+        
+        '''
+        
+    
+    def setProperty(name):
+        '''
+        
+        @type name: str
+        '''
+        return bool
+    
+    def signalsBlocked():
+        '''
+        
+        '''
+        return bool
+    
+    def startTimer(interval):
+        '''
+        
+        @type interval: int
+        '''
+        return int
+    
+    def thread():
+        '''
+        
+        '''
+        return QThread
+    
+    def timerEvent(QTimerEvent):
+        '''
+        
+        '''
+        
+    
+    def tr(sourceText, comment=None, n=-1):
+        '''
+        
+        @type sourceText: object
+        @type comment: str
+        @type n: int
+        '''
+        
+    
+    def trUtf8(sourceText, comment=None, n=-1):
+        '''
+        
+        @type sourceText: object
+        @type comment: str
+        @type n: int
+        '''
+        
+
+
+class QPersistentModelIndex:
+    
+    def __init__(self):
+        '''
+        
+        '''
+        
+    
+    def child(row, column):
+        '''
+        
+        @type row: int
+        @type column: int
+        '''
+        return QModelIndex
+    
+    def column():
+        '''
+        
+        '''
+        return int
+    
+    def data(role=Qt.DisplayRole):
+        '''
+        
+        @type role: int
+        '''
+        
+    
+    def flags():
+        '''
+        
+        '''
+        return Qt.ItemFlags
+    
+    def isValid():
+        '''
+        
+        '''
+        return bool
+    
+    def model():
+        '''
+        
+        '''
+        return QAbstractItemModel
+    
+    def parent():
+        '''
+        
+        '''
+        return QModelIndex
+    
+    def row():
+        '''
+        
+        '''
+        return int
+    
+    def sibling(row, column):
+        '''
+        
+        @type row: int
+        @type column: int
+        '''
+        return QModelIndex
+
+
+class Qt:
+    
+    class Alignment:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.Alignment
+            '''
+            
+    
+    class DockWidgetAreas:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.DockWidgetAreas
+            '''
+            
+    
+    class DropActions:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.DropActions
+            '''
+            
+    
+    class ImageConversionFlags:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.ImageConversionFlags
+            '''
+            
+    
+    class ItemFlags:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.ItemFlags
+            '''
+            
+    
+    class KeyboardModifiers:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.KeyboardModifiers
+            '''
+            
+    
+    class MatchFlags:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.MatchFlags
+            '''
+            
+    
+    class MouseButtons:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.MouseButtons
+            '''
+            
+    
+    class Orientations:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.Orientations
+            '''
+            
+    
+    class TextInteractionFlags:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.TextInteractionFlags
+            '''
+            
+    
+    class ToolBarAreas:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.ToolBarAreas
+            '''
+            
+    
+    class WindowFlags:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.WindowFlags
+            '''
+            
+    
+    class WindowStates:
+        
+        def __init__(self, f):
+            '''
+            
+            @type f: Qt.WindowStates
+            '''
+            
+    blue = int
+    cyan = int
+    darkBlue = int
+    darkCyan = int
+    darkGreen = int
+    darkMagenta = int
+    darkRed = int
+    darkYellow = int
+    green = int
+    magenta = int
+    red = int
+    transparent = int
+    yellow = int
+
+Type = int
+UInt = int
+ULongLong = int

@@ -509,15 +509,15 @@ public class PyParser implements IPyParser {
             this(document, stillTryToChangeCurrentLine, grammarVersion, -1, null, null);
         }
         
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature) throws MisconfigurationException{
+        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IGrammarVersionProvider nature) throws MisconfigurationException{
             this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion());
         }
         
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature, int currentLine, String moduleName, File file) throws MisconfigurationException{
+        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IGrammarVersionProvider nature, int currentLine, String moduleName, File file) throws MisconfigurationException{
             this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion(), currentLine, moduleName, file);
         }
         
-        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IPythonNature nature, int currentLine) throws MisconfigurationException{
+        public ParserInfo(IDocument document, boolean stillTryToChangeCurrentLine, IGrammarVersionProvider nature, int currentLine) throws MisconfigurationException{
             this(document, stillTryToChangeCurrentLine, nature.getGrammarVersion(), currentLine, null, null);
         }
 

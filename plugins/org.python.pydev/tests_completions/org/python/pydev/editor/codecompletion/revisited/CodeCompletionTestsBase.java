@@ -254,6 +254,7 @@ public class CodeCompletionTestsBase extends TestCase {
             
             //get default and restore the pythonpath
             InterpreterInfo info = getDefaultInterpreterInfo();
+            this.beforeRestore(info);
             info.restoreCompiledLibs(getProgressMonitor());
             if(ADD_MX_TO_FORCED_BUILTINS){
                 info.addForcedLib("mx");
@@ -271,6 +272,13 @@ public class CodeCompletionTestsBase extends TestCase {
     }
 
     /**
+     * Give subclasses a chance to configure the interpreter info.
+     */
+    protected void beforeRestore(InterpreterInfo info) {
+		
+	}
+
+	/**
      * @return the default interpreter info for the current manager
      */
     protected InterpreterInfo getDefaultInterpreterInfo() {

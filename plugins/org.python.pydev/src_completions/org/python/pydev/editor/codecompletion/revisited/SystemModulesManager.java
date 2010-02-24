@@ -5,10 +5,13 @@
  */
 package org.python.pydev.editor.codecompletion.revisited;
 
+import java.io.File;
 import java.util.List;
 import java.util.SortedMap;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -16,14 +19,19 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.LRUCache;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -175,9 +183,33 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
         //be source modules, but they have so much runtime info that it is almost impossible to get useful information
         //from statically analyzing them).
         String[] builtins = getBuiltins();
-        if(builtins == null){
+        if(builtins == null || this.info == null){
             //still on startup
             return null;
+        }
+        
+        //A different choice for users that want more complete information on the libraries they're dealing
+        //with is using predefined modules. Those will 
+        File predefinedModule = this.info.getPredefinedModule(name);
+        if(predefinedModule != null){
+        	IDocument doc;
+			try {
+				doc = REF.getDocFromFile(predefinedModule);
+				IGrammarVersionProvider provider = new IGrammarVersionProvider() {
+					
+					public int getGrammarVersion() throws MisconfigurationException {
+						return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
+					}
+				};
+				Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
+						new PyParser.ParserInfo(doc, true, provider, 0, name, predefinedModule));
+				if(obj.o2 != null){
+					throw obj.o2; // Unable to parse it
+				}
+				return new SourceModule(name, predefinedModule, obj.o1, obj.o2);
+			} catch (Throwable e) {
+				Log.log(e);
+			}
         }
         
         //for temporary access (so that we don't generate many instances of it)

@@ -98,6 +98,7 @@ public class InterpreterInfoTest extends TestCase {
         InterpreterInfo info6 = new InterpreterInfo("2.4","test", l4, dlls, forced);
         
         InterpreterInfo info7 = new InterpreterInfo("2.4","test", new ArrayList(), new ArrayList(), forced);
+        info7.addPredefinedCompletionsPath("c:\\temp");
         
         assertEquals(info, info2);
         assertFalse(info.equals(info3));
@@ -179,7 +180,6 @@ public class InterpreterInfoTest extends TestCase {
         String[] original2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2"};
         String[] expected2 = new String[]{"LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin"};
         assertEquals(new HashSet<String>(Arrays.asList(info.updateEnv(original2))), new HashSet<String>(Arrays.asList(expected2)));
-        
     }
     
     
