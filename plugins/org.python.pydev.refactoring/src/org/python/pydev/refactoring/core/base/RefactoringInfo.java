@@ -19,13 +19,17 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
@@ -48,16 +52,29 @@ public class RefactoringInfo {
     private File realFile;
 
     public RefactoringInfo(PyEdit edit) throws MisconfigurationException {
-        IFileEditorInput editorInput = (IFileEditorInput) edit.getEditorInput();
-        this.sourceFile = editorInput.getFile();
+        IEditorInput input = edit.getEditorInput();
+        IPythonNature localNature = edit.getPythonNature();
+        
+        if(input instanceof IFileEditorInput){
+        	IFileEditorInput editorInput = (IFileEditorInput) input;
+        	this.sourceFile = editorInput.getFile();
+        	this.realFile = sourceFile != null ? sourceFile.getLocation().toFile() : null;
+        }else{
+        	this.realFile = edit.getEditorFile();
+        }
+        
+        if(localNature == null){
+        	Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(this.realFile);
+        	if(infoForFile != null && infoForFile.o1 != null){
+        		localNature = infoForFile.o1;
+        	}
+        }
+        this.nature = localNature;
 
-        this.realFile = sourceFile != null ? sourceFile.getLocation().toFile() : null;
-
-        this.doc = edit.getDocumentProvider().getDocument(editorInput);
+        this.doc = edit.getDocument();
         ITextSelection selection = (ITextSelection) edit.getSelectionProvider().getSelection();
 
         this.project = edit.getProject();
-        this.nature = edit.getPythonNature();
         versionProvider = this.nature;
         initInfo(selection);
 

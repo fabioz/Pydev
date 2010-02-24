@@ -11,7 +11,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
-import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
@@ -27,6 +26,8 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.ASTEntryWithSourceModule;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.refactoring.core.base.PyDocumentChange;
+import org.python.pydev.refactoring.core.base.PyTextFileChange;
 
 import com.python.pydev.analysis.scopeanalysis.AstEntryScopeAnalysisConstants;
 import com.python.pydev.refactoring.changes.PyRenameResourceChange;
@@ -157,7 +158,7 @@ public class TextEditCreation {
             HashSet<ASTEntry> astEntries = filterAstEntries(entry.getValue(), AST_ENTRIES_FILTER_TEXT);
             if (astEntries.size() > 0) {
                 IDocument docFromResource = REF.getDocFromResource(tup.o2);
-                TextFileChange fileChange = new TextFileChange("RenameChange: " + inputName, tup.o2);
+                TextFileChange fileChange = new PyTextFileChange("RenameChange: " + inputName, tup.o2);
 
                 MultiTextEdit rootEdit = new MultiTextEdit();
                 fileChange.setEdit(rootEdit);
@@ -227,10 +228,10 @@ public class TextEditCreation {
     private void createCurrModuleChange() {
         TextChange docChange;
         if(this.currentFile != null){
-            docChange = new TextFileChange("Current module: " + moduleName, this.currentFile);
+            docChange = new PyTextFileChange("Current module: " + moduleName, this.currentFile);
         }else{
             //used for tests
-            docChange = new DocumentChange("Current module: " + moduleName, this.currentDoc);
+            docChange = new PyDocumentChange("Current module: " + moduleName, this.currentDoc);
         }
         if (docOccurrences.size() == 0) {
             status.addFatalError("No occurrences found.");

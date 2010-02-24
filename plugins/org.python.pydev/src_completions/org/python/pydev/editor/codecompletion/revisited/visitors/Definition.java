@@ -187,7 +187,7 @@ public class Definition implements IDefinition {
         }else{
             if(this.value == null || this.value.trim().length() == 0){
                 return this.module.getDocString();
-            }else{
+            }else if(nature != null){
             	ICodeCompletionASTManager manager = nature.getAstManager();
 				//It's the identification for some token in a module, let's try to find it
             	String[] headAndTail = FullRepIterable.headAndTail(value);

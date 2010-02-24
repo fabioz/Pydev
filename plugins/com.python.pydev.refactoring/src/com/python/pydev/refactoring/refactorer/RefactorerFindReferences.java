@@ -102,6 +102,9 @@ public class RefactorerFindReferences {
             
             ArrayList<IProject> resourcesToSearch = new ArrayList<IProject>();
             IProject project = request.nature.getProject();
+            if(project == null){
+            	return l;
+            }
             resourcesToSearch.addAll(Arrays.asList(project.getReferencingProjects()));
             resourcesToSearch.addAll(Arrays.asList(project.getReferencedProjects()));
             resourcesToSearch.add(project);

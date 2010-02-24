@@ -11,9 +11,7 @@ package org.python.pydev.refactoring.core.base;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.DocumentChange;
 import org.eclipse.ltk.core.refactoring.TextChange;
-import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
@@ -24,6 +22,7 @@ import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 
 public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest> implements IChangeProcessor {
+	
     private TextChange change;
     private MultiTextEdit multiEdit;
     private String name;
@@ -41,10 +40,12 @@ public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest>
 
     public Change createChange() throws MisconfigurationException {
         if(info.getSourceFile() != null){
-            change = new TextFileChange(name, info.getSourceFile());
+            change = new PyTextFileChange(name, info.getSourceFile());
         }else{
             // Not insisting on a source file makes testing easier.
-            change = new DocumentChange(name, info.getDocument());
+            change = new PyDocumentChange(name, info.getDocument());
+            
+            
         }
         multiEdit = new MultiTextEdit();
         change.setEdit(this.multiEdit);

@@ -42,6 +42,7 @@ import org.eclipse.search2.internal.ui.text.PositionTracker;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
+import org.python.pydev.refactoring.core.base.PyTextFileChange;
 
 import com.python.pydev.refactoring.refactorer.search.AbstractPythonSearchQuery;
 import com.python.pydev.refactoring.refactorer.search.PythonFileSearchResult;
@@ -337,7 +338,7 @@ public class ReplaceRefactoring extends Refactoring {
     private TextChange createFileChange(IFile file, Pattern pattern, Collection/*FileMatch*/ matches, RefactoringStatus resultingStatus, Collection matchGroups) throws PatternSyntaxException, CoreException {
 		PositionTracker tracker= InternalSearchUI.getInstance().getPositionTracker();
 		
-		TextFileChange change= new TextFileChange(Messages.format(SearchMessages.ReplaceRefactoring_group_label_change_for_file, file.getName()), file);
+		TextFileChange change= new PyTextFileChange(Messages.format(SearchMessages.ReplaceRefactoring_group_label_change_for_file, file.getName()), file);
 		change.setEdit(new MultiTextEdit());
 		
 		ITextFileBufferManager manager= FileBuffers.getTextFileBufferManager();

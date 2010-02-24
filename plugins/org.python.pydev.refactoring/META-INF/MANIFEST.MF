@@ -24,6 +24,7 @@ Eclipse-LazyStart: true
 Bundle-ClassPath: refactoring.jar,
  retroweaver-rt.jar
 Export-Package: org.python.pydev.refactoring,
+ org.python.pydev.refactoring.core.base,
  org.python.pydev.refactoring.core.change,
  org.python.pydev.refactoring.core.edit,
  org.python.pydev.refactoring.core.request,

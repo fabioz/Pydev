@@ -15,6 +15,7 @@ public class RunInUiThread {
         if (Display.getCurrent() == null){
             Display.getDefault().syncExec(r);
         }else{
+        	//We already have a hold to it
             r.run();
         }
     }
@@ -26,10 +27,11 @@ public class RunInUiThread {
             return;
         }
         
-        if (Display.getCurrent() == null){
+        Display current = Display.getCurrent();
+		if (current == null){
             Display.getDefault().asyncExec(r);
         }else{
-            r.run();
+        	current.asyncExec(r);
         }
     }
 }

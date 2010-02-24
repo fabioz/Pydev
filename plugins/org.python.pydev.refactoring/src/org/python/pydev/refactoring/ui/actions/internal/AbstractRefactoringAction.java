@@ -22,8 +22,8 @@ import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
@@ -37,14 +37,11 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
 
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         if(targetEditor instanceof ITextEditor){
-            if(targetEditor.getEditorInput() instanceof FileEditorInput){
-                if(targetEditor instanceof PyEdit){
-                    this.targetEditor = (PyEdit) targetEditor;
-                }else{
-                    throw new RuntimeException("Editor was not a PyEdit(or), should not happen.");
-                }
+            if(targetEditor instanceof PyEdit){
+                this.targetEditor = (PyEdit) targetEditor;
             }else{
-                this.targetEditor = null;
+            	this.targetEditor = null;
+                Log.log(new RuntimeException("Editor not a PyEdit."));
             }
         }
     }
@@ -71,6 +68,12 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
     }
 
     public void run(IAction action) {
+    	if(targetEditor == null){
+            Status status = PydevPlugin.makeStatus(IStatus.ERROR, "Unable to do refactoring.", null);
+            ErrorDialog.openError(PyAction.getShell(), "Unable to do refactoring.", "Target editor is null (not PyEdit).", status);
+    		return;
+    	}
+    	
         boolean allFilesSaved = saveAll();
         if(!allFilesSaved){
             return;
@@ -85,6 +88,7 @@ public abstract class AbstractRefactoringAction extends Action implements IEdito
             
             this.targetEditor.getDocumentProvider().changed(this.targetEditor.getEditorInput());
         }catch(Throwable e){
+        	Log.log(e);
             Throwable initial = e;
             while(e.getCause() != null){
                 e = e.getCause();
