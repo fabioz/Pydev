@@ -171,10 +171,10 @@ if PATHS_FROM_ECLIPSE_TO_PYTHON:
             #Note that when going to the server, we do the replace first and only later do the norm file.
             if eclipse_sep is not None:
                 translated = translated.replace(eclipse_sep, python_sep)
-            ret = _NormFile(translated)
+            translated = _NormFile(translated)
                 
-            NORM_FILENAME_TO_SERVER_CONTAINER[filename] = ret
-            return ret
+            NORM_FILENAME_TO_SERVER_CONTAINER[filename] = translated
+            return translated
         
     
     def NormFileToClient(filename): 
@@ -199,12 +199,12 @@ if PATHS_FROM_ECLIPSE_TO_PYTHON:
                         (translated, [x[1] for x in PATHS_FROM_ECLIPSE_TO_PYTHON]))
                         
             if eclipse_sep is not None:
-                ret = ret.replace(python_sep, eclipse_sep)
+                translated = translated.replace(python_sep, eclipse_sep)
             
             #The resulting path is not in the python process, so, we cannot do a _NormFile here,
             #only at the beginning of this method.
             NORM_FILENAME_TO_CLIENT_CONTAINER[filename] = translated
-            return ret
+            return translated
         
 else:
     #no translation step needed (just inline the calls)
