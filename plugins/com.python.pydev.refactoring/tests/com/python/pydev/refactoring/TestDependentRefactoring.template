@@ -4,8 +4,8 @@
  */
 package com.python.pydev.refactoring;
 
-import org.python.pydev.core.TestDependent;
 
 public class TestDependentRefactoring{
-    public static final String TEST_PYSRC_LOC_REFACTORING = TestDependent.TEST_PYDEV_BASE_LOC+"com.python.pydev.refactoring/tests/pysrcrefactoring/";
+    public static final String TEST_PYDEV_COM_BASE_LOC = "D:/workspaces/pydev/plugins/";
+    public static final String TEST_PYSRC_LOC_REFACTORING = TEST_PYDEV_COM_BASE_LOC+"com.python.pydev.refactoring/tests/pysrcrefactoring/";
 }

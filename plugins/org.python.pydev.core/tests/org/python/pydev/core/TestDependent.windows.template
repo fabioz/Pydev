@@ -15,12 +15,13 @@ public class TestDependent {
     public static final String PYTHON_SITE_PACKAGES=PYTHON_LIB+"site-packages/";
     public static final String PYTHON_WXPYTHON_PACKAGES="NA";
     public static final String PYTHON_NUMARRAY_PACKAGES="NA";
-    public static final String PYTHON_NUMPY_PACKAGES=PYTHON_SITE_PACKAGES+"numpy-1.0.4-py2.5-win32.egg/";
+    public static final String PYTHON_NUMPY_PACKAGES=PYTHON_SITE_PACKAGES;
+    public static final String PYTHON_DJANGO_PACKAGES="D:/bin/Python251/Lib/site-packages/django-1.1.1-py2.5.egg";
     public static final String PYTHON_MX_PACKAGES = "NA";
     public static final String PYTHON_PIL_PACKAGES = "NA";
     
     //python 3.0
-    public static final String PYTHON_30_INSTALL="d:/bin/Python30/";
+    public static final String PYTHON_30_INSTALL="d:/bin/Python311/";
     public static String PYTHON_30_EXE=PYTHON_30_INSTALL+"python.exe";
     public static final String PYTHON_30_LIB=PYTHON_30_INSTALL+"Lib/";
     
@@ -34,7 +35,7 @@ public class TestDependent {
 
     
     //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
-    public static final String TEST_PYDEV_BASE_LOC = "W:/";
+    public static final String TEST_PYDEV_BASE_LOC = "D:/workspaces/pydev/plugins/";
     public static final String TEST_PYSRC_LOC=TEST_PYDEV_BASE_LOC+"org.python.pydev/tests/pysrc/";
     public static final String TEST_PYSRC_NAVIGATOR_LOC=TEST_PYDEV_BASE_LOC+"org.python.pydev/tests_navigator/pysrc/";
     public static final String TEST_PYSRC_LOC2 = TEST_PYDEV_BASE_LOC+"org.python.pydev/tests/pysrc2/";
@@ -48,10 +49,15 @@ public class TestDependent {
     public static final String JAVA_LOCATION="d:/bin/jdk_1_5_09/bin/java.exe";
     public static final String JAVA_RT_JAR_LOCATION= "d:/bin/jdk_1_5_09/jre/lib/rt.jar";
     
+    //Jython
     public static final String JYTHON_JAR_LOCATION="d:/bin/jython-2.2.1/jython.jar";
     public static final String JYTHON_LIB_LOCATION="d:/bin/jython-2.2.1/lib/";
-    public static final String JYTHON_ANT_JAR_LOCATION="D:/bin/eclipse331_1/plugins/org.apache.ant_1.7.0.v200706080842/lib/ant.jar";
-    public static final String JYTHON_JUNIT_JAR_LOCATION="D:/bin/eclipse331_1/plugins/org.junit_3.8.2.v200706111738/junit.jar";
+    public static final String JYTHON_ANT_JAR_LOCATION="D:/bin/eclipse_36m4/plugins/org.apache.ant_1.7.1.v20090120-1145/lib/ant.jar";
+    public static final String JYTHON_JUNIT_JAR_LOCATION="D:/bin/eclipse_36m4/plugins/org.junit_3.8.2.v20090203-1005/junit.jar";
+    
+    //Iron Python
+    public static String IRONPYTHON_EXE="D:/bin/IronPython 2.6/ipy.exe";
+    public static String IRONPYTHON_LIB="D:/bin/IronPython 2.6/Lib";
     
     //we cannot test what we don't have...
     public static final boolean HAS_WXPYTHON_INSTALLED = false;
@@ -67,4 +73,5 @@ public class TestDependent {
     public static final String CYGWIN_UNIX_CYGPATH_LOCATION = "/usr/bin/cygpath.exe";
     public static final boolean HAS_PYTHON_TESTS = true;
     public static final boolean HAS_PIL = false;
+    public static final String GOOGLE_APP_ENGINE_LOCATION = "D:/bin/google_appengine122";
 }
