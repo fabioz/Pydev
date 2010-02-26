@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -36,14 +37,12 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Tree;
@@ -92,7 +91,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     /**
      * This is the control where the interpreters are shown
      */
-    private Tree treeWithInterpreters;
+    /*default*/ Tree treeWithInterpreters;
 
     /**
      * Images
@@ -101,17 +100,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private Image imageSystemLib;
     private Image environmentImage;
 
-    private Composite box;
-
-    private Button addBtForcedBuiltins;
-
-    private Button removeBtForcedBuiltins;
-
-    private SelectionListener selectionListenerOthers;
-    
     private boolean changed;
-
-    private List listBuiltins;
 
     private Composite boxSystem;
 
@@ -142,6 +131,14 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     protected String getNameFromTreeItem(TreeItem treeItem) {
         return treeItem.getText(0);
+    }
+    
+    /*default*/InterpreterInfo getSelectedInfo(){
+    	if (treeWithInterpreters.getSelectionCount() == 1) {
+            TreeItem[] selection = treeWithInterpreters.getSelection();
+            return (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(selection[0]));
+    	}
+    	return null;
     }
     
     /**
@@ -274,14 +271,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return treeWithLibs;
     }
 
-    /**
-     * Notifies that the Remove button has been pressed.
-     */
-    protected void removePressed() {
-        super.removePressed();
-        updateTree();
-//        changed = true;
-    }
     
     @Override
     protected void disposeOfTreeItem(TreeItem t) {
@@ -290,26 +279,12 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         super.disposeOfTreeItem(t);
     }
 
-    protected void addPressed() {
-        super.addPressed();
-        updateTree();
-//        changed = true;
-    }
-
-    protected void upPressed() {
-        super.upPressed();
-//        changed = true;
-    }
-    
-    protected void downPressed() {
-        super.downPressed();
-//        changed = true;
-    }
     
     protected void adjustForNumColumns(int numColumns) {
         super.adjustForNumColumns(numColumns);
         ((GridData) tabFolder.getLayoutData()).horizontalSpan = numColumns;
     }
+    
     
     protected TabFolder tabFolder;
 
@@ -318,6 +293,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private MyEnvWorkingCopy workingCopy = new MyEnvWorkingCopy();
     
     private TabVariables tabVariables;
+    
+    private AbstractListWithNewRemoveControl forcedBuiltins;
 
     /**
      * @see org.eclipse.jface.preference.ListEditor#doFillIntoGrid(org.eclipse.swt.widgets.Composite, int)
@@ -335,7 +312,57 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         tabFolder.setLayoutData(gd);
         
         createTreeLibsControlTab();
-        createForcedBuiltinsTab();
+        forcedBuiltins = new AbstractListWithNewRemoveControl(this){
+
+			protected List<String> getStringsFromInfo(InterpreterInfo info) {
+				ArrayList<String> ret = new ArrayList<String>();
+                for (Iterator<String> iter = info.forcedLibsIterator(); iter.hasNext();) {
+                    ret.add(iter.next());
+                }
+                return ret;
+			}
+			
+			protected void removeSelectedFrominfo(InterpreterInfo info, String[] builtins) {
+				for(String builtin : builtins){
+				    info.removeForcedLib(builtin);
+				}
+			}
+
+			
+			protected String getInput() {
+				IInputValidator validator = new IInputValidator(){
+				
+				    public String isValid(String newText) {
+				        for(char c:newText.toCharArray()){
+				            if(!Character.isJavaIdentifierPart(c) && c != ' ' && c != ',' && c != '.'){
+				                return "Can only accept valid python module names (char: '"+c+"' not accepted)";
+				            }
+				        }
+				        return null;
+				    }
+				};
+				InputDialog d = new InputDialog(getShell(), "Builtin to add", "Builtin to add (comma separated)", "", validator);
+				
+				int retCode = d.open();
+				String builtins = null;
+				if (retCode == InputDialog.OK) {
+				    builtins = d.getValue();
+				}
+				return builtins;
+			}
+		    
+			protected void addInputToInfo(InterpreterInfo info, String builtins) {
+				java.util.List<String> split = StringUtils.splitAndRemoveEmptyTrimmed(builtins, ',');
+				for (String string : split) {
+					String trimmed = string.trim();
+					if(trimmed.length() > 0){
+						info.addForcedLib(trimmed);
+					}
+				}
+			}
+        	
+        };
+        forcedBuiltins.createTab("Forced Builtins", "Forced Builtins (check <a>Manual</a> for more info).");
         createEnvironmentVariablesTab();
         createStringSubstitutionTab();
         
@@ -420,77 +447,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         tabItem.setControl(composite);
     }
 
-    /**
-     * Creates tab for the forced builtins
-     */
-    private void createForcedBuiltinsTab() {
-        Composite parent;
-        GridData gd;
-        TabItem tabItem;
-        Composite composite;
-        Composite control;
-        tabItem = new TabItem(tabFolder, SWT.None);
-        tabItem.setText("Forced Builtins");
-        
-        composite = new Composite(tabFolder, SWT.None);
-        parent = composite;
-        composite.setLayout(new GridLayout(2, false));
-
-        
-        //label
-        Link l2 = new Link(parent, SWT.None);
-        l2.setText("Forced Builtins (check <a>Manual</a> for more info).");
-        l2.addSelectionListener(new SelectionListener(){
-
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-
-            public void widgetSelected(SelectionEvent e) {
-                Program.launch("http://pydev.org/manual_101_interpreter.html");
-            }}
-        );
-        
-        gd = new GridData();
-        gd.horizontalSpan = 2;
-        l2.setLayoutData(gd);
-
-        //the list with the builtins
-        List list = getBuiltinsListControl(parent);
-        gd = new GridData();
-        gd.horizontalAlignment = SWT.FILL;
-        gd.verticalAlignment = SWT.FILL;
-        gd.grabExcessHorizontalSpace = true;
-        gd.grabExcessVerticalSpace = true;
-        gd.heightHint = 200;
-        list.setLayoutData(gd);
-        
-        //the builtins buttons
-        control = getButtonBoxControlOthers(parent);
-        gd = new GridData();
-        gd.verticalAlignment = GridData.BEGINNING;
-        control.setLayoutData(gd);
-        tabItem.setControl(composite);
-    }
-    
-    
-    /**
-     * @param parent
-     * @return
-     */
-    private List getBuiltinsListControl(Composite parent) {
-        if (listBuiltins == null) {
-            listBuiltins = new List(parent, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-            listBuiltins.setFont(parent.getFont());
-            listBuiltins.addDisposeListener(new DisposeListener() {
-                public void widgetDisposed(DisposeEvent event) {
-                    listBuiltins = null;
-                }
-            });
-        } else {
-            checkParent(listBuiltins, parent);
-        }
-        return listBuiltins;
-    }
 
     /**
      * Returns this field editor's button box containing the Add Source Folder, Add Jar and Remove
@@ -532,55 +488,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return boxSystem;
     }
     
-    /**
-     * Returns this field editor's button box containing the Add and Remove
-     * 
-     * @param parent the parent control
-     * @return the button box
-     */
-    public Composite getButtonBoxControlOthers(Composite parent) {
-        if (box == null) {
-            box = new Composite(parent, SWT.NULL);
-            GridLayout layout = new GridLayout();
-            layout.marginWidth = 0;
-            box.setLayout(layout);
-            addBtForcedBuiltins = createBt(box, "ListEditor.add", getSelectionListenerForcedBuiltins());//$NON-NLS-1$
-            removeBtForcedBuiltins = createBt(box, "ListEditor.remove", getSelectionListenerForcedBuiltins());//$NON-NLS-1$
-            box.addDisposeListener(new DisposeListener() {
-                public void widgetDisposed(DisposeEvent event) {
-                    addBtForcedBuiltins = null;
-                    removeBtForcedBuiltins = null;
-                    box = null;
-                }
-            });
 
-        } else {
-            checkParent(box, parent);
-        }
-
-        return box;
-    }
-
-    /**
-     * Returns this field editor's selection listener. The listener is created if necessary.
-     * 
-     * @return the selection listener
-     */
-    private SelectionListener getSelectionListenerForcedBuiltins() {
-        if (selectionListenerOthers == null){
-            selectionListenerOthers = new SelectionAdapter() {
-                public void widgetSelected(SelectionEvent event) {
-                    Widget widget = event.widget;
-                    if (widget == addBtForcedBuiltins) {
-                        addForcedBuiltins();
-                    } else if (widget == removeBtForcedBuiltins) {
-                        removeForcedBuiltins();
-                    }
-                }
-            };
-        }
-        return selectionListenerOthers;
-    }
 
     private static String lastDirectoryDialogPath = null;
     private static String lastFileDialogPath = null;
@@ -657,60 +565,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         return selectionListenerSystem;
     }
     
-    /**
-     * 
-     */
-    protected void addForcedBuiltins() {
-        if (treeWithInterpreters.getSelectionCount() == 1) {
-            TreeItem[] selection = treeWithInterpreters.getSelection();
-            InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(selection[0]));
-            
-            IInputValidator validator = new IInputValidator(){
-            
-                public String isValid(String newText) {
-                    for(char c:newText.toCharArray()){
-                        if(!Character.isJavaIdentifierPart(c) && c != ' ' && c != ',' && c != '.'){
-                            return "Can only accept valid python module names (char: '"+c+"' not accepted)";
-                        }
-                    }
-                    return null;
-                }
-            };;
-            InputDialog d = new InputDialog(this.getShell(), "Builtin to add", "Builtin to add (comma separated)", "", validator);
-            
-            int retCode = d.open();
-            if (retCode == InputDialog.OK) {
-                String builtins = d.getValue();
-                java.util.List<String> split = StringUtils.splitAndRemoveEmptyTrimmed(builtins, ',');
-                for (String string : split) {
-                    String trimmed = string.trim();
-                    if(trimmed.length() > 0){
-                        info.addForcedLib(trimmed);
-                    }
-                }
-//                changed = true;
-            }
 
-        }
-        updateTree();
-    }
-
-    /**
-     * 
-     */
-    protected void removeForcedBuiltins() {
-        if (treeWithInterpreters.getSelectionCount() == 1) {
-            TreeItem[] interpreterSelection = treeWithInterpreters.getSelection();
-            String[] builtins = listBuiltins.getSelection();
-            
-            InterpreterInfo info = (InterpreterInfo) this.nameToInfo.get(getNameFromTreeItem(interpreterSelection[0]));
-            for(String builtin : builtins){
-                info.removeForcedLib(builtin);
-            }
-//            changed = true;
-        }
-        updateTree();
-    }
 
     /**
      * Helper method to create a push button.
@@ -720,7 +575,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      * @param listenerToAdd 
      * @return Button
      */
-    private Button createBt(Composite parent, String key, SelectionListener listenerToAdd) {
+    /*default*/ Button createBt(Composite parent, String key, SelectionListener listenerToAdd) {
         Button button = new Button(parent, SWT.PUSH);
         button.setText(JFaceResources.getString(key));
         button.setFont(parent.getFont());
@@ -734,11 +589,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
 
 
-
     /**
      * @param listControl
      */
-    private void updateTree() {
+    public void updateTree() {
         int index = this.getSelectionIndex();
         if (index >= 0) {
             TreeItem item = treeWithInterpreters.getItem(index);
@@ -752,6 +606,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             }
         }
     }
+    
+    public Shell getShell() {
+    	return super.getShell();
+    }
 
 
     /**
@@ -760,7 +618,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
      */
     private void fillPathItemsFromName(String name) {
         treeWithLibs.removeAll();
-        listBuiltins.removeAll();
+        this.forcedBuiltins.removeAllFromList();
         
         //before any change, apply the changes in the previous info (if not set, that's ok)
         if(workingCopy.getInfo() != null){
@@ -785,10 +643,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 }
                 item.setExpanded(true);
                 
-                //set the forced builtins
-                for (Iterator<String> iter = info.forcedLibsIterator(); iter.hasNext();) {
-                    listBuiltins.add((String) iter.next());
-                }
+                this.forcedBuiltins.update(info);
             }
             
             workingCopy.setInfo(info);

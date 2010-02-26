@@ -142,10 +142,13 @@ public abstract class PythonListEditor extends FieldEditor {
                 Log.log(e);
             }
             selectionChanged();
+            this.updateTree();
         }
     }
 
-    /**
+    protected abstract void updateTree();
+
+	/**
      * Adds a new tree item to the interpreter tree.
      * @return 
      */
@@ -397,6 +400,7 @@ public abstract class PythonListEditor extends FieldEditor {
                 disposeOfTreeItem(t);
             }
             selectionChanged();
+            updateTree();
         }
     }
     
@@ -473,6 +477,7 @@ public abstract class PythonListEditor extends FieldEditor {
         swap(true);
     }
 
+    
     /*
      * @see FieldEditor.setEnabled(boolean,Composite).
      */
