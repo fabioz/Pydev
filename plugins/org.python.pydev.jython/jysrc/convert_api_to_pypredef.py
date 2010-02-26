@@ -1,9 +1,32 @@
 import os, sys
+
+#===================================================================================================
+# sorted
+#===================================================================================================
+def sorted(lst):
+    lst.sort()
+    return lst
     
+    
+#===================================================================================================
+# ToStr
+#===================================================================================================
+def ToStr(o):
+    if hasattr(o, 'ToStr'):
+        return o.ToStr()
+    return str(o)
+
+
+def Contains(sub, s):    
+    return s.find(sub) >= 0
+
+def NotContains(sub, s):    
+    return s.find(sub) < 0
+
 #===================================================================================================
 # Container
 #===================================================================================================
-class Container(object):
+class Container:
     
     def __init__(self):
         self.contents = {}
@@ -12,7 +35,11 @@ class Container(object):
         return self.contents.setdefault(s, Class(s))
         
     def indent(self, s):
-        return '\n'.join('    '+line for line in s.splitlines())
+        lines = []
+        for line in s.splitlines():
+            lines.append('    '+line)
+            
+        return '\n'.join(lines)
             
 
 #===================================================================================================
@@ -24,10 +51,10 @@ class Class(Container):
         self.name = name
         Container.__init__(self)
     
-    def __str__(self):
+    def ToStr(self):
         str_contents = []
-        for _key, content in sorted(self.contents.iteritems()):
-            str_contents.append(self.indent(str(content)))
+        for _key, content in sorted(self.contents.items()):
+            str_contents.append(self.indent(ToStr(content)))
         
         if not str_contents:
             str_contents.append(self.indent('pass'))
@@ -38,6 +65,9 @@ class Class(Container):
 class %s:
 %s
 ''' % (self.name, '\n'.join(str_contents))
+
+    def __str__(self):
+        return self.ToStr()
     
 #===================================================================================================
 # Method
@@ -50,7 +80,7 @@ class Method(Container):
         Container.__init__(self)
         
                 
-    def __str__(self):
+    def ToStr(self):
         signature = self.signature
         ret = ''
         has_self = False
@@ -63,21 +93,21 @@ class Method(Container):
             signature = signature[len('self, '):]
             has_self = True
             
-        if '->' in signature:
+        if Contains('->', signature):
             signature, ret = signature.split('->')
             signature = signature.strip()
             ret = ret.strip()
             
         
-        if ' ' not in signature:
-            if '()' in signature:
+        if NotContains(' ', signature):
+            if Contains('()', signature):
                 signature= 'param='+signature
-            elif '.' in signature:
-                if '=' not in signature:
+            elif Contains('.', signature):
+                if NotContains('=', signature):
                     signature = 'param='+signature
                 else:
                     split = signature.split('=')
-                    if '.' in split[0]:
+                    if Contains('.', split[0]):
                         split[0] = split[0].replace('.', '_')
                         signature = '='.join(split)
                 
@@ -86,18 +116,21 @@ class Method(Container):
             signature_rep = ''
             splitted = signature.split(', ')
             size = len(splitted)
-            for i, s in enumerate(splitted):
+            i = -1
+            for s in splitted:
+                i += 1
                 parts = s.split(' ')
                 type, s = ' '.join(parts[:-1]), parts[-1]
                 
+                
                 if not s.strip():
                     s = 'param'
-                if '.' in s:
-                    if '=' not in s:
+                if Contains('.', s):
+                    if NotContains('=', s):
                         s = 'param='+s
                     else:
                         split = s.split('=')
-                        if '.' in split[0]:
+                        if Contains('.', split[0]):
                             split[0] = split[0].replace('.', '_')
                             s = '='.join(split)
                     
@@ -110,7 +143,7 @@ class Method(Container):
                 if type:
                     #Add to docstring
                     param = s.strip()
-                    if '=' in param:
+                    if Contains('=', param):
                         param = param.split('=')[0].strip()
                     if param.endswith(':'):
                         param = param[:-1]
@@ -132,7 +165,7 @@ class Method(Container):
             
             
         if ret:
-            if ',' in ret:
+            if Contains(',', ret):
                 splitted = ret.split(',')
                 new = ''
                 for s in splitted:
@@ -140,7 +173,7 @@ class Method(Container):
                         new += ', '
                     new += s.strip().replace(' ', '_')
                 ret = new
-            elif ' ' in ret.strip():
+            elif Contains(' ', ret.strip()):
                 ret = ret.strip().replace(' ', '_')
         
         
@@ -162,7 +195,11 @@ def %s%s:
             replace('...', '___').\
             replace('(1)', '(one)')
         return val
+
     
+    def __str__(self):
+        return self.ToStr()
+
 #===================================================================================================
 # Attribute
 #===================================================================================================
@@ -172,9 +209,11 @@ class Attribute(Container):
         self.type = type
         Container.__init__(self)
         
-    def __str__(self):
+    def ToStr(self):
         return '%s = %s' % (self.name, self.type)
     
+    def __str__(self):
+        return self.ToStr()
     
 #===================================================================================================
 # Module
@@ -211,30 +250,43 @@ class Module(Container):
         else:
             raise AssertionError('Not treated: '+before+after)
         
-    def __str__(self):
+    def ToStr(self):
         ret = []
-        for _key, content in sorted(self.contents.iteritems()):
-            ret.append(str(content))
+        for _key, content in sorted(self.contents.items()):
+            ret.append(ToStr(content))
         return '\n'.join(ret)
             
+    def __str__(self):
+        return self.ToStr()
 
 #===================================================================================================
 # Convert
 #===================================================================================================
-def Convert(api_file, parts_for_module):
+def Convert(api_file, parts_for_module, cancel_monitor):
+    cancel_monitor.setTaskName('Opening: '+api_file)
     f = open(api_file, 'r')
     try:
         lines = f.readlines()
     finally:
         f.close()
         
-    found = set()
+    directory = os.path.dirname(api_file)
+        
+    cancel_monitor.setTaskName('Parsing: '+api_file)
+    if cancel_monitor.isCanceled():
+        return
+    cancel_monitor.worked(1)
+    
+    found = {}
     for line in lines:
         contents = line.split('.')
         if len(contents) >= parts_for_module:
-            found.add('.'.join(contents[:2]))
-    
-    for handle_module in sorted(found):
+            found['.'.join(contents[:2])] = ''
+    for handle_module in sorted(found.keys()):
+        cancel_monitor.setTaskName('Handling: '+handle_module)
+        cancel_monitor.worked(1)
+        if cancel_monitor.isCanceled():
+            return
         module = Module()
         
         for line in lines:
@@ -257,15 +309,29 @@ The name of the file should be a direct representation of the module name
 '''
         target = handle_module+'.pypredef'
         print('Writing contents for: %s to: %s' % (handle_module, target))
-        final_contents += str(module)
+        final_contents += ToStr(module)
         
-        f = open(target, 'w')        
+        f = open(os.path.join(directory, target), 'w')        
         try:
             f.write(final_contents)
         finally:
             f.close()
             
         
+#===================================================================================================
+# CancelMonitor
+#===================================================================================================
+class CancelMonitor:
+    
+    def isCanceled(self): #Match IProgressMonitor.isCanceled.
+        return 0 #Never cancelled
+    
+    def worked(self, val):
+        pass
+    
+    def setTaskName(self, name):
+        pass
+    
 #===================================================================================================
 # main
 #===================================================================================================
@@ -283,6 +349,24 @@ if __name__ == '__main__':
         assert os.path.exists(api_file), 'File: %s does not exist.' % (api_file,)
         parts_for_module = int(args[1])
         assert parts_for_module >= 1, 'At least the 1st part must define a module.'
-        Convert(api_file, parts_for_module)
+        cancel_monitor = CancelMonitor()
+        Convert(api_file, parts_for_module, cancel_monitor)
+else:
+    try:
+        api_file
+        parts_for_module
+    except:
+        pass
+    else:
+        try:
+            cancel_monitor
+        except:
+            cancel_monitor = CancelMonitor()
+        #Available in the namespace (jython scripting calling it)
+        assert os.path.exists(api_file), 'File: %s does not exist.' % (api_file,)
+        parts_for_module = int(parts_for_module)
+        assert parts_for_module >= 1, 'At least the 1st part must define a module.'
+        Convert(api_file, parts_for_module, cancel_monitor)
+        print 'SUCCESS'
         
             

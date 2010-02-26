@@ -1338,6 +1338,7 @@ public class InterpreterInfo implements IInterpreterInfo{
 
 	public void addPredefinedCompletionsPath(String path) {
 		this.predefinedCompletionsPath.add(path);
+        this.clearBuiltinsCache();
 	}
 
 	public List<String> getPredefinedCompletionsPath(){
@@ -1350,5 +1351,10 @@ public class InterpreterInfo implements IInterpreterInfo{
 	 */
 	public File getPredefinedModule(String moduleName){
 		return this.predefinedBuiltinsCache.get(moduleName);
+	}
+
+	public void removePredefinedCompletionPath(String item) {
+		this.predefinedCompletionsPath.remove(item);
+		this.clearBuiltinsCache();
 	}
 }

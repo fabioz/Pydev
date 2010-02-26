@@ -204,9 +204,9 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
 				Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
 						new PyParser.ParserInfo(doc, true, provider, 0, name, predefinedModule));
 				if(obj.o2 != null){
-					throw obj.o2; // Unable to parse it
+					PydevPlugin.log("Unable to parse: "+predefinedModule, obj.o2);
 				}
-				return new SourceModule(name, predefinedModule, obj.o1, obj.o2);
+				//keep on going
 			} catch (Throwable e) {
 				Log.log(e);
 			}

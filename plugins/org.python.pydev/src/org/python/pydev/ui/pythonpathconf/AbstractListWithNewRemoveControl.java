@@ -25,20 +25,17 @@ import org.eclipse.swt.widgets.Widget;
  * 
  * Used for the forced builtins.
  */
-abstract /*default*/ class AbstractListWithNewRemoveControl {
+abstract /*default*/ class AbstractListWithNewRemoveControl extends SelectionAdapter implements DisposeListener{
 	
-    private Composite box;
+    protected Composite box;
 
     private Button addBt;
 
     private Button removeBt;
 
-    private SelectionListener selectionListener;
-    
     protected List itemsList;
 
-
-	private WeakReference<AbstractInterpreterEditor> container;
+	protected WeakReference<AbstractInterpreterEditor> container;
 
 	public AbstractListWithNewRemoveControl(AbstractInterpreterEditor container){
 		this.container = new WeakReference<AbstractInterpreterEditor>(container);
@@ -114,22 +111,52 @@ abstract /*default*/ class AbstractListWithNewRemoveControl {
             GridLayout layout = new GridLayout();
             layout.marginWidth = 0;
             box.setLayout(layout);
-            addBt = interpreterEditor.createBt(box, "ListEditor.add", getSelectionListener());//$NON-NLS-1$
-            removeBt = interpreterEditor.createBt(box, "ListEditor.remove", getSelectionListener());//$NON-NLS-1$
-            box.addDisposeListener(new DisposeListener() {
-                public void widgetDisposed(DisposeEvent event) {
-                    addBt = null;
-                    removeBt = null;
-                    box = null;
-                }
-            });
-
+			createButtons(interpreterEditor);
+            box.addDisposeListener(this);
         } else {
         	checkParent(box, parent);
         }
 
         return box;
     }
+
+
+    /**
+     * To create a button in a subclass, one must override
+     * 
+     * - createButtons
+     * - widgetDisposed
+     * - widgetSelected
+     */
+	protected void createButtons(AbstractInterpreterEditor interpreterEditor) {
+		addBt = interpreterEditor.createBt(box, "ListEditor.add", this);//$NON-NLS-1$
+		removeBt = interpreterEditor.createBt(box, "ListEditor.remove", this);//$NON-NLS-1$
+	}
+    
+    public void widgetDisposed(DisposeEvent event) {
+    	if(addBt != null){
+    		addBt.dispose();
+    		addBt = null;
+    	}
+    	if(removeBt != null){
+    		removeBt.dispose();
+    		removeBt = null;
+    	}
+    	if(box != null){
+    		box.dispose();
+    		box = null;
+    	}
+    }
+    
+    public void widgetSelected(SelectionEvent event) {
+        Widget widget = event.widget;
+        if (widget == addBt) {
+            addItem();
+        } else if (widget == removeBt) {
+            removeItem();
+        }
+    }
+
     
     /**
      * Checks if the given parent is the current parent of the
@@ -143,28 +170,6 @@ abstract /*default*/ class AbstractListWithNewRemoveControl {
         Assert.isTrue(control.getParent() == parent, "Different parents");//$NON-NLS-1$
     }
 
-
-	
-    /**
-     * Returns this field editor's selection listener. The listener is created if necessary.
-     * 
-     * @return the selection listener
-     */
-    private SelectionListener getSelectionListener() {
-        if (selectionListener == null){
-            selectionListener = new SelectionAdapter() {
-                public void widgetSelected(SelectionEvent event) {
-                    Widget widget = event.widget;
-                    if (widget == addBt) {
-                        addItem();
-                    } else if (widget == removeBt) {
-                        removeItem();
-                    }
-                }
-            };
-        }
-        return selectionListener;
-    }
 
     
     

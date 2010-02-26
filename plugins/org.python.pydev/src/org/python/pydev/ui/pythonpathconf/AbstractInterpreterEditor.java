@@ -5,9 +5,11 @@
  */
 package org.python.pydev.ui.pythonpathconf;
 
+import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,13 +17,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -57,6 +63,9 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.jython.IPythonInterpreter;
+import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.ui.TabVariables;
@@ -295,6 +304,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private TabVariables tabVariables;
     
     private AbstractListWithNewRemoveControl forcedBuiltins;
+    
+    private AbstractListWithNewRemoveControl predefinedCompletions;
 
     /**
      * @see org.eclipse.jface.preference.ListEditor#doFillIntoGrid(org.eclipse.swt.widgets.Composite, int)
@@ -312,6 +323,11 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         tabFolder.setLayoutData(gd);
         
         createTreeLibsControlTab();
+        
+        
+        
+        
+        //----------------------- FORCED BUILTINS
         forcedBuiltins = new AbstractListWithNewRemoveControl(this){
 
 			protected List<String> getStringsFromInfo(InterpreterInfo info) {
@@ -363,6 +379,160 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         	
         };
         forcedBuiltins.createTab("Forced Builtins", "Forced Builtins (check <a>Manual</a> for more info).");
+
+        
+        
+        
+        
+        //----------------------- PREDEFINED COMPLETIONS
+        predefinedCompletions = new AbstractListWithNewRemoveControl(this){
+        	
+        	private Button addAPIBt;
+
+			protected List<String> getStringsFromInfo(InterpreterInfo info) {
+        		return info.getPredefinedCompletionsPath();
+        	}
+        	
+        	protected void removeSelectedFrominfo(InterpreterInfo info, String[] items) {
+        		for(String item : items){
+        			info.removePredefinedCompletionPath(item);
+        		}
+        	}
+        	
+        	protected String getInput() {
+                DirectoryDialog dialog = new DirectoryDialog(getShell());
+                dialog.setFilterPath(lastDirectoryDialogPath);
+                String filePath = dialog.open();
+                if(filePath != null){
+                    lastDirectoryDialogPath = filePath;
+                }
+                return filePath;
+        	}
+        	
+        	protected void addInputToInfo(InterpreterInfo info, String item) {
+        		info.addPredefinedCompletionsPath(item);
+        	}
+        	
+        	protected void createButtons(AbstractInterpreterEditor interpreterEditor) {
+        		super.createButtons(interpreterEditor);
+        		addAPIBt = interpreterEditor.createBt(box, "Add from QScintilla api file", this);//$NON-NLS-1$
+        	}
+            
+            public void widgetDisposed(DisposeEvent event) {
+            	super.widgetDisposed(event);
+            	if(addAPIBt != null){
+            		addAPIBt.dispose();
+            		addAPIBt = null;
+            	}
+            }
+            
+            public void widgetSelected(SelectionEvent event) {
+            	super.widgetSelected(event);
+            	Widget widget = event.widget;
+                if (widget == addAPIBt) {
+                	addAPIBt();
+                }
+            }
+
+			private void addAPIBt() {
+		    	final AbstractInterpreterEditor interpreterEditor = this.container.get();
+		    	Assert.isNotNull(interpreterEditor);
+
+		    	final InterpreterInfo info = interpreterEditor.getSelectedInfo();
+		    	if (info != null) {
+                    FileDialog dialog = new FileDialog(getShell(), SWT.PRIMARY_MODAL|SWT.MULTI);
+                    
+                    dialog.setFilterExtensions(new String[] { "*.api" });
+                    dialog.setText("Select .api file to be converted to .pypredef.");
+                    
+                    dialog.setFilterPath(lastFileDialogPath);
+                    final String filePath = dialog.open();
+                    if(filePath != null){
+                        lastFileDialogPath = filePath;
+                        File filePath1 = new File(filePath);
+                        final String dir = filePath1.getParent();
+                        
+                        
+        				IInputValidator validator = new IInputValidator(){
+        					
+        				    public String isValid(String newText) {
+        				    	if(newText.length() == 0){
+        				    		return "Number not provided.";
+        				    	}
+        				        try {
+									Integer.parseInt(newText);
+								} catch (NumberFormatException e) {
+									return "The string: "+newText+" is not a valid integer.";
+								}
+        				        return null;
+        				    }
+        				};
+        				final InputDialog d = new InputDialog(
+        						getShell(), 
+        						"Number of tokens to consider module", 
+        						"Please specify the number of tokens to consider a module from the .api file\n\n" +
+        						"i.e.: if there's a PyQt4.QtCore.QObject and PyQt4.QtCore is a module and QtObject " +
+        						"is the first class, the number of tokens to consider a module would be 2 (one for " +
+        						"PyQt4 and another for QtCore).", 
+        						"", 
+        						validator);
+        				
+        				int retCode = d.open();
+        				final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        				if (retCode == InputDialog.OK) {
+        					
+        		            ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(getShell());
+        		            monitorDialog.setBlockOnOpen(false);
+        		            final Exception [] exception = new Exception[1];
+        		            try {
+        		                IRunnableWithProgress operation = new IRunnableWithProgress(){
+        		    
+        		                    public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+        		                        monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
+        		                        
+        	        					IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(false);
+										interpreter.setErr(output);
+        	        					interpreter.setOut(output);
+        	        					HashMap<String, Object> locals = new HashMap<String, Object>();
+        	        					locals.put("api_file", filePath);
+        	        					locals.put("parts_for_module", d.getValue());
+        	        					locals.put("cancel_monitor", monitor);
+        								try {
+        									JythonPlugin.exec(locals, "convert_api_to_pypredef.py", interpreter);
+        								} catch (Exception e) {
+        									Log.log(e+"\n\n"+output.toString());
+        									exception[0] = e;
+        								}
+        		                        
+        		                        monitor.done();
+        		                    }};
+        		                    
+        		                monitorDialog.run(true, true, operation);
+        		                
+        		            }catch (Exception e) {
+        		                PydevPlugin.log(e);
+        		            }            
+        		            
+        		            Exception e = exception[0];
+        		            String contents = output.toString();
+							if(e == null && contents.indexOf("SUCCESS") != -1){
+	        		            addInputToInfo(info, dir);
+	        		            interpreterEditor.updateTree();
+        		            }else{
+        		            	if(e != null){
+        		            		MessageDialog.openError(getShell(), "Error creating .pypredef files", e.getMessage()+"\n\n"+contents);
+        		            	}else{
+        		            		MessageDialog.openError(getShell(), "Error creating .pypredef files", contents);
+        		            	}
+        		            }
+        				}
+                    }
+		        }
+			}
+
+        	
+        };
+        predefinedCompletions.createTab("Predefined", "Predefined completions (check <a>Manual</a> for more info).");
         createEnvironmentVariablesTab();
         createStringSubstitutionTab();
         
@@ -515,7 +685,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                             if(filePath != null){
                                 lastDirectoryDialogPath = filePath;
                                 info.libs.add(filePath);
-//                                changed = true;
                             }
                             
                         } else if (widget == addBtSystemJar) {
@@ -545,7 +714,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                                         info.libs.add(f);
                                     }
                                 }
-//                                changed = true;
                             }
                                 
                         } else if (widget == removeBtSystemFolder) {
@@ -619,6 +787,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private void fillPathItemsFromName(String name) {
         treeWithLibs.removeAll();
         this.forcedBuiltins.removeAllFromList();
+        this.predefinedCompletions.removeAllFromList();
         
         //before any change, apply the changes in the previous info (if not set, that's ok)
         if(workingCopy.getInfo() != null){
@@ -644,6 +813,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 item.setExpanded(true);
                 
                 this.forcedBuiltins.update(info);
+                this.predefinedCompletions.update(info);
             }
             
             workingCopy.setInfo(info);
