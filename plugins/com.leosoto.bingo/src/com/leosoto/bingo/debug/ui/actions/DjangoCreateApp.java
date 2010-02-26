@@ -1,6 +1,7 @@
 package com.leosoto.bingo.debug.ui.actions;
 
 import org.eclipse.core.resources.IResource;
+
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
@@ -17,11 +18,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.ui.actions.project.PyRemoveNature;
 
-import com.leosoto.bingo.debug.ui.launching.DjangoManagementRunner;
-
-public class DjangoCreateApp extends PyRemoveNature implements IDebugEventSetListener { 
+public class DjangoCreateApp extends DjangoAction implements IDebugEventSetListener { 
 
 	private ILaunch launch;
 	
@@ -32,9 +30,8 @@ public class DjangoCreateApp extends PyRemoveNature implements IDebugEventSetLis
     private void createApp(String name) {      	 
     	try {    		
     		// This is to refresh workspace after completion:
-    		DebugPlugin.getDefault().addDebugEventListener(this);
-    		
-    		launch = DjangoManagementRunner.launch(selectedProject, "startapp " + name);
+    		DebugPlugin.getDefault().addDebugEventListener(this);    		
+    		launch = launchDjangoCommand("startapp " + name);
     	} catch (Exception e) {
     		throw new RuntimeException(e);
     	}

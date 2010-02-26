@@ -15,7 +15,7 @@ package com.leosoto.bingo.ui.wizards.project;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
 
-public class DjangoNewProjectNameAndLocationWizardPage
+public class DjangoNewProjectPage
 extends NewProjectNameAndLocationWizardPage
 {
     /**
@@ -23,7 +23,7 @@ extends NewProjectNameAndLocationWizardPage
      *
      * @param pageName the name of this page
      */
-    public DjangoNewProjectNameAndLocationWizardPage(String pageName) {
+    public DjangoNewProjectPage(String pageName) {
         super(pageName);
         setTitle("Django Project");
         setDescription("Create a new Django Project.");

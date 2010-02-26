@@ -1,29 +1,17 @@
 package com.leosoto.bingo.ui.wizards.project;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.IPythonNature;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class DjangoSettingsPage extends WizardPage {
 

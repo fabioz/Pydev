@@ -13,9 +13,8 @@ import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
 import org.python.pydev.dltk.console.InterpreterResponse;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.actions.project.PyRemoveNature;
 
-public class DjangoShell extends PyRemoveNature{
+public class DjangoShell extends DjangoAction {
 
     public void run(IAction action) {
     	try {

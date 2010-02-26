@@ -1,17 +1,13 @@
 package com.leosoto.bingo.ui.wizards.project;
 
-import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -30,23 +26,12 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.INewWizard;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
-import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.runners.SimplePythonRunner;
-import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.perspective.PythonPerspectiveFactory;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 import org.python.pydev.ui.wizards.project.PythonProjectWizard;
@@ -84,7 +69,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
 
 	@Override
     protected IWizardNewProjectNameAndLocationPage createProjectPage(){
-        return new DjangoNewProjectNameAndLocationWizardPage("Setting project properties");
+        return new DjangoNewProjectPage("Setting project properties");
     }
 
     protected DjangoSettingsPage createDjangoSettingsPage()  {
@@ -116,7 +101,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
      * @exception OperationCanceledException if the operation is canceled
      * @throws IOException
      */
-    private void createProject(
+    private void createDjangoProject(
     		IProjectDescription description, IProject projectHandle,
     		IProgressMonitor monitor, String projectType, String projectInterpreter,
     		DjangoSettingsPage.DjangoSettings djSettings)
@@ -247,7 +232,7 @@ public class DjangoProjectWizard extends PythonProjectWizard {
         WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
             protected void execute(IProgressMonitor monitor) throws CoreException {
             	try {
-            		createProject(description, newProjectHandle, monitor,
+            		createDjangoProject(description, newProjectHandle, monitor,
             				      projectType, projectInterpreter, djSettings);
             	} catch(IOException e) {
             		throw new RuntimeException(e);

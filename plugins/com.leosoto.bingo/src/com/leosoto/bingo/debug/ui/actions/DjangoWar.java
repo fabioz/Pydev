@@ -5,11 +5,9 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimpleRunner;
-import org.python.pydev.ui.actions.project.PyRemoveNature;
 
-import com.leosoto.bingo.debug.ui.launching.DjangoManagementRunner;
 
-public class DjangoWar extends PyRemoveNature{
+public class DjangoWar extends DjangoAction {
 
     public void run(IAction action) {
     	try {
@@ -37,10 +35,9 @@ public class DjangoWar extends PyRemoveNature{
     		if (javaLibs != null) {
     			command += " --include-java-libs=" + javaLibs;
     		}
-    		DjangoManagementRunner.launch(selectedProject, command);
+    		launchDjangoCommand(command);
     	} catch (Exception e) {
     		throw new RuntimeException(e);
     	}
     }
-
 }
