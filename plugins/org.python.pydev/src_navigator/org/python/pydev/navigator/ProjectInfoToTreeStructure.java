@@ -21,6 +21,17 @@ public class ProjectInfoToTreeStructure {
                     new LabelAndImage(interpreterInfo.getNameForUI(), imageCache.get(UIConstants.PY_INTERPRETER_ICON))
             );
             
+            String executableOrJar = interpreterInfo.getExecutableOrJar();
+            File file = new File(executableOrJar);
+            if(file.exists()){
+            	new PythonpathTreeNode(
+            			root, 
+            			file.getParentFile(),
+            			imageCache.get(UIConstants.PY_INTERPRETER_ICON),
+            			true
+            	);
+            }
+            
             InterpreterInfoTreeNode<LabelAndImage> systemLibs = new InterpreterInfoTreeNode<LabelAndImage>(
                     root, 
                     new LabelAndImage("System Libs", imageCache.get(UIConstants.LIB_SYSTEM_ROOT))
@@ -34,6 +45,20 @@ public class ProjectInfoToTreeStructure {
                         imageCache.get(UIConstants.LIB_SYSTEM),
                         true
                 );
+            }
+            
+            InterpreterInfoTreeNode<LabelAndImage> predefinedCompletions = new InterpreterInfoTreeNode<LabelAndImage>(
+            		root, 
+            		new LabelAndImage("Predefined Completions", imageCache.get(UIConstants.LIB_SYSTEM_ROOT))
+            );
+            
+            for (String string:interpreterInfo.getPredefinedCompletionsPath()) {
+            	new PythonpathTreeNode(
+            			predefinedCompletions,
+            			new File(string),
+            			imageCache.get(UIConstants.LIB_SYSTEM),
+            			true
+            	);
             }
             
             InterpreterInfoTreeNode<LabelAndImage> forcedBuiltins = new InterpreterInfoTreeNode<LabelAndImage>(

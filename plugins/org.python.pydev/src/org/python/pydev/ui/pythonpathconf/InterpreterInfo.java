@@ -86,7 +86,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * so, whenever the forcedLibs change, this should be changed too). 
      */
     private String[] builtinsCache;
-    private final Map<String, File> predefinedBuiltinsCache = new HashMap<String, File>();
+    private Map<String, File> predefinedBuiltinsCache;
     
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
@@ -989,7 +989,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     
     private void clearBuiltinsCache(){
     	this.builtinsCache = null; //force cache recreation
-    	this.predefinedBuiltinsCache.clear();
+    	this.predefinedBuiltinsCache = null;
     }
 
     /**
@@ -1081,25 +1081,6 @@ public class InterpreterInfo implements IInterpreterInfo{
     public String[] getBuiltins() {
         if(this.builtinsCache == null){
         	Set<String> set = new HashSet<String>(forcedLibs);
-        	for(String s:this.getPredefinedCompletionsPath()){
-        		File f = new File(s);
-        		if(f.exists()){
-        			File[] predefs = f.listFiles(new FilenameFilter() {
-						
-        				//Only accept names ending with .pypredef in the passed dirs
-						public boolean accept(File dir, String name) {
-							return name.endsWith(".pypredef");
-						}
-					});
-        			
-        			for (File file : predefs) {
-						String n = file.getName();
-						String modName = n.substring(0, n.length()-(".pypredef".length()));
-						this.predefinedBuiltinsCache.put(modName, file);
-						set.add(modName);
-					}
-        		}
-        	}
             this.builtinsCache = set.toArray(new String[0]);
         }
         return this.builtinsCache;
@@ -1350,6 +1331,28 @@ public class InterpreterInfo implements IInterpreterInfo{
 	 * @return the file that matches the passed module name with the predefined builtins.
 	 */
 	public File getPredefinedModule(String moduleName){
+		if(this.predefinedBuiltinsCache == null){
+			this.predefinedBuiltinsCache = new HashMap<String, File>();
+	    	for(String s:this.getPredefinedCompletionsPath()){
+	    		File f = new File(s);
+	    		if(f.exists()){
+	    			File[] predefs = f.listFiles(new FilenameFilter() {
+						
+	    				//Only accept names ending with .pypredef in the passed dirs
+						public boolean accept(File dir, String name) {
+							return name.endsWith(".pypredef");
+						}
+					});
+	    			
+	    			for (File file : predefs) {
+						String n = file.getName();
+						String modName = n.substring(0, n.length()-(".pypredef".length()));
+						this.predefinedBuiltinsCache.put(modName, file);
+					}
+	    		}
+	    	}
+	    }
+		
 		return this.predefinedBuiltinsCache.get(moduleName);
 	}
 

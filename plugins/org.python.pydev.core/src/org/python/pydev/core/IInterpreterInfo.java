@@ -90,4 +90,7 @@ public interface IInterpreterInfo {
     
     
     public Properties getStringSubstitutionVariables();
+    
+    
+    public List<String> getPredefinedCompletionsPath();
 }

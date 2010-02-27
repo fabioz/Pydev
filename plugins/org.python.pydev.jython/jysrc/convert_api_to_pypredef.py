@@ -1,5 +1,10 @@
 import os, sys
 
+try:
+    False, True = 0,1 
+except:
+    raise
+
 #===================================================================================================
 # sorted
 #===================================================================================================
@@ -119,20 +124,40 @@ class Method(Container):
             i = -1
             for s in splitted:
                 i += 1
+                
+                found_after_equals = None
+                if Contains('=', s):
+                    split_equals = s.split('=')
+                    s = split_equals[0]
+                    found_after_equals = '='+'='.join(split_equals[1:])
+                
                 parts = s.split(' ')
                 type, s = ' '.join(parts[:-1]), parts[-1]
                 
                 
                 if not s.strip():
                     s = 'param'
+                    
                 if Contains('.', s):
-                    if NotContains('=', s):
+                    if found_after_equals is None:
                         s = 'param='+s
                     else:
                         split = s.split('=')
                         if Contains('.', split[0]):
                             split[0] = split[0].replace('.', '_')
                             s = '='.join(split)
+                    
+                if found_after_equals is not None:
+                    s += found_after_equals
+                    
+                s = s.strip()
+                if found_after_equals is None:
+                    if s.endswith('()'):
+                        s=s[:-2]
+                if s.endswith('()):'):
+                    s=s[:-4]+'):'
+                elif s.endswith('())'):
+                    s=s[:-3]+')'
                     
                 if i == size-1:
                     if not s.endswith(')'):
@@ -151,11 +176,12 @@ class Method(Container):
                         param = param[:-1]
                         
                     docstring+= '\n    @type %s: %s' % (param, type)
-                    
+                
                 if signature_rep and not signature_rep.strip().endswith(','):
                     signature_rep += ', '
                 elif signature_rep.endswith(','):
                     signature_rep += ' '
+                    
                 signature_rep += s
                 
             if has_self:
@@ -192,6 +218,7 @@ def %s%s:
             replace('from=', 'from_=').\
             replace('exec(', 'exec_(').\
             replace('in)', 'in_)').\
+            replace('in,', 'in_,').\
             replace('...', '___').\
             replace('(1)', '(one)')
         return val
@@ -262,13 +289,16 @@ class Module(Container):
 #===================================================================================================
 # Convert
 #===================================================================================================
-def Convert(api_file, parts_for_module, cancel_monitor):
+def Convert(api_file, parts_for_module, cancel_monitor, lines=None, output_stream=None):
     cancel_monitor.setTaskName('Opening: '+api_file)
-    f = open(api_file, 'r')
-    try:
-        lines = f.readlines()
-    finally:
-        f.close()
+    
+    if lines is None:
+        f = open(api_file, 'r')
+        try:
+            lines = f.readlines()
+        finally:
+            f.close()
+        
         
     directory = os.path.dirname(api_file)
         
@@ -292,6 +322,7 @@ def Convert(api_file, parts_for_module, cancel_monitor):
         for line in lines:
             if line.startswith(handle_module+'.'):
                 line = line[len(handle_module+'.'):].strip()
+                line = line.replace('::', '.')
                 before, after = line.split('?')
                 
                 module.AddString(before, after)
@@ -311,11 +342,14 @@ The name of the file should be a direct representation of the module name
         print('Writing contents for: %s to: %s' % (handle_module, target))
         final_contents += ToStr(module)
         
-        f = open(os.path.join(directory, target), 'w')        
-        try:
-            f.write(final_contents)
-        finally:
-            f.close()
+        if output_stream is None:
+            f = open(os.path.join(directory, target), 'w')        
+            try:
+                f.write(final_contents.replace('None =', 'None_ =').replace('.None', '.None_'))
+            finally:
+                f.close()
+        else:
+            output_stream.write(final_contents)
             
         
 #===================================================================================================

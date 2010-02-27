@@ -6,7 +6,9 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 
 import org.eclipse.core.runtime.Assert;
@@ -29,6 +31,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.EmptyModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.PredefinedSourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -173,6 +176,11 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
         }
         return false;
     }
+    
+    /**
+     * Files only get here if we were unable to parse them.
+     */
+    private transient Map<File, Long> predefinedFilesNotParsedToTimestamp; 
 
     public AbstractModule getBuiltinModule(String name, IPythonNature nature, boolean dontSearchInit) {
         AbstractModule n = null;
@@ -188,32 +196,72 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
             return null;
         }
         
+        //for temporary access (so that we don't generate many instances of it)
+        ModulesKey keyForCacheAccess = new ModulesKey(null, null);
+        
         //A different choice for users that want more complete information on the libraries they're dealing
         //with is using predefined modules. Those will 
         File predefinedModule = this.info.getPredefinedModule(name);
-        if(predefinedModule != null){
-        	IDocument doc;
-			try {
-				doc = REF.getDocFromFile(predefinedModule);
-				IGrammarVersionProvider provider = new IGrammarVersionProvider() {
-					
-					public int getGrammarVersion() throws MisconfigurationException {
-						return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
+        if(predefinedModule != null && predefinedModule.exists()){
+        	keyForCacheAccess.name = name;
+        	keyForCacheAccess.file = predefinedModule;
+        	n = cache.getObj(keyForCacheAccess, this);
+        	if((n instanceof PredefinedSourceModule)){
+        		PredefinedSourceModule predefinedSourceModule = (PredefinedSourceModule) n;
+        		if(predefinedSourceModule.isSynched()){
+        			return n;
+        		}
+        		//otherwise (not PredefinedSourceModule or not synched), just keep going to create 
+        		//it as a predefined source module
+        	}
+        	
+        	boolean tryToParse = true;
+        	Long lastModified = null;
+			if(predefinedFilesNotParsedToTimestamp == null){
+        		predefinedFilesNotParsedToTimestamp = new HashMap<File, Long>();
+        	}else{
+	        	Long lastTimeChanged = predefinedFilesNotParsedToTimestamp.get(predefinedModule);
+	        	if(lastTimeChanged != null){
+	        		lastModified = predefinedModule.lastModified();
+	        		if(lastTimeChanged == lastModified){
+	        			tryToParse = false;
+	        		}else{
+	        			predefinedFilesNotParsedToTimestamp.remove(predefinedModule);
+	        		}
+        		}
+        	}
+        	
+        	
+        	if(tryToParse){
+	        	IDocument doc;
+				try {
+					doc = REF.getDocFromFile(predefinedModule);
+					IGrammarVersionProvider provider = new IGrammarVersionProvider() {
+						
+						public int getGrammarVersion() throws MisconfigurationException {
+							return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0; // Always Python 3.0 here
+						}
+					};
+					Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
+							new PyParser.ParserInfo(doc, true, provider, 0, name, predefinedModule));
+					if(obj.o2 != null){
+						if(lastModified == null){
+							lastModified = predefinedModule.lastModified();
+						}
+						predefinedFilesNotParsedToTimestamp.put(predefinedModule, lastModified);
+						PydevPlugin.log("Unable to parse: "+predefinedModule, obj.o2);
+						
+					}else if(obj.o1 != null){
+						n = new PredefinedSourceModule(name, predefinedModule, obj.o1, obj.o2);
+						doAddSingleModule(keyForCacheAccess, n);
+						return n;
 					}
-				};
-				Tuple<SimpleNode, Throwable> obj = PyParser.reparseDocument(
-						new PyParser.ParserInfo(doc, true, provider, 0, name, predefinedModule));
-				if(obj.o2 != null){
-					PydevPlugin.log("Unable to parse: "+predefinedModule, obj.o2);
+					//keep on going
+				} catch (Throwable e) {
+					Log.log(e);
 				}
-				//keep on going
-			} catch (Throwable e) {
-				Log.log(e);
-			}
+        	}
         }
-        
-        //for temporary access (so that we don't generate many instances of it)
-        ModulesKey keyForCacheAccess = new ModulesKey(null, null);
         
         boolean foundStartingWithBuiltin = false;
         FastStringBuffer buffer = null;

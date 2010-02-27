@@ -180,6 +180,9 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
                 return true;
             }
         }
+        if(path.endsWith(".pypredef")){
+        	return true;
+        }
         return false;
     }
 
@@ -196,6 +199,9 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
             if (ext.equals(end)) {
                 return true;
             }
+        }
+        if(ext.equals(".pypredef")){
+        	return true;
         }
         return false;
     }
