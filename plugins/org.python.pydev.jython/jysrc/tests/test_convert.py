@@ -1,11 +1,11 @@
-import unittest
 from convert_api_to_pypredef import Convert, Contains
+import unittest
 from StringIO import StringIO
 
 #===================================================================================================
-# TestCase
+# Test
 #===================================================================================================
-class TestCase(unittest.TestCase):
+class Test(unittest.TestCase):
     
     def setUp(self):
         unittest.TestCase.setUp(self)
@@ -29,7 +29,7 @@ class TestCase(unittest.TestCase):
         cancel_monitor = convert_api_to_pypredef.CancelMonitor()
         output_stream = StringIO()
         Convert('test_passed_lines', 2, cancel_monitor, lines, output_stream=output_stream)
-        print output_stream.getvalue()
+#        print output_stream.getvalue()
         self.Check("def disconnect(QObject, SIGNAL, QObject, SLOT):", output_stream.getvalue())
         self.Check("def connect(QObject, SIGNAL, QObject, SLOT, Qt_ConnectionType=Qt.AutoConnection):", output_stream.getvalue())
         self.Check("def leftJustified(width, fill=' ', truncate=False):", output_stream.getvalue())
@@ -37,13 +37,15 @@ class TestCase(unittest.TestCase):
         
         
         
-        api_file = r'C:\Documents and Settings\Fabio\Desktop\pydev_temp\PyQt4.api'
-        parts_for_module = 2
-        Convert(api_file, parts_for_module, cancel_monitor)
+#        api_file = r'C:\Documents and Settings\Fabio\Desktop\pydev_temp\PyQt4.api'
+#        parts_for_module = 2
+#        Convert(api_file, parts_for_module, cancel_monitor)
         
 
 #===================================================================================================
 # main
 #===================================================================================================
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.makeSuite(Test)
+    unittest.TextTestRunner(verbosity=1).run(suite)
+
