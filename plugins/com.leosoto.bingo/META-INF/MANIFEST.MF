@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Yingo
+Bundle-Name: Bingo
 Bundle-SymbolicName: com.leosoto.bingo;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Vendor: Leo Soto M.
 Bundle-Activator: com.leosoto.bingo.BingoPlugin
 Require-Bundle: org.eclipse.ui,
