@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.leosoto.bingo.feature"
+      label="Bingo"
+      version="1.0.1"
+      provider-name="Leo Soto">
+
+   <description>
+      Django support for PyDev
+   </description>
+
+   <copyright>
+      Copyright Leo Soto M.
+   </copyright>
+
+   <requires>
+      <import feature="org.python.pydev.feature" version="0.9.7.1"/>
+   </requires>
+
+   <plugin
+         id="com.leosoto.bingo"
+         download-size="0"
+         install-size="0"
+         version="1.0.1"
+         unpack="false"/>
+
+</feature>
