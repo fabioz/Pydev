@@ -31,6 +31,7 @@ import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractToken;
@@ -660,8 +661,40 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //now, check for locals
         IToken[] localTokens = scopeVisitor.scope.getAllLocalTokens();
         for (IToken tok : localTokens) {
-            if(tok.getRepresentation().equals(rep)){
+            String tokenRep = tok.getRepresentation();
+			if(tokenRep.equals(rep)){
                 return new Definition[]{new Definition(tok, scopeVisitor.scope, this, true)};
+            }else if(rep.startsWith(tokenRep+".") && !rep.startsWith("self.")){
+            	//this means we have a declaration in the local scope and we're accessing a part of it
+            	//e.g.:
+                //class B:            
+                //    def met2(self): 
+                //        c = C()     
+                //        c.met1
+            	ICompletionState copyWithActTok = state.getCopyWithActTok(tokenRep);
+            	Definition[] definitions = this.findDefinition(copyWithActTok, tok.getLineDefinition(), tok.getColDefinition(), nature);
+            	ArrayList<Definition> ret = new ArrayList<Definition>();
+            	for (Definition definition : definitions) {
+					if(definition.module != null){
+						String checkFor = definition.value+rep.substring(tokenRep.length());
+						
+						try {
+							state.checkFindLocalDefinedDefinitionMemory(definition.module, checkFor);
+						} catch (CompletionRecursionException e) {
+							//Just return whatever we have.
+							Log.log(e); // Log, as this shouldn't happen.
+							return ret.toArray(new Definition[ret.size()]);
+						}
+						
+						Definition[] realDefinitions = (Definition[]) definition.module.findDefinition(
+								state.getCopyWithActTok(checkFor), 
+								definition.line, definition.col, nature);
+						for (Definition realDefinition : realDefinitions) {
+							ret.add(realDefinition);
+						}
+					}
+				}
+            	return ret.toArray(new Definition[ret.size()]);
             }
         }
         

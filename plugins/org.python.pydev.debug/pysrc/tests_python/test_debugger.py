@@ -6,7 +6,11 @@
     Note that it's a python script but it'll spawn a process to run as jython and as python.
 '''
 import unittest 
-port = 13335
+port = 13336
+
+def UpdatePort():
+    global port
+    port += 1
 
 import os
 def NormFile(filename):
@@ -603,6 +607,7 @@ class WriterThreadCase1(AbstractWriterThread):
 class Test(unittest.TestCase):
     
     def CheckCase(self, writerThreadClass, run_as_python=True):
+        UpdatePort()
         writerThread = writerThreadClass()
         writerThread.start()
         

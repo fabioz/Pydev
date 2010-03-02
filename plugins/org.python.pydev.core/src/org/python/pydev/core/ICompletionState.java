@@ -78,6 +78,8 @@ public interface ICompletionState extends ICompletionCache {
 
     void checkFindDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException;
     
+    void checkFindLocalDefinedDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException;
+    
     void checkFindModuleCompletionsMemory(IModule mod, String tok) throws CompletionRecursionException;
     
     void checkFindResolveImportMemory(IToken tok) throws CompletionRecursionException;

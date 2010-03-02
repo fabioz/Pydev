@@ -72,8 +72,12 @@ public class CompletionStateWrapper implements ICompletionState {
         wrapped.checkDefinitionMemory(module, definition);
     }
 
+    public void checkFindLocalDefinedDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
+        wrapped.checkFindLocalDefinedDefinitionMemory(mod, tok);
+    }
+    
     public void checkFindDefinitionMemory(IModule mod, String tok) throws CompletionRecursionException {
-        wrapped.checkFindDefinitionMemory(mod, tok);
+    	wrapped.checkFindDefinitionMemory(mod, tok);
     }
 
     public void checkFindMemory(IModule module, String value) throws CompletionRecursionException {
