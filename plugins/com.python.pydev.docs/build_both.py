@@ -13,6 +13,8 @@ else:
     LAST_VERSION_TAG = '1.5.4' #Not specified (let's leave one there)
 
 
+import build_python_code_block
+
 
 #=======================================================================================================================
 # BuildFromRst
