@@ -15,7 +15,6 @@
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>         
     </extension>
-<!-- Python nature -->
     <extension
          id="djangoNature"
          name="Django Nature"
@@ -76,7 +75,15 @@
 	               menubarPath="com.leosoto.bingo.ui.django.menu/common"
 	               tooltip="Run Tests">
 	         </action>
-	         
+
+	         <action
+	               class="com.leosoto.bingo.debug.ui.actions.DjangoSyncDB"
+	               enablesFor="+"
+	               id="com.leosoto.bingo.debug.ui.actions.project.djangoSyncDB"
+	               label="Sync Database" 
+	               menubarPath="com.leosoto.bingo.ui.django.menu/common"
+	               tooltip="Synchronize database">
+	         </action>	         
              <visibility><objectState name="projectNature" value="com.leosoto.bingo.djangoNature"/></visibility>
           </objectContribution>
     </extension>
