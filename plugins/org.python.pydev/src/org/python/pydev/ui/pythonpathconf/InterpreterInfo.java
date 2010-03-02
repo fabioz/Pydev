@@ -115,7 +115,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     
     private Properties stringSubstitutionVariables;
     
-    private final List<String> predefinedCompletionsPath = new ArrayList<String>();
+    private final Set<String> predefinedCompletionsPath = new TreeSet<String>();
     
     /**
      * This is the way that the interpreter should be referred. Can be null (in which case the executable is
