@@ -54,6 +54,7 @@ public class JythonInterpreterEditor extends AbstractInterpreterEditor{
             }
             pathsToSearch.add("/usr/bin");
             pathsToSearch.add("/usr/local/bin");
+            pathsToSearch.add("/usr/share/java");
 
             return super.getAutoNewInputFromPaths(pathsToSearch, "jython.jar", "jython");
             
