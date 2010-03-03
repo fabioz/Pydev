@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Created on Mar 20, 2006
  */
 package org.python.pydev.debug.newconsole.env;

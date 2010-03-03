@@ -1,4 +1,4 @@
-﻿package org.python.pydev.debug.newconsole;
+package org.python.pydev.debug.newconsole;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
