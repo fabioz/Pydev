@@ -1,4 +1,4 @@
-package org.python.pydev.debug.newconsole;
+﻿package org.python.pydev.debug.newconsole;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -252,13 +252,21 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                             executed = exec();
                             
                             //executed.o1 is not null only if we had an error
-                            if(executed.o1 != null && executed.o1.indexOf("refused") != -1){
+                            
+                            String refusedConnPattern = "Failed to read servers response"; // Was "refused", but it didn't 
+                                                                                           // work on non English system 
+                                                                                           // (in Spanish localized systems
+                                                                                           // it is "rechazada") 
+                                                                                           // This string always works, 
+                                                                                           // because it is hard-coded in
+                                                                                           // the XML-RPC library)
+                            if(executed.o1 != null && executed.o1.indexOf(refusedConnPattern) != -1){
                                 if(firstCommWorked){
                                     break;
                                 }else{
                                     if(commAttempts < maximumAttempts){
                                         commAttempts += 1;
-                                        Thread.sleep(50);
+                                        Thread.sleep(250);
                                         executed.o1 = stdErrReader.getAndClearContents();
                                         continue;
                                     }else{

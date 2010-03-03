@@ -34,7 +34,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
-public abstract class SimpleRunner {
+public class SimpleRunner {
 
     /**
      * Passes the commands directly to Runtime.exec (with the passed envp)
@@ -115,6 +115,8 @@ public abstract class SimpleRunner {
             
                 case IPythonNature.INTERPRETER_TYPE_JYTHON:
                     env.put("CLASSPATH", pythonPathEnvStr); //put the environment
+                    env.put("JYTHONPATH", pythonPathEnvStr); //put the environment
+                    break;
                     
                 case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
                     env.put("IRONPYTHONPATH", pythonPathEnvStr); //put the environment

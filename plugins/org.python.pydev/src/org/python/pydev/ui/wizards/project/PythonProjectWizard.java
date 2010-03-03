@@ -66,8 +66,11 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
 
 	private IConfigurationElement fConfigElement;
 
+	protected IWorkbench workbench;
+
     public void init(IWorkbench workbench, IStructuredSelection currentSelection) {
         this.selection = currentSelection;
+        this.workbench = workbench;
         initializeDefaultPageImageDescriptor();
         projectPage = createProjectPage();
     }
