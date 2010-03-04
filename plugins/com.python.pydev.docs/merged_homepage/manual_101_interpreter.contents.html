@@ -98,7 +98,7 @@ with too much runtime information is providing <a class="reference internal" hre
 <p>For <strong>IronPython</strong> more than <strong>100</strong> entries. All the packages built into .NET should be included here -- e.g.:
 Microsoft, Microsoft.Windows.Themes, System, System.IO, etc.</p>
 <p>Additionally, you may add other libraries that you want to treat as
-builtins, such as <strong>os, wxPython, OpenGL, cStringIO, etc</strong>. This is very important, because Pydev works
+builtins, such as <strong>os, wxPython, OpenGL, etc</strong>. This is very important, because Pydev works
 on the java side only with static information, but some modules don't have much information when analyzed
 statically, so, Pydev creates a shell to get information on those. Another important
 thing is that they <strong>must</strong> be on your system pythonpath (otherwise, the shell will be unable to get that information).</p>
@@ -112,7 +112,7 @@ thing is that they <strong>must</strong> be on your system pythonpath (otherwise
 a given Python module (with Python 3.0 syntax).</p>
 <p>A predefined completion module may be created by having a module with the extension &quot;.pypredef&quot;
 with regular Python 3.0 contents, but with attributes having assigns to its type and methods having
-as the body a sole return statement and having anything in the docstring.</p>
+as the body a sole return statement -- and the docstring may have anything.</p>
 <p>Example for a <strong>my.source.module</strong> (must be declared in a <strong>my.source.module.pypredef</strong> file):</p>
 <div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%">MyConstantA <span style="color: #666666">=</span> <span style="color: #008000">int</span>
 MyConstantB <span style="color: #666666">=</span> <span style="color: #008000">int</span>

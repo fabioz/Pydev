@@ -5,6 +5,58 @@
 <br>
 
 
+<h1>Release 1.5.4</h1>
+<ul>
+<li><strong>Actions</strong>:<ul>
+<li>Go to matching bracket (Ctrl + Shift + P)</li>
+<li>Copy the qualified name of the current context to the clipboard.</li>
+<li>Ctrl + Shift + T keybinding is resolved to show globals in any context (<strong>note</strong>: a conflict may occur if JDT is present -- it can be fixed at the keys preferences if wanted).</li>
+<li>Ctrl + 2 shows a dialog with the list of available options.</li>
+<li>Wrap paragraph is available in the source menu.</li>
+<li>Globals browser will start with the current word if no selection is available (if possible).</li>
+</ul>
+</li>
+<li><strong>Templates</strong>:<ul>
+<li>Scripting engine can be used to add template variables to Pydev.</li>
+<li>New template variables for next, previous class or method, current module, etc.</li>
+<li>New templates for super and super_raw.</li>
+<li>print is now aware of Python 3.x or 2.x</li>
+</ul>
+</li>
+<li><strong>Code analysis and code completion</strong>:<ul>
+<li>Fixed problem when getting builtins with multiple Python interpreters configured.</li>
+<li>If there's a hasattr(obj, 'attr), 'attr' will be considered in the code completion and code analysis.</li>
+<li>Fixed issue where analysis was only done once when set to only analyze open editor.</li>
+<li>Proper namespace leakage semantic in list comprehension.</li>
+<li>Better calltips in IronPython.</li>
+<li>Support for code-completion in Mac OS (interpreter was crashing if _CF was not imported in the main thread).</li>
+</ul>
+</li>
+<li><strong>Grammar</strong>:<ul>
+<li>Fixed issues with 'with' being used as name or keyword in 2.5.</li>
+<li>Fixed error when using nested list comprehension.</li>
+<li>Proper 'as' and 'with' handling in 2.4 and 2.5.</li>
+<li>'with' statement accepts multiple items in python 3.0.</li>
+</ul>
+</li>
+<li><strong>Improved hover</strong>:<ul>
+<li>Showing the actual contents of method or class when hovering.</li>
+<li>Link to the definition of the token being hovered (if class or method).</li>
+</ul>
+</li>
+<li><strong>Others</strong>:<ul>
+<li>Completions for [{( are no longer duplicated when on block mode.</li>
+<li>String substitution can now be configured in the interpreter.</li>
+<li>Fixed synchronization issue that could make Pydev halt.</li>
+<li>Fixed problem when editing with collapsed code.</li>
+<li>Import wasn't found for auto-import location if it import started with 'import' (worked with 'from')</li>
+<li>Fixed interactive console problem with help() function in Python 3.1</li>
+<li>NullPointerException fix in compare editor.</li>
+</ul>
+</li>
+</ul>
+
+
 <h1>Release 1.5.3</h1>
 
 <p>Fixed bug where an error was being print to the pydev console on a run.</p>

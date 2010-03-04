@@ -24,59 +24,67 @@
 </blockquote>
 <p>For more details on the provided features, check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
 </div>
-<div class="section" id="release-1-5-4">
-<h1>Release 1.5.4</h1>
+<div class="section" id="release-1-5-5">
+<h1>Release 1.5.5</h1>
+<ul>
+<li><p class="first"><strong>Predefined completions available for code completion:</strong></p>
 <blockquote>
 <ul class="simple">
-<li><strong>Actions</strong>:<ul>
-<li>Go to matching bracket (Ctrl + Shift + P)</li>
-<li>Copy the qualified name of the current context to the clipboard.</li>
-<li>Ctrl + Shift + T keybinding is resolved to show globals in any context (<strong>note</strong>: a conflict may occur if JDT is present -- it can be fixed at the keys preferences if wanted).</li>
-<li>Ctrl + 2 shows a dialog with the list of available options.</li>
-<li>Wrap paragraph is available in the source menu.</li>
-<li>Globals browser will start with the current word if no selection is available (if possible).</li>
-</ul>
-</li>
-<li><strong>Templates</strong>:<ul>
-<li>Scripting engine can be used to add template variables to Pydev.</li>
-<li>New template variables for next, previous class or method, current module, etc.</li>
-<li>New templates for super and super_raw.</li>
-<li>print is now aware of Python 3.x or 2.x</li>
-</ul>
-</li>
-<li><strong>Code analysis and code completion</strong>:<ul>
-<li>Fixed problem when getting builtins with multiple Python interpreters configured.</li>
-<li>If there's a hasattr(obj, 'attr), 'attr' will be considered in the code completion and code analysis.</li>
-<li>Fixed issue where analysis was only done once when set to only analyze open editor.</li>
-<li>Proper namespace leakage semantic in list comprehension.</li>
-<li>Better calltips in IronPython.</li>
-<li>Support for code-completion in Mac OS (interpreter was crashing if _CF was not imported in the main thread).</li>
-</ul>
-</li>
-<li><strong>Grammar</strong>:<ul>
-<li>Fixed issues with 'with' being used as name or keyword in 2.5.</li>
-<li>Fixed error when using nested list comprehension.</li>
-<li>Proper 'as' and 'with' handling in 2.4 and 2.5.</li>
-<li>'with' statement accepts multiple items in python 3.0.</li>
-</ul>
-</li>
-<li><strong>Improved hover</strong>:<ul>
-<li>Showing the actual contents of method or class when hovering.</li>
-<li>Link to the definition of the token being hovered (if class or method).</li>
-</ul>
-</li>
-<li><strong>Others</strong>:<ul>
-<li>Completions for [{( are no longer duplicated when on block mode.</li>
-<li>String substitution can now be configured in the interpreter.</li>
-<li>Fixed synchronization issue that could make Pydev halt.</li>
-<li>Fixed problem when editing with collapsed code.</li>
-<li>Import wasn't found for auto-import location if it import started with 'import' (worked with 'from')</li>
-<li>Fixed interactive console problem with help() function in Python 3.1</li>
-<li>NullPointerException fix in compare editor.</li>
-</ul>
-</li>
+<li>Predefined completions may be created for use when sources are not available</li>
+<li>Can also be used for providing better completions for compiled modules (e.g.: PyQt, wx, etc.)</li>
+<li>Defined in .pypredef files (which are plain Python code)</li>
+<li>Provides a way for generating those from a QScintilla .api file (experimental)</li>
+<li><a class="reference external" href="manual_101_interpreter.html">See Predefined Completions in manual for more info</a></li>
 </ul>
 </blockquote>
+</li>
+<li><p class="first"><strong>Pydev Package Explorer:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Showing the contents of the PYTHONPATH from the interpreter for each project</li>
+<li>Shows the folder containing the python interpreter executable (to browse for docs, scripts, etc)</li>
+<li>Allows opening files in the interpreter PYTHONPATH (even inside zip files)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor options:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Find/replace dialog has option to search in currently opened editors</li>
+<li>Move line up/down can move considering Python indentation (not default)</li>
+<li>Simple token completions can have a space or a space and colon added when applied. E.g.: print, if, etc (not default)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Refactoring:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed InvalidThreadAccess on refactoring</li>
+<li>Fixed problem doing refactoring on external files (no file was found)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Globals Browser (Ctrl+Shift+T):</strong></p>
+<blockquote>
+<ul class="simple">
+<li>No longer throwing NullPointerException when the interpreter is no longer available for a previously found token</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>General:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>When creating a new pydev project, the user will be asked before changing to the pydev perspective</li>
+<li>Only files under source folders are analyzed (files in the external source folders would be analyzed if they happened to be in the Eclipse workspace)</li>
+<li>Interactive console now works properly on non-english systems</li>
+<li>Hover working over tokens from compiled modules (e.g.: file, file.readlines)</li>
+<li>JYTHONPATH environment variable is set on Jython (previously only the PYTHONPATH was set)</li>
+<li>Fixed path translation issues when using remote debugger</li>
+<li>Fixed issue finding definition for a method of a locally created token</li>
+</ul>
+</blockquote>
+</li>
+</ul>
 </div>
 <div class="section" id="what-happened-to-pydev-extensions">
 <h1>What happened to Pydev Extensions?</h1>

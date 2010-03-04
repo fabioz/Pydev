@@ -116,7 +116,7 @@ _`Predefined Completions`
     
     A predefined completion module may be created by having a module with the extension ".pypredef"
     with regular Python 3.0 contents, but with attributes having assigns to its type and methods having
-    as the body a sole return statement and having anything in the docstring.
+    as the body a sole return statement -- and the docstring may have anything.
     
     Example for a **my.source.module** (must be declared in a **my.source.module.pypredef** file):
     

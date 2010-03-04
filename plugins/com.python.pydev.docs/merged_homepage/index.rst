@@ -38,55 +38,50 @@ It comes with many goodies such as:
 
 For more details on the provided features, check the `Features Matrix`_.
 
-Release 1.5.4
+Release 1.5.5
 ==============
 
- * **Actions**:
- 
-   * Go to matching bracket (Ctrl + Shift + P)
-   * Copy the qualified name of the current context to the clipboard.
-   * Ctrl + Shift + T keybinding is resolved to show globals in any context (**note**: a conflict may occur if JDT is present -- it can be fixed at the keys preferences if wanted).
-   * Ctrl + 2 shows a dialog with the list of available options.
-   * Wrap paragraph is available in the source menu.
-   * Globals browser will start with the current word if no selection is available (if possible).
- 
- * **Templates**:
- 
-   * Scripting engine can be used to add template variables to Pydev.
-   * New template variables for next, previous class or method, current module, etc.
-   * New templates for super and super_raw.
-   * print is now aware of Python 3.x or 2.x
-   
- * **Code analysis and code completion**:
- 
-   * Fixed problem when getting builtins with multiple Python interpreters configured.
-   * If there's a hasattr(obj, 'attr), 'attr' will be considered in the code completion and code analysis.
-   * Fixed issue where analysis was only done once when set to only analyze open editor.
-   * Proper namespace leakage semantic in list comprehension.
-   * Better calltips in IronPython.
-   * Support for code-completion in Mac OS (interpreter was crashing if _CF was not imported in the main thread).
- 
- * **Grammar**:
- 
-   * Fixed issues with 'with' being used as name or keyword in 2.5.
-   * Fixed error when using nested list comprehension.
-   * Proper 'as' and 'with' handling in 2.4 and 2.5.
-   * 'with' statement accepts multiple items in python 3.0.
- 
- * **Improved hover**:
- 
-   * Showing the actual contents of method or class when hovering.
-   * Link to the definition of the token being hovered (if class or method).
-   
- * **Others**:
- 
-   * Completions for [{( are no longer duplicated when on block mode.
-   * String substitution can now be configured in the interpreter.
-   * Fixed synchronization issue that could make Pydev halt.
-   * Fixed problem when editing with collapsed code.
-   * Import wasn't found for auto-import location if it import started with 'import' (worked with 'from')
-   * Fixed interactive console problem with help() function in Python 3.1
-   * NullPointerException fix in compare editor.
+.. _See Predefined Completions in manual for more info: manual_101_interpreter.html
+
+* **Predefined completions available for code completion:**
+
+    * Predefined completions may be created for use when sources are not available 
+    * Can also be used for providing better completions for compiled modules (e.g.: PyQt, wx, etc.)
+    * Defined in .pypredef files (which are plain Python code)
+    * Provides a way for generating those from a QScintilla .api file (experimental)
+    * `See Predefined Completions in manual for more info`_
+    
+* **Pydev Package Explorer:**
+
+    * Showing the contents of the PYTHONPATH from the interpreter for each project
+    * Shows the folder containing the python interpreter executable (to browse for docs, scripts, etc)
+    * Allows opening files in the interpreter PYTHONPATH (even inside zip files)
+
+* **Editor options:**
+
+    * Find/replace dialog has option to search in currently opened editors
+    * Move line up/down can move considering Python indentation (not default)
+    * Simple token completions can have a space or a space and colon added when applied. E.g.: print, if, etc (not default)
+
+* **Refactoring:**
+
+    * Fixed InvalidThreadAccess on refactoring
+    * Fixed problem doing refactoring on external files (no file was found) 
+
+* **Globals Browser (Ctrl+Shift+T):**
+
+    * No longer throwing NullPointerException when the interpreter is no longer available for a previously found token
+
+* **General:**
+    
+    * When creating a new pydev project, the user will be asked before changing to the pydev perspective
+    * Only files under source folders are analyzed (files in the external source folders would be analyzed if they happened to be in the Eclipse workspace)
+    * Interactive console now works properly on non-english systems
+    * Hover working over tokens from compiled modules (e.g.: file, file.readlines)
+    * JYTHONPATH environment variable is set on Jython (previously only the PYTHONPATH was set)
+    * Fixed path translation issues when using remote debugger
+    * Fixed issue finding definition for a method of a locally created token
+
 
 
 What happened to Pydev Extensions?
