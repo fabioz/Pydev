@@ -16,6 +16,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
@@ -42,9 +43,10 @@ public class PyRefactoringFindDefinition {
      * 
      * @return an array with 2 strings: the activation token and the qualifier used. The return may be null, in which case
      *      the refactoring request is not valid for a find definition.
+     * @throws CompletionRecursionException 
      */
     public static String[] findActualDefinition(RefactoringRequest request, CompletionCache completionCache,
-            ArrayList<IDefinition> selected) {
+            ArrayList<IDefinition> selected) throws CompletionRecursionException {
         //ok, let's find the definition.
         request.createSubMonitor(50);
         request.getMonitor().beginTask("Find definition", 5);
@@ -72,6 +74,8 @@ public class PyRefactoringFindDefinition {
             PyRefactoringFindDefinition.findActualDefinition(request, mod, tok, selected, beginLine, beginCol, pythonNature, completionCache);
         } catch (OperationCanceledException e) {
             throw e;
+        } catch (CompletionRecursionException e) {
+        	throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -159,7 +163,7 @@ public class PyRefactoringFindDefinition {
      * @throws Exception
      */
     public static void findActualDefinition(RefactoringRequest request, IModule mod, String tok, ArrayList<IDefinition> selected, 
-            int beginLine, int beginCol, IPythonNature pythonNature, ICompletionCache completionCache) throws Exception {
+            int beginLine, int beginCol, IPythonNature pythonNature, ICompletionCache completionCache) throws Exception, CompletionRecursionException {
         
         IDefinition[] definitions = mod.findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, pythonNature, 
                 beginLine-1, beginCol-1, completionCache), beginLine, beginCol, pythonNature);

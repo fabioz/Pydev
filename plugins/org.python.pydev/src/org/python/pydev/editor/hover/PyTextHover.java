@@ -37,6 +37,8 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringEscapeUtils;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyInformationPresenter;
@@ -187,8 +189,14 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
         }catch(MisconfigurationException e){
             return;
         }
-        String[] tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
-        
+        String[] tokenAndQual = null;
+		try {
+			tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+		} catch (CompletionRecursionException e1) {
+			Log.log(e1);
+			buf.append("Unable to compute hover. Details: "+e1.getMessage());
+			return;
+		}
         
         FastStringBuffer temp = new FastStringBuffer();
         

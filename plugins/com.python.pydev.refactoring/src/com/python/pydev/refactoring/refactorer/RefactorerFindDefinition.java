@@ -13,6 +13,8 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
@@ -49,7 +51,13 @@ public class RefactorerFindDefinition {
             CompletionCache completionCache = new CompletionCache();
             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
             
-            String[] tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+            String[] tokenAndQual;
+			try {
+				tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+			} catch (CompletionRecursionException e1) {
+				Log.log(e1);
+				return new ItemPointer[0];
+			}
             if(tokenAndQual == null){
                 return new ItemPointer[0];
             }
