@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
@@ -31,10 +30,7 @@ public class ScriptOutput extends OutputStream{
      */
     private IOConsoleOutputStream out;
     
-    /**
-     * This is the color of the output
-     */
-    private Color color;
+
 
     /**
      * Console associated with this output
@@ -47,9 +43,11 @@ public class ScriptOutput extends OutputStream{
      * @param color the color of the output written
      */
     public ScriptOutput(Color color, IOConsole console, boolean writeToConsole){
-        this.color = color;
         this.fConsole = console;
         this.writeToConsole = writeToConsole;
+        
+        out = fConsole.newOutputStream();
+        out.setColor(color);
     }
     
     /**
@@ -83,17 +81,7 @@ public class ScriptOutput extends OutputStream{
      * @return the output stream to use
      */
     private IOConsoleOutputStream getOutputStream() throws MalformedURLException {
-        if(out == null){
-            out = fConsole.newOutputStream();
-            synchronized (Display.getDefault()) {
-                Display.getDefault().syncExec(new Runnable(){
-
-                    public void run() {
-                        out.setColor(color);
-                    }
-                });
-            }
-        }
         return out;
     }
-    }
+    
+}

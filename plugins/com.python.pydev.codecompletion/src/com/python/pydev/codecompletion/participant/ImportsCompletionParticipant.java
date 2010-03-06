@@ -75,6 +75,9 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
             IPythonNature nature, int qlen, boolean addAutoImport, IScriptConsoleViewer viewer, boolean getSystem) {
         
         ICodeCompletionASTManager astManager = nature.getAstManager();
+        if(astManager == null){
+        	return;
+        }
         
         Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);
         
@@ -176,6 +179,9 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         if(request.qualifier.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveModulesCompletion()){ //at least n characters required...
             
             ICodeCompletionASTManager astManager = request.nature.getAstManager();
+            if(astManager == null){
+            	return list;
+            }
             String initialModule = request.resolveModule();
             
             Image img = PyCodeCompletionImages.getImageForType(IToken.TYPE_PACKAGE);

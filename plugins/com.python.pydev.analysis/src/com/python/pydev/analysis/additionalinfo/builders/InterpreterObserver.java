@@ -40,7 +40,9 @@ import com.python.pydev.analysis.additionalinfo.AdditionalSystemInterpreterInfo;
 public class InterpreterObserver implements IInterpreterObserver {
 
     private static final boolean DEBUG_INTERPRETER_OBSERVER = false;
-
+    
+    private Object lock = new Object();
+    
     /**
      * @see org.python.pydev.ui.interpreters.IInterpreterObserver#notifyDefaultPythonpathRestored(org.python.pydev.ui.interpreters.AbstractInterpreterManager, org.eclipse.core.runtime.IProgressMonitor)
      */
@@ -48,26 +50,28 @@ public class InterpreterObserver implements IInterpreterObserver {
         if(DEBUG_INTERPRETER_OBSERVER){
             System.out.println("notifyDefaultPythonpathRestored "+ interpreter);
         }
-        try {
-            final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
-            int grammarVersion = interpreterInfo.getGrammarVersion();
-            AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
-            if(currInfo != null){
-                currInfo.clearAllInfo();
-            }
-            InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
-            ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
-            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
-                    "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
-                    new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
-
-            if (additionalSystemInfo != null) {
-                //ok, set it and save it
-                AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, interpreter, additionalSystemInfo);
-                AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager, interpreter);
-            }
-        } catch (Throwable e) {
-            PydevPlugin.log(e);
+        synchronized(lock){
+	        try {
+	            final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, new NullProgressMonitor());
+	            int grammarVersion = interpreterInfo.getGrammarVersion();
+	            AbstractAdditionalInterpreterInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(manager, interpreter);
+	            if(currInfo != null){
+	                currInfo.clearAllInfo();
+	            }
+	            InterpreterInfo defaultInterpreterInfo = (InterpreterInfo) manager.getInterpreterInfo(interpreter, monitor);
+	            ISystemModulesManager m = defaultInterpreterInfo.getModulesManager();
+	            AbstractAdditionalInterpreterInfo additionalSystemInfo = restoreInfoForModuleManager(monitor, m, 
+	                    "(system: " + manager.getManagerRelatedName() + " - " + interpreter + ")",
+	                    new AdditionalSystemInterpreterInfo(manager, interpreter), null, grammarVersion);
+	
+	            if (additionalSystemInfo != null) {
+	                //ok, set it and save it
+	                AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(manager, interpreter, additionalSystemInfo);
+	                AbstractAdditionalInterpreterInfo.saveAdditionalSystemInfo(manager, interpreter);
+	            }
+	        } catch (Throwable e) {
+	            PydevPlugin.log(e);
+	        }
         }
     }
 
@@ -80,32 +84,36 @@ public class InterpreterObserver implements IInterpreterObserver {
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
         for(final IInterpreterInfo interpreterInfo:iManager.getInterpreterInfos()){
-            boolean loadedAdditionalSystemInfo;
-			try {
-				loadedAdditionalSystemInfo = AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, interpreterInfo.getExecutableOrJar());
-			} catch (MisconfigurationException e1) {
-				loadedAdditionalSystemInfo = false;
-			}
-			if (!loadedAdditionalSystemInfo) {
-                //not successfully loaded
-                Job j = new Job("Pydev... Restoring additional info") {
+            Job j = new Job("Pydev... Restoring indexes for: "+interpreterInfo.getNameForUI()) {
 
-                    @Override
-                    protected IStatus run(IProgressMonitor monitorArg) {
-                        try {
-                            JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(monitorArg, "Pydev... Restoring additional info", IProgressMonitor.UNKNOWN, this);
-                            notifyDefaultPythonpathRestored(iManager, interpreterInfo.getExecutableOrJar(), jobProgressComunicator);
-                            jobProgressComunicator.done();
-                        } catch (Exception e) {
-                            PydevPlugin.log(e);
-                        }
-                        return Status.OK_STATUS;
-                    }
+                @Override
+                protected IStatus run(IProgressMonitor monitorArg) {
+                	synchronized(lock){
+	                    boolean loadedAdditionalSystemInfo;
+	        			try {
+	        				loadedAdditionalSystemInfo = AdditionalSystemInterpreterInfo.loadAdditionalSystemInfo(iManager, interpreterInfo.getExecutableOrJar());
+	        			} catch (MisconfigurationException e1) {
+	        				loadedAdditionalSystemInfo = false;
+	        			}
+	        			if (!loadedAdditionalSystemInfo) {
+	                	
+		                    try {
+		                        JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(
+		                        		monitorArg, "Pydev... Restoring indexes for: "+interpreterInfo.getNameForUI(), 
+		                        		IProgressMonitor.UNKNOWN, this);
+		                        notifyDefaultPythonpathRestored(iManager, interpreterInfo.getExecutableOrJar(), jobProgressComunicator);
+		                        jobProgressComunicator.done();
+		                    } catch (Exception e) {
+		                        PydevPlugin.log(e);
+		                    }
+	        			}
+        			}
+                    return Status.OK_STATUS;
+                }
 
-                };
-                j.setPriority(Job.BUILD);
-                j.schedule();
-            }
+            };
+            j.setPriority(Job.SHORT);
+            j.schedule();
         }
     }
 
@@ -227,6 +235,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 
     public void notifyProjectPythonpathRestored(final PythonNature nature, IProgressMonitor monitor) {
         try {
+        	//Note: at this point we're 100% certain that the ast manager is there.
             IModulesManager m = nature.getAstManager().getModulesManager();
             IProject project = nature.getProject();
             

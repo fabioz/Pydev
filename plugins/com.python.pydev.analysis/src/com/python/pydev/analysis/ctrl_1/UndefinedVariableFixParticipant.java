@@ -15,6 +15,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -81,6 +82,10 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         if(nature == null){
             return;
         }
+        ICodeCompletionASTManager astManager = nature.getAstManager();
+        if(astManager == null){
+        	return;
+        }
         
         int start = markerAnnotation.position.offset;
         int end = start+markerAnnotation.position.length;
@@ -93,7 +98,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         if(imageCache != null){ //making tests
             packageImage = imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
         }
-        IModulesManager projectModulesManager = nature.getAstManager().getModulesManager();
+		IModulesManager projectModulesManager = astManager.getModulesManager();
         Set<String> allModules = projectModulesManager.getAllModuleNames(true, markerContents.toLowerCase());
 
         //when an undefined variable is found, we can:

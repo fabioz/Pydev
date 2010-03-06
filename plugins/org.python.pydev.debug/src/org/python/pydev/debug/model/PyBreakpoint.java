@@ -18,6 +18,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.LineBreakpoint;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
@@ -173,7 +174,7 @@ public class PyBreakpoint extends LineBreakpoint {
     }
     
     private String functionName;
-    private long timestep;
+    private long lastModifiedTimeCached;
 
     /**
      * @return the function name for this breakpoint.
@@ -188,30 +189,41 @@ public class PyBreakpoint extends LineBreakpoint {
             return "None";
         }
         
-        if(file.lastModified() == timestep){
+        if(file.lastModified() == lastModifiedTimeCached){
             return functionName;
         }
         
         try {
             IPythonNature nature = getPythonNature();
-            if(nature != null){
-                //Only mark it as found if we were able to get the python nature (otherwise, this could change later
-                //if requesting during a setup)
-                timestep = file.lastModified();
-                
-                
-                String modName = nature.resolveModule(fileStr);
-                SourceModule sourceModule = null;
-                if(modName != null){
-                    //when all is set up, this is the most likely path we're going to use
-                    //so, we shouldn't have delays when the module is changed, as it's already
-                    //ok for use.
-                    IModule module = nature.getAstManager().getModule(modName, nature, true);
-                    if(module instanceof SourceModule){
-                        sourceModule = (SourceModule) module;
-                    }
+            if(nature == null){
+            	lastModifiedTimeCached = 0;
+            	return "None";
+            }
+        	ICodeCompletionASTManager astManager = nature.getAstManager();
+        	if(astManager == null){
+        		lastModifiedTimeCached = 0;
+        		return "None";
+        	}
+            //Only mark it as found if we were able to get the python nature (otherwise, this could change later
+            //if requesting during a setup)
+            if(nature.startRequests()){ //start requests, as we'll ask for resolve and get module.
+            	SourceModule sourceModule = null;
+                try{
+	                String modName = nature.resolveModule(fileStr);
+	                if(modName != null){
+	                    //when all is set up, this is the most likely path we're going to use
+	                    //so, we shouldn't have delays when the module is changed, as it's already
+	                    //ok for use.
+	                    IModule module = astManager.getModule(modName, nature, true);
+	                    if(module instanceof SourceModule){
+	                        sourceModule = (SourceModule) module;
+	                    }
+	                }
+                }finally{
+                	nature.endRequests();
                 }
-                
+                lastModifiedTimeCached = file.lastModified();
+	                
                 if(sourceModule == null){
                     //the text for the breakpoint requires the function name, and it may be requested before
                     //the ast manager is actually restored (so, modName is None, and we have little alternative
@@ -234,6 +246,7 @@ public class PyBreakpoint extends LineBreakpoint {
                     functionName = ""; //global context
                 }
                 return functionName;
+                
             }
             //If it was found, it would've already returned. So, match anything as we couldn't determine it.
             functionName = "None";

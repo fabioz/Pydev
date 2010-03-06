@@ -71,6 +71,9 @@ public class RefactorerFindDefinition {
 					tokensEqualTo = AdditionalProjectInterpreterInfo.getTokensEqualTo(lookForInterface, request.nature,
 					        AbstractAdditionalInterpreterInfo.TOP_LEVEL | AbstractAdditionalInterpreterInfo.INNER);
 					ICodeCompletionASTManager manager = request.nature.getAstManager();
+					if(manager == null){
+						return new ItemPointer[0];
+					}
 					if (tokensEqualTo.size() > 100){
 						//too many matches for that...
 						throw new TooManyMatchesException("Too Many matches ("+tokensEqualTo.size()+") were found for the requested token:"+lookForInterface, tokensEqualTo.size());

@@ -12,7 +12,6 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -516,41 +515,20 @@ public class JythonPlugin extends AbstractUIPlugin {
     
     public static Color getRed() {
         if(red == null){
-            synchronized (Display.getDefault()) {
-                Display.getDefault().syncExec(new Runnable(){
-                    
-                    public void run() {
-                        red = Display.getDefault().getSystemColor(SWT.COLOR_RED);
-                    }
-                });
-            }
+        	red = new Color(Display.getDefault(), 255, 0, 0);
         }
         return red;
     }
     
     public static Color getBlack() {
         if(black == null){
-            synchronized (Display.getDefault()) {
-                Display.getDefault().syncExec(new Runnable(){
-
-                    public void run() {
-                        black = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
-                    }
-                });
-            }
+        	black = new Color(Display.getDefault(), 0, 0, 0);
         }
         return black;
     }
     public static Color getGreen() {
         if(green == null){
-            synchronized (Display.getDefault()) {
-                Display.getDefault().syncExec(new Runnable(){
-                    
-                    public void run() {
-                        green = new Color(Display.getDefault(), 0, 200, 125);
-                    }
-                });
-            }
+            green = new Color(Display.getDefault(), 0, 200, 125);
         }
         return green;
     }

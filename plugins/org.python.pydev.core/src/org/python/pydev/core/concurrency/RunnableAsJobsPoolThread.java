@@ -7,8 +7,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 
 /**
  * This is a pool where we can register runnables to run -- and it'll let only X runnables run at the same time.
@@ -93,6 +95,11 @@ public class RunnableAsJobsPoolThread extends Thread{
                             }
                             runnable[0] = null;//make sure it'll be available for garbage collection ASAP.
                             r.run();
+                        }catch(RuntimeException e){
+                        	if(CorePlugin.getDefault() != null){
+                        		//Only log if eclipse still didn't shutdown.
+                        		Log.log(e);
+                        	}
                         }finally{
                             r = null; //make sure it'll be available for garbage collection ASAP.
                             jobsCreationSemaphore.release();
