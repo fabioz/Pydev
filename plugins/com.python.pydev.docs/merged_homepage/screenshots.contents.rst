@@ -6,10 +6,31 @@ Screenshots
 Note that these screenshots cover only a bit of the
 features available. For more details check the `Features Matrix`_.
 
-Interactive Console code completion
+General
+--------
+
+.. image:: images/screenshot/screenshot0.png
+   :class: snap
+   
+   
+Interactive console code completion
 ------------------------------------
 
 .. image:: images/console/code_completion.png
+   :class: snap
+
+
+Global tokens browser
+------------------------------------
+
+.. image:: images/screenshot/screenshot8.png
+   :class: snap
+
+
+Debugger
+------------------------------------
+
+.. image:: images/screenshot/screenshot6.gif
    :class: snap
 
 
@@ -37,14 +58,6 @@ Code coverage
 .. image:: images/screenshot/screenshot5.png
    :class: snap
 
-
-
-
-Debugger
-------------------------------------
-
-.. image:: images/screenshot/screenshot6.gif
-   :class: snap
 
 
 
