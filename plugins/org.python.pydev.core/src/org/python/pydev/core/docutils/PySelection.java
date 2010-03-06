@@ -793,6 +793,48 @@ public class PySelection {
         return getDoc().getChar(getAbsoluteCursorOffset());
     }
 
+	public Tuple<String, String> getBeforeAndAfterMatchingChars(char c) {
+		final int initial = getAbsoluteCursorOffset();
+		int curr = initial-1;
+		IDocument doc = getDoc();
+		FastStringBuffer buf = new FastStringBuffer(10);
+		int length = doc.getLength();
+		
+		while(curr >= 0 && curr < length){
+			char gotten;
+			try {
+				gotten = doc.getChar(curr);
+			} catch (BadLocationException e) {
+				break;
+			}
+			if(gotten == c){
+				buf.append(c);
+			}else{
+				break;
+			}
+			curr--;
+		}
+		String before = buf.toString();
+		buf.clear();
+		curr = initial;
+		
+		while(curr >= 0 && curr < length){
+			char gotten;
+			try {
+				gotten = doc.getChar(curr);
+			} catch (BadLocationException e) {
+				break;
+			}
+			if(gotten == c){
+				buf.append(c);
+			}else{
+				break;
+			}
+			curr++;
+		}
+		String after = buf.toString();
+		return new Tuple<String, String>(before, after);
+	}
     
     /**
      * @return the offset mapping to the end of the line passed as parameter.

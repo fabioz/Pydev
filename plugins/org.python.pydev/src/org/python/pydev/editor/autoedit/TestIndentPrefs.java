@@ -17,6 +17,7 @@ public class TestIndentPrefs extends AbstractIndentPrefs {
     public boolean autoElse;
     public boolean indentToParLevel = true;
     public int indentAfterParWidth = 1;
+    public boolean autoAddLiterals = true;
 
     public TestIndentPrefs(boolean useSpaces, int tabWidth){
         this.useSpaces = useSpaces;
@@ -80,6 +81,10 @@ public class TestIndentPrefs extends AbstractIndentPrefs {
     
     public boolean getSmartLineMove() {
     	return true;
+    }
+    
+    public boolean getAutoLiterals() {
+    	return autoAddLiterals;
     }
     
     public void regenerateIndentString() {

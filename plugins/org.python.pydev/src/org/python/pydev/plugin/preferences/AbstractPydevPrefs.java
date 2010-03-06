@@ -96,6 +96,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     */
    public static final String AUTO_WRITE_IMPORT_STR = "AUTO_WRITE_IMPORT_STR";
    public static final boolean DEFAULT_AUTO_WRITE_IMPORT_STR = true;
+   
+   public static final String AUTO_LITERALS = "AUTO_LITERALS";
+   public static final boolean DEFAULT_AUTO_LITERALS = true;
 
     //text
     public static final String TAB_WIDTH = "TAB_WIDTH";
@@ -310,6 +313,7 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_COLON));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_BRACES));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_WRITE_IMPORT_STR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, AUTO_LITERALS));
 
         //matching
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));

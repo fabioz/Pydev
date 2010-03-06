@@ -73,6 +73,11 @@ public class PydevTypingPrefs  extends AbstractPydevPrefs {
         b.setToolTipText(WrapAndCaseUtils.wrap("Enabling this feature will enable the editor to detect if you are trying " +
                 "to enter a colon which is already there.  Instead of inserting another colon, the editor will " +
                 "simply move your cursor to the next position after the colon.", TOOLTIP_WIDTH));
+        
+        //auto literals
+        b = addCheckBox(appearanceComposite, "Automatic literal closing", AUTO_LITERALS, 0);
+        b.setToolTipText(WrapAndCaseUtils.wrap("Automatically close literals " +
+        		"(when ' or \" is added, another one is added to close it).", TOOLTIP_WIDTH));
 
         //auto import str
         b = addCheckBox(appearanceComposite, "Automatic insertion of the 'import' string on 'from xxx' ", AUTO_WRITE_IMPORT_STR, 0);

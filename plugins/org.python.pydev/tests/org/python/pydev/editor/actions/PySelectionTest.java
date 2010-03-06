@@ -31,7 +31,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testImportLine6a();
+            test.testGetBeforeAndAfterMatchingChars();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -565,4 +565,18 @@ public class PySelectionTest extends TestCase {
         assertFalse(PySelection.isFutureImportLine("__future__ from a import b"));
         assertTrue(PySelection.isFutureImportLine("from __future__ "));
     }
+    
+    public void testGetBeforeAndAfterMatchingChars() throws Exception {
+		Document doc = new Document();
+		PySelection ps = new PySelection(doc);
+		assertEquals(new Tuple<String, String>("", ""), ps.getBeforeAndAfterMatchingChars('\''));
+		doc.set("''ab");
+		assertEquals(new Tuple<String, String>("", "''"), ps.getBeforeAndAfterMatchingChars('\''));
+		ps.setSelection(1, 1);
+		assertEquals(new Tuple<String, String>("'", "'"), ps.getBeforeAndAfterMatchingChars('\''));
+		ps.setSelection(2, 2);
+		assertEquals(new Tuple<String, String>("''", ""), ps.getBeforeAndAfterMatchingChars('\''));
+		ps.setSelection(3, 3);
+		assertEquals(new Tuple<String, String>("", ""), ps.getBeforeAndAfterMatchingChars('\''));
+	}
 }

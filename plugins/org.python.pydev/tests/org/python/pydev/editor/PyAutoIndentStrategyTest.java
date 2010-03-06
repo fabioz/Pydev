@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testTab4();
+            s.testStringAddition();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1869,5 +1869,55 @@ public class PyAutoIndentStrategyTest extends TestCase {
         
     }
 
+    public void testStringAddition() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        String doc = "";
+        DocCmd docCmd;
+        String expected;
+        
+        doc = "''";
+        docCmd = new DocCmd(doc.length()-1, 0, "'");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = ""; //just walk with the cursor
+        assertEquals(expected, docCmd.text);
+        
+        doc = "''";
+        docCmd = new DocCmd(0, 0, "'");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "'"; //don't walk with the cursor and add so that the document becomes ''' 
+        assertEquals(expected, docCmd.text);
+        
+        doc = "";
+        docCmd = new DocCmd(doc.length(), 0, "'");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "''";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "'"; //already opened
+        docCmd = new DocCmd(doc.length(), 0, "'");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "'";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "'ueuouo"; //already opened
+        docCmd = new DocCmd(doc.length(), 0, "'");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "'";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "'ueuouo' and "; //all is properly balanced, so, auto close it.
+        docCmd = new DocCmd(doc.length(), 0, "'");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "''";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "'ueuouo'"; //already opened
+        docCmd = new DocCmd(0, doc.length(),  "'");
+        Document document = new Document(doc);
+        strategy.customizeDocumentCommand(document, docCmd);
+        expected = "''";
+        assertEquals("", document.get());
+        assertEquals(expected, docCmd.text);
+    }
 
 }

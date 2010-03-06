@@ -11,6 +11,7 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.TextSelection;
 import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
@@ -294,6 +295,11 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             return;
         }
         
+        if (command.text.equals("\"") || command.text.equals("'")) {
+        	handleLiteral(document, command);
+        	return;
+        }
+        
         // super idents newlines the same amount as the previous line
         final boolean isNewLine = isNewLineText(document, command.length, command.text);
         
@@ -437,6 +443,89 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Called right after a ' or "
+     */
+	private void handleLiteral(IDocument document, DocumentCommand command) {
+		if(!prefs.getAutoLiterals()){
+			return;
+		}
+		PySelection ps = new PySelection(document, new TextSelection(document, command.offset, command.length));
+		if(command.length > 1){
+			try {
+				//We have more contents selected. Delete it so that we can properly use the heuristics.
+				ps.deleteSelection();
+				command.length = 0;
+				ps.setSelection(command.offset, command.offset);
+			} catch (BadLocationException e) {
+			}
+		}
+		char c = command.text.charAt(0);
+		
+		String cursorLineContents = ps.getCursorLineContents();
+		if(cursorLineContents.indexOf(c) == -1){
+			command.text += command.text;
+			command.shiftsCaret = false;
+			command.caretOffset = command.offset+1;
+			return;
+		}
+		
+		boolean balanced = isLiteralBalanced(cursorLineContents);
+		
+		Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(c);
+		
+		int matchesBefore = beforeAndAfterMatchingChars.o1.length();
+		int matchesAfter = beforeAndAfterMatchingChars.o2.length();
+		
+		boolean hasMatchesBefore = matchesBefore != 0;
+		boolean hasMatchesAfter = matchesAfter != 0;
+		
+		if(!hasMatchesBefore && !hasMatchesAfter){
+			//if it's not balanced, this char would be the closing char.
+			if(balanced){
+				command.text += command.text;
+				command.shiftsCaret = false;
+				command.caretOffset = command.offset+1;
+			}
+		}else{
+			//we're right after or before a " or '
+			
+			if(matchesAfter == 1){
+				//just walk the caret
+				command.text = "";
+				command.shiftsCaret = false;
+				command.caretOffset = command.offset+1;
+			}
+		}
+	}
+
+	/**
+	 * @return true if the passed string has balanced ' and "
+	 */
+	private boolean isLiteralBalanced(String cursorLineContents) {
+		ParsingUtils parsingUtils = ParsingUtils.create(cursorLineContents, true);
+		
+		int offset = 0;
+		int end = cursorLineContents.length();
+		boolean balanced = true;
+		while (offset < end) {
+			char curr = cursorLineContents.charAt(offset++);
+			if(curr == '"' || curr == '\''){
+				int eaten;
+				try {
+					eaten = parsingUtils.eatLiterals(null, offset - 1)+1;
+				} catch (SyntaxErrorException e) {
+					balanced = false;
+					break;
+				}
+				if (eaten > offset) {
+					offset = eaten;
+				}	
+			}
+		}
+		return balanced;
+	}
 
 	private void handleTab(IDocument document, DocumentCommand command) throws BadLocationException {
 		PySelection ps = new PySelection(document, command.offset);

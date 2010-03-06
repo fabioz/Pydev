@@ -103,4 +103,9 @@ public interface IIndentPrefs {
      * Should we make alt+up / alt+down considering indentation?
      */
 	public boolean getSmartLineMove();
+
+	/**
+	 * Should we close literals?
+	 */
+	public boolean getAutoLiterals();
 }

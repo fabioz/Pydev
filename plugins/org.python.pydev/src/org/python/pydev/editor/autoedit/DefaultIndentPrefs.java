@@ -155,6 +155,10 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
 	public boolean getSmartLineMove() {
 		return getCache().getBoolean(PydevEditorPrefs.SMART_LINE_MOVE);
 	}
+	
+	public boolean getAutoLiterals() {
+		return getCache().getBoolean(PydevEditorPrefs.AUTO_LITERALS);
+	}
 
 
 }
