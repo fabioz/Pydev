@@ -15,9 +15,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
@@ -72,7 +74,7 @@ public class PyBackspace extends PyAction {
             // ps.doc.getLineInformationOfOffset(cursorOffset);
 
             if (cursorOffset == lastCharRegion.getOffset()) {
-                //System.out.println("We are in the beggining of the line.");
+                //System.out.println("We are in the beginning of the line.");
                 //in this situation, we are in the first character of the
                 // line...
                 //so, we have to get the end of the other line and delete it.
@@ -182,7 +184,52 @@ public class PyBackspace extends PyAction {
     private void eraseSingleChar(PySelection ps) throws BadLocationException {
         ITextSelection textSelection = ps.getTextSelection();
 
-        makeDelete(ps.getDoc(), textSelection.getOffset() - 1, 1);
+        int replaceLength = 1;
+		int replaceOffset = textSelection.getOffset() - replaceLength;
+		IDocument doc = ps.getDoc();
+		
+		if(replaceOffset >= 0 && replaceOffset + replaceLength < doc.getLength()){
+			char c = doc.getChar(replaceOffset);
+			if(c == '(' || c == '[' || c == '{'){
+				//When removing a (, check if we have to delete the corresponding ) too.
+				char peer = StringUtils.getPeer(c);
+				if(replaceOffset + replaceLength < doc.getLength()){
+					char c2 = doc.getChar(replaceOffset+1);
+					if(c2 == peer){
+						//Ok, there's a closing one right next to it, now, what we have to do is
+						//check if the user was actually removing that one because there's an opening
+						//one without a match.
+						//To do that, we go backwards in the document searching for an opening match and then
+						//search its match. If it's found, it means we can delete both, otherwise, this
+						//delete will make things correct.
+						
+						//Create a matcher only matching this char
+						PythonPairMatcher pythonPairMatcher = new PythonPairMatcher(new char[]{c, peer});
+						int openingPeerOffset = pythonPairMatcher.searchForAnyOpeningPeer(replaceOffset, doc);
+						if(openingPeerOffset == -1){
+							replaceLength += 1;
+						}else{
+							int closingPeerOffset = pythonPairMatcher.searchForClosingPeer(openingPeerOffset, c, peer, doc);
+							if(closingPeerOffset != -1){
+								//we have a match, so, things are balanced and we can delete the next
+								replaceLength += 1;
+							}
+						}
+					}
+				}
+				
+			}else if(c == '\'' || c == '"'){
+				//when removing a ' or ", check if we have to delete another ' or " too.
+				Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(c);
+				int matchesBefore = beforeAndAfterMatchingChars.o1.length();
+				int matchesAfter = beforeAndAfterMatchingChars.o2.length();
+				if(matchesBefore == 1 && matchesBefore == matchesAfter){
+					replaceLength += 1;
+				}
+			}
+		}
+		
+		makeDelete(doc, replaceOffset, replaceLength);
     }
 
     /**

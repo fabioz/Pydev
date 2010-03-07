@@ -40,6 +40,9 @@ public class PythonPairMatcherTest extends TestCase {
         String s = "\ntest ('''\n[#''') ";
         assertEquals(-1, matcher.searchForAnyOpeningPeer(s.length(), new Document(s)));
         
+        s = "\ntest (    ";
+        assertEquals(6, matcher.searchForAnyOpeningPeer(s.length(), new Document(s)));
+        
     }
 
     private PythonPairMatcher getMatcher() {
