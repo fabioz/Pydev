@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testStringAddition();
+            s.testNoCloseParens();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1407,7 +1407,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         doc = "a()";
         docCmd = new DocCmd(doc.length()-1, 0, "(");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        expected = "(";
+        expected = "()";
         assertEquals(expected, docCmd.text);
         
         // test very simple ':' detection
@@ -1786,7 +1786,6 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
     }
     
-    
     public void testAutoImportStr() {
         strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
         String doc = "from xxx";
@@ -1919,5 +1918,104 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals("", document.get());
         assertEquals(expected, docCmd.text);
     }
+
+    
+    public void testCloseParens() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+    	String doc = "()";
+    	DocCmd docCmd = new DocCmd(doc.length()-1, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "()";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "[]";
+    	docCmd = new DocCmd(doc.length()-1, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "()";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "((()))";
+    	docCmd = new DocCmd(3, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "()";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "((()))";
+    	docCmd = new DocCmd(4, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "()";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = ",";
+    	docCmd = new DocCmd(0, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "()";
+    	assertEquals(expected, docCmd.text);
+
+    }
+    
+    public void testNoCloseParens() {
+    	strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+    	String doc = "test";
+    	DocCmd docCmd = new DocCmd(0, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "(";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "[][]";
+    	docCmd = new DocCmd(2, 0, "[");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "[";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "(test";
+    	docCmd = new DocCmd(0, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "(";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = ")test";
+    	docCmd = new DocCmd(0, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "(";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "()test";
+    	docCmd = new DocCmd(0, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "(";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "())";
+    	docCmd = new DocCmd(0, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "(";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "())";
+    	docCmd = new DocCmd(1, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "(";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "(()))";
+    	docCmd = new DocCmd(2, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "(";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "[]][]";
+    	docCmd = new DocCmd(2, 0, "[");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "[";
+    	assertEquals(expected, docCmd.text);
+    	
+    	doc = "\n\n)";
+    	docCmd = new DocCmd(0, 0, "(");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	expected = "(";
+    	assertEquals(expected, docCmd.text);
+    }
+    
 
 }

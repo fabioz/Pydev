@@ -213,8 +213,9 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
                 else if (c == closingPeer)
                     stack--;
 
-                if (stack == 0)
+                if (stack <= 0){ //<= 0 because if we have a closing peer without an opening one, we'll return it.
                     return fReader.getOffset();
+                }
 
                 c = fReader.read();
             }
@@ -248,8 +249,9 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
                 else if (c == openingPeer)
                     stack--;
 
-                if (stack == 0)
+                if (stack <= 0){//<= 0 because if we have an opening peer without a closing one, we'll return it.
                     return fReader.getOffset();
+                }
 
                 c = fReader.read();
             }

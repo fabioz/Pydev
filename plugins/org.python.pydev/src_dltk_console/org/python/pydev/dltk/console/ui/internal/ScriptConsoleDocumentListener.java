@@ -546,7 +546,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 docCmd.shiftsCaret = true;
                 boolean canSkipOpenParenthesis;
                 try{
-                    canSkipOpenParenthesis = strategy.canSkipOpenParenthesis(parenDoc, docCmd);
+                    canSkipOpenParenthesis = strategy.canSkipCloseParenthesis(parenDoc, docCmd);
                 }catch(BadLocationException e){
                     canSkipOpenParenthesis = false;
                     PydevPlugin.log(e);

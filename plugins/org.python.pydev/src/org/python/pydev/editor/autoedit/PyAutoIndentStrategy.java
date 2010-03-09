@@ -338,9 +338,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             if (prefs.getAutoParentesis() && (command.text.equals("[") || command.text.equals("{")) ) {
                 PySelection ps = new PySelection(document, command.offset);
                 char c = command.text.charAt(0);
-                if (shouldClose(ps, c)) {
+                char peer = StringUtils.getPeer(c);
+                if (shouldClose(ps, c, peer)) {
                     command.shiftsCaret = false;
-                    command.text = c+""+StringUtils.getPeer(c);
+                    command.text = c+""+peer;
                     command.caretOffset = command.offset+1;
                 }
                 
@@ -592,7 +593,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             PySelection ps = new PySelection(document, command.offset);
             String line = ps.getLine();
 
-            if (shouldClose(ps, '(')) {
+            if (shouldClose(ps, '(', ')')) {
 
                 boolean hasClass = line.indexOf("class ") != -1;
                 boolean hasClassMethodDef = line.indexOf(" def ") != -1 || line.indexOf("\tdef ") != -1;
@@ -889,7 +890,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @throws BadLocationException 
      */
     private void performPairReplacement(IDocument document, DocumentCommand command) throws BadLocationException {
-        boolean skipChar = canSkipOpenParenthesis(document, command);
+        boolean skipChar = canSkipCloseParenthesis(document, command);
         if(skipChar){
             //if we have the same number of peers, we want to eat the char
             command.text = "";
@@ -897,7 +898,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         }
     }
 
-    public boolean canSkipOpenParenthesis(IDocument document, DocumentCommand command) throws BadLocationException {
+    /**
+     * @return true if we should skip a ), ] or }
+     */
+    public boolean canSkipCloseParenthesis(IDocument document, DocumentCommand command) throws BadLocationException {
         PySelection ps = new PySelection(document, command.offset);
 
         char c = ps.getCharAtCurrentOffset();
@@ -922,30 +926,65 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         
 
     /**
-     * @param ps
-     * @param c the char to close
-     * @return
-     * @throws BadLocationException
+     * @return true if we should close the opening pair (parameter c) and false if we shouldn't
      */
-    private boolean shouldClose(PySelection ps, char c) throws BadLocationException {
-        String line = ps.getLine();
-
+    private boolean shouldClose(PySelection ps, char c, char peer) throws BadLocationException {
+    	PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
         String lineContentsFromCursor = ps.getLineContentsFromCursor();
 
         for (int i = 0; i < lineContentsFromCursor.length(); i++) {
-            if (!Character.isWhitespace(lineContentsFromCursor.charAt(i))) {
+            char charAt = lineContentsFromCursor.charAt(i);
+			if (!Character.isWhitespace(charAt)) {
+
+				if(charAt == ','){
+					break;
+				}
+				if(StringUtils.isClosingPeer(charAt)){
+					break;
+				}
+				
                 return false;
             }
         }
-
-        int i = PyAction.countChars(c, line);
-        int j = PyAction.countChars(c, line);
-
-        if (j > i) {
-            return false;
-        }
-
-        return true;
+        
+        
+        
+		//Ok, we have to analyze the current context and see if each closing peer
+		//in this context has a match. If one doesn't, we won't close it.
+		LineStartingScope nextLineThatStartsScope = ps.getNextLineThatStartsScope();
+		int lineStartingNextScope;
+		if(nextLineThatStartsScope == null){
+			lineStartingNextScope = Integer.MAX_VALUE;
+		}else{
+			lineStartingNextScope = nextLineThatStartsScope.iLineStartingScope;
+		}
+		
+		int closingPeerLine;
+		int closingPeerFoundAtOffset = ps.getAbsoluteCursorOffset()-1; //start to search at the current position
+		
+		do{
+			//closingPeerFoundAtOffset doesn't need +1 here as it's already added in the matcher.
+			closingPeerFoundAtOffset = matcher.searchForClosingPeer(closingPeerFoundAtOffset, c, peer, ps.getDoc());
+			if(closingPeerFoundAtOffset == -1){
+				//no more closing peers there, ok to go
+				return true;
+			}
+			
+			//the +1 is needed because we match closing ones that are right before the current cursor
+			IRegion match = matcher.match(ps.getDoc(), closingPeerFoundAtOffset+1);
+			if(match == null){
+				//we don't have a match for a close, so, this open is that match.
+				return false;
+			}
+			
+			try {
+				closingPeerLine = ps.getDoc().getLineOfOffset(closingPeerFoundAtOffset);
+			} catch (Exception e) {
+				break;
+			}
+		}while(lineStartingNextScope > closingPeerLine);
+		
+		return true;
     }
 
     /**

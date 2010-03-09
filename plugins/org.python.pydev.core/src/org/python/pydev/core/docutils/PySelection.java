@@ -1005,13 +1005,25 @@ public class PySelection {
         return getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, true, Integer.MAX_VALUE);
     }
     
+    public LineStartingScope getNextLineThatStartsScope() {
+    	return getNextLineThatStartsScope(PySelection.INDENT_TOKENS, true, Integer.MAX_VALUE);
+    }
+    
     
     public LineStartingScope getPreviousLineThatStartsScope(String [] indentTokens, boolean considerCurrentLine, int mustHaveIndentLowerThan) {
+    	int lineToStart=-1;
+    	if(!considerCurrentLine){
+    		lineToStart = getCursorLine()-1;
+    	}
+    	return getPreviousLineThatStartsScope(indentTokens, lineToStart, mustHaveIndentLowerThan);
+    }
+    
+    public LineStartingScope getNextLineThatStartsScope(String [] indentTokens, boolean considerCurrentLine, int mustHaveIndentLowerThan) {
         int lineToStart=-1;
         if(!considerCurrentLine){
             lineToStart = getCursorLine()-1;
         }
-        return getPreviousLineThatStartsScope(indentTokens, lineToStart, mustHaveIndentLowerThan);
+        return getNextLineThatStartsScope(indentTokens, lineToStart, mustHaveIndentLowerThan);
     }
     
     public LineStartingScope getPreviousLineThatStartsScope(int lineToStart) {
@@ -1034,6 +1046,16 @@ public class PySelection {
         }
     }
     
+    public LineStartingScope getNextLineThatStartsScope(
+            String [] indentTokens, int lineToStart, int mustHaveIndentLowerThan) {
+    	return getLineThatStartsScope(true, indentTokens, lineToStart, mustHaveIndentLowerThan);
+    }
+    
+    public LineStartingScope getPreviousLineThatStartsScope(
+    		String [] indentTokens, int lineToStart, int mustHaveIndentLowerThan) {
+    	return getLineThatStartsScope(false, indentTokens, lineToStart, mustHaveIndentLowerThan);
+    }
+    		
     /**
      * @param lineToStart: if -1, it'll start at the current line.
      * 
@@ -1042,13 +1064,13 @@ public class PySelection {
      * - a String with the line where some dedent token was found while looking for that scope.
      * - a string with the lowest indent (null if none was found)
      */
-    public LineStartingScope getPreviousLineThatStartsScope(
-            String [] indentTokens, int lineToStart, int mustHaveIndentLowerThan) {
+    public LineStartingScope getLineThatStartsScope(
+            boolean forward, String [] indentTokens, int lineToStart, int mustHaveIndentLowerThan) {
         final DocIterator iterator;
         if(lineToStart == -1){
-            iterator = new DocIterator(false, this);
+            iterator = new DocIterator(forward, this);
         }else{
-            iterator = new DocIterator(false, this, lineToStart, false);
+            iterator = new DocIterator(forward, this, lineToStart, false);
         }
         
         String foundDedent = null;

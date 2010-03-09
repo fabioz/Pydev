@@ -17,6 +17,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 
 /**
  * @author Fabio Zadrozny
@@ -456,6 +457,24 @@ public class PySelectionTest extends TestCase {
         PyDocIterator iterator = new PyDocIterator(doc,  false, true, true);
         assertEquals("  ",iterator.next());
         
+    }
+    
+    public void testLineStartingScope() throws Exception {
+    	String str = "" +
+    	"class Bar:\n" +
+    	"\n" +
+    	"    def m1(self):\n" +
+    	"        pass\n" + 
+    	"";
+    	doc = new Document(str);
+    	PySelection ps = new PySelection(doc, 0);
+    	LineStartingScope nextLineThatStartsScope = ps.getNextLineThatStartsScope();
+    	assertEquals(0, nextLineThatStartsScope.iLineStartingScope);
+    	
+    	ps = new PySelection(doc, 12);
+    	nextLineThatStartsScope = ps.getNextLineThatStartsScope();
+    	assertEquals(2, nextLineThatStartsScope.iLineStartingScope);
+    	
     }
     
     public void testGetLineToColon() throws Exception {
