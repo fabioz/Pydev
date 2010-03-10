@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 
 /**
@@ -42,12 +43,17 @@ public class ScriptOutput extends OutputStream{
      * 
      * @param color the color of the output written
      */
-    public ScriptOutput(Color color, IOConsole console, boolean writeToConsole){
+    public ScriptOutput(final Color color, IOConsole console, boolean writeToConsole){
         this.fConsole = console;
         this.writeToConsole = writeToConsole;
         
         out = fConsole.newOutputStream();
-        out.setColor(color);
+        RunInUiThread.async(new Runnable() {
+			
+			public void run() {
+				out.setColor(color);
+			}
+		});
     }
     
     /**

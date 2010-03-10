@@ -98,7 +98,7 @@ public class AbstractIResourceStub implements IResource{
     }
 
     public IPath getFullPath() {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented:" +this.getClass());
     }
 
     public long getLocalTimeStamp() {

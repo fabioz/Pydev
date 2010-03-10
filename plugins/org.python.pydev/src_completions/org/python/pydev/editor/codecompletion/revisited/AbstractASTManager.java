@@ -1061,6 +1061,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         
         IModule mod = o.o1;
         String tok = o.o2;
+        String tokForSearchInOtherModule = getTokToSearchInOtherModule(o);
+        
         
         if(tok.length() == 0){
             //the activation token corresponds to an imported module. We have to get its global tokens and return them.
@@ -1070,10 +1072,10 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             return getCompletionsForModule(mod, copy);
         }else if (mod != null){
             ICompletionState copy = state.getCopy();
-            copy.setActivationToken(tok);
+            copy.setActivationToken(tokForSearchInOtherModule);
             copy.setCol(-1);
             copy.setLine(-1);
-            copy.raiseNFindTokensOnImportedModsCalled(mod, tok);
+            copy.raiseNFindTokensOnImportedModsCalled(mod, tokForSearchInOtherModule);
             
             String parentPackage = o.o3.getParentPackage();
             if(parentPackage.trim().length() > 0 && 
@@ -1095,6 +1097,31 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
         }
         return null;
     }
+
+    /**
+     * When we have an import, we have one token which we used to find it and another which is the
+     * one we refer to at the current module. This method will get the way it's referred at the
+     * actual module and not at the current module (at the current module it's modTok.o2).
+     */
+	public static String getTokToSearchInOtherModule(Tuple3<IModule, String, IToken> modTok) {
+		String tok = modTok.o2;
+		String tokForSearchInOtherModule = tok;
+        
+        if(tok.length() > 0){
+	    	IToken sourceToken = modTok.o3;
+	    	if(sourceToken instanceof SourceToken){
+	    		SourceToken sourceToken2 = (SourceToken) sourceToken;
+	    		if(sourceToken2.getAst() instanceof ImportFrom){
+	    			ImportFrom importFrom = (ImportFrom) sourceToken2.getAst();
+	    			if(importFrom.names.length > 0 && importFrom.names[0].asname != null){
+						String originalRep = sourceToken.getOriginalRep();
+		    			tokForSearchInOtherModule = FullRepIterable.getLastPart(originalRep);
+	    			}
+	    		}
+	    	}
+        }
+		return tokForSearchInOtherModule;
+	}
 
     /**
      * @param activationToken

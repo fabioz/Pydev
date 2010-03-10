@@ -13,6 +13,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
@@ -140,6 +141,7 @@ public final class ImportChecker {
         //try to find it as a relative import
         boolean wasResolved = false;
         Tuple3<IModule, String, IToken> modTok = null;
+        String checkForToken="";
         if(token instanceof SourceToken){
             
             ICodeCompletionASTManager astManager = nature.getAstManager();
@@ -152,13 +154,14 @@ public final class ImportChecker {
                 modTok = null;//unable to resolve it
             }
             if(modTok != null && modTok.o1 != null){
-
+            	checkForToken = modTok.o2;
                 if(modTok.o2.length() == 0){
                     wasResolved = true;
                     
                 } else{
                     try {
-                        if( astManager.getRepInModule(modTok.o1, modTok.o2, nature) != null){
+                    	checkForToken = AbstractASTManager.getTokToSearchInOtherModule(modTok);
+                        if( astManager.getRepInModule(modTok.o1, checkForToken, nature) != null){
                             wasResolved = true;
                         }
                     } catch (CompletionRecursionException e) {
@@ -177,7 +180,7 @@ public final class ImportChecker {
         
         //might still return a modTok, even if the token we were looking for was not found.
         if(modTok != null){
-            return new ImportInfo(modTok.o1, modTok.o2, modTok.o3, wasResolved);
+            return new ImportInfo(modTok.o1, checkForToken, modTok.o3, wasResolved);
         }else{
             return new ImportInfo(null, null, null, wasResolved);
         }

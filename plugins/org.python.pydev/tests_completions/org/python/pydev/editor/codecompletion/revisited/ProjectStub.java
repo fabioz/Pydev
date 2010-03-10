@@ -49,6 +49,10 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
     public IPath getWorkingLocation(String id) {
         return new Path(path);
     }
+    
+    public IPath getFullPath() {
+    	return new Path(path);
+    }
 
     public IProject[] getReferencedProjects() throws CoreException {
         //no referenced projects

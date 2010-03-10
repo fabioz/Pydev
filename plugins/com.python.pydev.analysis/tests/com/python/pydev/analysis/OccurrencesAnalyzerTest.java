@@ -31,7 +31,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testHasAttrDefinesIt2();
+            analyzer2.testModuleNotFoundOnRelativeAbsolute();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2735,6 +2735,18 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	printMessages(msgs, 0);
     }
 
+    
+    public void testModuleNotFoundOnRelativeAbsolute() throws Exception {
+    	
+    	analyzer = new OccurrencesAnalyzer();
+    	File file = new File(TestDependent.TEST_PYSRC_LOC+"extendable/relative_absolute_import/__init__.py");
+    	Document doc = new Document(REF.getFileContents(file));
+    	msgs = analyzer.analyzeDocument(nature, (SourceModule) AbstractModule.createModule("extendable.relative_absolute_import.__init__", file, nature, 0), 
+    			prefs, doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+    	
+    	printMessages(msgs, 0);
+    }
+    
     
     
 

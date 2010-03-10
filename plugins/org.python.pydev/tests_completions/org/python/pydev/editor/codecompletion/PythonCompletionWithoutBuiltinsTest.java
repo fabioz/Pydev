@@ -51,14 +51,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testAttributeAfterHasAttr2();
+            test.testNestedImports();
             test.tearDown();
             System.out.println("Finished");
 
             junit.textui.TestRunner.run(PythonCompletionWithoutBuiltinsTest.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } catch(Error e){
+        } catch(Throwable e){
             e.printStackTrace();
         }
       }
@@ -525,6 +523,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"Test1", "Test2"});   
     }
 
+    public void testRelativeImport2() throws FileNotFoundException, Exception{
+    	String file = TestDependent.TEST_PYSRC_LOC+"extendable/relative_absolute_import/__init__.py";
+    	String strDoc = "from .foo import bar as buzz\nbuzz.";
+    	requestCompl(new File(file), strDoc, strDoc.length(), -1, new String[]{"jazz()"});   
+    }
+    
     public void testInModuleWithoutExtension() throws FileNotFoundException, Exception{
         String file = TestDependent.TEST_PYSRC_LOC+"mod_without_extension";
         String strDoc = REF.getFileContents(new File(file));
