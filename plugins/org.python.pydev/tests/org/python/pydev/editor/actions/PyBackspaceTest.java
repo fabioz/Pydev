@@ -12,7 +12,7 @@ public class PyBackspaceTest extends TestCase {
         PyBackspaceTest test = new PyBackspaceTest();
         try {
             test.setUp();
-            test.testBackspace22();
+            test.testBackspace23();
             test.tearDown();
             junit.textui.TestRunner.run(PyBackspaceTest.class);
         } catch (Exception e) {
@@ -343,6 +343,18 @@ public class PyBackspaceTest extends TestCase {
     	backspace.perform(ps);
     	assertEquals(
     			"", doc.get());
+    	
+    }
+    
+    public void testBackspace23() throws Exception {
+    	Document doc = new Document(
+    			"d = [a(b[c]) []"
+    	);        
+    	PySelection ps = new PySelection(doc, 0, doc.getLength()-1, 0);
+    	
+    	backspace.perform(ps);
+    	assertEquals(
+    			"d = [a(b[c]) ]", doc.get());
     	
     }
 }

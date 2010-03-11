@@ -7,6 +7,7 @@ package org.python.copiedfromeclipsesrc;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -268,21 +269,28 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
             
             Map<Character, Integer> stack = new HashMap<Character, Integer>();
             
+            HashSet<Character> closing = new HashSet<Character>();
+            HashSet<Character> opening = new HashSet<Character>();
+            
             for (int i = 0; i < fPairs.length; i++) {
-                if(i %2 == 0){
-                    stack.put(fPairs[i], 1);
+                stack.put(fPairs[i], 1);
+                if(i%2 == 0){
+                	opening.add(fPairs[i]);
+                }else{
+                	closing.add(fPairs[i]);
                 }
             }
             
+            
             int c = fReader.read();
             while (c != PythonCodeReader.EOF) {
-                if (c == ')' || c == ']' || c == '}' ){
+                if (closing.contains((char)c)){ // c == ')' || c == ']' || c == '}' 
                     char peer = StringUtils.getPeer((char)c);
                     Integer iStack = stack.get((char)peer);
                     iStack++;
                     stack.put(peer, iStack);
                     
-                }else if (c == '(' || c == '[' || c == '{'){
+                }else if (opening.contains((char)c)){ //c == '(' || c == '[' || c == '{'
                     Integer iStack = stack.get((char)c);
                     iStack--;
                     stack.put((char) c, iStack);
