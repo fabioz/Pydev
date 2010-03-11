@@ -426,8 +426,12 @@ class FindReplaceDialog extends Dialog {
 	}
 
 	private void setContentAssistsEnablement(boolean enable) {
-		fContentAssistFindField.setEnabled(enable);
-		fContentAssistReplaceField.setEnabled(enable);
+		if(fContentAssistFindField != null){
+			fContentAssistFindField.setEnabled(enable);
+		}
+		if(fContentAssistReplaceField != null){
+			fContentAssistReplaceField.setEnabled(enable);
+		}
 	}
 
 	/**
@@ -597,15 +601,19 @@ class FindReplaceDialog extends Dialog {
 
 		// Create the find content assist field
 		ComboContentAdapter contentAdapter= new ComboContentAdapter();
-		FindReplaceDocumentAdapterContentProposalProvider findProposer= new FindReplaceDocumentAdapterContentProposalProvider(true);
 		fFindField= new Combo(panel, SWT.DROP_DOWN | SWT.BORDER);
-		fContentAssistFindField= new ContentAssistCommandAdapter(
-				fFindField,
-				contentAdapter,
-				findProposer,
-				ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
-				new char[0],
-				true);
+		try {
+			FindReplaceDocumentAdapterContentProposalProvider findProposer= new FindReplaceDocumentAdapterContentProposalProvider(true);
+			fContentAssistFindField= new ContentAssistCommandAdapter(
+					fFindField,
+					contentAdapter,
+					findProposer,
+					ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
+					new char[0],
+					true);
+		} catch (Throwable e1) {
+			//class not available in 3.3
+		}
 		setGridData(fFindField, SWT.FILL, true, SWT.CENTER, false);
 		addDecorationMargin(fFindField);
 		fFindField.addModifyListener(fFindModifyListener);
@@ -615,14 +623,18 @@ class FindReplaceDialog extends Dialog {
 		setGridData(fReplaceLabel, SWT.LEFT, false, SWT.CENTER, false);
 
 		// Create the replace content assist field
-		FindReplaceDocumentAdapterContentProposalProvider replaceProposer= new FindReplaceDocumentAdapterContentProposalProvider(false);
 		fReplaceField= new Combo(panel, SWT.DROP_DOWN | SWT.BORDER);
-		fContentAssistReplaceField= new ContentAssistCommandAdapter(
-				fReplaceField,
-				contentAdapter, replaceProposer,
-				ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
-				new char[0],
-				true);
+		try {
+			FindReplaceDocumentAdapterContentProposalProvider replaceProposer= new FindReplaceDocumentAdapterContentProposalProvider(false);
+			fContentAssistReplaceField= new ContentAssistCommandAdapter(
+					fReplaceField,
+					contentAdapter, replaceProposer,
+					ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS,
+					new char[0],
+					true);
+		} catch (Throwable e1) {
+			//class not available in 3.3
+		}
 		setGridData(fReplaceField, SWT.FILL, true, SWT.CENTER, false);
 		addDecorationMargin(fReplaceField);
 		fReplaceField.addModifyListener(listener);
