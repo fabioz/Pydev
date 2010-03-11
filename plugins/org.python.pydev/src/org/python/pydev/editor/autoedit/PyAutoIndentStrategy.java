@@ -295,8 +295,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             return;
         }
         
+        String contentType = ParsingUtils.getContentType(document, command.offset);
+        
         if (command.text.equals("\"") || command.text.equals("'")) {
-        	handleLiteral(document, command);
+        	handleLiteral(document, command, contentType.equals(ParsingUtils.PY_DEFAULT));
         	return;
         }
         
@@ -304,7 +306,6 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         final boolean isNewLine = isNewLineText(document, command.length, command.text);
         
         
-        String contentType = ParsingUtils.getContentType(document, command.offset);
 
         if(!contentType.equals(ParsingUtils.PY_DEFAULT)){
             //the indentation is only valid for things in the code (comments should not be indented).
@@ -448,7 +449,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
     /**
      * Called right after a ' or "
      */
-	private void handleLiteral(IDocument document, DocumentCommand command) {
+	private void handleLiteral(IDocument document, DocumentCommand command, boolean isDefaultContext) {
 		if(!prefs.getAutoLiterals()){
 			return;
 		}
@@ -466,6 +467,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 		
 		String cursorLineContents = ps.getCursorLineContents();
 		if(cursorLineContents.indexOf(c) == -1){
+			if(!isDefaultContext){
+				//only add additional chars if on default context. 
+				return;
+			}
 			command.text += command.text;
 			command.shiftsCaret = false;
 			command.caretOffset = command.offset+1;
@@ -485,6 +490,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 		if(!hasMatchesBefore && !hasMatchesAfter){
 			//if it's not balanced, this char would be the closing char.
 			if(balanced){
+				if(!isDefaultContext){
+					//only add additional chars if on default context. 
+					return;
+				}
 				command.text += command.text;
 				command.shiftsCaret = false;
 				command.caretOffset = command.offset+1;

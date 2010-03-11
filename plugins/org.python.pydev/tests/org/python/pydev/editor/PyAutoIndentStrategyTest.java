@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testNoCloseParens();
+            s.testStringAddition();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1893,6 +1893,12 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
         
         doc = "'"; //already opened
+        docCmd = new DocCmd(doc.length(), 0, "'");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "'";
+        assertEquals(expected, docCmd.text);
+        
+        doc = "#"; //on comment should not close
         docCmd = new DocCmd(doc.length(), 0, "'");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "'";

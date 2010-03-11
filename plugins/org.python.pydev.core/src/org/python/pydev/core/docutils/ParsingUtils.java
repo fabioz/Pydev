@@ -639,6 +639,11 @@ public abstract class ParsingUtils implements IPythonPartitions{
                 if(currPos < i){
                 	return curr; //found inside
                 }
+                if(currPos == i){
+                	if(PY_SINGLELINE_STRING1.equals(curr) || PY_SINGLELINE_STRING2.equals(curr)){
+                		return curr;
+                	}
+                }
                 //if currPos == i, this means it'll go to the next partition (we always prefer open
                 //partitions here, so, the last >>'<< from a string is actually treated as the start
                 //of the next partition).
