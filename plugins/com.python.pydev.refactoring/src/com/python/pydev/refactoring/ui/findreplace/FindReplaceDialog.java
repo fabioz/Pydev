@@ -9,13 +9,17 @@ import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.resource.JFaceColors;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.FindReplaceDocumentAdapterContentProposalProvider;
 import org.eclipse.jface.text.IFindReplaceTarget;
@@ -58,7 +62,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
 import org.eclipse.ui.internal.texteditor.NLSUtility;
-import org.eclipse.ui.internal.texteditor.SWTUtil;
 import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.texteditor.IAbstractTextEditorHelpContextIds;
@@ -1555,6 +1558,35 @@ class FindReplaceDialog extends Dialog {
 	// ------- UI creation ---------------------------------------
 
 	/**
+	 * Returns a width hint for the given button.
+	 *
+	 * @param button the button
+	 * @return the width hint for the button
+	 */
+	public static int getButtonWidthHint(Button button) {
+		button.setFont(JFaceResources.getDialogFont());
+		PixelConverter converter= new PixelConverter(button);
+		int widthHint= converter.convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
+		return Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
+	}
+
+	/**
+	 * Sets width and height hint for the button control.
+	 * <b>Note:</b> This is a NOP if the button's layout data is not
+	 * an instance of <code>GridData</code>.
+	 *
+	 * @param button	the button for which to set the dimension hint
+	 */
+	public static void setButtonDimensionHint(Button button) {
+		Assert.isNotNull(button);
+		Object gd= button.getLayoutData();
+		if (gd instanceof GridData) {
+			((GridData)gd).widthHint= getButtonWidthHint(button);
+			((GridData)gd).horizontalAlignment = GridData.FILL;
+		}
+	}
+
+	/**
 	 * Attaches the given layout specification to the <code>component</code>.
 	 *
 	 * @param component the component
@@ -1566,7 +1598,7 @@ class FindReplaceDialog extends Dialog {
 	private void setGridData(Control component, int horizontalAlignment, boolean grabExcessHorizontalSpace, int verticalAlignment, boolean grabExcessVerticalSpace) {
 		GridData gd;
 		if (component instanceof Button && (((Button)component).getStyle() & SWT.PUSH) != 0) {
-			SWTUtil.setButtonDimensionHint((Button)component);
+			setButtonDimensionHint((Button)component);
 			gd= (GridData)component.getLayoutData();
 		} else {
 			gd= new GridData();
