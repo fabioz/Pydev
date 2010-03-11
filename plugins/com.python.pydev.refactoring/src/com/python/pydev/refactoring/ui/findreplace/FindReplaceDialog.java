@@ -17,7 +17,6 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
-import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
@@ -42,6 +41,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -1564,9 +1566,15 @@ class FindReplaceDialog extends Dialog {
 	 * @return the width hint for the button
 	 */
 	public static int getButtonWidthHint(Button button) {
-		button.setFont(JFaceResources.getDialogFont());
-		PixelConverter converter= new PixelConverter(button);
-		int widthHint= converter.convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
+		Font font = JFaceResources.getDialogFont();
+		button.setFont(font);
+		GC gc = new GC(font.getDevice());
+		gc.setFont(font);
+		FontMetrics fontMetrics = gc.getFontMetrics();
+		gc.dispose();
+
+		
+		int widthHint= Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.BUTTON_WIDTH);
 		return Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
 	}
 
