@@ -466,13 +466,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             Map<String, String> variableSubstitution
         ) {
         
-        synchronized(initLock){
-        	if(initialized){
-        		return;
-        	}
-        	initialized = true;
-        }
-        if(version != null || projectPythonpath != null || externalProjectPythonpath != null || variableSubstitution != null){
+
+    	//if some information is passed, restore it (even if it was already initialized)
+    	boolean updatePaths = version != null || projectPythonpath != null ||
+    		externalProjectPythonpath != null || variableSubstitution != null || interpreter != null; 
+    	
+        if(updatePaths){
             this.getStore().startInit();
             try {
                 if(variableSubstitution != null){
@@ -497,6 +496,24 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             if(astManager != null){
                 return; //already initialized...
             }
+        }
+        
+        synchronized(initLock){
+        	if(initialized && !updatePaths){
+        		return;
+        	}
+        	initialized = true;
+        }
+        
+        if(updatePaths){
+        	//If updating the paths, rebuild and return (don't try to load an existing ast manager
+        	//and restore anything already there)
+        	try {
+				rebuildPath();
+			} catch (CoreException e) {
+				PydevPlugin.log(e);
+			}
+			return;
         }
         
         if(monitor.isCanceled()){
