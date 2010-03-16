@@ -66,8 +66,9 @@ public class AppEngineWizard extends PythonProjectWizard{
     /**
      * Overridden to add the external source folders from google app engine. 
      */
+    @Override
     protected void createAndConfigProject(final IProject newProjectHandle, final IProjectDescription description,
-            final String projectType, final String projectInterpreter, IProgressMonitor monitor) throws CoreException{
+            final String projectType, final String projectInterpreter, IProgressMonitor monitor, Object ... additionalArgsToConfigProject) throws CoreException{
         ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IFolder>, IProject>(){
 
             public List<IFolder> call(IProject projectHandle){

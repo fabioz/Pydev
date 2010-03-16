@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 
@@ -71,7 +71,7 @@ public class SimpleExeRunner extends SimpleRunner{
         List<String> asList = new ArrayList<String>(Arrays.asList(paths));
         asList.add(0, cygpathLoc);
         
-        Tuple<String, String> output = runAndGetOutput(asList.toArray(new String[0]), (File)null, (IProject)null, new NullProgressMonitor());
+        Tuple<String, String> output = runAndGetOutput(asList.toArray(new String[0]), (File)null, (IPythonNature)null, new NullProgressMonitor());
         if(output.o2 != null && output.o2.length() > 0){
             throw new RuntimeException("Error converting windows paths to cygwin paths: "+output.o2+".\nCygpath location:"+cygpathLoc);
         }

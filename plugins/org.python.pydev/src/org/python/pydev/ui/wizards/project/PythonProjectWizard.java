@@ -98,7 +98,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
      * 
      * @return the created project resource, or <code>null</code> if the project was not created
      */
-    protected IProject createNewProject() {
+    protected IProject createNewProject(final Object ... additionalArgsToConfigProject) {
         // get a project handle
         final IProject newProjectHandle = projectPage.getProjectHandle();
 
@@ -133,7 +133,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
         WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
             protected void execute(IProgressMonitor monitor) throws CoreException {
                 
-                createAndConfigProject(newProjectHandle, description, projectType, projectInterpreter, monitor);
+                createAndConfigProject(newProjectHandle, description, projectType, projectInterpreter, monitor, additionalArgsToConfigProject);
             }
         };
 
@@ -168,7 +168,7 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
      * if applicable), set the project type and project interpreter.
      */
     protected void createAndConfigProject(final IProject newProjectHandle, final IProjectDescription description,
-            final String projectType, final String projectInterpreter, IProgressMonitor monitor)
+            final String projectType, final String projectInterpreter, IProgressMonitor monitor, Object ... additionalArgsToConfigProject)
             throws CoreException{
         ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IFolder>, IProject>(){
         

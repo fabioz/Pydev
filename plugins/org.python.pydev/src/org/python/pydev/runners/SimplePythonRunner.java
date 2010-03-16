@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * 
@@ -45,7 +46,7 @@ public class SimplePythonRunner extends SimpleRunner {
      */
     public Tuple<String,String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args, File workingDir, IProject project) {
         String[] parameters = addInterpreterToArgs(interpreter, script, args);
-        return runAndGetOutput(parameters, workingDir, project, new NullProgressMonitor());
+        return runAndGetOutput(parameters, workingDir, PythonNature.getPythonNature(project), new NullProgressMonitor());
     }
 
     /**
@@ -84,7 +85,7 @@ public class SimplePythonRunner extends SimpleRunner {
         
         String[] s = preparePythonCallParameters(interpreter, script, args);
         monitor.worked(1);
-        return runAndGetOutput(s, workingDir, project, monitor);
+        return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor);
     }
 
     /**

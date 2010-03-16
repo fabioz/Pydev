@@ -20,6 +20,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -92,7 +93,7 @@ public class SimpleJythonRunner extends SimpleRunner{
                 };
             }
             
-            return runAndGetOutput(s, workingDir, project, monitor);
+            return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

@@ -30,6 +30,9 @@ public class BundleInfoStub implements IBundleInfo {
         if(relative.toString().indexOf("indent.py") != -1){
             return new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC+"jysrc/indent.py");
         }
+        if(relative.toString().indexOf("PySrc/pydev_sitecustomize") != -1){
+        	return new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"PySrc/pydev_sitecustomize");
+        }
         throw new RuntimeException("Not available info on: "+relative);
     }
 

@@ -18,6 +18,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * 
@@ -43,7 +44,7 @@ public class SimpleIronpythonRunner extends SimpleRunner {
      */
     public Tuple<String,String> runAndGetOutputFromPythonScript(String interpreter, String script, String[] args, File workingDir, IProject project) {
         String[] parameters = addInterpreterToArgs(interpreter, script, args);
-        return runAndGetOutput(parameters, workingDir, project, new NullProgressMonitor());
+        return runAndGetOutput(parameters, workingDir, PythonNature.getPythonNature(project), new NullProgressMonitor());
     }
 
     /**
@@ -61,7 +62,7 @@ public class SimpleIronpythonRunner extends SimpleRunner {
     }
 
     private static String[] addInterpreterToArgs(String interpreter, String script, String[] args) {
-        return preparePythonCallParameters(interpreter, script, args);
+        return preparePythonCallParameters(interpreter, script, args, true);
     }
 
     /**
@@ -80,9 +81,9 @@ public class SimpleIronpythonRunner extends SimpleRunner {
         monitor.setTaskName("Mounting executable string...");
         monitor.worked(5);
         
-        String[] s = preparePythonCallParameters(interpreter, script, args);
+        String[] s = preparePythonCallParameters(interpreter, script, args, true);
         monitor.worked(1);
-        return runAndGetOutput(s, workingDir, project, monitor);
+        return runAndGetOutput(s, workingDir, PythonNature.getPythonNature(project), monitor);
     }
 
     /**
@@ -93,11 +94,13 @@ public class SimpleIronpythonRunner extends SimpleRunner {
      * @param args additional arguments to pass to iron python
      * @return the created array
      */
-    public static String[] preparePythonCallParameters(String interpreter, String script, String[] args) {
-        File file = new File(script);
-        if(file.exists() == false){
-            throw new RuntimeException("The script passed for execution ("+script+") does not exist.");
-        }
+    public static String[] preparePythonCallParameters(String interpreter, String script, String[] args, boolean scriptExists) {
+    	if(scriptExists){
+	        File file = new File(script);
+	        if(file.exists() == false){
+	            throw new RuntimeException("The script passed for execution ("+script+") does not exist.");
+	        }
+    	}
         
         //Note that we don't check it (interpreter could be just the string 'ipy')
 //        file = new File(interpreter);

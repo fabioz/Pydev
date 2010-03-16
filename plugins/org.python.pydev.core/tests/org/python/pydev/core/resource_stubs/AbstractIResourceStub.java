@@ -19,8 +19,20 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
+//Only for 3.6 -- comment if you want to compile on earlier eclipse version
+import org.eclipse.core.resources.IPathVariableManager;
+//End Only for 3.6
+
 public class AbstractIResourceStub implements IResource{
 
+	
+	//Only for 3.6 -- comment if you want to compile on earlier eclipse version
+	public IPathVariableManager getPathVariableManager() {
+		throw new RuntimeException("Not implemented");
+	}
+    //End Only for 3.6
+
+	
     public void accept(IResourceProxyVisitor visitor, int memberFlags) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
@@ -312,5 +324,16 @@ public class AbstractIResourceStub implements IResource{
     public boolean isConflicting(ISchedulingRule rule) {
         throw new RuntimeException("Not implemented");
     }
+
+
+	
+	public boolean isVirtual() {
+		throw new RuntimeException("Not implemented");
+	}
+
+	
+	public boolean isFiltered() {
+		throw new RuntimeException("Not implemented");
+	}
 
 }

@@ -151,6 +151,14 @@ public class MyEnvWorkingCopy implements ILaunchConfigurationWorkingCopy {
         }
 
     }
+    
+    public void setAttribute(String attributeName, Set value) {
+    	this.attributes.put(attributeName, value);
+    	if(attributeName.equals(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES)){
+    		updateInfo();
+    	}
+    	
+    }
 
     
     public void setAttribute(String attributeName, boolean value) {

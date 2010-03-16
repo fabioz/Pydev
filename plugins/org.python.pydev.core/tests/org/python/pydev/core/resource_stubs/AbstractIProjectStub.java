@@ -1,5 +1,6 @@
 package org.python.pydev.core.resource_stubs;
 
+import java.net.URI;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -110,5 +111,15 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
     public void setDescription(IProjectDescription description, int updateFlags, IProgressMonitor monitor) throws CoreException {
         throw new RuntimeException("Not implemented");
     }
+
+	public void loadSnapshot(int options, URI snapshotLocation, IProgressMonitor monitor)
+			throws CoreException {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public void saveSnapshot(int options, URI snapshotLocation, IProgressMonitor monitor)
+			throws CoreException {
+		throw new RuntimeException("Not implemented");
+	}
 
 }

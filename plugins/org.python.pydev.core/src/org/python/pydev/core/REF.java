@@ -761,7 +761,7 @@ public class REF {
                 IDocument doc = getDocFromPath(path);
                 if(doc == null){
                     //can this actually happen?... yeap, it can
-                    doc = (IDocument) REF.getStreamContents(file.getContents(), null, null, IDocument.class);
+                    doc = (IDocument) REF.getStreamContents(file.getContents(true), null, null, IDocument.class);
                 }
                 return doc;
             }catch(CoreException e){

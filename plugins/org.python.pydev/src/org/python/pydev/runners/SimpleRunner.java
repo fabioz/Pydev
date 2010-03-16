@@ -32,7 +32,6 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
 public class SimpleRunner {
 
@@ -332,7 +331,7 @@ public class SimpleRunner {
     /**
      * @return a tuple with the process created and a string representation of the cmdarray.
      */
-    public Tuple<Process, String> run(String[] cmdarray, File workingDir, IProject project, IProgressMonitor monitor) {
+    public Tuple<Process, String> run(String[] cmdarray, File workingDir, IPythonNature nature, IProgressMonitor monitor) {
         if(monitor == null){
             monitor = new NullProgressMonitor();
         }
@@ -343,8 +342,7 @@ public class SimpleRunner {
         try {
             monitor.setTaskName("Making pythonpath environment..."+executionString);
             String[] envp = null;
-            if(project != null){
-                PythonNature nature = PythonNature.getPythonNature(project);
+            if(nature != null){
                 envp = getEnvironment(nature, nature.getProjectInterpreter(), nature.getRelatedInterpreterManager());
             }
             monitor.setTaskName("Making exec..."+executionString);
@@ -370,8 +368,8 @@ public class SimpleRunner {
      * 
      * @return a tuple with stdout and stderr
      */
-    public Tuple<String, String> runAndGetOutput(String[] cmdarray, File workingDir, IProject project, IProgressMonitor monitor) {
-        Tuple<Process, String> r = run(cmdarray, workingDir, project, monitor);
+    public Tuple<String, String> runAndGetOutput(String[] cmdarray, File workingDir, IPythonNature nature, IProgressMonitor monitor) {
+        Tuple<Process, String> r = run(cmdarray, workingDir, nature, monitor);
         
         return getProcessOutput(r.o1, r.o2, monitor);
     }
@@ -382,7 +380,7 @@ public class SimpleRunner {
      * @param monitor monitor for giving progress
      * @return a tuple with the output of stdout and stderr
      */
-    protected Tuple<String, String> getProcessOutput(Process process,
+    public static Tuple<String, String> getProcessOutput(Process process,
             String executionString, IProgressMonitor monitor) {
         if(monitor == null){
             monitor = new NullProgressMonitor();
@@ -413,8 +411,9 @@ public class SimpleRunner {
 
             try {
                 //just to see if we get something after the process finishes (and let the other threads run).
-                synchronized (this) {
-                    this.wait(50);
+            	Object sync = new Object();
+                synchronized (sync) {
+                    sync.wait(50);
                 }
             } catch (Exception e) {
                 //ignore

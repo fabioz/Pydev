@@ -49,7 +49,7 @@ public class IronpythonShell extends AbstractShell{
             execMsg = interpreter+" "+REF.getFileAbsolutePath(serverFile)+" "+pWrite+" "+pRead;
         }
         String[] parameters = SimpleIronpythonRunner.preparePythonCallParameters(
-                interpreter.getExecutableOrJar(), REF.getFileAbsolutePath(serverFile), new String[]{""+pWrite, ""+pRead});
+                interpreter.getExecutableOrJar(), REF.getFileAbsolutePath(serverFile), new String[]{""+pWrite, ""+pRead}, true);
         
         IInterpreterManager manager = PydevPlugin.getIronpythonInterpreterManager();
         

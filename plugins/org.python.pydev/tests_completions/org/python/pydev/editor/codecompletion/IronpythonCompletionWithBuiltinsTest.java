@@ -4,34 +4,25 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.codecompletion.revisited.IronpythonInterpreterManagerStub;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codecompletion.shell.IronpythonShell;
 import org.python.pydev.editor.codecompletion.shell.PythonShellTest;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.PythonNature;
 
-public class IronpythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
+public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompletionTestsBase{
     
     
-    protected boolean isInTestFindDefinition = false;
     
     public static void main(String[] args) {
         try {
@@ -49,38 +40,6 @@ public class IronpythonCompletionWithBuiltinsTest extends CodeCompletionTestsBas
         
     }
     
-    @Override
-    protected IInterpreterManager getInterpreterManager() {
-        return PydevPlugin.getIronpythonInterpreterManager();
-    }
-    
-    @Override
-    protected void setInterpreterManager() {
-        PydevPlugin.setIronpythonInterpreterManager(new IronpythonInterpreterManagerStub(this.getPreferences()));
-    }
-    
-    
-    @Override
-    protected PythonNature createNature() {
-        return new PythonNature(){
-            @Override
-            public int getInterpreterType() throws CoreException {
-                return IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON;
-            }
-            @Override
-            public int getGrammarVersion() {
-                return IPythonNature.LATEST_GRAMMAR_VERSION;
-            }
-            
-            @Override
-            public String resolveModule(File file) throws MisconfigurationException {
-                if(isInTestFindDefinition){
-                    return null;
-                }
-                return super.resolveModule(file);
-            }
-        };
-    }
 
     private static IronpythonShell shell;
     
@@ -89,9 +48,6 @@ public class IronpythonCompletionWithBuiltinsTest extends CodeCompletionTestsBas
      */
     public void setUp() throws Exception {
         super.setUp();
-        
-        CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.IRONPYTHON_LIB, false);
         
         codeCompletion = new PyCodeCompletion();
 
@@ -107,7 +63,6 @@ public class IronpythonCompletionWithBuiltinsTest extends CodeCompletionTestsBas
      * @see TestCase#tearDown()
      */
     public void tearDown() throws Exception {
-        CompiledModule.COMPILED_MODULES_ENABLED = false;
         super.tearDown();
         AbstractShell.putServerShell(nature, AbstractShell.COMPLETION_SHELL, null);
     }

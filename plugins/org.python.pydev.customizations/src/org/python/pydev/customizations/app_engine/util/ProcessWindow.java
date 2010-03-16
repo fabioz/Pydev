@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -29,17 +28,15 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.ThreadStreamReader;
+import org.python.pydev.runners.UniversalRunner;
+import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 
 /**
  * This is the window used to handle a process. Currently specific to google app engine (could be more customizable
@@ -482,21 +479,18 @@ public abstract class ProcessWindow extends Dialog{
             return; //Still running.
         }
         try{
-            IProject project = container.getProject();
-            IInterpreterInfo interpreterInfo = pythonPathNature.getNature().getProjectInterpreter();
-            String executableOrJar = interpreterInfo.getExecutableOrJar();
-
-            String cmdLineArguments = commandToExecute.getText().trim();
-            String[] arguments = new String[0];
-            if(cmdLineArguments.length() > 0){
-                arguments = PythonRunnerConfig.parseStringIntoList(cmdLineArguments);
-            }
+        	String cmdLineArguments = commandToExecute.getText().trim();
+        	String[] arguments = new String[0];
+        	if(cmdLineArguments.length() > 0){
+        		arguments = PythonRunnerConfig.parseStringIntoList(cmdLineArguments);
+        	}
+        	
+        	
+            AbstractRunner universalRunner = UniversalRunner.getRunner(pythonPathNature.getNature());
+            Tuple<Process, String> run = universalRunner.createProcess(
+            		appcfg.getAbsolutePath(), arguments, appEngineLocation, new NullProgressMonitor());
             
-            SimplePythonRunner runner = new SimplePythonRunner();
-            String[] cmdarray = SimplePythonRunner.preparePythonCallParameters(executableOrJar, appcfg
-                    .getAbsolutePath(), arguments);
-
-            Tuple<Process, String> run = runner.run(cmdarray, appEngineLocation, project, new NullProgressMonitor());
+            
             process = run.o1;
             if(process != null){
 
@@ -511,9 +505,7 @@ public abstract class ProcessWindow extends Dialog{
                 processHandler = new ProcessHandler();
                 processHandler.start();
             }
-        }catch(MisconfigurationException e){
-            Log.log(e);
-        }catch(PythonNatureWithoutProjectException e){
+        }catch(Exception e){
             Log.log(e);
         }
     }
