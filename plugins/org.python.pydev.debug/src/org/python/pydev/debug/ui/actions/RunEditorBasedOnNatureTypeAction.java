@@ -1,5 +1,6 @@
 package org.python.pydev.debug.ui.actions;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.Tuple;
@@ -22,7 +23,7 @@ public class RunEditorBasedOnNatureTypeAction extends AbstractRunEditorAction{
             }
             
             @Override
-            protected IInterpreterManager getInterpreterManager(){
+            protected IInterpreterManager getInterpreterManager(IProject project){
                 return launchConfigurationTypeAndInterpreterManager.o2;
             }
             

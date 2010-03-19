@@ -242,8 +242,9 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
     public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(IResource[] resource)
             throws CoreException{
-        IInterpreterManager pythonInterpreterManager = getInterpreterManager();
-        String projName = resource[0].getProject().getName();
+    	IProject project = resource[0].getProject();
+        IInterpreterManager pythonInterpreterManager = getInterpreterManager(project);
+		String projName = project.getName();
         ILaunchConfigurationWorkingCopy createdConfiguration = LaunchConfigurationCreator
                 .createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(),
                         LaunchConfigurationCreator.getDefaultLocation(resource, false), //it'll be made relative later on
@@ -257,9 +258,10 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     }
 
     /**
+     * @param project 
      * @return the interpreter manager associated with this shortcut (may be overridden if it is not python)
      */
-    protected abstract IInterpreterManager getInterpreterManager();
+    protected abstract IInterpreterManager getInterpreterManager(IProject project);
 
     /**
      * COPIED/MODIFIED from AntLaunchShortcut

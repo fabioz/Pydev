@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.ui.PyProjectPythonDetails;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectPage;
@@ -75,6 +76,13 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
 
     private PyProjectPythonDetails.ProjectInterpreterAndGrammarConfig details;
 
+    
+    /**
+     * @return a string as specified in the constants in IPythonNature
+     * @see IPythonNature#PYTHON_VERSION_XXX 
+     * @see IPythonNature#JYTHON_VERSION_XXX
+     * @see IPythonNature#IRONPYTHON_VERSION_XXX
+     */
     public String getProjectType(){
         return details.getSelectedPythonOrJythonAndGrammarVersion();
     }
@@ -350,7 +358,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * @return the project name, its anticipated initial value, or <code>null</code>
      *   if no project name is known
      */
-    /* package */String getProjectName() {
+    public String getProjectName() {
         if (projectNameField == null)
             return initialProjectFieldValue;
 

@@ -2,6 +2,7 @@ package org.python.pydev.customizations.app_engine.util;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.customizations.common.ProcessWindow;
 
 /**
  * The window for handling app engine for a given project.

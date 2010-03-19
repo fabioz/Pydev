@@ -1,5 +1,6 @@
 package com.python.pydev.debug.ui.launching;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -63,7 +64,7 @@ public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
     }
     
     @Override
-    protected IInterpreterManager getInterpreterManager(){
+    protected IInterpreterManager getInterpreterManager(IProject project){
         return PydevPlugin.getPythonInterpreterManager();
     }
     

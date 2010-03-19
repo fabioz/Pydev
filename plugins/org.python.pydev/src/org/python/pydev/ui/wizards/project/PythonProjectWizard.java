@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -170,12 +171,12 @@ public class PythonProjectWizard extends AbstractNewProjectWizard implements IEx
     protected void createAndConfigProject(final IProject newProjectHandle, final IProjectDescription description,
             final String projectType, final String projectInterpreter, IProgressMonitor monitor, Object ... additionalArgsToConfigProject)
             throws CoreException{
-        ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IFolder>, IProject>(){
+        ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>(){
         
-            public List<IFolder> call(IProject projectHandle) {
+            public List<IContainer> call(IProject projectHandle) {
                 if(projectPage.shouldCreatSourceFolder()){
                     IFolder folder = projectHandle.getFolder("src");
-                    List<IFolder> ret = new ArrayList<IFolder>();
+                    List<IContainer> ret = new ArrayList<IContainer>();
                     ret.add(folder);
                     return ret;
                 }

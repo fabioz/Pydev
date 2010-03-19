@@ -1,4 +1,4 @@
-package org.python.pydev.customizations.app_engine.util;
+package org.python.pydev.customizations.common;
 
 import java.io.File;
 import java.io.IOException;

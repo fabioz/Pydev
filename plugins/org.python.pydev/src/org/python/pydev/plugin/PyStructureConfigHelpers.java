@@ -3,6 +3,7 @@ package org.python.pydev.plugin;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -43,7 +44,7 @@ public class PyStructureConfigHelpers {
             IProgressMonitor monitor, 
             String projectType, 
             String projectInterpreter, 
-            ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback,
+            ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback,
             ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback
             ) throws OperationCanceledException, CoreException{
         createPydevProject(description, projectHandle, monitor, projectType, projectInterpreter, 
@@ -71,11 +72,11 @@ public class PyStructureConfigHelpers {
      * 
      * E.g.: To create a 'src' source folder, the callback should be:
      * 
-     *      ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IFolder>, IProject>(){
+     *      ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>(){
      *      
-     *           public List<IFolder> call(IProject projectHandle) {
-     *               IFolder folder = projectHandle.getFolder("src");
-     *               List<IFolder> ret = new ArrayList<IFolder>();
+     *           public List<IContainer> call(IProject projectHandle) {
+     *               IContainer folder = projectHandle.getFolder("src");
+     *               List<IContainer> ret = new ArrayList<IContainer>();
      *               ret.add(folder);
      *               return ret;
      *           }
@@ -98,7 +99,7 @@ public class PyStructureConfigHelpers {
             IProgressMonitor monitor, 
             String projectType, 
             String projectInterpreter, 
-            ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback,
+            ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback,
             ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback,
             ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback
         ) throws CoreException, OperationCanceledException {
@@ -117,15 +118,22 @@ public class PyStructureConfigHelpers {
             String projectPythonpath = null;
             //also, after creating the project, create a default source folder and add it to the pythonpath.
             if(getSourceFolderHandlesCallback != null){
-                List<IFolder> sourceFolders = getSourceFolderHandlesCallback.call(projectHandle);
+                List<IContainer> sourceFolders = getSourceFolderHandlesCallback.call(projectHandle);
                 if(sourceFolders != null && sourceFolders.size() > 0){
                     StringBuffer buf = new StringBuffer();
-                    for(IFolder folder:sourceFolders){
-                        folder.create(true, true, monitor);
+                    for(IContainer container:sourceFolders){
+                    	if(container instanceof IFolder){
+                    		IFolder iFolder = (IFolder) container;
+                    		iFolder.create(true, true, monitor);
+                    	}else if(container instanceof IProject){
+                    		//continue (must be the passed project which was already created)
+                    	}else{
+                    		throw new RuntimeException("Expected container to be an IFolder or IProject. Was: "+container);
+                    	}
                         if(buf.length() > 0){
                             buf.append("|");
                         }
-                        buf.append(folder.getFullPath().toString());
+                        buf.append(container.getFullPath().toString());
                     }
                 
                     projectPythonpath = buf.toString();
@@ -184,7 +192,7 @@ public class PyStructureConfigHelpers {
             IProgressMonitor monitor, 
             String projectType, 
             String projectInterpreter, 
-            ICallback<List<IFolder>, IProject> getSourceFolderHandlesCallback,
+            ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback,
             ICallback<List<String>, IProject> getExternalSourceFolderHandlesCallback,
             ICallback<Map<String, String>, IProject> getVariableSubstitutionCallback
         ) throws OperationCanceledException, CoreException {

@@ -8,7 +8,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.customizations.app_engine.util.GoogleAppEngineUtil;
+import org.python.pydev.customizations.common.CustomizationCommons;
 
 /**
  * Test to check if a given container can be run from google app engine.
@@ -25,12 +25,12 @@ public class AppEnginePropertyTester extends PropertyTester{
      * declared in it and has a app.yaml or app.yml under it.
      */
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
-        IContainer container = GoogleAppEngineUtil.getContainerFromObject(receiver);
+        IContainer container = CustomizationCommons.getContainerFromObject(receiver);
         if(container == null){
             return false;
         }
         
-        IPythonPathNature nature = GoogleAppEngineUtil.getPythonPathNatureFromObject(receiver);
+        IPythonPathNature nature = CustomizationCommons.getPythonPathNatureFromObject(receiver);
         if(nature == null){
             return false;
         }

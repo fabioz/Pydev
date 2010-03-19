@@ -11,7 +11,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.customizations.app_engine.launching.AppEngineConstants;
-import org.python.pydev.customizations.app_engine.util.GoogleAppEngineUtil;
+import org.python.pydev.customizations.common.CustomizationCommons;
 import org.python.pydev.editor.actions.PyAction;
 
 /**
@@ -35,12 +35,12 @@ public abstract class AbstractAppEngineHandler extends AbstractHandler{
     }
 
     public Object executeInObject(Object firstElement){
-        IContainer container = GoogleAppEngineUtil.getContainerFromObject(firstElement);
+        IContainer container = CustomizationCommons.getContainerFromObject(firstElement);
         if(container == null){
             return null;
         }
         
-        IPythonPathNature pythonPathNature = GoogleAppEngineUtil.getPythonPathNatureFromObject(firstElement);
+        IPythonPathNature pythonPathNature = CustomizationCommons.getPythonPathNatureFromObject(firstElement);
         if(pythonPathNature == null){
             return null;
         }

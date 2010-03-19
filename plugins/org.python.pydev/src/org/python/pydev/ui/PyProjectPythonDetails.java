@@ -239,6 +239,7 @@ public class PyProjectPythonDetails extends PropertyPage{
          * @return a string as specified in the constants in IPythonNature
          * @see IPythonNature#PYTHON_VERSION_XXX 
          * @see IPythonNature#JYTHON_VERSION_XXX
+         * @see IPythonNature#IRONPYTHON_VERSION_XXX
          */
         public String getSelectedPythonOrJythonAndGrammarVersion() {
             if(radioPy.getSelection()){

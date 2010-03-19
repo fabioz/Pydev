@@ -1,4 +1,4 @@
-package org.python.pydev.customizations.app_engine.launching;
+package org.python.pydev.django.launching;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -8,13 +8,13 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
-public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
+public class DjangoLaunchShortcut extends AbstractLaunchShortcut {
 
     
     protected String getLaunchConfigurationType() {
-        return AppEngineConstants.APP_ENGINE_LAUNCH_CONFIGURATION_TYPE;
+        return DjangoConstants.DJANGO_LAUNCH_CONFIGURATION_TYPE;
     }
 
     
@@ -27,11 +27,12 @@ public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
         try{
             ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(resources);
             
-            String mainDir = workingCopy.getAttribute(Constants.ATTR_LOCATION, "");
             
-            //dev_appserver.py [options] <application root>
-            workingCopy.setAttribute(Constants.ATTR_LOCATION, "${GOOGLE_APP_ENGINE}/dev_appserver.py");
-            workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "\""+mainDir+"\"");
+            //manage.py [options] runserver
+            String mainDir = workingCopy.getAttribute(Constants.ATTR_LOCATION, "");
+            //the attr location is something as ${workspace_loc:django2}
+            workingCopy.setAttribute(Constants.ATTR_LOCATION, mainDir+"/${"+DjangoConstants.DJANGO_MANAGE_VARIABLE+"}");
+            workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "runserver --noreload");
             
             
             return workingCopy.doSave();
@@ -43,6 +44,6 @@ public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
     
     @Override
     protected IInterpreterManager getInterpreterManager(IProject project){
-        return PydevPlugin.getPythonInterpreterManager();
+        return PythonNature.getPythonNature(project).getRelatedInterpreterManager();
     }
 }

@@ -1,21 +1,22 @@
-package org.python.pydev.customizations.app_engine.util;
+package org.python.pydev.customizations.common;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.plugin.nature.PythonNature;
 
-public class GoogleAppEngineUtil{
+public class CustomizationCommons{
 
     public static IPythonPathNature getPythonPathNatureFromObject(Object receiver){
-        IContainer container = getContainerFromObject(receiver);
+        IResource resource = getResourceFromObject(receiver);
         
-        if(container == null){
+        if(resource == null){
             return null;
         }
         
-        IProject project = container.getProject();
+        IProject project = resource.getProject();
         if(project == null){
             return null;
         }
@@ -24,6 +25,21 @@ public class GoogleAppEngineUtil{
         return nature;
     }
     
+    
+    
+    public static IResource getResourceFromObject(Object receiver){
+    	if(receiver instanceof IWrappedResource){
+    		IWrappedResource wrappedResource = (IWrappedResource) receiver;
+    		Object actualObject = wrappedResource.getActualObject();
+    		if(actualObject instanceof IResource){
+    			return (IResource) actualObject;
+    		}
+    	}
+    	if(receiver instanceof IResource){
+    		return (IResource) receiver;
+    	}
+    	return null;
+    }
 
     
     public static IContainer getContainerFromObject(Object receiver){

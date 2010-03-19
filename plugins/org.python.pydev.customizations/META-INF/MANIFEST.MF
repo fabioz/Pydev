@@ -19,5 +19,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.expressions
 Eclipse-LazyStart: true
 Export-Package: org.python.pydev.customizations,
- org.python.pydev.customizations.app_engine.wizards
+ org.python.pydev.customizations.app_engine.actions,
+ org.python.pydev.customizations.app_engine.launching,
+ org.python.pydev.customizations.app_engine.util,
+ org.python.pydev.customizations.app_engine.wizards,
+ org.python.pydev.customizations.common
 Bundle-Vendor: Aptana

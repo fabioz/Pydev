@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+    <extension point="org.eclipse.ui.newWizards">
+        <wizard
+            canFinishEarly="false"
+            category="org.python.pydev.PythonCategory"
+            class="org.python.pydev.django.ui.wizards.project.DjangoProjectWizard"
+            descriptionImage="icons/django_logo.png"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/django_16x16.png"
+            id="org.python.pydev.django.ui.wizards.project.DjangoProjectWizard"
+            name="Pydev Django Project"
+            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            project="true"/>         
+    </extension>
+    
+    <!-- nature: currently only used to know if actions should appear or not -->
+    <extension
+         id="djangoNature"
+         name="Django Nature"
+         point="org.eclipse.core.resources.natures">
+        <runtime>
+            <run class="org.python.pydev.django.nature.DjangoNature"/>
+        </runtime>
+    </extension>  
+    
+    <!-- launch for django -->
+    <extension point="org.eclipse.debug.core.launchConfigurationTypes">
+        <launchConfigurationType
+            delegate="org.python.pydev.django.launching.DjangoLaunchConfigurationDelegate"
+            id="org.python.pydev.django.launching.DjangoLaunchConfigurationType"
+            modes="run, debug"
+            name="Pydev Django"
+            public="true">
+        </launchConfigurationType>
+    </extension>
+    
+    <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+        <launchConfigurationTypeImage
+            icon="icons/django_16x16.png"
+            configTypeID="org.python.pydev.django.launching.DjangoLaunchConfigurationType"
+            id="org.python.pydev.django.launching.DjangoLaunchConfigurationTypeImage">
+        </launchConfigurationTypeImage>
+    </extension>
+
+
+
+   <extension point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            namespace="org.python.pydev.django"
+            properties="pydev_django"
+            type="org.python.pydev.navigator.elements.IWrappedResource"
+            class="org.python.pydev.django.launching.DjangoPropertyTester"
+            id="org.python.pydev.django.IWrappedResource.django_wrapped_resource">
+      </propertyTester>
+      <propertyTester
+            namespace="org.python.pydev.django"
+            properties="pydev_django"
+            type="org.eclipse.core.resources.IProject"
+            class="org.python.pydev.django.launching.DjangoPropertyTester"
+            id="org.python.pydev.django.IWrappedResource.django_project">
+      </propertyTester>
+   </extension>
+
+
+    <extension point="org.eclipse.debug.ui.launchShortcuts">
+        <shortcut
+            label="Pydev: Django"
+            icon="icons/django_16x16.png"
+            modes="run, debug"
+            class="org.python.pydev.django.launching.DjangoLaunchShortcut"
+            id="org.python.pydev.django.launching.DjangoLaunchShortcut">
+            <!--this adds it to run-as...-->
+            <contextualLaunch>
+               <enablement>
+              <with variable="selection">
+                 <count value="1"/>
+                 <iterate>
+                    <and>
+                        <adapt type="org.eclipse.core.resources.IProject"/>
+                        <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.django.djangoNature"/>
+                        <test property="org.python.pydev.django.pydev_django" forcePluginActivation="true"/>
+                    </and>
+                 </iterate>
+              </with>
+               </enablement>
+            </contextualLaunch>
+            <configurationType id="org.python.pydev.django.launching.DjangoLaunchConfigurationType"/>
+        </shortcut>
+    </extension>
+    
+    <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+        <!-- Note that it's the same as the regular python launch! -->    
+        <launchConfigurationTabGroup
+            type="org.python.pydev.django.launching.DjangoLaunchConfigurationType"
+            class="org.python.pydev.debug.ui.PythonTabGroup"
+            id="org.python.pydev.django.launching.DjangoTabGroup">
+        </launchConfigurationTabGroup>
+    </extension>
+
+	
+    <extension point="org.eclipse.ui.popupMenus">
+         <objectContribution
+             adaptable="true"
+             id="org.python.pydev.django.ui.actions.project"
+             objectClass="org.eclipse.core.resources.IProject">
+			 <menu id="org.python.pydev.django.ui.django.menu" label="Django" icon="icons/django_16x16.png">        
+                 <separator name="common"/>
+                 <separator name="db"/>
+                 <separator name="misc"/>
+             </menu>			  
+	         <action
+	                class="org.python.pydev.django.debug.ui.actions.DjangoCreateApp"
+	                enablesFor="+"
+	                id="org.python.pydev.django.ui.actions.project.djangoCreateApp"
+	                label="Create App"
+	                menubarPath="org.python.pydev.django.ui.django.menu/misc"
+	                tooltip="Create a new Django App inside this project">
+             </action>
+	         <action
+	               class="org.python.pydev.django.debug.ui.actions.DjangoDevServer"
+	               enablesFor="+"
+	               id="org.python.pydev.django.ui.actions.project.djangoDevServer"
+	               label="Run Development Server"               
+	               menubarPath="org.python.pydev.django.ui.django.menu/common"
+	               tooltip="Run single-threaded development server">
+	         </action>
+	         <action
+	               class="org.python.pydev.django.debug.ui.actions.DjangoWar"
+	               enablesFor="+"
+	               id="org.python.pydev.django.ui.actions.project.djangoWar"
+	               label="Build WAR Package"               
+	               menubarPath="org.python.pydev.django.ui.django.menu/misc"
+	               tooltip="Create deployable WAR package for Django project">
+	         </action>
+	         <action
+	               class="org.python.pydev.django.debug.ui.actions.DjangoShell"
+	               enablesFor="+"
+	               id="org.python.pydev.django.ui.actions.project.djangoShell"
+	               label="Python Shell"
+	               menubarPath="org.python.pydev.django.ui.django.menu/common"
+	               tooltip="Run Python Interactive Interpreter">
+	         </action>
+
+	         <action
+	               class="org.python.pydev.django.debug.ui.actions.DjangoTest"
+	               enablesFor="+"
+	               id="org.python.pydev.django.debug.ui.actions.project.djangoTest"
+	               label="Run Tests" 
+	               menubarPath="org.python.pydev.django.ui.django.menu/common"
+	               tooltip="Run Django Tests">
+	         </action>
+
+	         <action
+	               class="org.python.pydev.django.debug.ui.actions.DjangoSyncDB"
+	               enablesFor="+"
+	               id="org.python.pydev.django.debug.ui.actions.project.djangoSyncDB"
+	               label="Sync Database" 
+	               menubarPath="org.python.pydev.django.ui.django.menu/common"
+	               tooltip="Synchronize database">
+	         </action>	   
+	         <visibility><objectState name="projectNature" value="org.python.pydev.django.djangoNature"/></visibility>
+          </objectContribution>
+    </extension>
+</plugin>

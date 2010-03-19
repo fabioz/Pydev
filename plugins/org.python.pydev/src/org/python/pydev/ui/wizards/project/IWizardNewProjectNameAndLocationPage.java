@@ -6,6 +6,7 @@ package org.python.pydev.ui.wizards.project;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.wizard.IWizardPage;
+import org.python.pydev.core.IPythonNature;
 
 /**
  * The first page in the New Project wizard must implement this interface.
@@ -19,7 +20,10 @@ public interface IWizardNewProjectNameAndLocationPage extends IWizardPage
     public boolean shouldCreatSourceFolder();
 
     /**
-     * Returns the project type.
+     * @return a string as specified in the constants in IPythonNature
+     * @see IPythonNature#PYTHON_VERSION_XXX 
+     * @see IPythonNature#JYTHON_VERSION_XXX
+     * @see IPythonNature#IRONPYTHON_VERSION_XXX
      */
     public String getProjectType();
 
@@ -27,6 +31,8 @@ public interface IWizardNewProjectNameAndLocationPage extends IWizardPage
      * Returns a handle to the new project.
      */
     public IProject getProjectHandle();
+    
+    public String getProjectName();
 
     /**
      * Gets the location path for the new project.

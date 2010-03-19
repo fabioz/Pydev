@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -170,7 +171,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             }
 
             @Override
-            protected IInterpreterManager getInterpreterManager(){
+            protected IInterpreterManager getInterpreterManager(IProject project){
                 return launchConfigurationTypeAndInterpreterManager.o2;
             }
             
