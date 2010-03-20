@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 public class DjangoNature implements IProjectNature {
 
@@ -48,8 +49,13 @@ public class DjangoNature implements IProjectNature {
             monitor = new NullProgressMonitor();
         }
         IProjectDescription desc = project.getDescription();
+        
+        if(!project.hasNature(PythonNature.PYTHON_NATURE_ID)){
+        	//also add the python nature if it still wasn't added.
+        	PythonNature.addNature(project, null, null, null, null, null, null);
+        }
 
-        //only add the nature if it still hasn't been added.
+        //only add the django nature if it still hasn't been added.
         if (!project.hasNature(DJANGO_NATURE_ID)) {
 
             String[] natures = desc.getNatureIds();

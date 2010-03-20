@@ -110,6 +110,7 @@
                  <separator name="common"/>
                  <separator name="db"/>
                  <separator name="misc"/>
+                 <separator name="nature"/>
              </menu>			  
 	         <action
 	                class="org.python.pydev.django.debug.ui.actions.DjangoCreateApp"
@@ -161,7 +162,40 @@
 	               menubarPath="org.python.pydev.django.ui.django.menu/common"
 	               tooltip="Synchronize database">
 	         </action>	   
+              <!-- remove nature -->
+             <action
+                   class="org.python.pydev.django.nature.DjangoRemoveNatureAction"
+                   enablesFor="1"
+                   icon="icons/django_remove_nature.png"
+                   id="org.python.pydev.django.nature.djangoRemoveNatureAction"
+                   label="Remove Django Project Config"
+                   menubarPath="org.python.pydev.django.ui.django.menu/nature"
+                   tooltip="Remove the Django project configuration">
+             </action>
 	         <visibility><objectState name="projectNature" value="org.python.pydev.django.djangoNature"/></visibility>
           </objectContribution>
+      
+          <!-- add nature -->
+          <objectContribution
+                adaptable="true"
+                id="org.python.pydev.django.nature.DjangoAddNatureAction"
+                objectClass="org.eclipse.core.resources.IProject">
+             <!-- note that the add is under Pydev (and the remove under Django) -->
+             <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+             <action
+                   class="org.python.pydev.django.nature.DjangoAddNatureAction"
+                   enablesFor="1"
+                   icon="icons/django_nature.png"
+                   id="org.python.pydev.django.nature.djangoAddNatureAction"
+                   label="Set as Django Project"
+                   menubarPath="org.python.pydev.ui.actions.menu/pydev"
+                   tooltip="Set project as a Django project">
+             </action>
+             <visibility><not><objectState name="projectNature" value="org.python.pydev.django.djangoNature"/></not></visibility>
+          </objectContribution>
+      
+          
     </extension>
+    
+
 </plugin>
