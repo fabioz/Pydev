@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
@@ -161,6 +161,14 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             launch(file, mode);
             return;
         }
+
+//      TODO: Do we ever want to give the user a chance to launch a file that's not in the workspace?
+//        if(input instanceof IURIEditorInput){
+//			IURIEditorInput uriEditorInput = (IURIEditorInput) input;
+//			URI uri = uriEditorInput.getURI();
+//			File file2 = new File(uri);
+//        	
+//        }
         fileNotFound();
     }
 
