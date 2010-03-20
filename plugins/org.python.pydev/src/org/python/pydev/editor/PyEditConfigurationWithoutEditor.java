@@ -151,10 +151,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getDoubleClickStrategy(org.eclipse.jface.text.source.ISourceViewer, java.lang.String)
      */
     public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
-        if (contentType.equals(IDocument.DEFAULT_CONTENT_TYPE))
-            return new PyDoubleClickStrategy();
-        else
-            return super.getDoubleClickStrategy(sourceViewer, contentType);
+        return new PyDoubleClickStrategy(contentType);
     }
 
     /**
