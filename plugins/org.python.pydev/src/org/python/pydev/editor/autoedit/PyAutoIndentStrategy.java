@@ -463,10 +463,20 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 			} catch (BadLocationException e) {
 			}
 		}
-		char c = command.text.charAt(0);
+		char literalChar = command.text.charAt(0);
+		
+		try {
+			char nextChar = ps.getCharAfterCurrentOffset();
+			if(Character.isJavaIdentifierPart(nextChar)){
+				//we're just before a word (don't try to do anything in this case)
+				//e.g. |var (| is cursor position)
+				return;
+			}
+		} catch (BadLocationException e) {
+		}
 		
 		String cursorLineContents = ps.getCursorLineContents();
-		if(cursorLineContents.indexOf(c) == -1){
+		if(cursorLineContents.indexOf(literalChar) == -1){
 			if(!isDefaultContext){
 				//only add additional chars if on default context. 
 				return;
@@ -479,7 +489,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 		
 		boolean balanced = isLiteralBalanced(cursorLineContents);
 		
-		Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(c);
+		Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(literalChar);
 		
 		int matchesBefore = beforeAndAfterMatchingChars.o1.length();
 		int matchesAfter = beforeAndAfterMatchingChars.o2.length();

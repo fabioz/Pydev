@@ -1874,6 +1874,12 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd;
         String expected;
         
+        doc = "var";
+        docCmd = new DocCmd(0, 0, "'");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "'"; //just a single one
+        assertEquals(expected, docCmd.text);
+        
         doc = "''";
         docCmd = new DocCmd(doc.length()-1, 0, "'");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
