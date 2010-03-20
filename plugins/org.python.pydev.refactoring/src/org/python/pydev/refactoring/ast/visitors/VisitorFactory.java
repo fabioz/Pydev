@@ -97,13 +97,15 @@ public final class VisitorFactory {
                 IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
                 if(modulesManager != null){
                     String modName = modulesManager.resolveModule(REF.getFileAbsolutePath(file));
-                    IModule module = modulesManager.getModule(modName, nature, true);
-                    if(module instanceof ISourceModule){
-                        SourceModule iSourceModule = (SourceModule) module;
-                        if(iSourceModule.parseError != null){
-                            throw iSourceModule.parseError;
-                        }
-                        return new ModuleAdapter(pythonModuleManager, ((ISourceModule) module), nature, doc);
+                    if(modName != null){
+	                    IModule module = modulesManager.getModule(modName, nature, true);
+	                    if(module instanceof ISourceModule){
+	                        SourceModule iSourceModule = (SourceModule) module;
+	                        if(iSourceModule.parseError != null){
+	                            throw iSourceModule.parseError;
+	                        }
+	                        return new ModuleAdapter(pythonModuleManager, ((ISourceModule) module), nature, doc);
+	                    }
                     }
                 }
             }
