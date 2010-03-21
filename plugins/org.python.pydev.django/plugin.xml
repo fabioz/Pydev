@@ -118,7 +118,7 @@
 	                class="org.python.pydev.django.debug.ui.actions.DjangoCreateApp"
 	                enablesFor="+"
 	                id="org.python.pydev.django.ui.actions.project.djangoCreateApp"
-	                label="manage.py startapp"
+	                label="Create application (manage.py startapp)"
 	                menubarPath="org.python.pydev.django.ui.django.menu/misc"
 	                tooltip="Create a new Django App inside this project">
              </action>
@@ -144,7 +144,7 @@
 	               class="org.python.pydev.django.debug.ui.actions.DjangoTest"
 	               enablesFor="+"
 	               id="org.python.pydev.django.debug.ui.actions.project.djangoTest"
-	               label="manage.py test" 
+	               label="Run Django Tests (manage.py test)" 
 	               menubarPath="org.python.pydev.django.ui.django.menu/common"
 	               tooltip="Run Django Tests">
 	         </action>
@@ -152,7 +152,7 @@
 	               class="org.python.pydev.django.debug.ui.actions.DjangoSyncDB"
 	               enablesFor="+"
 	               id="org.python.pydev.django.debug.ui.actions.project.djangoSyncDB"
-	               label="manage.py syncdb" 
+	               label="Sync DB (manage.py syncdb)" 
 	               menubarPath="org.python.pydev.django.ui.django.menu/common"
 	               tooltip="Synchronize database">
 	         </action>	   
