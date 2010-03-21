@@ -71,7 +71,12 @@ public class TabVariables {
             @Override
             protected void handleAddButtonSelected(int nButton){
                 if(nButton == 0){
-                    addItemWithDialog(new MapOfStringsInputDialog(getShell(), "Variable", "Enter the variable name/value.", vars));
+                    addItemWithDialog(new MapOfStringsInputDialog(getShell(), "Variable", "Enter the variable name/value.", vars){
+
+						protected boolean isExistingKeyEdit() {
+							return false;
+						}
+					});
                     
                 }else{
                     throw new AssertionError("Unexpected (only 0 should be available)");
@@ -100,14 +105,25 @@ public class TabVariables {
 						this.keyField.setText(fixedKeyText);
 						this.keyField.setEditable(false);
 						this.valueField.setFocus();
+						this.valueField.setText(vars.get(fixedKeyText));
 						return control;
+					}
+
+					protected boolean isExistingKeyEdit() {
+						return true;
 					};
+					
+					protected String getInitialMessage() {
+						return null; //it starts in a valid state
+					};
+					
 				};
 
             	
                 if(dialog.open() == Window.OK){
 	                Tuple<String, String> keyAndValueEntered = dialog.getKeyAndValueEntered();
 	                if(keyAndValueEntered != null){
+	                	vars.put(keyAndValueEntered.o1, keyAndValueEntered.o2);
 	                	treeItem.setText(1, keyAndValueEntered.o2);
 	                }
                 }

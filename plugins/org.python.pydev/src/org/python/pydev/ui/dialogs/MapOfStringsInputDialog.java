@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * @author fabioz
  */
-public class MapOfStringsInputDialog extends AbstractMapOfStringsInputDialog {
+public abstract class MapOfStringsInputDialog extends AbstractMapOfStringsInputDialog {
 
     public MapOfStringsInputDialog(Shell shell, String dialogTitle, String dialogMessage, Map<String, String> map) {
         super(shell, dialogTitle, dialogMessage, map);

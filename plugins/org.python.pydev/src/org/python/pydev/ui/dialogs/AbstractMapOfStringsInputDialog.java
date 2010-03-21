@@ -31,6 +31,8 @@ public abstract class AbstractMapOfStringsInputDialog extends AbstractKeyValueDi
         return "Name: ";
     }
     
+    protected abstract boolean isExistingKeyEdit();
+    
     
     /**
      * @return a listened that should clear or set the error message after any change.
@@ -50,7 +52,7 @@ public abstract class AbstractMapOfStringsInputDialog extends AbstractKeyValueDi
                 if (errorMessage == null && value.equals("")){
                     errorMessage = "The value must be specified";
                 }
-                if(errorMessage == null){
+                if(errorMessage == null && !isExistingKeyEdit()){
                     if(map.containsKey(key)){
                         errorMessage = "The key: "+key+" is already specified.";
                     }

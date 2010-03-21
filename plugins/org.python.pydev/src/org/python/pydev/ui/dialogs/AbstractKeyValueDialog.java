@@ -78,6 +78,8 @@ public abstract class AbstractKeyValueDialog extends Dialog {
      * Browser button widget.
      */
     protected Button browserButton;
+
+	protected Listener changesValidator;
     
     
     /*
@@ -195,7 +197,7 @@ public abstract class AbstractKeyValueDialog extends Dialog {
      * @param parent  the parent of the widgets, which has two columns
      */
     protected void createFields(Composite parent) {
-        final Listener changesValidator = createChangesValidator();
+        changesValidator = createChangesValidator();
         
         new Label(parent, SWT.NONE).setText(getKeyLabelText());
         
