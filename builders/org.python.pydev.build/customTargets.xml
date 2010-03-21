@@ -149,6 +149,7 @@
         <property name="jar14" value="${buildDirectory}/plugins/com.python.pydev/pydev"/>
         <property name="jar15" value="${buildDirectory}/plugins/com.python.pydev.debug/debug"/>
         <property name="jar16" value="${buildDirectory}/plugins/com.python.pydev.refactoring/refactoring"/>
+        <property name="jar17" value="${buildDirectory}/plugins/org.python.pydev.django/refactoring"/>
 
 		<echo message="Deleting JAR folders" />
 		<delete dir="${jar1}" />

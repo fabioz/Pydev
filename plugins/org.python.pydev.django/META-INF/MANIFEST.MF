@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Django
 Bundle-SymbolicName: org.python.pydev.django;singleton:=true
-Bundle-Version: 1.0.1
-Bundle-Vendor: Leo Soto M.
+Bundle-Version: 0.9.7.1
+Bundle-Vendor: Aptana / Leo Soto M.
 Bundle-Activator: org.python.pydev.django.DjangoPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -26,4 +26,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.python.pydev.customizations,
  org.eclipse.core.expressions
-Bundle-ActivationPolicy: lazy
+Eclipse-LazyStart: true
+Bundle-ClassPath: pydev_django.jar,
+ retroweaver-rt.jar
