@@ -106,7 +106,7 @@
              adaptable="true"
              id="org.python.pydev.django.ui.actions.project"
              objectClass="org.eclipse.core.resources.IProject">
-			 <menu id="org.python.pydev.django.ui.django.menu" label="Django" icon="icons/django_16x16.png">        
+			 <menu id="org.python.pydev.django.ui.django.menu" label="D&amp;jango" icon="icons/django_16x16.png">        
                  <separator name="common"/>
                  <separator name="db"/>
                  <separator name="misc"/>

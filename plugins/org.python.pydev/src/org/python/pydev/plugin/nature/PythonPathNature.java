@@ -464,6 +464,11 @@ public class PythonPathNature implements IPythonPathNature {
     			variableSubstitution = variableSubstitution2;
     		}
     	}
+    	
+    	//never return null!
+    	if(variableSubstitution == null){
+    		variableSubstitution = new HashMap<String, String>();
+    	}
     	return variableSubstitution;
     }
 
