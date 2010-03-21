@@ -149,7 +149,7 @@
         <property name="jar14" value="${buildDirectory}/plugins/com.python.pydev/pydev"/>
         <property name="jar15" value="${buildDirectory}/plugins/com.python.pydev.debug/debug"/>
         <property name="jar16" value="${buildDirectory}/plugins/com.python.pydev.refactoring/refactoring"/>
-        <property name="jar17" value="${buildDirectory}/plugins/org.python.pydev.django/refactoring"/>
+        <property name="jar17" value="${buildDirectory}/plugins/org.python.pydev.django/pydev_django"/>
 
 		<echo message="Deleting JAR folders" />
 		<delete dir="${jar1}" />
@@ -166,6 +166,7 @@
         <delete dir="${jar14}" />
         <delete dir="${jar15}" />
         <delete dir="${jar16}" />
+        <delete dir="${jar17}" />
 		
 		<echo message="Unzipping JARs" />
 		<unzip src="${jar1}.jar" dest="${jar1}/out"><patternset><include name="**/*.*" /></patternset></unzip>
@@ -182,6 +183,7 @@
         <unzip src="${jar14}.jar" dest="${jar14}/out"><patternset><include name="**/*.*" /></patternset></unzip>
         <unzip src="${jar15}.jar" dest="${jar15}/out"><patternset><include name="**/*.*" /></patternset></unzip>
         <unzip src="${jar16}.jar" dest="${jar16}/out"><patternset><include name="**/*.*" /></patternset></unzip>
+        <unzip src="${jar17}.jar" dest="${jar17}/out"><patternset><include name="**/*.*" /></patternset></unzip>
 		
 		<echo message="Running retroweaver on JAR contents" />
 		<retroweaver srcdir="${jar1}/out" verbose="false" destdir="${jar1}/out" version="1.4" />
@@ -198,6 +200,7 @@
         <retroweaver srcdir="${jar14}/out" verbose="false" destdir="${jar14}/out" version="1.4" />
         <retroweaver srcdir="${jar15}/out" verbose="false" destdir="${jar15}/out" version="1.4" />
         <retroweaver srcdir="${jar16}/out" verbose="false" destdir="${jar16}/out" version="1.4" />
+        <retroweaver srcdir="${jar17}/out" verbose="false" destdir="${jar17}/out" version="1.4" />
 		
 		<echo message="Deleting original JARs" />
 		<delete file="${jar1}.jar" />
@@ -214,6 +217,7 @@
         <delete file="${jar14}.jar" />
         <delete file="${jar15}.jar" />
         <delete file="${jar16}.jar" />
+        <delete file="${jar17}.jar" />
 		
 		<echo message="Re-creating JARs with retroweaved binaries" />
 		<jar jarfile="${jar1}.jar" basedir="${jar1}/out" update="true" manifest="${jar1}/out/META-INF/MANIFEST.MF" />
@@ -230,6 +234,7 @@
         <jar jarfile="${jar14}.jar" basedir="${jar14}/out" update="true" manifest="${jar14}/out/META-INF/MANIFEST.MF" />
         <jar jarfile="${jar15}.jar" basedir="${jar15}/out" update="true" manifest="${jar15}/out/META-INF/MANIFEST.MF" />
         <jar jarfile="${jar16}.jar" basedir="${jar16}/out" update="true" manifest="${jar16}/out/META-INF/MANIFEST.MF" />
+        <jar jarfile="${jar17}.jar" basedir="${jar17}/out" update="true" manifest="${jar17}/out/META-INF/MANIFEST.MF" />
 	</target>
 
 	<!-- ===================================================================== -->
