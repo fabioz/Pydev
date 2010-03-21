@@ -76,7 +76,7 @@ public class DjangoSettingsPage extends WizardPage {
         return t;
     }
 
-	@Override
+	
 	public void createControl(Composite parent) {
         Composite topComp= new Composite(parent, SWT.NONE);
         GridLayout innerLayout= new GridLayout();
