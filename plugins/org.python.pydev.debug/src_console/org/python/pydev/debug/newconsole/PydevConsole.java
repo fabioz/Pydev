@@ -41,14 +41,17 @@ public class PydevConsole extends ScriptConsole  {
 
     public static int nextId = -1;
     
+    private String additionalInitialComands;
+    
     
     private static String getNextId() {
         nextId += 1;
         return String.valueOf(nextId);
     }
     
-    public PydevConsole(PydevConsoleInterpreter interpreter) {
+    public PydevConsole(PydevConsoleInterpreter interpreter, String additionalInitialComands) {
         super(CONSOLE_NAME + " [" + getNextId() + "]", PydevConsoleConstants.CONSOLE_TYPE, interpreter);
+        this.additionalInitialComands = additionalInitialComands;
         this.setPydevConsoleBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
         //Cannot be called directly because Eclipse 3.2does not support it.
         //setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
@@ -186,8 +189,12 @@ public class PydevConsole extends ScriptConsole  {
      */
     @Override
     public String getInitialCommands() {
-        return PydevDebugPlugin.getDefault().getPreferenceStore().
+        String str = PydevDebugPlugin.getDefault().getPreferenceStore().
             getString(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS);
+        if(additionalInitialComands != null){
+        	str+=additionalInitialComands;
+        }
+        return str;
     }
     
     /**

@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICallback;
@@ -24,10 +25,12 @@ import org.python.pydev.core.ICallback0;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.django.DjangoPlugin;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.django.nature.DjangoNature;
 import org.python.pydev.django.ui.wizards.project.DjangoSettingsPage.DjangoSettings;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -177,6 +180,21 @@ public class DjangoProjectWizard extends PythonProjectWizard {
 				new NullProgressMonitor()
 			);
 			
+			if(output.o2.indexOf("ImportError: no module named django") != -1){
+				RunInUiThread.async(new Runnable() {
+					
+					public void run() {
+						MessageDialog.openError(
+								PyAction.getShell(), 
+								"Unable to create project.", 
+								"Unable to create project because the selected interpreter does not have django."
+						);
+					}
+				});
+				projectHandle.delete(true, null);
+				return;
+			}
+			
             IFile settingsFile = projectContainer.getFile(new Path(
             		projectHandle.getName() + "/settings.py"));
 
@@ -184,8 +202,8 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             IDocument docFromResource = REF.getDocFromResource(settingsFile);
             if(docFromResource == null){
             	throw new RuntimeException(
-            			"Error creating Django project. settings.py file not created.\n" +
-            			"Please report this bug at the sourceforge tracker.\n" +
+            			"Error creating Django project.\n" +
+            			"settings.py file not created.\n" +
             			"Stdout: "+output.o1+"\n"+
             			"Stderr: "+output.o2);
             }
