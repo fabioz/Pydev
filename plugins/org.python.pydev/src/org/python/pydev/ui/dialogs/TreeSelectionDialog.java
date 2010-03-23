@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.python.pydev.core.StringMatcher;
@@ -39,10 +40,16 @@ import org.python.pydev.core.StringMatcher;
 public class TreeSelectionDialog extends ElementTreeSelectionDialog{
 
     private ILabelProvider labelProvider;
-    private DefaultFilterMatcher fFilterMatcher = new DefaultFilterMatcher();
-    private ITreeContentProvider contentProvider;
-    private String initialFilter = "";
-
+    protected DefaultFilterMatcher fFilterMatcher = new DefaultFilterMatcher();
+    protected ITreeContentProvider contentProvider;
+    protected String initialFilter = "";
+    
+    /**
+     * Give subclasses a chance to decide if they want to update the contents of the tree in a thread or not. 
+     */
+    protected boolean updateInThread = true;
+    
+    
     class UpdateJob extends Thread{
         IProgressMonitor monitor = new NullProgressMonitor(); //only thing it implements is the canceled
         
@@ -63,18 +70,33 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     
                     public void run() {
                         if(!monitor.isCanceled()){
-                            setFilter(text.getText(), monitor);
+                            doFilterUpdate(monitor);
                         }
                     }
                     
                 });
             }
         }
-        public void cancel(){
+		public void cancel(){
             this.monitor.setCanceled(true);
         }
     }
+    
+    /**
+     * Updates the current filter with the text field text.
+     */
+    protected void doFilterUpdate(IProgressMonitor monitor) {
+    	setFilter(text.getText(), monitor, true);
+    	onFinishUpdateJob();
+    }
 
+    /**
+     * Subclasses may override to do something when the update job is finished.
+     */
+    protected void onFinishUpdateJob() {
+    	
+    }
+    
     public TreeSelectionDialog(Shell parent, ILabelProvider labelProvider, ITreeContentProvider contentProvider) {
         super(parent, labelProvider, contentProvider);
 
@@ -87,7 +109,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     }
     
     private int fWidth = 60;
-    private Text text;
+    protected Text text;
     private UpdateJob updateJob;
 
 
@@ -100,7 +122,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
 
             @Override
             public boolean select(Viewer viewer, Object parentElement, Object element) {
-                return fFilterMatcher.match(element);
+                return matchItemToShowInTree(element);
             }}
         );
         getTreeViewer().setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
@@ -109,7 +131,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
         if(this.initialFilter.length() > 0){
             this.text.setText(this.initialFilter);
             this.text.setSelection(this.initialFilter.length());
-            this.setFilter(this.initialFilter, new NullProgressMonitor());
+            this.setFilter(this.initialFilter, new NullProgressMonitor(), true);
         }
         
         return control;
@@ -129,11 +151,15 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
         
         Listener listener = new Listener() {
             public void handleEvent(Event e) {
-                if(updateJob != null){
-                    updateJob.cancel(); //cancel it if it was already in progress
-                }
-                updateJob = new UpdateJob();
-                updateJob.start();
+            	if(updateInThread){
+	                if(updateJob != null){
+	                    updateJob.cancel(); //cancel it if it was already in progress
+	                }
+	                updateJob = new UpdateJob();
+	                updateJob.start();
+            	}else{
+            		doFilterUpdate(new NullProgressMonitor());
+            	}
             }
 
         };
@@ -141,8 +167,11 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
 
         text.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
-                if (e.keyCode == SWT.ARROW_DOWN)
-                    getTreeViewer().getTree().setFocus();
+                if (e.keyCode == SWT.ARROW_DOWN){
+                    Tree tree = getTreeViewer().getTree();
+					tree.setFocus();
+                    updateSelectionIfNothingSelected(tree);
+                }
             }
 
             public void keyReleased(KeyEvent e) {
@@ -155,17 +184,20 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
     
     
     //filtering things...
-    protected void setFilter(String text, IProgressMonitor monitor) {
+    protected void setFilter(String text, IProgressMonitor monitor, boolean updateFilterMatcher) {
         if(monitor.isCanceled())
             return;
         
-        if(fFilterMatcher.lastPattern.equals(text)){
-            //no actual change...
-            return;
+        if(updateFilterMatcher){
+        	//just so that subclasses may already treat it.
+	        if(fFilterMatcher.lastPattern.equals(text)){
+	            //no actual change...
+	            return;
+	        }
+	        fFilterMatcher.setFilter(text);
+	        if(monitor.isCanceled())
+	            return;
         }
-        fFilterMatcher.setFilter(text);
-        if(monitor.isCanceled())
-            return;
 
         getTreeViewer().getTree().setRedraw(false);
         getTreeViewer().getTree().getParent().setRedraw(false);
@@ -182,7 +214,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
         }
     }
     
-    private class DefaultFilterMatcher {
+    protected class DefaultFilterMatcher {
         public StringMatcher fMatcher;
         public String lastPattern;
 
@@ -249,6 +281,25 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog{
             }
         }
     }
+
+    /**
+     * In the default implementation, an item goes to the tree if the filter can properly match
+     * it (but subclasses may override if their understanding of what goes into the tree is
+     * not decided solely by that).
+     */
+	protected boolean matchItemToShowInTree(Object element) {
+		return fFilterMatcher.match(element);
+	}
+
+	protected void updateSelectionIfNothingSelected(Tree tree) {
+		TreeItem[] sel = tree.getSelection();
+		if(sel == null || sel.length == 0){
+			TreeItem[] items = tree.getItems();
+			if(items != null && items.length > 0){
+				tree.setSelection(items[0]);
+			}
+		}
+	}
 
 
 }
