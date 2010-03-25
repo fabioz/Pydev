@@ -58,8 +58,18 @@
 		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
 			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
 		</java>
+		<antcall target="categorize" />
 	</target>
 	
+	<!-- ================================= 
+          target: categorize              
+         ================================= -->
+    <target name="categorize" description="categorize the update site">
+    	<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
+    		<!-- regenerates the content.jar with proper categories -->
+    		<arg line="-application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -nosplash -console -consolelog -updateSite file:${deploy.dir} -site file:${deploy.dir}/site.xml -metadataRepository file:${deploy.dir} -metadataRepositoryName &quot;Pydev Update Site&quot; -artifactRepository file:${deploy.dir} -artifactRepositoryName &quot;Pydev Artifacts&quot; -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m" />
+    	</java>
+    </target>
 
 	<!-- ================================= 
           target: generate.build.properties              
