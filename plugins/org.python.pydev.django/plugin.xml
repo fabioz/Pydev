@@ -202,5 +202,11 @@
           
     </extension>
     
+    
+<!-- Create the needed actions -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+        <pyedit_listener_participant class="org.python.pydev.django.debug.ui.actions.DjangoActionCreatorPyEditListener"/>
+   </extension>
+       
 
 </plugin>

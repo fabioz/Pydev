@@ -72,6 +72,10 @@ public abstract class DjangoAction implements IObjectActionDelegate {
         
         this.selectedProject = (IProject) project;
     }
+    
+    public void setSelectedProject(IProject selectedProject) {
+		this.selectedProject = selectedProject;
+	}
 	
     /**
      * May be used to run some command that uses the manage.py file.
