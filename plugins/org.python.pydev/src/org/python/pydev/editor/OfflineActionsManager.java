@@ -1,10 +1,13 @@
 package org.python.pydev.editor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.IAction;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -40,17 +43,36 @@ public class OfflineActionsManager {
      * @return if an action was binded and was successfully executed
      */
     public boolean onOfflineAction(String requestedStr, OfflineActionTarget target) {
+		
         ActionInfo actionInfo = onOfflineActionListeners.get(requestedStr.toLowerCase());
+        List<String> parameters = null;
         if(actionInfo == null){
-            target.statusError("No action was found binded to:"+requestedStr);
-            return false;
-            
+        	List<String> split = StringUtils.split(requestedStr, ' ');
+        	//We have one more shot: if we have spaces, it can be bound to the first part and have
+        	//parameters
+        	if(split.size() > 0){
+        		actionInfo = onOfflineActionListeners.get(split.remove(0));
+        		parameters = split;
+        	}
+        	
+        	if(actionInfo == null){
+        		target.statusError("No action info was found binded to:"+requestedStr);
+        		return false;
+        	}else{
+        		//it has parameters.
+        	}
         }
             
         IAction action = actionInfo.action;
         if(action == null){
             target.statusError("No action was found binded to:"+requestedStr);
             return false;
+        }
+        if(action instanceof IOfflineActionWithParameters){
+        	if(parameters == null){
+        		parameters = new ArrayList<String>();
+        	}
+        	((IOfflineActionWithParameters) action).setParameters(parameters);
         }
         
         try {
