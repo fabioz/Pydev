@@ -9,6 +9,11 @@ public class DjangoConstants {
 	 */
 	public static final String DJANGO_MANAGE_VARIABLE = "DJANGO_MANAGE_LOCATION";
 	
+	/**
+	 * This is the name of the module to be imported for the settings. E.g.: my_project.settings
+	 */
+	public static final String DJANGO_SETTINGS_MODULE = "DJANGO_SETTINGS_MODULE";
+	
 	public static final String DJANGO_LAUNCH_CONFIGURATION_TYPE = 
 		"org.python.pydev.django.launching.DjangoLaunchConfigurationType";
 
