@@ -84,11 +84,16 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
             // - The interpreter is incorrectly configured
             // - The arguments use an unresolved variable.
             // In each case, the exception contains a meaningful message, that is displayed
-            String errorMsg = StringUtils.replaceNewLines(e.getMessage(), " ");
+        	PydevPlugin.log(e);
+        	
+            String message = e.getMessage();
+            if(message == null){
+            	message = "null (see error log for the traceback).";
+            }
+			String errorMsg = StringUtils.replaceNewLines(message, " ");
             
             fPythonPathList.removeAll();
             fPythonPathList.add(errorMsg);
-            PydevPlugin.log(e);
             setErrorMessage(errorMsg);
         }
     }

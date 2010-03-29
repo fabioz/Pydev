@@ -180,8 +180,8 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
         case JJTFUNCDEF:
             //get the decorators
             //and clear them for the next call (they always must be before a function def)
-            Suite s = (Suite) stack.popNode();
-            body = s.body;
+            Suite suite = (Suite) stack.popNode();
+            body = suite.body;
             
             argumentsType arguments = makeArguments(stack.nodeArity() - 2);
             NameTok nameTok = makeName(NameTok.FunctionName);
@@ -191,7 +191,7 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             if(decs.exp.length == 0){
                 addSpecialsBefore(decs, funcDef);
             }
-            addSpecialsAndClearOriginal(s, funcDef);
+            addSpecialsAndClearOriginal(suite, funcDef);
             setParentForFuncOrClass(body, funcDef);
             return funcDef;
         case JJTDEFAULTARG:
@@ -209,13 +209,13 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             }
             return new FpList(list);
 */
-        case JJTCLASSDEF:
-            s = (Suite) stack.popNode();
-            body = s.body;
+        case JJTCLASSDEF: 
+            suite = (Suite) stack.popNode();
+            body = suite.body;
             exprType[] bases = makeExprs(stack.nodeArity() - 1);
             nameTok = makeName(NameTok.ClassName);
             ClassDef classDef = new ClassDef(nameTok, bases, body, null, null, null, null);
-            addSpecialsAndClearOriginal(s, classDef);
+            addSpecialsAndClearOriginal(suite, classDef);
             setParentForFuncOrClass(body, classDef);
             return classDef;
         case JJTBEGIN_RETURN_STMT:
@@ -255,12 +255,12 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             for (int i = l - 1; i >= 0; i--) {
                 handlers[i] = (excepthandlerType) stack.popNode();
             }
-            s = (Suite)stack.popNode();
+            suite = (Suite)stack.popNode();
             TryExcept tryExc = (TryExcept) stack.popNode();
-            tryExc.body = s.body;
+            tryExc.body = suite.body;
             tryExc.handlers = handlers;
             tryExc.orelse = orelseSuite;
-            addSpecials(s, tryExc);
+            addSpecials(suite, tryExc);
             return tryExc;
         case JJTBEGIN_TRY_ELSE_STMT:
             //we do that just to get the specials
@@ -268,8 +268,8 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
         case JJTBEGIN_EXCEPT_CLAUSE:
             return new excepthandlerType(null,null,null);
         case JJTEXCEPT_CLAUSE:
-            s = (Suite) stack.popNode();
-            body = s.body;
+            suite = (Suite) stack.popNode();
+            body = suite.body;
             exprType excname = arity == 4 ? ((exprType) stack.popNode()) : null;
             if (excname != null){    
                 ctx.setStore(excname);
@@ -279,7 +279,7 @@ public final class TreeBuilder24 extends AbstractTreeBuilder implements ITreeBui
             handler.type = type;
             handler.name = excname;
             handler.body = body;
-            addSpecials(s, handler);
+            addSpecials(suite, handler);
             return handler;
         case JJTBEGIN_FINALLY_STMT:
             //we do that just to get the specials

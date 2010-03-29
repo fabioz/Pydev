@@ -3,13 +3,20 @@ package org.python.pydev.parser.grammarcommon;
 import java.lang.reflect.Constructor;
 
 import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.Node;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.Token;
 
 public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
 
+
+    private final boolean DEBUG = false;
+    private int debugLevel = 0;
+    
+    
     protected final FastStack<SimpleNode> nodes;
     protected final IntStack marks;
     protected final IntStack lines;
@@ -70,13 +77,25 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
     }
 
     /* Pushes a node on to the stack. */
-    public void pushNode(SimpleNode n) {
-        nodes.push(n);
+    private void pushNode(Node n, SimpleNode created, int line, int col) {
+        nodes.push(created);
+        
+		if(created.beginLine == 0)
+		    created.beginLine = line;
+		
+		if(created.beginColumn == 0)
+		    created.beginColumn = col;
+		
+
         ++sp;
     }
 
-    /* Returns the node on the top of the stack, and remove it from the
-       stack.  */
+    /**
+     * Note that popNode doesn't pop lines and columns. This is because those are
+     * always controlled by the openNodeScope/closeNodeScope or openNodeScope/clearNodeScope.
+     * 
+     * (so, in this case, clearNodeScope will be called before the popNode).
+     */
     public SimpleNode popNode() {
         if (--sp < mk) {
             clearMark();
@@ -101,47 +120,64 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
         return sp - mk;
     }
 
-    public void pushNodePos(int line, int col) {
-        lines.push(line);
-        columns.push(col);
-    }
-    
-    
-    public SimpleNode setNodePos() {
-        SimpleNode n = (SimpleNode) peekNode();
-        
-        int popLine = lines.pop();
-        if(n.beginLine == 0)
-            n.beginLine = popLine;
-        
-        int popCol = columns.pop();
-        if(n.beginColumn == 0)
-            n.beginColumn = popCol;
-        return n;
-    }
-
-
+    /**
+     * Called when some exception is raised after the open (so, the proper close won't be called).
+     * E.g.: the with construct will end up calling a clear as it's based on a treated exception 
+     * in the python 2.5 grammar.
+     * 
+     * Note that the popNode may still be called after this method.
+     */
     public void clearNodeScope(Node n) {
+    	if (DEBUG) {
+    		debugLevel -= 1;
+    		System.out.println(new FastStringBuffer().appendN(' ', debugLevel*4)+""+debugLevel+" clearing scope:" + n);
+    	}
+    	
         while (sp > mk) {
             popNode();
         }
+        lines.pop();
+        columns.pop();
+        
         clearMark();
     }
 
 
+    /**
+     * Open a new scope (which may result in a new SimpleNode if the close is properly called later on).
+     */
     public void openNodeScope(Node n) {
+    	Token t = this.grammar.getToken(1);
+
+        if (DEBUG) {
+        	System.out.println(new FastStringBuffer().appendN(' ', debugLevel*4)+""+debugLevel+" opening scope:" + n+"tok: "+t+" line: "+t.beginLine);
+        	debugLevel += 1;
+        }
+        lines.push(t.beginLine);
+		columns.push(t.beginColumn);
+
+    	
         marks.push(mk);
         mk = sp;
     }
 
     
-
     
     /* A definite node is constructed from a specified number of
        children.  That number of nodes are popped from the stack and
        made the children of the definite node.  Then the definite node
        is pushed on to the stack. */
-    public void closeNodeScope(Node n, int num) throws ParseException {
+    public void closeNodeScope(final Node n, int num) throws ParseException {
+    	if (DEBUG) {
+    		debugLevel -= 1;
+    		System.out.print(new FastStringBuffer().appendN(' ', debugLevel*4)+""+debugLevel+" closing scope:" + n);
+    	}
+    	int line = lines.pop();
+    	int col = columns.pop();
+    	if (DEBUG) {
+    		System.out.println(" line: "+line);
+    	}
+
         SimpleNode sn = (SimpleNode) n;
         clearMark();
         SimpleNode newNode = null;
@@ -159,16 +195,29 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
         if (newNode == null) {
             throw new ParseException("Internal AST builder error");
         }
-        pushNode(newNode);
+    	
+        pushNode(n, newNode, line, col);
         node_created = true;
     }
+
+
 
     /* A conditional node is constructed if its condition is true.  All
     the nodes that have been pushed since the node was opened are
     made children of the the conditional node, which is then pushed
     on to the stack.  If the condition is false the node is not
     constructed and they are left on the stack. */
-    public void closeNodeScope(Node n, boolean condition) throws ParseException {
+    public void closeNodeScope(final Node n, boolean condition) throws ParseException {
+    	if (DEBUG) {
+    		debugLevel -= 1;
+    		System.out.print(new FastStringBuffer().appendN(' ', debugLevel*4)+""+debugLevel+" closing scope:" + n);
+    	}
+    	int line = lines.pop();
+    	int col = columns.pop();
+    	if (DEBUG) {
+    		System.out.println(" line: "+line);
+    	}
+    	
         SimpleNode sn = (SimpleNode) n;
         if (condition) {
             SimpleNode newNode = null;
@@ -196,7 +245,9 @@ public final class JJTPythonGrammarState implements IJJTPythonGrammarState{
                 throw new ParseException("Internal AST builder error when closing node:" + sn);
             }
             clearMark();
-            pushNode(newNode);
+
+
+            pushNode(n, newNode, line, col);
             node_created = true;
         } else {
             clearMark();

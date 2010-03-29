@@ -145,7 +145,7 @@ public class MarkOccurrencesJob extends Job{
                 throw e;//rethrow this error...
             } catch (AssertionFailedException e) {
                 String message = e.getMessage();
-                if(message.indexOf("The file:") != -1 && message.indexOf("does not exist.") != -1){
+                if(message != null && message.indexOf("The file:") != -1 && message.indexOf("does not exist.") != -1){
                     //don't even report it (the file was probably removed while we were doing the analysis)
                 }else{
                     Log.log(e);

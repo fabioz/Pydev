@@ -97,7 +97,11 @@ public class ExtensionHelper {
     @SuppressWarnings("unchecked")
     public static List getParticipants(String type) {
         if(testingParticipants != null){
-            return testingParticipants.get(type);
+            List<Object> list = testingParticipants.get(type);
+            if(list == null){
+            	list = new ArrayList();
+            }
+			return list;
         }
         
         ArrayList list = new ArrayList();

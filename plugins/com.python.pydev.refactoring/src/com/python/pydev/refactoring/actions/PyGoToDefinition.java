@@ -88,7 +88,7 @@ public class PyGoToDefinition extends PyRefactorAction {
             PydevPlugin.log(e);
             String msg = e.getMessage();
             if(msg == null){
-                msg = "Unable to get error msg";
+                msg = "Unable to get error msg (null)";
             }
             ErrorDialog.openError(shell, "Error", "Unable to do requested action", 
                     new Status(Status.ERROR, PydevPlugin.getPluginID(), 0, msg, e));

@@ -201,7 +201,7 @@ public abstract class ProcessWindow extends Dialog{
          * Nothing is done if the contents is an empty string.
          */
         private void append(final String contents){
-            if(contents.length() == 0){
+            if(contents == null || contents.length() == 0){
                 return;
             }
             buffer.append(contents);

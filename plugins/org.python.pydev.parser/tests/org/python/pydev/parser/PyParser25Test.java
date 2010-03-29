@@ -6,6 +6,8 @@ package org.python.pydev.parser;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -13,6 +15,7 @@ import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.WithItem;
+import org.python.pydev.parser.jython.ast.stmtType;
 
 /**
  * Test for parsing python 2.5
@@ -24,7 +27,7 @@ public class PyParser25Test extends PyParserTestBase{
         try {
             PyParser25Test test = new PyParser25Test();
             test.setUp();
-            test.testNewWithStmt5();
+            test.testWith2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser25Test.class);
@@ -259,6 +262,39 @@ public class PyParser25Test extends PyParserTestBase{
                 "    print 'bla'\n" +
                 "";
         parseILegalDoc(new Document(str));
+    }
+    
+    /**
+     * This test checks that the old version still gives an error
+     */
+    public void testWith2(){
+    	setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+    	String str = "" +
+    	"from __future__ import with_statement\n" + //1
+    	"\n" +
+    	"\n" +
+    	"class OBJ:\n" + //4
+    	"    def Install(self):\n" +
+    	"        pass\n" +
+    	"\n" +
+    	"class Test:\n" + //8
+    	"\n" +
+    	"\n" +
+    	"    def test1(self):\n" + //11
+    	"        print 'here'\n" +
+    	"\n" +
+    	"\n" +
+    	"    def test2(self):\n" + //15
+    	"        with a:\n" + //16
+    	"            pass\n" + //17
+    	"";
+    	SimpleNode ast = parseLegalDocStr(str);
+    	stmtType[] body = ((Module)ast).body;
+		assertEquals(3, body.length);
+		ClassDef test = (ClassDef) body[2];
+		body = test.body;
+		assertEquals(2, body.length);
+		assertEquals(8, test.beginLine);
     }
     
 }

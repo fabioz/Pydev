@@ -14,7 +14,6 @@ import org.python.pydev.parser.jython.Token;
  */
 public abstract class AbstractGrammarErrorHandlers extends AbstractGrammarWalkHelpers{
 
-    public static boolean DEBUG = false;
     public final static boolean DEBUG_SHOW_PARSE_ERRORS = PyParser.DEBUG_SHOW_PARSE_ERRORS;
     public final static boolean DEBUG_SHOW_LOADED_TOKENS = false;
 

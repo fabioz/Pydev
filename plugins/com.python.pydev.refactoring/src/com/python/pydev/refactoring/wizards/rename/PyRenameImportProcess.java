@@ -132,7 +132,8 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                     }
                 }catch(IllegalStateException e){
                     //this can happen on tests (but if not on tests, we want to re-throw it
-                    if(!e.getMessage().equals("Workspace is closed.")){
+                    String message = e.getMessage();
+					if(message == null || !message.equals("Workspace is closed.")){
                         throw e; 
                     }
                     //otherwise, let's just keep going in the test and add it as a valid entry

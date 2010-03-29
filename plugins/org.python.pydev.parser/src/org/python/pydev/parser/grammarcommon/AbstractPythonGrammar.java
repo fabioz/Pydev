@@ -138,20 +138,12 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
     
     
     
-    
-
-    
     /**
      * Opens a node scope
      * 
      * @param n the node marking the beginning of the scope.
      */
     protected final void jjtreeOpenNodeScope(Node n) {
-        if (DEBUG) {
-            System.out.println("opening scope:" + n);
-        }
-        Token t = getToken(1);
-        getJJTree().pushNodePos(t.beginLine, t.beginColumn);
     }
 
     
@@ -162,10 +154,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      * @throws ParseException 
      */
     protected final void jjtreeCloseNodeScope(Node n) throws ParseException {
-        if (DEBUG) {
-            System.out.println("closing scope:" + n);
-        }
-        SimpleNode peeked = getJJTree().setNodePos();
+        SimpleNode peeked = getJJTree().peekNode();
         List<Object> specialTokens = getTokenSourceSpecialTokensList();
         boolean after = true;
         if (n instanceof SimpleNode) {
@@ -174,9 +163,6 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
                     // it was not previously set, let's get the current and add it before that token
                     after = false;
                     prev = peeked;
-                }
-                if (DEBUG) {
-                    System.out.println("closing scope " + peeked.getClass());
                 }
 
                 for (Iterator<Object> iter = specialTokens.iterator(); iter.hasNext();) {

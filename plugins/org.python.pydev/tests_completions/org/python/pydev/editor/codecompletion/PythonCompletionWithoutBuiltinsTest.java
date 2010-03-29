@@ -1271,7 +1271,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         try{
             requestCompl(s, new String[] {"Foo"});
         }catch(Throwable e){
-            if(e.getMessage().indexOf("The string >>Foo<< was not found in the returned completions.") != -1){
+            if(e.getMessage() != null && e.getMessage().indexOf("The string >>Foo<< was not found in the returned completions.") != -1){
                 fail("Expected to fail!");
             }
             throw e;

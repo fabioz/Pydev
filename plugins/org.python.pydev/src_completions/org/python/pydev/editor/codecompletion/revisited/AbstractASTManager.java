@@ -373,7 +373,16 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
             completionsForModule = getCompletionsForModule(module, state, true, true);
 
         } catch (Exception e) {
-            completionsForModule = new IToken[]{ new ConcreteToken(e.getMessage(), e.getMessage(), "","", IToken.TYPE_UNKNOWN)};
+            String message = e.getMessage();
+            if(message == null){
+                if(e instanceof NullPointerException){
+                    e.printStackTrace();
+                    message = "NullPointerException";
+                }else{
+                    message = "Null error message";
+                }
+            }
+			completionsForModule = new IToken[]{ new ConcreteToken(message, message, "","", IToken.TYPE_UNKNOWN)};
         }
         
         return completionsForModule;

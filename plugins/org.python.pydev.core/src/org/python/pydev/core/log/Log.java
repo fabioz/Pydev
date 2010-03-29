@@ -45,7 +45,7 @@ public class Log {
     }
 
     public static void log(Throwable e) {
-        log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten.", e);
+        log(IStatus.ERROR, e.getMessage() != null ? e.getMessage() : "No message gotten (null message).", e);
     }
 
     public static void log(String msg) {

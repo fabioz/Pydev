@@ -37,7 +37,7 @@ public class StringUtils {
             if (c == '%' && i + 1 < str.length()) {
                 char nextC = str.charAt(i + 1);
                 if (nextC == 's') {
-                    buffer.append(args[j].toString());
+                    buffer.appendObject(args[j]);
                     j++;
                     i++;
                 } else if (nextC == '%') {
