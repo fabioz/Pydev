@@ -23,6 +23,7 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -173,6 +174,15 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                     pydevFileEditorInput = new PydevFileEditorInput(file);
                 }
             }
+            try {
+				if (input instanceof IURIEditorInput) {
+					IURIEditorInput iuriEditorInput = (IURIEditorInput) input;
+					return new PydevFileEditorInput(new File(iuriEditorInput.getURI()));
+				}
+			} catch (Throwable e) {
+				//IURIEditorInput not added until eclipse 3.3
+			}
+            
         }
         return pydevFileEditorInput;
     }

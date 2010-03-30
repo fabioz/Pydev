@@ -13,12 +13,16 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPersistableElement;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
- * this class is also added to the plugin.xml so that we map the pydev document provider to this class.
+ * This class is also added to the plugin.xml so that we map the pydev document provider to this class.
+ * 
+ * Note: as of 3.3, it might be worth using FileStoreEditorInput (but only when the support for 3.2 is dropped).
+ * 
  * @author Fabio
  */
 public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider {
@@ -160,6 +164,15 @@ public class PydevFileEditorInput implements IPathEditorInput, ILocationProvider
             IPathEditorInput input= (IPathEditorInput)o;
             return getPath().equals(input.getPath());
         }
+        
+        try {
+			if (o instanceof IURIEditorInput) {
+				IURIEditorInput iuriEditorInput = (IURIEditorInput) o;
+				return new File(iuriEditorInput.getURI()).equals(fFile);
+			}
+		} catch (Throwable e) {
+			//IURIEditorInput not added until eclipse 3.3
+		}
 
         return false;
     }

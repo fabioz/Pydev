@@ -52,6 +52,7 @@ import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.EditorActionBarContributor;
@@ -806,10 +807,19 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             f = pyEditorInput.getPath().toFile();
             
         }else{
+        	try {
+				if (editorInput instanceof IURIEditorInput) {
+					IURIEditorInput iuriEditorInput = (IURIEditorInput) editorInput;
+					return new File(iuriEditorInput.getURI());
+				}
+			} catch (Throwable e) {
+				//OK, IURIEditorInput was only added on eclipse 3.3
+			}
+        	
             try {
                 IPath path = (IPath) REF.invoke(editorInput, "getPath", new Object[0]);
                 f = path.toFile();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 //ok, it has no getPath
             }
         }
