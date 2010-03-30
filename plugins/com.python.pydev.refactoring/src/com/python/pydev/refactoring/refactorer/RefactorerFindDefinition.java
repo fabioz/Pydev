@@ -74,7 +74,7 @@ public class RefactorerFindDefinition {
 					if(manager == null){
 						return new ItemPointer[0];
 					}
-					if (tokensEqualTo.size() > 100){
+					if (tokensEqualTo.size() > 50){
 						//too many matches for that...
 						throw new TooManyMatchesException("Too Many matches ("+tokensEqualTo.size()+") were found for the requested token:"+lookForInterface, tokensEqualTo.size());
 					}

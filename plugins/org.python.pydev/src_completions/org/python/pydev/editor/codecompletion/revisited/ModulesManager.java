@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,8 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap.Entry;
@@ -60,6 +63,8 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 public abstract class ModulesManager implements IModulesManager, Serializable {
 
     private final static boolean DEBUG_BUILD = false;
+    
+    private final static boolean DEBUG_TEMPORARY_MODULES = false;
 
     private final static boolean DEBUG_IO = false;
     
@@ -175,6 +180,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     @SuppressWarnings("unchecked")
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
         lockCompletionCache = new Object();
+        lockTemporaryModules = new Object();
         modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
 
         files = new HashSet<File>();
@@ -415,6 +421,53 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
         return getModule(true, name, nature, dontSearchInit);
     }
+    
+    /**
+     * Note that the FastStack access must be synched.
+     */
+    public transient volatile Map<String, FastStack<IModule>> temporaryModules = null;
+    private transient Object lockTemporaryModules = new Object();
+    
+    public void pushTemporaryModule(String moduleName, IModule module) {
+    	synchronized (lockTemporaryModules) {
+    		if(temporaryModules == null){
+    			temporaryModules = new HashMap<String, FastStack<IModule>>();
+    		}
+    		FastStack<IModule> stack = temporaryModules.get(moduleName);
+    		if(stack == null){
+    			stack = new FastStack<IModule>(3); //small initial size!
+    			temporaryModules.put(moduleName, stack);
+    		}
+    		stack.push(module);
+		}
+    	
+    }
+    
+    public void popTemporaryModule(String moduleName) {
+    	synchronized (lockTemporaryModules) {
+    		if(temporaryModules == null){
+    			return;
+    		}
+    		FastStack<IModule> stack = temporaryModules.get(moduleName);
+    		if(stack == null){
+    			//try to make it null when possible
+    			temporaryModules = null;
+    			return;
+    		}
+    		try {
+				stack.pop();
+				if(stack.size() == 0){
+					temporaryModules.remove(moduleName);
+				}
+				if(temporaryModules.size() == 0){
+					//try to make it null when possible (so that we don't have to sync later on)
+					temporaryModules = null;
+				}
+			} catch (Exception e) {
+				Log.log(e);
+			}
+    	}
+    }
 
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
@@ -427,6 +480,20 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @return the module represented by this name
      */
     protected IModule getModule(boolean acceptCompiledModule, String name, IPythonNature nature, boolean dontSearchInit) {
+    	if(temporaryModules != null){
+    		synchronized (lockTemporaryModules) {
+    			if(temporaryModules != null){
+    				//who knows, maybe it became null at that point.
+	    			FastStack<IModule> stack = temporaryModules.get(name);
+	    			if(stack != null && stack.size() > 0){
+	    				if(DEBUG_TEMPORARY_MODULES){
+	    					System.out.println("Returning temporary module: "+name);
+	    				}
+	    				return stack.peek();
+	    			}
+    			}
+    		}
+    	}
         AbstractModule n = null;
         ModulesKey keyForCacheAccess = new ModulesKey(null, null);
 

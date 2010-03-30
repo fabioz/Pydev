@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -195,7 +196,14 @@ public class RefactoringRequest extends DecoratableObject{
             if(pyEdit != null){
                 SimpleNode ast = pyEdit.getAST();
                 if(ast != null){
-                    module = AbstractModule.createModule(ast, file, resolveModule());
+                	IDocument doc = pyEdit.getDocument();
+                	long astModificationTimeStamp = pyEdit.getAstModificationTimeStamp();
+                	if(astModificationTimeStamp != -1 && astModificationTimeStamp == (((IDocumentExtension4)doc).getModificationStamp())){
+                		//Matched time stamp -- so, we can use the ast without fear of being unsynched.
+                		module = AbstractModule.createModule(ast, file, resolveModule());
+                	}else{
+                		//Did not match time stamp!! We'll reparse the document later on to get a synched version.
+                	}
                 }
             }
             

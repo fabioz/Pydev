@@ -394,4 +394,12 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
         throw new RuntimeException("Not implemented");
     }
 
+	public void pushTemporaryModule(String moduleName, IModule module) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	public void popTemporaryModule(String moduleName) {
+		throw new RuntimeException("Not implemented");
+	}
+
 }

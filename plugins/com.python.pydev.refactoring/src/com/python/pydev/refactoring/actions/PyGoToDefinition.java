@@ -5,24 +5,42 @@
 package com.python.pydev.refactoring.actions;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.ui.actions.OpenAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import org.eclipse.ui.progress.UIJob;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.parser.IParserObserver;
+import org.python.pydev.core.parser.ISimpleNode;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
@@ -30,11 +48,13 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -54,34 +74,185 @@ public class PyGoToDefinition extends PyRefactorAction {
      * @return true if the conditions are ok and false otherwise
      */
     protected boolean areRefactorPreconditionsOK(RefactoringRequest request) {
-        if (request.pyEdit.isDirty())
-            request.pyEdit.doSave(null);
+    	
+// we're working with dirty editors now (through pushTemporaryModule/popTemporaryModule)
+//
+//        if (request.pyEdit.isDirty()){
+//            request.pyEdit.doSave(null);
+//        }
 
         return true;
     }
 
+    /**
+     * This class makes the parse when all reparses have finished.
+     */
+    private class FindParserObserver implements IParserObserver {
+        
+    	/**
+    	 * Lock for accessing askReparse.
+    	 */
+        private Object lock;
+        
+        /**
+         * A set with all the reparses asked. When all finish, we'll do the find.
+         */
+		private Set<PyEdit> askReparse;
+		
+		/**
+		 * This is the editor which this action is listening in the reparse (will remove it from 
+		 * askReparse and when empty, will proceed to do the find).
+		 */
+		private PyEdit editToReparse;
+
+		public FindParserObserver(PyEdit editToReparse, Set<PyEdit> askReparse, Object lock) {
+			this.editToReparse = editToReparse;
+			this.askReparse = askReparse;
+			this.lock = lock;
+		}
+
+		/**
+         * As soon as the reparse is done, this method is called.
+         */
+        public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
+        	editToReparse.getParser().removeParseListener(this); //we'll only listen for this single parse
+        	doFindIfLast();
+        }
+
+        /**
+         * We want to work in the event of parse errors too.
+         */
+		public void parserError(Throwable error, IAdaptable file, IDocument doc) {
+			editToReparse.getParser().removeParseListener(this); //we'll only listen for this single parse
+			doFindIfLast();
+		}
+
+		/**
+		 * Remove the editor from askReparse and if it's the last one, do the find.
+		 */
+		private void doFindIfLast() {
+			synchronized (lock) {
+				askReparse.remove(editToReparse);
+				if(askReparse.size() > 0){
+					return; //not the last one (we'll only do the find when all are reparsed.
+				}
+			}
+            /**
+             * Create an ui job to actually make the find.
+             */
+            UIJob job = new UIJob("Find"){
+                
+                @Override
+                public IStatus runInUIThread(IProgressMonitor monitor) {
+                    try {
+                    	findDefinitionsAndOpen(true);
+                    } catch (Throwable e) {
+                        Log.log(e);
+                    }
+                    return Status.OK_STATUS;
+                }
+            };
+            job.setPriority(Job.INTERACTIVE);
+            job.schedule();
+        }
+    }
+    
     /**
      * Overrides the run and calls -- and the whole default refactoring cycle from the beggining, 
      * because unlike most refactoring operations, this one can work with dirty editors.
      * @return 
      */
     public void run(IAction action) {
-        findDefinitionsAndOpen(true);
+        workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+        IEditorPart[] dirtyEditors = workbenchWindow.getActivePage().getDirtyEditors();
+        Set<PyEdit> askReparse = new HashSet<PyEdit>();
+        for (IEditorPart iEditorPart : dirtyEditors) {
+			if(iEditorPart instanceof PyEdit){
+				PyEdit pyEdit = (PyEdit) iEditorPart;
+				long astModificationTimeStamp = pyEdit.getAstModificationTimeStamp();
+				IDocument doc = pyEdit.getDocument();
+				if(astModificationTimeStamp != -1 && astModificationTimeStamp == (((IDocumentExtension4)doc).getModificationStamp())){
+					//All OK, the ast is synched!
+				}else{
+					askReparse.add(pyEdit);
+				}
+			}
+		}
+    	
+        if(askReparse.size() == 0){
+        	findDefinitionsAndOpen(true);
+        }else{
+    		//We don't have a match: ask for a reparse
+        	Object lock = new Object();
+    		for(PyEdit pyEdit:askReparse){
+	            IParserObserver observer = new FindParserObserver(pyEdit, askReparse, lock);
+	            PyParser parser = pyEdit.getParser();
+	            parser.addParseListener(observer); //it will analyze when the next parse is finished
+	            parser.forceReparse();
+    		}
+    	}
     }
     
     public ItemPointer[] findDefinitionsAndOpen(boolean doOpenDefinition) {
         request = null;
-        final Shell shell = getShell();
-        try {
+        
+    	ps = new PySelection(getTextEditor());
+    	final PyEdit pyEdit = getPyEdit();
+    	RefactoringRequest refactoringRequest;
+		try {
+			refactoringRequest = getRefactoringRequest();
+		} catch (MisconfigurationException e1) {
+			PydevPlugin.log(e1);
+			return new ItemPointer[0];
+		}
 
-            ps = new PySelection(getTextEditor());
-            final PyEdit pyEdit = getPyEdit();
-            if(areRefactorPreconditionsOK(getRefactoringRequest())){
-                ItemPointer[] defs = findDefinition(pyEdit);
-                if(doOpenDefinition){
-                    openDefinition(defs, pyEdit, shell);
-                }
-                return defs;
+		final Shell shell = getShell();
+        try {
+        	ArrayList<Tuple<IModulesManager, String>> pushed = new ArrayList<Tuple<IModulesManager, String>>();
+            
+            try{
+            	workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            	IEditorReference[] editorReferences = workbenchWindow.getActivePage().getEditorReferences();
+            	for (IEditorReference iEditorReference : editorReferences) {
+            		IEditorPart editor = iEditorReference.getEditor(false);
+            		if(editor != null){
+            			if(editor instanceof PyEdit){
+            				PyEdit edit = (PyEdit) editor;
+            				IPythonNature pythonNature = edit.getPythonNature();
+            				if(pythonNature != null){
+            					ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+            					if(astManager != null){
+            						IModulesManager modulesManager = astManager.getModulesManager();
+            						if(modulesManager != null){
+            							File editorFile = edit.getEditorFile();
+            							String resolveModule = pythonNature.resolveModule(editorFile);
+            							if(resolveModule != null){
+            								pushed.add(new Tuple<IModulesManager, String>(modulesManager, resolveModule));
+            								modulesManager.pushTemporaryModule(
+            										resolveModule, 
+            										new SourceModule(resolveModule, editorFile, edit.getAST(), null));
+            							}
+            						}
+            					}
+            				}
+            			}
+            		}
+            	}
+            	
+            	
+				if(areRefactorPreconditionsOK(refactoringRequest)){
+	                ItemPointer[] defs = findDefinition(pyEdit);
+	                if(doOpenDefinition){
+	                    openDefinition(defs, pyEdit, shell);
+	                }
+	                return defs;
+	            }
+            }finally{
+            	//undo any temporary push!
+            	for (Tuple<IModulesManager, String> push : pushed) {
+					push.o1.popTemporaryModule(push.o2);
+				}
             }
         } catch (Exception e) {
             e.printStackTrace();

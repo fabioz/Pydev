@@ -405,6 +405,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             newNatures[natures.length] = PYTHON_NATURE_ID;
             desc.setNatureIds(newNatures);
             project.setDescription(desc, monitor);
+        }else{
+        	//Return if it already has the nature configured.
+            IProjectNature n = getPythonNature(project);
+            if (n instanceof IPythonNature) {
+            	return (IPythonNature) n;
+            }
         }
 
         //add the builder. It is used for pylint, pychecker, code completion, etc.

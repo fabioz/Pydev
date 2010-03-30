@@ -104,6 +104,7 @@ public class PyRenameInFileAction extends Action{
         }
         
         public void parserError(Throwable error, IAdaptable file, IDocument doc) {
+            pyEdit.getParser().removeParseListener(this); //we'll only listen for this single parse
         }
     }
 

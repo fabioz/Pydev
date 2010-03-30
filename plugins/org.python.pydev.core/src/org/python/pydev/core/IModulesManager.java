@@ -157,4 +157,16 @@ public interface IModulesManager {
             boolean checkSystemManager, boolean dontSearchInit);
 
 
+    /**
+     * Used so that we can deal with modules that are not saved (i.e.: modules that we're currently
+     * editing but don't want to save).
+     */
+	public void pushTemporaryModule(String moduleName, IModule module);
+
+	/**
+	 * Remove a previous pushTemporaryModule.
+	 */
+	public void popTemporaryModule(String moduleName);
+
+
 }

@@ -33,6 +33,7 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -185,6 +186,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * AST that created python model
      */
     private volatile SimpleNode ast;
+    private volatile long astModificationTimeStamp = -1;
     
     /**
      * The last parsing error description we got.
@@ -1063,6 +1065,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         try {
             doc.getLineInformation(lastLine - 1);
             ast = (SimpleNode) root;
+            astModificationTimeStamp = ((IDocumentExtension4)doc).getModificationStamp();
             fireModelChanged(ast);
         } catch (BadLocationException e1) {
             PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);
@@ -1128,6 +1131,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     public SimpleNode getAST() {
         return ast;
     }
+    
+    public long getAstModificationTimeStamp() {
+		return astModificationTimeStamp;
+	}
     
     /**
      * @return a list of tuples, where the 1st element in the tuple is a String and the 2nd element is
