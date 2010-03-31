@@ -209,25 +209,46 @@ public class DjangoProjectWizard extends PythonProjectWizard {
             }
 
 			String settings = docFromResource.get();
+            if (djSettings.djangoVersion.contains("1.2")){
+            	settings = settings.replaceFirst(
+            			"'ENGINE': 'django.db.backends.'",
+            			"'ENGINE': 'django.db.backends." + djSettings.databaseEngine + "'");
+                settings = settings.replaceFirst(
+                		"'NAME': ''",
+                		"'NAME': '" + djSettings.databaseName + "'");
+                settings = settings.replaceFirst(
+                		"'HOST': ''",
+                		"'HOST': '" + djSettings.databaseHost + "'");
+                settings = settings.replaceFirst(
+                		"'PORT': ''",
+                		"'PORT': '" + djSettings.databasePort + "'");
+                settings = settings.replaceFirst(
+                		"'USER': ''",
+                		"'USER': '" + djSettings.databaseUser + "'");
+                settings = settings.replaceFirst(
+                		"'PASSWORD': ''",
+                		"'PASSWORD': '" + djSettings.databasePassword + "'");
+            } else {
+            	settings = settings.replaceFirst(
+            			"DATABASE_ENGINE = ''",
+            			"DATABASE_ENGINE = '" + djSettings.databaseEngine + "'");
+                settings = settings.replaceFirst(
+                		"DATABASE_NAME = ''",
+                		"DATABASE_NAME = '" + djSettings.databaseName + "'");
+                settings = settings.replaceFirst(
+                		"DATABASE_HOST = ''",
+                		"DATABASE_HOST = '" + djSettings.databaseHost + "'");
+                settings = settings.replaceFirst(
+                		"DATABASE_PORT = ''",
+                		"DATABASE_PORT = '" + djSettings.databasePort + "'");
+                settings = settings.replaceFirst(
+                		"DATABASE_USER = ''",
+                		"DATABASE_USER = '" + djSettings.databaseUser + "'");
+                settings = settings.replaceFirst(
+                		"DATABASE_PASSWORD = ''",
+                		"DATABASE_PASSWORD = '" + djSettings.databasePassword + "'");
+            }
             
-            settings = settings.replaceFirst(
-            		"DATABASE_ENGINE = ''",
-				    "DATABASE_ENGINE = '" + djSettings.databaseEngine + "'");
-            settings = settings.replaceFirst(
-            		"DATABASE_NAME = ''",
-				    "DATABASE_NAME = '" + djSettings.databaseName + "'");
-            settings = settings.replaceFirst(
-            		"DATABASE_HOST = ''",
-				    "DATABASE_HOST = '" + djSettings.databaseHost + "'");
-            settings = settings.replaceFirst(
-            		"DATABASE_PORT = ''",
-				    "DATABASE_PORT = '" + djSettings.databasePort + "'");
-            settings = settings.replaceFirst(
-            		"DATABASE_USER = ''",
-				    "DATABASE_USER = '" + djSettings.databaseUser + "'");
-            settings = settings.replaceFirst(
-            		"DATABASE_PASSWORD = ''",
-				    "DATABASE_PASSWORD = '" + djSettings.databasePassword + "'");
             
             settingsFile.setContents(new ByteArrayInputStream(settings.getBytes()), 0, monitor);
 
