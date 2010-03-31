@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -76,6 +77,22 @@ public class DjangoSettingsPage extends WizardPage {
         return t;
     }
 
+    
+    public void setPreviousPage(IWizardPage page) {
+    	super.setPreviousPage(page);
+        final IWizardNewProjectNameAndLocationPage projectPage = projectPageCallback.call();
+
+		String projectType = projectPage.getProjectType();
+		List<String> engines = DB_ENGINES.get(
+				projectType.startsWith("jython") ? DjangoSettingsPage.JYTHON : DjangoSettingsPage.CPYTHON);
+		engineCombo.removeAll();
+		for (String engine : engines) {
+			engineCombo.add(engine);
+		}
+		
+        engineCombo.setText(engines.get(0));
+
+    }
 	
 	public void createControl(Composite parent) {
         Composite topComp= new Composite(parent, SWT.NONE);
@@ -103,15 +120,6 @@ public class DjangoSettingsPage extends WizardPage {
         engineCombo = new Combo(group, 0);
         final IWizardNewProjectNameAndLocationPage projectPage = projectPageCallback.call();
         
-        
-		String projectType = projectPage.getProjectType();
-		List<String> engines = DB_ENGINES.get(
-				projectType.startsWith("jython") ? DjangoSettingsPage.JYTHON : DjangoSettingsPage.CPYTHON);
-		for (String engine : engines) {
-			engineCombo.add(engine);
-		}
-		
-        engineCombo.setText(engines.get(0));
         
         engineCombo.addSelectionListener(new SelectionListener() {
 			

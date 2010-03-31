@@ -307,7 +307,7 @@ public class PythonRunnerConfig {
         
         IWorkspace w = ResourcesPlugin.getWorkspace();
         IProject p = w.getRoot().getProject(projName);   
-        if(p == null){ // Ok, we could not find it out
+        if(p == null || !p.exists()){ // Ok, we could not find it out
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not get project: " + projName, null));
         }        
         return p;

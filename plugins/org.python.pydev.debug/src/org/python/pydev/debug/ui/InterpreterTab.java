@@ -6,6 +6,7 @@
  */
 package org.python.pydev.debug.ui;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -29,10 +30,12 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.WrapAndCaseUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * The Python interpreter setup tab.
@@ -57,6 +60,25 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
     public static final String DEFAULT_INTERPRETER_NAME = "Default Interpreter";
 
     private IInterpreterManager fInterpreterManager;
+    
+    public IInterpreterManager getInterpreterManager() {
+		if(fInterpreterManager==null){
+			if(this.fWorkingCopyForCommandLineGeneration != null){
+            	try {
+            		//could throw core exception if project does not exist.
+					IProject project = PythonRunnerConfig.getProjectFromConfiguration(this.fWorkingCopyForCommandLineGeneration);
+					PythonNature nature = PythonNature.getPythonNature(project);
+					if(nature != null){
+						return PydevPlugin.getInterpreterManager(nature);
+					}
+				} catch (Exception e) {
+					Log.log(e);
+				}
+			}
+		}
+		return fInterpreterManager;
+	}
+    
     private ILaunchConfigurationWorkingCopy fWorkingCopyForCommandLineGeneration;
 
     private SelectionListener fSelectionListener = new SelectionListener(){
@@ -70,11 +92,15 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
                         launchConfigurationTab.performApply(fWorkingCopyForCommandLineGeneration);
                     }
                     PythonRunnerConfig config = getConfig(fWorkingCopyForCommandLineGeneration, launchConfigurationDialog);
-                    String commandLineAsString = config.getCommandLineAsString();
-                    commandLineAsString = WrapAndCaseUtils.wrap(commandLineAsString, 80);
-                    commandLineAsString += "\n\nThe PYTHONPATH that will be used is:\n\n";
-                    commandLineAsString += config.pythonpathUsed;
-                    fCommandLineText.setText(commandLineAsString);
+                    if(config == null){
+                    	fCommandLineText.setText("Unable to make the command-line. \n\nReason:Interpreter not available for current project.");
+                    }else{
+	                    String commandLineAsString = config.getCommandLineAsString();
+	                    commandLineAsString = WrapAndCaseUtils.wrap(commandLineAsString, 80);
+	                    commandLineAsString += "\n\nThe PYTHONPATH that will be used is:\n\n";
+	                    commandLineAsString += config.pythonpathUsed;
+	                    fCommandLineText.setText(commandLineAsString);
+                    }
                 } catch (Exception e1) {
                     fCommandLineText.setText("Unable to make the command-line. \n\nReason:\n\n"+e1.getMessage());
                 }
@@ -95,7 +121,11 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      */
     private PythonRunnerConfig getConfig(ILaunchConfiguration configuration, ILaunchConfigurationDialog launchConfigurationDialog) throws CoreException, InvalidRunException, MisconfigurationException {
         String run;
-        switch(fInterpreterManager.getInterpreterType()){
+        IInterpreterManager interpreterManager = getInterpreterManager();
+        if(interpreterManager == null){
+        	return null;
+        }
+		switch(interpreterManager.getInterpreterType()){
             case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                 run = PythonRunnerConfig.RUN_JYTHON;
                 break;
@@ -122,6 +152,9 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
     public InterpreterTab(IInterpreterManager interpreterManager) {
         this.fInterpreterManager = interpreterManager;
     }
+    
+    public InterpreterTab() {
+    }
 
     /*
      * (non-Javadoc)
@@ -142,19 +175,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
         label6.setLayoutData (data);
 
         fInterpreterComboField = new Combo (comp, SWT.DROP_DOWN);
-        IInterpreterInfo[] interpreterInfos = this.fInterpreterManager.getInterpreterInfos();
-        String[] interpreterNames = new String[0];
-        if (interpreterInfos.length > 0){
-            // There is at least one interpreter defined, add the default interpreter option at the beginning.
-            interpreterNames = new String[interpreterInfos.length+1];
-            interpreterNames[0] = InterpreterTab.DEFAULT_INTERPRETER_NAME;
-            
-            for (int i = 0; i < interpreterInfos.length; i ++){
-                interpreterNames[i+1] = interpreterInfos[i].getName();
-            }
-        }
-        fInterpreterComboField.setItems (interpreterNames);
-        fInterpreterComboField.select(0);
+
         data = new GridData ();
         data.horizontalAlignment = GridData.FILL;
         data.horizontalSpan = 2;
@@ -250,6 +271,23 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
             throw new RuntimeException(e1);
         }
                 
+        IInterpreterManager interpreterManager = this.getInterpreterManager();
+        String[] interpreterNames = new String[0];
+        if(interpreterManager != null){
+			IInterpreterInfo[] interpreterInfos = interpreterManager.getInterpreterInfos();
+	        if (interpreterInfos.length > 0){
+	            // There is at least one interpreter defined, add the default interpreter option at the beginning.
+	            interpreterNames = new String[interpreterInfos.length+1];
+	            interpreterNames[0] = InterpreterTab.DEFAULT_INTERPRETER_NAME;
+	            
+	            for (int i = 0; i < interpreterInfos.length; i ++){
+	                interpreterNames[i+1] = interpreterInfos[i].getName();
+	            }
+	        }
+        }
+        fInterpreterComboField.setItems (interpreterNames);
+        
+        
         String interpreter = "";
         try {
             interpreter = configuration.getAttribute(Constants.ATTR_INTERPRETER, Constants.ATTR_INTERPRETER_DEFAULT);
@@ -270,12 +308,14 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
                 selectThis = 0;
             }
             else {
-                IInterpreterInfo[] interpreterInfos = this.fInterpreterManager.getInterpreterInfos();
-                for (int i=0; i< interpreterInfos.length; i++){
-                    if (interpreterInfos[i].matchNameBackwardCompatible(interpreter)){
-                        selectThis = i+1; //Internally, it's the index+1 (because the one at 0 is the default)
-                        break;
-                    }
+                if(interpreterManager != null){
+					IInterpreterInfo[] interpreterInfos = interpreterManager.getInterpreterInfos();
+	                for (int i=0; i< interpreterInfos.length; i++){
+	                    if (interpreterInfos[i].matchNameBackwardCompatible(interpreter)){
+	                        selectThis = i+1; //Internally, it's the index+1 (because the one at 0 is the default)
+	                        break;
+	                    }
+	                }
                 }
             }
             
@@ -314,8 +354,12 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
      * @throws MisconfigurationException 
      */
     protected boolean checkIfInterpreterExists(String interpreter) throws MisconfigurationException {
+    	IInterpreterManager interpreterManager = this.getInterpreterManager();
+    	if(interpreterManager == null){
+    		return false;
+    	}
         if (interpreter.equals(Constants.ATTR_INTERPRETER_DEFAULT))    {
-            if(this.fInterpreterManager.getDefaultInterpreter() != null){
+			if(interpreterManager.getDefaultInterpreter() != null){
                 // The default interpreter is selected, and we have a default interpreter
                 return true;
             }
@@ -323,7 +367,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
             return false;
         }
         
-        IInterpreterInfo[] interpreters = this.fInterpreterManager.getInterpreterInfos();
+        IInterpreterInfo[] interpreters = interpreterManager.getInterpreterInfos();
         for (int i = 0; i < interpreters.length; i++) {
             if (interpreters[i] != null && interpreters[i].matchNameBackwardCompatible(interpreter)) {
                 return true;

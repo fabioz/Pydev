@@ -45,7 +45,7 @@ public class PydevdServerLaunchConfigurationDelegate extends AbstractLaunchConfi
     }
         
     @Override
-    protected String getRunnerConfigRun() {    
+    protected String getRunnerConfigRun(ILaunchConfiguration conf, String mode, ILaunch launch) {    
         return "RUN_SERVER";
     }    
 }

@@ -92,7 +92,7 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
         monitor.beginTask("Preparing configuration", 3);
 
         try {
-            PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode, getRunnerConfigRun());
+            PythonRunnerConfig runConfig = new PythonRunnerConfig(conf, mode, getRunnerConfigRun(conf, mode, launch));
     
             monitor.worked(1);
             try {
@@ -145,5 +145,5 @@ public abstract class AbstractLaunchConfigurationDelegate extends LaunchConfigur
      * @see PythonRunnerConfig#RUN_IRONPYTHON
      * @see PythonRunnerConfig#RUN_IRONPYTHON_UNITTEST
      */
-    protected abstract String getRunnerConfigRun();
+    protected abstract String getRunnerConfigRun(ILaunchConfiguration conf, String mode, ILaunch launch);
 }

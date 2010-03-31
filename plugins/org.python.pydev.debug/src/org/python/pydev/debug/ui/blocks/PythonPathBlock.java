@@ -1,5 +1,6 @@
 package org.python.pydev.debug.ui.blocks;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -14,6 +15,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.runners.SimpleRunner;
 
 /**
@@ -52,7 +54,7 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
 
         try {
             String id = configuration.getType().getIdentifier();
-            IInterpreterManager manager;
+            IInterpreterManager manager = null;
             if(Constants.ID_JYTHON_LAUNCH_CONFIGURATION_TYPE.equals(id) || 
                     Constants.ID_JYTHON_UNITTEST_LAUNCH_CONFIGURATION_TYPE.equals(id)){
                 manager = PydevPlugin.getJythonInterpreterManager();
@@ -67,9 +69,23 @@ public class PythonPathBlock extends AbstractLaunchConfigurationTab {
                     ){
                 manager = PydevPlugin.getPythonInterpreterManager();
             }else{
-                Log.log("Could not recognize: '"+id+"' using python interpreter manager.");
-                manager = PydevPlugin.getPythonInterpreterManager();
+            	//Get from the project
+            	try {
+            		//could throw core exception if project does not exist.
+					IProject project = PythonRunnerConfig.getProjectFromConfiguration(configuration);
+					PythonNature nature = PythonNature.getPythonNature(project);
+					if(nature != null){
+						manager = PydevPlugin.getInterpreterManager(nature);
+					}
+				} catch (Exception e) {
+					Log.log(e);
+				}
+            	
                 
+				if(manager == null){
+					Log.log("Could not recognize: '"+id+"' using default python interpreter manager.");
+					manager = PydevPlugin.getPythonInterpreterManager();
+				}
             }
             String pythonPath = PythonRunnerConfig.getPythonpathFromConfiguration(configuration, manager);
 
