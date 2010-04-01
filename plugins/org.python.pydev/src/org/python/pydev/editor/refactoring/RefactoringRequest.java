@@ -196,7 +196,7 @@ public class RefactoringRequest extends DecoratableObject{
             if(pyEdit != null){
                 SimpleNode ast = pyEdit.getAST();
                 if(ast != null){
-                	IDocument doc = pyEdit.getDocument();
+                	IDocument doc = ps.getDoc();
                 	long astModificationTimeStamp = pyEdit.getAstModificationTimeStamp();
                 	if(astModificationTimeStamp != -1 && astModificationTimeStamp == (((IDocumentExtension4)doc).getModificationStamp())){
                 		//Matched time stamp -- so, we can use the ast without fear of being unsynched.

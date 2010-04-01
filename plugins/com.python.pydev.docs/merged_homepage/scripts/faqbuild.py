@@ -105,7 +105,7 @@ def Generate(inF, outF):
 </doc>
 
 '''
-    file(outF, 'w').write(contents % out) 
+    file(outF, 'wb').write((contents % out).replace('\r\n','\n').replace('\r','\n')) 
         
     
 

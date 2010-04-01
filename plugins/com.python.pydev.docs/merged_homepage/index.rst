@@ -8,6 +8,7 @@ Pydev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _History for Pydev: history_pydev.html
 .. _Pydev Blog: http://pydev.blogspot.com/
 
+.. _Django Integration: manual_adv_django.html
 .. _Code Completion: manual_adv_complctx.html
 .. _Code completion with auto import: manual_adv_complnoctx.html
 .. _Code Analysis: manual_adv_code_analysis.html
@@ -23,6 +24,7 @@ Pydev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 
 It comes with many goodies such as:
 
+ * `Django integration`_
  * `Code completion`_
  * `Code completion with auto import`_
  * `Syntax highlighting`_
@@ -38,52 +40,52 @@ It comes with many goodies such as:
 
 For more details on the provided features, check the `Features Matrix`_.
 
-Release 1.5.5
+Release 1.5.6
 ==============
 
-.. _See Predefined Completions in manual for more info: manual_101_interpreter.html
 
-* **Predefined completions available for code completion:**
+* **Django integration:**
 
-    * Predefined completions may be created for use when sources are not available 
-    * Can also be used for providing better completions for compiled modules (e.g.: PyQt, wx, etc.)
-    * Defined in .pypredef files (which are plain Python code)
-    * Provides a way for generating those from a QScintilla .api file (experimental)
-    * `See Predefined Completions in manual for more info`_
+    * New Django project can be created through wizards
+    * Can set an existing project as a Django project (right-click project > pydev > set as django project)
+    * Can remove Django project config (right-click project > django > remove django project config)
+    * Custom actions can be passed to the configured manage.py through **ctrl+2+dj django_action** -- if no action is passed, will open dialog to choose from a list of previously used commands.
+    * Predefined/custom actions can be used through right-clicking the project > django > select custom action
+    * manage.py location and settings module configured
+    * Django shell (with code-completion, history, etc) available
+    * Run/Debug as Django available
+    * See: `Django Integration`_ for more details
+
+* **Find/Replace:**
+
+    * The search in open files is no longer added in the find/replace dialog and now works through **Ctrl+2+s word_to_find** (in the Pydev editor) and if no word is passed, the editor selection is used
     
-* **Pydev Package Explorer:**
+* **Go to definiton:**
 
-    * Showing the contents of the PYTHONPATH from the interpreter for each project
-    * Shows the folder containing the python interpreter executable (to browse for docs, scripts, etc)
-    * Allows opening files in the interpreter PYTHONPATH (even inside zip files)
+    * Properly works with unsaved files (so, it will work when searching for a definition on an unsaved file)
+    * Properly working with eclipse 3.6 (having FileStoreEditorInput as the editor input)
 
-* **Editor options:**
+* **Editor:**
 
-    * Find/replace dialog has option to search in currently opened editors
-    * Move line up/down can move considering Python indentation (not default)
-    * Simple token completions can have a space or a space and colon added when applied. E.g.: print, if, etc (not default)
-
-* **Refactoring:**
-
-    * Fixed InvalidThreadAccess on refactoring
-    * Fixed problem doing refactoring on external files (no file was found) 
-
-* **Globals Browser (Ctrl+Shift+T):**
-
-    * No longer throwing NullPointerException when the interpreter is no longer available for a previously found token
-
+    * Automatically closing literals.
+    * Removing closing pair on backspace on literal
+    * Improved heuristics for automatically closing (, [ and {
+    * Removing closing pairs on backspace on (,[ and {
+    * **ctrl+2+sl** (sl comes from 'split lines' -- can be used to add a new line after each comma in the selection
+    * **ctrl+2+is** (is comes from 'import string' -- can be used to transform the selected import into a string with dots
+    
 * **General:**
+
+    * Code-completion properly working on relative import with an alias.
+    * Fixed racing issue that could deadlock pydev (under really hard to reproduce circumstances)
+    * Removing reloading code while debugging until (if) it becomes more mature in the python side
+    * Fixed issue where a new project created didn't have the source folder correctly set
+    * Text selection in double click no longer has weird behavior
+    * Local refactoring working on files not in the PYTHONPATH
+    * Edit properly working on string substitution variables
+    * Using with statement on python 2.5 no longer makes lines wrong in the AST
     
-    * When creating a new pydev project, the user will be asked before changing to the pydev perspective
-    * Only files under source folders are analyzed (files in the external source folders would be analyzed if they happened to be in the Eclipse workspace)
-    * Interactive console now works properly on non-english systems
-    * Hover working over tokens from compiled modules (e.g.: file, file.readlines)
-    * JYTHONPATH environment variable is set on Jython (previously only the PYTHONPATH was set)
-    * Fixed path translation issues when using remote debugger
-    * Fixed issue finding definition for a method of a locally created token
-
-
-
+    
 What happened to Pydev Extensions?
 ====================================
 

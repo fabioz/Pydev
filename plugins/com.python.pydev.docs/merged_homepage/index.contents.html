@@ -8,6 +8,7 @@
 <p>It comes with many goodies such as:</p>
 <blockquote>
 <ul class="simple">
+<li><a class="reference external" href="manual_adv_django.html">Django integration</a></li>
 <li><a class="reference external" href="manual_adv_complctx.html">Code completion</a></li>
 <li><a class="reference external" href="manual_adv_complnoctx.html">Code completion with auto import</a></li>
 <li><a class="reference external" href="manual_adv_editor_prefs.html">Syntax highlighting</a></li>
@@ -24,63 +25,62 @@
 </blockquote>
 <p>For more details on the provided features, check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
 </div>
-<div class="section" id="release-1-5-5">
-<h1>Release 1.5.5</h1>
+<div class="section" id="release-1-5-6">
+<h1>Release 1.5.6</h1>
 <ul>
-<li><p class="first"><strong>Predefined completions available for code completion:</strong></p>
+<li><p class="first"><strong>Django integration:</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Predefined completions may be created for use when sources are not available</li>
-<li>Can also be used for providing better completions for compiled modules (e.g.: PyQt, wx, etc.)</li>
-<li>Defined in .pypredef files (which are plain Python code)</li>
-<li>Provides a way for generating those from a QScintilla .api file (experimental)</li>
-<li><a class="reference external" href="manual_101_interpreter.html">See Predefined Completions in manual for more info</a></li>
+<li>New Django project can be created through wizards</li>
+<li>Can set an existing project as a Django project (right-click project &gt; pydev &gt; set as django project)</li>
+<li>Can remove Django project config (right-click project &gt; django &gt; remove django project config)</li>
+<li>Custom actions can be passed to the configured manage.py through <strong>ctrl+2+dj django_action</strong> -- if no action is passed, will open dialog to choose from a list of previously used commands.</li>
+<li>Predefined/custom actions can be used through right-clicking the project &gt; django &gt; select custom action</li>
+<li>manage.py location and settings module configured</li>
+<li>Django shell (with code-completion, history, etc) available</li>
+<li>Run/Debug as Django available</li>
+<li>See: <a class="reference external" href="manual_adv_django.html">Django Integration</a> for more details</li>
 </ul>
 </blockquote>
 </li>
-<li><p class="first"><strong>Pydev Package Explorer:</strong></p>
+<li><p class="first"><strong>Find/Replace:</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Showing the contents of the PYTHONPATH from the interpreter for each project</li>
-<li>Shows the folder containing the python interpreter executable (to browse for docs, scripts, etc)</li>
-<li>Allows opening files in the interpreter PYTHONPATH (even inside zip files)</li>
+<li>The search in open files is no longer added in the find/replace dialog and now works through <strong>Ctrl+2+s word_to_find</strong> (in the Pydev editor) and if no word is passed, the editor selection is used</li>
 </ul>
 </blockquote>
 </li>
-<li><p class="first"><strong>Editor options:</strong></p>
+<li><p class="first"><strong>Go to definiton:</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Find/replace dialog has option to search in currently opened editors</li>
-<li>Move line up/down can move considering Python indentation (not default)</li>
-<li>Simple token completions can have a space or a space and colon added when applied. E.g.: print, if, etc (not default)</li>
+<li>Properly works with unsaved files (so, it will work when searching for a definition on an unsaved file)</li>
+<li>Properly working with eclipse 3.6 (having FileStoreEditorInput as the editor input)</li>
 </ul>
 </blockquote>
 </li>
-<li><p class="first"><strong>Refactoring:</strong></p>
+<li><p class="first"><strong>Editor:</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Fixed InvalidThreadAccess on refactoring</li>
-<li>Fixed problem doing refactoring on external files (no file was found)</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Globals Browser (Ctrl+Shift+T):</strong></p>
-<blockquote>
-<ul class="simple">
-<li>No longer throwing NullPointerException when the interpreter is no longer available for a previously found token</li>
+<li>Automatically closing literals.</li>
+<li>Removing closing pair on backspace on literal</li>
+<li>Improved heuristics for automatically closing (, [ and {</li>
+<li>Removing closing pairs on backspace on (,[ and {</li>
+<li><strong>ctrl+2+sl</strong> (sl comes from 'split lines' -- can be used to add a new line after each comma in the selection</li>
+<li><strong>ctrl+2+is</strong> (is comes from 'import string' -- can be used to transform the selected import into a string with dots</li>
 </ul>
 </blockquote>
 </li>
 <li><p class="first"><strong>General:</strong></p>
 <blockquote>
 <ul class="simple">
-<li>When creating a new pydev project, the user will be asked before changing to the pydev perspective</li>
-<li>Only files under source folders are analyzed (files in the external source folders would be analyzed if they happened to be in the Eclipse workspace)</li>
-<li>Interactive console now works properly on non-english systems</li>
-<li>Hover working over tokens from compiled modules (e.g.: file, file.readlines)</li>
-<li>JYTHONPATH environment variable is set on Jython (previously only the PYTHONPATH was set)</li>
-<li>Fixed path translation issues when using remote debugger</li>
-<li>Fixed issue finding definition for a method of a locally created token</li>
+<li>Code-completion properly working on relative import with an alias.</li>
+<li>Fixed racing issue that could deadlock pydev (under really hard to reproduce circumstances)</li>
+<li>Removing reloading code while debugging until (if) it becomes more mature in the python side</li>
+<li>Fixed issue where a new project created didn't have the source folder correctly set</li>
+<li>Text selection in double click no longer has weird behavior</li>
+<li>Local refactoring working on files not in the PYTHONPATH</li>
+<li>Edit properly working on string substitution variables</li>
+<li>Using with statement on python 2.5 no longer makes lines wrong in the AST</li>
 </ul>
 </blockquote>
 </li>

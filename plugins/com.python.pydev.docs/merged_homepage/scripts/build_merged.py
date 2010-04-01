@@ -26,6 +26,7 @@ manualAdv = (
     ('templateManual.html', 'manual_adv_debugger'                      , 'Debugger'                        ),
     ('templateManual.html', 'manual_adv_remote_debugger'               , 'Remote Debugger'                 ),
     ('templateManual.html', 'manual_adv_debug_console'                 , 'Debug Console'                   ),
+    ('templateManual.html', 'manual_adv_django'                        , 'Django'                          ),
 )
 
 manual101 = (
@@ -84,7 +85,7 @@ def template( template, contents, title, **kwargs ):
     #If a page didn't specify the image properly, just remove the image declaration.
     contents = contents.replace('<p><IMG src="images/" border="0" alt=""/></p>', '')
     
-    file( target_file, 'w' ).write( contents ) 
+    file( target_file, 'wb' ).write( contents.replace('\r\n','\n').replace('\r','\n') ) 
 
 def getContents(contents_file, tag):
     try:

@@ -10,7 +10,7 @@ for arg in args:
         version = arg[len('--version='):]
         LAST_VERSION_TAG = version
 else:
-    LAST_VERSION_TAG = '1.5.5' #Not specified (let's leave one there)
+    LAST_VERSION_TAG = '1.5.6' #Not specified (let's leave one there)
 
 
 import build_python_code_block
@@ -49,13 +49,12 @@ def BuildFromRst(source_filename, is_new_homepage=False):
         contents = f.read()
         f.close()
         final = contents.replace('<contents_area></contents_area>', '<contents_area>%s</contents_area>' % final)
-        contents = contents.replace('\r\n','\n').replace('\r','\n')
         
         #make the output html (and not htm)
         postfix += 'l'
     
-    
-    f = open(name+postfix, 'w')
+    final = final.replace('\r\n','\n').replace('\r','\n')
+    f = open(name+postfix, 'wb')
     print >> f, final
     f.close()
 

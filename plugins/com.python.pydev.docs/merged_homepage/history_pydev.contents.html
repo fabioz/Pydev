@@ -5,6 +5,69 @@
 <br>
 
 
+<h1>Release 1.5.5</h1>
+<ul>
+<li><p class="first"><strong>Predefined completions available for code completion:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Predefined completions may be created for use when sources are not available</li>
+<li>Can also be used for providing better completions for compiled modules (e.g.: PyQt, wx, etc.)</li>
+<li>Defined in .pypredef files (which are plain Python code)</li>
+<li>Provides a way for generating those from a QScintilla .api file (experimental)</li>
+<li><a class="reference external" href="manual_101_interpreter.html">See Predefined Completions in manual for more info</a></li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Pydev Package Explorer:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Showing the contents of the PYTHONPATH from the interpreter for each project</li>
+<li>Shows the folder containing the python interpreter executable (to browse for docs, scripts, etc)</li>
+<li>Allows opening files in the interpreter PYTHONPATH (even inside zip files)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor options:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Find/replace dialog has option to search in currently opened editors</li>
+<li>Move line up/down can move considering Python indentation (not default)</li>
+<li>Simple token completions can have a space or a space and colon added when applied. E.g.: print, if, etc (not default)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Refactoring:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed InvalidThreadAccess on refactoring</li>
+<li>Fixed problem doing refactoring on external files (no file was found)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Globals Browser (Ctrl+Shift+T):</strong></p>
+<blockquote>
+<ul class="simple">
+<li>No longer throwing NullPointerException when the interpreter is no longer available for a previously found token</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>General:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>When creating a new pydev project, the user will be asked before changing to the pydev perspective</li>
+<li>Only files under source folders are analyzed (files in the external source folders would be analyzed if they happened to be in the Eclipse workspace)</li>
+<li>Interactive console now works properly on non-english systems</li>
+<li>Hover working over tokens from compiled modules (e.g.: file, file.readlines)</li>
+<li>JYTHONPATH environment variable is set on Jython (previously only the PYTHONPATH was set)</li>
+<li>Fixed path translation issues when using remote debugger</li>
+<li>Fixed issue finding definition for a method of a locally created token</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+
+
+
 <h1>Release 1.5.4</h1>
 <ul>
 <li><strong>Actions</strong>:<ul>

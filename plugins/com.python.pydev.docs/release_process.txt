@@ -74,7 +74,7 @@ d:\bin\Python261\python.exe W:\git_deploy_dir\make_release.py to create zips
  
  
 Create folder at: https://sourceforge.net/project/admin/explorer.php?group_id=85796
-sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/Pydev 1.5.5 and add zip
+sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/Pydev 1.5.6 and add zip
 
 
 		** Add contents to the update site
@@ -89,7 +89,7 @@ d:\bin\Python261\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 com.python.pydev.docs\merged_homepage\final to pydev.aptanacloud.com: /home/aptana/domains/pydev.aptanacloud.com/web/htdocs
 
 
-		** Tag repository: git tag pydev_1_5_5 -a ; git push --tags
+		** Tag repository: git tag pydev_1_5_6 -a ; git push --tags
 		
 		** Add news in forum (same as e-mail)
 		
