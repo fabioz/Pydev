@@ -25,6 +25,13 @@ public class DjangoSettingsPage extends WizardPage {
 
 	public static final String CPYTHON = "cpython";
 	public static final String JYTHON = "jython";
+	
+	static final ArrayList<String> DJANGO_VERSIONS = new ArrayList<String>() {{
+		add("pre-1.0");
+		add("1.0");
+		add("1.1");
+		add("1.2 or later");
+	}};
 
 	static final Map<String, List<String>> DB_ENGINES = new HashMap<String, List<String>>() {{
 		put(CPYTHON, new ArrayList<String>() {{
@@ -46,6 +53,7 @@ public class DjangoSettingsPage extends WizardPage {
 
 	private static final int SIZING_TEXT_FIELD_WIDTH = 250;
 
+    private Combo djVersionCombo;
     private Combo engineCombo;
     private Text nameText;
     private Text hostText;
@@ -81,7 +89,14 @@ public class DjangoSettingsPage extends WizardPage {
     public void setPreviousPage(IWizardPage page) {
     	super.setPreviousPage(page);
         final IWizardNewProjectNameAndLocationPage projectPage = projectPageCallback.call();
-
+        
+        djVersionCombo.removeAll();
+        for (String version : DJANGO_VERSIONS) {
+			djVersionCombo.add(version);
+		}
+        
+        djVersionCombo.setText(DJANGO_VERSIONS.get(0));
+        
 		String projectType = projectPage.getProjectType();
 		List<String> engines = DB_ENGINES.get(
 				projectType.startsWith("jython") ? DjangoSettingsPage.JYTHON : DjangoSettingsPage.CPYTHON);
@@ -104,6 +119,23 @@ public class DjangoSettingsPage extends WizardPage {
         GridData gd= new GridData(GridData.FILL_BOTH);
         topComp.setLayoutData(gd);
 
+        //General Settings
+        Group general_grp = new Group(topComp, SWT.NONE);
+        general_grp.setText("General");
+        GridLayout general_layout = new GridLayout();
+        general_layout.horizontalSpacing = 8;
+        general_layout.numColumns = 2;
+        general_grp.setLayout(general_layout);
+        gd= new GridData(GridData.FILL_HORIZONTAL);
+        general_grp.setLayoutData(gd);
+        
+        Label versionLabel = newLabel(general_grp, "Django version");
+
+        djVersionCombo = new Combo(general_grp, 0);
+        
+        gd= new GridData(GridData.FILL_HORIZONTAL);
+        djVersionCombo.setLayoutData(gd);
+        
         //Database Settings
         Group group = new Group(topComp, SWT.NONE);
         group.setText("Database settings");
@@ -162,6 +194,7 @@ public class DjangoSettingsPage extends WizardPage {
 	}
 
 	public static class DjangoSettings {
+		public String djangoVersion;
 		public String databaseEngine;
 		public String databaseName;
 		public String databaseHost;
@@ -174,6 +207,7 @@ public class DjangoSettingsPage extends WizardPage {
 	public DjangoSettings getSettings() {
 		DjangoSettings s = new DjangoSettings();
 		//make it suitable to be written
+		s.djangoVersion = escapeSlashes(djVersionCombo.getText());
 		s.databaseEngine = escapeSlashes(engineCombo.getText());
 		s.databaseName = escapeSlashes(nameText.getText());
 		s.databaseHost = escapeSlashes(hostText.getText());
