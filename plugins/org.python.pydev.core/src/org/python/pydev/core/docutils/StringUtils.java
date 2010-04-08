@@ -584,6 +584,22 @@ public class StringUtils {
     }
     
     /**
+     * Same as Python join: Go through all the paths in the string and join them with the passed delimiter,
+     * but start at the passed initial location in the splitted array.
+     */
+	public static String join(String delimiter, String[] splitted, int startAtSegment, int endAtSegment) {
+        FastStringBuffer buf = new FastStringBuffer(splitted.length*100);
+        for (int i=startAtSegment;i<splitted.length && i < endAtSegment;i++) {
+            if(buf.length() > 0){
+                buf.append(delimiter);
+            }
+            buf.append(splitted[i]);
+        }
+        return buf.toString();	
+    }
+
+    
+    /**
      * Same as Python join: Go through all the paths in the string and join them with the passed delimiter.
      */
     public static String join(String delimiter, List<String> splitted) {
@@ -827,9 +843,6 @@ public class StringUtils {
 		return count;
 	}
 
-
-    
-    
 
 
 

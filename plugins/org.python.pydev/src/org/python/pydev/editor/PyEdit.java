@@ -20,8 +20,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -284,6 +284,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     private PyEditNotifier notifier;
 
     private boolean disposed = false;
+
+	private PyEditTitle pyEdiTitle;
+
     public boolean isDisposed() {
         return disposed;
     }
@@ -293,6 +296,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @SuppressWarnings("unchecked")
     public PyEdit() {
         super();
+        pyEdiTitle = new PyEditTitle();
         try{
             //initialize the 'save' listeners of PyEdit
             if (editListeners == null){
@@ -631,11 +635,25 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }catch (Throwable e) {
             PydevPlugin.log(e);
         }
+        try{
+        	pyEdiTitle.initializeTitle(this, input);
+	    }catch (Throwable e) {
+	    	PydevPlugin.log(e);
+	    }
     }
     
+
+	
+	/* default */ void setEditorTitle(String title){
+		setPartName(title);
+		firePropertyChange(PROP_DIRTY);
+	}
+	
+
     /**
      * @return true if the editor passed as a parameter has the same input as this editor.
      */
+	@Override
     public boolean hasSameInput(IPyEdit edit) {
         IEditorInput thisInput = this.getEditorInput();
         IEditorInput otherInput = edit.getEditorInput();

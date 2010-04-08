@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorRegistry;
+import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.PlatformUI;
@@ -14,7 +15,7 @@ import org.eclipse.ui.PlatformUI;
  * 
  * @author Fabio
  */
-public class PydevZipFileEditorInput implements IStorageEditorInput{
+public class PydevZipFileEditorInput implements IStorageEditorInput, IPathEditorInput{
 
     /**
      * This is the file that we're wrapping in this editor input.
@@ -60,5 +61,9 @@ public class PydevZipFileEditorInput implements IStorageEditorInput{
     public Object getAdapter(Class adapter) {
         return null;
     }
+
+	public IPath getPath() {
+		return storage.getFullPath();
+	}
 
 }

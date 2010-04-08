@@ -7,6 +7,7 @@ import org.python.pydev.customizations.app_engine.wizards.AppEngineConfigWizardP
 import org.python.pydev.debug.ui.DebuggerTestWorkbench;
 import org.python.pydev.debug.ui.SourceLocatorTestWorkbench;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfigTestWorkbench;
+import org.python.pydev.editor.PyEditTitleTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaClassModuleTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonCompletionWithBuiltinsTestWorkbench;
 import org.python.pydev.editor.codecompletion.revisited.jython.JythonFindDefinitionTestWorkbench;
@@ -30,6 +31,7 @@ public class AllWorkbenchTests {
         
         
         suite.addTestSuite(AnalysisRequestsTestWorkbench.class); 
+        suite.addTestSuite(PyEditTitleTestWorkbench.class); 
 
         
         suite.addTestSuite(JythonCompletionWithBuiltinsTestWorkbench.class);

@@ -2,6 +2,7 @@ package org.python.pydev.editorinput;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IStorage;
@@ -9,6 +10,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -40,6 +42,10 @@ public class PydevZipFileStorage implements IStorage{
     }
 
     public String getName() {
+    	List<String> split = StringUtils.split(zipPath, '/');
+    	if(split.size() > 0){
+    		return split.get(split.size()-1);
+    	}
         return this.zipPath;
     }
 
