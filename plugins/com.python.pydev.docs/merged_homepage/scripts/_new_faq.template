@@ -112,15 +112,27 @@ When I do a code-completion, Pydev hangs, what can I do?
 Pydev does most of its things in the java side, but some information can only be gotten from the python side
 (mainly builtins), so, in order to get that info, pydev creates a shell and communicates with it through sockets.<br/><br/>
 
+The main problems when that happens are:<br/><br/>
+
+
+1. There's a firewall blocking the communication to the shell<br/><br/>
+
+
+2. In Linux, some kernels do not allow ipv4 utilization, which may make Pydev fail.<br/><br/>
+
+
+To enable it, do: echo 0 > /proc/sys/net/ipv6/bindv6only<br/><br/>
+
+
+
+3. The timeout to connect is too smal. <br/><br/>
+
+
 It depends upon the "Timeout to connect to shell" in the code-completion preferences 
 (window > preferences > Pydev > Code completion)<br/><br/>
 
-The first thing to try is to raise that timeout if it does not connect in the first attempt. If that does not
-help, the problem might be a firewall that is blocking the communication between pydev and the shell. If that is
-still not the problem, please report a bug (also, check if there is anything on the error log (window > show view >
+If nothing works, please report a bug (also, check if there is anything on the error log (window > show view >
 PDE Runtime > Error log) and on the eclipse '.log', which is located at the .metadata folder of the workspace location.<br/><br/>
-
-Note: versions before 0.9.8.6 did have a lock condition problem that happened in a few installations <br/>
 
 
 --------------------------------------------------------------------------------------------------------------Title

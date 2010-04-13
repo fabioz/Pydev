@@ -35,6 +35,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -74,6 +77,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.IPythonNatureListener;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
+import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
@@ -87,7 +91,7 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * 
  * @author Fabio
  */
-public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener, IPythonNatureListener {
+public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvider implements IResourceChangeListener, IPythonNatureListener, IPropertyChangeListener {
 
     /**
      * Object representing an empty array.
@@ -117,6 +121,8 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     protected final TopLevelProjectsOrWorkingSetChoice topLevelChoice;
 
     private ICommonContentExtensionSite aConfig;
+
+	private IWorkspace[] input;
     
     
     public static final boolean DEBUG = false;
@@ -140,6 +146,13 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
      */
     public PythonBaseModelProvider(){
         PythonNatureListenersManager.addPythonNatureListener(this);
+    	PydevPlugin plugin = PydevPlugin.getDefault();
+    	if(plugin != null){
+			IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+	    	preferenceStore.addPropertyChangeListener(this);
+    	}
+
+        
         //just leave it created
         topLevelChoice = new TopLevelProjectsOrWorkingSetChoice();
     }
@@ -262,6 +275,28 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         createAndStartUpdater(project, projectPythonpath);
     }
 
+	public void propertyChange(PropertyChangeEvent event) {
+		//When a property that'd change an icon changes, the tree must be updated.
+		String property = event.getProperty();
+		if(PyTitlePreferencesPage.isTitlePreferencesIconRelatedProperty(property)){
+			IWorkspace[] localInput = this.input;
+			if(localInput != null){
+				for (IWorkspace iWorkspace : localInput) {
+					IWorkspaceRoot root = iWorkspace.getRoot();
+					if(root != null){
+						//Update all children too (getUpdateRunnable wouldn't update children)
+						Runnable runnable = getRefreshRunnable(root);
+						
+				        final Collection<Runnable> runnables = new ArrayList<Runnable>();
+				        runnables.add(runnable);
+				        processRunnables(runnables);
+					}
+				}
+			}
+			
+		}
+	}
+	
     /**
      * This is the actual implementation of the rebuild. 
      * 
@@ -878,7 +913,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                 workspace.addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
             }
         }
-        
+        this.input = newWorkspace;
     }
 
     /**
@@ -1184,10 +1219,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
 
 
     /**
-     * Return a runnable for refreshing a resource.
-     * 
-     * @param resource
-     * @return Runnable
+     * Return a runnable for refreshing a resource. Handles structural changes.
      */
     private Runnable getRefreshRunnable(final IResource resource) {
         return new Runnable() {
@@ -1198,10 +1230,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
     }
 
     /**
-     * Return a runnable for refreshing a resource.
-     * 
-     * @param resource
-     * @return Runnable
+     * Return a runnable for updating a resource. Does not handle structural changes.
      */
     private Runnable getUpdateRunnable(final IResource resource) {
         return new Runnable() {

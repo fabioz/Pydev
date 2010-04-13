@@ -50,9 +50,11 @@ public class UIConstants {
     
 //file content
     public static final String PY_FILE_ICON = "icons/python_file.gif";
+    public static final String PY_FILE_CUSTOM_ICON = "icons/custom_python_file.png";
     public static final String FILE_ICON = "icons/file.gif";
     public static final String FOLDER_ICON = "icons/folder.gif";
     public static final String FOLDER_PACKAGE_ICON = "icons/package_obj.gif";
+    public static final String CUSTOM_INIT_ICON = "icons/custom_init.png";
     public static final String COPY_ICON = "icons/copy.gif";
     public static final String CLOSE_ICON = "icons/close.gif";
     public static final String SOURCE_FOLDER_ICON = "icons/packagefolder_obj.gif";

@@ -267,6 +267,13 @@
             class="org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage"
             id="org.python.pydev.plugin.pyCodeStylePreferencesPage"/>
             
+
+      <page
+            name="Editor caption/icon"
+            category="org.python.pydev.prefs.editor"
+            class="org.python.pydev.plugin.preferences.PyTitlePreferencesPage"
+            id="org.python.pydev.plugin.preferences.PyTitlePreferencesPage"/>
+            
       <page
             name="Code Formatter"
             category="org.python.pydev.plugin.pyCodeStylePreferencesPage"

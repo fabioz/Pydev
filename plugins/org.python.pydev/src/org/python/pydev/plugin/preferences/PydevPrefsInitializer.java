@@ -118,6 +118,12 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(PyCodeStylePreferencesPage.USE_LOCALS_AND_ATTRS_CAMELCASE, PyCodeStylePreferencesPage.DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE);
         node.putInt(PyCodeStylePreferencesPage.USE_METHODS_FORMAT, PyCodeStylePreferencesPage.DEFAULT_USE_METHODS_FORMAT);
         
+        //Editor title
+        node.putBoolean(PyTitlePreferencesPage.TITLE_EDITOR_NAMES_UNIQUE, PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_NAMES_UNIQUE);
+        node.putBoolean(PyTitlePreferencesPage.TITLE_EDITOR_SHOW_EXTENSION, PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_SHOW_EXTENSION);
+        node.putBoolean(PyTitlePreferencesPage.TITLE_EDITOR_CUSTOM_INIT_ICON, PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_CUSTOM_INIT_ICON);
+        node.put(PyTitlePreferencesPage.TITLE_EDITOR_INIT_HANDLING, PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_INIT_HANDLING);
+        
         //code formatting
         node.putBoolean(PyCodeFormatterPage.USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS, PyCodeFormatterPage.DEFAULT_USE_ASSIGN_WITH_PACES_INSIDE_PARENTESIS);
         node.putBoolean(PyCodeFormatterPage.USE_OPERATORS_WITH_SPACE, PyCodeFormatterPage.DEFAULT_USE_OPERATORS_WITH_SPACE);

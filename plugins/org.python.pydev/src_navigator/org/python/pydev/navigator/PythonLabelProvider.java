@@ -17,6 +17,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.TreeNode;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonFolder;
@@ -24,6 +25,7 @@ import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
@@ -78,7 +80,17 @@ public class PythonLabelProvider implements ILabelProvider{
         }
         if(element instanceof IWrappedResource){
             IWrappedResource resource = (IWrappedResource) element;
-            return provider.getImage(resource.getActualObject());
+            Object actualObject = resource.getActualObject();
+            if(actualObject instanceof IFile){
+				IFile iFile = (IFile) actualObject;
+				String name = iFile.getName();
+				
+				if(name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)){
+					return PyTitlePreferencesPage.getInitIcon();
+				}
+            	
+            }
+			return provider.getImage(actualObject);
         }
         if(element instanceof ProjectConfigError){
             return PydevPlugin.getImageCache().get(UIConstants.ERROR);

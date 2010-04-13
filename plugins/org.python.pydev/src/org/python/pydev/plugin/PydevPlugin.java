@@ -128,6 +128,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     private ResourceBundle resourceBundle; //Resource bundle.
 
     public static final String DEFAULT_PYDEV_SCOPE = "org.python.pydev";
+    
+    private boolean isAlive;
 
 
     /**
@@ -139,6 +141,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
     public void start(BundleContext context) throws Exception {
+    	this.isAlive = true;
         super.start(context);
         try {
             resourceBundle = ResourceBundle.getBundle("org.python.pydev.PyDevPluginResources");
@@ -192,7 +195,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
     public void stop(BundleContext context) throws Exception {
-        
+        this.isAlive = false;
         try {
             //stop the running shells
             AbstractShell.shutdownAllShells();
@@ -214,6 +217,14 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
     }
 
+    public static boolean isAlive(){
+    	PydevPlugin p = plugin;
+    	if(p == null){
+    		return false;
+    	}
+    	return p.isAlive;
+    }
+    
     public static PydevPlugin getDefault() {
         return plugin;
     }

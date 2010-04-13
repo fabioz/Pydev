@@ -46,6 +46,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorActionBarContributor;
@@ -285,8 +286,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     private boolean disposed = false;
 
-	private PyEditTitle pyEdiTitle;
-
     public boolean isDisposed() {
         return disposed;
     }
@@ -296,7 +295,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @SuppressWarnings("unchecked")
     public PyEdit() {
         super();
-        pyEdiTitle = new PyEditTitle();
         try{
             //initialize the 'save' listeners of PyEdit
             if (editListeners == null){
@@ -636,7 +634,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             PydevPlugin.log(e);
         }
         try{
-        	pyEdiTitle.initializeTitle(this, input);
+        	PyEditTitle.invalidateTitle(this, input);
 	    }catch (Throwable e) {
 	    	PydevPlugin.log(e);
 	    }
@@ -647,6 +645,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 	/* default */ void setEditorTitle(String title){
 		setPartName(title);
 		firePropertyChange(PROP_DIRTY);
+	}
+	
+	/* default */ void setEditorImage(Image image){
+		setTitleImage(image);
 	}
 	
 
