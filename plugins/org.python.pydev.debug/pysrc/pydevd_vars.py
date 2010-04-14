@@ -153,7 +153,7 @@ def varToXML(v, name):
         except:
             value = 'Unable to get repr for %s' % v.__class__
 
-    xml = '<var name="%s" type="%s"' % (name, typeName)
+    xml = '<var name="%s" type="%s"' % (makeValidXmlValue(name),makeValidXmlValue(typeName))
 
     if value:
         #cannot be too big... communication may not handle it.
