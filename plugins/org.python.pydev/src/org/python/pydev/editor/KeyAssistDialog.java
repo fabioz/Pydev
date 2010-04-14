@@ -78,7 +78,11 @@ public class KeyAssistDialog extends PopupDialog {
 	 */
 	@SuppressWarnings("deprecation")
 	public KeyAssistDialog(final PyEdit pyedit) {
-		super((Shell) null, PopupDialog.INFOPOPUP_SHELLSTYLE, false, false,
+		//Note: had to change to HOVER_SHELLSTYLE instead of INFOPOPUP_SHELLSTYLE because
+		//otherwise the focus would end up in a null Control in linux (GTK),
+		//which made the dialog show and hide quickly and go out of the ctrl+2 mode.
+		//See: http://sourceforge.net/tracker/?func=detail&aid=2984743&group_id=85796&atid=577329
+		super((Shell) null, PopupDialog.HOVER_SHELLSTYLE, false, false, 
 				false, false, null, null);
 		this.setInfoText("   Ctrl+2 actions   ");
 	}
