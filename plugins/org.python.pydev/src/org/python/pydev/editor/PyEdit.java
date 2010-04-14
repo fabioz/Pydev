@@ -655,7 +655,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * @return true if the editor passed as a parameter has the same input as this editor.
      */
-	@Override
     public boolean hasSameInput(IPyEdit edit) {
         IEditorInput thisInput = this.getEditorInput();
         IEditorInput otherInput = edit.getEditorInput();

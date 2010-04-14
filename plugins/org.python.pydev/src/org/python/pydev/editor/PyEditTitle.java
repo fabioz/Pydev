@@ -105,7 +105,6 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 							final List<IEditorReference> refs = currentEditorReferences;
 							RunInUiThread.sync(new Runnable() {
 								
-								@Override
 								public void run() {
 									for (final IEditorReference iEditorReference : refs) {
 										final IEditorPart editor = iEditorReference.getEditor(true);
@@ -212,7 +211,6 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		
 		RunInUiThread.async(new Runnable() {
 			
-			@Override
 			public void run() {
 				for (IEditorReference iEditorReference : editorReferences) {
 					try {
@@ -438,7 +436,6 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		
 		RunInUiThread.async(new Runnable() {
 			
-			@Override
 			public void run() {
 				IEditorReference[] found = null;
 				try{
