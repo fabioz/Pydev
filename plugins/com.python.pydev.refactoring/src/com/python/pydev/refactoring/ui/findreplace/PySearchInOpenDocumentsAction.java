@@ -5,11 +5,13 @@ import java.util.List;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.IOfflineActionWithParameters;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.PyAction;
 
 /**
  * Action to search in open documents.
@@ -45,22 +47,32 @@ public class PySearchInOpenDocumentsAction extends Action implements IOfflineAct
 			isRegEx = s.getBoolean("isRegEx"); //$NON-NLS-1$
 		}
 		
-		String searchText = StringUtils.join(" ", parameters);
+		String searchText = "";
+		if(parameters != null){
+			searchText = StringUtils.join(" ", parameters);
+		}
 		if(searchText.length() == 0){
 			PySelection ps = new PySelection(edit);
 			searchText = ps.getSelectedText();
 		}
 		IStatusLineManager statusLineManager = edit.getStatusLineManager();
 		if(searchText.length() == 0){
-			statusLineManager.setMessage("Unable to search in open documents (no text to search).");
-			return; //nothing to search
-		}
-		if(wholeWord && !isRegEx && isWord(searchText)){
-			isRegEx = true;
-			searchText = "\\b"+searchText+"\\b";
-		}
+            InputDialog d = new InputDialog(PyAction.getShell(), "Text to search", "Enter text to search.", "", null);
 
-		FindInOpenDocuments.findInOpenDocuments(searchText, caseSensitive, wholeWord, isRegEx, statusLineManager);
+            int retCode = d.open();
+            if (retCode == InputDialog.OK) {
+                searchText = d.getValue();
+            }
+		}
+		
+		if(searchText.length() >= 0){
+			if(wholeWord && !isRegEx && isWord(searchText)){
+				isRegEx = true;
+				searchText = "\\b"+searchText+"\\b";
+			}
+
+			FindInOpenDocuments.findInOpenDocuments(searchText, caseSensitive, wholeWord, isRegEx, statusLineManager);
+		}
 	}
 
 	/**
