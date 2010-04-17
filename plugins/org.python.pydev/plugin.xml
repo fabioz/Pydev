@@ -726,6 +726,13 @@
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.copyqualifiedname">
       </command>
+<!-- command: Toggle Force Tabs-->
+      <command
+            name="Toggle Force tabs"
+            description="Forces or not tabs in the current editor"
+            categoryId="org.python.pydev.ui.category.source"
+            id="org.python.pydev.editor.actions.toggleforcetabs">
+      </command>
   <!-- Offline Command -->
       <command
             name="Offline Action for scripting"
@@ -1062,6 +1069,13 @@
                label="Copy Context Qualified Name"
                menubarPath="copy"
                icon="icons/cpyqual_menu.gif"/>
+         <action
+               class="org.python.pydev.editor.actions.PyToggleForceTabs"
+               definitionId="org.python.pydev.editor.actions.toggleforcetabs"
+               id="org.python.pydev.editor.actions.toggleforcetabs"
+               label="Toggle force tabs"
+               menubarPath="tabs"
+               icon="icons/tabs_active.png"/>
       </viewerContribution>
    </extension>
 

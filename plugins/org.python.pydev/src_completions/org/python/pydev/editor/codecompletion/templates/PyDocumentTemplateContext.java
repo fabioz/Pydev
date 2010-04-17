@@ -133,7 +133,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
         List<String> splitted = StringUtils.splitInLines(pattern);
         
         boolean changed = false;
-        if(indentPrefs.getUseSpaces()){
+        if(indentPrefs.getUseSpaces(true)){
             if(pattern.indexOf("\t") != -1){
                 template = createNewTemplate(template, StringUtils.replaceAll(pattern, "\t", spacesIndentString));
                 changed = true;

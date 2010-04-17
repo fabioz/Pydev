@@ -29,6 +29,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.BadLocationException;
@@ -75,6 +76,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
@@ -465,13 +467,27 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         editConfiguration.resetIndentPrefixes();
         // display a message in the status line
         if (forceTabs) {
-            IEditorStatusLine statusLine = (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
-            if (statusLine != null)
-                statusLine.setMessage(false, "Pydev: forcing tabs", null);
+        	updateForceTabsMessage();
         }
     }
+    
 
-    /**
+    public void updateForceTabsMessage() {
+		boolean forceTabs = getIndentPrefs().getForceTabs();
+		ImageCache imageCache = PydevPlugin.getImageCache();
+		ImageDescriptor desc;
+		if(forceTabs){
+			desc = imageCache.getDescriptor(UIConstants.FORCE_TABS_ACTIVE);
+		}else{
+			desc = imageCache.getDescriptor(UIConstants.FORCE_TABS_INACTIVE);
+		}
+		IEditorStatusLine statusLine = (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
+		if (statusLine != null){
+			statusLine.setMessage(false, forceTabs?"Forcing tabs":"Not forcing tabs.", desc.createImage());
+		}
+	}
+
+	/**
      * @return the indentation preferences. Any action writing something should use this one in the editor because
      * we want to make sure that the indent must be the one bounded to this editor (because tabs may be forced in a given
      * editor, even if does not match the global settings).

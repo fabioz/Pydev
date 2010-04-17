@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testStringAddition();
+            s.testForcedTab3();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -105,6 +105,42 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd = new DocCmd(str.length(), 0, "\t");
         strategy.customizeDocumentCommand(new Document(str), docCmd);
         assertEquals("    ", docCmd.text);
+    }
+    
+    public void testForcedTab() {
+    	TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+    	prefs.setForceTabs(true);
+		strategy.setIndentPrefs(prefs);
+    	String str = 
+    		"class Tabs(object):\n"+
+    		"\tpass\n";
+    	DocCmd docCmd = new DocCmd(str.length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(str), docCmd);
+    	assertEquals("\t", docCmd.text);
+    }
+    
+    public void testForcedTab2() {
+    	TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+    	prefs.setForceTabs(true);
+    	strategy.setIndentPrefs(prefs);
+    	String str = 
+    		"class Tabs(object):\n"+
+    		"\ta=10";
+    	DocCmd docCmd = new DocCmd(str.length(), 0, "\n");
+    	strategy.customizeDocumentCommand(new Document(str), docCmd);
+    	assertEquals("\n\t", docCmd.text);
+    }
+    
+    public void testForcedTab3() {
+    	TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+    	prefs.setForceTabs(true);
+    	strategy.setIndentPrefs(prefs);
+    	String str = 
+    		"class Tabs(object):\n"+
+    		"\ta=10\n";
+    	DocCmd docCmd = new DocCmd(str.length(), 0, "    b=20");
+    	strategy.customizeDocumentCommand(new Document(str), docCmd);
+    	assertEquals("\tb=20", docCmd.text);
     }
     
     public void testOffsetType() {

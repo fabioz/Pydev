@@ -7,8 +7,6 @@
  */
 package org.python.pydev.outline;
 
-import java.net.MalformedURLException;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -222,12 +220,8 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
             }
         };
         
-        try {
-            collapseAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL));
-            expandAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL));
-        } catch (MalformedURLException e) {
-            PydevPlugin.log("Missing Icon", e);
-        }
+        collapseAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.COLLAPSE_ALL));
+        expandAll.setImageDescriptor(imageCache.getDescriptor(UIConstants.EXPAND_ALL));
 
         // Add actions to the toolbar
         IActionBars actionBars = getSite().getActionBars();

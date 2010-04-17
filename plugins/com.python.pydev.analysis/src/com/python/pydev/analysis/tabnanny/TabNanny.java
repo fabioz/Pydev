@@ -72,7 +72,7 @@ public class TabNanny{
         //if we found the same number of indents for tabs and spaces, let's use the user-prefs to decide what to do
         if(spacesFoundSize == tabsFoundSize){
             //ok, we have both, spaces and tabs... let's see what the user actually wants
-            markTabsAsError = indentPrefs.getUseSpaces();
+            markTabsAsError = indentPrefs.getUseSpaces(false);
             
         }else if(tabsFoundSize > spacesFoundSize){
             //let's see what appears more in the file (and mark the other as error).

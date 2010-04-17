@@ -16,7 +16,7 @@ public interface IIndentPrefs {
     /**
      * @return True if we should substitute tabs for spaces.
      */
-    public boolean getUseSpaces();
+    public boolean getUseSpaces(boolean considerForceTabs);
     
     /**
      * Sets the forceTabs preference for auto-indentation.

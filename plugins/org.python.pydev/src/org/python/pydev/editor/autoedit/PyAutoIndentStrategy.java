@@ -48,7 +48,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 
     public IIndentPrefs getIndentPrefs() {
         if (this.prefs == null) {
-            this.prefs = DefaultIndentPrefs.get(); //create a new one (because each pyedit may force the tabs differently).
+            this.prefs = new DefaultIndentPrefs(); //create a new one (because each pyedit may force the tabs differently).
         }
         return this.prefs;
     }
@@ -732,7 +732,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
      */
     private void applyDefaultForTab(DocumentCommand command, int lineContentsToCursorLen) {
         IIndentPrefs prefs = getIndentPrefs();
-        if(prefs.getUseSpaces()){
+        if(prefs.getUseSpaces(true)){
             int tabWidth = getIndentPrefs().getTabWidth();
             
             int mod = (lineContentsToCursorLen+tabWidth) % tabWidth;
@@ -826,7 +826,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                 b.append(indentationString);
             }
             
-            if(prefs.getUseSpaces()){
+            if(prefs.getUseSpaces(true)){
                 while (spaceSteps >= 0){
                     spaceSteps -= 1;
                     b.append(" ");

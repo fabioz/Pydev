@@ -102,4 +102,7 @@ public class UIConstants {
     public static final String FORWARD = "icons/forward_nav.gif";
     public static final String BACK = "icons/backward_nav.gif";
     public static final String HOME = "icons/home_nav.gif";
+    
+	public static final String FORCE_TABS_ACTIVE = "icons/tabs_active.png";
+	public static final String FORCE_TABS_INACTIVE = "icons/tabs_inactive.png";
 }

@@ -5,6 +5,8 @@ package org.python.pydev.core.docutils;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 public class StringUtils {
@@ -842,6 +845,19 @@ public class StringUtils {
 		}
 		return count;
 	}
+
+	public static String urlEncodeKeyValuePair(String key, String value) {
+		String result = null;
+
+		try {
+			result = URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			Log.log(e);
+		}
+
+		return result;
+	}
+
 
 
 

@@ -1,14 +1,12 @@
 package org.python.pydev.outline;
 
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * This class is provided as a base class for filters acting in the outline nodes.
@@ -40,11 +38,7 @@ public abstract class AbstractOutlineFilterAction extends Action{
         setChecked(page.getStore().getBoolean(preference));
         setActionEnabled(isChecked());
 
-        try {
-            setImageDescriptor(imageCache.getDescriptor(uiConstant));
-        } catch (MalformedURLException e) {
-            PydevPlugin.log("Missing Icon", e);
-        }
+        setImageDescriptor(imageCache.getDescriptor(uiConstant));
     }
     
     public void run() {

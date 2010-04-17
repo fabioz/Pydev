@@ -35,7 +35,15 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
  * Subclasses should implement run(IAction action) method.
  */
 public abstract class PyAction extends Action implements IEditorActionDelegate {
+	
+	protected PyAction() {
+		super();
+	}
 
+	protected PyAction(String text, int style){
+		super(text, style);
+	}
+	
     public static Shell getShell() {
         IWorkbenchWindow activeWorkbenchWindow = getActiveWorkbenchWindow();
         if(activeWorkbenchWindow == null){

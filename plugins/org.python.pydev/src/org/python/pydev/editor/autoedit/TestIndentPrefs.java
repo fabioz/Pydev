@@ -34,7 +34,10 @@ public class TestIndentPrefs extends AbstractIndentPrefs {
         this.autoElse = autoElse;
     }
     
-    public boolean getUseSpaces() {
+    public boolean getUseSpaces(boolean considerForceTabs) {
+    	if(considerForceTabs && getForceTabs()){
+    		return false;//force use tabs
+    	}
         return useSpaces;
     }
 

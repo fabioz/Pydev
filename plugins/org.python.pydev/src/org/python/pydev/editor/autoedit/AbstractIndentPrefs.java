@@ -34,7 +34,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
      * @see org.python.pydev.core.IIndentPrefs#getIndentationString()
      */
     public String getIndentationString() {
-        if (getUseSpaces() && !getForceTabs())
+        if (getUseSpaces(true))
             return StringUtils.createSpaceString(getTabWidth());
         else
             return "\t";
@@ -45,7 +45,7 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
      */
     public void convertToStd(IDocument document, DocumentCommand command){
         try {
-            if (getUseSpaces()) {
+            if (getUseSpaces(true)) {
                 command.text = convertTabsToSpaces(document, command.length, command.text, command.offset, getIndentationString());
             }
 

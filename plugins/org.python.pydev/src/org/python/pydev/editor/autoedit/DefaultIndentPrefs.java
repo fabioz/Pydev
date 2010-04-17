@@ -63,13 +63,21 @@ public class DefaultIndentPrefs extends AbstractIndentPrefs {
         tabWidth = c.getInt(PydevEditorPrefs.TAB_WIDTH, 4);
     }
 
-    public boolean getUseSpaces() {
+    public boolean getUseSpaces(boolean considerForceTabs) {
         PyPreferencesCache c = getCache();
         if(useSpaces != c.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS)){
             useSpaces = c.getBoolean(PydevEditorPrefs.SUBSTITUTE_TABS);
             regenerateIndentString();
         }
+        if(considerForceTabs && getForceTabs()){
+        	return false; //forcing tabs.
+        }
         return useSpaces;
+    }
+    
+    public void setForceTabs(boolean forceTabs) {
+    	super.setForceTabs(forceTabs);
+    	regenerateIndentString(); //When forcing tabs, we must update the cache.
     }
 
     public static int getStaticTabWidth(){

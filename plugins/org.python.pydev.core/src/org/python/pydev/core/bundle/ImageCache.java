@@ -29,9 +29,11 @@ public class ImageCache {
     
     
     private Map<Object, Image> imageHash = new HashMap<Object, Image>(10);
+    private Map<Object, ImageDescriptor> descriptorHash = new HashMap<Object, ImageDescriptor>(10);
     private URL baseURL; 
     private Image missing = null;
 	private Object lock = new Object();
+	private Object descriptorLock = new Object();
     
     public ImageCache(URL baseURL) {
         this.baseURL = baseURL;
@@ -72,7 +74,7 @@ public class ImageCache {
 	            } catch (UnsatisfiedLinkError e) {
 	                //we're in tests...
 	                return null;
-	            } catch (MalformedURLException e) {
+	            } catch (Exception e) {
 	                // If image is missing, create a default missing one
 	            	Log.log("ERROR: Missing image: " + key);
 	                if (missing == null) {
@@ -141,8 +143,22 @@ public class ImageCache {
     /**
      * like get, but returns ImageDescription instead of image
      */
-    public ImageDescriptor getDescriptor(String key) throws MalformedURLException {
-        URL url = new URL(baseURL, key);
-        return ImageDescriptor.createFromURL(url);
+    public ImageDescriptor getDescriptor(String key) {
+    	synchronized (descriptorLock) {
+			if(!descriptorHash.containsKey(key)){
+				URL url;
+				ImageDescriptor desc;
+				try {
+					url = new URL(baseURL, key);
+					desc = ImageDescriptor.createFromURL(url);
+				} catch (MalformedURLException e) {
+					Log.log("ERROR: Missing image: " + key);
+					desc = ImageDescriptor.getMissingImageDescriptor();
+				}
+				descriptorHash.put(key, desc);
+				return desc;
+			}
+			return descriptorHash.get(key);
+		}
     }
 }

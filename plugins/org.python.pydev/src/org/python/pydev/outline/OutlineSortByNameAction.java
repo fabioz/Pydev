@@ -1,14 +1,12 @@
 package org.python.pydev.outline;
 
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -31,11 +29,7 @@ public class OutlineSortByNameAction extends Action {
         setChecked(page.getStore().getBoolean(PREF_ALPHA_SORT));
         setAlphaSort(isChecked());
 
-        try {
-            setImageDescriptor(imageCache.getDescriptor(UIConstants.ALPHA_SORT));
-        } catch (MalformedURLException e) {
-            PydevPlugin.log("Missing Icon", e);
-        }    
+        setImageDescriptor(imageCache.getDescriptor(UIConstants.ALPHA_SORT));
         setToolTipText("Sort by name");
     }
 
