@@ -15,7 +15,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 
 public class DjangoNature implements IProjectNature {
 
-    public static final String DJANGO_NATURE_ID = "org.python.pydev.django.djangoNature";
+    public static final String DJANGO_NATURE_ID = PythonNature.DJANGO_NATURE_ID;
 
 	private IProject project;
 

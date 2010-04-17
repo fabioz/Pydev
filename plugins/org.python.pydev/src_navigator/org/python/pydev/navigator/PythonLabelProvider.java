@@ -25,6 +25,7 @@ import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
@@ -87,8 +88,21 @@ public class PythonLabelProvider implements ILabelProvider{
 				
 				if(name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)){
 					return PyTitlePreferencesPage.getInitIcon();
+				}else{
+					IProject project = iFile.getProject();
+					try {
+						if(project.hasNature(PythonNature.DJANGO_NATURE_ID)){
+							if(PyTitlePreferencesPage.getDjangoModulesHandling() == 
+								PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE){
+								if(PyTitlePreferencesPage.isDjangoModuleToDecorate(name)){
+									return PyTitlePreferencesPage.getDjangoModuleIcon(name);
+								}
+							}
+						}
+					} catch (CoreException e) {
+						Log.log(e);
+					}
 				}
-            	
             }
 			return provider.getImage(actualObject);
         }

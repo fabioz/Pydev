@@ -174,6 +174,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * This is the nature ID
      */
     public static final String PYTHON_NATURE_ID = "org.python.pydev.pythonNature";
+    
+    /**
+     * Nature ID for projects that are django configured (it's here because the icon managing
+     * needs this information).
+     */
+    public static final String DJANGO_NATURE_ID = "org.python.pydev.django.djangoNature";
 
     /**
      * This is the nature name

@@ -7,8 +7,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.utils.LabelFieldEditor;
 import org.python.pydev.utils.TableComboFieldEditor;
 
 public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
@@ -27,25 +29,32 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
 	public static final String TITLE_EDITOR_INIT_HANDLING_IN_TITLE = "TITLE_EDITOR_INIT_HANDLING_IN_TITLE";
 	public static final String TITLE_EDITOR_INIT_HANDLING_PARENT_IN_TITLE = "TITLE_EDITOR_INIT_HANDLING_PARENT_IN_TITLE";
 	public static final String DEFAULT_TITLE_EDITOR_INIT_HANDLING = TITLE_EDITOR_INIT_HANDLING_PARENT_IN_TITLE;
+	
+	public static final String TITLE_EDITOR_DJANGO_MODULES_HANDLING = "TITLE_EDITOR_DJANGO_MODULES_HANDLING";
+	public static final String TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON = "TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON";
+	public static final String TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE = "TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE";
+	public static final String DEFAULT_TITLE_EDITOR_DJANGO_MODULES_HANDLING = TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE;
 
 	
 	public static boolean isTitlePreferencesProperty(String property) {
 		return PyTitlePreferencesPage.TITLE_EDITOR_INIT_HANDLING.equals(property)||
 			PyTitlePreferencesPage.TITLE_EDITOR_NAMES_UNIQUE.equals(property)||
 			PyTitlePreferencesPage.TITLE_EDITOR_SHOW_EXTENSION.equals(property)||
-			PyTitlePreferencesPage.TITLE_EDITOR_CUSTOM_INIT_ICON.equals(property);
+			PyTitlePreferencesPage.TITLE_EDITOR_CUSTOM_INIT_ICON.equals(property) ||
+			PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_HANDLING.equals(property);
 
 	}
 
 	public static boolean isTitlePreferencesIconRelatedProperty(String property) {
-		return PyTitlePreferencesPage.TITLE_EDITOR_CUSTOM_INIT_ICON.equals(property);
+		return PyTitlePreferencesPage.TITLE_EDITOR_CUSTOM_INIT_ICON.equals(property)||
+			PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_HANDLING.equals(property);
 	}
 	
 	private BooleanFieldEditor editorNamesUnique;
 	private BooleanFieldEditor changeInitIcon;
 	private TableComboFieldEditor initHandlingFieldEditor;
 	private BooleanFieldEditor titleShowExtension;
-//	private List<Image> allocatedImages = new ArrayList<Image>();
+	private TableComboFieldEditor djangoHandling;
 	
     public PyTitlePreferencesPage() {
         super(GRID);
@@ -68,14 +77,6 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
         titleShowExtension = new BooleanFieldEditor(
         		TITLE_EDITOR_SHOW_EXTENSION, "Show file extension on tab?", BooleanFieldEditor.SEPARATE_LABEL, p);
         addField(titleShowExtension);
-        
-        
-        //__init__ handling
-//        ImageCache imageCache = PydevPlugin.getImageCache();
-//        Display display = Display.getCurrent();
-//        Image imageCustom = createCustomImage(imageCache, display, "I"); 
-//        allocatedImages.add(imageCustom);
-        
         
         //Should pydev change the init icon?
         changeInitIcon = new BooleanFieldEditor(
@@ -101,29 +102,39 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
         initHandlingFieldEditor = new TableComboFieldEditor(
         		TITLE_EDITOR_INIT_HANDLING, "__init__.py handling:", EDITOR__INIT__HANDLING_VALUES, p);
         addField(initHandlingFieldEditor);
+        
+        
+        new LabelFieldEditor("UNUSED", "Django related configurations", p);
+        new LabelFieldEditor("UNUSED", "", p);
+        
+        Object[][] EDITOR_DJANGO_MODULES_HANDLING_VALUES = {
+        		{
+        			"Show default python icon", 
+        			TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON, 
+        			null
+        		},
+        		
+        		{
+        			"Show parent name in title and decorate icon with module initial", 
+        			TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE, 
+        			null
+        		},
+        		
+        };
+        
+        
+        djangoHandling = new TableComboFieldEditor(
+        		TITLE_EDITOR_DJANGO_MODULES_HANDLING, 
+        		"Django modules handling:\n(models.py, views.py, tests.py)", 
+        		EDITOR_DJANGO_MODULES_HANDLING_VALUES, p);
+        addField(djangoHandling);
+        
+        
 	}
 
-//	private static Image createCustomImage(ImageCache imageCache, Display display, String text) {
-//		return imageCache.get(UIConstants.CUSTOM_INIT_ICON);
-//		Image imageCustom = new Image(display, imageCache.get(UIConstants.CUSTOM_FOLDER_PACKAGE_ICON), SWT.IMAGE_COPY);
-//        GC gc = new GC(imageCustom);
-//        Color color = new Color(display, 41, 192, 88);
-//        gc.setForeground(color); 
-//        Font font = new Font(display, new FontData("Courier New", 6, SWT.BOLD));
-//        gc.setFont(font);
-//        gc.drawText(text, 6, 3, false);
-//        color.dispose();
-//        font.dispose();
-//        gc.dispose();
-//		return imageCustom;
-//	}
-	
 	public void dispose() {
 		super.dispose();
-//		for(Image image:allocatedImages){
-//			image.dispose();
-//		}
-//		allocatedImages.clear();
+
 	}
 
 	public static boolean getEditorNamesUnique() {
@@ -147,6 +158,15 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
 	}
 	
 	
+	public static String getDjangoModulesHandling() {
+		String djangoHandling = PydevPrefs.getPreferences().getString(TITLE_EDITOR_DJANGO_MODULES_HANDLING);
+		if(TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON.equals(djangoHandling)){
+			return TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON;
+		}
+		return TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE; //default
+	}
+	
+	
 	public static boolean useCustomInitIcon() {
 		return PydevPrefs.getPreferences().getBoolean(TITLE_EDITOR_CUSTOM_INIT_ICON);
 	}
@@ -162,6 +182,19 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
 		}else{
 			return imageCache.get(UIConstants.PY_FILE_ICON); //default icon
 		}
+	}
+
+	public static boolean isDjangoModuleToDecorate(String name) {
+		if(name.startsWith("models.") || name.startsWith("tests.") || name.startsWith("views.")){
+			if(PythonPathHelper.isValidSourceFile(name)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static Image getDjangoModuleIcon(String lastSegment) {
+		return PydevPlugin.getImageCache().getDecorated(UIConstants.PY_FILE_CUSTOM_ICON, lastSegment.charAt(0)+"");
 	}
 
 }

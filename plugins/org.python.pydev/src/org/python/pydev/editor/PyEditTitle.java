@@ -7,6 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -31,8 +34,10 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.concurrency.SingleJobRunningPool;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 
 /**
@@ -216,7 +221,8 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 					try {
 						IPath pathFromInput = getPathFromInput(iEditorReference.getEditorInput());
 						String lastSegment = pathFromInput.lastSegment();
-						if(lastSegment != null && lastSegment.startsWith("__init__.")){
+						if(lastSegment != null && 
+								(lastSegment.startsWith("__init__.") || PyTitlePreferencesPage.isDjangoModuleToDecorate(lastSegment))){
 							iEditorReference.getEditor(true); //restore it.
 						}
 					} catch (PartInitException e) {
@@ -265,8 +271,10 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		}
 		
 		final String initHandling = PyTitlePreferencesPage.getInitHandling();
+		final String djangoModulesHandling = PyTitlePreferencesPage.getDjangoModulesHandling();
+		
 		//initially set this as the title (and change it later to a computed name).
-		String computedEditorTitle = getPartNameInLevel(1, pathFromInput, initHandling).o1;
+		String computedEditorTitle = getPartNameInLevel(1, pathFromInput, initHandling, djangoModulesHandling, input).o1;
 
 		pyEdit.setEditorTitle(computedEditorTitle);
 		updateImage(pyEdit, null, pathFromInput);
@@ -281,7 +289,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					while(PydevPlugin.isAlive() && !initializeTitle(
-							pyEdit, input, pathFromInput, lastSegment, initHandling)){ //stop trying if the plugin is stopped
+							pyEdit, input, pathFromInput, lastSegment, initHandling, djangoModulesHandling)){ //stop trying if the plugin is stopped
 						synchronized (this) {
 							try {
 								Thread.sleep(200);
@@ -308,13 +316,34 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
      */
 	private void updateImage(PyEdit pyEdit, IEditorReference iEditorReference, IPath path) {
 		String lastSegment = path.lastSegment();
-		if(lastSegment != null && lastSegment.startsWith("__init__.")){
-			Image initIcon = PyTitlePreferencesPage.getInitIcon();
-			if(initIcon != null){
-				if(pyEdit != null){
-					pyEdit.setEditorImage(initIcon);
-				}else{
-					setEditorReferenceImage(iEditorReference, initIcon);
+		if(lastSegment != null){ 
+			if(lastSegment.startsWith("__init__.")){
+				Image initIcon = PyTitlePreferencesPage.getInitIcon();
+				if(initIcon != null){
+					if(pyEdit != null){
+						pyEdit.setEditorImage(initIcon);
+					}else{
+						setEditorReferenceImage(iEditorReference, initIcon);
+					}
+				}
+			}else if(PyTitlePreferencesPage.isDjangoModuleToDecorate(lastSegment)){
+				try {
+					IEditorInput editorInput;
+					if(pyEdit != null){
+						editorInput = pyEdit.getEditorInput();
+					}else{
+						editorInput = iEditorReference.getEditorInput();
+					}
+					if(isDjangoHandledModule(PyTitlePreferencesPage.getDjangoModulesHandling(), editorInput, lastSegment)){
+						Image image = PyTitlePreferencesPage.getDjangoModuleIcon(lastSegment);
+						if(pyEdit != null){
+							pyEdit.setEditorImage(image);
+						}else{
+							setEditorReferenceImage(iEditorReference, image);
+						}
+					}
+				} catch (PartInitException e) {
+					//ignore
 				}
 			}
 		}
@@ -332,7 +361,8 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 			IEditorInput input, 
 			final IPath pathFromInput, 
 			String lastSegment, 
-			String initHandling) {
+			String initHandling,
+			String djangoModulesHandling) {
 		
 		List<IEditorReference> editorReferences = getCurrentEditorReferences();
 		if(editorReferences == null){
@@ -357,7 +387,14 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 				for (int i=0; i<partsAndPaths.size();i++) {
 					Tuple<IEditorReference, IPath> tuple = partsAndPaths.get(i);
 					
-					Tuple<String, Boolean> nameAndReachedMax = getPartNameInLevel(level, tuple.o2, initHandling);
+					IEditorInput editorInput;
+					try {
+						editorInput = tuple.o1.getEditorInput();
+					} catch (PartInitException e) {
+						continue;
+					}
+					Tuple<String, Boolean> nameAndReachedMax = getPartNameInLevel(
+							level, tuple.o2, initHandling, djangoModulesHandling, editorInput);
 					if(nameAndReachedMax.o2){ //maximum level reached for path
 						setEditorReferenceTitle(tuple.o1, nameAndReachedMax.o1);
 						partsAndPaths.remove(i);
@@ -529,10 +566,12 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 	
 	
 	/**
+	 * @param input 
 	 * @return a tuple with the part name to be used and a boolean indicating if the maximum level 
 	 * has been reached for this path.
 	 */
-	private Tuple<String, Boolean> getPartNameInLevel(int level, IPath path, String initHandling) {
+	private Tuple<String, Boolean> getPartNameInLevel(
+			int level, IPath path, String initHandling, String djangoModulesHandling, IEditorInput input) {
 		String[] segments = path.segments();
 		if(segments.length == 0){
 			return new Tuple<String, Boolean>("", true);
@@ -542,8 +581,13 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		}
 		String lastSegment = segments[segments.length-1];
 		
-		//Yes, in this case we can compare a string with == and !=
-		if(initHandling != PyTitlePreferencesPage.TITLE_EDITOR_INIT_HANDLING_IN_TITLE){
+		boolean handled = isDjangoHandledModule(djangoModulesHandling, input, lastSegment);
+		if(handled){
+			String[] dest = new String[segments.length-1];
+			System.arraycopy(segments, 0, dest, 0, dest.length);
+			segments = dest;
+			
+		}else if(initHandling != PyTitlePreferencesPage.TITLE_EDITOR_INIT_HANDLING_IN_TITLE){
 			if(lastSegment.startsWith("__init__.")){
 				//remove the __init__.
 				String[] dest = new String[segments.length-1];
@@ -570,6 +614,29 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		}else{
 			return new Tuple<String, Boolean>(name, startAt == 0);
 		}
+	}
+
+	private boolean isDjangoHandledModule(String djangoModulesHandling, IEditorInput input,
+			String lastSegment) {
+		boolean handled = false;
+		if(djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE){
+			if(input instanceof IFileEditorInput){
+				IFileEditorInput iFileEditorInput = (IFileEditorInput) input;
+				IFile file = iFileEditorInput.getFile();
+				IProject project = file.getProject();
+				try {
+					if(project.hasNature(PythonNature.DJANGO_NATURE_ID)){
+						if(PyTitlePreferencesPage.isDjangoModuleToDecorate(lastSegment)){
+							//remove the module name.
+							handled = true;
+						}
+					}
+				} catch (CoreException e) {
+					Log.log(e);
+				}
+			}
+		}
+		return handled;
 	}
 
 	

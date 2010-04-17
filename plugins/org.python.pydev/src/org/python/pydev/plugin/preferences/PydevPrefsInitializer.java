@@ -123,6 +123,7 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(PyTitlePreferencesPage.TITLE_EDITOR_SHOW_EXTENSION, PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_SHOW_EXTENSION);
         node.putBoolean(PyTitlePreferencesPage.TITLE_EDITOR_CUSTOM_INIT_ICON, PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_CUSTOM_INIT_ICON);
         node.put(PyTitlePreferencesPage.TITLE_EDITOR_INIT_HANDLING, PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_INIT_HANDLING);
+        node.put(PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_HANDLING, PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_DJANGO_MODULES_HANDLING);
         
         //code formatting
         node.putBoolean(PyCodeFormatterPage.USE_ASSIGN_WITH_PACES_INSIDER_PARENTESIS, PyCodeFormatterPage.DEFAULT_USE_ASSIGN_WITH_PACES_INSIDE_PARENTESIS);
