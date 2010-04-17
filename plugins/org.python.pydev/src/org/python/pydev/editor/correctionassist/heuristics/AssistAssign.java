@@ -16,8 +16,12 @@ import org.eclipse.swt.graphics.Image;
 import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -102,7 +106,7 @@ public class AssistAssign implements IAssistProps {
         //                     |result| = 1+1
         //                     self.|result| = 1+1
 
-        String callName = getTokToAssign(ps, lineWithoutComments);
+        String callName = getTokToAssign(ps);
         callName = changeToLowerUppercaseConstant(callName);
 
         if(callName.length() > 0){
@@ -190,17 +194,35 @@ public class AssistAssign implements IAssistProps {
         return true;
     }
 
+    
+	private static String getStringToAnalyze(PySelection ps) {
+		ParsingUtils parsingUtils = ParsingUtils.create(ps.getDoc());
+		FastStringBuffer buf = new FastStringBuffer();
+		String string = null;
+		try {
+			parsingUtils.getFullFlattenedLine(ps.getStartLineOffset(), buf);
+			if(buf.length() > 0){
+				string = buf.toString();
+			}
+		} catch (SyntaxErrorException e) {
+			//won't happen (we didn't ask for it)
+			Log.log(e);
+		}
+		if(string == null){
+			string = PyAction.getLineWithoutComments(ps);
+		}
+		return string;
+	}
+    
+	
     /**
-     * @param ps
      * @return string with the token or empty token if not found.
      */
-    private static String getBeforeParentesisTok(PySelection ps) {
-        String string = PyAction.getLineWithoutComments(ps);
-    
-        int i;
+    private static String getBeforeParentesisTok(String string) {
+		int i;
     
         String callName = "";
-        //get parentesis position and go backwards
+        //get parenthesis position and go backwards
         if ((i = string.lastIndexOf("(")) != -1) {
             callName = "";
     
@@ -211,20 +233,21 @@ public class AssistAssign implements IAssistProps {
         }
         return callName;
     }
-    
+
+
     /**
-     * @param ps
-     * @return
+     * @return the token which should be used to make the assign.
      */ 
-    private String getTokToAssign(PySelection ps, String sel) {
-        String beforeParentesisTok = getBeforeParentesisTok(ps);
+    private String getTokToAssign(PySelection ps) {
+    	String string = getStringToAnalyze(ps);
+    	string = string.trim();
+    	
+        String beforeParentesisTok = getBeforeParentesisTok(string);
         if(beforeParentesisTok.length() > 0){
             return beforeParentesisTok;
         }
         //otherwise, try to find . (ignore code after #)
-        String string = PyAction.getLineWithoutComments(ps);
         String callName = "";
-        //get parentesis position and go backwards
     
         int i;
         if ((i = string.lastIndexOf(".")) != -1) {
@@ -235,8 +258,8 @@ public class AssistAssign implements IAssistProps {
             }
         }
         if(callName.length() == 0){
-            if(StringUtils.isSingleWord(sel.trim())){
-                return sel.trim();
+            if(StringUtils.isSingleWord(string)){
+                return string;
             }
         }
         return callName;

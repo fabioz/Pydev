@@ -16,14 +16,15 @@ import org.python.copiedfromeclipsesrc.PythonPairMatcher;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.ImportsSelection;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.NoPeerAvailableException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Class which implements the following behaviors:
@@ -48,7 +49,11 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 
     public IIndentPrefs getIndentPrefs() {
         if (this.prefs == null) {
-            this.prefs = new DefaultIndentPrefs(); //create a new one (because each pyedit may force the tabs differently).
+            if(PydevPlugin.getDefault() == null){
+                this.prefs = new TestIndentPrefs(true, 4);
+            }else{
+            	this.prefs = new DefaultIndentPrefs(); //create a new one (because each pyedit may force the tabs differently).
+            }
         }
         return this.prefs;
     }

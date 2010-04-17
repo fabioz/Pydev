@@ -49,7 +49,7 @@ public class AssistAssignTest extends TestCase {
         try{
             AssistAssignTest test = new AssistAssignTest();
             test.setUp();
-            test.testSimple10();
+            test.testSimple11();
             test.tearDown();
             junit.textui.TestRunner.run(AssistAssignTest.class);
         }catch(Exception e){
@@ -280,6 +280,22 @@ public class AssistAssignTest extends TestCase {
         List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
         assertEquals(2, props.size());
         assertContains("Assign to local (new_call)", props);
+    }
+    
+    public void testSimple11() throws BadLocationException {
+    	assist = new AssistAssign(new NonCamelCodingStd());
+    	
+    	String d = ""+
+    	"CustomReportDocument(self.GetDataDirectory(),'custom_report_test')";
+    	
+    	Document doc = new Document(d);
+    	PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+    	String sel = PyAction.getLineWithoutComments(ps);
+    	
+    	assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+    	List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+    	assertEquals(2, props.size());
+    	assertContains("Assign to local (custom_report_document)", props);
     }
     
     
