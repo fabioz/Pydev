@@ -10,10 +10,6 @@ import java.util.List;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.Launch;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -34,7 +30,7 @@ import org.python.pydev.runners.SimpleIronpythonRunner;
 import org.python.pydev.runners.SimpleJythonRunner;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
-import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 
 /**
  * This class is used to create the given IProcess and get the console that is attached to that process. 
@@ -104,7 +100,9 @@ public class IProcessFactory {
             }    
 			
             if(interpreter == null){
-                ListDialog listDialog = createChoiceDialog(workbenchWindow, interpreterManager, interpreters);
+                ListDialog listDialog = AbstractInterpreterPreferencesPage.createChooseIntepreterInfoDialog(
+                		workbenchWindow, interpreters, "Select interpreter to be used.");
+                
                 int open = listDialog.open();
                 if(open != ListDialog.OK || listDialog.getResult().length > 1){
                     return null;
@@ -191,41 +189,7 @@ public class IProcessFactory {
     }
 
     
-    private ListDialog createChoiceDialog(
-            IWorkbenchWindow workbenchWindow, IInterpreterManager pythonInterpreterManager, IInterpreterInfo[] interpreters) {
-        ListDialog listDialog = new ListDialog(workbenchWindow.getShell());
-        listDialog.setContentProvider(new IStructuredContentProvider(){
 
-            public Object[] getElements(Object inputElement) {
-                if(inputElement instanceof IInterpreterInfo[]){
-                    return (IInterpreterInfo[]) inputElement;
-                }
-                return new Object[0];
-            }
-
-            public void dispose() {
-            }
-
-            public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-                
-            }}
-        );
-        listDialog.setLabelProvider(new LabelProvider(){
-            public Image getImage(Object element) {
-                return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
-            }
-            public String getText(Object element) {
-                if(element != null && element instanceof IInterpreterInfo){
-                    IInterpreterInfo info = (IInterpreterInfo) element;
-                    return info.getNameForUI();
-                }
-                return super.getText(element);
-            }
-        });
-        listDialog.setInput(interpreters);
-        listDialog.setMessage("Select interpreter to be used.");
-        return listDialog;
-    }
 
 
 }

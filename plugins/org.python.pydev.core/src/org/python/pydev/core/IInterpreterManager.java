@@ -6,6 +6,7 @@
 package org.python.pydev.core;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -131,8 +132,10 @@ public interface IInterpreterManager {
      * and gets it to do the restore).
      * 
      * @param monitor monitor used for the restore
+     * @param interpreterNamesToRestore if null, all interpreters are restored, otherwise, only the interpreters
+     * 		whose name is in this set are restored.
      */
-    public void restorePythopathForAllInterpreters(IProgressMonitor monitor);
+    public void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpreterNamesToRestore);
 
     /**
      * @return the name that is related to this manager (e.g.: python, jython...)

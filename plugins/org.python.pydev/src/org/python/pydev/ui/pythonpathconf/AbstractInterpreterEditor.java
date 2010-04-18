@@ -12,10 +12,12 @@ import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -122,6 +124,34 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private SelectionListener selectionListenerSystem;
     
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
+    
+    private Set<String> namesOfInterpretersToRestore = new HashSet<String>();
+    private Set<String> namesOfInterpretersWithBuiltinsChanged = new HashSet<String>();
+    private Set<String> namesOfInterpretersWithPredefinedChanged = new HashSet<String>();
+    private Set<String> namesOfInterpretersWithStringSubstitutionChanged = new HashSet<String>();
+    
+    private void clearInfos(){
+    	nameToInfo.clear();
+    	namesOfInterpretersToRestore.clear();
+    	namesOfInterpretersWithBuiltinsChanged.clear();
+    	namesOfInterpretersWithPredefinedChanged.clear();
+    	namesOfInterpretersWithStringSubstitutionChanged.clear();
+    }
+    
+    public Set<String> getInterpreterNamesToRestoreAndClear(){
+    	HashSet<String> set = new HashSet<String>();
+    	set.addAll(namesOfInterpretersToRestore);
+    	set.addAll(namesOfInterpretersWithBuiltinsChanged);
+    	set.addAll(namesOfInterpretersWithPredefinedChanged);
+    	set.addAll(namesOfInterpretersWithStringSubstitutionChanged);
+    	
+    	namesOfInterpretersToRestore.clear();
+    	namesOfInterpretersWithBuiltinsChanged.clear();
+    	namesOfInterpretersWithPredefinedChanged.clear();
+    	namesOfInterpretersWithStringSubstitutionChanged.clear();
+    	
+    	return set;
+    }
 
 
     public IInterpreterInfo[] getExesList(){
@@ -161,7 +191,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         this.interpreterManager = interpreterManager;
         
         IInterpreterInfo[] interpreters = this.interpreterManager.getInterpreterInfos();
-        this.nameToInfo.clear();
+        clearInfos();
         for (IInterpreterInfo interpreterInfo: interpreters) {
             if(interpreterInfo != null){
                 nameToInfo.put(interpreterInfo.getName(), interpreterInfo.makeCopy());
@@ -257,6 +287,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                     curr.setText(0, newName);
                     this.nameToInfo.remove(initialName);
                     this.nameToInfo.put(newName, info);
+                    this.namesOfInterpretersToRestore.add(newName);
                 }
             }
         }
@@ -342,6 +373,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 				for(String builtin : builtins){
 				    info.removeForcedLib(builtin);
 				}
+				namesOfInterpretersWithBuiltinsChanged.add(info.getName());
 			}
 
 			
@@ -375,6 +407,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 						info.addForcedLib(trimmed);
 					}
 				}
+				namesOfInterpretersWithBuiltinsChanged.add(info.getName());
 			}
         	
         };
@@ -397,6 +430,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         		for(String item : items){
         			info.removePredefinedCompletionPath(item);
         		}
+        		namesOfInterpretersWithPredefinedChanged.add(info.getName());
         	}
         	
         	protected String getInput() {
@@ -411,6 +445,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         	
         	protected void addInputToInfo(InterpreterInfo info, String item) {
         		info.addPredefinedCompletionsPath(item);
+        		namesOfInterpretersWithPredefinedChanged.add(info.getName());
         	}
         	
         	protected void createButtons(AbstractInterpreterEditor interpreterEditor) {
@@ -664,7 +699,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private static String lastFileDialogPath = null;
     
     /**
-     * Returns this field editor's selection listener. The listener is created if nessessary.
+     * Returns this field editor's selection listener. The listener is created if necessary.
      * 
      * @return the selection listener
      */
@@ -674,7 +709,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 public void widgetSelected(SelectionEvent event) {
                     if (treeWithInterpreters.getSelectionCount() == 1) {
                         TreeItem[] selection = treeWithInterpreters.getSelection();
-                        InterpreterInfo info = (InterpreterInfo) nameToInfo.get(getNameFromTreeItem(selection[0]));
+                        String nameFromTreeItem = getNameFromTreeItem(selection[0]);
+						InterpreterInfo info = (InterpreterInfo) nameToInfo.get(nameFromTreeItem);
+                        namesOfInterpretersToRestore.add(nameFromTreeItem);
 
                     
                         Widget widget = event.widget;
@@ -790,10 +827,23 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         this.predefinedCompletions.removeAllFromList();
         
         //before any change, apply the changes in the previous info (if not set, that's ok)
-        if(workingCopy.getInfo() != null){
+        InterpreterInfo workingCopyInfo = workingCopy.getInfo();
+        if(workingCopyInfo != null){
             environmentTab.performApply(workingCopy);
-            workingCopy.getInfo().setStringSubstitutionVariables(
-            		PropertiesHelper.createPropertiesFromMap(this.tabVariables.getTreeItemsAsMap()));
+            Properties propertiesFromMap = PropertiesHelper.createPropertiesFromMap(this.tabVariables.getTreeItemsAsMap());
+            Properties stringSubstitutionVariables = workingCopyInfo.getStringSubstitutionVariables();
+            boolean equals = false;
+            if(stringSubstitutionVariables == null){
+            	if(stringSubstitutionVariables == null || stringSubstitutionVariables.size() == 0){
+            		equals = true;
+            	}
+            }else{
+            	equals = stringSubstitutionVariables.equals(propertiesFromMap);
+            }
+			if(!equals){
+            	namesOfInterpretersWithStringSubstitutionChanged.add(workingCopyInfo.getName());
+            	workingCopyInfo.setStringSubstitutionVariables(propertiesFromMap);
+            }
         }
         
         if(name != null){
@@ -943,7 +993,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                     operation.result.setName(interpreterNameAndExecutable.o1);
                     logger.println("- Success getting the info. Result:"+operation.result);
                     
-                    this.nameToInfo.put(operation.result.getName(), operation.result.makeCopy());
+                    String newName = operation.result.getName();
+					this.nameToInfo.put(newName, operation.result.makeCopy());
+					namesOfInterpretersToRestore.add(newName);
     
                     return new Tuple<String, String>(operation.result.getName(), operation.result.executableOrJar);
                 }else{
@@ -1047,7 +1099,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         if (treeWithInterpreters != null) {
             String s = interpreterManager.getPersistedString();
             IInterpreterInfo[] array = parseStringToInfo(s);
-            this.nameToInfo.clear();
+            clearInfos();
             for (int i = 0; i < array.length; i++) {
                 IInterpreterInfo interpreterInfo = array[i];
                 createInterpreterItem(interpreterInfo.getName(), interpreterInfo.getExecutableOrJar());

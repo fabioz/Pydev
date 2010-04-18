@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -468,9 +469,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * @see org.python.pydev.core.IInterpreterManager#restorePythopathForAllInterpreters(org.eclipse.core.runtime.IProgressMonitor)
      */
     @SuppressWarnings("unchecked")
-    public void restorePythopathForAllInterpreters(IProgressMonitor monitor) {
+    public void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpretersNamesToRestore) {
         synchronized(lock){
             for(String interpreter:exeToInfo.keySet()){
+            	if(interpretersNamesToRestore != null){
+            		if(!interpretersNamesToRestore.contains(interpreter)){
+            			continue; //only restore the ones specified
+            		}
+            	}
                 InterpreterInfo info;
 				try {
 					info = getInterpreterInfo(interpreter, monitor);

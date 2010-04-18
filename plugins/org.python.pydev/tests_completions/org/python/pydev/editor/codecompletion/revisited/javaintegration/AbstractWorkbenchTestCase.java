@@ -464,7 +464,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
         IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager(true);
         IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, monitor);
         iMan.addInterpreterInfo(interpreterInfo);
-        iMan.restorePythopathForAllInterpreters(monitor);
+        iMan.restorePythopathForInterpreters(monitor, null);
         iMan.setPersistedString(iMan.getStringToPersist(new IInterpreterInfo[]{interpreterInfo}));
         iMan.saveInterpretersInfoModulesManager();
     }
@@ -476,7 +476,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
         IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
         IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.PYTHON_EXE, monitor);
         iMan.addInterpreterInfo(interpreterInfo);
-        iMan.restorePythopathForAllInterpreters(monitor);
+        iMan.restorePythopathForInterpreters(monitor, null);
         iMan.setPersistedString(iMan.getStringToPersist(new IInterpreterInfo[]{interpreterInfo}));
         iMan.saveInterpretersInfoModulesManager();
     }
