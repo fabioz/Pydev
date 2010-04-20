@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -37,7 +38,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testDjango2();
+            builtins.test__all__3();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -418,7 +419,19 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
             "";
         
         //should keep the variables from the __builtins__ in this module
-        requestCompl(s, -1, new String[] {"ThisGoes", "RuntimeError"});
+        ICompletionProposal[] codeCompletionProposals = requestCompl(s, -1, new String[] {"ThisGoes", "RuntimeError"});
+        assertNotContains("ThisDoesnt", codeCompletionProposals);
+    }
+    
+    public void test__all__3() throws Exception {
+    	String s = 
+    		"from extendable.all_check3 import *\n" +
+    		"";
+    	
+    	//should keep the variables from the __builtins__ in this module
+    	ICompletionProposal[] codeCompletionProposals = requestCompl(s, -1, new String[] {"ThisGoes", "RuntimeError"});
+    	assertNotContains("ThisDoesnt", codeCompletionProposals);
+    	
     }
     
     

@@ -19,6 +19,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
 
 /**
@@ -181,17 +182,28 @@ public class GlobalModelVisitor extends AbstractVisitor {
             if(__all__AssignTargets != null && __all__AssignTargets.length == 1 && __all__AssignTargets[0] == ast){
                 HashSet<String> validTokensInAll = new HashSet<String>();
                 exprType value = __all__Assign.value;
+                exprType[] elts = null;
                 if(value instanceof List){
                     List valueList = (List) value;
                     if(valueList.elts != null){
-                        for(exprType elt:valueList.elts){
-                            if(elt instanceof Str){
-                                Str str = (Str) elt;
-                                validTokensInAll.add(str.s);
-                            }
-                        }
+                    	elts = valueList.elts;
+                    }
+                }else if(value instanceof Tuple){
+                	Tuple valueList = (Tuple) value;
+                	if(valueList.elts != null){
+                		elts = valueList.elts;
+                	}
+                }
+                
+                if(elts != null){
+	                for(exprType elt:elts){
+	                    if(elt instanceof Str){
+	                        Str str = (Str) elt;
+	                        validTokensInAll.add(str.s);
+	                    }
                     }
                 }
+
                 
                 if(validTokensInAll.size() > 0){
                     for(Iterator<IToken> it = tokens.iterator();it.hasNext();){
