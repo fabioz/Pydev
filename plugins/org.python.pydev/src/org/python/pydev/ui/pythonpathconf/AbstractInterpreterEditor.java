@@ -66,6 +66,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.plugin.PydevPlugin;
@@ -125,30 +126,30 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     
     private Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
     
-    private Set<String> namesOfInterpretersToRestore = new HashSet<String>();
-    private Set<String> namesOfInterpretersWithBuiltinsChanged = new HashSet<String>();
-    private Set<String> namesOfInterpretersWithPredefinedChanged = new HashSet<String>();
-    private Set<String> namesOfInterpretersWithStringSubstitutionChanged = new HashSet<String>();
+    private Set<String> exeOrJarOfInterpretersToRestore = new HashSet<String>();
+    private Set<String> exeOrJarOfInterpretersWithBuiltinsChanged = new HashSet<String>();
+    private Set<String> exeOrJarOfInterpretersWithPredefinedChanged = new HashSet<String>();
+    private Set<String> exeOrJarOfInterpretersWithStringSubstitutionChanged = new HashSet<String>();
     
     private void clearInfos(){
     	nameToInfo.clear();
-    	namesOfInterpretersToRestore.clear();
-    	namesOfInterpretersWithBuiltinsChanged.clear();
-    	namesOfInterpretersWithPredefinedChanged.clear();
-    	namesOfInterpretersWithStringSubstitutionChanged.clear();
+    	exeOrJarOfInterpretersToRestore.clear();
+    	exeOrJarOfInterpretersWithBuiltinsChanged.clear();
+    	exeOrJarOfInterpretersWithPredefinedChanged.clear();
+    	exeOrJarOfInterpretersWithStringSubstitutionChanged.clear();
     }
     
-    public Set<String> getInterpreterNamesToRestoreAndClear(){
+    public Set<String> getInterpreterExeOrJarToRestoreAndClear(){
     	HashSet<String> set = new HashSet<String>();
-    	set.addAll(namesOfInterpretersToRestore);
-    	set.addAll(namesOfInterpretersWithBuiltinsChanged);
-    	set.addAll(namesOfInterpretersWithPredefinedChanged);
-    	set.addAll(namesOfInterpretersWithStringSubstitutionChanged);
+    	set.addAll(exeOrJarOfInterpretersToRestore);
+    	set.addAll(exeOrJarOfInterpretersWithBuiltinsChanged);
+    	set.addAll(exeOrJarOfInterpretersWithPredefinedChanged);
+    	set.addAll(exeOrJarOfInterpretersWithStringSubstitutionChanged);
     	
-    	namesOfInterpretersToRestore.clear();
-    	namesOfInterpretersWithBuiltinsChanged.clear();
-    	namesOfInterpretersWithPredefinedChanged.clear();
-    	namesOfInterpretersWithStringSubstitutionChanged.clear();
+    	exeOrJarOfInterpretersToRestore.clear();
+    	exeOrJarOfInterpretersWithBuiltinsChanged.clear();
+    	exeOrJarOfInterpretersWithPredefinedChanged.clear();
+    	exeOrJarOfInterpretersWithStringSubstitutionChanged.clear();
     	
     	return set;
     }
@@ -287,7 +288,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                     curr.setText(0, newName);
                     this.nameToInfo.remove(initialName);
                     this.nameToInfo.put(newName, info);
-                    this.namesOfInterpretersToRestore.add(newName);
+                    this.exeOrJarOfInterpretersToRestore.add(info.getExecutableOrJar());
                 }
             }
         }
@@ -373,7 +374,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 				for(String builtin : builtins){
 				    info.removeForcedLib(builtin);
 				}
-				namesOfInterpretersWithBuiltinsChanged.add(info.getName());
+				exeOrJarOfInterpretersWithBuiltinsChanged.add(info.getExecutableOrJar());
 			}
 
 			
@@ -407,7 +408,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 						info.addForcedLib(trimmed);
 					}
 				}
-				namesOfInterpretersWithBuiltinsChanged.add(info.getName());
+				exeOrJarOfInterpretersWithBuiltinsChanged.add(info.getExecutableOrJar());
 			}
         	
         };
@@ -430,7 +431,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         		for(String item : items){
         			info.removePredefinedCompletionPath(item);
         		}
-        		namesOfInterpretersWithPredefinedChanged.add(info.getName());
+        		exeOrJarOfInterpretersWithPredefinedChanged.add(info.getExecutableOrJar());
         	}
         	
         	protected String getInput() {
@@ -445,7 +446,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         	
         	protected void addInputToInfo(InterpreterInfo info, String item) {
         		info.addPredefinedCompletionsPath(item);
-        		namesOfInterpretersWithPredefinedChanged.add(info.getName());
+        		exeOrJarOfInterpretersWithPredefinedChanged.add(info.getExecutableOrJar());
         	}
         	
         	protected void createButtons(AbstractInterpreterEditor interpreterEditor) {
@@ -516,7 +517,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         				final ByteArrayOutputStream output = new ByteArrayOutputStream();
         				if (retCode == InputDialog.OK) {
         					
-        		            ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(getShell());
+        		            ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(getShell());
         		            monitorDialog.setBlockOnOpen(false);
         		            final Exception [] exception = new Exception[1];
         		            try {
@@ -711,7 +712,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                         TreeItem[] selection = treeWithInterpreters.getSelection();
                         String nameFromTreeItem = getNameFromTreeItem(selection[0]);
 						InterpreterInfo info = (InterpreterInfo) nameToInfo.get(nameFromTreeItem);
-                        namesOfInterpretersToRestore.add(nameFromTreeItem);
+                        exeOrJarOfInterpretersToRestore.add(info.getExecutableOrJar());
 
                     
                         Widget widget = event.widget;
@@ -841,7 +842,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             	equals = stringSubstitutionVariables.equals(propertiesFromMap);
             }
 			if(!equals){
-            	namesOfInterpretersWithStringSubstitutionChanged.add(workingCopyInfo.getName());
+            	exeOrJarOfInterpretersWithStringSubstitutionChanged.add(workingCopyInfo.getExecutableOrJar());
             	workingCopyInfo.setStringSubstitutionVariables(propertiesFromMap);
             }
         }
@@ -911,40 +912,24 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 
                 if (result == Window.OK){
                     interpreterNameAndExecutable = dialog.getKeyAndValueEntered();
-                    if(interpreterNameAndExecutable == null){
-                        ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
-                                "interpreterNameAndExecutable == null", 
-                                PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null", new RuntimeException()));
-                        return null;
-                    }
-                    String error = getDuplicatedMessageError(interpreterNameAndExecutable.o1, interpreterNameAndExecutable.o2);
-                    if(error != null){
-                        ErrorDialog.openError(this.getShell(), "Error getting info on interpreter", 
-                                error, 
-                                PydevPlugin.makeStatus(IStatus.ERROR, "Duplicated interpreter information", new RuntimeException()));
-                        return null;
-                    }
                 }else{
                     return null;
                 }
             }
             
+            boolean foundError = checkInterpreterNameAndExecutable(
+            		interpreterNameAndExecutable, logger, "Error getting info on interpreter");
             
-            if (interpreterNameAndExecutable != null) {
-                logger.println("- Chosen interpreter (name and file):'"+interpreterNameAndExecutable);
-                if (interpreterNameAndExecutable.o2.trim().length() == 0){
-                    logger.println("- When trimmed, the chosen file was empty (returning null).");
-                    return null;
-                }
-            }else{
-                logger.println("- The file chosen was null (returning null).");
-                return null;
+            if(foundError){
+            	return null;
             }
+            
+            logger.println("- Chosen interpreter (name and file):'"+interpreterNameAndExecutable);
             
             if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
                 //ok, now that we got the file, let's see if it is valid and get the library info.
                 logger.println("- Ok, file is non-null. Getting info on:"+interpreterNameAndExecutable.o2);
-                ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
+                ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(this.getShell());
                 monitorDialog.setBlockOnOpen(false);
                 ObtainInterpreterInfoOperation operation = new ObtainInterpreterInfoOperation(interpreterNameAndExecutable.o2, logger, interpreterManager);
                 monitorDialog.run(true, false, operation);
@@ -990,12 +975,22 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
                 }
 
                 if(operation.result != null){
+                	
+                    foundError = checkInterpreterNameAndExecutable(
+                    		new Tuple<String, String>(interpreterNameAndExecutable.o1, operation.result.executableOrJar), 
+                    		logger, 
+                    		"Error adding interpreter");
+                    
+                    if(foundError){
+                    	return null;
+                    }
+                    
                     operation.result.setName(interpreterNameAndExecutable.o1);
                     logger.println("- Success getting the info. Result:"+operation.result);
                     
                     String newName = operation.result.getName();
 					this.nameToInfo.put(newName, operation.result.makeCopy());
-					namesOfInterpretersToRestore.add(newName);
+					exeOrJarOfInterpretersToRestore.add(operation.result.executableOrJar);
     
                     return new Tuple<String, String>(operation.result.getName(), operation.result.executableOrJar);
                 }else{
@@ -1012,6 +1007,41 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         
         return null;
     }
+
+	private boolean checkInterpreterNameAndExecutable(
+			Tuple<String, String> interpreterNameAndExecutable, PrintWriter logger, String errorMsg) {
+		boolean foundError = false;
+		//Check auto config or dialog return.
+		if(interpreterNameAndExecutable == null){
+			logger.println("- When trimmed, the chosen file was null (returning null).");
+			
+		    ErrorDialog.openError(this.getShell(), errorMsg, 
+		            "interpreterNameAndExecutable == null", 
+		            PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null", new RuntimeException()));
+		    foundError = true;
+		}
+		if(!foundError){
+			if(interpreterNameAndExecutable.o2.trim().length() == 0){
+                logger.println("- When trimmed, the chosen file was empty (returning null).");
+
+				ErrorDialog.openError(this.getShell(), errorMsg, 
+						"interpreterNameAndExecutable size == empty", 
+						PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty", new RuntimeException()));
+				foundError = true;
+			}
+		}
+		if(!foundError){
+		    String error = getDuplicatedMessageError(interpreterNameAndExecutable.o1, interpreterNameAndExecutable.o2);
+		    if(error != null){
+		    	logger.println("- Duplicated interpreter found.");
+		        ErrorDialog.openError(this.getShell(), errorMsg, 
+		                error, 
+		                PydevPlugin.makeStatus(IStatus.ERROR, "Duplicated interpreter information", new RuntimeException()));
+		        foundError = true;
+		    }
+		}
+		return foundError;
+	}
 
     /**
      * Gets a unique name for the interpreter based on an initial expected name.

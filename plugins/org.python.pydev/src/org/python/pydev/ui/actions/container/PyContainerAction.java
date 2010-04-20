@@ -16,6 +16,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -91,7 +92,7 @@ public abstract class PyContainerAction {
         beforeRun();
         
         final Integer[] nChanged = new Integer[]{0};
-        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(PyAction.getShell());
+        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(PyAction.getShell());
         try {
             IRunnableWithProgress operation = new IRunnableWithProgress(){
 

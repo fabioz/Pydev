@@ -17,8 +17,8 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -39,6 +39,7 @@ import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
@@ -360,7 +361,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     
                                 public void run() {
                                     Shell shell = def.getActiveShell();
-                                    ProgressMonitorDialog dialog = new ProgressMonitorDialog(shell);
+                                    ProgressMonitorDialog dialog = new AsynchronousProgressMonitorDialog(shell);
                                     dialog.setBlockOnOpen(false);
                                     try {
                                         dialog.run(false, false, new IRunnableWithProgress(){

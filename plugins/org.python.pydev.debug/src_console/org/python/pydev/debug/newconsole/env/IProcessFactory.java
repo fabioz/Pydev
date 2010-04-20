@@ -16,6 +16,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -100,8 +101,8 @@ public class IProcessFactory {
             }    
 			
             if(interpreter == null){
-                ListDialog listDialog = AbstractInterpreterPreferencesPage.createChooseIntepreterInfoDialog(
-                		workbenchWindow, interpreters, "Select interpreter to be used.");
+                SelectionDialog listDialog = AbstractInterpreterPreferencesPage.createChooseIntepreterInfoDialog(
+                		workbenchWindow, interpreters, "Select interpreter to be used.", false);
                 
                 int open = listDialog.open();
                 if(open != ListDialog.OK || listDialog.getResult().length > 1){

@@ -24,8 +24,11 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
+import org.eclipse.ui.dialogs.ListSelectionDialog;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -51,40 +54,53 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     /**
      * Creates a dialog that'll choose from a list of interpreter infos.
      */
-    public static ListDialog createChooseIntepreterInfoDialog(
-            IWorkbenchWindow workbenchWindow, IInterpreterInfo[] interpreters, String msg) {
-        ListDialog listDialog = new ListDialog(workbenchWindow.getShell());
-        listDialog.setContentProvider(new IStructuredContentProvider(){
-
-            public Object[] getElements(Object inputElement) {
-                if(inputElement instanceof IInterpreterInfo[]){
-                    return (IInterpreterInfo[]) inputElement;
-                }
-                return new Object[0];
-            }
-
-            public void dispose() {
-            }
-
-            public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-                
-            }}
-        );
-        listDialog.setLabelProvider(new LabelProvider(){
-            public Image getImage(Object element) {
-                return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
-            }
-            public String getText(Object element) {
-                if(element != null && element instanceof IInterpreterInfo){
-                    IInterpreterInfo info = (IInterpreterInfo) element;
-                    return info.getNameForUI();
-                }
-                return super.getText(element);
-            }
-        });
-        listDialog.setInput(interpreters);
-        listDialog.setMessage(msg);
-        return listDialog;
+    public static SelectionDialog createChooseIntepreterInfoDialog(
+            IWorkbenchWindow workbenchWindow, IInterpreterInfo[] interpreters, String msg, boolean selectMultiple) {
+    	
+    	IStructuredContentProvider contentProvider = new IStructuredContentProvider(){
+    		
+    		public Object[] getElements(Object inputElement) {
+    			if(inputElement instanceof IInterpreterInfo[]){
+    				return (IInterpreterInfo[]) inputElement;
+    			}
+    			return new Object[0];
+    		}
+    		
+    		public void dispose() {
+    		}
+    		
+    		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+    			
+    		}
+    	};
+    	
+    	LabelProvider labelProvider = new LabelProvider(){
+    		public Image getImage(Object element) {
+    			return PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+    		}
+    		public String getText(Object element) {
+    			if(element != null && element instanceof IInterpreterInfo){
+    				IInterpreterInfo info = (IInterpreterInfo) element;
+    				return info.getNameForUI();
+    			}
+    			return super.getText(element);
+    		}
+    	};
+    		
+    	SelectionDialog selectionDialog;
+    	if(selectMultiple){
+    		selectionDialog = new ListSelectionDialog(workbenchWindow.getShell(), interpreters, contentProvider, labelProvider, msg);
+    	}else{
+	    	
+	        ListDialog listDialog = new ListDialog(workbenchWindow.getShell());
+	        
+			listDialog.setContentProvider(contentProvider);
+			listDialog.setLabelProvider(labelProvider);
+	        listDialog.setInput(interpreters);
+	        listDialog.setMessage(msg);
+	        selectionDialog = listDialog;
+    	}
+    	return selectionDialog;
     }
     
     public void init(IWorkbench workbench) {
@@ -205,12 +221,13 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @return true if the info was restored and false otherwise.
      */
     protected boolean restoreModules(boolean editorChanged) {
-    	final Set<String> interpreterNamesToRestore = pathEditor.getInterpreterNamesToRestoreAndClear();
+    	final Set<String> interpreterNamesToRestore = pathEditor.getInterpreterExeOrJarToRestoreAndClear();
         final IInterpreterInfo[] exesList = pathEditor.getExesList();
         
         if(!editorChanged && interpreterNamesToRestore.size() == 0){
         	IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        	ListDialog listDialog = createChooseIntepreterInfoDialog(workbenchWindow, exesList, "Select interpreters to be restored");
+        	SelectionDialog listDialog = createChooseIntepreterInfoDialog(
+        			workbenchWindow, exesList, "Select interpreters to be restored", true);
         	
             int open = listDialog.open();
             if(open != ListDialog.OK){
@@ -222,13 +239,13 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
                 
             }
             for(Object o:result){
-            	interpreterNamesToRestore.add(((IInterpreterInfo)o).getName());
+            	interpreterNamesToRestore.add(((IInterpreterInfo)o).getExecutableOrJar());
             }
         	
         }
         
         //this is the default interpreter
-        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(this.getShell());
+        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(this.getShell());
         monitorDialog.setBlockOnOpen(false);
 
         try {

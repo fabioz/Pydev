@@ -44,6 +44,7 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 
 /* package */ class ReplaceAction2 extends Action {
     
@@ -191,7 +192,7 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
         
         if (outOfDateEntries.size() > 0 || outOfSyncEntries.size() > 0) {
             if (askForResearch(outOfDateEntries, outOfSyncEntries)) {
-                ProgressMonitorDialog pmd= new ProgressMonitorDialog(fSite.getShell());
+                ProgressMonitorDialog pmd= new AsynchronousProgressMonitorDialog(fSite.getShell());
                 try {
                     pmd.run(true, true, new WorkspaceModifyOperation(null) {
                         protected void execute(IProgressMonitor monitor) throws CoreException {

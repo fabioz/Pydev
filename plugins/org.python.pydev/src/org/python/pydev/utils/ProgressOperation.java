@@ -13,6 +13,7 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 
 /**
  * Helper class for executing an action and showing its progress.
@@ -50,7 +51,7 @@ public class ProgressOperation extends WorkspaceModifyOperation {
      * 
      */
     public static void startAction(Shell shell, ProgressAction action) {
-        ProgressMonitorDialog monitorDialog = new ProgressMonitorDialog(
+        ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(
                 shell);
         monitorDialog.setBlockOnOpen(false);
         try {
