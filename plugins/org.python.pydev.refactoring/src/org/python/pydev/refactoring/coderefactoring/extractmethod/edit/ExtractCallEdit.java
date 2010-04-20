@@ -17,6 +17,7 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
@@ -63,7 +64,12 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
                 returnExpr.add(new Name(returnVar, Name.Store, false));
             }
 
-            return new Assign(returnExpr.toArray(new exprType[0]), methodCall);
+            exprType[] expr = returnExpr.toArray(new exprType[0]);
+            if(expr.length > 1){
+            	expr = new exprType[]{new Tuple(expr, Tuple.Load, false)};
+            }
+            
+			return new Assign(expr, methodCall);
         }
     }
 

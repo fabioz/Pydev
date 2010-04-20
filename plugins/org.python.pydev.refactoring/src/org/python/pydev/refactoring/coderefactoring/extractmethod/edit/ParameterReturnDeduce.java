@@ -9,7 +9,9 @@
 package org.python.pydev.refactoring.coderefactoring.extractmethod.edit;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +25,7 @@ import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 
 public class ParameterReturnDeduce {
     private List<String> parameters;
-    private Set<String> returns;
+    private Collection<String> returns;
     private AbstractScopeNode<?> scopeAdapter;
     private ITextSelection selection;
     private ModuleAdapter moduleAdapter;
@@ -32,7 +34,7 @@ public class ParameterReturnDeduce {
         this.scopeAdapter = scope;
         this.selection = selection;
         this.parameters = new ArrayList<String>();
-        this.returns = new HashSet<String>();
+        this.returns = new LinkedHashSet<String>(); //maintain order.
         this.moduleAdapter = moduleAdapter;
         deduce();
     }
