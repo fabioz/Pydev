@@ -25,6 +25,7 @@ import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocIterator;
+import org.python.pydev.core.performanceeval.OptimizationRelatedConstants;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.model.IModelListener;
 import org.python.pydev.parser.ErrorDescription;
@@ -124,7 +125,13 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
                 IDocument doc = editor.getDocument();
                 if(doc != null){ //this can happen if we change the input of the editor very quickly.
                     List<FoldingEntry> marks = getMarks(doc, root2);
-                    Map<ProjectionAnnotation, Position> annotationsToAdd = getAnnotationsToAdd(marks, model, existing);
+                    Map<ProjectionAnnotation, Position> annotationsToAdd;
+                    if(marks.size() > OptimizationRelatedConstants.MAXIMUM_NUMBER_OF_CODE_FOLDING_MARKS){
+                    	annotationsToAdd = new HashMap<ProjectionAnnotation, Position>();
+                    	
+                    }else{
+                    	annotationsToAdd = getAnnotationsToAdd(marks, model, existing);
+                    }
                     
                     model.replaceAnnotations(existing.toArray(new Annotation[existing.size()]), annotationsToAdd);
                 }

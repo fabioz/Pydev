@@ -25,6 +25,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
@@ -53,18 +54,6 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
      */
     protected DeltaSaver<Object> deltaSaver;
     
-    @Override
-    protected void add(IInfo info, boolean generateDelta, int doOn) {
-        synchronized (lock) {
-            super.add(info, generateDelta, doOn);
-            //after adding any info, we have to save the delta.
-            if(generateDelta){
-                deltaSaver.addInsertCommand(info);
-                checkDeltaSize();
-            }
-        }
-    }
-
     
     @Override
     public void removeInfoFromModule(String moduleName, boolean generateDelta) {
@@ -134,15 +123,29 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
 
     public void processInsert(Object data) {
         synchronized (lock) {
-            //the IInfo token is generated on insert
-            IInfo info = (IInfo) data;
-            if(info.getPath() == null || info.getPath().length() == 0){
-                this.add(info, false, TOP_LEVEL);
-                
-            }else{
-                this.add(info, false, INNER);
-                
-            }
+        	if(data instanceof IInfo){
+        		//backward compatibility
+        		//the IInfo token is generated on insert
+	            IInfo info = (IInfo) data;
+	            if(info.getPath() == null || info.getPath().length() == 0){
+	                this.add(info, TOP_LEVEL);
+	                
+	            }else{
+	                this.add(info, INNER);
+	                
+	            }
+        	}else if(data instanceof List){
+        		//current way (saves a list of iinfo)
+        		for(IInfo info : (List<IInfo>) data){
+	        		if(info.getPath() == null || info.getPath().length() == 0){
+	        			this.add(info, TOP_LEVEL);
+	        			
+	        		}else{
+	        			this.add(info, INNER);
+	        			
+	        		}
+        		}
+        	}
         }
     }
 
@@ -155,10 +158,11 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     
     
     /**
-     * This is the maximun number of deltas that can be generated before saving everything in a big chunck and 
-     * clearing the deltas
+     * This is the maximum number of deltas that can be generated before saving everything in a big chunk and 
+     * clearing the deltas. 50 means that it's something as 25 modules (because usually a module change
+     * is composed of a delete and an addition). 
      */
-    public static final int MAXIMUN_NUMBER_OF_DELTAS = 100;
+    public static final int MAXIMUN_NUMBER_OF_DELTAS = 50;
 
     /**
      * If the delta size is big enough, save the current state and discard the deltas.
@@ -167,11 +171,30 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         synchronized (lock) {
             if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
                 this.save();
-                deltaSaver.clearAll();
             }
         }
     }
 
+    /**
+     * Whenever it's properly saved, clear all the deltas.
+     */
+    public void save() {
+    	synchronized (lock) {
+	    	super.save();
+	    	deltaSaver.clearAll();
+    	}
+    }
+    
+    
+    @Override
+    public List<IInfo> addAstInfo(SimpleNode node, String moduleName, IPythonNature nature,
+    		boolean generateDelta) {
+    	List<IInfo> addAstInfo = super.addAstInfo(node, moduleName, nature, generateDelta);
+    	if(generateDelta && addAstInfo.size() > 0){
+    		deltaSaver.addInsertCommand(addAstInfo);
+    	}
+    	return addAstInfo;
+    }
 
     //----------------------------------------------------------------------------- END DELTA RELATED
     

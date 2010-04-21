@@ -54,12 +54,12 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     
     public void testMap() {
-        info.addMethod(createFuncDef("metz" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("metZ" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("met9" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("met0" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("meta" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("metA" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("metz" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("metZ" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("met9" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("met0" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("meta" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("metA" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("met", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertEquals(6, tokensStartingWith.size());
@@ -69,10 +69,10 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
     
     public void testMap2() {
-        info.addMethod(createFuncDef("m" )   , "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("mm" )  , "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("mmm" ) , "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("mmmm" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("m" )   , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("mm" )  , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("mmm" ) , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("mmmm" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertEquals(4, tokensStartingWith.size());
@@ -88,10 +88,10 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
     
     public void testAddFunc() {
-        info.addMethod(createFuncDef("met1" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("met2" ), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("func1"), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("func2"), "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("met1" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("met2" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("func1"), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addMethod(createFuncDef("func2"), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("me", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());
@@ -108,10 +108,10 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     public void testAddClass() {
-        info.addClass(createClassDef("cls1" ) , "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addClass(createClassDef("cls2" ) , "mod1", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addClass(createClassDef("class1"), "mod2", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addClass(createClassDef("class2"), "mod2", false, AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addClass(createClassDef("cls1" ) , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addClass(createClassDef("cls2" ) , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addClass(createClassDef("class1"), "mod2", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
+        info.addClass(createClassDef("class2"), "mod2", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
         
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("cls", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());

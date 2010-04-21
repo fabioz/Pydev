@@ -4,6 +4,7 @@
 package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -143,9 +144,10 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
     
     @Override
-    public void addAstInfo(SimpleNode node, String moduleName, IPythonNature nature, boolean generateDelta) {
+    public List<IInfo> addAstInfo(SimpleNode node, String moduleName, IPythonNature nature, boolean generateDelta) {
+    	List<IInfo> addAstInfo = new ArrayList<IInfo>();
         if(node == null || moduleName == null){
-            return;
+            return addAstInfo;
         }
         HashSet<String> nameIndexes = new HashSet<String>();
         SequencialASTIteratorVisitor visitor2 = new SequencialASTIteratorVisitor();
@@ -154,7 +156,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             Iterator<ASTEntry> iterator = visitor2.getNamesIterator();
             
             synchronized (lock) {
-                super.addAstInfo(node, moduleName, nature, generateDelta);
+                addAstInfo = super.addAstInfo(node, moduleName, nature, generateDelta);
                 
                 //ok, now, add 'all the names'
                 while (iterator.hasNext()) {
@@ -173,6 +175,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         } catch (Exception e) {
             PydevPlugin.log(e);
         }
+        return addAstInfo;
     }
     
     @Override

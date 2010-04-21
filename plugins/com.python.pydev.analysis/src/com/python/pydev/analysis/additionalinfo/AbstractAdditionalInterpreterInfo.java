@@ -173,7 +173,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * 
      * @param info information to be added
      */
-    protected void add(IInfo info, boolean generateDelta, int doOn) {
+    protected void add(IInfo info, int doOn) {
         synchronized (lock) {
             String name = info.getName();
             String initials = getInitials(name);
@@ -227,28 +227,34 @@ public abstract class AbstractAdditionalInterpreterInfo {
     /**
      * adds a method to the definition
      * @param doOn 
+     * @return 
      */
-    protected void addMethod(FunctionDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+    protected IInfo addMethod(FunctionDef def, String moduleDeclared, int doOn, String path) {
         FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path);
-        add(info2, generateDelta, doOn);
+        add(info2, doOn);
+        return info2;
     }
     
     /**
      * Adds a class to the definition
      * @param doOn 
+     * @return 
      */
-    protected void addClass(ClassDef def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+    protected IInfo addClass(ClassDef def, String moduleDeclared, int doOn, String path) {
         ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path);
-        add(info, generateDelta, doOn);
+        add(info, doOn);
+        return info;
     }
     
     
     /**
      * Adds an attribute to the definition (this is either a global, a class attribute or an instance (self) attribute
+     * @return 
      */
-    protected void addAttribute(String def, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+    protected IInfo addAttribute(String def, String moduleDeclared, int doOn, String path) {
         AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path);
-        add(info, generateDelta, doOn);
+        add(info, doOn);
+        return info;
     }
 
     /**
@@ -257,16 +263,17 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param classOrFunc the class or function we want to add
      * @param moduleDeclared the module where it is declared
      * @param doOn 
+     * @return 
      */
-    protected void addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared, boolean generateDelta, int doOn, String path) {
+    protected IInfo addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared, int doOn, String path) {
         if(classOrFunc instanceof ClassDef){
-            addClass((ClassDef) classOrFunc, moduleDeclared, generateDelta, doOn, path);
+            return addClass((ClassDef) classOrFunc, moduleDeclared, doOn, path);
         }else{
-            addMethod((FunctionDef) classOrFunc, moduleDeclared, generateDelta, doOn, path);
+            return addMethod((FunctionDef) classOrFunc, moduleDeclared, doOn, path);
         }
     }
 
-    private void addAssignTargets(ASTEntry entry, String moduleName, boolean generateDelta, int doOn, String path, boolean lastIsMethod ) {
+    private IInfo addAssignTargets(ASTEntry entry, String moduleName, int doOn, String path, boolean lastIsMethod ) {
         String rep = NodeUtils.getFullRepresentationString(entry.node);
         if(lastIsMethod){
             List<String> parts = StringUtils.dotSplit(rep);
@@ -274,12 +281,13 @@ public abstract class AbstractAdditionalInterpreterInfo {
                 //at least 2 parts are required
                 if(parts.get(0).equals("self")){
                     rep = parts.get(1);
-                    addAttribute(rep, moduleName, generateDelta, doOn, path);
+                    return addAttribute(rep, moduleName, doOn, path);
                 }
             }
         }else{
-            addAttribute(FullRepIterable.getFirstPart(rep), moduleName, generateDelta, doOn, path);
+            return addAttribute(FullRepIterable.getFirstPart(rep), moduleName, doOn, path);
         }
+        return null;
     }
 
     /**
@@ -291,70 +299,75 @@ public abstract class AbstractAdditionalInterpreterInfo {
     }
 
     
-    /**
-     * Add info from a generated ast
-     * @param node the ast root
-     */
-    public void addAstInfo(SimpleNode node, String moduleName, IPythonNature nature, boolean generateDelta) {
-        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-            Log.toLogFile(this, "Adding ast info to: "+moduleName);
-        }
-        if(node == null || moduleName == null){
-            return;
-        }
-        
-        try {
-            Iterator<ASTEntry> entries = getInnerEntriesForAST(node);
-
-            FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>();
-            
-            synchronized (lock) {
-
-                while (entries.hasNext()) {
-                    ASTEntry entry = entries.next();
-                    
-                    if(entry.parent == null){ //we only want those that are in the global scope
-                        if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
-                            addClassOrFunc(entry.node, moduleName, generateDelta, TOP_LEVEL, null);
-                        }else{
-                            //it is an assign
-                            addAssignTargets(entry, moduleName, generateDelta, TOP_LEVEL, null, false);
-                        }
-                    }else{
-                        if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
-                            //ok, it has a parent, so, let's check to see if the path we got only has class definitions
-                            //as the parent (and get that path)
-                            Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, false, false, tempStack);
-                            if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-                                //if the root is not valid, it is not only classes in the path (could be a method inside
-                                //a method, or something similar).
-                                addClassOrFunc(entry.node, moduleName, generateDelta, INNER, pathToRoot.o1);
-                            }
-                        }else{
-                            //it is an assign
-                            Tuple<String,Boolean> pathToRoot = getPathToRoot(entry, true, false, tempStack);
-                            if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-                                addAssignTargets(entry, moduleName, generateDelta, INNER, pathToRoot.o1, pathToRoot.o2);
-                            }
-                        }
-                    }
-                }
-            }            
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-        }
-
+    public List<IInfo> addAstInfo(SimpleNode node, String moduleName, IPythonNature nature, boolean generateDelta) {
+    	List <IInfo> createdInfos = new ArrayList<IInfo>();
+    	if(node == null || moduleName == null){
+    		return createdInfos;
+    	}
+    	try {
+			Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>> tup = getInnerEntriesForAST(node);
+			if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+			    Log.toLogFile(this, "Adding ast info to: "+moduleName);
+			}
+			
+			try {
+			    Iterator<ASTEntry> entries = tup.o2;
+			
+			    FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>();
+			    
+			    synchronized (this.lock) {
+			        while (entries.hasNext()) {
+			            ASTEntry entry = entries.next();
+			            IInfo infoCreated = null;
+			            
+			            if(entry.parent == null){ //we only want those that are in the global scope
+			                if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
+			                	infoCreated = this.addClassOrFunc(entry.node, moduleName, TOP_LEVEL, null);
+			                }else{
+			                    //it is an assign
+			                	infoCreated = this.addAssignTargets(entry, moduleName, TOP_LEVEL, null, false);
+			                }
+			            }else{
+			                if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
+			                    //ok, it has a parent, so, let's check to see if the path we got only has class definitions
+			                    //as the parent (and get that path)
+			                    Tuple<String,Boolean> pathToRoot = this.getPathToRoot(entry, false, false, tempStack);
+			                    if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+			                        //if the root is not valid, it is not only classes in the path (could be a method inside
+			                        //a method, or something similar).
+			                    	infoCreated = this.addClassOrFunc(entry.node, moduleName, INNER, pathToRoot.o1);
+			                    }
+			                }else{
+			                    //it is an assign
+			                    Tuple<String,Boolean> pathToRoot = this.getPathToRoot(entry, true, false, tempStack);
+			                    if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+			                    	infoCreated = this.addAssignTargets(entry, moduleName, INNER, pathToRoot.o1, pathToRoot.o2);
+			                    }
+			                }
+			            }
+			            
+			            if(infoCreated != null){
+			            	createdInfos.add(infoCreated);
+			            }
+			        }
+			    }        
+			} catch (Exception e) {
+			    PydevPlugin.log(e);
+			}
+		} catch (Exception e) {
+			Log.log(e);
+		}
+		return createdInfos;
     }
-
     
     /**
      * @return an iterator that'll get the outline entries for the given ast.
      */
-    public static Iterator<ASTEntry> getInnerEntriesForAST(SimpleNode node) throws Exception {
+    public static Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>> getInnerEntriesForAST(SimpleNode node) throws Exception {
         DefinitionsASTIteratorVisitor visitor = new DefinitionsASTIteratorVisitor();
         node.accept(visitor);
         Iterator<ASTEntry> entries = visitor.getOutline();
-        return entries;
+        return new Tuple<DefinitionsASTIteratorVisitor, Iterator<ASTEntry>>(visitor, entries);
     }
     
     

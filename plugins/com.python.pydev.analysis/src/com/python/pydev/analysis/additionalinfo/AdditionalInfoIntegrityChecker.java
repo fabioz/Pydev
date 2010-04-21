@@ -152,7 +152,7 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener{
                         buffer.append(StringUtils.format("Warning: cannot parse: %s - %s (so, it's ok not having additional info on it)\n", key.name, key.file));
                     }else{
                         try {
-                            Iterator<ASTEntry> innerEntriesForAST = AbstractAdditionalDependencyInfo.getInnerEntriesForAST(module.getAst());
+                            Iterator<ASTEntry> innerEntriesForAST = AbstractAdditionalDependencyInfo.getInnerEntriesForAST(module.getAst()).o2;
                             if(innerEntriesForAST.hasNext()){
                                 info.allOk = false;
                                 info.moduleNotInAdditionalInfo.add(module);

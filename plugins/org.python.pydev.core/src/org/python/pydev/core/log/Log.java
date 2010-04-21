@@ -15,6 +15,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.MisconfigurationException;
 
 
 /**
@@ -33,7 +34,9 @@ public class Log {
     public static void log(int errorLevel, String message, Throwable e) {
         System.err.println(message);
         if(e != null){
-            e.printStackTrace();
+        	if(!(e instanceof MisconfigurationException)){
+        		e.printStackTrace();
+        	}
         }
         try {
             
