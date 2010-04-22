@@ -7,6 +7,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.KeywordParameterDefinition;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
@@ -55,7 +56,7 @@ public class RefactorProcessFactory {
             
             if(definition.ast instanceof Name){
                 Name n = (Name) definition.ast;
-                if(n.ctx == Name.Param){
+                if(n.ctx == Name.Param || n.ctx == Attribute.KwOnlyParam){
                     return new PyRenameParameterProcess(definition);
                 }
             }

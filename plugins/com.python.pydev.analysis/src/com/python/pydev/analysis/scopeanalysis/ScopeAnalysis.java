@@ -219,6 +219,13 @@ public class ScopeAnalysis {
                     if(d.args.kwarg != null){
                         d.args.kwarg.accept(visitor);
                     }
+                    //visit keyword only args
+                    if(d.args.kwonlyargs != null){
+                    	for(exprType expr : d.args.kwonlyargs){
+                    		expr.accept(visitor);
+                    	}
+                    }
+
                 }
                 
                 //and at last... the body

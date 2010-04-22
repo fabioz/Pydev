@@ -163,6 +163,12 @@ public class LocalScope implements ILocalScope {
                     String s = NodeUtils.getRepresentationString(args.kwarg);
                     comps.add(new SourceToken(args.kwarg, s, "", "", "", IToken.TYPE_PARAM));
                 }
+                if(args.kwonlyargs != null){
+	                for (int i = 0; i < args.kwonlyargs.length; i++) {
+	                	String s = NodeUtils.getRepresentationString(args.kwonlyargs[i]);
+	                	comps.add(new SourceToken(args.kwonlyargs[i], s, "", "", "", IToken.TYPE_PARAM));
+	                }
+                }
                 
                 if(onlyArgs){
                     continue;

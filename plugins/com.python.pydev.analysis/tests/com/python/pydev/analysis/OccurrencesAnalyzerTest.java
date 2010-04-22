@@ -31,7 +31,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testModuleNotFoundOnRelativeAbsolute();
+            analyzer2.testPython30UnusedParameter();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2749,5 +2749,41 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     
     
     
-
+    public void testPython30() {
+    	int initial = GRAMMAR_TO_USE_FOR_PARSING;
+    	try{
+	    	GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+	        doc = new Document(
+	        		"def func(arg, *, arg2=None):\n"+
+	        		"    arg, arg2"
+	        );
+	        analyzer = new OccurrencesAnalyzer();
+	        msgs = analyzeDoc();
+	        
+	        printMessages(msgs);
+	        assertEquals(0, msgs.length);
+    	}finally{
+    		GRAMMAR_TO_USE_FOR_PARSING = initial;
+    	}
+    }
+    
+    public void testPython30UnusedParameter() {
+    	int initial = GRAMMAR_TO_USE_FOR_PARSING;
+    	try{
+	    	GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+	        doc = new Document(
+	            "class Class1:         \n" +
+	            "    def met1(self, *, a=2):\n" +
+	            "        self.x = 20"
+	                );
+	        analyzer = new OccurrencesAnalyzer();
+	        msgs = analyzeDoc();
+	        
+	        printMessages(msgs, 1);
+	        assertEquals("Unused parameter: a", msgs[0].getMessage());
+    	}finally{
+    		GRAMMAR_TO_USE_FOR_PARSING = initial;
+    	}
+    }
+    
 }

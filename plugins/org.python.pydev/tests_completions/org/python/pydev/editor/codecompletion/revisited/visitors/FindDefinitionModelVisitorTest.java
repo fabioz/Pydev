@@ -8,10 +8,13 @@ package org.python.pydev.editor.codecompletion.revisited.visitors;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.parser.jython.ast.Module;
 
 /**
  * @author Fabio Zadrozny
@@ -22,7 +25,7 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         try{
             FindDefinitionModelVisitorTest test = new FindDefinitionModelVisitorTest();
             test.setUp();
-            test.testFind7();
+            test.testArgs();
             test.tearDown();
             junit.textui.TestRunner.run(FindDefinitionModelVisitorTest.class);
         }catch(Exception e){
@@ -239,5 +242,68 @@ public class FindDefinitionModelVisitorTest  extends CodeCompletionTestsBase{
         assertSame(module, defs[0].module);
         assertEquals(2, defs[0].line);
         assertEquals(9, defs[0].col);
+    }
+    
+    public void testArgs() throws Exception {
+		String d = ""+
+		"def func(*args):\n"+
+		"    args" +
+		"";
+		
+		Document doc = new Document(d);
+		SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+		Module ast = (Module)module.getAst();
+		assertEquals(1, ast.body.length);
+		ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("args", nature, new CompletionCache());
+		Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 2, 7, nature);
+		
+		assertEquals(1, defs.length);
+		assertEquals(1, defs[0].line);
+		assertEquals(11, defs[0].col);
+		assertSame(module, defs[0].module);
+    }
+    
+    public void testKwArgs() throws Exception {
+    	String d = ""+
+    	"def func(**args):\n"+
+    	"    args" +
+    	"";
+    	
+    	Document doc = new Document(d);
+    	SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+    	Module ast = (Module)module.getAst();
+    	assertEquals(1, ast.body.length);
+    	ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("args", nature, new CompletionCache());
+    	Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 2, 7, nature);
+    	
+    	assertEquals(1, defs.length);
+    	assertEquals(1, defs[0].line);
+    	assertEquals(12, defs[0].col);
+    	assertSame(module, defs[0].module);
+    }
+    
+    public void testPython30() throws Exception {
+    	int initial = GRAMMAR_TO_USE_FOR_PARSING;
+    	try{
+    		GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            String d = ""+
+    		"def func(arg, *, arg2=None):\n"+
+    		"    arg2" +
+            "";
+            
+            Document doc = new Document(d);
+            SourceModule module = (SourceModule)AbstractModule.createModuleFromDoc("", null, doc, nature, 2);
+            Module ast = (Module)module.getAst();
+            assertEquals(1, ast.body.length);
+            ICompletionState emptyCompletionState = CompletionStateFactory.getEmptyCompletionState("arg2", nature, new CompletionCache());
+            Definition[] defs = (Definition[]) module.findDefinition(emptyCompletionState, 2, 7, nature);
+            
+            assertEquals(1, defs.length);
+            assertEquals(1, defs[0].line);
+            assertEquals(18, defs[0].col);
+            assertSame(module, defs[0].module);
+    	}finally{
+    		GRAMMAR_TO_USE_FOR_PARSING = initial;
+    	}
     }
 }

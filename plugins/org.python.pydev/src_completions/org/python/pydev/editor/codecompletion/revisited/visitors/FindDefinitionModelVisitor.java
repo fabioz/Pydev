@@ -169,12 +169,21 @@ public class FindDefinitionModelVisitor extends AbstractVisitor{
         globalDeclarationsStack.push(new HashSet<String>());
         defsStack.push(node);
         
-        if(node.args != null && node.args.args != null){
-            for(exprType arg:node.args.args){
-                if(arg instanceof Name){
-                    checkParam((Name) arg);
+        if(node.args != null){
+        	if(node.args.args != null){
+	            for(exprType arg:node.args.args){
+	                if(arg instanceof Name){
+	                    checkParam((Name) arg);
+	                }
                 }
             }
+        	if(node.args.kwonlyargs != null){
+        		for(exprType arg:node.args.kwonlyargs){
+        			if(arg instanceof Name){
+        				checkParam((Name) arg);
+        			}
+        		}
+        	}
         }
         node.traverse(this);
         

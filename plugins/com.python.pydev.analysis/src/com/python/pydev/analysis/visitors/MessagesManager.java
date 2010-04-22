@@ -253,7 +253,7 @@ public final class MessagesManager {
                         }
                     } else if (ast instanceof Name) {
                         Name n = (Name) ast;
-                        if (n.ctx == Name.Param) {
+                        if (n.ctx == Name.Param || n.ctx == Name.KwOnlyParam) {
                             type = IAnalysisPreferences.TYPE_UNUSED_PARAMETER;
                         }
                     }

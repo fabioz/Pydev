@@ -23,6 +23,7 @@ import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
@@ -51,7 +52,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testNestedImports();
+            test.testPython30();
             test.tearDown();
             System.out.println("Finished");
 
@@ -1440,6 +1441,20 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "        extendable.";
         
         requestCompl(s, -1, new String[] {"method"});        
+    }
+    
+    public void testPython30() throws Exception {
+    	String s = 
+    		"def func(arg, *, arg2=None):\n"+
+    		"    ar" +
+    		"";
+    	int initial = GRAMMAR_TO_USE_FOR_PARSING;
+    	try{
+	    	GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+	    	requestCompl(s, -1, new String[] {"arg", "arg2"});
+    	}finally{
+    		GRAMMAR_TO_USE_FOR_PARSING = initial;
+    	}
     }
     
     

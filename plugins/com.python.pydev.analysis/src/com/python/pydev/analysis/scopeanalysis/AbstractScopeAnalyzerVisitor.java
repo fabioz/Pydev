@@ -314,6 +314,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         if(args.kwarg != null){
             args.kwarg.accept(visitor);
         }
+        
+        //visit keyword only args
+        if(args.kwonlyargs != null){
+        	for(exprType expr : args.kwonlyargs){
+        		expr.accept(visitor);
+        	}
+        }
         scope.isInMethodDefinition = false;
         
         //visit the body
@@ -386,6 +393,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         if(args.kwarg != null){
             args.kwarg.accept(visitor);
         }
+        
+        //visit keyword only args
+        if(args.kwonlyargs != null){
+        	for(exprType expr : args.kwonlyargs){
+        		expr.accept(visitor);
+        	}
+        }
+
         scope.isInMethodDefinition = false;
         
         //visit the body
@@ -474,7 +489,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             found = markRead(token);
         }
         
-        if (node.ctx == Name.Store || node.ctx == Name.Param || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
+        if (node.ctx == Name.Store || node.ctx == Name.Param || node.ctx == Name.KwOnlyParam || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
             boolean inNamesToIgnore = doCheckIsInNamesToIgnore(rep, token);
             
@@ -536,7 +551,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         }
         String fullRep = token.getRepresentation();
 
-        if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.AugStore) {
+        if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.KwOnlyParam || node.ctx == Attribute.AugStore) {
             //in a store attribute, the first part is always a load
             int i = fullRep.indexOf('.', 0);
             String sub = fullRep;
