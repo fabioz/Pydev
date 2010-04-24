@@ -874,6 +874,11 @@ public class REF {
         try{
             if(!Charset.isSupported(ret)){
                 if(LOG_ENCODING_ERROR){
+                	if(fileLocation != null){
+                		if("uft-8".equals(ret) && fileLocation.endsWith("bad_coding.py")){
+                			return null; //this is an expected error in the python library.
+                		}
+                	}
                     String msg = "The encoding found: >>" + ret + "<< on " + fileLocation + " is not a valid encoding.";
                     Log.log(IStatus.ERROR, msg, new UnsupportedEncodingException(msg));
                 }
