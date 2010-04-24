@@ -985,25 +985,41 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                  * @see java.lang.Runnable#run()
                  */
                 public void run() {
-                    // Abort if this happens after disposes
-                    Control ctrl = viewer.getControl();
-                    if (ctrl == null || ctrl.isDisposed()) {
-                        return;
-                    }
-
                     runUpdates(runnables);
                 }
             });
         }
     }
 
+    
+    private final Object lock = new Object();
+    private final Collection<Runnable> delayedRunnableUpdates = new ArrayList<Runnable>(); //Vector because we want it synchronized!
+    
     /**
-     * Run all of the runnables that are the widget updates
-     * 
-     * @param runnables
+     * Run all of the runnable that are the widget updates (or delay them to the next request).
      */
     private void runUpdates(Collection<Runnable> runnables) {
-        Iterator<Runnable> runnableIterator = runnables.iterator();
+        // Abort if this happens after disposes
+        Control ctrl = viewer.getControl();
+        if (ctrl == null || ctrl.isDisposed()) {
+        	synchronized (lock) {
+        		delayedRunnableUpdates.clear();
+        	}
+            return;
+        }
+        
+    	synchronized (lock) {
+    		delayedRunnableUpdates.addAll(runnables);
+    	}
+    	if(viewer.isBusy()){
+    		return; //leave it for the next update!
+    	}
+    	ArrayList<Runnable> runnablesToRun = new ArrayList<Runnable>();
+    	synchronized (lock) {
+    		runnablesToRun.addAll(delayedRunnableUpdates);
+    		delayedRunnableUpdates.clear();
+    	}
+        Iterator<Runnable> runnableIterator = runnablesToRun.iterator();
         while (runnableIterator.hasNext()) {
             Runnable runnable = runnableIterator.next();
             runnable.run();
