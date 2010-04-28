@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Status;
@@ -106,6 +107,7 @@ import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.editorinput.PydevFileEditorInput;
+import org.python.pydev.logging.ping.ILogPing;
 import org.python.pydev.outline.PyOutlinePage;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.PyParser;
@@ -633,6 +635,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     @Override
     protected void doSetInput(IEditorInput input) throws CoreException {
+    	//Having a new input is treated as opening a new editor for the ping.
+    	if(!Platform.inDevelopmentMode() || ILogPing.FORCE_SEND_WHEN_IN_DEV_MODE){
+	    	ILogPing logPing = PydevPlugin.getAsyncLogPing();
+	    	logPing.addPingOpenEditor();
+    	}
+    	
         IEditorInput oldInput = this.getEditorInput();
         super.doSetInput(input);
         try{
