@@ -34,7 +34,7 @@ public class PyOpenExternalAction extends PyOpenPythonFileAction{
 	protected void openFiles(PythonpathTreeNode[] pythonPathFilesSelected) {
 		for(PythonpathTreeNode n:pythonPathFilesSelected){
 			try {
-				IDE.openEditor(page, new PydevFileEditorInput(n.file), IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
+				IDE.openEditor(page, PydevFileEditorInput.create(n.file, false), IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
 			} catch (PartInitException e) {
 				Log.log(e);
 			}

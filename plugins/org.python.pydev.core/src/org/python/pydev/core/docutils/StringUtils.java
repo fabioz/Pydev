@@ -631,6 +631,15 @@ public class StringUtils {
         return c1;
     
     }
+    
+	public static String[] addString(String[] c, String toAdd) {
+		String[] c1 = new String[c.length + 1];
+		
+		System.arraycopy(c, 0, c1, 0, c.length);
+		c1[c.length] = toAdd;
+		return c1;
+	}
+
 
     public static String replaceNewLines(String message, String string) {
         message = message.replaceAll("\r\n", string);
@@ -857,7 +866,6 @@ public class StringUtils {
 
 		return result;
 	}
-
 
 
 

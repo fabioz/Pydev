@@ -169,7 +169,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
         if (element instanceof PyBreakpoint) {
             String file = ((PyBreakpoint) element).getFile();
             if(file != null){
-                return new PydevFileEditorInput(new File(file));
+				return PydevFileEditorInput.create(new File(file), false);
                 
                 //We should not open the editor here, just create the input... the debug framework opens it later on.
                 //IPath path = new Path(file);

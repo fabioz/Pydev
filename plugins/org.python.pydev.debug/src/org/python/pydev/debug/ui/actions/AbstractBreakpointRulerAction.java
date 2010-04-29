@@ -11,7 +11,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -22,9 +21,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IURIEditorInput;
-import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
@@ -72,7 +71,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
             if (breakpoint instanceof PyBreakpoint ) {
                 PyBreakpoint pyBreakpoint= (PyBreakpoint)breakpoint;
                 try {
-                    if (breakpointAtRulerLine(pyBreakpoint, getPydevFileEditorInput())) {
+                    if (breakpointAtRulerLine(pyBreakpoint, getExternalFileEditorInput())) {
                         return pyBreakpoint;
                     }
                 } catch (CoreException ce) {
@@ -92,7 +91,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
         return provider.getDocument(fTextEditor.getEditorInput());
     }
 
-    protected boolean breakpointAtRulerLine(PyBreakpoint pyBreakpoint, PydevFileEditorInput pydevFileEditorInput) throws CoreException {
+    protected boolean breakpointAtRulerLine(PyBreakpoint pyBreakpoint, IEditorInput externalFileEditorInput) throws CoreException {
         IDocument doc = getDocument();
         IMarker marker = pyBreakpoint.getMarker();
         Position position= getMarkerPosition(doc, marker);
@@ -108,7 +107,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                         }
                         return true;
                     }
-                }else if(isInSameExternalEditor(marker, pydevFileEditorInput)){
+                }else if(isInSameExternalEditor(marker, externalFileEditorInput)){
                     return true;
                 }
             } catch (BadLocationException x) {
@@ -126,8 +125,8 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
         return isExternalFileEditor(fTextEditor);
     }
     
-    public PydevFileEditorInput getPydevFileEditorInput() {
-        return getPydevFileEditorInput(fTextEditor);
+    public IEditorInput getExternalFileEditorInput() {
+        return getExternalFileEditorInput(fTextEditor);
     }
     
     // utilities -------------------------------------------------------------------------------------------------------
@@ -141,8 +140,8 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
      * @return whether we're in an external editor or not.
      */
     public static boolean isExternalFileEditor(ITextEditor editor) {
-        PydevFileEditorInput pydevFileEditorInput = getPydevFileEditorInput(editor);
-        if(pydevFileEditorInput != null){
+        IEditorInput externalFileEditorInput = getExternalFileEditorInput(editor);
+        if(externalFileEditorInput != null){
             return true;
         }
         return false;
@@ -151,40 +150,31 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
     
     
     /**
-     * @return the PydevFileEditorInput if we're dealing with an external file (or null otherwise)
+     * @return the IEditorInput if we're dealing with an external file (or null otherwise)
      */
-    public static PydevFileEditorInput getPydevFileEditorInput(ITextEditor editor) {
+    public static IEditorInput getExternalFileEditorInput(ITextEditor editor) {
         IEditorInput input = editor.getEditorInput();
-        PydevFileEditorInput pydevFileEditorInput = null;
         
-        //only return not null if it's an external file (FileEditorInput marks a workspace file) 
-        if(input instanceof FileEditorInput){
+        //only return not null if it's an external file (IFileEditorInput marks a workspace file, not external file) 
+        if(input instanceof IFileEditorInput){
             return null;
         }
         
-        if (input instanceof PydevFileEditorInput) {
-            pydevFileEditorInput = (PydevFileEditorInput) input;
-            
-        } else {
-            if(input instanceof IPathEditorInput && !(input instanceof FileEditorInput)){
-                IPathEditorInput pathEditorInput = (IPathEditorInput) input;
-                IPath path = pathEditorInput.getPath();
-                File file = path.toFile();
-                if(file != null && file.exists()){
-                    pydevFileEditorInput = new PydevFileEditorInput(file);
-                }
-            }
-            try {
-				if (input instanceof IURIEditorInput) {
-					IURIEditorInput iuriEditorInput = (IURIEditorInput) input;
-					return new PydevFileEditorInput(new File(iuriEditorInput.getURI()));
-				}
-			} catch (Throwable e) {
-				//IURIEditorInput not added until eclipse 3.3
+        if (input instanceof IPathEditorInput) { //PydevFileEditorInput would enter here
+            return input;
+        } 
+        
+        try {
+			if (input instanceof IURIEditorInput) {
+				return input;
 			}
-            
-        }
-        return pydevFileEditorInput;
+		} catch (Throwable e) {
+			//IURIEditorInput not added until eclipse 3.3
+		}
+			
+		//Note that IStorageEditorInput is not handled for external files (files from zip)
+        
+        return input;
     }
     
     
@@ -192,14 +182,14 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
      * @return true if the given marker is from an external file, and the editor in which this action is being executed
      * is in this same editor.
      */
-    protected static boolean isInSameExternalEditor(IMarker marker, PydevFileEditorInput pydevFileEditorInput) throws CoreException {
-        if(marker == null || pydevFileEditorInput == null){
+    protected static boolean isInSameExternalEditor(IMarker marker, IEditorInput externalFileEditorInput) throws CoreException {
+        if(marker == null || externalFileEditorInput == null){
             return false;
         }
         
         String attribute = (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
         if(attribute != null){
-            File file = pydevFileEditorInput.getFile();
+        	File file = PydevFileEditorInput.getFile(externalFileEditorInput);
             if(file == null){
                 return false;
             }
@@ -288,14 +278,14 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
     /**
      * @param resource may be the file open in the editor or the workspace root (if it is an external file)
      * @param document is the document opened in the editor
-     * @param pydevFileEditorInput is not-null if this is an external file
+     * @param externalFileEditorInput is not-null if this is an external file
      * @param info is the vertical ruler info (only used if this is not an external file)
      * @param onlyIncludeLastLineActivity if only the markers that are in the last mouse-click should be included
      *  
      * @return the markers that correspond to the markers from the current editor.
      */
     public static List<IMarker> getMarkersFromEditorResource(IResource resource, IDocument document, 
-            PydevFileEditorInput pydevFileEditorInput, IVerticalRulerInfo info,
+            IEditorInput externalFileEditorInput, IVerticalRulerInfo info,
             boolean onlyIncludeLastLineActivity) {
 
         if(onlyIncludeLastLineActivity){
@@ -333,7 +323,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                         }
                     }else{
                         
-                        if(isInSameExternalEditor(marker, pydevFileEditorInput)){
+                        if(isInSameExternalEditor(marker, externalFileEditorInput)){
                             if(!onlyIncludeLastLineActivity){
                                 breakpoints.add(marker);
                             }else if (includesRulerLine(pos, document, info)) {

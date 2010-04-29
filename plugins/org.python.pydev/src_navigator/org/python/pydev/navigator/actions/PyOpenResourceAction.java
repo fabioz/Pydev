@@ -47,9 +47,9 @@ public class PyOpenResourceAction extends PyOpenPythonFileAction{
 					IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
 					IEditorDescriptor defaultEditor = editorReg.getDefaultEditor(n.file.getName());
 					if(defaultEditor != null){
-						IDE.openEditor(page, new PydevFileEditorInput(n.file), defaultEditor.getId());
+						IDE.openEditor(page, PydevFileEditorInput.create(n.file, false), defaultEditor.getId());
 					}else{
-						IDE.openEditor(page, new PydevFileEditorInput(n.file), EditorsUI.DEFAULT_TEXT_EDITOR_ID);
+						IDE.openEditor(page, PydevFileEditorInput.create(n.file, false), EditorsUI.DEFAULT_TEXT_EDITOR_ID);
 					}
 				}
 			} catch (PartInitException e) {

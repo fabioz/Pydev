@@ -27,6 +27,7 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -96,7 +97,7 @@ public class PySourceLocatorBase {
      * 
      * @return the editor input found or none if None was available for the given path
      */
-    private IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
+    public IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist) {
         String pathTranslation = PySourceLocatorPrefs.getPathTranslation(path);
         if(pathTranslation != null){
             if(!pathTranslation.equals(PySourceLocatorPrefs.DONTASK)){
@@ -143,11 +144,14 @@ public class PySourceLocatorBase {
                 }
                 
                 //ok, ask the user for any file in the computer
-                PydevFileEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
+                IEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
                 input = pydevFileEditorInput;
                 if(input != null){
-                    PySourceLocatorPrefs.addPathTranslation(path, pydevFileEditorInput.getPath());
-                    return input;
+                	File file = PydevFileEditorInput.getFile(pydevFileEditorInput);
+                	if(file != null){
+	                    PySourceLocatorPrefs.addPathTranslation(path, Path.fromOSString(REF.getFileAbsolutePath(file)));
+	                    return input;
+                	}
                 }
                 
                 PySourceLocatorPrefs.setIgnorePathTranslation(path);
@@ -235,7 +239,7 @@ public class PySourceLocatorBase {
     /**
      * This is the last resort... pointing to some filesystem file to get the editor for some path.
      */
-    protected PydevFileEditorInput selectFilesystemFileForPath(final IPath path) {
+    protected IEditorInput selectFilesystemFileForPath(final IPath path) {
         final List<String> l = new ArrayList<String>();
         Runnable r = new Runnable(){
 
@@ -243,7 +247,9 @@ public class PySourceLocatorBase {
                 Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
                 FileDialog dialog = new FileDialog(shell);
                 dialog.setText(path+" - select correspondent filesystem file.");
-                dialog.setFilterExtensions(FileTypesPreferencesPage.getWildcardValidSourceFiles());
+                String[] wildcardValidSourceFiles = FileTypesPreferencesPage.getWildcardValidSourceFiles();
+                wildcardValidSourceFiles = StringUtils.addString(wildcardValidSourceFiles, "*");
+				dialog.setFilterExtensions(wildcardValidSourceFiles);
                 String string = dialog.open();
                 if(string != null){
                     l.add(string);
@@ -257,7 +263,7 @@ public class PySourceLocatorBase {
         }
         if(l.size() > 0){
             String fileAbsolutePath = REF.getFileAbsolutePath(l.get(0));
-            return new PydevFileEditorInput(new File(fileAbsolutePath));
+            return PydevFileEditorInput.create(new File(fileAbsolutePath), true);
         }
         return null;
     }
@@ -313,7 +319,7 @@ public class PySourceLocatorBase {
                 return new FileEditorInput(workspaceFile[0]);
             }
         }
-        return new PydevFileEditorInput(file);
+        return PydevFileEditorInput.create(file, true);
     }
 
     

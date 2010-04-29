@@ -17,10 +17,10 @@ public class SourceLocatorTestWorkbench extends AbstractWorkbenchTestCase {
         
         PySourceLocatorBase locator = new PySourceLocatorBase(){
             @Override
-            protected PydevFileEditorInput selectFilesystemFileForPath(IPath path) {
+            protected IEditorInput selectFilesystemFileForPath(IPath path) {
                 called[0] = true;
                 assertEquals(path, madeUpPath);
-                return new PydevFileEditorInput(new File(path.removeLastSegments(1).toOSString()));
+                return PydevFileEditorInput.create(new File(path.removeLastSegments(1).toOSString()), true);
             }
         };
         IEditorInput editorInput = locator.createEditorInput(madeUpPath);

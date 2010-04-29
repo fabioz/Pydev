@@ -5,6 +5,7 @@
  */
 package org.python.pydev.debug.ui.actions;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.python.pydev.core.REF;
@@ -78,7 +80,7 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
         }
     }
     protected List<IMarker> getMarkersFromCurrentFile() {
-        return getMarkersFromEditorResource(getResourceForDebugMarkers(), getDocument(), getPydevFileEditorInput(), getInfo(), true);
+        return getMarkersFromEditorResource(getResourceForDebugMarkers(), getDocument(), getExternalFileEditorInput(), getInfo(), true);
     }
 
     
@@ -103,10 +105,10 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
             final Map<String, Object> map = new HashMap<String, Object>();
 
             // if not null, we're dealing with an external file.
-            final PydevFileEditorInput pydevFileEditorInput = getPydevFileEditorInput();
+            final IEditorInput externalFileEditorInput = getExternalFileEditorInput();
             
             //TODO: that happens when we're trying to set a breakpoint in a file that's within a zip file.
-            if(pydevFileEditorInput == null && resource instanceof IWorkspaceRoot){
+            if(externalFileEditorInput == null && resource instanceof IWorkspaceRoot){
                 return;
             }
 
@@ -114,8 +116,11 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
             map.put(IMarker.LINE_NUMBER, new Integer(lineNumber));
             map.put(IBreakpoint.ENABLED, new Boolean(true));
             map.put(IBreakpoint.ID, PyDebugModelPresentation.PY_DEBUG_MODEL_ID);
-            if (pydevFileEditorInput != null) {
-                map.put(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID, REF.getFileAbsolutePath(pydevFileEditorInput.getFile()));
+            if (externalFileEditorInput != null) {
+            	File file = PydevFileEditorInput.getFile(externalFileEditorInput);
+            	if(file != null){
+            		map.put(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID, REF.getFileAbsolutePath(file));
+            	}
             }
 
             IWorkspaceRunnable runnable = new IWorkspaceRunnable() {

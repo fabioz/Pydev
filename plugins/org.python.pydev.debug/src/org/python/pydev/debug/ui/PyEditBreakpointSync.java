@@ -20,12 +20,12 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModelExtension;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.debug.ui.actions.AbstractBreakpointRulerAction;
 import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editorinput.PydevFileEditorInput;
 
 /**
  * This class is used to keep the annotations related to the debugger in sync with external editors
@@ -122,8 +122,9 @@ public class PyEditBreakpointSync implements IBreakpointListener, IPyEditListene
             
             IDocument doc = edit.getDocument();
             IResource resource = AbstractBreakpointRulerAction.getResourceForDebugMarkers(edit);
-            PydevFileEditorInput pydevFileEditorInput = AbstractBreakpointRulerAction.getPydevFileEditorInput(edit);
-            List<IMarker> markers = AbstractBreakpointRulerAction.getMarkersFromEditorResource(resource, doc, pydevFileEditorInput, null, false);
+            IEditorInput externalFileEditorInput = AbstractBreakpointRulerAction.getExternalFileEditorInput(edit);
+            List<IMarker> markers = AbstractBreakpointRulerAction.getMarkersFromEditorResource(
+            		resource, doc, externalFileEditorInput, null, false);
             
             
             Map<Annotation, Position> annotationsToAdd = new HashMap<Annotation, Position>();

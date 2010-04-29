@@ -615,6 +615,7 @@ public class InterpreterInfo implements IInterpreterInfo{
                 forcedLibs.add("operator");
                 forcedLibs.add("parser");
                 forcedLibs.add("signal");
+                forcedLibs.add("socket"); //socket seems to have issues on linux
                 forcedLibs.add("strop");
                 forcedLibs.add("sys");
                 forcedLibs.add("thread");
