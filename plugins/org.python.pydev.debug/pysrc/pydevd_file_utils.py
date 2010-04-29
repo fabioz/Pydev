@@ -81,8 +81,7 @@ def _NormFile(filename):
     try:
         return NORM_FILENAME_CONTAINER[filename]
     except KeyError:
-        #no need for normcase (realpath already does the normcase)
-        r = rPath(filename)
+        r = normcase(rPath(filename))
         #cache it for fast access later
         NORM_FILENAME_CONTAINER[filename] = r
         return r
