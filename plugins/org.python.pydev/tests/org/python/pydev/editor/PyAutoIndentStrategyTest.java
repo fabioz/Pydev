@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testForcedTab3();
+            s.testEncoding();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -2064,6 +2064,15 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	expected = "(";
     	assertEquals(expected, docCmd.text);
     }
+    
+    public void testEncoding() throws Exception {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+    	String doc = "";
+    	DocCmd docCmd = new DocCmd(0, 0, "\t(u'€', 'EUR')");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "    (u'€', 'EUR')";
+    	assertEquals(expected, docCmd.text);
+	}
     
 
 }

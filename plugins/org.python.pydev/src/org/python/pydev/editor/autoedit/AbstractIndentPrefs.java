@@ -83,14 +83,14 @@ public abstract class AbstractIndentPrefs implements IIndentPrefs{
                 
             } else {
                 // contains a char (pasted text)
-                byte[] byteLine = text.getBytes();
+                char[] chars = text.toCharArray();
                 FastStringBuffer newText = new FastStringBuffer();
-                for (int count = 0; count < byteLine.length; count++) {
-                    if (byteLine[count] == '\t'){
+                for (int count = 0; count < chars.length; count++) {
+                    if (chars[count] == '\t'){
                         newText.append(indentString);
                         
                     } else { // if it is not a tab add the char
-                        newText.append((char) byteLine[count]);
+                        newText.append((char) chars[count]);
                     }
                 }
                 text = newText.toString();
