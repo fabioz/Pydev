@@ -535,7 +535,12 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         //Change: 1.3.10: no longer in a Job... should already be called in a job if that's needed.
 
         try {
-            astManager = ASTManager.loadFromFile(getAstOutputFile());
+            File astOutputFile = getAstOutputFile();
+            if(astOutputFile == null){
+            	Log.log(IStatus.INFO, "Not saving ast manager for: "+this.project+". No write area available.", null);
+            	return; //The project was deleted
+            }
+			astManager = ASTManager.loadFromFile(astOutputFile);
             if (astManager != null) {
                 synchronized (astManager.getLock()) {
                     astManager.setProject(getProject(), this, true); // this is the project related to it, restore the deltas (we may have some crash)
@@ -580,7 +585,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @param p
      * @return
      */
-    public static File getCompletionsCacheDir(IProject p) {
+    private File getCompletionsCacheDir(IProject p) {
         IPath path = p.getWorkingLocation(PydevPlugin.getPluginID());
     
         if(path == null){
@@ -600,7 +605,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
      * @return the file where the python path helper should be saved.
      */
     private File getAstOutputFile() {
-        return new File(getCompletionsCacheDir(), "asthelper.completions");
+        File completionsCacheDir = getCompletionsCacheDir();
+        if(completionsCacheDir == null){
+        	return null;
+        }
+		return new File(completionsCacheDir, "asthelper.completions");
     }
 
     /**

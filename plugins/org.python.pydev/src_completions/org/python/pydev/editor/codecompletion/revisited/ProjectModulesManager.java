@@ -77,7 +77,12 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     public void setProject(IProject project, IPythonNature nature, boolean restoreDeltas){
         this.project = project;
         this.nature = nature;
-        this.deltaSaver = new DeltaSaver<ModulesKey>(this.nature.getCompletionsCacheDir(), "astdelta", new ICallback<Object, ObjectInputStream>(){
+        File completionsCacheDir = this.nature.getCompletionsCacheDir();
+        if(completionsCacheDir == null){
+        	return; //project was deleted.
+        }
+        
+		this.deltaSaver = new DeltaSaver<ModulesKey>(completionsCacheDir, "astdelta", new ICallback<Object, ObjectInputStream>(){
 
             public ModulesKey call(ObjectInputStream arg) {
                 try {
@@ -154,7 +159,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
      * If the delta size is big enough, save the current state and discard the deltas.
      */
     private void checkDeltaSize() {
-        if(deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
+        if(deltaSaver != null && deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
             nature.saveAstManager();
             deltaSaver.clearAll();
         }
