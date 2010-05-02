@@ -82,7 +82,6 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements IGra
     /**
      * @return the special tokens in the token source
      */
-    @SuppressWarnings("unchecked")
     public final List<Object> getTokenSourceSpecialTokensList(){
         return token_source.specialTokens;
     }
@@ -1267,29 +1266,29 @@ void Number() #Num :
     (
         t=<HEXNUMBER> {
             String s = t.image.substring(2, t.image.length());
-            makeInt(s, 16, t.image, (Num)jjtThis);
+            makeInt(s, 16, t, (Num)jjtThis);
         } {}
     )
 |    (
         t=<BINNUMBER> {
             s = t.image.substring(2, t.image.length());
-            makeInt(s, 2, t.image, (Num)jjtThis);
+            makeInt(s, 2, t, (Num)jjtThis);
         } {}
     )
 |   (
         t=<OCTNUMBER> {
             s = t.image.substring(2, t.image.length());
-            makeInt(s, 8, t.image, (Num) jjtThis); 
+            makeInt(s, 8, t, (Num) jjtThis); 
         } {}
     )
 |   (
-        t=<DECNUMBER> { makeInt(t.image, 10, t.image, (Num)jjtThis); } {}
+        t=<DECNUMBER> { makeInt(t.image, 10, t, (Num)jjtThis); } {}
     )
 |   (
-        t=<FLOAT> { makeFloat(t.image, (Num)jjtThis); } {}
+        t=<FLOAT> { makeFloat(t, (Num)jjtThis); } {}
     )
 |   (
-        t=<COMPLEX> { makeComplex(t.image, (Num)jjtThis); } {}
+        t=<COMPLEX> { makeComplex(t, (Num)jjtThis); } {}
     )
 }
 

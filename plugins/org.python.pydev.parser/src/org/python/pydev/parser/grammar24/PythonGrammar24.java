@@ -2,10 +2,13 @@
 package org.python.pydev.parser.grammar24;
 
 import java.util.List;
+
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
+import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
+import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -17,8 +20,6 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
-import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
-import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 
 
 
@@ -5217,7 +5218,7 @@ else
       case HEXNUMBER:
         t = jj_consume_token(HEXNUMBER);
             String s = t.image.substring(2, t.image.length());
-            makeInt(s, 16, t.image, (Num)jjtn000);
+            makeInt(s, 16, t, (Num)jjtn000);
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtreeCloseNodeScope(jjtn000);
@@ -5225,7 +5226,7 @@ else
         break;
       case OCTNUMBER:
         t = jj_consume_token(OCTNUMBER);
-            makeInt(t.image, 8, t.image, (Num) jjtn000);
+            makeInt(t.image, 8, t, (Num) jjtn000);
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtreeCloseNodeScope(jjtn000);
@@ -5233,26 +5234,26 @@ else
         break;
       case DECNUMBER:
         t = jj_consume_token(DECNUMBER);
-                        makeInt(t.image, 10, t.image, (Num)jjtn000);
-                                                                         jjtree.closeNodeScope(jjtn000, true);
-                                                                         jjtc000 = false;
-                                                                         jjtreeCloseNodeScope(jjtn000);
+                        makeInt(t.image, 10, t, (Num)jjtn000);
+                                                                   jjtree.closeNodeScope(jjtn000, true);
+                                                                   jjtc000 = false;
+                                                                   jjtreeCloseNodeScope(jjtn000);
 
         break;
       case FLOAT:
         t = jj_consume_token(FLOAT);
-                    makeFloat(t.image, (Num)jjtn000);
-                                                          jjtree.closeNodeScope(jjtn000, true);
-                                                          jjtc000 = false;
-                                                          jjtreeCloseNodeScope(jjtn000);
+                    makeFloat(t, (Num)jjtn000);
+                                                    jjtree.closeNodeScope(jjtn000, true);
+                                                    jjtc000 = false;
+                                                    jjtreeCloseNodeScope(jjtn000);
 
         break;
       case COMPLEX:
         t = jj_consume_token(COMPLEX);
-                      makeComplex(t.image, (Num)jjtn000);
-                                                              jjtree.closeNodeScope(jjtn000, true);
-                                                              jjtc000 = false;
-                                                              jjtreeCloseNodeScope(jjtn000);
+                      makeComplex(t, (Num)jjtn000);
+                                                        jjtree.closeNodeScope(jjtn000, true);
+                                                        jjtc000 = false;
+                                                        jjtreeCloseNodeScope(jjtn000);
 
         break;
       default:

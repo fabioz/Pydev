@@ -374,9 +374,10 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      * @param radix the radix in which it was found (octal=8, decimal=10, hex=16)
      * @param token this is the image of the object (the exact way it was found in the file)
      * @param numberToFill the Num object that should be set given the other parameters
+     * @throws ParseException 
      */
-    protected final void makeInt(String s, int radix, String token, Num numberToFill) {
-        numberToFill.num = token;
+    protected final void makeInt(String s, int radix, Token token, Num numberToFill) throws ParseException {
+        numberToFill.num = token.image;
         
         if (s.endsWith("L") || s.endsWith("l")) {
             s = s.substring(0, s.length() - 1);
@@ -394,7 +395,13 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
             return;
         }
 
-        long l = Long.valueOf(s, radix).longValue();
+        long l;
+		try {
+			l = Long.valueOf(s, radix).longValue();
+		} catch (NumberFormatException e) {
+			handleNumberFormatException(token, e);
+			l = 0;
+		}
         if (l > 0xffffffffl || (radix == 10 && l > Integer.MAX_VALUE)) {
             numberToFill.n = new java.math.BigInteger(s, radix);
             numberToFill.type = Num.Long;
@@ -404,22 +411,42 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
         numberToFill.type = Num.Int;
     }
 
-    protected final void makeFloat(String s, Num numberToFill) {
+    protected final void makeFloat(Token t, Num numberToFill) throws ParseException {
+    	String s = t.image;
         numberToFill.num = s;
-        numberToFill.n = Float.valueOf(s);
+        try {
+			numberToFill.n = Float.valueOf(s);
+		} catch (NumberFormatException e) {
+			handleNumberFormatException(t, e);
+		}
         numberToFill.type = Num.Float;
     }
 
-    protected final void makeLong(String s, Num numberToFill) {
+	private void handleNumberFormatException(Token t, NumberFormatException e)
+			throws ParseException {
+		addAndReport(new ParseException("Unable to parse number: "+t.image, t), e.getMessage());
+	}
+
+    protected final void makeLong(Token t, Num numberToFill) throws ParseException {
+    	String s = t.image;
         numberToFill.num = s;
-        numberToFill.n = Long.valueOf(s);
+        try {
+			numberToFill.n = Long.valueOf(s);
+		} catch (NumberFormatException e) {
+			handleNumberFormatException(t, e);
+		}
         numberToFill.type = Num.Long;
     }
 
-    protected final void makeComplex(String s, Num numberToFill) {
+    protected final void makeComplex(Token t, Num numberToFill) throws ParseException {
+    	String s = t.image;
         String compNumber = s.substring(0, s.length() - 1);
         numberToFill.num = s;
-        numberToFill.n = Double.valueOf(compNumber);
+        try {
+			numberToFill.n = Double.valueOf(compNumber);
+		} catch (NumberFormatException e) {
+			handleNumberFormatException(t,  e);
+		}
         numberToFill.type = Num.Comp;
     }
 

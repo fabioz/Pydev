@@ -210,7 +210,6 @@ def CreateCommomMethods():
     /**
      * @return the special tokens in the token source
      */
-    @SuppressWarnings("unchecked")
     public final List<Object> getTokenSourceSpecialTokensList(){
         return token_source.specialTokens;
     }
