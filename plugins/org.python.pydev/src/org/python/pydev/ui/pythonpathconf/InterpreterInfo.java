@@ -16,10 +16,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Map.Entry;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -526,6 +527,10 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     public void restoreCompiledLibs(IProgressMonitor monitor) {
         //the compiled with the interpreter should be already gotten.
+    	
+    	for(String lib:this.libs){
+    		addForcedLibsFor(lib);
+    	}
         
         //we have it in source, but want to interpret it, source info (ast) does not give us much
         forcedLibs.add("os"); 
@@ -988,7 +993,83 @@ public class InterpreterInfo implements IInterpreterInfo{
         this.clearBuiltinsCache(); //force cache recreation
     }
     
-    private void clearBuiltinsCache(){
+    
+    private void addForcedLibsFor(String lib) {
+    	//For now only adds "werkzeug", but this is meant as an extension place.
+		File file = new File(lib);
+		if(file.exists()){
+			if(file.isDirectory()){
+				//check as dir (if it has a werkzeug folder)
+				File werkzeug = new File(file, "werkzeug");
+				if(werkzeug.isDirectory()){
+					forcedLibs.add("werkzeug");
+				}
+			}else{
+				//check as zip (if it has a werkzeug entry -- note that we have to check the __init__ 
+				//because an entry just with the folder doesn't really exist)
+				try {
+					ZipFile zipFile = new ZipFile(file);
+					if(zipFile.getEntry("werkzeug/__init__.py") != null){
+						forcedLibs.add("werkzeug");
+					}
+				} catch (Exception e) {
+					//ignore (not zip file)
+				}
+			}
+		}
+	}
+
+
+//  Initially I thought werkzeug would need to add all the contents, so, this was a prototype to
+//  analyze it and add what's needed (but it turns out that just adding werkzeug is ok.
+//	protected void handleWerkzeug(File initWerkzeug) {
+//		String fileContents = REF.getFileContents(initWerkzeug);
+//		Tuple<SimpleNode, Throwable> parse = PyParser.reparseDocument(
+//				new PyParser.ParserInfo(new Document(fileContents), false, this.getGrammarVersion()));
+//		Module o1 = (Module) parse.o1;
+//		forcedLibs.add("werkzeug");
+//		for(stmtType stmt:o1.body){
+//			if(stmt instanceof Assign){
+//				Assign assign = (Assign) stmt;
+//				if(assign.targets.length == 1){
+//					if(assign.value instanceof Dict){
+//						String rep = NodeUtils.getRepresentationString(assign.targets[0]);
+//						if("all_by_module".equals(rep)){
+//							Dict dict = (Dict) assign.value;
+//							for(exprType key:dict.keys){
+//								if(key instanceof Str){
+//									Str str = (Str) key;
+//									forcedLibs.add(str.s);
+//								}
+//							}
+//						}
+//					}else if(assign.value instanceof Call){
+//						String rep = NodeUtils.getRepresentationString(assign.targets[0]);
+//						if("attribute_modules".equals(rep)){
+//							Call call = (Call) assign.value;
+//							rep = NodeUtils.getRepresentationString(call.func);
+//							if("fromkeys".equals(rep)){
+//								if(call.args.length == 1){
+//									if(call.args[0] instanceof org.python.pydev.parser.jython.ast.List){
+//										org.python.pydev.parser.jython.ast.List list = (org.python.pydev.parser.jython.ast.List) call.args[0];
+//										for(exprType elt:list.elts){
+//											if(elt instanceof Str){
+//												Str str = (Str) elt;
+//												forcedLibs.add("werkzeug."+str.s);
+//											}
+//										}
+//										
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
+
+	private void clearBuiltinsCache(){
     	this.builtinsCache = null; //force cache recreation
     	this.predefinedBuiltinsCache = null;
     }
