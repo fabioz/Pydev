@@ -23,7 +23,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
@@ -137,6 +139,10 @@ public abstract class AbstractShell {
      */
     public synchronized static void shutdownAllShells(){
         synchronized(shells){
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
+                Log.toLogFile("Shutting down all shells (for good)...", AbstractShell.class);
+            }
+
             for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
                 finishedForGood = true;  //we may no longer restart shells
                 
@@ -157,6 +163,55 @@ public abstract class AbstractShell {
             shells.clear();
         }
     }
+    
+    
+
+    /**
+     * Restarts all the shells and clears any related cache.
+     * 
+     * @return an error message if some exception happens in this process (an empty string means all went smoothly).
+     */
+	public static String restartAllShells() {
+		String ret = "";
+        synchronized(shells){
+        	try {
+                if(DebugSettings.DEBUG_CODE_COMPLETION){
+                    Log.toLogFile("Restarting all shells and clearing caches...", AbstractShell.class);
+                }
+
+				for(Map<Integer,AbstractShell> val:shells.values()){
+					for(AbstractShell val2:val.values()){
+						val2.endIt();
+					}
+					IInterpreterManager[] interpreterManagers = new IInterpreterManager[]{
+						PydevPlugin.getPythonInterpreterManager(),
+						PydevPlugin.getJythonInterpreterManager(),
+						PydevPlugin.getIronpythonInterpreterManager()
+					};
+					
+					for (IInterpreterManager iInterpreterManager : interpreterManagers) {
+						try {
+							IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();
+							for (IInterpreterInfo iInterpreterInfo : interpreterInfos) {
+								ISystemModulesManager modulesManager = iInterpreterInfo.getModulesManager();
+								if(modulesManager != null){
+									modulesManager.clearCache();
+								}
+								iInterpreterManager.clearCaches();
+							}
+						} catch (Exception e) {
+							PydevPlugin.log(e);
+							ret += e.getMessage()+"\n";
+						}
+					}
+				}
+			} catch (Exception e) {
+				PydevPlugin.log(e);
+				ret += e.getMessage()+"\n";
+			}
+        }
+        return ret;
+	}
 
     /**
      * @param interpreter the interpreter whose shell we want.
@@ -224,8 +279,19 @@ public abstract class AbstractShell {
                 Log.toLogFile("Synchronizing on shells...", AbstractShell.class);
             }
             if(DebugSettings.DEBUG_CODE_COMPLETION){
-                Log.toLogFile( "Getting shell related to:"+ (relatedTo==IPythonNature.INTERPRETER_TYPE_PYTHON?"Python":"Jython")+
-                        " id:"+id, AbstractShell.class);
+                String flavor;
+                switch(relatedTo){
+	                case IPythonNature.INTERPRETER_TYPE_JYTHON:
+	                	flavor = "Jython";
+	                	break;
+	                case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+	                	flavor = "IronPython";
+	                	break;
+	                default:
+	                	flavor = "Python";
+                };
+				Log.toLogFile( "Getting shell related to:"+ flavor+
+                        " id:"+id+" interpreter: "+interpreter.getExecutableOrJar(), AbstractShell.class);
             }
             Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
             pythonShell = (AbstractShell) typeToShell.get(new Integer(id));
@@ -893,7 +959,8 @@ public abstract class AbstractShell {
      */
     protected synchronized Tuple<String, List<String[]>> getCompletions() throws IOException {
         ArrayList<String[]> list = new ArrayList<String[]>();
-        String string = this.read().replaceAll("\\(","").replaceAll("\\)","");
+        String read = this.read();
+		String string = read.replaceAll("\\(","").replaceAll("\\)","");
         StringTokenizer tokenizer = new StringTokenizer(string, ",");
         
         //the first token is always the file for the module (no matter what)
@@ -922,7 +989,21 @@ public abstract class AbstractShell {
     
                 if(!token.equals("ERROR:")){
                     list.add(new String[]{token, description, args, type});
+                }else{
+                	if(DebugSettings.DEBUG_CODE_COMPLETION){
+                		Log.addLogLevel();
+                		try {
+							Log.toLogFile("Code completion shell error:", AbstractShell.class);
+							Log.toLogFile(token, AbstractShell.class);
+							Log.toLogFile(description, AbstractShell.class);
+							Log.toLogFile(args, AbstractShell.class);
+							Log.toLogFile(type, AbstractShell.class);
+						} finally {
+							Log.remLogLevel();
+						}
+                	}
                 }
+                
             }
         }
         return new Tuple<String, List<String[]>>(file, list);

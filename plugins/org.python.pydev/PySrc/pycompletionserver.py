@@ -87,7 +87,6 @@ MSG_COMPLETIONS = '@@COMPLETIONS'
 MSG_END = 'END@@'
 MSG_INVALID_REQUEST = '@@INVALID_REQUEST'
 MSG_JYTHON_INVALID_REQUEST = '@@JYTHON_INVALID_REQUEST'
-MSG_RELOAD_MODULES = '@@RELOAD_MODULES_END@@'
 MSG_CHANGE_DIR = '@@CHANGE_DIR:'
 MSG_OK = '@@MSG_OK_END@@'
 MSG_BIKE = '@@BIKE'
@@ -115,14 +114,6 @@ def CompleteFromDir(dir):
 
     sys.path.insert(0, dir)
 
-
-def ReloadModules():
-    '''
-    Reload all the modules in sys.modules
-    '''
-    sys.modules.clear()
-    for name, mod in _sys_modules.items():
-        sys.modules[name] = mod
 
 def ChangePythonPath(pythonpath):
     '''Changes the pythonpath (clears all the previous pythonpath)
@@ -256,6 +247,8 @@ class T(Thread):
         # Echo server program
         try:
             import socket
+            import _pydev_log
+            log = _pydev_log.Log()
             
             dbg(SERVER_NAME + ' creating socket' , INFO1)
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -308,17 +301,13 @@ class T(Thread):
                                 comps.append((p, ' '))
                             returnMsg = self.getCompletionsMessage(None, comps)
     
-                        elif data.find(MSG_RELOAD_MODULES) != -1:
-                            ReloadModules()
-                            returnMsg = MSG_OK
-                        
                         else:
                             data = data[:data.rfind(MSG_END)]
                         
                             if data.startswith(MSG_IMPORTS):
                                 data = data.replace(MSG_IMPORTS, '')
                                 data = unquote_plus(data)
-                                defFile, comps = importsTipper.GenerateTip(data)
+                                defFile, comps = importsTipper.GenerateTip(data, log)
                                 returnMsg = self.getCompletionsMessage(defFile, comps)
         
                             elif data.startswith(MSG_CHANGE_PYTHONPATH):
@@ -355,10 +344,11 @@ class T(Thread):
     
                         err = s.getvalue()
                         dbg(SERVER_NAME + ' received error: ' + str(err), ERROR)
-                        returnMsg = self.getCompletionsMessage(None, [('ERROR:', '%s' % (err), '')])
+                        returnMsg = self.getCompletionsMessage(None, [('ERROR:', '%s\nLog:%s' % (err, log.GetContents()), '')])
                             
                     
                 finally:
+                    log.Clear()
                     keepAliveThread.lastMsg = returnMsg
                 
             conn.close()

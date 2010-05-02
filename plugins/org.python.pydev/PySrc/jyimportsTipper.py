@@ -97,7 +97,7 @@ def formatParamClassName(paramClassName):
     return paramClassName
 
 
-def GenerateTip(data):
+def GenerateTip(data, log=None):
     data = data.replace('\n', '')
     if data.endswith('.'):
         data = data.rstrip('.')

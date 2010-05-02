@@ -5,7 +5,6 @@ import inspect
 import sys
 from _tipper_common import DoFind
 
-
 #completion types.
 TYPE_IMPORT = '0'
 TYPE_CLASS = '1'
@@ -14,15 +13,24 @@ TYPE_ATTR = '3'
 TYPE_BUILTIN = '4'
 TYPE_PARAM = '5'
 
-def _imp(name):
+def _imp(name, log=None):
     try:
         return __import__(name)
     except:
         if '.' in name:
             sub = name[0:name.rfind('.')]
-            return _imp(sub)
+            
+            if log is not None:
+                log.AddContent('Unable to import', name, 'trying with', sub)
+                log.AddException()
+            
+            return _imp(sub, log)
         else:
             s = 'Unable to import module: %s - sys.path: %s' % (str(name), sys.path)
+            if log is not None:
+                log.AddContent(s)
+                log.AddException()
+            
             raise ImportError(s)
         
 
@@ -30,7 +38,7 @@ IS_IPY = False
 if sys.platform == 'cli':
     IS_IPY = True
     _old_imp = _imp
-    def _imp(name):
+    def _imp(name, log=None):
         #We must add a reference in clr for .Net
         import clr
         initial_name = name
@@ -46,7 +54,7 @@ if sys.platform == 'cli':
             except:
                 pass #That's OK (not dot net module).
         
-        return _old_imp(initial_name)
+        return _old_imp(initial_name, log)
         
 
 
@@ -64,10 +72,10 @@ def GetFile(mod):
             
     return f
 
-def Find(name):
+def Find(name, log=None):
     f = None
     
-    mod = _imp(name)
+    mod = _imp(name, log)
     parent = mod
     foundAs = ''
     
@@ -81,7 +89,7 @@ def Find(name):
         try:
             #this happens in the following case:
             #we have mx.DateTime.mxDateTime.mxDateTime.pyd
-            #but after importing it, mx.DateTime.mxDateTime does shadows access to mxDateTime.pyd
+            #but after importing it, mx.DateTime.mxDateTime shadows access to mxDateTime.pyd
             mod = getattr(mod, comp)
         except AttributeError:
             if old_comp != comp:
@@ -112,12 +120,12 @@ def Search(data):
         return DoFind(f, parent), foundAs
     
     
-def GenerateTip(data):
+def GenerateTip(data, log=None):
     data = data.replace('\n', '')
     if data.endswith('.'):
         data = data.rstrip('.')
         
-    f, mod, parent, foundAs = Find(data)
+    f, mod, parent, foundAs = Find(data, log)
     #print_ >> open('temp.txt', 'w'), f
     tips = GenerateImportsTipForModule(mod)
     return f, tips

@@ -27,4 +27,9 @@ public interface ISystemModulesManager extends IModulesManager {
      * Sets the interpreter info for the given system modules manager.
      */
     public abstract void setInfo(Object /*InterpreterInfo*/ interpreterInfo);
+ 
+    /**
+     * Clears any internally kept caches for the modules manager.
+     */
+    void clearCache();
 }

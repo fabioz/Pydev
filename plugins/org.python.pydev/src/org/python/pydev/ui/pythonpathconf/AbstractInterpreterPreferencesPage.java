@@ -253,12 +253,15 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
 
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
-                    //clear all but the ones that appear
-                    setInfos(Arrays.asList(exesList), monitor);
-                    
-                    //restore the default
-                    doRestore(monitor, interpreterNamesToRestore);
-                    monitor.done();
+                    try {
+						//clear all but the ones that appear
+						setInfos(Arrays.asList(exesList), monitor);
+						//restore the default
+						doRestore(monitor, interpreterNamesToRestore);
+					} finally {
+						AbstractShell.restartAllShells();
+						monitor.done();
+					}
                 }};
                 
             monitorDialog.run(true, true, operation);
