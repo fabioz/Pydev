@@ -558,6 +558,21 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 		String lineContentsToCursor = ps.getLineContentsToCursor();
 		int currSize = lineContentsToCursor.length();
 		int cursorLine = ps.getCursorLine();
+		
+		
+		String nextLine = ps.getLine(cursorLine+1);
+		if(nextLine.trim().startsWith("@") || ps.matchesFunctionLine(nextLine)){
+			int firstCharPosition = PySelection.getFirstCharPosition(nextLine);
+			if(currSize < firstCharPosition){
+				String txt = nextLine.substring(currSize, firstCharPosition);
+				//as it's the same indentation from the next line, we don't have to applyDefaultForTab.
+				command.text = txt;
+				return;
+			}
+		}
+		
+		
+		
 		if(cursorLine > 0){
 		    //this is to know which would be expected if it was a new line in the previous line
 		    //(so that we know the 'expected' output

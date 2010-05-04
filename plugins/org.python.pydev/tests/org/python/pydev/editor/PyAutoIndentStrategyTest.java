@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testEncoding();
+            s.testIndentBeforeDecorator();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -2073,6 +2073,75 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	String expected = "    (u'€', 'EUR')";
     	assertEquals(expected, docCmd.text);
 	}
+    
+    public void testIndentWrong() throws Exception {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = "" +
+    			"class Class:\n" +
+    			"\n" +
+    			"    def Method(self):\n" +
+    			"        if a:\n" +
+    			"            pass\n" +
+    			"        Call(attrs)\n" +
+    			"\n" +
+    			"\n";
+    	DocCmd docCmd = new DocCmd(doc.length()-1, 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "        ";
+    	assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentBeforeMethod() throws Exception {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = "" +
+    	"class Class:\n" +
+    	"\n" +
+    	"    def Method(self):\n" +
+    	"        if a:\n" +
+    	"            pass\n" +
+    	"        Call(attrs)\n" +
+    	"\n" +
+    	"    def Foo(self):";
+    	DocCmd docCmd = new DocCmd(doc.length()-"\n    def Foo(self):".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "    ";
+    	assertEquals(expected, docCmd.text);
+    }
+    
+    
+    public void testIndentBeforeDecorator() throws Exception {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = "" +
+    	"class Class:\n" +
+    	"\n" +
+    	"    def Method(self):\n" +
+    	"        if a:\n" +
+    	"            pass\n" +
+    	"        Call(attrs)\n" +
+    	"\n" +
+    	"    @Decorator";
+    	DocCmd docCmd = new DocCmd(doc.length()-"\n    @Decorator".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "    ";
+    	assertEquals(expected, docCmd.text);
+    }
+    
+    
+    public void testIndentBeforeMethodAlreadyPassed() throws Exception {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = "" +
+    	"class Class:\n" +
+    	"\n" +
+    	"    def Method(self):\n" +
+    	"        if a:\n" +
+    	"            a=10\n" +
+    	"    \n" +
+    	"    def Foo(self):";
+    	DocCmd docCmd = new DocCmd(doc.length()-"\n    def Foo(self):".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "        ";
+    	assertEquals(expected, docCmd.text);
+    }
     
 
 }

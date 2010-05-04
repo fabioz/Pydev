@@ -1074,10 +1074,12 @@ public class PySelection {
         }
         
         String foundDedent = null;
-        int lowest = Integer.MAX_VALUE;
         String lowestStr = null;
         
         while(iterator.hasNext()){
+        	if(mustHaveIndentLowerThan == 0){
+        		return null; //we won't find any indent lower than that.
+        	}
             String line = (String) iterator.next();
             String trimmed = line.trim();
             
@@ -1099,8 +1101,8 @@ public class PySelection {
                 
             }else if(foundDedent == null && trimmed.length() > 0){
                 int firstCharPosition = getFirstCharPosition(line);
-                if(firstCharPosition < lowest){
-                    lowest = firstCharPosition;
+                if(firstCharPosition < mustHaveIndentLowerThan){
+                	mustHaveIndentLowerThan = firstCharPosition;
                     lowestStr = line;
                 }
             }
@@ -1790,8 +1792,13 @@ public class PySelection {
             //requires colon
             line = getToColon();
         }
-        return FunctionPattern.matcher(line.trim()).matches();
+        return matchesFunctionLine(line);
     }
+
+
+	public boolean matchesFunctionLine(String line) {
+		return FunctionPattern.matcher(line.trim()).matches();
+	}
     
     public static boolean isIdentifier(String str) {
         return IdentifierPattern.matcher(str).matches();
