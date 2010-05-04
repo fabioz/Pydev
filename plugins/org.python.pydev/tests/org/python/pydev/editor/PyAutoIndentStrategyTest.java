@@ -26,7 +26,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndentBeforeDecorator();
+            s.testIndentMatchingNextLineIfPreviousIsEmpty();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -2143,5 +2143,55 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	assertEquals(expected, docCmd.text);
     }
     
+    public void testIndentMatchingNextLineIfPreviousIsEmpty() throws Exception {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = "" +
+    	"class Class:\n" +
+    	"\n" +
+    	"    def Method(self):\n" +
+    	"        if a:\n" +
+    	"            a=10\n" +
+    	"\n" +
+    	"\n" +
+    	"    something:";
+    	DocCmd docCmd = new DocCmd(doc.length()-"\n    something:".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "    ";
+    	assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentMatchingNextLineIfPreviousIsEmpty2() throws Exception {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = "" +
+    	"class Class:\n" +
+    	"\n" +
+    	"    def Method(self):\n" +
+    	"        if a:\n" +
+    	"            a=10\n" +
+    	"\n" +
+    	"  \n" +
+    	"    something:";
+    	DocCmd docCmd = new DocCmd(doc.length()-"\n    something:".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "  ";
+    	assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentMatchingNextLineIfPreviousIsEmpty3() throws Exception {
+    	strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+    	String doc = "" +
+    	"class Class:\n" +
+    	"\n" +
+    	"    def Method(self):\n" +
+    	"        if a:\n" +
+    	"            a=10\n" +
+    	"\n" +
+    	"  \n" +
+    	"    something:";
+    	DocCmd docCmd = new DocCmd(doc.length()-" \n    something:".length(), 0, "\t");
+    	strategy.customizeDocumentCommand(new Document(doc), docCmd);
+    	String expected = "   ";
+    	assertEquals(expected, docCmd.text);
+    }
 
 }

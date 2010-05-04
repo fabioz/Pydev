@@ -559,15 +559,28 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 		int currSize = lineContentsToCursor.length();
 		int cursorLine = ps.getCursorLine();
 		
-		
-		String nextLine = ps.getLine(cursorLine+1);
-		if(nextLine.trim().startsWith("@") || ps.matchesFunctionLine(nextLine)){
-			int firstCharPosition = PySelection.getFirstCharPosition(nextLine);
-			if(currSize < firstCharPosition){
-				String txt = nextLine.substring(currSize, firstCharPosition);
-				//as it's the same indentation from the next line, we don't have to applyDefaultForTab.
-				command.text = txt;
-				return;
+
+		//current line is empty
+		if(lineContentsToCursor.trim().length() == 0){
+			String nextLine = ps.getLine(cursorLine+1);
+			
+			String prevLine = ps.getLine(cursorLine-1);
+			boolean forceTryOnNext = false;
+			if(prevLine.trim().length() == 0){
+				//previous line is empty, so, if the next line has contents, use it to make the match.
+				if(nextLine.trim().length() > 0){
+					forceTryOnNext = true;
+				}
+			}
+			
+			if(forceTryOnNext || nextLine.trim().startsWith("@") || ps.matchesFunctionLine(nextLine)){
+				int firstCharPosition = PySelection.getFirstCharPosition(nextLine);
+				if(currSize < firstCharPosition){
+					String txt = nextLine.substring(currSize, firstCharPosition);
+					//as it's the same indentation from the next line, we don't have to applyDefaultForTab.
+					command.text = txt;
+					return;
+				}
 			}
 		}
 		
