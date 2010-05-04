@@ -132,6 +132,7 @@ public class LogPingTest extends TestCase {
 				"id=00000000-0000-0000-0000-000000000000&" +
 				"editor.opened%5B%5D=7%3APydevEditor_REPLACE_VERSION",
 				sent);
+		logPing.stop();
 		
 	}
 	
@@ -157,9 +158,7 @@ public class LogPingTest extends TestCase {
 				"editor.opened%5B%5D=3%3APydevEditor_REPLACE_VERSION&" +
 				"editor.opened%5B%5D=4%3APydevEditor_REPLACE_VERSION&" +
 				"plugin.started%5B%5D=5%3APydev_REPLACE_VERSION", sent);
-		
-		asyncLogPing.addPingOpenEditor();
-		
+		asyncLogPing.stop();
 	}
 	
 	public static Test suite() {

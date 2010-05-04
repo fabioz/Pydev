@@ -25,6 +25,7 @@ public class SynchedLogPing implements ILogPing {
 	private final List<String> keyValueContents = new ArrayList<String>();
 	private ILogPingProvider provider;
 	public ILogPingSender sender;
+	private FileOutputStream stream;
 	private static Object lock = new Object();
 
 	public SynchedLogPing(String location) {
@@ -63,10 +64,14 @@ public class SynchedLogPing implements ILogPing {
 			}
 			
 			try {
-				FileOutputStream stream;
 				stream = new FileOutputStream(this.location, true);
 				bufferedOutputStream = new BufferedOutputStream(stream);
 			} catch (Exception e) {
+				try {
+					stream.close();
+				} catch (IOException e1) {
+					//ignore.
+				}
 				Log.log(e);
 				
 				bufferedOutputStream = new OutputStream() {
@@ -169,6 +174,11 @@ public class SynchedLogPing implements ILogPing {
 			}
 			try {
 				this.bufferedOutputStream.close();
+			} catch (IOException e) {
+				//ignore
+			}
+			try {
+				this.stream.close();
 			} catch (IOException e) {
 				//ignore
 			}

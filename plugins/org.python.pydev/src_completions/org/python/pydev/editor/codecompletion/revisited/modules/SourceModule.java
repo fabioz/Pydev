@@ -682,6 +682,17 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 							//no point in finding the starting point
 							continue;
 						}
+						//Note: I couldn't really reproduce this case, so, this fix is just a theoretical
+						//workaround. Hopefully sometime someone will provide some code to reproduce this.
+						//see: http://sourceforge.net/tracker/?func=detail&aid=2992629&group_id=85796&atid=577329
+						if(StringUtils.count(checkFor, '.') > 30){
+							throw new CompletionRecursionException(
+									"Trying to go to deep to find definition.\n" +
+									"We probably started entering a recursion.\n" +
+									"Module: "+definition.module.getName()+"\n" +
+									"Token: "+checkFor
+									);
+						}
 						
 						Definition[] realDefinitions = (Definition[]) definition.module.findDefinition(
 								state.getCopyWithActTok(checkFor), 
