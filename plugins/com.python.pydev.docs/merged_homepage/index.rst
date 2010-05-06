@@ -40,51 +40,65 @@ It comes with many goodies such as:
 
 For more details on the provided features, check the `Features Matrix`_.
 
-Release 1.5.6
+Release 1.5.7
 ==============
 
+* **Uniquely identifying editors:**
 
-* **Django integration:**
+    * Names are never duplicated
+    * Special treatment for __init__
+    * Special treatment for django on views, models and tests
+    * See: http://pydev.blogspot.com/2010/04/identifying-your-editors.html for details
 
-    * New Django project can be created through wizards
-    * Can set an existing project as a Django project (right-click project > pydev > set as django project)
-    * Can remove Django project config (right-click project > django > remove django project config)
-    * Custom actions can be passed to the configured manage.py through **ctrl+2+dj django_action** -- if no action is passed, will open dialog to choose from a list of previously used commands.
-    * Predefined/custom actions can be used through right-clicking the project > django > select custom action
-    * manage.py location and settings module configured
-    * Django shell (with code-completion, history, etc) available
-    * Run/Debug as Django available
-    * See: `Django Integration`_ for more details
+* **Debugger:**
 
-* **Find/Replace:**
+    * **CRITICAL**: Fixed issue which could make the debugger skip breakpoints
+    * Properly dealing with varibles that have '<' or '>'
+    * Debugging file in python 3 with an encoding works
+    * Double-clicking breakpoint opens file from the workspace instead of always forcing an external file
+    * Added '* any file' option for file selection during a debug where the file is not found
 
-    * The search in open files is no longer added in the find/replace dialog and now works through **Ctrl+2+s word_to_find** (in the Pydev editor) and if no word is passed, the editor selection is used
+* **Performance improvements for dealing with really large files:**
     
-* **Go to definiton:**
+    * Code folding marks won't be shown on *really large files* for performance reasons
+    * Performance improvements in the code-analysis (much faster for *really large files*)
+    * Outline tree is also faster
 
-    * Properly works with unsaved files (so, it will work when searching for a definition on an unsaved file)
-    * Properly working with eclipse 3.6 (having FileStoreEditorInput as the editor input)
+* **Interpreter configuration:**
 
-* **Editor:**
+    * Only restoring the needed interpreter info (so, it's much faster to add a new interpreter)
+    * Using an asynchronous progress monitor (which makes it even faster)
+    * Interpreter location may not be duplicated (for cases where the same interpreter is used with a different config, virtualenv should be used)
+    * Properly refreshing internal caches (which made a ctrl+2+kill or a restart of eclipse needed sometimes after configuring the interpreter)
+    * socket added to forced builtins
 
-    * Automatically closing literals.
-    * Removing closing pair on backspace on literal
-    * Improved heuristics for automatically closing (, [ and {
-    * Removing closing pairs on backspace on (,[ and {
-    * **ctrl+2+sl** (sl comes from 'split lines' -- can be used to add a new line after each comma in the selection
-    * **ctrl+2+is** (is comes from 'import string' -- can be used to transform the selected import into a string with dots
+* **Python 3 grammar:**
+
+    * Code completion and code-analysis work when dealing with keyword only parameters
+    * Properly reporting syntax error instead of throwing a NumberFormatException on "1.0L"
     
+* **Editor and forcing tabs:**
+
+    * Option to toggle forcing tabs added to the editor context menu
+    * Fixed tabs issue which could change the global setting on force tabs
+    
+* **Indentation:**
+
+    * Added rule so that indentation stops at the level of the next line def or @ (to indent to add a decorator)
+    * Auto indent strategy may indent based on next line if the previous is empty
+
 * **General:**
-
-    * Code-completion properly working on relative import with an alias.
-    * Fixed racing issue that could deadlock pydev (under really hard to reproduce circumstances)
-    * Removing reloading code while debugging until (if) it becomes more mature in the python side
-    * Fixed issue where a new project created didn't have the source folder correctly set
-    * Text selection in double click no longer has weird behavior
-    * Local refactoring working on files not in the PYTHONPATH
-    * Edit properly working on string substitution variables
-    * Using with statement on python 2.5 no longer makes lines wrong in the AST
     
+    * Django configuration supporting version 1.2 (contribution by Kenneth Belitzky)
+    * Fixed encoding problem when pasting encoded text with indentation
+    * asthelper.completions no longer created on current directory when project is removed
+    * __all__ semantics correct when a tuple is defined (and not only when a list is defined)
+    * Fixed issue in extract method (was not creating tuple on caller function with multiple returns)
+    * Improved heuristic for assist assign (ctrl+1)
+    * On search open files (ctrl+2+s), dialog is opened if nothing is entered and there's no editor selection
+    * Fixed issue where ctrl+2 would not work on linux
+
+
     
 What happened to Pydev Extensions?
 ====================================

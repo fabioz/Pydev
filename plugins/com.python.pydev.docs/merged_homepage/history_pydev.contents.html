@@ -5,6 +5,70 @@
 <br>
 
 
+<h1>Release 1.5.6</h1>
+
+<ul>
+<li><p class="first"><strong>Django integration:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>New Django project can be created through wizards</li>
+<li>Can set an existing project as a Django project (right-click project &gt; pydev &gt; set as django project)</li>
+<li>Can remove Django project config (right-click project &gt; django &gt; remove django project config)</li>
+<li>Custom actions can be passed to the configured manage.py through <strong>ctrl+2+dj django_action</strong> -- if no action is passed, will open dialog to choose from a list of previously used commands.</li>
+<li>Predefined/custom actions can be used through right-clicking the project &gt; django &gt; select custom action</li>
+<li>manage.py location and settings module configured</li>
+<li>Django shell (with code-completion, history, etc) available</li>
+<li>Run/Debug as Django available</li>
+<li>See: <a class="reference external" href="manual_adv_django.html">Django Integration</a> for more details</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Find/Replace:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>The search in open files is no longer added in the find/replace dialog and now works through <strong>Ctrl+2+s word_to_find</strong> (in the Pydev editor) and if no word is passed, the editor selection is used</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Go to definiton:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Properly works with unsaved files (so, it will work when searching for a definition on an unsaved file)</li>
+<li>Properly working with eclipse 3.6 (having FileStoreEditorInput as the editor input)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Automatically closing literals.</li>
+<li>Removing closing pair on backspace on literal</li>
+<li>Improved heuristics for automatically closing (, [ and {</li>
+<li>Removing closing pairs on backspace on (,[ and {</li>
+<li><strong>ctrl+2+sl</strong> (sl comes from 'split lines' -- can be used to add a new line after each comma in the selection</li>
+<li><strong>ctrl+2+is</strong> (is comes from 'import string' -- can be used to transform the selected import into a string with dots</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>General:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Code-completion properly working on relative import with an alias.</li>
+<li>Fixed racing issue that could deadlock pydev (under really hard to reproduce circumstances)</li>
+<li>Removing reloading code while debugging until (if) it becomes more mature in the python side</li>
+<li>Fixed issue where a new project created didn't have the source folder correctly set</li>
+<li>Text selection in double click no longer has weird behavior</li>
+<li>Local refactoring working on files not in the PYTHONPATH</li>
+<li>Edit properly working on string substitution variables</li>
+<li>Using with statement on python 2.5 no longer makes lines wrong in the AST</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+
+
+
+
 <h1>Release 1.5.5</h1>
 <ul>
 <li><p class="first"><strong>Predefined completions available for code completion:</strong></p>
