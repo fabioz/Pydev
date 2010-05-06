@@ -779,9 +779,34 @@ class PyDB:
         if not IS_PY3K:
             execfile(file, globals, locals) #execute the script
         else:
-            #We need to compile before so that the module name is correct
-            obj = compile(open(file).read()+"\n", file, 'exec')
-            exec(obj, globals, locals) #execute the script
+            stream = open(file)
+            try:
+                encoding = None
+                #Get encoding!
+                for i in range(2):
+                    line = stream.readline() #Should not raise an exception even if there are no more contents
+                    #Must be a comment line
+                    if line.strip().startswith('#'):
+                        #Don't import re if there's no chance that there's an encoding in the line
+                        if 'coding' in line:
+                            import re
+                            p = re.search(r"coding[:=]\s*([-\w.]+)", line)
+                            if p:
+                                encoding = p.group(1)
+                                break
+            finally:
+                stream.close()
+        
+            if encoding:
+                stream = open(file, encoding=encoding)
+            else:
+                stream = open(file)
+            try:
+                contents = stream.read()
+            finally:
+                stream.close()
+                
+            exec(compile(contents+"\n", file, 'exec'), globals, locals) #execute the script
 
 
 def processCommandLine(argv):
