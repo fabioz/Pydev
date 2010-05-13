@@ -30,7 +30,7 @@ Fabio Zadrozny
 Software Developer
 
 Aptana
-http://aptana.com/python
+http://aptana.com/
 
 Pydev - Python Development Environment for Eclipse
 http://pydev.org

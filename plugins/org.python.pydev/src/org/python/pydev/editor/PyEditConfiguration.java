@@ -26,7 +26,7 @@ import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
 import org.python.pydev.editor.hover.PyAnnotationHover;
 import org.python.pydev.editor.hover.PyTextHover;
 import org.python.pydev.editor.simpleassist.SimpleAssistProcessor;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
  * Adds simple partitioner, and specific behaviors like double-click actions to the TextWidget.
@@ -55,7 +55,7 @@ public class PyEditConfiguration extends PyEditConfigurationWithoutEditor {
     }
 
 
-    public PyEditConfiguration(ColorCache colorManager, IPySyntaxHighlightingAndCodeCompletionEditor edit, IPreferenceStore preferenceStore) {
+    public PyEditConfiguration(ColorAndStyleCache colorManager, IPySyntaxHighlightingAndCodeCompletionEditor edit, IPreferenceStore preferenceStore) {
         super(colorManager, preferenceStore);
         this.setEdit(edit); 
     }

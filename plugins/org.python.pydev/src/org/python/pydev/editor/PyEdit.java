@@ -20,14 +20,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -40,6 +37,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
+import org.eclipse.jface.text.source.LineNumberRulerColumn;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyEvent;
@@ -124,7 +124,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -161,10 +161,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     static public final String ACTION_OPEN = "OpenEditor";
 
     /** color cache */
-    private ColorCache colorCache;
+    private ColorAndStyleCache colorCache;
 
     // Listener waits for tab/spaces preferences that affect sourceViewer
-    private Preferences.IPropertyChangeListener prefListener;
+    private IPropertyChangeListener prefListener;
 
     /** need it to support GUESS_TAB_SUBSTITUTION preference */
     private PyAutoIndentStrategy indentStrategy;
@@ -180,7 +180,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
     
 
-    public ColorCache getColorCache() {
+    public ColorAndStyleCache getColorCache() {
         return colorCache;
     }
     
@@ -223,6 +223,16 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     private Object lock = new Object();
     
+    public final IPyEditCallback onCreatePartControl = new PyEditCallback();
+	public final IPyEditCallback onAfterCreatePartControl = new PyEditCallback();
+	public final IPyEditCallback onCreateActions = new PyEditCallback();
+	public final IPyEditCallback onGetAdapter = new PyEditCallback();
+	public final IPyEditCallback onInitializeLineNumberRulerColumn = new PyEditCallback();
+	public final IPyEditCallback onDispose = new PyEditCallback();
+	public final IPyEditCallback onHandlePreferenceStoreChanged = new PyEditCallback();
+	public final IPyEditCallback onCreateSourceViewer = new PyEditCallback();
+
+	
     public void addPyeditListener(IPyEditListener listener){
         synchronized (registeredEditListeners) {
             registeredEditListeners.add(listener);
@@ -235,21 +245,48 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
     }
 
+    public ISourceViewer getISourceViewer(){
+    	return getSourceViewer();
+    }
     
+    public IVerticalRuler getIVerticalRuler() {
+    	return getVerticalRuler();
+	}
 
     public List<IPyEditListener> getAllListeners() {
-        while (initFinished == false){
-            synchronized(getLock()){
-                try {
-                    if(initFinished == false){
-                        getLock().wait();
-                    }
-                } catch (Exception e) {
-                    //ignore
-                    e.printStackTrace();
-                }
-            }
-        }
+    	return getAllListeners(true);
+    }
+    
+	@Override
+	protected void initializeLineNumberRulerColumn(LineNumberRulerColumn rulerColumn)
+	{
+		super.initializeLineNumberRulerColumn(rulerColumn);
+		this.onInitializeLineNumberRulerColumn.call(rulerColumn);
+	}
+	
+	@Override
+	protected void handlePreferenceStoreChanged(PropertyChangeEvent event)
+	{
+		super.handlePreferenceStoreChanged(event);
+		this.onHandlePreferenceStoreChanged.call(event);
+	}
+
+    
+    public List<IPyEditListener> getAllListeners(boolean waitInit) {
+    	if(waitInit){
+	        while (initFinished == false){
+	            synchronized(getLock()){
+	                try {
+	                    if(initFinished == false){
+	                        getLock().wait();
+	                    }
+	                } catch (Exception e) {
+	                    //ignore
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+    	}
         ArrayList<IPyEditListener> listeners = new ArrayList<IPyEditListener>();
         if(editListeners != null){
             listeners.addAll(editListeners); //no need to sync because editListeners is read-only
@@ -264,6 +301,16 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return lock;
     }
 
+    @Override
+    public void createPartControl(Composite parent) {
+    	Composite newParent = (Composite) this.onCreatePartControl.call(parent);
+    	if(newParent != null){
+    		parent = newParent;
+    	}
+    	super.createPartControl(parent);
+    	this.onAfterCreatePartControl.call(getSourceViewer());
+    }
+    
     /**
      * This map may be used by clients to store info regarding this editor.
      * 
@@ -290,6 +337,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     private boolean disposed = false;
 
+
     public boolean isDisposed() {
         return disposed;
     }
@@ -304,9 +352,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             if (editListeners == null){
                 editListeners = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PYEDIT_LISTENER);
             }
+            notifier = new PyEditNotifier(this);
+            notifier.notifyEditorCreated();
+            
             
             modelListeners = new ArrayList<IModelListener>();
-            colorCache = new ColorCache(PydevPrefs.getChainedPrefStore());
+            colorCache = new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
             
             editConfiguration = new PyEditConfiguration(colorCache, this, PydevPrefs.getChainedPrefStore());
             setSourceViewerConfiguration(editConfiguration);
@@ -341,6 +392,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         textWidget.addKeyListener(cursorListener);
         
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, this));
+        this.onCreateSourceViewer.call(viewer);
         
         return viewer;
     }
@@ -524,7 +576,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
         try{
-            notifier = new PyEditNotifier(this);
             super.init(site, input);
     
             final IDocument document = getDocument(input);
@@ -558,7 +609,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             // listen to changes in TAB_WIDTH preference
             prefListener = createPrefChangeListener(this);
             resetForceTabs();
-            PydevPrefs.getPreferences().addPropertyChangeListener(prefListener);
+            PydevPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
             
         
             Runnable runnable = new Runnable(){
@@ -583,42 +634,38 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
     }
     
-    
 
     public static IPropertyChangeListener createPrefChangeListener(final IPySyntaxHighlightingAndCodeCompletionEditor editor) {
-        return new Preferences.IPropertyChangeListener() {
-            public void propertyChange(Preferences.PropertyChangeEvent event) {
-                String property = event.getProperty();
-                //tab width
-                if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
-                    ISourceViewer sourceViewer = editor.getEditorSourceViewer();
-                    if (sourceViewer == null){
-                        return;
-                    }
-                    editor.getIndentPrefs().regenerateIndentString();
-                    sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
-                    
-                }else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
-                    editor.getIndentPrefs().regenerateIndentString();
-                   
-                //auto adjust for file tabs
-                } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
-                    editor.resetForceTabs();
-                    
-                //colors and styles
-                } else if (property.equals(PydevEditorPrefs.CODE_COLOR) || property.equals(PydevEditorPrefs.DECORATOR_COLOR) || property.equals(PydevEditorPrefs.NUMBER_COLOR)
-                        || property.equals(PydevEditorPrefs.KEYWORD_COLOR) || property.equals(PydevEditorPrefs.SELF_COLOR) || property.equals(PydevEditorPrefs.COMMENT_COLOR) 
-                        || property.equals(PydevEditorPrefs.STRING_COLOR) || property.equals(PydevEditorPrefs.CLASS_NAME_COLOR) || property.equals(PydevEditorPrefs.FUNC_NAME_COLOR)
-                        || property.equals(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR)
-                        || property.endsWith("_STYLE")
-                        ) {
-                    editor.getColorCache().reloadNamedColor(property); //all reference this cache
-                    editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
-                    editor.getEditorSourceViewer().invalidateTextPresentation();
-                } 
-            }
-        };
+    	return new IPropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent event) {
+				String property = event.getProperty();
+		    	//tab width
+		    	if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
+		    		ISourceViewer sourceViewer = editor.getEditorSourceViewer();
+		    		if (sourceViewer == null){
+		    			return;
+		    		}
+		    		editor.getIndentPrefs().regenerateIndentString();
+		    		sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
+		    		
+		    	}else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
+		    		editor.getIndentPrefs().regenerateIndentString();
+		    		
+		    		//auto adjust for file tabs
+		    	} else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
+		    		editor.resetForceTabs();
+		    		
+		    		//colors and styles
+		    	} else if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
+		    		editor.getColorCache().reloadNamedColor(property); //all reference this cache
+		    		editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
+		    		editor.getEditorSourceViewer().invalidateTextPresentation();
+		    	}
+		    }
+		};
     }
+    
 
     /**
      * When we have the editor input re-set, we have to change the parser and the partition scanner to
@@ -873,9 +920,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     public void dispose() {
         this.disposed = true;
         try{
+        	this.onDispose.call(null);
+        	
             notifier.notifyOnDispose();
     
-            PydevPrefs.getPreferences().removePropertyChangeListener(prefListener);
+            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
             PyParserManager.getPyParserManager(null).notifyEditorDisposed(this);
             
             colorCache.dispose();
@@ -964,6 +1013,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 	    		
             
             notifier.notifyOnCreateActions(resources);
+            onCreateActions.call(this);
         }catch (Throwable e) {
             PydevPlugin.log(e);
         }
@@ -1024,6 +1074,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (IContentOutlinePage.class.equals(adapter)){
             return new PyOutlinePage(this);
         }else{
+        	
+    		Object adaptable = this.onGetAdapter.call(adapter);
+    		if(adaptable != null){
+    			return adaptable;
+    		}
+
             return super.getAdapter(adapter);
         }
     }
@@ -1341,8 +1397,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     protected void initializeEditor() {
         super.initializeEditor();
         try{
-            IPreferenceStore prefStore = PydevPrefs.getChainedPrefStore();
-            this.setPreferenceStore(prefStore);
+            this.setPreferenceStore(PydevPrefs.getChainedPrefStore());
             setEditorContextMenuId(PY_EDIT_CONTEXT);
         }catch (Throwable e) {
             PydevPlugin.log(e);

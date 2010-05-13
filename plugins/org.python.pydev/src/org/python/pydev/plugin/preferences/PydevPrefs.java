@@ -1,9 +1,13 @@
 package org.python.pydev.plugin.preferences;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -32,9 +36,17 @@ public class PydevPrefs {
      */
     public synchronized static IPreferenceStore getChainedPrefStore() {
         if(PydevPrefs.fChainedPrefStore == null){
-            IPreferenceStore general = EditorsUI.getPreferenceStore();
-            IPreferenceStore preferenceStore = PydevPlugin.getDefault().getPreferenceStore();
-            PydevPrefs.fChainedPrefStore = new ChainedPreferenceStore(new IPreferenceStore[] { preferenceStore, general });
+        	List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        	List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
+        	for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+				IPreferenceStore preferenceStore = iPydevPreferencesProvider.getPreferenceStore();
+				if(preferenceStore != null){
+					stores.add(preferenceStore);
+				}
+			}
+        	stores.add(PydevPlugin.getDefault().getPreferenceStore());
+        	stores.add(EditorsUI.getPreferenceStore());
+            PydevPrefs.fChainedPrefStore = new ChainedPreferenceStore(stores.toArray(new IPreferenceStore[stores.size()]));
         }
         return PydevPrefs.fChainedPrefStore;
     }

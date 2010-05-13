@@ -8,7 +8,7 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
  * This is the interface needed for an editor that has syntax highlighting and code-completion
@@ -22,7 +22,7 @@ public interface IPySyntaxHighlightingAndCodeCompletionEditor extends IAdaptable
 
     void resetForceTabs();
 
-    ColorCache getColorCache();
+    ColorAndStyleCache getColorCache();
 
     PyEditConfigurationWithoutEditor getEditConfiguration();
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.python.pydev.pydev_pyedit_listener">
+      <pyedit_listener_participant
+            class="org.python.pydev.red_core.AddRedCoreTheme">
+      </pyedit_listener_participant>
+   </extension>
+   <extension
+         point="org.python.pydev.pydev_preferences_provider">
+      <preferences_provider_participant
+            class="org.python.pydev.red_core.AddRedCorePreferences">
+      </preferences_provider_participant>
+   </extension>
+
+</plugin>

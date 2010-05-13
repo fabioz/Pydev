@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pydev Red Core
+Bundle-SymbolicName: org.python.pydev.red_core;singleton:=true
+Bundle-Version: 0.9.7.1
+Bundle-Activator: org.python.pydev.red_core.PydevRedCoreActivator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.python.pydev,
+ org.eclipse.jface.text,
+ com.aptana.editor.common;resolution:=optional,
+ org.eclipse.ui.workbench.texteditor,
+ org.python.pydev.core,
+ org.eclipse.ui.editors
+Eclipse-LazyStart: true

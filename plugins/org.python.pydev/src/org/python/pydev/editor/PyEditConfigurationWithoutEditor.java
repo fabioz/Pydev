@@ -25,12 +25,11 @@ import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.ui.ColorAndStyleCache;
 
 public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfiguration {
 
-    private ColorCache colorCache;
+    private ColorAndStyleCache colorCache;
 
     private PyAutoIndentStrategy autoIndentStrategy;
 
@@ -43,8 +42,10 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
     private PyColoredScanner commentScanner, stringScanner, backquotesScanner;
 
     public PyContentAssistant pyContentAssistant = new PyContentAssistant();
+    
+    private final Object lock = new Object();
 
-    public PyEditConfigurationWithoutEditor(ColorCache colorManager, IPreferenceStore preferenceStore) {
+    public PyEditConfigurationWithoutEditor(ColorAndStyleCache colorManager, IPreferenceStore preferenceStore) {
         super(preferenceStore);
         colorCache = colorManager;
     }
@@ -165,50 +166,51 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
 
     public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
 
-        if (reconciler == null) {
-            reconciler = new PresentationReconciler();
-            reconciler.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
-
-            DefaultDamagerRepairer dr;
-
-            // DefaultDamagerRepairer implements both IPresentationDamager, IPresentationRepairer
-            // IPresentationDamager::getDamageRegion does not scan, just
-            // returns the intersection of document event, and partition region
-            // IPresentationRepairer::createPresentation scans
-            // gets each token, and sets text attributes according to token
-
-            // We need to cover all the content types from PyPartitionScanner
-
-            IPreferenceStore preferences = PydevPrefs.getChainedPrefStore();
-            // Comments have uniform color
-            commentScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.COMMENT_COLOR, preferences.getInt(PydevEditorPrefs.COMMENT_STYLE));
-            dr = new DefaultDamagerRepairer(commentScanner);
-            reconciler.setDamager(dr, IPythonPartitions.PY_COMMENT);
-            reconciler.setRepairer(dr, IPythonPartitions.PY_COMMENT);
-
-            // Backquotes have uniform color
-            backquotesScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.BACKQUOTES_COLOR,preferences.getInt(PydevEditorPrefs.BACKQUOTES_STYLE));
-            dr = new DefaultDamagerRepairer(backquotesScanner);
-            reconciler.setDamager(dr, IPythonPartitions.PY_BACKQUOTES);
-            reconciler.setRepairer(dr, IPythonPartitions.PY_BACKQUOTES);
-            
-            // Strings have uniform color
-            stringScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.STRING_COLOR,preferences.getInt(PydevEditorPrefs.STRING_STYLE));
-            dr = new DefaultDamagerRepairer(stringScanner);
-            reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
-            reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
-            reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING2);
-            reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING2);
-            reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_STRING1);
-            reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_STRING1);
-            reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_STRING2);
-            reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_STRING2);
-
-            // Default content is code, we need syntax highlighting
-            codeScanner = new PyCodeScanner(colorCache);
-            dr = new DefaultDamagerRepairer(codeScanner);
-            reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
-            reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
+    	synchronized (lock) {
+	        if (reconciler == null) {
+	            reconciler = new PresentationReconciler();
+	            reconciler.setDocumentPartitioning(IPythonPartitions.PYTHON_PARTITION_TYPE);
+	
+	            DefaultDamagerRepairer dr;
+	
+	            // DefaultDamagerRepairer implements both IPresentationDamager, IPresentationRepairer
+	            // IPresentationDamager::getDamageRegion does not scan, just
+	            // returns the intersection of document event, and partition region
+	            // IPresentationRepairer::createPresentation scans
+	            // gets each token, and sets text attributes according to token
+	
+	            // We need to cover all the content types from PyPartitionScanner
+	
+	            // Comments have uniform color
+	            commentScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.COMMENT_COLOR);
+	            dr = new DefaultDamagerRepairer(commentScanner);
+	            reconciler.setDamager(dr, IPythonPartitions.PY_COMMENT);
+	            reconciler.setRepairer(dr, IPythonPartitions.PY_COMMENT);
+	
+	            // Backquotes have uniform color
+	            backquotesScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.BACKQUOTES_COLOR);
+	            dr = new DefaultDamagerRepairer(backquotesScanner);
+	            reconciler.setDamager(dr, IPythonPartitions.PY_BACKQUOTES);
+	            reconciler.setRepairer(dr, IPythonPartitions.PY_BACKQUOTES);
+	            
+	            // Strings have uniform color
+	            stringScanner = new PyColoredScanner(colorCache, PydevEditorPrefs.STRING_COLOR);
+	            dr = new DefaultDamagerRepairer(stringScanner);
+	            reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
+	            reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING1);
+	            reconciler.setDamager(dr, IPythonPartitions.PY_SINGLELINE_STRING2);
+	            reconciler.setRepairer(dr, IPythonPartitions.PY_SINGLELINE_STRING2);
+	            reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_STRING1);
+	            reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_STRING1);
+	            reconciler.setDamager(dr, IPythonPartitions.PY_MULTILINE_STRING2);
+	            reconciler.setRepairer(dr, IPythonPartitions.PY_MULTILINE_STRING2);
+	
+	            // Default content is code, we need syntax highlighting
+	            codeScanner = new PyCodeScanner(colorCache);
+	            dr = new DefaultDamagerRepairer(codeScanner);
+	            reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
+	            reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
+	        }
         }
 
         return reconciler;
@@ -246,21 +248,19 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
     //assumes that that editor colorCache has been updated with the
     //new named color
     public void updateSyntaxColorAndStyle() {
-        if (reconciler != null) {
-            //always update all (too much work in keeping this synchronized by type)
-            codeScanner.updateColors();
-            
-            IPreferenceStore preferences = PydevPrefs.getChainedPrefStore();
-            
-            commentScanner.setStyle(preferences.getInt(PydevEditorPrefs.COMMENT_STYLE));
-            commentScanner.updateColorAndStyle();
+    	synchronized (lock) {
 
-            stringScanner.setStyle(preferences.getInt(PydevEditorPrefs.STRING_STYLE));
-            stringScanner.updateColorAndStyle();
-
-            backquotesScanner.setStyle(preferences.getInt(PydevEditorPrefs.BACKQUOTES_STYLE));
-            backquotesScanner.updateColorAndStyle();
-        }
+	        if (reconciler != null) {
+	            //always update all (too much work in keeping this synchronized by type)
+	            codeScanner.updateColors();
+	            
+	            commentScanner.updateColorAndStyle();
+	
+	            stringScanner.updateColorAndStyle();
+	
+	            backquotesScanner.updateColorAndStyle();
+	        }
+    	}
     }
 
 }

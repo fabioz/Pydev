@@ -13,7 +13,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.swt.graphics.RGB;
 import org.python.pydev.editor.PyCodeScanner.NumberDetector;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
  * @author Fabio Zadrozny
@@ -79,7 +79,7 @@ public class PyCodeScannerTest extends TestCase {
         store.putValue("FUNC_NAME_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
         store.putValue("CLASS_NAME_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
         
-        ColorCache colorCache = new ColorCache(store);
+        ColorAndStyleCache colorCache = new ColorAndStyleCache(store);
         PyCodeScanner scanner = new PyCodeScanner(colorCache);
         scanner.setRange(new Document(str), 0, str.length());
         IToken nextToken = scanner.nextToken();

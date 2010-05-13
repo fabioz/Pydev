@@ -31,9 +31,8 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
  * This class can create a styled text and later format a python code string and give style ranges for
@@ -49,12 +48,12 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener{
     /**
      * Used to hold the background color (it cannot be disposed while we're using it).
      */
-    private ColorCache backgroundColorCache;
+    private ColorAndStyleCache backgroundColorCache;
     
     /**
      * Used to hold other colors (always cleared when new preferences are set).
      */
-    private ColorCache colorCache;
+    private ColorAndStyleCache colorCache;
     
 
     /**
@@ -62,8 +61,8 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener{
      */
     public StyledText createStyledTextForCodePresentation(Composite parent){
         styledText = new StyledText(parent, SWT.BORDER);
-        this.backgroundColorCache = new ColorCache(new PreferenceStore());
-        this.colorCache = new ColorCache(null);
+        this.backgroundColorCache = new ColorAndStyleCache(new PreferenceStore());
+        this.colorCache = new ColorAndStyleCache(null);
         try {
             FontData labelFontData = new FontData("Courier New", 10, SWT.NONE);
             styledText.setFont(new Font(parent.getDisplay(), labelFontData));
@@ -180,23 +179,25 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener{
                     createDefaultRanges(textPresentation, scanner, doc, offset, len);
                     
                 }else if(IPythonPartitions.PY_COMMENT.equals(type)){
+                	TextAttribute textAttribute = colorCache.getCommentTextAttribute();
                     textPresentation.addStyleRange(
                             new StyleRange(
                                     offset, 
                                     len, 
-                                    colorCache.getNamedColor(PydevEditorPrefs.COMMENT_COLOR), 
+                                    textAttribute.getForeground(), 
                                     null,
-                                    prefs.getInt(PydevEditorPrefs.COMMENT_STYLE))
+                                    textAttribute.getStyle())
                             );   
                     
                 }else if(IPythonPartitions.PY_BACKQUOTES.equals(type)){
+                	TextAttribute textAttribute = colorCache.getBackquotesTextAttribute();
                     textPresentation.addStyleRange(
                             new StyleRange(
                                     offset, 
                                     len, 
-                                    colorCache.getNamedColor(PydevEditorPrefs.BACKQUOTES_COLOR), 
+                                    textAttribute.getForeground(), 
                                     null,
-                                    prefs.getInt(PydevEditorPrefs.BACKQUOTES_STYLE))
+                                    textAttribute.getStyle())
                     );   
                     
                 }else if(IPythonPartitions.PY_MULTILINE_STRING1.equals(type)||
@@ -204,13 +205,14 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener{
                         IPythonPartitions.PY_SINGLELINE_STRING1.equals(type)||
                         IPythonPartitions.PY_SINGLELINE_STRING2.equals(type)
                         ){
+                	TextAttribute textAttribute = colorCache.getStringTextAttribute();
                     textPresentation.addStyleRange(
                             new StyleRange(
                                     offset, 
                                     len, 
-                                    colorCache.getNamedColor(PydevEditorPrefs.STRING_COLOR), 
+                                    textAttribute.getForeground(), 
                                     null,
-                                    prefs.getInt(PydevEditorPrefs.STRING_STYLE))
+                                    textAttribute.getStyle())
                     );   
                 }
             }

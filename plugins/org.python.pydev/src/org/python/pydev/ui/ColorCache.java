@@ -28,12 +28,11 @@ import org.python.pydev.plugin.PydevPlugin;
         preferences.addPropertyChangeListener(this);
         preferences.removePropertyChangeListener(this);
 */
-
-public class ColorCache {
+public abstract class ColorCache {
 
     private Map<RGB, Color> fColorTable = new HashMap<RGB, Color>();
     private Map<String, Color> fNamedColorTable = new HashMap<String, Color>();
-    private IPreferenceStore preferences;
+    protected IPreferenceStore preferences;
     
     
     public ColorCache(IPreferenceStore prefs) {
@@ -68,7 +67,7 @@ public class ColorCache {
     // getNamedColor gets color from preferences
     // if preference is not found, then it looks whether color is one
     // of the well-known predefined names
-    public Color getNamedColor(String name) {
+    protected Color getNamedColor(String name) {
         Color color = (Color)fNamedColorTable.get(name);
         if (color == null) {
             String colorCode =  preferences.getString(name);
@@ -108,10 +107,6 @@ public class ColorCache {
             ((Color)fNamedColorTable.get(name)).dispose();
             fNamedColorTable.remove(name);
         }
-    }
-
-    public IPreferenceStore getPreferences(){
-        return this.preferences;
     }
 
     /**

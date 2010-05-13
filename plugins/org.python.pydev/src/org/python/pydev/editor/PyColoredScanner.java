@@ -5,10 +5,12 @@
  */
 package org.python.pydev.editor;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
-import org.python.pydev.ui.ColorCache;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
+import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
  * 
@@ -17,24 +19,33 @@ import org.python.pydev.ui.ColorCache;
  * color in the colorCache
  */
 public class PyColoredScanner extends RuleBasedScanner {
-    private ColorCache colorCache;
-    private String colorName;
-    private int style;
+    private ColorAndStyleCache colorCache;
+	private String name;
+
     
-    public PyColoredScanner(ColorCache colorCache, String colorName, int style) {
+    public PyColoredScanner(ColorAndStyleCache colorCache, String name) {
         super();
+        Assert.isNotNull(colorCache);
         this.colorCache = colorCache;
-        this.colorName = colorName;
-        this.style = style;
+        this.name = name;
         updateColorAndStyle();        
     }
     
-    public void setStyle(int style){
-        this.style = style;
-    }
-    
     public void updateColorAndStyle() {
-        setDefaultReturnToken(new Token(new TextAttribute(colorCache.getNamedColor(colorName), null, style)));
+    	TextAttribute attr;
+    	if(PydevEditorPrefs.COMMENT_COLOR.equals(name)){
+    		attr = colorCache.getCommentTextAttribute();
+    		
+    	}else if(PydevEditorPrefs.BACKQUOTES_COLOR.equals(name)){
+    		attr = colorCache.getBackquotesTextAttribute();
+    		
+    	}else if(PydevEditorPrefs.STRING_COLOR.equals(name)){
+    		attr = colorCache.getStringTextAttribute();
+    		
+    	}else{
+    		throw new RuntimeException("Unexpected: "+name);
+    	}
+        setDefaultReturnToken(new Token(attr));
     }
     
     

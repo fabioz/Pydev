@@ -179,5 +179,25 @@ public class PyEditNotifier {
         };
         runIt(runnable);
     }
+    
+
+	public void notifyEditorCreated() {
+		//Note that it's not done on a Job as in the other cases!
+        final PyEdit edit = pyEdit.get();
+        if(edit == null){
+            return;
+        }
+        for(IPyEditListener listener : edit.getAllListeners(false)){
+            if(listener instanceof IPyEditListener4){
+            	IPyEditListener4 pyEditListener4 = (IPyEditListener4) listener;
+                try {
+                    pyEditListener4.onEditorCreated(edit);
+                } catch (Exception e) {
+                    //must not fail
+                    PydevPlugin.log(e);
+                }
+            }
+        }
+	}
 
 }
