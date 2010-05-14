@@ -3,7 +3,7 @@ package com.python.pydev.analysis.actions;
 import java.util.List;
 
 import org.eclipse.ui.dialogs.SearchPattern;
-import org.python.pydev.core.ICallback2;
+import org.python.pydev.core.callbacks.ICallback2;
 import org.python.pydev.core.docutils.StringUtils;
 
 import com.python.pydev.analysis.additionalinfo.IInfo;

@@ -9,6 +9,8 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.core.callbacks.ICallback;
+
 import junit.framework.TestCase;
 
 public class DeltaSaverTest extends TestCase {

@@ -6,6 +6,7 @@ package org.python.pydev.navigator.ui;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -31,9 +32,13 @@ import org.eclipse.ui.navigator.INavigatorPipelineService;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
+import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonFile;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.IViewCreatedObserver;
 
 /**
  * This class is the package explorer for pydev. It uses the CNF (Common Navigator Framework) to show
@@ -129,7 +134,18 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
      * This is the memento to be used.
      */
     private IMemento memento;
+	public final ICallbackWithListeners onTreeViewerCreated = new CallbackWithListeners();
+	public final ICallbackWithListeners onDispose = new CallbackWithListeners();
 
+	public PydevPackageExplorer() {
+		super();
+		List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
+				ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+		for (IViewCreatedObserver iViewCreatedObserver : participants) {
+			iViewCreatedObserver.notifyViewCreated(this);
+		}
+	}
+	
     /**
      * Overridden to keep the memento to be used later (it's private in the superclass).
      */
@@ -163,6 +179,8 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
     public void createPartControl(Composite aParent) {
         super.createPartControl(aParent);
         PydevCommonViewer viewer = (PydevCommonViewer) getCommonViewer();
+        onTreeViewerCreated.call(viewer);
+
         viewer.availableToRestoreMemento = true;
         for(int i=0;i<3;i++){
             try {
@@ -176,6 +194,11 @@ public class PydevPackageExplorer extends CommonNavigator implements IShowInTarg
             }
         }
     }
+    
+    public void dispose() {
+    	onDispose.call(this);
+    	super.dispose();
+    };
     
     /**
      * Returns the element contained in the EditorInput

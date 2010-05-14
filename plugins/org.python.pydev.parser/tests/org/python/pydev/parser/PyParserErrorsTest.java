@@ -1,8 +1,8 @@
 package org.python.pydev.parser;
 
-import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;

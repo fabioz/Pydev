@@ -6,9 +6,9 @@ import java.util.SortedMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.plugin.nature.PythonNature;
 

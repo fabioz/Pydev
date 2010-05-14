@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 
 /**

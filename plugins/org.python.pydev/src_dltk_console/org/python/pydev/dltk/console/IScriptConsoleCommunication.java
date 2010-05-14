@@ -10,7 +10,7 @@
 package org.python.pydev.dltk.console;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.ICallback;
+import org.python.pydev.core.callbacks.ICallback;
 
 /**
  * Interface for the console communication.

@@ -7,6 +7,8 @@
  */
 package org.python.pydev.outline;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -34,12 +36,16 @@ import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.ErrorDescription;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -71,9 +77,16 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
     ISelectionChangedListener selectionListener;
     
     private OutlineLinkWithEditorAction linkWithEditor;
+	public final ICallbackWithListeners onTreeViewerCreated = new CallbackWithListeners();
+	public final ICallbackWithListeners onDispose = new CallbackWithListeners();
 
     public PyOutlinePage(PyEdit editorView) {
         super();
+		List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
+				ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+		for (IViewCreatedObserver iViewCreatedObserver : participants) {
+			iViewCreatedObserver.notifyViewCreated(this);
+		}
         this.editorView = editorView;
         imageCache = new ImageCache(PydevPlugin.getDefault().getBundle().getEntry("/"));
     }
@@ -94,6 +107,7 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
             linkWithEditor = null;
         }
         super.dispose();
+        onDispose.call(this);
     }
 
 
@@ -325,9 +339,10 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
         }catch(Throwable e){
             PydevPlugin.log(e);
         }
+        onTreeViewerCreated.call(getTreeViewer());
     }
-
-    public boolean show(ShowInContext context) {
+    
+	public boolean show(ShowInContext context) {
         linkWithEditor.doLinkOutlinePosition(this.editorView, this, new PySelection(this.editorView));
         return true;
     }

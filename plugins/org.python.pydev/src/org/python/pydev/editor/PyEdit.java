@@ -78,6 +78,8 @@ import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
@@ -209,7 +211,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     private static List<IPyEditListener> editListeners;
     
     /**
-     * Those are the ones that register at runtime (not throught extensions points).
+     * Those are the ones that register at runtime (not through extensions points).
      */
     private volatile List<IPyEditListener> registeredEditListeners = new ArrayList<IPyEditListener>();
 
@@ -223,14 +225,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     private Object lock = new Object();
     
-    public final IPyEditCallback onCreatePartControl = new PyEditCallback();
-	public final IPyEditCallback onAfterCreatePartControl = new PyEditCallback();
-	public final IPyEditCallback onCreateActions = new PyEditCallback();
-	public final IPyEditCallback onGetAdapter = new PyEditCallback();
-	public final IPyEditCallback onInitializeLineNumberRulerColumn = new PyEditCallback();
-	public final IPyEditCallback onDispose = new PyEditCallback();
-	public final IPyEditCallback onHandlePreferenceStoreChanged = new PyEditCallback();
-	public final IPyEditCallback onCreateSourceViewer = new PyEditCallback();
+    public final ICallbackWithListeners onCreatePartControl = new CallbackWithListeners();
+	public final ICallbackWithListeners onAfterCreatePartControl = new CallbackWithListeners();
+	public final ICallbackWithListeners onCreateActions = new CallbackWithListeners();
+	public final ICallbackWithListeners onGetAdapter = new CallbackWithListeners();
+	public final ICallbackWithListeners onInitializeLineNumberRulerColumn = new CallbackWithListeners();
+	public final ICallbackWithListeners onDispose = new CallbackWithListeners();
+	public final ICallbackWithListeners onHandlePreferenceStoreChanged = new CallbackWithListeners();
+	public final ICallbackWithListeners onCreateSourceViewer = new CallbackWithListeners();
 
 	
     public void addPyeditListener(IPyEditListener listener){

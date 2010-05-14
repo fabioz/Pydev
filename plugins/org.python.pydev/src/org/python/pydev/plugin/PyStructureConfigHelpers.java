@@ -15,8 +15,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class PyStructureConfigHelpers {

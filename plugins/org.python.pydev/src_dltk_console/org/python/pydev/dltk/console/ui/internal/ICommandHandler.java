@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console.ui.internal;
 
-import org.python.pydev.core.ICallback;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.dltk.console.InterpreterResponse;
 
 public interface ICommandHandler {

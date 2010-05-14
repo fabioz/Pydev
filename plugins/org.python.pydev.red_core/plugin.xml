@@ -13,5 +13,12 @@
             class="org.python.pydev.red_core.AddRedCorePreferences">
       </preferences_provider_participant>
    </extension>
+   
+   <extension
+         point="org.python.pydev.pydev_view_created_observer">
+      <view_created_observer
+            class="org.python.pydev.red_core.AddRedCoreThemeToView">
+      </view_created_observer>
+   </extension>
 
 </plugin>

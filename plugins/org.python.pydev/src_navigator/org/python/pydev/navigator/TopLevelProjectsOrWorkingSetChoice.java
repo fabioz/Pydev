@@ -13,7 +13,7 @@ import org.eclipse.ui.internal.navigator.workingsets.WorkingSetsContentProvider;
 import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.navigator.ICommonContentExtensionSite;
 import org.eclipse.ui.navigator.IExtensionStateModel;
-import org.python.pydev.core.ICallback;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.plugin.PydevPlugin;
 /**

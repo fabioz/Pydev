@@ -3,10 +3,10 @@ package org.python.pydev.parser.fastparser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.ObjectsPool.ObjectsPoolMap;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;

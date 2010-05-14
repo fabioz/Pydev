@@ -116,7 +116,7 @@ public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {
         threadTest.start();
         
         //wait on a busy loop until the test is finished or an exception is thrown.
-        goToManual(TOTAL_TIME_FOR_TESTS, new org.python.pydev.core.ICallback<Boolean, Object>(){
+        goToManual(TOTAL_TIME_FOR_TESTS, new org.python.pydev.core.callbacks.ICallback<Boolean, Object>(){
 
             public Boolean call(Object arg) {
                 return finished || failException != null;

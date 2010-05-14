@@ -1,4 +1,4 @@
-package org.python.pydev.core;
+package org.python.pydev.core.callbacks;
 
 /**
  * Callback that takes no parameters.

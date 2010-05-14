@@ -4,7 +4,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.LineNumberRulerColumn;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Composite;
-import org.python.pydev.editor.IPyEditCallbackListener;
+import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.editor.PyEdit;
 
 import com.aptana.editor.common.extensions.ThemeableEditorExtension;
@@ -20,7 +20,7 @@ public class AddRedCoreThemeImpl {
 		themeableEditorFindBarExtension = new FindBarEditorExtension(adaptable);
 		themeableEditorColorsExtension = new ThemeableEditorExtension(adaptable);
 		
-		edit.onCreatePartControl.registerListener(new IPyEditCallbackListener() {
+		edit.onCreatePartControl.registerListener(new ICallbackListener() {
 			
 			public Object call(Object obj) {
 				Composite parent = (Composite) obj;
@@ -30,7 +30,7 @@ public class AddRedCoreThemeImpl {
 			}
 		});
 		
-		edit.onAfterCreatePartControl.registerListener(new IPyEditCallbackListener() {
+		edit.onAfterCreatePartControl.registerListener(new ICallbackListener() {
 			
 			public Object call(Object obj) {
 				themeableEditorFindBarExtension.createFindBar(adaptable.getISourceViewer());
@@ -39,7 +39,7 @@ public class AddRedCoreThemeImpl {
 			}
 		});
 		
-		edit.onInitializeLineNumberRulerColumn.registerListener(new IPyEditCallbackListener() {
+		edit.onInitializeLineNumberRulerColumn.registerListener(new ICallbackListener() {
 			
 			public Object call(Object obj) {
 				themeableEditorColorsExtension.initializeLineNumberRulerColumn((LineNumberRulerColumn) obj);
@@ -47,7 +47,7 @@ public class AddRedCoreThemeImpl {
 			}
 		});
 		
-		edit.onDispose.registerListener(new IPyEditCallbackListener() {
+		edit.onDispose.registerListener(new ICallbackListener() {
 			
 			public Object call(Object obj) {
 				themeableEditorColorsExtension.dispose();
@@ -55,7 +55,7 @@ public class AddRedCoreThemeImpl {
 			}
 		});
 		
-		edit.onHandlePreferenceStoreChanged.registerListener(new IPyEditCallbackListener() {
+		edit.onHandlePreferenceStoreChanged.registerListener(new ICallbackListener() {
 			
 			public Object call(Object event) {
 				themeableEditorColorsExtension.handlePreferenceStoreChanged((PropertyChangeEvent) event);
@@ -63,7 +63,7 @@ public class AddRedCoreThemeImpl {
 			}
 		});
 		
-		edit.onCreateSourceViewer.registerListener(new IPyEditCallbackListener() {
+		edit.onCreateSourceViewer.registerListener(new ICallbackListener() {
 			
 			public Object call(Object viewer) {
 				themeableEditorColorsExtension.createBackgroundPainter((ISourceViewer) viewer);
@@ -71,7 +71,7 @@ public class AddRedCoreThemeImpl {
 			}
 		});
 
-		edit.onCreateActions.registerListener(new IPyEditCallbackListener() {
+		edit.onCreateActions.registerListener(new ICallbackListener() {
 			
 			public Object call(Object obj) {
 				themeableEditorFindBarExtension.createFindBarActions();
@@ -79,7 +79,7 @@ public class AddRedCoreThemeImpl {
 			}
 		});
 		
-		edit.onGetAdapter.registerListener(new IPyEditCallbackListener() {
+		edit.onGetAdapter.registerListener(new ICallbackListener() {
 			
 			public Object call(Object adaptable) {
 				return themeableEditorFindBarExtension.getFindBarDecoratorAdapter((Class) adaptable);

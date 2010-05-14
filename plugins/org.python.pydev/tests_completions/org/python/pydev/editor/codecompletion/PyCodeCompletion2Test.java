@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.core.ICallback;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;

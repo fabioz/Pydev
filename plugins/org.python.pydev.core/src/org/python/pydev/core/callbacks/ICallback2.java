@@ -1,4 +1,4 @@
-package org.python.pydev.core;
+package org.python.pydev.core.callbacks;
 
 public interface ICallback2<Ret, Arg, Arg2> {
 

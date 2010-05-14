@@ -9,8 +9,8 @@
  *******************************************************************************/
 package org.python.pydev.dltk.console;
 
-import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.callbacks.ICallback;
 
 
 public interface IScriptConsoleInterpreter extends IScriptConsoleShell, IConsoleRequest {

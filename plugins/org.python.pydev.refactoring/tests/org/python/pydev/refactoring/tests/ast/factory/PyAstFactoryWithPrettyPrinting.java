@@ -1,6 +1,6 @@
 package org.python.pydev.refactoring.tests.ast.factory;
 
-import org.python.pydev.core.ICallback;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Return;

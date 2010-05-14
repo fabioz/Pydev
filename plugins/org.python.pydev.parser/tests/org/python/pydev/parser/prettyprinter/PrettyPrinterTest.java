@@ -3,9 +3,9 @@
  */
 package org.python.pydev.parser.prettyprinter;
 
-import org.python.pydev.core.ICallback;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Module;
 

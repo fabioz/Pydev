@@ -1,7 +1,7 @@
 package org.python.pydev.editor.codecompletion;
 
-import org.python.pydev.core.ICallback;
 import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
