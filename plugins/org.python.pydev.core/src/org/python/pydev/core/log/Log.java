@@ -8,6 +8,7 @@ import java.io.PrintStream;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -126,7 +127,7 @@ public class Log {
     
     private static MessageConsole getConsole(){
         if (fConsole == null){
-            fConsole = new MessageConsole("Pydev Logging", null);
+			fConsole = new MessageConsole("Pydev Logging", CorePlugin.getImageCache().getDescriptor("icons/python_logging.png"));
             ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{fConsole});
         }
         return fConsole;

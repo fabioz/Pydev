@@ -154,7 +154,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
         private MessageConsole getConsole() throws MalformedURLException {
             if(PyLintPrefPage.useConsole()){
                 if (fConsole == null){
-                    fConsole = new MessageConsole("", PydevPlugin.getImageCache().getDescriptor(UIConstants.PY_FILE_ICON));
+                    fConsole = new MessageConsole("PyLint", PydevPlugin.getImageCache().getDescriptor(UIConstants.PY_LINT_ICON));
                     ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{fConsole});
                 }
             }else{

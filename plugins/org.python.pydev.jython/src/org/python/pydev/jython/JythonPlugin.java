@@ -481,7 +481,8 @@ public class JythonPlugin extends AbstractUIPlugin {
     private static MessageConsole getConsole() {
         try {
             if (fConsole == null) {
-                fConsole = new MessageConsole("", JythonPlugin.getBundleInfo().getImageCache().getDescriptor("icons/python_file.gif"));
+                fConsole = new MessageConsole(
+                		"Pydev Scripting", JythonPlugin.getBundleInfo().getImageCache().getDescriptor("icons/python_scripting.png"));
                 ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { fConsole });
             }
             return fConsole;
