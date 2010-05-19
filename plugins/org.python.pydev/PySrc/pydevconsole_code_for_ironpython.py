@@ -411,11 +411,11 @@ class InteractiveConsole(InteractiveInterpreter):
 
         """
         try:
-            sys.ps1
+            sys.ps1 #@UndefinedVariable
         except AttributeError:
             sys.ps1 = ">>> "
         try:
-            sys.ps2
+            sys.ps2 #@UndefinedVariable
         except AttributeError:
             sys.ps2 = "... "
         cprt = 'Type "help", "copyright", "credits" or "license" for more information.'
@@ -429,9 +429,9 @@ class InteractiveConsole(InteractiveInterpreter):
         while 1:
             try:
                 if more:
-                    prompt = sys.ps2
+                    prompt = sys.ps2 #@UndefinedVariable
                 else:
-                    prompt = sys.ps1
+                    prompt = sys.ps1 #@UndefinedVariable
                 try:
                     line = self.raw_input(prompt)
                     # Can be None if sys.stdin was redefined

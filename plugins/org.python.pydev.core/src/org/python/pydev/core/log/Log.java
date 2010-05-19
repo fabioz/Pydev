@@ -5,6 +5,7 @@ package org.python.pydev.core.log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -13,6 +14,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FullRepIterable;
@@ -28,6 +30,7 @@ public class Log {
      * Console used to log contents
      */
     private static MessageConsole fConsole;
+	private static IOConsoleOutputStream fOutputStream;
 
     /**
      * @param errorLevel IStatus.[OK|INFO|WARNING|ERROR]
@@ -97,9 +100,9 @@ public class Log {
                         
                         //also print to console
                         System.out.println(buffer);
-                        MessageConsole c = getConsole();
-                        IDocument doc = c.getDocument();
-                        doc.replace(doc.getLength(), 0, buffer.toString()+"\r\n");
+                        IOConsoleOutputStream c = getConsoleOutputStream();
+                        c.write(buffer.toString());
+                        c.write("\r\n");
                         
 //                IPath stateLocation = default1.getStateLocation().append("PydevLog.log");
 //                String file = stateLocation.toOSString();
@@ -125,12 +128,20 @@ public class Log {
     }
     
     
-    private static MessageConsole getConsole(){
+    private static IOConsoleOutputStream getConsoleOutputStream(){
         if (fConsole == null){
 			fConsole = new MessageConsole("Pydev Logging", CorePlugin.getImageCache().getDescriptor("icons/python_logging.png"));
+			
+            fOutputStream = fConsole.newOutputStream();
+            
+			HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
+			themeConsoleStreamToColor.put(fOutputStream, "console.output");
+
+            fConsole.setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
+
             ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{fConsole});
         }
-        return fConsole;
+        return fOutputStream;
     }
     
     public static void toLogFile(Exception e) {

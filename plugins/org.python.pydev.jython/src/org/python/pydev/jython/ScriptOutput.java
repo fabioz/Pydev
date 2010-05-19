@@ -10,11 +10,8 @@ import java.net.MalformedURLException;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
-import org.eclipse.ui.console.MessageConsole;
-import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 
 /**
@@ -43,17 +40,10 @@ public class ScriptOutput extends OutputStream{
      * 
      * @param color the color of the output written
      */
-    public ScriptOutput(final Color color, IOConsole console, boolean writeToConsole){
+    public ScriptOutput(final IOConsole console, IOConsoleOutputStream outputStream, boolean writeToConsole){
         this.fConsole = console;
         this.writeToConsole = writeToConsole;
-        
-        out = fConsole.newOutputStream();
-        RunInUiThread.async(new Runnable() {
-			
-			public void run() {
-				out.setColor(color);
-			}
-		});
+        out = outputStream;
     }
     
     /**
@@ -62,8 +52,8 @@ public class ScriptOutput extends OutputStream{
      * 
      * @param color the color of the output written
      */
-    public ScriptOutput(Color color, MessageConsole console){
-        this(color, console, JyScriptingPreferencesPage.getShowScriptingOutput());
+    public ScriptOutput(final IOConsole console, IOConsoleOutputStream outputStream){
+        this(console, outputStream,  JyScriptingPreferencesPage.getShowScriptingOutput());
         IPropertyChangeListener listener = new Preferences.IPropertyChangeListener(){
             public void propertyChange(PropertyChangeEvent event) {
                 writeToConsole = JyScriptingPreferencesPage.getShowScriptingOutput();

@@ -2,6 +2,7 @@ package org.python.pydev.plugin.preferences;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.swt.graphics.RGB;
 
 public interface IPydevPreferencesProvider {
 
@@ -28,6 +29,16 @@ public interface IPydevPreferencesProvider {
 	TextAttribute getKeywordTextAttribute();
 
 	boolean isColorOrStyleProperty(String property);
+
+	TextAttribute getConsoleErrorTextAttribute();
+
+	TextAttribute getConsoleOutputTextAttribute();
+
+	TextAttribute getConsoleInputTextAttribute();
+
+	TextAttribute getConsolePromptTextAttribute();
+
+	RGB getConsoleBackgroundRGB();
 
 
 }

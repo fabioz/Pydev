@@ -21,9 +21,9 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
         
-        ColorFieldEditor sysout = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_SYS_OUT_COLOR, "Stdout color", p); 
-        ColorFieldEditor syserr = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_SYS_ERR_COLOR, "Stderr color", p); 
-        ColorFieldEditor sysin = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_SYS_IN_COLOR, "Stdin color", p);
+        ColorFieldEditor sysout = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_OUTPUT_COLOR, "Stdout color", p); 
+        ColorFieldEditor syserr = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_ERROR_COLOR, "Stderr color", p); 
+        ColorFieldEditor sysin = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_INPUT_COLOR, "Stdin color", p);
         ColorFieldEditor prompt = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_PROMPT_COLOR, "Prompt color", p);
         ColorFieldEditor background = new ColorFieldEditor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR, "Background color", p);
         

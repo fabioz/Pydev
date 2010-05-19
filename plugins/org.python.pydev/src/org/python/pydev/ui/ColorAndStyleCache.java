@@ -15,7 +15,8 @@ public class ColorAndStyleCache extends ColorCache{
         super(prefs);
     }
     
-    public static boolean isColorOrStyleProperty(String property){
+    @SuppressWarnings("unchecked")
+	public static boolean isColorOrStyleProperty(String property){
         if(property.equals(PydevEditorPrefs.CODE_COLOR) || property.equals(PydevEditorPrefs.DECORATOR_COLOR) || property.equals(PydevEditorPrefs.NUMBER_COLOR)
         || property.equals(PydevEditorPrefs.KEYWORD_COLOR) || property.equals(PydevEditorPrefs.SELF_COLOR) || property.equals(PydevEditorPrefs.COMMENT_COLOR) 
         || property.equals(PydevEditorPrefs.STRING_COLOR) || property.equals(PydevEditorPrefs.CLASS_NAME_COLOR) || property.equals(PydevEditorPrefs.FUNC_NAME_COLOR)
@@ -40,6 +41,7 @@ public class ColorAndStyleCache extends ColorCache{
     import cog
     
     template = '''
+    @SuppressWarnings("unchecked")
     public TextAttribute get%sTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -58,6 +60,7 @@ public class ColorAndStyleCache extends ColorCache{
 
     ]]]*/
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getSelfTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -70,6 +73,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.SELF_COLOR), null, preferences.getInt(PydevEditorPrefs.SELF_STYLE));
     }
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getCodeTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -82,6 +86,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.CODE_COLOR), null, preferences.getInt(PydevEditorPrefs.CODE_STYLE));
     }
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getDecoratorTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -94,6 +99,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.DECORATOR_COLOR), null, preferences.getInt(PydevEditorPrefs.DECORATOR_STYLE));
     }
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getNumberTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -106,6 +112,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.NUMBER_COLOR), null, preferences.getInt(PydevEditorPrefs.NUMBER_STYLE));
     }
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getClassNameTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -118,6 +125,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.CLASS_NAME_COLOR), null, preferences.getInt(PydevEditorPrefs.CLASS_NAME_STYLE));
     }
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getFuncNameTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -130,6 +138,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.FUNC_NAME_COLOR), null, preferences.getInt(PydevEditorPrefs.FUNC_NAME_STYLE));
     }
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getCommentTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -142,6 +151,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.COMMENT_COLOR), null, preferences.getInt(PydevEditorPrefs.COMMENT_STYLE));
     }
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getBackquotesTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -154,6 +164,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.BACKQUOTES_COLOR), null, preferences.getInt(PydevEditorPrefs.BACKQUOTES_STYLE));
     }
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getStringTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
@@ -166,6 +177,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.STRING_COLOR), null, preferences.getInt(PydevEditorPrefs.STRING_STYLE));
     }
 
+    @SuppressWarnings("unchecked")
     public TextAttribute getKeywordTextAttribute() {
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {

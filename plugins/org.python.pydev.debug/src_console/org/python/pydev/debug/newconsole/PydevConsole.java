@@ -14,8 +14,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.IPatternMatchListener;
@@ -52,7 +52,7 @@ public class PydevConsole extends ScriptConsole  {
     public PydevConsole(PydevConsoleInterpreter interpreter, String additionalInitialComands) {
         super(CONSOLE_NAME + " [" + getNextId() + "]", PydevConsoleConstants.CONSOLE_TYPE, interpreter);
         this.additionalInitialComands = additionalInitialComands;
-        this.setPydevConsoleBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
+        this.setPydevConsoleBackground(ColorManager.getDefault().getConsoleBackgroundColor());
         //Cannot be called directly because Eclipse 3.2does not support it.
         //setBackground(ColorManager.getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR));
     }
@@ -65,27 +65,30 @@ public class PydevConsole extends ScriptConsole  {
     public IConsoleStyleProvider createStyleProvider() {
         return new IConsoleStyleProvider(){
 
-            private ScriptStyleRange getIt(String content, int offset, String foregroundPrefName, int scriptStyle){
-                Color foreground = ColorManager.getPreferenceColor(foregroundPrefName);
-                
+            private ScriptStyleRange getIt(String content, int offset, TextAttribute attr, int scriptStyle){
                 //background is the default (already set)
-                return new ScriptStyleRange(offset, content.length(), foreground, null, scriptStyle);
+                return new ScriptStyleRange(
+                		offset, content.length(), attr.getForeground(), null, scriptStyle, attr.getStyle());
             }
             
             public ScriptStyleRange createInterpreterErrorStyle(String content, int offset) {
-                return getIt(content, offset, PydevConsoleConstants.CONSOLE_SYS_ERR_COLOR, ScriptStyleRange.STDERR);
+            	TextAttribute attr = ColorManager.getDefault().getConsoleErrorTextAttribute();
+                return getIt(content, offset, attr, ScriptStyleRange.STDERR);
             }
 
             public ScriptStyleRange createInterpreterOutputStyle(String content, int offset) {
-                return getIt(content, offset, PydevConsoleConstants.CONSOLE_SYS_OUT_COLOR, ScriptStyleRange.STDOUT);
+            	TextAttribute attr = ColorManager.getDefault().getConsoleOutputTextAttribute();
+                return getIt(content, offset, attr, ScriptStyleRange.STDOUT);
             }
 
             public ScriptStyleRange createPromptStyle(String content, int offset) {
-                return getIt(content, offset, PydevConsoleConstants.CONSOLE_PROMPT_COLOR, ScriptStyleRange.PROMPT);
+            	TextAttribute attr = ColorManager.getDefault().getConsolePromptTextAttribute();
+                return getIt(content, offset, attr, ScriptStyleRange.PROMPT);
             }
 
             public ScriptStyleRange createUserInputStyle(String content, int offset) {
-                return getIt(content, offset, PydevConsoleConstants.CONSOLE_SYS_IN_COLOR, ScriptStyleRange.STDIN);
+            	TextAttribute attr = ColorManager.getDefault().getConsoleInputTextAttribute();
+                return getIt(content, offset, attr, ScriptStyleRange.STDIN);
             }
             
         };

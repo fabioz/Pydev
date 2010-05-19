@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -59,6 +60,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     public static final List<PyLintThread> pyLintThreads = new ArrayList<PyLintThread>();
     
     private static MessageConsole fConsole;
+    private static IOConsoleOutputStream fOutputStream;
     
     /**
      * This class runs as a thread to get the markers, and only stops the IDE when the markers are being added.
@@ -98,15 +100,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             try {
                 if(canPassPyLint()){
                     
-                    IOConsoleOutputStream out=null;
-                    try {
-                        MessageConsole console = getConsole();
-                        if(console != null){
-                            out = console.newOutputStream();
-                        }
-                    } catch (MalformedURLException e3) {
-                        throw new RuntimeException(e3);
-                    }
+                    IOConsoleOutputStream out=getConsoleOutputStream();
 
                     passPyLint(resource, out);
                     
@@ -151,16 +145,23 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             }
         }
 
-        private MessageConsole getConsole() throws MalformedURLException {
+        private synchronized IOConsoleOutputStream getConsoleOutputStream() throws MalformedURLException {
             if(PyLintPrefPage.useConsole()){
                 if (fConsole == null){
                     fConsole = new MessageConsole("PyLint", PydevPlugin.getImageCache().getDescriptor(UIConstants.PY_LINT_ICON));
+                    fOutputStream = fConsole.newOutputStream();
+                    
+        			HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
+        			themeConsoleStreamToColor.put(fOutputStream, "console.output");
+
+                    fConsole.setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
+                    
                     ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{fConsole});
                 }
+                return fOutputStream;
             }else{
                 return null;
             }
-            return fConsole;
         }
 
 

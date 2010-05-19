@@ -24,5 +24,10 @@ public class ScriptStyleRange extends StyleRange{
         Assert.isTrue(len >= 0);
         this.scriptType = scriptType;
     }
+    
+    public ScriptStyleRange(int start, int len, Color fore, Color back, int scriptType, int fontStyle) {
+    	this(start, len, fore, back, scriptType);
+    	this.fontStyle = fontStyle;
+    }
 
 }

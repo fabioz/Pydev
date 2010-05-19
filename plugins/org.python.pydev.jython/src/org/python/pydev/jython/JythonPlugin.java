@@ -16,6 +16,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
@@ -474,6 +475,8 @@ public class JythonPlugin extends AbstractUIPlugin {
      * This is the console we are writing to
      */
     private static MessageConsole fConsole;
+	private static IOConsoleOutputStream fOutputStream;
+	private static IOConsoleOutputStream fErrorStream;
 
     /**
      * @return the console to use
@@ -483,6 +486,16 @@ public class JythonPlugin extends AbstractUIPlugin {
             if (fConsole == null) {
                 fConsole = new MessageConsole(
                 		"Pydev Scripting", JythonPlugin.getBundleInfo().getImageCache().getDescriptor("icons/python_scripting.png"));
+                
+                fOutputStream = fConsole.newOutputStream();
+                fErrorStream = fConsole.newOutputStream();
+                
+    			HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
+    			themeConsoleStreamToColor.put(fOutputStream, "console.output");
+    			themeConsoleStreamToColor.put(fErrorStream, "console.error");
+
+                fConsole.setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
+
                 ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { fConsole });
             }
             return fConsole;
@@ -501,39 +514,16 @@ public class JythonPlugin extends AbstractUIPlugin {
     public static IPythonInterpreter newPythonInterpreter(boolean redirect) {
         PythonInterpreterWrapper interpreter = new PythonInterpreterWrapper();
         if(redirect){
-            interpreter.setOut(new ScriptOutput(getBlack(), getConsole()));
-            interpreter.setErr(new ScriptOutput(getRed(), getConsole()));
+            MessageConsole console = getConsole();
+			interpreter.setOut(new ScriptOutput(console, fOutputStream));
+            interpreter.setErr(new ScriptOutput(console, fErrorStream));
         }
         interpreter.set("False", 0);
         interpreter.set("True", 1);
         return interpreter;
     }
     
-    static Color red;
-    static Color black;
-    static Color green;
-    
-    
-    public static Color getRed() {
-        if(red == null){
-        	red = new Color(Display.getDefault(), 255, 0, 0);
-        }
-        return red;
-    }
-    
-    public static Color getBlack() {
-        if(black == null){
-        	black = new Color(Display.getDefault(), 0, 0, 0);
-        }
-        return black;
-    }
-    public static Color getGreen() {
-        if(green == null){
-            green = new Color(Display.getDefault(), 0, 200, 125);
-        }
-        return green;
-    }
-    
+
     public static IInteractiveConsole newInteractiveConsole() {
         return new InteractiveConsoleWrapper();
     }

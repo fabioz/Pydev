@@ -2,6 +2,7 @@ package org.python.pydev.red_core;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.swt.graphics.RGB;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
 
@@ -92,6 +93,27 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider{
 	public TextAttribute getStringTextAttribute() {
 		
 		return getFromTheme("string.py");
+	}
+
+	public TextAttribute getConsoleErrorTextAttribute() {
+		return getFromTheme("console.error.py");
+	}
+
+	public TextAttribute getConsoleOutputTextAttribute() {
+		return getFromTheme("console.output.py");
+	}
+
+	public TextAttribute getConsoleInputTextAttribute() {
+		return getFromTheme("console.input.py");
+	}
+
+	public TextAttribute getConsolePromptTextAttribute() {
+		return getFromTheme("console.prompt.py");
+	}
+
+	public RGB getConsoleBackgroundRGB() {
+		Theme currentTheme = CommonEditorPlugin.getDefault().getThemeManager().getCurrentTheme();
+		return currentTheme.getBackground();
 	}
 
 

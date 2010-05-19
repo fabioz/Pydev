@@ -15,15 +15,15 @@ public final class PydevConsoleConstants {
     public static final String DEFAULT_CONTINUE_PROMPT = "... ";
     
 
-    public static final String CONSOLE_SYS_OUT_COLOR = "pydevconsole_sysout_color";
+    public static final String CONSOLE_OUTPUT_COLOR = "pydevconsole_sysout_color";
     public static final RGB DEFAULT_CONSOLE_SYS_OUT_COLOR = new RGB(0, 0, 0);
     
 
-    public static final String CONSOLE_SYS_ERR_COLOR = "pydevconsole_syserr_color";
+    public static final String CONSOLE_ERROR_COLOR = "pydevconsole_syserr_color";
     public static final RGB DEFAULT_CONSOLE_SYS_ERR_COLOR = new RGB(255, 0, 0);
     
 
-    public static final String CONSOLE_SYS_IN_COLOR = "pydevconsole_sysin_color";
+    public static final String CONSOLE_INPUT_COLOR = "pydevconsole_sysin_color";
     public static final RGB DEFAULT_CONSOLE_SYS_IN_COLOR = new RGB(0, 0, 255);
     
 
