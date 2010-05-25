@@ -40,7 +40,7 @@ if sys.platform == 'cli':
     _old_imp = _imp
     def _imp(name, log=None):
         #We must add a reference in clr for .Net
-        import clr
+        import clr #@UnresolvedImport
         initial_name = name
         while '.' in name:
             try:

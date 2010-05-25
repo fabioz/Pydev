@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 from org.python.pydev.editor.templates import PyTemplateVariableResolver
 
 #===================================================================================================

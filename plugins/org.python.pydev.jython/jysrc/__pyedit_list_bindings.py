@@ -22,8 +22,8 @@ assert editor is not None
 if cmd == 'onCreateActions':
     from org.eclipse.jface.action import Action #@UnresolvedImport
     from org.eclipse.jface.dialogs import MessageDialog #@UnresolvedImport
-    from java.lang import String
-    from jarray import array
+    from java.lang import String #@UnresolvedImport
+    from jarray import array #@UnresolvedImport
     import traceback
     from org.eclipse.swt.graphics import FontData #@UnresolvedImport
     

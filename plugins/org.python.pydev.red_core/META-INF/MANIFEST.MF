@@ -6,7 +6,7 @@ Bundle-Version: 0.9.7.1
 Bundle-Activator: org.python.pydev.red_core.PydevRedCoreActivator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.python.pydev,
+ org.python.pydev;bundle-version="0.9.7.1",
  org.eclipse.jface.text,
  com.aptana.editor.common;resolution:=optional,
  org.eclipse.ui.workbench.texteditor,
@@ -15,3 +15,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.navigator,
  org.eclipse.ui.views
 Eclipse-LazyStart: true
+Bundle-ClassPath: red-core.jar,
+ retroweaver-rt.jar
+Export-Package: org.python.pydev.red_core

@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 '''
 Note that this test is run from org.python.pydev.jythontests.JythonTest
 (to have the needed eclipse libraries)

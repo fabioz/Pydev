@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 '''
 This module contains template variables (added through the templates engine).
 

@@ -1,3 +1,4 @@
+#@PydevCodeAnalysisIgnore
 """Assign Params to Attributes by Joel Hedlund <joel.hedlund at gmail.com>. 
 
 Changed:Fabio Zadrozny (binded to Ctrl+1 too)

@@ -20,7 +20,7 @@ if cmd == 'onCreateActions':
     
     class ClearTemplateCache(Action):
         def run(self):
-            from org.python.pydev.editor.templates import TemplateHelper
+            from org.python.pydev.editor.templates import TemplateHelper #@UnresolvedImport
             TemplateHelper.clearTemplateRegistryCache()
             MessageDialog.openInformation(editor.getSite().getShell(), "Ok", "Ok, cleared templates cache.");
             

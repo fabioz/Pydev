@@ -42,7 +42,7 @@ from org.python.pydev.editor.correctionassist.heuristics import IAssistProps #@U
 from org.python.pydev.editor.codecompletion import PyCompletionProposal #@UnresolvedImport
 from org.python.pydev.ui import UIConstants #@UnresolvedImport
 from org.python.pydev.editor.codecompletion import IPyCompletionProposal #@UnresolvedImport
-from java.util import ArrayList
+from java.util import ArrayList #@UnresolvedImport
 True, False = 1,0
 
 class AssistProposal:

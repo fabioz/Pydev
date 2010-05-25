@@ -10,7 +10,7 @@ try:
     import re
 except:
     try:
-        import _pydev_re as re # for older versions
+        import _pydev_re as re # for older versions @UnresolvedImport
     except:
         import traceback;traceback.print_exc() #Ok, no inspect available (search will not work)
 
