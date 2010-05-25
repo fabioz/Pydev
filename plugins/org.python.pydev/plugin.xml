@@ -1136,6 +1136,7 @@
     <viewerContentBinding viewerId="org.python.pydev.navigator.view">
         <includes>
             <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
+            <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
             <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
             <contentExtension pattern="org.python.pydev.navigator.filters.*"/> 
         </includes>
