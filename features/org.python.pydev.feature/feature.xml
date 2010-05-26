@@ -230,12 +230,13 @@ This Agreement is governed by the laws of the State of New York and the intellec
          download-size="160"
          install-size="160"
          version="0.9.7.1"/>
-
+<!--
+	#Uncomment when aptana studio 3 has the support needed
    <plugin
          id="org.python.pydev.red_core"
          download-size="160"
          install-size="160"
          version="0.9.7.1"/>
-
+-->
 
 </feature>
