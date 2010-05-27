@@ -212,6 +212,14 @@
 </extension>
 
 <!--- launcher pop up over a python file -->
+  <extension point="org.eclipse.core.expressions.propertyTesters">
+	<propertyTester
+           class="org.python.pydev.debug.ui.launching.InterpreterTypeTester"
+           id="org.python.pydev.debug.ui.launching.LaunchableTester"
+           namespace="org.python.pydev.debug.ui"
+           properties="interpreterType"
+           type="org.eclipse.core.runtime.IAdaptable"/>            
+  </extension>
 <!--- launch shortcuts -->
 <extension point="org.eclipse.debug.ui.launchShortcuts">
 	<shortcut
@@ -226,14 +234,14 @@
               <with variable="selection">
                  <count value="1"/>
            		 <iterate>
-           		 	<or>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <and>
-               		    <adapt type="org.eclipse.core.resources.IProject"/>
+           		    <and>
+	           		 	<or>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+	               		</or>    
                		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
-               		    </and>
-               		</or>
+              		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
+               		</and>
            		 </iterate>
               </with>
            </enablement>
@@ -252,14 +260,15 @@
               <with variable="selection">
                  <count value="1"/>
            		 <iterate>
-           		 	<or>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <and>
-                        <adapt type="org.eclipse.core.resources.IProject"/>
-                        <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
-                        </and>
-               		</or>
+           		    <and>
+	           		 	<or>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+	               		</or>    
+               		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
+              		    <test property="org.python.pydev.debug.ui.interpreterType" value="ironpython"/>
+               		</and>
+
            		 </iterate>
               </with>
            </enablement>
@@ -278,14 +287,14 @@
               <with variable="selection">
                  <count value="1"/>
            		 <iterate>
-           		 	<or>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <and>
-                        <adapt type="org.eclipse.core.resources.IProject"/>
-                        <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
-                        </and>
-               		</or>
+           		    <and>
+	           		 	<or>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+	               		</or>    
+               		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
+              		    <test property="org.python.pydev.debug.ui.interpreterType" value="jython"/>
+               		</and>
            		 </iterate>
               </with>
            </enablement>
@@ -303,11 +312,16 @@
            <enablement>
               <with variable="selection">
            		 <iterate>
-           		 	<or>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <adapt type="org.eclipse.core.resources.IContainer" />
-               		</or>
+           		    <and>
+	           		 	<or>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+                            <adapt type="org.eclipse.core.resources.IContainer" />
+	               		</or>    
+               		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
+              		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
+               		</and>
+
            		 </iterate>
               </with>
            </enablement>
@@ -324,11 +338,16 @@
            <enablement>
               <with variable="selection">
            		 <iterate>
-           		 	<or>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <adapt type="org.eclipse.core.resources.IContainer" />
-               		</or>
+           		    <and>
+	           		 	<or>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+                            <adapt type="org.eclipse.core.resources.IContainer" />
+	               		</or>    
+               		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
+              		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
+               		</and>
+
            		 </iterate>
               </with>
            </enablement>
@@ -345,11 +364,16 @@
            <enablement>
               <with variable="selection">
            		 <iterate>
-           		 	<or>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <adapt type="org.eclipse.core.resources.IContainer" />
-               		</or>
+           		    <and>
+	           		 	<or>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+                            <adapt type="org.eclipse.core.resources.IContainer" />
+	               		</or>    
+               		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
+              		    <test property="org.python.pydev.debug.ui.interpreterType" value="jython"/>
+               		</and>
+
            		 </iterate>
               </with>
            </enablement>
@@ -366,11 +390,16 @@
            <enablement>
               <with variable="selection">
            		 <iterate>
-           		 	<or>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-               		    <adapt type="org.eclipse.core.resources.IContainer" />
-               		</or>
+           		    <and>
+	           		 	<or>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
+	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
+                            <adapt type="org.eclipse.core.resources.IContainer" />
+	               		</or>    
+               		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
+              		    <test property="org.python.pydev.debug.ui.interpreterType" value="ironpython"/>
+               		</and>
+
            		 </iterate>
               </with>
            </enablement>
