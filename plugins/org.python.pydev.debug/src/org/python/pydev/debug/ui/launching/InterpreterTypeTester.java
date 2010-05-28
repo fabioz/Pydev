@@ -7,7 +7,6 @@ import org.python.pydev.plugin.PydevPlugin;
 
 public class InterpreterTypeTester extends PropertyTester {
 
-	@Override
 	public boolean test(Object receiver, String property, Object[] args,
 			Object expectedValue) {
 		IInterpreterManager interpreterManager = null;
