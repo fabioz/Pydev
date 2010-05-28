@@ -101,20 +101,26 @@ try:
         sys.stderr.write('pydev debugger: Related bug: http://bugs.python.org/issue1666807\n')
         sys.stderr.write('-------------------------------------------------------------------------------\n')
         
+        NORM_SEARCH_CACHE = {}
+        
         initial_norm_file = _NormFile
         def _NormFile(filename): #Let's redefine _NormFile to work with paths that may be incorrect
-            ret = initial_norm_file(filename)
-            if not exists(ret):
-                #We must actually go on and check if we can find it as if it was a relative path for some of the paths in the pythonpath
-                for path in sys.path:
-                    ret = initial_norm_file(join(path, filename))
-                    if exists(ret):
-                        break
-                else:
-                    sys.stderr.write('pydev debugger: Unable to find real location for: %s\n' % (filename,))
-                    ret = filename
-                
-            return ret
+            try:
+                return NORM_SEARCH_CACHE[filename]
+            except KeyError:
+                ret = initial_norm_file(filename)
+                if not exists(ret):
+                    #We must actually go on and check if we can find it as if it was a relative path for some of the paths in the pythonpath
+                    for path in sys.path:
+                        ret = initial_norm_file(join(path, filename))
+                        if exists(ret):
+                            break
+                    else:
+                        sys.stderr.write('pydev debugger: Unable to find real location for: %s\n' % (filename,))
+                        ret = filename
+                        
+                NORM_SEARCH_CACHE[filename] = ret
+                return ret
 except:
     #Don't fail if there's something not correct here -- but at least print it to the user so that we can correct that
     traceback.print_exc()
