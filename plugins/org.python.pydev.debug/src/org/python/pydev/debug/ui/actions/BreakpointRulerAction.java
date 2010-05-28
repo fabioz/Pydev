@@ -22,7 +22,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.IEditorInput;
@@ -32,7 +31,9 @@ import org.python.pydev.core.REF;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyBreakpoint;
 import org.python.pydev.debug.model.PyDebugModelPresentation;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.PydevFileEditorInput;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Setting/removing breakpoints in the ruler
@@ -79,8 +80,16 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
             removeMarkers(fMarkers);
         }
     }
+    public static List<IMarker> getMarkersFromCurrentFile(PyEdit edit, int line) {
+    	return getMarkersFromEditorResource(
+    			getResourceForDebugMarkers(edit), edit.getDocument(), getExternalFileEditorInput(edit), 
+    			line, true);
+    	
+    }
     protected List<IMarker> getMarkersFromCurrentFile() {
-        return getMarkersFromEditorResource(getResourceForDebugMarkers(), getDocument(), getExternalFileEditorInput(), getInfo(), true);
+        return getMarkersFromEditorResource(
+        		getResourceForDebugMarkers(), getDocument(), getExternalFileEditorInput(), 
+        		getInfo().getLineOfLastMouseButtonActivity(), true);
     }
 
     
@@ -89,23 +98,30 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
      * structure.
      */
     protected void addMarker() {
-        try {
-            IDocument document = getDocument();
-            int rulerLine = getInfo().getLineOfLastMouseButtonActivity();
+    	IDocument document = getDocument();
+    	int rulerLine = getInfo().getLineOfLastMouseButtonActivity();
+        addBreakpointMarker(document, rulerLine+1, fTextEditor);
+    }
 
-            int lineNumber = rulerLine + 1;
+
+	public static void addBreakpointMarker(IDocument document, int lineNumber, ITextEditor textEditor) {
+		try {
             if (lineNumber < 0)
                 return;
 
             // just to validate it
-            document.getLineInformation(lineNumber - 1);
-            final IResource resource = getResourceForDebugMarkers();
+            try {
+				document.getLineInformation(lineNumber - 1);
+			} catch (Exception e) {
+				return; //ignore
+			}
+            final IResource resource = getResourceForDebugMarkers(textEditor);
 
             // The map containing the marker attributes
             final Map<String, Object> map = new HashMap<String, Object>();
 
             // if not null, we're dealing with an external file.
-            final IEditorInput externalFileEditorInput = getExternalFileEditorInput();
+            final IEditorInput externalFileEditorInput = getExternalFileEditorInput(textEditor);
             
             //TODO: that happens when we're trying to set a breakpoint in a file that's within a zip file.
             if(externalFileEditorInput == null && resource instanceof IWorkspaceRoot){
@@ -135,17 +151,15 @@ public class BreakpointRulerAction extends AbstractBreakpointRulerAction {
             };
 
             resource.getWorkspace().run(runnable, null);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        } catch (CoreException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+        	PydevPlugin.log(e);
         }
-    }
+	}
 
     /**
      * @param markers the markers that will be removed in this function (they may be in any editor, not only in the current one)
      */
-    protected void removeMarkers(List markers) {
+    public static void removeMarkers(List markers) {
         IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
         try {
             Iterator e = markers.iterator();

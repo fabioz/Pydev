@@ -9,7 +9,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugPlugin;
@@ -260,12 +259,11 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
      * @param document the document the position refers to
      * @return <code>true</code> if the line is included by the given position
      */
-    public static boolean includesRulerLine(Position position, IDocument document, IVerticalRulerInfo info) {
-        if (position != null && info != null && document != null) {
+    public static boolean includesRulerLine(Position position, IDocument document, int lastLineActivity) {
+        if (position != null && lastLineActivity >= 0 && document != null) {
             try {
                 int markerLine = document.getLineOfOffset(position.getOffset());
-                int line = info.getLineOfLastMouseButtonActivity();
-                if (line == markerLine) {
+                if (lastLineActivity == markerLine) {
                     return true;
                 }
             } catch (BadLocationException x) {
@@ -285,13 +283,9 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
      * @return the markers that correspond to the markers from the current editor.
      */
     public static List<IMarker> getMarkersFromEditorResource(IResource resource, IDocument document, 
-            IEditorInput externalFileEditorInput, IVerticalRulerInfo info,
+            IEditorInput externalFileEditorInput, int lastLineActivity,
             boolean onlyIncludeLastLineActivity) {
 
-        if(onlyIncludeLastLineActivity){
-            Assert.isNotNull(info);
-        }
-        
         List<IMarker> breakpoints = new ArrayList<IMarker>();
 
         try {
@@ -318,7 +312,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                     if(!isExternalFile){
                         if(!onlyIncludeLastLineActivity){
                             breakpoints.add(marker);
-                        }else if (includesRulerLine(pos, document, info)) {
+                        }else if (includesRulerLine(pos, document, lastLineActivity)) {
                             breakpoints.add(marker);
                         }
                     }else{
@@ -326,7 +320,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                         if(isInSameExternalEditor(marker, externalFileEditorInput)){
                             if(!onlyIncludeLastLineActivity){
                                 breakpoints.add(marker);
-                            }else if (includesRulerLine(pos, document, info)) {
+                            }else if (includesRulerLine(pos, document, lastLineActivity)) {
                                 breakpoints.add(marker);
                             }
                         }

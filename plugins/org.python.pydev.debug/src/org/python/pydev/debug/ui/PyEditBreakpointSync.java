@@ -15,6 +15,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointListener;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.model.IBreakpoint;
+import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
@@ -23,8 +24,10 @@ import org.eclipse.jface.text.source.IAnnotationModelExtension;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
+import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.debug.ui.actions.AbstractBreakpointRulerAction;
 import org.python.pydev.editor.IPyEditListener;
+import org.python.pydev.editor.IPyEditListener4;
 import org.python.pydev.editor.PyEdit;
 
 /**
@@ -33,7 +36,7 @@ import org.python.pydev.editor.PyEdit;
  * 
  * @author Fabio
  */
-public class PyEditBreakpointSync implements IBreakpointListener, IPyEditListener {
+public class PyEditBreakpointSync implements IBreakpointListener, IPyEditListener, IPyEditListener4 {
 
     private PyEdit edit;
 
@@ -124,7 +127,7 @@ public class PyEditBreakpointSync implements IBreakpointListener, IPyEditListene
             IResource resource = AbstractBreakpointRulerAction.getResourceForDebugMarkers(edit);
             IEditorInput externalFileEditorInput = AbstractBreakpointRulerAction.getExternalFileEditorInput(edit);
             List<IMarker> markers = AbstractBreakpointRulerAction.getMarkersFromEditorResource(
-            		resource, doc, externalFileEditorInput, null, false);
+            		resource, doc, externalFileEditorInput, 0, false);
             
             
             Map<Annotation, Position> annotationsToAdd = new HashMap<Annotation, Position>();
@@ -138,5 +141,26 @@ public class PyEditBreakpointSync implements IBreakpointListener, IPyEditListene
             modelExtension.replaceAnnotations(existing.toArray(new Annotation[0]), annotationsToAdd);
         }
     }
+
+    
+	public void onEditorCreated(final PyEdit edit) {
+		edit.onGetAdapter.registerListener(new ICallbackListener() {
+			
+			public Object call(Object obj) {
+		    	if(IToggleBreakpointsTarget.class == obj){
+		    		Map<String, Object> cache = edit.getCache();
+		    		String key = "PyEditBreakpointSync.ToggleBreakpointsTarget";
+					Object object = cache.get(key);
+		    		if(object == null){
+		    			object = new PyToggleBreakpointsTarget();
+		    			cache.put(key, object);
+		    		}
+		    		
+		    		return object;
+		    	}
+				return null;
+			}
+		});
+	}
 
 }
