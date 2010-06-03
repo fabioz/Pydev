@@ -46,6 +46,11 @@ public class PyConsoleCompletion  extends CtxInsensitiveImportComplProposal{
      */
     @Override
     public void apply(IDocument document, char trigger, int stateMask, int offset) {
+        if(!triggerCharAppliesCurrentCompletion(trigger, document, offset)){
+        	//note: no need to walk the offset as in the other cases.
+            return;
+        }
+        
         try {
             this.diff = offset - (fReplacementOffset+fReplacementLength);
 
