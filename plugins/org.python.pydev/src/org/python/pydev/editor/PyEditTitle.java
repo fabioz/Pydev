@@ -3,9 +3,11 @@ package org.python.pydev.editor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -32,6 +34,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.callbacks.ICallback0;
 import org.python.pydev.core.concurrency.SingleJobRunningPool;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -370,10 +373,12 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 			return false;
 		}
 		
-		List<Tuple<IEditorReference, IPath>> partsAndPaths = removeEditorsNotMatchingCurrentName(lastSegment,
+		Map<IPath, List<IEditorReference>> partsAndPaths = removeEditorsNotMatchingCurrentName(lastSegment,
 				editorReferences);
 		
 		if(partsAndPaths.size() > 1){
+			ArrayList<IPath> keys = new ArrayList<IPath>(partsAndPaths.keySet());
+			
 			//There are other editors with the same name... (1 is the editor that requested the change)
 			//let's make them unique!
 			int level = 0;
@@ -384,20 +389,32 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 				names.clear();
 				allNames.clear();
 				level ++;
-				for (int i=0; i<partsAndPaths.size();i++) {
-					Tuple<IEditorReference, IPath> tuple = partsAndPaths.get(i);
+				for (int i=0; i<keys.size();i++) {
+					IPath path = keys.get(i);
+					List<IEditorReference> refs = partsAndPaths.get(path);
+					if(refs == null || refs.size() == 0){
+						PydevPlugin.log("Unexpected condition. Key path without related editors: "+path);
+						keys.remove(i);
+						i--; //make up for the removed editor.
+						continue;
+					}
 					
 					IEditorInput editorInput;
 					try {
-						editorInput = tuple.o1.getEditorInput();
+						//Note that we're only getting one reference here for the editor input.
+						//The problem is that for knowing about django, we use this editor, which means that
+						//we may have a bug in which if we have a file that's within a django project and
+						//another out of a django project, we'll leave by chance how it'll be displayed... seems
+						//a bit exoteric in real cases, but if it happens this behaviour may need to be changed.
+						editorInput = refs.get(0).getEditorInput();
 					} catch (PartInitException e) {
 						continue;
 					}
 					Tuple<String, Boolean> nameAndReachedMax = getPartNameInLevel(
-							level, tuple.o2, initHandling, djangoModulesHandling, editorInput);
+							level, path, initHandling, djangoModulesHandling, editorInput);
 					if(nameAndReachedMax.o2){ //maximum level reached for path
-						setEditorReferenceTitle(tuple.o1, nameAndReachedMax.o1);
-						partsAndPaths.remove(i);
+						setEditorReferenceTitle(refs, nameAndReachedMax.o1);
+						keys.remove(i);
 						i--; //make up for the removed editor.
 						continue;
 					}
@@ -409,14 +426,15 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 						allNames.put(nameAndReachedMax.o1, count+1);
 					}
 				}
-				for (int i=0; i<partsAndPaths.size();i++) {
+				for (int i=0; i<keys.size();i++) {
 					String finalName = names.get(i);
 					Integer count = allNames.get(finalName);
 					if(count == 1){ //no duplicate found
-						Tuple<IEditorReference, IPath> tuple = partsAndPaths.get(i);
-						setEditorReferenceTitle(tuple.o1, finalName);
+						IPath path = keys.get(i);
+						List<IEditorReference> refs = partsAndPaths.get(path);
+						setEditorReferenceTitle(refs, finalName);
 						
-						partsAndPaths.remove(i);
+						keys.remove(i);
 						names.remove(i);
 						allNames.remove(finalName);
 						i--; //make up for the removed editor.
@@ -430,9 +448,9 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 	/**
 	 * @return a list of all the editors that have the last segment as 'currentName'
 	 */
-	private List<Tuple<IEditorReference, IPath>> removeEditorsNotMatchingCurrentName(String currentName,
+	private Map<IPath, List<IEditorReference>> removeEditorsNotMatchingCurrentName(String currentName,
 			List<IEditorReference> editorReferences) {
-		ArrayList<Tuple<IEditorReference, IPath>> ret = new ArrayList<Tuple<IEditorReference, IPath>>();
+		Map<IPath, List<IEditorReference>> ret = new HashMap<IPath, List<IEditorReference>>();
 		for (Iterator<IEditorReference> it= editorReferences.iterator(); it.hasNext();) {
 			IEditorReference iEditorReference = it.next();
 			try {
@@ -454,7 +472,12 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 				if(!currentName.equals(lastSegment)){
 					continue;
 				}
-				ret.add(new Tuple<IEditorReference, IPath>(iEditorReference, pathFromOtherInput));
+				List<IEditorReference> list = ret.get(pathFromOtherInput);
+				if(list == null){
+					list = new ArrayList<IEditorReference>();
+					ret.put(pathFromOtherInput, list);
+				}
+				list.add(iEditorReference);
 			} catch (Throwable e) {
 				PydevPlugin.log(e);
 			}
@@ -543,25 +566,81 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 	 * 
 	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=308740
 	 */
-	private void setEditorReferenceTitle(final IEditorReference iEditorReference, final String title) {
-		if(title.equals(iEditorReference.getTitle())){
-			//Nothing to do if it's already the same.
+	private void setEditorReferenceTitle(final List<IEditorReference> refs, final String title) {
+		if(refs == null){
 			return;
 		}
-		
-		RunInUiThread.async(new Runnable() {
-			
-			public void run() {
-				try {
-					IEditorPart editor = iEditorReference.getEditor(true);
-					if(editor instanceof PyEdit){
-						((PyEdit) editor).setEditorTitle(title);
-					}
-				} catch (Throwable e) {
-					PydevPlugin.log(e);
+		final int size = refs.size();
+		if(size == 1){
+			for(final IEditorReference ref:refs){
+				
+				if(title.equals(ref.getTitle())){
+					//Nothing to do if it's already the same.
+					return;
 				}
+				
+				RunInUiThread.async(new Runnable() {
+					
+					public void run() {
+						try {
+							IEditorPart editor = ref.getEditor(true);
+							if(editor instanceof PyEdit){
+								((PyEdit) editor).setEditorTitle(title);
+							}
+						} catch (Throwable e) {
+							PydevPlugin.log(e);
+						}
+					}
+				});
 			}
-		});
+		}else if(size > 1){
+			
+			RunInUiThread.async(new Runnable() {
+				
+				public void run() {
+					try {
+						final String key = "PyEditTitleEditorNumberSet";
+						final Set<Integer> used = new HashSet<Integer>();
+						final ArrayList<PyEdit> toSet = new ArrayList<PyEdit>();
+						
+						for(final IEditorReference ref:refs){
+							PyEdit editor = (PyEdit) ref.getEditor(true);
+							Integer curr = (Integer) editor.cache.get(key);
+							if(curr != null){
+								used.add(curr);
+								((PyEdit) editor).setEditorTitle(title+" #"+(curr+1));
+							}else{
+								toSet.add(editor);
+							}
+						}
+						
+						//Calculate the next integer available
+						final ICallback0<Integer> next = new ICallback0<Integer>() {
+							private int last=0;
+							
+							public Integer call() {
+								for(;last<Integer.MAX_VALUE;last++){
+									if(used.contains(last)){
+										continue;
+									}
+									used.add(last);
+									return last;
+								}
+								throw new AssertionError("Should not get here");
+							}
+						};
+						
+						//If it got here in toSet, it still must be set!
+						for(PyEdit editor: toSet){
+							Integer i = next.call();
+							((PyEdit) editor).setEditorTitle(title+" #"+(i+1));
+						}
+					} catch (Throwable e) {
+						PydevPlugin.log(e);
+					}
+				}
+			});
+		}
 	}
 	
 	
