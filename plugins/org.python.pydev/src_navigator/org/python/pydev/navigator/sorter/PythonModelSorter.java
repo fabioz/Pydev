@@ -53,12 +53,20 @@ public class PythonModelSorter extends ViewerSorter{
                 return 1;
             }
         }
-        //Wrapped resource/config error elements always have priority over non-sorted resources
-        if(e1 instanceof IWrappedResource || e1 instanceof ProjectConfigError){
+        //Config error elements always have priority over non-sorted resources
+        if(e1 instanceof ProjectConfigError){
             return -1;
         }
-        if(e2 instanceof IWrappedResource || e2 instanceof ProjectConfigError){
+        if(e2 instanceof ProjectConfigError){
             return 1;
+        }
+        
+        //If both were IWrappedResource they'd be handled at ISortedElement
+        if(e1 instanceof IWrappedResource){
+        	return super.compare(viewer, ((IWrappedResource) e1).getActualObject(), e2);
+        }
+        if(e2 instanceof IWrappedResource){
+        	return super.compare(viewer, e1, ((IWrappedResource) e2).getActualObject());
         }
         
         if(e1 instanceof IContainer && e2 instanceof IContainer){
