@@ -34,8 +34,8 @@ public class PythonModelSorter extends ViewerSorter{
                             ((IWrappedResource)e2).getActualObject());
                     
                 }else if(e1 instanceof TreeNode && e2 instanceof TreeNode){
-					TreeNode p1 = (TreeNode) e1;
-					TreeNode p2 = (TreeNode) e2;
+					TreeNode<?> p1 = (TreeNode<?>) e1;
+					TreeNode<?> p2 = (TreeNode<?>) e2;
 					Object data2 = p2.getData();
 					Object data1 = p1.getData();
 					if(data1 instanceof LabelAndImage && data2 instanceof LabelAndImage){
