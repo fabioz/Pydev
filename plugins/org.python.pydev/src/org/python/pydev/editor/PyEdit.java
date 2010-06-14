@@ -42,6 +42,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -84,6 +85,7 @@ import org.python.pydev.core.docutils.PyPartitionScanner;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.parser.ISimpleNode;
+import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
@@ -394,6 +396,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         textWidget.addKeyListener(cursorListener);
         
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, this));
+        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, this);
+        if(createVerifyKeyListener != null){
+        	viewer.appendVerifyKeyListener(createVerifyKeyListener);
+        }
         this.onCreateSourceViewer.call(viewer);
         
         return viewer;

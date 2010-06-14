@@ -22,6 +22,7 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.IIndentPrefs;
@@ -34,6 +35,7 @@ import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEditConfiguration;
 import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
+import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -122,6 +124,10 @@ public class PyMergeViewer extends TextMergeViewer {
     protected SourceViewer createSourceViewer(Composite parent, int textOrientation) {
         final SourceViewer viewer = super.createSourceViewer(parent, textOrientation);
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, null));
+        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, null);
+        if(createVerifyKeyListener != null){
+        	viewer.appendVerifyKeyListener(createVerifyKeyListener);
+        }
         return viewer;
     }
     

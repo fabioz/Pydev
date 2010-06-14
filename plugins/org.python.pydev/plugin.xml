@@ -363,6 +363,7 @@
                path="org.python.pydev.editor.actions.sourceMenu">
             <separator name="brmGroup"/>
          </menu>
+         <!-- Home now handled in VerifyKey (we don't want any conflicts with other places that define HOME)
          <action
                definitionId="org.python.pydev.editor.actions.firstChar"
                label="Goto first char"
@@ -370,6 +371,8 @@
                menubarPath="org.python.pydev.editor.actions.sourceMenu/editGroup"
                id="org.python.pydev.editor.actions.firstChar">
          </action>
+         -->
+         
          <!-- Backspace now handled in VerifyKey (incremental find integration)
          <action
                definitionId="org.python.pydev.editor.actions.pybackspace"
@@ -563,13 +566,14 @@
             id="org.python.pydev.ui.category.refactoring"> 
       </category>
     
-<!-- command: goto first char-->
+<!-- command: goto first char-
       <command
             description="Goes to the first non space char or first char of the line depending on the cursor position."
             id="org.python.pydev.editor.actions.firstChar"
             categoryId="org.python.pydev.ui.category.source"
             name="First char">
       </command>
+-->
 <!-- command: backspace considering indentation-->
 <!-- Backspace now handled in VerifyKey (incremental find integration)
       <command
@@ -754,12 +758,14 @@
       M2=Shift 
       M3=Alt 
       -->
+      <!--
       <key
             sequence="HOME"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.editor.actions.firstChar"    
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+      -->
       <!--TODO: guessing at name "BACKSPACE, needs verification -->
       <!-- Backspace now handled in VerifyKey (incremental find integration)
       <key
