@@ -651,6 +651,10 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 	 */
 	private Tuple<String, Boolean> getPartNameInLevel(
 			int level, IPath path, String initHandling, String djangoModulesHandling, IEditorInput input) {
+		String classStr = input.getClass().toString();
+		if(classStr.endsWith("RemoteFileStoreEditorInput") && classStr.indexOf("com.aptana") != -1){
+			return new Tuple<String, Boolean>(input.getName(), true);
+		}
 		String[] segments = path.segments();
 		if(segments.length == 0){
 			return new Tuple<String, Boolean>("", true);
