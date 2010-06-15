@@ -25,6 +25,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPartitions;
@@ -124,7 +125,8 @@ public class PyMergeViewer extends TextMergeViewer {
     protected SourceViewer createSourceViewer(Composite parent, int textOrientation) {
         final SourceViewer viewer = super.createSourceViewer(parent, textOrientation);
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, null));
-        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, null);
+        IWorkbenchPart workbenchPart = getCompareConfiguration().getContainer().getWorkbenchPart();
+        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, workbenchPart, true);
         if(createVerifyKeyListener != null){
         	viewer.appendVerifyKeyListener(createVerifyKeyListener);
         }

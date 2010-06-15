@@ -62,6 +62,14 @@ public class KeyBindingHelper {
      * @return true if the given key event can trigger the passed command (and false otherwise).
      */
     public static boolean matchesKeybinding(KeyEvent event, String commandId) {
+        int keyCode = event.keyCode;
+        int stateMask = event.stateMask;
+        
+        return matchesKeybinding(keyCode, stateMask, commandId);
+    }
+
+
+    public static boolean matchesKeybinding(int keyCode, int stateMask, String commandId) {
         final IBindingService bindingSvc = (IBindingService) PlatformUI.getWorkbench().getAdapter(IBindingService.class);
         TriggerSequence[] activeBindingsFor = bindingSvc.getActiveBindingsFor(commandId);
         
@@ -72,7 +80,7 @@ public class KeyBindingHelper {
                 
                 for (KeyStroke keyStroke : keyStrokes) {
                     
-                    if(keyStroke.getNaturalKey() == event.keyCode && (keyStroke.getModifierKeys() & event.stateMask)!=0){
+                    if(keyStroke.getNaturalKey() == keyCode && ((keyStroke.getModifierKeys() & stateMask)!=0 || keyStroke.getModifierKeys() == stateMask)){
                         
                         return true;
                     }
