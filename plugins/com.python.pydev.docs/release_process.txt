@@ -23,6 +23,7 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 mkdir W:\git_build_dir
 mkdir W:\git_deploy_dir
 set path=%path%;d:\bin\eclipse_36_m6_clean\plugins\org.apache.ant_1.7.1.v20090120-1145\bin
+set path=d:\bin\python265;%path%
 set path=%path%;"d:\git\bin"
 set JAVA_HOME=D:\bin\jdk_1_5_09
 w:

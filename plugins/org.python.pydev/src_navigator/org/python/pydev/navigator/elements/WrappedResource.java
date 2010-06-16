@@ -1,10 +1,24 @@
 package org.python.pydev.navigator.elements;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.debug.ui.actions.IWatchExpressionFactoryAdapter2;
 import org.eclipse.ui.IContributorResourceAdapter;
+import org.eclipse.ui.model.IWorkbenchAdapter;
+import org.eclipse.ui.model.IWorkbenchAdapter2;
+import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.plugin.PydevPlugin;
 
 
 /**
@@ -78,8 +92,7 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         if(adapter == IContributorResourceAdapter.class){
             return this;
         }
-        Object ret = ((IResource)this.getActualObject()).getAdapter(adapter);
-        return ret;
+        return this.getAdapterFromActualObject((IResource)this.getActualObject(), adapter);
     }
 
 
@@ -90,5 +103,38 @@ public class WrappedResource<X extends IResource> implements IWrappedResource, I
         buf.append(this.getActualObject().toString());
         buf.append(")");
         return buf.toString();
+    }
+    
+    public static Set<Class> logged = new HashSet<Class>();
+    private static Object lock = new Object();
+
+    public static Object getAdapterFromActualObject(IResource actualObject2, Class adapter) {
+        if(     
+                IProject.class.equals(adapter) || 
+                IResource.class.equals(adapter) ||
+                IFolder.class.equals(adapter) ||
+                IContainer.class.equals(adapter) ||
+                IFile.class.equals(adapter) ||
+                ResourceMapping.class.equals(adapter) ||
+                IWatchExpressionFactoryAdapter2.class.equals(adapter) ||
+                IFileStore.class.equals(adapter)
+                ){
+            return actualObject2.getAdapter(adapter);
+        }
+        if(
+                IDeferredWorkbenchAdapter.class.equals(adapter)||
+                IWorkbenchAdapter2.class.equals(adapter)||
+                IWorkbenchAdapter.class.equals(adapter)
+                ){
+            return null;
+        }
+        synchronized (lock) {
+            if(!logged.contains(adapter)){
+                logged.add(adapter);
+                //Only log once per session.
+                PydevPlugin.logInfo("Did not expect adapter request: "+adapter);
+            }
+        }
+        return null;
     }
 }

@@ -134,8 +134,7 @@ public class PythonSourceFolder implements IWrappedResource, IAdaptable, IContri
         if(adapter == IContributorResourceAdapter.class){
             return this;
         }
-        Object ret = ((IResource)this.getActualObject()).getAdapter(adapter);
-        return ret;
+        return WrappedResource.getAdapterFromActualObject((IResource)this.getActualObject(), adapter);
     }
 
     
