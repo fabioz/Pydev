@@ -885,8 +885,15 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         //get the old
         if (oldInput instanceof IWorkspace) {
             oldWorkspace = new IWorkspace[]{(IWorkspace) oldInput};
-        } else if (oldInput instanceof IContainer) {
-            oldWorkspace = new IWorkspace[]{((IContainer) oldInput).getWorkspace()};
+        } else if (oldInput instanceof IResource) {
+            oldWorkspace = new IWorkspace[]{((IResource) oldInput).getWorkspace()};
+        } else if (oldInput instanceof IWrappedResource) {
+            IWrappedResource iWrappedResource = (IWrappedResource) oldInput;
+            Object actualObject = iWrappedResource.getActualObject();
+            if(actualObject instanceof IResource){
+                IResource iResource = (IResource) actualObject;
+                oldWorkspace = new IWorkspace[]{iResource.getWorkspace()};
+            }
         } else if (oldInput instanceof IWorkingSet) {
             IWorkingSet oldWorkingSet = (IWorkingSet) oldInput;
             oldWorkspace = getWorkspaces(oldWorkingSet);
@@ -895,8 +902,15 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
         //and the new
         if (newInput instanceof IWorkspace) {
             newWorkspace = new IWorkspace[]{(IWorkspace) newInput};
-        } else if (newInput instanceof IContainer) {
-            newWorkspace = new IWorkspace[]{((IContainer) newInput).getWorkspace()};
+        } else if (newInput instanceof IResource) {
+            newWorkspace = new IWorkspace[]{((IResource) newInput).getWorkspace()};
+        } else if (newInput instanceof IWrappedResource) {
+            IWrappedResource iWrappedResource = (IWrappedResource) newInput;
+            Object actualObject = iWrappedResource.getActualObject();
+            if(actualObject instanceof IResource){
+                IResource iResource = (IResource) actualObject;
+                newWorkspace = new IWorkspace[]{iResource.getWorkspace()};
+            }
         } else if (newInput instanceof IWorkingSet) {
             IWorkingSet newWorkingSet = (IWorkingSet) newInput;
             newWorkspace = getWorkspaces(newWorkingSet);
