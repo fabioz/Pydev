@@ -170,13 +170,6 @@ This Agreement is governed by the laws of the State of New York and the intellec
          version="0.9.7.1"/>
 
    <plugin
-         id="org.python.pydev.templates"
-         download-size="36"
-         install-size="36"
-         version="0.9.7.1"
-         unpack="false"/>
-
-   <plugin
          id="org.python.pydev.refactoring"
          download-size="504"
          install-size="504"
