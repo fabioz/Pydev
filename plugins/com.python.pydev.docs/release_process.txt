@@ -35,7 +35,9 @@ git clone D:\workspaces\pydev
 cd Pydev
 git clean -f -d builders
 git clean -f -d features
+git clean -f -d I.PyDev
 git clean -f -d plugins
+git clean -f -d repo
 del *.* /Y
 git checkout -f
 git pull
