@@ -349,7 +349,7 @@
     <!-- Steps to do to publish the build results -->
     <!-- ===================================================================== -->
     <target name="publish">
-        <delete dir="${deploy.dir}" failonerror="false" />
+        <delete dir="${deploy.dir}" failonerror="true" />
         <mkdir dir="${deploy.dir}" />
         <copy todir="${deploy.dir}" failonerror="true">
             <fileset dir="${p2.repo.dir}" />
