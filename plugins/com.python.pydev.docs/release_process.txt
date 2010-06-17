@@ -19,11 +19,13 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 		Commit everything
 
 		Execute the build_cmd.txt in cmd.exe
+		- Note, the Aptana Red Core plugins must be available in the 'vanilla eclipse' so that pydev compiles properly (org.python.pydev.red_core)
 
 mkdir W:\git_build_dir
 mkdir W:\git_deploy_dir
 set path=%path%;d:\bin\eclipse_36_m6_clean\plugins\org.apache.ant_1.7.1.v20090120-1145\bin
 set path=d:\bin\python265;%path%
+set path=D:\bin\FastCopy199r4;%path%
 set path=%path%;"d:\git\bin"
 set JAVA_HOME=D:\bin\jdk_1_5_09
 w:
@@ -31,7 +33,10 @@ cd W:\git_build_dir
 git clone D:\workspaces\pydev
 @echo git clone git://github.com/aptana/Pydev.git
 cd Pydev
-git clean -f -d
+git clean -f -d builders
+git clean -f -d features
+git clean -f -d plugins
+del *.* /Y
 git checkout -f
 git pull
 cd builders\org.python.pydev.build

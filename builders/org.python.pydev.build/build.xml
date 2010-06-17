@@ -171,11 +171,24 @@
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-          target: copy.base.windows                      
+          target: copy.base.windows with default ant                   
          - - - - - - - - - - - - - - - - - -->
+	<!--
 	<target name="copy.base.windows" if="is.windows">
 		<copy todir="${baseLocation}">
 			<fileset dir="${vanilla.eclipse}" includes="**/*" defaultexcludes="false" />
 		</copy>
 	</target>
+	-->
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: copy.base.windows with fast copy (note that fastcopy must be available for it to work).
+          If this doesn't properly work, the command above should be used.
+         - - - - - - - - - - - - - - - - - -->
+	<target name="copy.base.windows" if="is.windows">
+		<exec executable="FastCopy">
+			<arg line="/to=${baseLocation} /cmd=sync /auto_close ${vanilla.eclipse}" />
+		</exec>
+	</target>
+	 
 </project>
