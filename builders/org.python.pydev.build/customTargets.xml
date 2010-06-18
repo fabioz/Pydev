@@ -291,15 +291,7 @@
         <jar jarfile="${jar15}.jar" basedir="${jar15}/out" update="true" manifest="${jar15}/out/META-INF/MANIFEST.MF" />
         <!--[[[end]]]-->
     	
-    	
-    	<signjar alias="aptana" keystore="${KEYSTORE}" 
-    		storepass="${STOREPASS}"  keypass="${KEYPASS}" 
-    		preservelastmodified="true" verbose="true">
-    	  <path>
-    	    <fileset dir="${buildDirectory}/plugins" includes="**/*.jar" />
-    	    <fileset dir="${buildDirectory}/features" includes="**/*.jar" />
-    	  </path>
-    	</signjar>
+
 
     	
     </target>
@@ -332,6 +324,17 @@
     <!-- Steps to do after the build is done. -->
     <!-- ===================================================================== -->
     <target name="postBuild">
+    	
+    	<signjar 
+    	    alias="aptana" keystore="${KEYSTORE}"
+    	    storepass="${STOREPASS}"
+    	    preservelastmodified="true">
+    	  <path>
+    	    <fileset dir="${p2.repo.dir}/plugins" includes="**/*.jar" />
+    	    <fileset dir="${p2.repo.dir}/features" includes="**/*.jar" />
+    	  </path>
+    	</signjar>
+    	
         <antcall target="gatherLogs" />
         <antcall target="updateSite" />
         <antcall target="publish" />
