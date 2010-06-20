@@ -329,6 +329,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 						setEditorReferenceImage(iEditorReference, initIcon);
 					}
 				}
+				
 			}else if(PyTitlePreferencesPage.isDjangoModuleToDecorate(lastSegment)){
 				try {
 					IEditorInput editorInput;
@@ -665,7 +666,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		String lastSegment = segments[segments.length-1];
 		
 		boolean handled = isDjangoHandledModule(djangoModulesHandling, input, lastSegment);
-		if(handled){
+		if(handled && djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE){
 			String[] dest = new String[segments.length-1];
 			System.arraycopy(segments, 0, dest, 0, dest.length);
 			segments = dest;
@@ -702,7 +703,9 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 	private boolean isDjangoHandledModule(String djangoModulesHandling, IEditorInput input,
 			String lastSegment) {
 		boolean handled = false;
-		if(djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE){
+		if(djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE ||
+		   djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_DECORATE){
+		    
 			if(input instanceof IFileEditorInput){
 				IFileEditorInput iFileEditorInput = (IFileEditorInput) input;
 				IFile file = iFileEditorInput.getFile();

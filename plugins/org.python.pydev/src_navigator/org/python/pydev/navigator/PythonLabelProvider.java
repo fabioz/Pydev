@@ -92,8 +92,10 @@ public class PythonLabelProvider implements ILabelProvider{
 					IProject project = iFile.getProject();
 					try {
 						if(project.hasNature(PythonNature.DJANGO_NATURE_ID)){
-							if(PyTitlePreferencesPage.getDjangoModulesHandling() == 
-								PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE){
+							String djangoModulesHandling = PyTitlePreferencesPage.getDjangoModulesHandling();
+                            if(djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE||
+                               djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_DECORATE){
+                                
 								if(PyTitlePreferencesPage.isDjangoModuleToDecorate(name)){
 									return PyTitlePreferencesPage.getDjangoModuleIcon(name);
 								}

@@ -32,8 +32,10 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
 	
 	public static final String TITLE_EDITOR_DJANGO_MODULES_HANDLING = "TITLE_EDITOR_DJANGO_MODULES_HANDLING";
 	public static final String TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON = "TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON";
+	public static final String TITLE_EDITOR_DJANGO_MODULES_DECORATE = "TITLE_EDITOR_DJANGO_MODULES_DECORATE";
 	public static final String TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE = "TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE";
 	public static final String DEFAULT_TITLE_EDITOR_DJANGO_MODULES_HANDLING = TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE;
+	
 
 	
 	public static boolean isTitlePreferencesProperty(String property) {
@@ -109,13 +111,19 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
         
         Object[][] EDITOR_DJANGO_MODULES_HANDLING_VALUES = {
         		{
-        			"Show default python icon", 
+        			"Show as regular module", 
         			TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON, 
         			null
         		},
         		
         		{
-        			"Show parent name in title and decorate icon with module initial", 
+        		    "Show as regular module but using icon with module initial", 
+        		    TITLE_EDITOR_DJANGO_MODULES_DECORATE, 
+        		    null
+        		},
+        		
+        		{
+        			"Show parent name in title and icon with module initial", 
         			TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE, 
         			null
         		},
@@ -162,6 +170,9 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
 		String djangoHandling = PydevPrefs.getPreferences().getString(TITLE_EDITOR_DJANGO_MODULES_HANDLING);
 		if(TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON.equals(djangoHandling)){
 			return TITLE_EDITOR_DJANGO_MODULES_DEFAULT_ICON;
+		}
+		if(TITLE_EDITOR_DJANGO_MODULES_DECORATE.equals(djangoHandling)){
+		    return TITLE_EDITOR_DJANGO_MODULES_DECORATE;
 		}
 		return TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE; //default
 	}

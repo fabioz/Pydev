@@ -13,6 +13,11 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 		Update homepage
 			- index.rst
 			- history_pydev.contents.html if needed
+			
+		Provide the KEYSTORE (sure an official would be better, but this will have to suffice for now).
+			d:\bin\jdk_1_5_09\bin\keytool -genkey -dname "CN=Aptana Pydev, OU=Pydev, O=Aptana, L=San Mateo, ST=CA, C=US" -keystore W:\git_deploy_dir\pydevkeystore -alias aptana -validity 3650
+			d:\bin\jdk_1_5_09\bin\keytool -selfcert -alias aptana -keystore W:\git_deploy_dir\pydevkeystore -validity 3650
+			d:\bin\jdk_1_5_09\bin\jarsigner -keystore W:\git_deploy_dir\pydevkeystore -storepass PASSUSED JAR_TO_SIGN aptana
 		
 
 		Update the versions on org.python.pydev.build/build_local.properties
