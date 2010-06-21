@@ -12,7 +12,7 @@ public class AddRedCoreThemeAvailable {
 	public static boolean isRedCoreAvailable(){
 		if(redCoreAvailable == null){
 			try {
-				if(CommonEditorPlugin.getDefault() != null){
+				if(CommonEditorPlugin.getDefault() != null && CommonEditorPlugin.getDefault().getPreferenceStore() != null){
 					redCoreAvailable = true;
 				}else{
 					redCoreAvailable = false;

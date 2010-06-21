@@ -63,7 +63,7 @@ class InterpreterInterface:
     def __init__(self, host, client_port):
         self.client_port = client_port
         self.host = host
-        self.namespace = {}
+        self.namespace = globals()
         self.interpreter = InteractiveConsole(self.namespace)
 
         

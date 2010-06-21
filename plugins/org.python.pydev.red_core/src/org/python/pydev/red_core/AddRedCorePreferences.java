@@ -20,15 +20,7 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider{
 		if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
 			return null;
 		}
-		try {
-			return CommonEditorPlugin.getDefault().getPreferenceStore();
-		} catch (Throwable e) {
-			//If we have some problem here, there's some versioning problem, let's log it and
-			//signal it's not available.
-			PydevPlugin.log(e);
-			AddRedCoreThemeAvailable.setRedCoreAvailable(false);
-			return null;
-		}
+		return CommonEditorPlugin.getDefault().getPreferenceStore();
 	}
 	
 	public boolean isColorOrStyleProperty(String property) {
@@ -112,6 +104,9 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider{
 	}
 
 	public RGB getConsoleBackgroundRGB() {
+	    if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
+	        return null;
+	    }
 		Theme currentTheme = CommonEditorPlugin.getDefault().getThemeManager().getCurrentTheme();
 		return currentTheme.getBackground();
 	}
