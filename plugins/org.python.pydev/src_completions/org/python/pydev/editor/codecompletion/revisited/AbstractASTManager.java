@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -215,21 +216,22 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * xml.dom and other submodules too)
      */
     public void getAbsoluteImportTokens(
-            String moduleToGetTokensFrom, Set<IToken> set, int type, boolean onlyFilesOnSameLevel, ImportInfo importInfo, boolean onlyGetDirectModules) {
+            String moduleToGetTokensFrom, Set<IToken> inputOutput, int type, boolean onlyFilesOnSameLevel, ImportInfo importInfo, boolean onlyGetDirectModules) {
         
-        boolean getSubModules = false;
-        if(importInfo != null){
-            //we only want to get submodules if we're in:
-            //from xxx
-            //import xxx
-            //
-            //We do NOT want to get it on: 
-            //from xxx import yyy
-            if(importInfo.hasFromSubstring != importInfo.hasImportSubstring){
-                getSubModules = true;
-            }
-        }
+//        boolean getSubModules = false;
+//        if(importInfo != null){
+//            //we only want to get submodules if we're in:
+//            //from xxx
+//            //import xxx
+//            //
+//            //We do NOT want to get it on: 
+//            //from xxx import yyy
+//            if(importInfo.hasFromSubstring != importInfo.hasImportSubstring){
+//                getSubModules = true;
+//            }
+//        }
         
+        HashMap<String, IToken> temp = new HashMap<String, IToken>();
         SortedMap<ModulesKey,ModulesKey> modulesStartingWith;
         if(onlyGetDirectModules){
             modulesStartingWith = modulesManager.getAllDirectModulesStartingWith(moduleToGetTokensFrom);
@@ -277,21 +279,22 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
                     if (splitted.size() > 0) {
                         String strToAdd;
                         
-                        if(!getSubModules){
-                            strToAdd = splitted.get(0);
-                        }else{
-                            if(element.endsWith(".__init__")){
-                                strToAdd = element.substring(0, element.length()-9);
-                            }else{
-                                strToAdd = element;
-                            }
-                        }
+                        strToAdd = splitted.get(0);
+//                        if(!getSubModules){
+//                        }else{
+//                            if(element.endsWith(".__init__")){
+//                                strToAdd = element.substring(0, element.length()-9);
+//                            }else{
+//                                strToAdd = element;
+//                            }
+//                        }
                         //this is the completion
-                        set.add(new ConcreteToken(strToAdd, "", "", moduleToGetTokensFrom, type));
+                        temp.put(strToAdd, new ConcreteToken(strToAdd, "", "", moduleToGetTokensFrom, type));
                     }
                 }
 //            }
         }
+        inputOutput.addAll(temp.values());
     }
 
     /**

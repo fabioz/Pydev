@@ -42,7 +42,6 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
-import com.python.pydev.refactoring.TestDependentRefactoring;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 import com.python.pydev.refactoring.refactorer.RefactorerFindReferences;
 import com.python.pydev.refactoring.refactorer.refactorings.renamelocal.RefactoringLocalTestBase;
@@ -92,7 +91,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     public void setUp() throws Exception {
         super.setUp();
         if (filesInRefactoringProject == null){
-            filesInRefactoringProject = PyFileListing.getPyFilesBelow(new File(TestDependentRefactoring.TEST_PYSRC_LOC_REFACTORING), 
+            filesInRefactoringProject = PyFileListing.getPyFilesBelow(new File(TestDependent.TEST_COM_REFACTORING_PYSRC_LOC), 
                     new NullProgressMonitor(), true, false).getFoundPyFileInfos();
             
             ArrayList<IFile> iFiles = new ArrayList<IFile>();
@@ -171,7 +170,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
         if(DEBUG_TESTS_BASE){
             System.out.println("-------------- Restoring project pythonpath for refactoring nature");
         }
-        restoreProjectPythonPathRefactoring(force, TestDependentRefactoring.TEST_PYSRC_LOC_REFACTORING);
+        restoreProjectPythonPathRefactoring(force, TestDependent.TEST_COM_REFACTORING_PYSRC_LOC);
         if(DEBUG_TESTS_BASE){
             System.out.println("-------------- Checking size (for projrefactoring)");
         }

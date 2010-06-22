@@ -1,15 +1,18 @@
 package org.python.pydev.refactoring.core.base;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.DocumentChange;
+import org.eclipse.ltk.core.refactoring.TextChange;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 
 public class PyDocumentChange extends DocumentChange {
 	
-	public PyDocumentChange(String name, IDocument document) {
+    /** Construct with factory method **/
+	private PyDocumentChange(String name, IDocument document) {
 		super(name, document);
 	}
 
@@ -52,4 +55,13 @@ public class PyDocumentChange extends DocumentChange {
 	public Change superPerform(org.eclipse.core.runtime.IProgressMonitor pm) throws CoreException {
 		return super.perform(pm);
 	}
+
+    public static TextChange create(String name, IDocument document) {
+        if(ResourcesPlugin.getPlugin() != null){
+            return new PyDocumentChange(name, document);
+        }else{
+            return new PyDocumentChangeForTests(name, document);
+        }
+    }
 }
+

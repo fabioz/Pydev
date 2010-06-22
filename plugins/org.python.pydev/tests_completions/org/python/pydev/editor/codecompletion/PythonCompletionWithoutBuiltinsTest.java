@@ -52,7 +52,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testPython30();
+            test.testMultilineImportCompletion();
             test.tearDown();
             System.out.println("Finished");
 
@@ -130,13 +130,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testCompleteImportCompletion() throws Exception{
         String[] testLibAndSubmodules = new String[]{
                 "testlib",
-                "testlib.unittest",
-                "testlib.unittest.anothertest",
-                "testlib.unittest.guitestcase",
-                "testlib.unittest.relative",
-                "testlib.unittest.relative.testrelative",
-                "testlib.unittest.relative.toimport",
-                "testlib.unittest.testcase",
+//                "testlib.unittest",
+//                "testlib.unittest.anothertest",
+//                "testlib.unittest.guitestcase",
+//                "testlib.unittest.relative",
+//                "testlib.unittest.relative.testrelative",
+//                "testlib.unittest.relative.toimport",
+//                "testlib.unittest.testcase",
         };
         
         
@@ -156,7 +156,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     public void testFullModulesOnFromImport() throws Exception{
-        requestCompl("from ", -1, new String[]{"testlib", "testlib.unittest"});
+        requestCompl("from ", -1, new String[]{"testlib"});
+//        requestCompl("from ", -1, new String[]{"testlib", "testlib.unittest"}); -- feature removed.
     }
     
     /**

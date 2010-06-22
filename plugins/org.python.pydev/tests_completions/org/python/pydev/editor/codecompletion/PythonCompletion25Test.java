@@ -18,7 +18,7 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
             // DEBUG_TESTS_BASE = true;
             PythonCompletion25Test test = new PythonCompletion25Test();
             test.setUp();
-            test.testNewRelativeFromOtherModule();
+            test.testNewRelativeImport2a();
             test.tearDown();
             System.out.println("Finished");
 
@@ -104,8 +104,8 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
                 "anothertest",
                 "guitestcase",
                 "relative",
-                "relative.testrelative",
-                "relative.toimport",
+//                "relative.testrelative",
+//                "relative.toimport",
         };
         requestCompl(file,doc, doc.length(), toks.length, toks);
     }

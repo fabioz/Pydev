@@ -107,6 +107,7 @@ class Test(unittest.TestCase):
         desc = interpreter.getDescription('val.join')
         self.assert_(desc.find('S.join(sequence) -> string') >= 0 or 
                      desc.find('S.join(sequence) -> str') >= 0 or 
+                     desc.find('S.join(iterable) -> string') >= 0 or 
                      desc == "<builtin method 'join'>"  or 
                      desc == "<built-in method join of str object>" or
                      desc.find('str join(str self, list sequence)') >= 0,

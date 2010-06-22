@@ -231,7 +231,7 @@ public class TextEditCreation {
             docChange = new PyTextFileChange("Current module: " + moduleName, this.currentFile);
         }else{
             //used for tests
-            docChange = new PyDocumentChange("Current module: " + moduleName, this.currentDoc);
+            docChange = PyDocumentChange.create("Current module: " + moduleName, this.currentDoc);
         }
         if (docOccurrences.size() == 0) {
             status.addFatalError("No occurrences found.");

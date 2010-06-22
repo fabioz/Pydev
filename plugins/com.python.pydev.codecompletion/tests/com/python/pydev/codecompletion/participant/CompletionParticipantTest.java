@@ -34,7 +34,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
         CompletionParticipantTest test = new CompletionParticipantTest();
         try {
             test.setUp();
-            test.testImportCompletion();
+            test.testImportCompletionFromZip();
             test.tearDown();
             
             junit.textui.TestRunner.run(CompletionParticipantTest.class);

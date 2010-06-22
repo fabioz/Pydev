@@ -43,7 +43,7 @@ public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest>
             change = new PyTextFileChange(name, info.getSourceFile());
         }else{
             // Not insisting on a source file makes testing easier.
-            change = new PyDocumentChange(name, info.getDocument());
+            change = PyDocumentChange.create(name, info.getDocument());
             
             
         }

@@ -17,7 +17,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
           //DEBUG_TESTS_BASE = true;
           PythonCompletionCalltipsTest test = new PythonCompletionCalltipsTest();
           test.setUp();
-          test.testMakeArgsForDocumentReplacement();
+          test.testCalltips6();
           test.tearDown();
           System.out.println("Finished");
 
