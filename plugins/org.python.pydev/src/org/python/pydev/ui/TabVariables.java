@@ -105,7 +105,11 @@ public class TabVariables {
 						this.keyField.setText(fixedKeyText);
 						this.keyField.setEditable(false);
 						this.valueField.setFocus();
-						this.valueField.setText(vars.get(fixedKeyText));
+						String value = vars.get(fixedKeyText);
+						if(value == null){
+						    value = "";
+						}
+                        this.valueField.setText(value);
 						return control;
 					}
 

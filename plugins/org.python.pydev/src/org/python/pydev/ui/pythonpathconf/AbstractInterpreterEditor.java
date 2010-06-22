@@ -835,7 +835,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
             Properties stringSubstitutionVariables = workingCopyInfo.getStringSubstitutionVariables();
             boolean equals = false;
             if(stringSubstitutionVariables == null){
-            	if(stringSubstitutionVariables == null || stringSubstitutionVariables.size() == 0){
+            	if(propertiesFromMap == null || propertiesFromMap.size() == 0){
             		equals = true;
             	}
             }else{

@@ -371,16 +371,20 @@ public class PythonPathNature implements IPythonPathNature {
         IPath projectPath = project.getFullPath();
         for (String path : paths) {
             if(path.trim().length() > 0){
-                IPath p = new Path(path);
-                if(p.isEmpty()){
-                    continue; //go to the next...
+                if(path.indexOf("${") != -1){ //Account for the string substitution.
+                    buffer.append(path); 
+                }else{
+                    IPath p = new Path(path);
+                    if(p.isEmpty()){
+                        continue; //go to the next...
+                    }
+                    if(projectPath != null && !projectPath.isPrefixOf(p)){
+                        p = p.removeFirstSegments(1);
+                        p = projectPath.append(p);
+                        restore = true;
+                    }
+                    buffer.append(p.toString());
                 }
-                if(projectPath != null && !projectPath.isPrefixOf(p)){
-                    p = p.removeFirstSegments(1);
-                    p = projectPath.append(p);
-                    restore = true;
-                }
-                buffer.append(p.toString());
                 buffer.append("|");
             }
         }
