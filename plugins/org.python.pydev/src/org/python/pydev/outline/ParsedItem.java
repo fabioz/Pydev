@@ -17,6 +17,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
@@ -119,10 +120,6 @@ public class ParsedItem implements Comparable<Object>{
         
     }
     
-    private static final int DECORATOR_NONE   = 0;
-    private static final int DECORATOR_STATIC = 1;
-    private static final int DECORATOR_CLASS  = 2;
-    
     // returns images based upon element type
     public Image getImage() {
         ImageCache imageCache = PydevPlugin.getImageCache();
@@ -143,64 +140,43 @@ public class ParsedItem implements Comparable<Object>{
             }
         }
         else if (token instanceof FunctionDef) {
-            int decoratorType = DECORATOR_NONE;
-
             FunctionDef functionDefToken = (FunctionDef) token;
+
+            String methodName = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name);
+            String image;
+            switch (qualifierFromName(methodName)) {
+                case QUALIFIER_MAGIC:
+                    image = UIConstants.MAGIC_METHOD_ICON;
+                case QUALIFIER_PRIVATE: 
+                    image = UIConstants.PRIVATE_METHOD_ICON;
+                case QUALIFIER_PROTECTED:
+                    image = UIConstants.PROTECTED_METHOD_ICON;
+                default:
+                    image = UIConstants.PUBLIC_METHOD_ICON;
+                }
+            
+            
             if(functionDefToken.decs != null){
                 for (decoratorsType decorator : functionDefToken.decs) {
                     if (decorator.func instanceof Name) {
                         Name decoratorFuncName = (Name) decorator.func;
                         if (decoratorFuncName.id.equals("staticmethod")) {
-                            decoratorType = DECORATOR_STATIC;
+                            return imageCache.getImageDecorated(image, UIConstants.DECORATION_STATIC);
                         }
                         else if (decoratorFuncName.id.equals("classmethod")) {
-                            decoratorType = DECORATOR_CLASS;
+                            return imageCache.getImageDecorated(image, UIConstants.DECORATION_CLASS);
                         }
                     }
                 }
             }
-            String methodName = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name);
-            switch (qualifierFromName(methodName)) {
-            case QUALIFIER_MAGIC:
-                switch(decoratorType) {
-                case DECORATOR_CLASS:
-                    return imageCache.get(UIConstants.MAGIC_CLASS_METHOD_ICON);
-                case DECORATOR_STATIC:
-                    return imageCache.get(UIConstants.MAGIC_STATIC_METHOD_ICON);
-                default:
-                    return imageCache.get(UIConstants.MAGIC_METHOD_ICON);
-                }
-            case QUALIFIER_PRIVATE: 
-                switch (decoratorType) {
-                case DECORATOR_CLASS:
-                    return imageCache.get(UIConstants.PRIVATE_CLASS_METHOD_ICON);
-                case DECORATOR_STATIC:
-                    return imageCache.get(UIConstants.PRIVATE_STATIC_METHOD_ICON);
-                default:
-                    return imageCache.get(UIConstants.PRIVATE_METHOD_ICON);
-                }
-            case QUALIFIER_PROTECTED:
-                switch (decoratorType) {
-                case DECORATOR_CLASS:
-                    return imageCache.get(UIConstants.PROTECTED_CLASS_METHOD_ICON);
-                case DECORATOR_STATIC:
-                    return imageCache.get(UIConstants.PROTECTED_STATIC_METHOD_ICON);
-                default:
-                    return imageCache.get(UIConstants.PROTECTED_METHOD_ICON);
-                }
-            default:
-                switch(decoratorType) {
-                case DECORATOR_CLASS:
-                    return imageCache.get(UIConstants.PUBLIC_CLASS_METHOD_ICON);
-                case DECORATOR_STATIC:
-                    return imageCache.get(UIConstants.PUBLIC_STATIC_METHOD_ICON);
-                default:
-                    return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
-                }
-            }
+            return imageCache.get(image);
+            
         }
         else if (token instanceof Import) {
             return imageCache.get(UIConstants.IMPORT_ICON);
+        }
+        else if (token instanceof If && NodeUtils.isIfMAinNode((If) token)) {
+            return imageCache.get(UIConstants.MAIN_FUNCTION_ICON);
         }
         else if (token instanceof ImportFrom) {
             return imageCache.get(UIConstants.IMPORT_ICON);
@@ -223,19 +199,27 @@ public class ParsedItem implements Comparable<Object>{
                 name = NodeUtils.getNameFromNameTok(nameTokToken);
             }
             
+
+            String image;
             if (   (name.startsWith("__")) 
                     && (name.endsWith("__"))) {
-                return imageCache.get(UIConstants.MAGIC_FIELD_ICON);
+                image = UIConstants.MAGIC_FIELD_ICON;
             }
             else if (name.startsWith("__")) {
-                return imageCache.get(UIConstants.PRIVATE_FIELD_ICON);
+                image = UIConstants.PRIVATE_FIELD_ICON;
             }
             else if (name.startsWith("_")) {
-                return imageCache.get(UIConstants.PROTECTED_FIELD_ICON);
+                image = UIConstants.PROTECTED_FIELD_ICON;
             }
             else {
-                return imageCache.get(UIConstants.PUBLIC_FIELD_ICON);
+                image = UIConstants.PUBLIC_FIELD_ICON;
             }
+            
+            if(astThis.parent != null && astThis.parent.node != null && astThis.parent.node instanceof ClassDef){
+                return imageCache.getImageDecorated(image, UIConstants.DECORATION_CLASS);
+            }
+            return imageCache.get(image);
+            
         }
         else {
             return imageCache.get(UIConstants.ERROR);
@@ -288,6 +272,9 @@ public class ParsedItem implements Comparable<Object>{
         
         if (astThis == null){
             return "null";
+            
+        } else if (astThis.node instanceof If && NodeUtils.isIfMAinNode((If) astThis.node)){
+            return "__main__";
             
         } else if (astThis.node instanceof Import) {
             aliasType[] imports = ((Import)astThis.node).names;

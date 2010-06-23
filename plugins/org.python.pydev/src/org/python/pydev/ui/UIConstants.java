@@ -41,6 +41,9 @@ public class UIConstants {
     public static final String COMPLETION_TEMPLATE = "icons/template.gif";
     public static final String COMMENT = "icons/python_comment.png";
     public static final String COMMENT_BLACK = "icons/python_comment_black.png";
+    
+    public static final String DECORATION_CLASS = "icons/decoration_class_obj.png";
+    public static final String DECORATION_STATIC = "icons/decoration_static_obj.png";
 
 // Actions
     public static final String SYNC_WITH_EDITOR = "icons/sync_ed.gif";

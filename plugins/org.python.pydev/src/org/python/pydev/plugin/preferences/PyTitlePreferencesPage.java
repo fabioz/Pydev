@@ -205,7 +205,7 @@ public class PyTitlePreferencesPage extends FieldEditorPreferencePage implements
 	}
 
 	public static Image getDjangoModuleIcon(String lastSegment) {
-		return PydevPlugin.getImageCache().getDecorated(UIConstants.PY_FILE_CUSTOM_ICON, lastSegment.charAt(0)+"");
+		return PydevPlugin.getImageCache().getStringDecorated(UIConstants.PY_FILE_CUSTOM_ICON, lastSegment.charAt(0)+"");
 	}
 
 }

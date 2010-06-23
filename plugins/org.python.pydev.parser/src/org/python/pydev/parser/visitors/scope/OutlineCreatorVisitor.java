@@ -83,6 +83,7 @@ public class OutlineCreatorVisitor extends EasyASTIteratorWithChildrenVisitor{
     @Override
     public Object visitIf(If node) throws Exception {
         if(NodeUtils.isIfMAinNode(node)){
+            atomic(node);
             return null;
         }else{
             return super.visitIf(node);
