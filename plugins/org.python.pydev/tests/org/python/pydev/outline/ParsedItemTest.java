@@ -94,8 +94,8 @@ public class ParsedItemTest extends PyParserTestBase {
         OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(node);
         ParsedItem item = new ParsedItem(visitor.getAll().toArray(new ASTEntryWithChildren[0]), null);
         
-        //module level: only Foo
-        assertEquals(1, item.getAstChildrenEntries().length);
+        //module level: Foo and main
+        assertEquals(2, item.getAstChildrenEntries().length);
         assertNull(item.getAstChildrenEntries()[0].children); //no children
     }
     

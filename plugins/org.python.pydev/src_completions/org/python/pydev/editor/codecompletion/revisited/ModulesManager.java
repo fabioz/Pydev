@@ -643,20 +643,37 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             SimpleNode ast = sourceModule.getAst();
             for(SimpleNode node:((Module)ast).body){
                 if(node instanceof ClassDef && "Model".equals(NodeUtils.getRepresentationString(node))){
-                    ClassDef classDef = (ClassDef) node;
-                    stmtType[] newBody = new stmtType[classDef.body.length+1];
-                    System.arraycopy(classDef.body, 0, newBody, 1, classDef.body.length);
+                    Object[][] metaclassAttrs = new Object[][]{
+                            {"objects", NodeUtils.makeAttribute("django.db.models.manager.Manager()")},
+                            {"DoesNotExist",new Name("Exception", Name.Load, false)},
+                            {"MultipleObjectsReturned",new Name("Exception", Name.Load, false)},
+                    };
                     
-                    //Note that the line/col is important so that we correctly acknowledge it inside the "class Model" scope. 
-                    Name name = new Name("objects", Name.Store, false);
-                    name.beginColumn = classDef.beginColumn+4;
-                    name.beginLine = classDef.beginLine+1;
-                    newBody[0] = new Assign(
-                            new exprType[]{name}, 
-                            NodeUtils.makeAttribute("django.db.models.manager.Manager()")
-                    );
-                    newBody[0].beginColumn = classDef.beginColumn+4;
-                    newBody[0].beginLine = classDef.beginLine+1;
+                    ClassDef classDef = (ClassDef) node;
+                    stmtType[] newBody = new stmtType[classDef.body.length+metaclassAttrs.length];
+                    System.arraycopy(classDef.body, 0, newBody, metaclassAttrs.length, classDef.body.length);
+
+                    int i=0;
+                    for(Object[] objAndType:metaclassAttrs){
+                        //Note that the line/col is important so that we correctly acknowledge it inside the "class Model" scope. 
+                        Name name = new Name((String)objAndType[0], Name.Store, false);
+                        name.beginColumn = classDef.beginColumn+4;
+                        name.beginLine = classDef.beginLine+1;
+                        newBody[i] = new Assign(
+                                new exprType[]{name}, 
+                                (exprType) objAndType[1]
+                        );
+                        newBody[i].beginColumn = classDef.beginColumn+4;
+                        newBody[i].beginLine = classDef.beginLine+1;
+                        
+                        i+= 1;
+                    }
+                    
+                    
+                    
+                    
+                    
+                    
                     classDef.body = newBody;
                     break;
                 }

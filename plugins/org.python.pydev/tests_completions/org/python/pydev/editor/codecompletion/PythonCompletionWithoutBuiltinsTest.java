@@ -335,7 +335,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     public void testPIL() throws Exception{
-        if(TestDependent.HAS_PIL){
+        if(TestDependent.PYTHON_PIL_PACKAGES != null){
             String s;
             s = ""+
             "import Image\n" +

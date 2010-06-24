@@ -33,7 +33,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testWx() throws Exception {
-        if(TestDependent.HAS_WXPYTHON_INSTALLED){
+        if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){
             doc = new Document(
                     "from wx import glcanvas\n" +
                     "print glcanvas"

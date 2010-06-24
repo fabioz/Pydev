@@ -3,6 +3,9 @@ package org.python.pydev.debug.codecoverage;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import junit.framework.TestCase;
 
@@ -175,13 +178,23 @@ public class XmlRpcTest extends TestCase{
             printArr(client.execute("addExec", new Object[]{"foo.__doc__=None"}));
             printArr("start get completions");
             Object[] completions = (Object[]) client.execute("getCompletions", new Object[]{"fo"});
-            //the completions may come in any order
-            if(!((Object[])completions[0])[0].toString().equals("Foo")){
-                Object object = completions[1];
-                completions[1] = completions[0];
-                completions[0] = object;
+            //the completions may come in any order, we must sort it for the test and remove things we don't expect.
+            Arrays.sort(completions, new Comparator<Object>() {
+                public int compare(Object o1, Object o2){
+                    String s1 = (String) ((Object[])o1)[0];
+                    String s2 = (String) ((Object[])o2)[0];
+                    return s1.compareTo(s2);
+                }
+            });
+            ArrayList<Object> arrayList = new ArrayList<Object>();
+            for(Object o:completions){
+                Object[] found = (Object[])o;
+                if(found[0].equals("foo") || found[0].equals("Foo")){
+                    arrayList.add(found);
+                }
             }
-            printArr(completions);
+
+            printArr(arrayList.toArray());
             printArr("end get completions");
             
             printArr("start raw_input");

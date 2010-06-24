@@ -934,22 +934,38 @@ public class REF {
      * @param dstFilename the destination
      */
     public static void copyFile(String srcFilename, String dstFilename){
+        FileChannel srcChannel = null;
+        FileChannel dstChannel = null;
         try {
             // Create channel on the source
-            FileChannel srcChannel = new FileInputStream(srcFilename).getChannel();
+            srcChannel = new FileInputStream(srcFilename).getChannel();
         
             // Create channel on the destination
-            FileChannel dstChannel = new FileOutputStream(dstFilename).getChannel();
+            dstChannel = new FileOutputStream(dstFilename).getChannel();
         
             // Copy file contents from source to destination
             dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
         
-            // Close the channels
-            srcChannel.close();
-            dstChannel.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }finally{
+            // Close the channels
+            if(srcChannel != null){
+                try {
+                    srcChannel.close();
+                } catch (IOException e) {
+                    Log.log(e);
+                }
+            }
+            if(dstChannel != null){
+                try {
+                    dstChannel.close();
+                } catch (IOException e) {
+                    Log.log(e);
+                }
+            }
         }
+        
     }
     
 

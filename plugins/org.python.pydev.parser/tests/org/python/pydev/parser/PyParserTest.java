@@ -382,7 +382,7 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     public void testOnWxPython() throws Throwable {
-        if(TestDependent.HAS_WXPYTHON_INSTALLED){
+        if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){
             File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES+"wxPython");
             parseFilesInDir(file);
             file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES+"wx");
@@ -467,8 +467,8 @@ public class PyParserTest extends PyParserTestBase{
     }
     
     public void testOnTestContextLib() throws Throwable {
-        if(TestDependent.HAS_PYTHON_TESTS){
-            String loc = TestDependent.PYTHON_LIB+"test/test_contextlib.py";
+        if(TestDependent.PYTHON_TEST_PACKAGES != null){
+            String loc = TestDependent.PYTHON_TEST_PACKAGES+"test_contextlib.py";
             String s = REF.getFileContents(new File(loc));
             parseLegalDocStr(s,"(file: test_contextlib.py)");
         }

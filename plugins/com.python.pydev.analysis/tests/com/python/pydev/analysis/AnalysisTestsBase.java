@@ -92,7 +92,7 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
     protected String getSystemPythonpathPaths() {
         final String paths;
-        if(TestDependent.HAS_WXPYTHON_INSTALLED){
+        if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){
             paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES+"|"+TestDependent.PYTHON_WXPYTHON_PACKAGES;
         }else{
             paths = TestDependent.PYTHON_LIB+"|"+TestDependent.PYTHON_SITE_PACKAGES;

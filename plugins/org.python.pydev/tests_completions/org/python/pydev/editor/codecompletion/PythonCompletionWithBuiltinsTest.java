@@ -38,7 +38,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.test__all__3();
+            builtins.testPreferCompiledOnBootstrap();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -80,6 +80,13 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         super.setUp();
         
         ADD_MX_TO_FORCED_BUILTINS = false;
+        if(shell == null && TestDependent.PYTHON_NUMPY_PACKAGES != null){
+            try {
+                REF.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES+"numpy/core/umath.pyd", TestDependent.TEST_PYSRC_LOC+"extendable/bootstrap_dll/umath.pyd");
+            } catch (RuntimeException e) {
+                //Ignore: it's being already used by some process (which means it's probably already correct anyways).
+            }
+        }
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(TestDependent.GetCompletePythonLib(true)+"|"+
@@ -208,7 +215,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     
     
     public void testNumpy() throws BadLocationException, IOException, Exception{
-        if(TestDependent.HAS_NUMPY_INSTALLED){
+        if(TestDependent.PYTHON_NUMPY_PACKAGES != null){
             String s = ""+
             "from numpy import less\n"+
             "less.";
@@ -287,26 +294,30 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
     }
     
     public void testPreferCompiledOnBootstrap() throws BadLocationException, IOException, Exception{
-        String s = ""+
-        "from extendable.bootstrap_dll import umath\n"+
-        "umath.";
-        IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
-        assertTrue("Expected CompiledModule. Found: "+module.getClass(), module instanceof CompiledModule);
-        //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
-        requestCompl(s, s.length(), -1, new String[]{"less"});
+        if(TestDependent.PYTHON_NUMPY_PACKAGES != null){
+            String s = ""+
+            "from extendable.bootstrap_dll import umath\n"+
+            "umath.";
+            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
+            assertTrue("Expected CompiledModule. Found: "+module.getClass(), module instanceof CompiledModule);
+            //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
+            requestCompl(s, s.length(), -1, new String[]{"less"});
+        }
     }
     
     public void testPreferCompiledOnBootstrap2() throws BadLocationException, IOException, Exception{
-        String s = ""+
-        "from extendable.bootstrap_dll.umath import ";
-        IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
-        assertTrue(module instanceof CompiledModule);
-        //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
-        requestCompl(s, s.length(), -1, new String[]{"less"});
+        if(TestDependent.PYTHON_NUMPY_PACKAGES != null){
+            String s = ""+
+            "from extendable.bootstrap_dll.umath import ";
+            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
+            assertTrue(module instanceof CompiledModule);
+            //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
+            requestCompl(s, s.length(), -1, new String[]{"less"});
+        }
     }
     
     public void testWxPython1() throws BadLocationException, IOException, Exception{
-        if(TestDependent.HAS_WXPYTHON_INSTALLED){ //we can only test what we have
+        if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){ //we can only test what we have
             String s = ""+
             "from wxPython.wx import *\n"+
             "import wx\n"+
@@ -327,7 +338,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
 
     public void testCompleteImportBuiltinReference2() throws BadLocationException, IOException, Exception{
         String s;
-        if(TestDependent.HAS_WXPYTHON_INSTALLED){ //we can only test what we have
+        if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){ //we can only test what we have
             s = "" +
             "from wx import ";
             requestCompl(s, s.length(), -1, new String[]{"glcanvas"});
@@ -352,7 +363,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         
         String s;
 
-        if(TestDependent.HAS_WXPYTHON_INSTALLED){ //we can only test what we have
+        if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){ //we can only test what we have
             s = "" +
             "from wxPython.wx import wxButton\n"+
             "                \n"+   
@@ -484,6 +495,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
                 "HelperForPydevCompletion.objects.";
             
             requestCompl(s, -1, new String[] {"get()"});
+        }
+    }
+    
+    public void testDjango3() throws Exception{
+        if(TestDependent.PYTHON_DJANGO_PACKAGES != null){
+            String s = 
+                "from django.contrib.auth.models import User\n" +
+                "User.";
+            
+            requestCompl(s, -1, new String[] {"DoesNotExist"});
         }
     }
     
