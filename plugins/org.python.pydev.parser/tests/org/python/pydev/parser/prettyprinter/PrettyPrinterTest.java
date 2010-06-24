@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.test25With4();
+            test.testVarious34();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -2748,6 +2748,58 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             
             public Boolean call(Integer version) {
                 checkPrettyPrintEqual(s, expected, v2, v3);
+                return true;
+            }
+        });
+    }
+    
+    
+    public void testVarious34() throws Throwable {
+        final String s = ""+
+        "def Method():\n" +
+        "    try:\n" +
+        "        pass\n" +
+        "    except:\n" +
+        "        if data:\n" +
+        "            pass\n" +
+        "        else:\n" +
+        "            pass\n" +
+        "        pass\n" +
+        "\n" +
+        "#comment\n" +
+        "";
+        
+        
+        final String v2 = ""+
+        "def Method():\n" +
+        "    try:\n" +
+        "        pass\n" +
+        "    except:\n" +
+        "        if data:\n" +
+        "            pass\n" +
+        "        else:\n" +
+        "            pass\n" +
+        "        pass\n" +
+        "#comment\n" +
+        "";
+        
+        final String v3 = ""+
+        "def Method():\n" +
+        "    try:\n" +
+        "        pass\n" +
+        "    except:\n" +
+        "        if data:\n" +
+        "            pass\n" +
+        "        else:\n" +
+        "            pass\n" +
+        "        pass#comment\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                checkPrettyPrintEqual(s, v2, v2, v3);
                 return true;
             }
         });

@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.Tuple;
@@ -133,18 +133,33 @@ public class PrettyPrinterDocV2 {
         return linesToColAndContents.lastKey();
     }
     
-    PrettyPrinterDocLineEntry getLastLine() {
-        Integer lastKey = linesToColAndContents.lastKey();
-        if(lastKey != null){
-            return linesToColAndContents.get(lastKey);
+    PrettyPrinterDocLineEntry getLastLine(boolean considerOnlyCommentOrEmptyLines) {
+        Integer line = linesToColAndContents.lastKey();
+        PrettyPrinterDocLineEntry last = null;
+        if(line != null){
+            for(;line>=linesToColAndContents.firstKey();line--){
+                PrettyPrinterDocLineEntry found = linesToColAndContents.get(line);
+                if(found != null){
+                    last = found;
+                    List<ILinePart> sortedParts = last.getSortedParts();
+                    if(sortedParts.size() == 0){
+                        continue;
+                    }
+                    for (ILinePart iLinePart : sortedParts) {
+                        if(!(iLinePart.getToken() instanceof commentType)){
+                            return last;
+                        }
+                    }
+                }
+            }
         }
-        return null;
+        return last;
     }
     
     
     
     public ILinePart getLastPart() {
-        PrettyPrinterDocLineEntry lastLine = getLastLine();
+        PrettyPrinterDocLineEntry lastLine = getLastLine(true);
         java.util.List<ILinePart> sortedParts = lastLine.getSortedParts();
         return sortedParts.get(sortedParts.size()-1);
     }
@@ -170,7 +185,7 @@ public class PrettyPrinterDocV2 {
     }
     
     public LinePartIndentMark addDedent(int emptyLinesRequiredAfterDedent) {
-        PrettyPrinterDocLineEntry lastLine = getLastLine();
+        PrettyPrinterDocLineEntry lastLine = getLastLine(false);
         return lastLine.dedent(emptyLinesRequiredAfterDedent);
     }
     
