@@ -11,7 +11,7 @@ Getting the code
 
 The first thing you probably want to do in order to code in pydev is **getting its code**. 
 
-**Pre-requisites:** Eclipse SDK 3.5.0, Git and Java 5.0 (note that other versions of those should work too but details may differ a bit)
+**Pre-requisites:** Eclipse SDK 3.6.0, Git and Java 5.0 (note that other versions of those should work too but details may differ a bit)
 
 Before getting the code, there's an important step you need to make: Change your java 'compiler compliance-level' to 5.0.
 To do this, go to **window > preferences > Java > compiler** and change that setting from **1.4 to 5.0**.

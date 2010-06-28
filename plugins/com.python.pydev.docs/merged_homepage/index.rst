@@ -40,64 +40,54 @@ It comes with many goodies such as:
 
 For more details on the provided features, check the `Features Matrix`_.
 
-Release 1.5.7
+Release 1.5.8
 ==============
 
-* **Uniquely identifying editors:**
+* **Features only available on Aptana Studio 3 (Beta):**
 
-    * Names are never duplicated
-    * Special treatment for __init__
-    * Special treatment for django on views, models and tests
-    * See: http://pydev.blogspot.com/2010/04/identifying-your-editors.html for details
-
-* **Debugger:**
-
-    * **CRITICAL**: Fixed issue which could make the debugger skip breakpoints
-    * Properly dealing with varibles that have '<' or '>'
-    * Debugging file in python 3 with an encoding works
-    * Double-clicking breakpoint opens file from the workspace instead of always forcing an external file
-    * Added '* any file' option for file selection during a debug where the file is not found
-
-* **Performance improvements for dealing with really large files:**
+    * Theming support provided by Aptana Studio used
+    * Find bar provided by Aptana used (instead of the default find/replace dialog)
+    * Aptana App Explorer provides Pydev nodes
     
-    * Code folding marks won't be shown on *really large files* for performance reasons
-    * Performance improvements in the code-analysis (much faster for *really large files*)
-    * Outline tree is also faster
-
-* **Interpreter configuration:**
-
-    * Only restoring the needed interpreter info (so, it's much faster to add a new interpreter)
-    * Using an asynchronous progress monitor (which makes it even faster)
-    * Interpreter location may not be duplicated (for cases where the same interpreter is used with a different config, virtualenv should be used)
-    * Properly refreshing internal caches (which made a ctrl+2+kill or a restart of eclipse needed sometimes after configuring the interpreter)
-    * socket added to forced builtins
-
-* **Python 3 grammar:**
-
-    * Code completion and code-analysis work when dealing with keyword only parameters
-    * Properly reporting syntax error instead of throwing a NumberFormatException on "1.0L"
     
-* **Editor and forcing tabs:**
+* **Eclipse:**
 
-    * Option to toggle forcing tabs added to the editor context menu
-    * Fixed tabs issue which could change the global setting on force tabs
+    * Eclipse 3.6 is now supported
+    * Pydev Jars are now signed
+
+
+* **Django:**
+
+    * DoesNotExist and MultipleObjectsReturned recognized in Django    
+    * Added option to make the name of Django models,views,tests editors work as regular editors while still changing the icon
+
+
+* **Run/Debug:**
+
+    * Ctrl+Shift+B properly working to toggle breakpoint
+    * If file is not found in debugger, only warn once (and properly cache the return)
+    * Run configuration menus: Only showing the ones that have an available interpreter configured
     
-* **Indentation:**
+    
+* **Outline/Pydev Package Explorer:**
 
-    * Added rule so that indentation stops at the level of the next line def or @ (to indent to add a decorator)
-    * Auto indent strategy may indent based on next line if the previous is empty
-
+    * Fixed sorting issue in pydev package explorer when comparing elements from the python model with elements from the eclipse resource model
+    * Fixed issue when the 'go into' was used in the pydev package explorer (refresh was not automatic)
+    * Added decoration to class attributes
+    * Added node identifying if __name__ == '__main__'
+    
+    
 * **General:**
     
-    * Django configuration supporting version 1.2 (contribution by Kenneth Belitzky)
-    * Fixed encoding problem when pasting encoded text with indentation
-    * asthelper.completions no longer created on current directory when project is removed
-    * __all__ semantics correct when a tuple is defined (and not only when a list is defined)
-    * Fixed issue in extract method (was not creating tuple on caller function with multiple returns)
-    * Improved heuristic for assist assign (ctrl+1)
-    * On search open files (ctrl+2+s), dialog is opened if nothing is entered and there's no editor selection
-    * Fixed issue where ctrl+2 would not work on linux
-
+    * Properly working with editor names when the path would be the same for different editors
+    * Fixed issue where aptanavfs appeared in the title for aptana remote files
+    * Fixed halting condition
+    * Not always applying completion of dot in interactive console on context-insensitive completions
+    * Home key properly handled in compare editor
+    * Interactive console working with pickle
+    * String substitution configuration in interpreter properly works
+    * On import completions, full module names are not shown anymore, only the next submodule alternative
+    
 
     
 What happened to Pydev Extensions?

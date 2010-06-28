@@ -2,7 +2,95 @@
 <contents_area>
 
 <h3>History For Pydev</h3>
-<br>
+<br/>
+
+
+<h1>Release 1.5.7</h1>
+
+<ul>
+<li><p class="first"><strong>Uniquely identifying editors:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Names are never duplicated</li>
+<li>Special treatment for __init__</li>
+<li>Special treatment for django on views, models and tests</li>
+<li>See: <a class="reference external" href="http://pydev.blogspot.com/2010/04/identifying-your-editors.html">http://pydev.blogspot.com/2010/04/identifying-your-editors.html</a> for details</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Debugger:</strong></p>
+<blockquote>
+<ul class="simple">
+<li><strong>CRITICAL</strong>: Fixed issue which could make the debugger skip breakpoints</li>
+<li>Properly dealing with varibles that have '&lt;' or '&gt;'</li>
+<li>Debugging file in python 3 with an encoding works</li>
+<li>Double-clicking breakpoint opens file from the workspace instead of always forcing an external file</li>
+<li>Added '* any file' option for file selection during a debug where the file is not found</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Performance improvements for dealing with really large files:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Code folding marks won't be shown on <em>really large files</em> for performance reasons</li>
+<li>Performance improvements in the code-analysis (much faster for <em>really large files</em>)</li>
+<li>Outline tree is also faster</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Interpreter configuration:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Only restoring the needed interpreter info (so, it's much faster to add a new interpreter)</li>
+<li>Using an asynchronous progress monitor (which makes it even faster)</li>
+<li>Interpreter location may not be duplicated (for cases where the same interpreter is used with a different config, virtualenv should be used)</li>
+<li>Properly refreshing internal caches (which made a ctrl+2+kill or a restart of eclipse needed sometimes after configuring the interpreter)</li>
+<li>socket added to forced builtins</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Python 3 grammar:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Code completion and code-analysis work when dealing with keyword only parameters</li>
+<li>Properly reporting syntax error instead of throwing a NumberFormatException on &quot;1.0L&quot;</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Editor and forcing tabs:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Option to toggle forcing tabs added to the editor context menu</li>
+<li>Fixed tabs issue which could change the global setting on force tabs</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Indentation:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Added rule so that indentation stops at the level of the next line def or &#64; (to indent to add a decorator)</li>
+<li>Auto indent strategy may indent based on next line if the previous is empty</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>General:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Django configuration supporting version 1.2 (contribution by Kenneth Belitzky)</li>
+<li>Fixed encoding problem when pasting encoded text with indentation</li>
+<li>asthelper.completions no longer created on current directory when project is removed</li>
+<li>__all__ semantics correct when a tuple is defined (and not only when a list is defined)</li>
+<li>Fixed issue in extract method (was not creating tuple on caller function with multiple returns)</li>
+<li>Improved heuristic for assist assign (ctrl+1)</li>
+<li>On search open files (ctrl+2+s), dialog is opened if nothing is entered and there's no editor selection</li>
+<li>Fixed issue where ctrl+2 would not work on linux</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+
+
+
 
 
 <h1>Release 1.5.6</h1>
@@ -193,7 +281,7 @@
 <ul>
 <li>Profile to have <strong>much</strong> lower memory requirements (especially on code-analysis rebuilds)</li>
 <li>Profile for parsing to be faster</li>
-<li>Compare Editor
+<li>Compare Editor</li>
 <ul>
 	<li>Syntax highlighting integrated</li>
 	<li>Editions use the pydev editor behaviour</li>
@@ -261,7 +349,6 @@
 
 
 
-</ul>
 
 
 
@@ -333,7 +420,7 @@
 <li><strong>Google App Engine</strong>: customized setup and management of Google App Engine projects</li>
 <li>String substitution variables can be used for pythonpath and launch config. </li>
 <li>The interpreter can be referred from a user-editable name</li>
-<li>Submodules shown on import completion (e.g.: from x|<-- request completion here will show xml, xml.dom, xml.etree, etc)</li>
+<li>Submodules shown on import completion (e.g.: from x|&lt;-- request completion here will show xml, xml.dom, xml.etree, etc)</li>
 <li>os.path added to default forced builtins</li>
 <li>Showing better errors when code-completion fails</li>
 <li>Fixed problem finding definition for java class when the constructor was referenced.</li>
@@ -431,7 +518,7 @@ environment variables were specified, it was not possible to configure an interp
 <ul>
     <li>Environment variables can be specified for a given interpreter</li>
     <li>Canceling operation now works correctly</li>
-</ul><br>
+</ul><br/>
 
 
 <li><strong>Debugger</strong></li>
@@ -439,7 +526,7 @@ environment variables were specified, it was not possible to configure an interp
     <li>Variables correctly gotten on Jython 2.1 / 2.2</li>
     <li>Using globals as an union of original globals+locals so that generator expressions can be evaluated</li>
     <li>Breakpoints only opened on double-click (no longer on select)</li>
-</ul><br>
+</ul><br/>
 
 <li>The project preferences are now applied even if the page to configure the project is not visible.</li>
 <li>Jython 2.5b1 working (problem with sitecustomize)</li>

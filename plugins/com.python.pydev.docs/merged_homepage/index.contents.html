@@ -25,85 +25,64 @@
 </blockquote>
 <p>For more details on the provided features, check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
 </div>
-<div class="section" id="release-1-5-7">
-<h1>Release 1.5.7</h1>
+<div class="section" id="release-1-5-8">
+<h1>Release 1.5.8</h1>
 <ul>
-<li><p class="first"><strong>Uniquely identifying editors:</strong></p>
+<li><p class="first"><strong>Features only available on Aptana Studio 3 (Beta):</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Names are never duplicated</li>
-<li>Special treatment for __init__</li>
-<li>Special treatment for django on views, models and tests</li>
-<li>See: <a class="reference external" href="http://pydev.blogspot.com/2010/04/identifying-your-editors.html">http://pydev.blogspot.com/2010/04/identifying-your-editors.html</a> for details</li>
+<li>Theming support provided by Aptana Studio used</li>
+<li>Find bar provided by Aptana used (instead of the default find/replace dialog)</li>
+<li>Aptana App Explorer provides Pydev nodes</li>
 </ul>
 </blockquote>
 </li>
-<li><p class="first"><strong>Debugger:</strong></p>
+<li><p class="first"><strong>Eclipse:</strong></p>
 <blockquote>
 <ul class="simple">
-<li><strong>CRITICAL</strong>: Fixed issue which could make the debugger skip breakpoints</li>
-<li>Properly dealing with varibles that have '&lt;' or '&gt;'</li>
-<li>Debugging file in python 3 with an encoding works</li>
-<li>Double-clicking breakpoint opens file from the workspace instead of always forcing an external file</li>
-<li>Added '* any file' option for file selection during a debug where the file is not found</li>
+<li>Eclipse 3.6 is now supported</li>
+<li>Pydev Jars are now signed</li>
 </ul>
 </blockquote>
 </li>
-<li><p class="first"><strong>Performance improvements for dealing with really large files:</strong></p>
+<li><p class="first"><strong>Django:</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Code folding marks won't be shown on <em>really large files</em> for performance reasons</li>
-<li>Performance improvements in the code-analysis (much faster for <em>really large files</em>)</li>
-<li>Outline tree is also faster</li>
+<li>DoesNotExist and MultipleObjectsReturned recognized in Django</li>
+<li>Added option to make the name of Django models,views,tests editors work as regular editors while still changing the icon</li>
 </ul>
 </blockquote>
 </li>
-<li><p class="first"><strong>Interpreter configuration:</strong></p>
+<li><p class="first"><strong>Run/Debug:</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Only restoring the needed interpreter info (so, it's much faster to add a new interpreter)</li>
-<li>Using an asynchronous progress monitor (which makes it even faster)</li>
-<li>Interpreter location may not be duplicated (for cases where the same interpreter is used with a different config, virtualenv should be used)</li>
-<li>Properly refreshing internal caches (which made a ctrl+2+kill or a restart of eclipse needed sometimes after configuring the interpreter)</li>
-<li>socket added to forced builtins</li>
+<li>Ctrl+Shift+B properly working to toggle breakpoint</li>
+<li>If file is not found in debugger, only warn once (and properly cache the return)</li>
+<li>Run configuration menus: Only showing the ones that have an available interpreter configured</li>
 </ul>
 </blockquote>
 </li>
-<li><p class="first"><strong>Python 3 grammar:</strong></p>
+<li><p class="first"><strong>Outline/Pydev Package Explorer:</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Code completion and code-analysis work when dealing with keyword only parameters</li>
-<li>Properly reporting syntax error instead of throwing a NumberFormatException on &quot;1.0L&quot;</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Editor and forcing tabs:</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Option to toggle forcing tabs added to the editor context menu</li>
-<li>Fixed tabs issue which could change the global setting on force tabs</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Indentation:</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Added rule so that indentation stops at the level of the next line def or &#64; (to indent to add a decorator)</li>
-<li>Auto indent strategy may indent based on next line if the previous is empty</li>
+<li>Fixed sorting issue in pydev package explorer when comparing elements from the python model with elements from the eclipse resource model</li>
+<li>Fixed issue when the 'go into' was used in the pydev package explorer (refresh was not automatic)</li>
+<li>Added decoration to class attributes</li>
+<li>Added node identifying if __name__ == '__main__'</li>
 </ul>
 </blockquote>
 </li>
 <li><p class="first"><strong>General:</strong></p>
 <blockquote>
 <ul class="simple">
-<li>Django configuration supporting version 1.2 (contribution by Kenneth Belitzky)</li>
-<li>Fixed encoding problem when pasting encoded text with indentation</li>
-<li>asthelper.completions no longer created on current directory when project is removed</li>
-<li>__all__ semantics correct when a tuple is defined (and not only when a list is defined)</li>
-<li>Fixed issue in extract method (was not creating tuple on caller function with multiple returns)</li>
-<li>Improved heuristic for assist assign (ctrl+1)</li>
-<li>On search open files (ctrl+2+s), dialog is opened if nothing is entered and there's no editor selection</li>
-<li>Fixed issue where ctrl+2 would not work on linux</li>
+<li>Properly working with editor names when the path would be the same for different editors</li>
+<li>Fixed issue where aptanavfs appeared in the title for aptana remote files</li>
+<li>Fixed halting condition</li>
+<li>Not always applying completion of dot in interactive console on context-insensitive completions</li>
+<li>Home key properly handled in compare editor</li>
+<li>Interactive console working with pickle</li>
+<li>String substitution configuration in interpreter properly works</li>
+<li>On import completions, full module names are not shown anymore, only the next submodule alternative</li>
 </ul>
 </blockquote>
 </li>
