@@ -3,7 +3,7 @@ package org.python.pydev.red_core;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.python.pydev.core.callbacks.ICallbackListener;
 
-import com.aptana.editor.common.theme.TreeThemer;
+import com.aptana.theme.TreeThemer;
 
 /**
  * Used to create the callbacks that will add the theming to the pydev views.

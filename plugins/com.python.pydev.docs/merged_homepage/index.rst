@@ -40,10 +40,16 @@ It comes with many goodies such as:
 
 For more details on the provided features, check the `Features Matrix`_.
 
+Release 1.5.9
+==============
+
+* **Added compatibility to Aptana Studio 3 (Beta) -- release from June 24th**
+
+
 Release 1.5.8
 ==============
 
-* **Features only available on Aptana Studio 3 (Beta):**
+* **Features only available on Aptana Studio 3 (Beta) -- release from June 4th:**
 
     * Theming support provided by Aptana Studio used
     * Find bar provided by Aptana used (instead of the default find/replace dialog)

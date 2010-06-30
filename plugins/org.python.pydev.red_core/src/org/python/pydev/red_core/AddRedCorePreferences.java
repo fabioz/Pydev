@@ -3,12 +3,12 @@ package org.python.pydev.red_core;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.graphics.RGB;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
 
 import com.aptana.editor.common.CommonEditorPlugin;
-import com.aptana.editor.common.theme.IThemeManager;
-import com.aptana.editor.common.theme.Theme;
+import com.aptana.theme.IThemeManager;
+import com.aptana.theme.Theme;
+import com.aptana.theme.ThemePlugin;
 
 /**
  * Adds the colors of the Aptana theming to the pydev syntax tokens.
@@ -37,7 +37,7 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider{
 		if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
 			return null;
 		}
-		Theme currentTheme = CommonEditorPlugin.getDefault().getThemeManager().getCurrentTheme();
+		Theme currentTheme = ThemePlugin.getDefault().getThemeManager().getCurrentTheme();
 		return currentTheme.getTextAttribute(name);
 	}
 	
@@ -107,7 +107,7 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider{
 	    if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
 	        return null;
 	    }
-		Theme currentTheme = CommonEditorPlugin.getDefault().getThemeManager().getCurrentTheme();
+		Theme currentTheme = ThemePlugin.getDefault().getThemeManager().getCurrentTheme();
 		return currentTheme.getBackground();
 	}
 

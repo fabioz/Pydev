@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.core,
  org.eclipse.ui.editors,
  org.eclipse.ui.navigator,
- org.eclipse.ui.views
+ org.eclipse.ui.views,
+ com.aptana.theme
 Eclipse-LazyStart: true
 Bundle-ClassPath: red-core.jar,
  retroweaver-rt.jar
