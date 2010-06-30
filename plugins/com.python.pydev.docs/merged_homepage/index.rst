@@ -45,6 +45,7 @@ Release 1.5.9
 
 * **Added compatibility to Aptana Studio 3 (Beta) -- release from June 24th**
 
+    * Fixed issues related to backward incompatible changes
 
 Release 1.5.8
 ==============

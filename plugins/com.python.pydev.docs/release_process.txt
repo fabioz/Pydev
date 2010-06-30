@@ -104,7 +104,7 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 com.python.pydev.docs\merged_homepage\final to pydev.aptanacloud.com: /home/aptana/domains/pydev.aptanacloud.com/web/htdocs
 
 
-		** Tag repository: git tag pydev_1_5_8 -a ; git push --tags
+		** Tag repository: git tag pydev_1_5_9 -a ; git push --tags
 		
 		** Add news in forum (same as e-mail)
 		
