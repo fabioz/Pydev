@@ -68,7 +68,7 @@ del W:\git_update_site_dir\updates\content.jar
 		Update artifacts.jar and content.jar
 
 
-D:\bin\eclipse_36_m6_clean\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\git_update_site_dir\updates\ -site file:W:\git_update_site_dir\updates\site.xml -metadataRepository file:W:\git_update_site_dir\updates -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\git_update_site_dir\updates -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
+D:\bin\eclipse_36_final_clean\eclipse.exe -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -updateSite W:\git_update_site_dir\updates\ -site file:W:\git_update_site_dir\updates\site.xml -metadataRepository file:W:\git_update_site_dir\updates -metadataRepositoryName "Pydev Update Site" -artifactRepository file:W:\git_update_site_dir\updates -artifactRepositoryName "Pydev Artifacts" -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m
 				
 
 		** Copy site.xml, artifacts.jar and content.jar to W:\git_deploy_dir\Pydev 
@@ -89,7 +89,7 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\make_release.py to create zips
  
  
 Create folder W:\git_deploy_dir\pydev_zips to: https://sourceforge.net/project/admin/explorer.php?group_id=85796
-sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/Pydev 1.5.8 and add zip
+sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/Pydev 1.5.9 and add zip
 
 
 		** Add contents to the update site
