@@ -21,6 +21,17 @@ public class PythonModelSorter extends ViewerSorter{
             return 0; //we don't want to sort it... just show it in the order it is found in the file
         }
         
+        //Tree nodes come after everything.
+        if(e1 instanceof TreeNode<?>){
+            if(!(e2 instanceof TreeNode<?>)){
+                return 1;
+            }
+            //Both are ISortedElement, so, keep going.
+        }
+        if(e2 instanceof TreeNode<?>){
+            return -1;
+        }
+        
         //now, on to the priorities (if both have different classes)
         if(e1 instanceof ISortedElement && e2 instanceof ISortedElement){
             ISortedElement iSortedElement1 = (ISortedElement) e1;
@@ -63,10 +74,10 @@ public class PythonModelSorter extends ViewerSorter{
         
         //If both were IWrappedResource they'd be handled at ISortedElement
         if(e1 instanceof IWrappedResource){
-        	return super.compare(viewer, ((IWrappedResource) e1).getActualObject(), e2);
+        	e1 = ((IWrappedResource) e1).getActualObject();
         }
         if(e2 instanceof IWrappedResource){
-        	return super.compare(viewer, e1, ((IWrappedResource) e2).getActualObject());
+        	e2 = ((IWrappedResource) e2).getActualObject();
         }
         
         if(e1 instanceof IContainer && e2 instanceof IContainer){
@@ -79,13 +90,7 @@ public class PythonModelSorter extends ViewerSorter{
             return 1;
         }
         
-        //Tree nodes come right after containers.
-        if(e1 instanceof TreeNode<?>){
-            return -1;
-        }
-        if(e2 instanceof TreeNode<?>){
-            return 1;
-        }
+
         return super.compare(viewer, e1, e2);
     }
 }
