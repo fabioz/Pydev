@@ -52,6 +52,7 @@ public interface IInterpreterManager {
     public int INTERPRETER_TYPE_PYTHON = IPythonNature.INTERPRETER_TYPE_PYTHON;
     public int INTERPRETER_TYPE_JYTHON = IPythonNature.INTERPRETER_TYPE_JYTHON;
     public int INTERPRETER_TYPE_IRONPYTHON = IPythonNature.INTERPRETER_TYPE_IRONPYTHON;
+    public int INTERPRETER_TYPE_JYTHON_ECLIPSE = IPythonNature.INTERPRETER_TYPE_JYTHON_ECLIPSE;
     
     
     /**

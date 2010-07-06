@@ -102,6 +102,10 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
      */
     public static final int INTERPRETER_TYPE_IRONPYTHON = 2;
     
+    /**
+     * Identifies an interpreter that will use the jython in the running eclipse platform.h
+     */
+    public static final int INTERPRETER_TYPE_JYTHON_ECLIPSE = 3;
     
     
     public static final String DEFAULT_INTERPRETER = "Default";

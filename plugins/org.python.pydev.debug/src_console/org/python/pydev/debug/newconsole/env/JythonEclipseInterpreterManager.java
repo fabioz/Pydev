@@ -1,0 +1,127 @@
+package org.python.pydev.debug.newconsole.env;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IToken;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
+
+/**
+ * Interpreter manager created so that we can use the eclipse process to access the internal jython.
+ */
+public class JythonEclipseInterpreterManager implements IInterpreterManager {
+
+    public int getInterpreterType() {
+
+        return IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE;
+    }
+
+    public String getDefaultInterpreter() throws MisconfigurationException {
+
+        return "Jython Eclipse";
+    }
+
+    public IInterpreterInfo[] getInterpreterInfos() {
+        return new IInterpreterInfo[] { new InterpreterInfo("2.1", "Jython Eclipse", new ArrayList<String>()) };
+    }
+
+    public IInterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException {
+
+        return null;
+    }
+
+    public IInterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor) throws MisconfigurationException {
+
+        return null;
+    }
+
+    public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor) {
+
+        return null;
+    }
+
+    public void addInterpreterInfo(IInterpreterInfo info) {
+
+    }
+
+    public IInterpreterInfo[] getInterpretersFromPersistedString(String persisted) {
+
+        return null;
+    }
+
+    public String getStringToPersist(IInterpreterInfo[] executables) {
+
+        return null;
+    }
+
+    public boolean hasInfoOnDefaultInterpreter(IPythonNature nature) {
+
+        return false;
+    }
+
+    public void setInfos(List<IInterpreterInfo> allButTheseInterpreters) {
+
+    }
+
+    public void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpreterNamesToRestore) {
+
+    }
+
+    public String getManagerRelatedName() {
+
+        return null;
+    }
+
+    public String getPersistedString() {
+
+        return null;
+    }
+
+    public void setPersistedString(String s) {
+
+    }
+
+    public boolean isConfigured() {
+
+        return false;
+    }
+
+    public boolean hasInfoOnInterpreter(String interpreter) {
+
+        return false;
+    }
+
+    public void setBuiltinCompletions(IToken[] comps, String projectInterpreterName) {
+
+    }
+
+    public IToken[] getBuiltinCompletions(String projectInterpreterName) {
+
+        return null;
+    }
+
+    public IModule getBuiltinMod(String projectInterpreterName) {
+
+        return null;
+    }
+
+    public void setBuiltinMod(IModule mod, String projectInterpreterName) {
+
+    }
+
+    public void clearCaches() {
+
+    }
+
+    public void saveInterpretersInfoModulesManager() {
+
+    }
+
+}

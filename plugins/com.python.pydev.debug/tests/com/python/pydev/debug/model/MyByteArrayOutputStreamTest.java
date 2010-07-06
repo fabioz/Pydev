@@ -1,5 +1,7 @@
 package com.python.pydev.debug.model;
 
+import org.python.pydev.core.MyByteArrayOutputStream;
+
 import junit.framework.TestCase;
 
 public class MyByteArrayOutputStreamTest extends TestCase{

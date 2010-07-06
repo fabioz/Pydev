@@ -52,6 +52,59 @@ class StdIn:
     #in the interactive interpreter, a read and a readline are the same.
     read = readline
         
+
+        
+try:
+    class ExecState:
+        FIRST_CALL = True
+        PYDEV_CONSOLE_RUN_IN_UI = False #Defines if we should run commands in the UI thread.
+        
+    from org.python.pydev.core.uiutils import RunInUiThread #@UnresolvedImport
+    from java.lang import Runnable #@UnresolvedImport
+    class Command(Runnable):
+    
+        def __init__(self, interpreter, line):
+            self.interpreter = interpreter
+            self.line = line
+            
+        def run(self):
+            if ExecState.FIRST_CALL:
+                ExecState.FIRST_CALL = False
+                sys.stdout.write('\nYou are now in a console within Eclipse.\nUse it with care as it can halt the VM.\n')
+                sys.stdout.write('Typing a line with "PYDEV_CONSOLE_TOGGLE_RUN_IN_UI"\nwill start executing all the commands in the UI thread.\n\n')
+                
+            if self.line == 'PYDEV_CONSOLE_TOGGLE_RUN_IN_UI':
+                ExecState.PYDEV_CONSOLE_RUN_IN_UI = not ExecState.PYDEV_CONSOLE_RUN_IN_UI
+                if ExecState.PYDEV_CONSOLE_RUN_IN_UI:
+                    sys.stdout.write('Running commands in UI mode. WARNING: using sys.stdin (i.e.: calling raw_input()) WILL HALT ECLIPSE.\n')
+                else:
+                    sys.stdout.write('No longer running commands in UI mode.\n')
+                self.more = False
+            else:
+                self.more = self.interpreter.push(self.line)
+                
+            
+    def Sync(runnable):
+        if ExecState.PYDEV_CONSOLE_RUN_IN_UI:
+            return RunInUiThread.sync(runnable)
+        else:
+            return runnable.run()
+        
+except:
+    #If things are not there, define a way in which there's no 'real' sync, only the default execution.
+    class Command:
+    
+        def __init__(self, interpreter, line):
+            self.interpreter = interpreter
+            self.line = line
+            
+        def run(self):
+            self.more = self.interpreter.push(self.line)
+        
+    def Sync(runnable):
+        runnable.run()
+
+
 #=======================================================================================================================
 # InterpreterInterface
 #=======================================================================================================================
@@ -88,16 +141,20 @@ class InterpreterInterface:
             pass
             
         sys.stdin = StdIn(self, self.host, self.client_port)
-        if help is not None:
-            #This will enable the help() function to work.
-            help.input = sys.stdin 
-        
         try:
-            more = self.interpreter.push(line)
-        finally:
             if help is not None:
-                help.input = original_in
-                
+                #This will enable the help() function to work.
+                help.input = sys.stdin 
+            
+            try:
+                command = Command(self.interpreter, line)
+                Sync(command)
+                more = command.more
+            finally:
+                if help is not None:
+                    help.input = original_in
+                    
+        finally:
             sys.stdin = original_in
         
         #it's always false at this point

@@ -526,7 +526,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         		                    public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         		                        monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
         		                        
-        	        					IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(false);
+        	        					IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(false, false);
 										interpreter.setErr(output);
         	        					interpreter.setOut(output);
         	        					HashMap<String, Object> locals = new HashMap<String, Object>();

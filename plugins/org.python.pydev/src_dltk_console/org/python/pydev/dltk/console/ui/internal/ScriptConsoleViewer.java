@@ -28,6 +28,7 @@ import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
@@ -349,6 +350,14 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         public void paste() {
             changeSelectionToEditableRange();
             super.paste();
+        }
+        
+        /**
+         * When copying something, we don't want to copy the prompt contents.
+         */
+        @Override
+        public void copy() {
+            copy(DND.CLIPBOARD);
         }
         
         /**

@@ -3,6 +3,7 @@ package com.python.pydev.debug.model;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.python.pydev.core.MyPipedInputStream;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 

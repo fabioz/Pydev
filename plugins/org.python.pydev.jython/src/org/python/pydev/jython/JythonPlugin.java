@@ -349,8 +349,8 @@ public class JythonPlugin extends AbstractUIPlugin {
      * @see JythonPlugin#exec(HashMap, String, PythonInterpreter)
      * Same as before but the file to execute is passed as a parameter
      */
-    public static synchronized Throwable exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, 
-            File fileToExec, File[] pythonpathFolders) {
+    public static Throwable exec(HashMap<String, Object> locals, IPythonInterpreter interpreter, 
+            File fileToExec, File[] pythonpathFolders, String ... argv) {
         if(locals == null){
             locals = new HashMap<String, Object>();
         }
@@ -358,13 +358,14 @@ public class JythonPlugin extends AbstractUIPlugin {
         	return null; //already disposed
         }
         locals.put("__file__", fileToExec.toString());
-        synchronized (codeCache) { //hold on there... one at a time... please?
-            try {
+        try {
+            String codeObjName;
+            synchronized (codeCache) { //hold on there... one at a time... please?
                 String fileName = fileToExec.getName();
                 if(!fileName.endsWith(".py")){
                     throw new RuntimeException("The script to be executed must be a python file. Name:"+fileName);
                 }
-                String codeObjName = "code"+fileName.substring(0, fileName.indexOf('.'));
+                codeObjName = "code"+fileName.substring(0, fileName.indexOf('.'));
                 final String codeObjTimestampName = codeObjName+"Timestamp";
                 
                 for (Map.Entry<String, Object> entry : locals.entrySet()) {
@@ -372,6 +373,11 @@ public class JythonPlugin extends AbstractUIPlugin {
                 }
                 
                 boolean regenerate = false;
+                if(interpreter instanceof PythonInterpreterWrapperNotShared){
+                    //Always regenerate if the state is not shared! (otherwise the pythonpath might be wrong as the sys is not the same)
+                    regenerate = true;
+                }
+                
                 Tuple<Long, Object> timestamp = codeCache.get(fileToExec);
                 final long lastModified = fileToExec.lastModified();
                 if(timestamp == null || timestamp.o1 != lastModified){
@@ -424,6 +430,16 @@ public class JythonPlugin extends AbstractUIPlugin {
                     addToSysPath.append(strPythonPathFolders);
                     addToSysPath.append("\n");
                     
+                    if(argv.length > 0){
+                        addToSysPath.append("sys.argv = [");
+                        for(String s:argv){
+                            addToSysPath.append(s);
+                            addToSysPath.append(",");
+                        }
+                        addToSysPath.append("];");
+                        addToSysPath.append("\n");
+                    }
+                    
                     String toExec = StringUtils.format(LOAD_FILE_SCRIPT, path, path, addToSysPath.toString());
                     interpreter.exec(toExec);
                     String exec = StringUtils.format("%s = compile(toExec, r'%s', 'exec')", codeObjName, path);
@@ -434,33 +450,33 @@ public class JythonPlugin extends AbstractUIPlugin {
                     Object codeObj = interpreter.get(codeObjName);
                     codeCache.put(fileToExec, new Tuple<Long, Object>(lastModified, codeObj));
                 }
-                
-                interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
-            } catch (Throwable e) {
-                if(!IN_TESTS && JythonPlugin.getDefault() == null){
-                    //it is already disposed
-                    return null;
-                }
-                //the user requested it to exit
-                if(e instanceof ExitScriptException){
-                    return null;
-                }
-                //actually, this is more likely to happen when raising an exception in jython
-                if(e instanceof PyException){
-                    PyException pE = (PyException) e;
-                    if (pE.type instanceof PyJavaClass){
-                        PyJavaClass t = (PyJavaClass) pE.type;
-                        if(t.__name__ != null && t.__name__.equals("org.python.pydev.jython.ExitScriptException")){
-                            return null;
-                        }
+            }
+            
+            interpreter.exec(StringUtils.format("exec(%s)" , codeObjName));
+        } catch (Throwable e) {
+            if(!IN_TESTS && JythonPlugin.getDefault() == null){
+                //it is already disposed
+                return null;
+            }
+            //the user requested it to exit
+            if(e instanceof ExitScriptException){
+                return null;
+            }
+            //actually, this is more likely to happen when raising an exception in jython
+            if(e instanceof PyException){
+                PyException pE = (PyException) e;
+                if (pE.type instanceof PyJavaClass){
+                    PyJavaClass t = (PyJavaClass) pE.type;
+                    if(t.__name__ != null && t.__name__.equals("org.python.pydev.jython.ExitScriptException")){
+                        return null;
                     }
                 }
-                
-                if(JyScriptingPreferencesPage.getShowScriptingOutput()){
-                    Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
-                }
-                return e;
             }
+            
+            if(JyScriptingPreferencesPage.getShowScriptingOutput()){
+                Log.log(IStatus.ERROR, "Error while executing:"+fileToExec, e);
+            }
+            return e;
         }
         return null;
     }
@@ -503,14 +519,21 @@ public class JythonPlugin extends AbstractUIPlugin {
     }
 
     public static IPythonInterpreter newPythonInterpreter() {
-        return newPythonInterpreter(true);
+        return newPythonInterpreter(true, true);
     }
     
     /**
      * Creates a new Python interpreter (with jython) and returns it.
+     * 
+     * Note that if the sys is not shared, clients should be in a Thread for it to be really separate).
      */
-    public static IPythonInterpreter newPythonInterpreter(boolean redirect) {
-        PythonInterpreterWrapper interpreter = new PythonInterpreterWrapper();
+    public static IPythonInterpreter newPythonInterpreter(boolean redirect, boolean shareSys) {
+        IPythonInterpreter interpreter;
+        if(shareSys){
+            interpreter = new PythonInterpreterWrapper();
+        }else{
+            interpreter = new PythonInterpreterWrapperNotShared();
+        }
         if(redirect){
             MessageConsole console = getConsole();
 			interpreter.setOut(new ScriptOutput(console, fOutputStream));

@@ -259,7 +259,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Adds some text that came as an output to stdout or stderr to the console.
      * 
      * @param out the text that should be added
-     * @param stdout true if it came from stdout and falso if it came from stderr
+     * @param stdout true if it came from stdout and also if it came from stderr
      */
     private void addToConsoleView(String out, boolean stdout){
         if(out.length() == 0){

@@ -1,4 +1,4 @@
-package com.python.pydev.debug.model;
+package org.python.pydev.core;
 
 import java.io.ByteArrayOutputStream;
 

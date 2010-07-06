@@ -62,7 +62,7 @@ public class JythonTest extends TestCase {
 	        //unittest.TestCase format: the __main__ is required in the global namespace 
 	        HashMap<String, Object> locals = new HashMap<String, Object>();
 	        locals.put("__name__", "__main__");
-	        IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(false);
+	        IPythonInterpreter interpreter = JythonPlugin.newPythonInterpreter(false, false);
 	        ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
 	        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
 	        interpreter.setErr(stdErr);

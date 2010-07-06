@@ -173,14 +173,22 @@ public class IProcessFactory {
                     pythonpathEnv, vmArgs, new String[]{String.valueOf(port), String.valueOf(clientPort)});
             break;
         
+        case IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE:
+            commandLine = null;
+            break;
         
         default:
             throw new RuntimeException("Expected interpreter manager to be python or jython or iron python related.");
         }       
 
-        String[] env = SimpleRunner.createEnvWithPythonpath(
-                pythonpathEnv, interpreter.getExecutableOrJar(), interpreterManager, nature);
-        process = SimpleRunner.createProcess(commandLine, env, null);
+        if(interpreterManager.getInterpreterType() == IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE){
+            process = new JythonEclipseProcess(scriptWithinPySrc.getAbsolutePath(), port, clientPort);
+            
+        }else{
+            String[] env = SimpleRunner.createEnvWithPythonpath(
+                    pythonpathEnv, interpreter.getExecutableOrJar(), interpreterManager, nature);
+            process = SimpleRunner.createProcess(commandLine, env, null);
+        }
         PydevSpawnedInterpreterProcess spawnedInterpreterProcess = 
             new PydevSpawnedInterpreterProcess(process, launch);
         

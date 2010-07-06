@@ -1,7 +1,8 @@
-package com.python.pydev.debug.model;
+package org.python.pydev.core;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Special input stream we can write to and read() listeners will get it later.
@@ -14,6 +15,21 @@ public class MyPipedInputStream extends InputStream{
     private MyByteArrayOutputStream buf;
     private Object readLock = new Object();
     private Object writeLock = new Object();
+    
+    public final OutputStream internalOutputStream = new OutputStream() {
+
+        public void write(int b) throws IOException {
+            MyPipedInputStream.this.write(b);
+        };
+        
+        public void write(byte[] b) throws IOException {
+            MyPipedInputStream.this.write(b);
+        }
+        
+        public void close() throws IOException {
+            MyPipedInputStream.this.close();
+        };
+    };
 
     public MyPipedInputStream() {
         buf = new MyByteArrayOutputStream();
@@ -65,6 +81,15 @@ public class MyPipedInputStream extends InputStream{
         return -1;
     }
 
+    public void write(int b) throws IOException{
+        synchronized(writeLock){
+            buf.write(b);
+        }
+        synchronized(readLock){
+            readLock.notifyAll();
+        }
+    }
+    
     public void write(byte[] bytes) throws IOException{
         synchronized(writeLock){
             buf.write(bytes);
