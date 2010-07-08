@@ -367,6 +367,10 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
     }
     
 
-    
+
+    @Override
+    public String toString() {
+        return "PyLinkedModeCompletionProposal("+this.getDisplayString()+")";
+    }
 
 }

@@ -17,6 +17,7 @@ public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer{
         
         //use?
         node.putBoolean(PyCodeCompletionPreferencesPage.USE_CODECOMPLETION, PyCodeCompletionPreferencesPage.DEFAULT_USE_CODECOMPLETION);
+        node.putBoolean(PyCodeCompletionPreferencesPage.USE_CODE_COMPLETION_ON_DEBUG_CONSOLES, PyCodeCompletionPreferencesPage.DEFAULT_USE_CODE_COMPLETION_ON_DEBUG_CONSOLES);
         
         //Request
         node.putBoolean(PyCodeCompletionPreferencesPage.AUTOCOMPLETE_ON_DOT, PyCodeCompletionPreferencesPage.DEFAULT_AUTOCOMPLETE_ON_DOT);

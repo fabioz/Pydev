@@ -164,8 +164,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         
         if(!showOnlyTemplates){
             //shell completions 
-            ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(actTok, offset);
-            results2.addAll(Arrays.asList(consoleCompletions));
+            if(consoleCommunication != null){
+                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(actTok, offset);
+                results2.addAll(Arrays.asList(consoleCompletions));
+            }
         }
         
         if(tokenAndQual.activationToken.length() == 0){

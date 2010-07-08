@@ -1,0 +1,640 @@
+package org.python.pydev.debug.console;
+
+import org.eclipse.jface.text.IAutoEditStrategy;
+import org.eclipse.jface.text.IAutoIndentStrategy;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IEditingSupport;
+import org.eclipse.jface.text.IEventConsumer;
+import org.eclipse.jface.text.IFindReplaceTarget;
+import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.IPainter;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.IRewriteTarget;
+import org.eclipse.jface.text.ITextDoubleClickStrategy;
+import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.ITextInputListener;
+import org.eclipse.jface.text.ITextListener;
+import org.eclipse.jface.text.ITextOperationTarget;
+import org.eclipse.jface.text.ITextPresentationListener;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.ITextViewerExtension8.EnrichMode;
+import org.eclipse.jface.text.IUndoManager;
+import org.eclipse.jface.text.IViewportListener;
+import org.eclipse.jface.text.IWidgetTokenKeeper;
+import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
+import org.eclipse.jface.text.hyperlink.IHyperlinkPresenter;
+import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
+import org.eclipse.jface.text.quickassist.IQuickAssistInvocationContext;
+import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.ContentAssistantFacade;
+import org.eclipse.jface.text.source.IAnnotationHover;
+import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.swt.custom.LineBackgroundEvent;
+import org.eclipse.swt.custom.LineStyleEvent;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.StyledTextPrintOptions;
+import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.HelpListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Item;
+import org.eclipse.ui.console.IHyperlink;
+import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
+
+public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleViewer {
+
+    private TextConsoleViewer viewer;
+
+    public ScriptConsoleViewerWrapper(TextConsoleViewer viewer) {
+        this.viewer = viewer;
+    }
+
+    public String getCommandLine() {
+
+        IDocument document = this.viewer.getDocument();
+        ITextSelection selection = (ITextSelection) this.viewer.getSelection();
+        PySelection ps = new PySelection(document, selection);
+        return ps.getCursorLineContents();
+    }
+
+    public int getCommandLineOffset() {
+        IDocument document = this.viewer.getDocument();
+        ITextSelection selection = (ITextSelection) this.viewer.getSelection();
+        PySelection ps = new PySelection(document, selection);
+        return ps.getStartLineOffset();
+    }
+
+    public int getCaretOffset() {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public void setCaretOffset(int offset, boolean async) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    // Delegates
+
+    public int hashCode() {
+        return viewer.hashCode();
+    }
+
+    public void addHelpListener(HelpListener listener) {
+        viewer.addHelpListener(listener);
+    }
+
+    public boolean equals(Object obj) {
+        return viewer.equals(obj);
+    }
+
+    public void addSelectionChangedListener(ISelectionChangedListener listener) {
+        viewer.addSelectionChangedListener(listener);
+    }
+
+    public Object getData(String key) {
+        return viewer.getData(key);
+    }
+
+    public void setTabWidth(int tabWidth) {
+        viewer.setTabWidth(tabWidth);
+    }
+
+    public void setFont(Font font) {
+        viewer.setFont(font);
+    }
+
+    public void lineGetStyle(LineStyleEvent event) {
+        viewer.lineGetStyle(event);
+    }
+
+    public void removeHelpListener(HelpListener listener) {
+        viewer.removeHelpListener(listener);
+    }
+
+    public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+        viewer.removeSelectionChangedListener(listener);
+    }
+
+    public Item scrollDown(int x, int y) {
+        return viewer.scrollDown(x, y);
+    }
+
+    public String toString() {
+        return viewer.toString();
+    }
+
+    public Item scrollUp(int x, int y) {
+        return viewer.scrollUp(x, y);
+    }
+
+    public void setData(String key, Object value) {
+        viewer.setData(key, value);
+    }
+
+    public void setSelection(ISelection selection) {
+        viewer.setSelection(selection);
+    }
+
+    public void lineGetBackground(LineBackgroundEvent event) {
+        viewer.lineGetBackground(event);
+    }
+
+    public void mouseEnter(MouseEvent e) {
+        viewer.mouseEnter(e);
+    }
+
+    public void mouseExit(MouseEvent e) {
+        viewer.mouseExit(e);
+    }
+
+    public void mouseHover(MouseEvent e) {
+        viewer.mouseHover(e);
+    }
+
+    public void mouseMove(MouseEvent e) {
+        viewer.mouseMove(e);
+    }
+
+    public Control getControl() {
+        return viewer.getControl();
+    }
+
+    public void setAnnotationHover(IAnnotationHover annotationHover) {
+        viewer.setAnnotationHover(annotationHover);
+    }
+
+    public void setOverviewRulerAnnotationHover(IAnnotationHover annotationHover) {
+        viewer.setOverviewRulerAnnotationHover(annotationHover);
+    }
+
+    public void configure(SourceViewerConfiguration configuration) {
+        viewer.configure(configuration);
+    }
+
+    public IHyperlink getHyperlink() {
+        return viewer.getHyperlink();
+    }
+
+    public IHyperlink getHyperlink(int offset) {
+        return viewer.getHyperlink(offset);
+    }
+
+    public void mouseDoubleClick(MouseEvent e) {
+        viewer.mouseDoubleClick(e);
+    }
+
+    public void mouseDown(MouseEvent e) {
+        viewer.mouseDown(e);
+    }
+
+    public void mouseUp(MouseEvent e) {
+        viewer.mouseUp(e);
+    }
+
+    public void setConsoleWidth(int width) {
+        viewer.setConsoleWidth(width);
+    }
+
+    public void setHoverEnrichMode(EnrichMode mode) {
+        viewer.setHoverEnrichMode(mode);
+    }
+
+    public void activatePlugins() {
+        viewer.activatePlugins();
+    }
+
+    public void setDocument(IDocument document) {
+        viewer.setDocument(document);
+    }
+
+    public void setDocument(IDocument document, int visibleRegionOffset, int visibleRegionLength) {
+        viewer.setDocument(document, visibleRegionOffset, visibleRegionLength);
+    }
+
+    public void setDocument(IDocument document, IAnnotationModel annotationModel) {
+        viewer.setDocument(document, annotationModel);
+    }
+
+    public void setDocument(IDocument document, IAnnotationModel annotationModel, int modelRangeOffset, int modelRangeLength) {
+        viewer.setDocument(document, annotationModel, modelRangeOffset, modelRangeLength);
+    }
+
+    public IAnnotationModel getAnnotationModel() {
+        return viewer.getAnnotationModel();
+    }
+
+    public IQuickAssistAssistant getQuickAssistAssistant() {
+        return viewer.getQuickAssistAssistant();
+    }
+
+    public final ContentAssistantFacade getContentAssistantFacade() {
+        return viewer.getContentAssistantFacade();
+    }
+
+    public IQuickAssistInvocationContext getQuickAssistInvocationContext() {
+        return viewer.getQuickAssistInvocationContext();
+    }
+
+    public IAnnotationModel getVisualAnnotationModel() {
+        return viewer.getVisualAnnotationModel();
+    }
+
+    public void unconfigure() {
+        viewer.unconfigure();
+    }
+
+    public boolean canDoOperation(int operation) {
+        return viewer.canDoOperation(operation);
+    }
+
+    public void doOperation(int operation) {
+        viewer.doOperation(operation);
+    }
+
+    public void enableOperation(int operation, boolean enable) {
+        viewer.enableOperation(operation, enable);
+    }
+
+    public void setRangeIndicator(Annotation rangeIndicator) {
+        viewer.setRangeIndicator(rangeIndicator);
+    }
+
+    public void setRangeIndication(int start, int length, boolean moveCursor) {
+        viewer.setRangeIndication(start, length, moveCursor);
+    }
+
+    public IRegion getRangeIndication() {
+        return viewer.getRangeIndication();
+    }
+
+    public void removeRangeIndication() {
+        viewer.removeRangeIndication();
+    }
+
+    public void showAnnotations(boolean show) {
+        viewer.showAnnotations(show);
+    }
+
+    public void showAnnotationsOverview(boolean show) {
+        viewer.showAnnotationsOverview(show);
+    }
+
+    public IAnnotationHover getCurrentAnnotationHover() {
+        return viewer.getCurrentAnnotationHover();
+    }
+
+    public void resetPlugins() {
+        viewer.resetPlugins();
+    }
+
+    public StyledText getTextWidget() {
+        return viewer.getTextWidget();
+    }
+
+    public void setAutoIndentStrategy(IAutoIndentStrategy strategy, String contentType) {
+        viewer.setAutoIndentStrategy(strategy, contentType);
+    }
+
+    public void prependAutoEditStrategy(IAutoEditStrategy strategy, String contentType) {
+        viewer.prependAutoEditStrategy(strategy, contentType);
+    }
+
+    public void removeAutoEditStrategy(IAutoEditStrategy strategy, String contentType) {
+        viewer.removeAutoEditStrategy(strategy, contentType);
+    }
+
+    public void setEventConsumer(IEventConsumer consumer) {
+        viewer.setEventConsumer(consumer);
+    }
+
+    public void setIndentPrefixes(String[] indentPrefixes, String contentType) {
+        viewer.setIndentPrefixes(indentPrefixes, contentType);
+    }
+
+    public int getTopInset() {
+        return viewer.getTopInset();
+    }
+
+    public boolean isEditable() {
+        return viewer.isEditable();
+    }
+
+    public void setEditable(boolean editable) {
+        viewer.setEditable(editable);
+    }
+
+    public void setDefaultPrefixes(String[] defaultPrefixes, String contentType) {
+        viewer.setDefaultPrefixes(defaultPrefixes, contentType);
+    }
+
+    public void setUndoManager(IUndoManager undoManager) {
+        viewer.setUndoManager(undoManager);
+    }
+
+    public IUndoManager getUndoManager() {
+        return viewer.getUndoManager();
+    }
+
+    public void setTextHover(ITextHover hover, String contentType) {
+        viewer.setTextHover(hover, contentType);
+    }
+
+    public void setTextHover(ITextHover hover, String contentType, int stateMask) {
+        viewer.setTextHover(hover, contentType, stateMask);
+    }
+
+    public void removeTextHovers(String contentType) {
+        viewer.removeTextHovers(contentType);
+    }
+
+    public void setHoverControlCreator(IInformationControlCreator creator) {
+        viewer.setHoverControlCreator(creator);
+    }
+
+    public boolean requestWidgetToken(IWidgetTokenKeeper requester) {
+        return viewer.requestWidgetToken(requester);
+    }
+
+    public boolean requestWidgetToken(IWidgetTokenKeeper requester, int priority) {
+        return viewer.requestWidgetToken(requester, priority);
+    }
+
+    public void releaseWidgetToken(IWidgetTokenKeeper tokenKeeper) {
+        viewer.releaseWidgetToken(tokenKeeper);
+    }
+
+    public Point getSelectedRange() {
+        return viewer.getSelectedRange();
+    }
+
+    public void setSelectedRange(int selectionOffset, int selectionLength) {
+        viewer.setSelectedRange(selectionOffset, selectionLength);
+    }
+
+    public void setSelection(ISelection selection, boolean reveal) {
+        viewer.setSelection(selection, reveal);
+    }
+
+    public ISelection getSelection() {
+        return viewer.getSelection();
+    }
+
+    public ISelectionProvider getSelectionProvider() {
+        return viewer.getSelectionProvider();
+    }
+
+    public void addPostSelectionChangedListener(ISelectionChangedListener listener) {
+        viewer.addPostSelectionChangedListener(listener);
+    }
+
+    public void removePostSelectionChangedListener(ISelectionChangedListener listener) {
+        viewer.removePostSelectionChangedListener(listener);
+    }
+
+    public void addTextListener(ITextListener listener) {
+        viewer.addTextListener(listener);
+    }
+
+    public void removeTextListener(ITextListener listener) {
+        viewer.removeTextListener(listener);
+    }
+
+    public void addTextInputListener(ITextInputListener listener) {
+        viewer.addTextInputListener(listener);
+    }
+
+    public void removeTextInputListener(ITextInputListener listener) {
+        viewer.removeTextInputListener(listener);
+    }
+
+    public Object getInput() {
+        return viewer.getInput();
+    }
+
+    public IDocument getDocument() {
+        return viewer.getDocument();
+    }
+
+    public void setInput(Object input) {
+        viewer.setInput(input);
+    }
+
+    public void addViewportListener(IViewportListener listener) {
+        viewer.addViewportListener(listener);
+    }
+
+    public void removeViewportListener(IViewportListener listener) {
+        viewer.removeViewportListener(listener);
+    }
+
+    public int getTopIndex() {
+        return viewer.getTopIndex();
+    }
+
+    public void setTopIndex(int index) {
+        viewer.setTopIndex(index);
+    }
+
+    public int getBottomIndex() {
+        return viewer.getBottomIndex();
+    }
+
+    public int getTopIndexStartOffset() {
+        return viewer.getTopIndexStartOffset();
+    }
+
+    public int getBottomIndexEndOffset() {
+        return viewer.getBottomIndexEndOffset();
+    }
+
+    public void revealRange(int start, int length) {
+        viewer.revealRange(start, length);
+    }
+
+    public void refresh() {
+        viewer.refresh();
+    }
+
+    public final void invalidateTextPresentation() {
+        viewer.invalidateTextPresentation();
+    }
+
+    public final void invalidateTextPresentation(int offset, int length) {
+        viewer.invalidateTextPresentation(offset, length);
+    }
+
+    public IRegion getVisibleRegion() {
+        return viewer.getVisibleRegion();
+    }
+
+    public boolean overlapsWithVisibleRegion(int start, int length) {
+        return viewer.overlapsWithVisibleRegion(start, length);
+    }
+
+    public void setVisibleRegion(int start, int length) {
+        viewer.setVisibleRegion(start, length);
+    }
+
+    public void resetVisibleRegion() {
+        viewer.resetVisibleRegion();
+    }
+
+    public void setTextDoubleClickStrategy(ITextDoubleClickStrategy strategy, String contentType) {
+        viewer.setTextDoubleClickStrategy(strategy, contentType);
+    }
+
+    public void print(StyledTextPrintOptions options) {
+        viewer.print(options);
+    }
+
+    public void setTextColor(Color color) {
+        viewer.setTextColor(color);
+    }
+
+    public void setTextColor(Color color, int start, int length, boolean controlRedraw) {
+        viewer.setTextColor(color, start, length, controlRedraw);
+    }
+
+    public void changeTextPresentation(TextPresentation presentation, boolean controlRedraw) {
+        viewer.changeTextPresentation(presentation, controlRedraw);
+    }
+
+    public IFindReplaceTarget getFindReplaceTarget() {
+        return viewer.getFindReplaceTarget();
+    }
+
+    public ITextOperationTarget getTextOperationTarget() {
+        return viewer.getTextOperationTarget();
+    }
+
+    public void appendVerifyKeyListener(VerifyKeyListener listener) {
+        viewer.appendVerifyKeyListener(listener);
+    }
+
+    public void prependVerifyKeyListener(VerifyKeyListener listener) {
+        viewer.prependVerifyKeyListener(listener);
+    }
+
+    public void removeVerifyKeyListener(VerifyKeyListener listener) {
+        viewer.removeVerifyKeyListener(listener);
+    }
+
+    public int getMark() {
+        return viewer.getMark();
+    }
+
+    public void setMark(int offset) {
+        viewer.setMark(offset);
+    }
+
+    public final void setRedraw(boolean redraw) {
+        viewer.setRedraw(redraw);
+    }
+
+    public IRewriteTarget getRewriteTarget() {
+        return viewer.getRewriteTarget();
+    }
+
+    public ITextHover getCurrentTextHover() {
+        return viewer.getCurrentTextHover();
+    }
+
+    public Point getHoverEventLocation() {
+        return viewer.getHoverEventLocation();
+    }
+
+    public void addPainter(IPainter painter) {
+        viewer.addPainter(painter);
+    }
+
+    public void removePainter(IPainter painter) {
+        viewer.removePainter(painter);
+    }
+
+    public int modelLine2WidgetLine(int modelLine) {
+        return viewer.modelLine2WidgetLine(modelLine);
+    }
+
+    public int modelOffset2WidgetOffset(int modelOffset) {
+        return viewer.modelOffset2WidgetOffset(modelOffset);
+    }
+
+    public IRegion modelRange2WidgetRange(IRegion modelRange) {
+        return viewer.modelRange2WidgetRange(modelRange);
+    }
+
+    public int widgetlLine2ModelLine(int widgetLine) {
+        return viewer.widgetlLine2ModelLine(widgetLine);
+    }
+
+    public int widgetLine2ModelLine(int widgetLine) {
+        return viewer.widgetLine2ModelLine(widgetLine);
+    }
+
+    public int widgetOffset2ModelOffset(int widgetOffset) {
+        return viewer.widgetOffset2ModelOffset(widgetOffset);
+    }
+
+    public IRegion widgetRange2ModelRange(IRegion widgetRange) {
+        return viewer.widgetRange2ModelRange(widgetRange);
+    }
+
+    public IRegion getModelCoverage() {
+        return viewer.getModelCoverage();
+    }
+
+    public int widgetLineOfWidgetOffset(int widgetOffset) {
+        return viewer.widgetLineOfWidgetOffset(widgetOffset);
+    }
+
+    public boolean moveFocusToWidgetToken() {
+        return viewer.moveFocusToWidgetToken();
+    }
+
+    public void setDocumentPartitioning(String partitioning) {
+        viewer.setDocumentPartitioning(partitioning);
+    }
+
+    public void addTextPresentationListener(ITextPresentationListener listener) {
+        viewer.addTextPresentationListener(listener);
+    }
+
+    public void removeTextPresentationListener(ITextPresentationListener listener) {
+        viewer.removeTextPresentationListener(listener);
+    }
+
+    public void register(IEditingSupport helper) {
+        viewer.register(helper);
+    }
+
+    public void unregister(IEditingSupport helper) {
+        viewer.unregister(helper);
+    }
+
+    public IEditingSupport[] getRegisteredSupports() {
+        return viewer.getRegisteredSupports();
+    }
+
+    public void setHyperlinkDetectors(IHyperlinkDetector[] hyperlinkDetectors, int eventStateMask) {
+        viewer.setHyperlinkDetectors(hyperlinkDetectors, eventStateMask);
+    }
+
+    public void setHyperlinkPresenter(IHyperlinkPresenter hyperlinkPresenter) throws IllegalStateException {
+        viewer.setHyperlinkPresenter(hyperlinkPresenter);
+    }
+
+    public void setTabsToSpacesConverter(IAutoEditStrategy converter) {
+        viewer.setTabsToSpacesConverter(converter);
+    }
+
+}

@@ -653,6 +653,13 @@
          </factory>
     </extension>
     
-    
+   <extension
+         point="org.eclipse.ui.console.consolePageParticipants">
+      <consolePageParticipant
+            class="org.python.pydev.debug.console.ConsoleCompletionsPageParticipant"
+            id="org.python.pydev.debug.console.consoleCompletionsPageParticipant">
+         <enablement></enablement>
+      </consolePageParticipant>
+   </extension>
 </plugin>
 

@@ -55,7 +55,8 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
         }
 
         String qual = tokenAndQual.qualifier;
-        if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveModulesCompletion() && naturesUsed.size() > 0){ //at least n characters required...
+        if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveModulesCompletion() && 
+                naturesUsed != null && naturesUsed.size() > 0){ //at least n characters required...
             
             int qlen = qual.length();
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();

@@ -56,7 +56,8 @@ public class CtxParticipant implements IPyDevCompletionParticipant, IPyDevComple
         }
         
         String qual = tokenAndQual.qualifier;
-        if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion() && naturesUsed.size() > 0){ //at least n characters required...
+        if(qual.length() >= CodeCompletionPreferencesPage.getCharsForContextInsensitiveGlobalTokensCompletion() && 
+                naturesUsed != null && naturesUsed.size() > 0){ //at least n characters required...
             boolean addAutoImport = AutoImportsPreferencesPage.doAutoImport();
             int qlen = qual.length();
             String lowerQual = qual.toLowerCase();

@@ -8,6 +8,7 @@ package org.python.pydev.debug.model;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,18 @@ public class XMLUtils {
         }
         return parser;
     }
+    
+    private static String decode(String value) {
+        if(value != null){
+            try {
+                return URLDecoder.decode(value, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+    
     /**
      * SAX parser for thread info
      * <xml><thread name="name" id="id"/><xml>
@@ -67,13 +80,7 @@ public class XMLUtils {
                 if (qName.equals("thread")) {
                     String name = attributes.getValue("name");
                     String id = attributes.getValue("id");
-                    try {
-                        if (name != null){
-                            name = URLDecoder.decode(name, "UTF-8");
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+                    name = decode(name);
                     threads.add(new PyThread(target, name, id));
                 }
         }
@@ -279,6 +286,59 @@ public class XMLUtils {
         } catch (IOException e) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
         }
+    }
+
+    
+    
+    
+    
+    
+    
+    /**
+     * Processes CMD_GET_COMPLETIONS return
+     *
+     */
+    static class XMLToCompletionsInfo extends DefaultHandler {
+        public List<Object[]> completions;
+        
+        public XMLToCompletionsInfo() {
+            completions = new ArrayList<Object[]>();
+        }
+        
+        public void startElement(String uri, String localName, String qName,
+                                Attributes attributes) throws SAXException {
+            // <comp p0="%s" p1="%s" p2="%s" p3="%s"/>
+            if (qName.equals("comp")){
+                
+                Object[] comp = new Object[]{
+                    decode(attributes.getValue("p0")),
+                    decode(attributes.getValue("p1")),
+                    decode(attributes.getValue("p2")),
+                    decode(attributes.getValue("p3")),
+                };
+                
+                completions.add(comp);
+            }
+        }
+
+
+    }
+    
+    
+    public static List<Object[]> XMLToCompletions(String payload) throws CoreException {
+        try {
+            SAXParser parser = getSAXParser();
+            XMLToCompletionsInfo info = new XMLToCompletionsInfo();
+            parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+            return info.completions;
+        } catch (CoreException e) {
+            throw e;
+        } catch (SAXException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        } catch (IOException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        }
+        
     }
 
 }

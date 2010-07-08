@@ -97,13 +97,13 @@ public class DeferredWorkbenchAdapter extends DeferredDebugElementWorkbenchAdapt
             // of visibility.
             // I try to minimize the occurrence here, by giving pydevd time to complete the
             // task before we are forced to do asynchronous notification.
-            int i = 1000; 
+            int i = 500;  //up to 5 seconds
             while (--i > 0 && commandVariables == null){
                 if(this.monitor != null && this.monitor.isCanceled() == true){
                     //canceled request... let's return
                     return new PyVariable[0];
                 }
-                Thread.sleep(10); //10 seconds
+                Thread.sleep(10); //10 millis
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

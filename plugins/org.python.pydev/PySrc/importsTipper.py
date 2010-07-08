@@ -1,6 +1,4 @@
 import os.path
-import re
-import linecache
 import inspect
 import sys
 from _tipper_common import DoFind

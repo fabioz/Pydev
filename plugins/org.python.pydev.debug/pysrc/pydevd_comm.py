@@ -42,6 +42,10 @@ each command has a format:
     114      CMD_GET_FRAME            JAVA                                    request for frame contents
     115      CMD_EXEC_EXPRESSION      JAVA
     116      CMD_WRITE_TO_CONSOLE     PYDB
+    117      CMD_CHANGE_VARIABLE
+    118      CMD_RUN_TO_LINE
+    119      CMD_RELOAD_CODE
+    120      CMD_GET_COMPLETIONS      JAVA
     
 500 series diagnostics/ok
     901      VERSION                  either      Version string (1.0)        Currently just used at startup
@@ -57,6 +61,7 @@ from pydevd_constants import * #@UnusedWildImport
 
 import time
 import threading
+import sys
 try:
     import Queue as PydevQueue
 except ImportError:
@@ -95,6 +100,7 @@ CMD_WRITE_TO_CONSOLE = 116
 CMD_CHANGE_VARIABLE = 117
 CMD_RUN_TO_LINE = 118
 CMD_RELOAD_CODE = 119
+CMD_GET_COMPLETIONS = 120
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -119,6 +125,7 @@ ID_TO_MEANING = {
     '117':'CMD_CHANGE_VARIABLE',
     '118':'CMD_RUN_TO_LINE',
     '119':'CMD_RELOAD_CODE',
+    '120':'CMD_GET_COMPLETIONS',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',
@@ -521,6 +528,12 @@ class NetCommandFactory:
         except Exception:
             return self.makeErrorMessage(seq, GetExceptionTracebackStr())
 
+    def makeGetCompletionsMessage(self, seq, payload):
+        try:
+            return NetCommand(CMD_GET_COMPLETIONS, seq, payload)
+        except Exception:
+            return self.makeErrorMessage(seq, GetExceptionTracebackStr())
+
 INTERNAL_TERMINATE_THREAD = 1
 INTERNAL_SUSPEND_THREAD = 2
 
@@ -667,6 +680,69 @@ class InternalEvaluateExpression(InternalThreadCommand):
             xml += "</xml>"
             cmd = dbg.cmdFactory.makeEvaluateExpressionMessage(self.sequence, xml)
             dbg.writer.addCommand(cmd)
+        except:
+            exc = GetExceptionTracebackStr()
+            sys.stderr.write('%s\n' % (exc,))
+            cmd = dbg.cmdFactory.makeErrorMessage(self.sequence, "Error evaluating expression " + exc)
+            dbg.writer.addCommand(cmd)
+           
+#=======================================================================================================================
+# InternalGetCompletions
+#=======================================================================================================================
+class InternalGetCompletions(InternalThreadCommand):
+    """ Gets the completions in a given scope """
+
+    def __init__(self, seq, thread_id, frame_id, act_tok):
+        self.sequence = seq
+        self.thread_id = thread_id
+        self.frame_id = frame_id
+        self.act_tok = act_tok
+    
+    
+    def doIt(self, dbg):
+        """ Converts request into completions """
+        try:
+            remove_path = None
+            try:
+                import _completer
+            except:
+                path = os.environ['PYDEV_COMPLETER_PYTHONPATH']
+                sys.path.append(path)
+                remove_path = path
+                import _completer
+            
+            try:
+                
+                frame = pydevd_vars.findFrame(self.thread_id, self.frame_id)
+            
+                #Not using frame.f_globals because of https://sourceforge.net/tracker2/?func=detail&aid=2541355&group_id=85796&atid=577329
+                #(Names not resolved in generator expression in method)
+                #See message: http://mail.python.org/pipermail/python-list/2009-January/526522.html
+                updated_globals = dict()
+                updated_globals.update(frame.f_globals)
+                updated_globals.update(frame.f_locals) #locals later because it has precedence over the actual globals
+            
+                completer = _completer.Completer(updated_globals, None)
+                #list(tuple(name, descr, parameters, type))
+                completions = completer.complete(self.act_tok)
+                
+                
+                def makeValid(s):
+                    return pydevd_vars.makeValidXmlValue(pydevd_vars.quote(s, '/>_= \t'))
+                
+                msg = "<xml>"
+                
+                for comp in completions:
+                    msg += '<comp p0="%s" p1="%s" p2="%s" p3="%s"/>' % (makeValid(comp[0]), makeValid(comp[1]), makeValid(comp[2]), makeValid(comp[3]),)
+                msg += "</xml>"
+                
+                cmd = dbg.cmdFactory.makeGetCompletionsMessage(self.sequence, msg)
+                dbg.writer.addCommand(cmd)
+                
+            finally:
+                if remove_path is not None:
+                    sys.path.remove(remove_path)
+                    
         except:
             exc = GetExceptionTracebackStr()
             sys.stderr.write('%s\n' % (exc,))

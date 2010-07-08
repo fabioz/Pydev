@@ -57,6 +57,9 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
     public static final String ARGUMENTS_DEEP_ANALYSIS_N_CHARS = "DEEP_ANALYSIS_N_CHARS";
     public static final int DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS = 1;
     
+    public static final String USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = "USE_CODE_COMPLETION_ON_DEBUG_CONSOLES";
+    public static final boolean DEFAULT_USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = true;
+    
     /**
      */
     public PyCodeCompletionPreferencesPage() {
@@ -93,7 +96,13 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
         
         addField(new BooleanFieldEditor(
                 USE_CODECOMPLETION, "Use code completion?", p));
+        
+        addField(new BooleanFieldEditor(
+                USE_CODE_COMPLETION_ON_DEBUG_CONSOLES, "Use code completion on debug console sessions?", p));
 
+        addField(new LabelFieldEditor("LABEL_FIELD_EDITOR_CODE_COMPLETION_DEBUG_CONSOLE", 
+                "Note: only applied for new consoles.", p));
+        
         addField(new BooleanFieldEditor(
                 AUTOCOMPLETE_ON_DOT, "Request completion on '.'?", p));
 
@@ -151,6 +160,10 @@ public class PyCodeCompletionPreferencesPage extends FieldEditorPreferencePage i
 
     public static boolean useCodeCompletion() {
         return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_CODECOMPLETION);
+    }
+    
+    public static boolean useCodeCompletionOnDebug() {
+        return getPreferences().getBoolean(PyCodeCompletionPreferencesPage.USE_CODE_COMPLETION_ON_DEBUG_CONSOLES);
     }
 
     public static int getNumberOfConnectionAttempts() {

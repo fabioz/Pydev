@@ -122,8 +122,14 @@ def getType(o):
     return (type_object, type_name, pydevd_resolver.defaultResolver)
 
 
-def makeValidXmlValue(s):
-    return s.replace('<', '&lt;').replace('>', '&gt;')
+try:
+    from xml.sax.saxutils import escape
+    def makeValidXmlValue(s):
+        return escape(s, {'"':'&quot;'})
+except:
+    #Simple replacement if it's not there.
+    def makeValidXmlValue(s):
+        return s.replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
 
 
 def varToXML(v, name):

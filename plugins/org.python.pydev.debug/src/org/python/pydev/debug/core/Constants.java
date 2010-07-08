@@ -30,6 +30,9 @@ public interface Constants {
     
     static final String PROCESS_TYPE = "PYDEV.PYTHON";
     
+    static final String PYDEV_DEBUG_IPROCESS_ATTR = "PYDEV_DEBUG_IPROCESS_ATTR";
+    static final String PYDEV_DEBUG_IPROCESS_ATTR_TRUE = "PYDEV_DEBUG_IPROCESS_ATTR_TRUE";
+    
     static final String ATTR_VM_ARGUMENTS = "org.python.pydev.debug.vm.arguments";
     static final String JAVA_NATURE = "org.eclipse.jdt.core.javanature";
     

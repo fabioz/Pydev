@@ -4,6 +4,7 @@ from pydevd_constants import * #@UnusedWildImport
 from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_EVALUATE_EXPRESSION, \
                          CMD_EXEC_EXPRESSION, \
+                         CMD_GET_COMPLETIONS, \
                          CMD_GET_FRAME, \
                          CMD_GET_VARIABLE, \
                          CMD_LIST_THREADS, \
@@ -22,6 +23,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_VERSION, \
                          GetGlobalDebugger, \
                          InternalChangeVariable, \
+                         InternalGetCompletions, \
                          InternalEvaluateExpression, \
                          InternalGetFrame, \
                          InternalGetVariable, \
@@ -420,12 +422,24 @@ class PyDB:
                     try:
                         thread_id, frame_id, scopeattrs = text.split('\t', 2)
                         
-                        if scopeattrs.find('\t') != -1: # there are attibutes beyond scope
+                        if scopeattrs.find('\t') != -1: # there are attributes beyond scope
                             scope, attrs = scopeattrs.split('\t', 1)
                         else:
                             scope, attrs = (scopeattrs, None)
                         
                         int_cmd = InternalGetVariable(seq, thread_id, frame_id, scope, attrs)
+                        self.postInternalCommand(int_cmd, thread_id)
+                            
+                    except:
+                        traceback.print_exc()
+                        
+                elif cmd_id == CMD_GET_COMPLETIONS:
+                    #we received some command to get a variable
+                    #the text is: thread_id\tframe_id\tactivation token
+                    try:
+                        thread_id, frame_id, scope, act_tok = text.split('\t', 3)
+                        
+                        int_cmd = InternalGetCompletions(seq, thread_id, frame_id, act_tok)
                         self.postInternalCommand(int_cmd, thread_id)
                             
                     except:

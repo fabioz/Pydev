@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -24,6 +25,7 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
@@ -113,8 +115,11 @@ public class PythonRunner {
 
         Process p = createProcess(launch, config.envp, cmdLine, config.workingDirectory);
         checkProcess(p);
+        HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
+        processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
+        processAttributes.put(Constants.PYDEV_DEBUG_IPROCESS_ATTR, Constants.PYDEV_DEBUG_IPROCESS_ATTR_TRUE);
         
-        IProcess process = registerWithDebugPlugin(config, launch, p);
+        IProcess process = registerWithDebugPluginForProcessType(config.getRunningName(), launch,p, processAttributes, config.getProcessType());
         checkProcess(p, process);
 
         subMonitor.subTask("Waiting for connection...");
@@ -188,8 +193,12 @@ public class PythonRunner {
         //Not using DebugPlugin.ATTR_CONSOLE_ENCODING to provide backward compatibility for eclipse 3.2
         String encoding = launch.getAttribute(IDebugUIConstants.ATTR_CONSOLE_ENCODING);
         if(encoding != null && encoding.trim().length() > 0){
-            String[] s = new String[envp.length+2];
+            String[] s = new String[envp.length+3];
             System.arraycopy(envp, 0, s, 0, envp.length);
+            
+            //This is used so that we can get code-completion in a debug session.
+            s[s.length-3] = "PYDEV_COMPLETER_PYTHONPATH="+PydevPlugin.getBundleInfo().getRelativePath( new Path("PySrc")).toString();
+            
             s[s.length-2] = "PYDEV_CONSOLE_ENCODING="+encoding;
             //In Python 3.0, we can use the PYTHONIOENCODING.
             s[s.length-1] = "PYTHONIOENCODING="+encoding;
@@ -199,19 +208,6 @@ public class PythonRunner {
         return p;
     }
 
-    /**
-     * The debug plugin needs to be notified about our process.
-     * It'll then display the appropriate UI.
-     * @throws JDTNotAvailableException 
-     */
-    private static IProcess registerWithDebugPlugin(PythonRunnerConfig config, ILaunch launch, Process p) throws JDTNotAvailableException {
-        HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
-        processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
-        return registerWithDebugPluginForProcessType(config.getRunningName(), launch,p, processAttributes, config.getProcessType());
-    }
-
-
-    
     /**
      * The debug plugin needs to be notified about our process.
      * It'll then display the appropriate UI.

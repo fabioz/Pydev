@@ -2,6 +2,7 @@ package org.python.pydev.debug.newconsole;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -329,15 +330,25 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
         List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
         
         
-        int length = text.lastIndexOf('.');
-        if(length == -1){
-            length = text.length();
-        }else{
-            length = text.length()-length-1;
-        }
-        
+        convertToICompletions(text, offset, fromServer, ret);
+        ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
+        return proposals;
+    }
+
+    public static void convertToICompletions(String text, int offset, Object fromServer, List<ICompletionProposal> ret) {
         if(fromServer instanceof Object[]){
-            Object[] comps = (Object[]) fromServer;
+            Object[] objects = (Object[]) fromServer;
+            fromServer = Arrays.asList(objects);
+        }
+        if(fromServer instanceof List){
+            int length = text.lastIndexOf('.');
+            if(length == -1){
+                length = text.length();
+            }else{
+                length = text.length()-length-1;
+            }
+            
+            List comps = (List) fromServer;
             for(Object o:comps){
                 if(o instanceof Object[]){
                     //name, doc, args, type
@@ -378,8 +389,6 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                 }
             }
         }
-        ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
-        return proposals;
     }
 
     /**
@@ -388,7 +397,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * @param objToGetInt the object that should be gotten as an int
      * @return int with the int the object represents
      */
-    private int extractInt(Object objToGetInt) {
+    private static int extractInt(Object objToGetInt) {
         if(objToGetInt instanceof Integer){
             return (Integer)objToGetInt;
         }
