@@ -396,7 +396,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         textWidget.addKeyListener(cursorListener);
         
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, this));
-        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, this, false);
+        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, this.getSite(), false);
         if(createVerifyKeyListener != null){
         	viewer.appendVerifyKeyListener(createVerifyKeyListener);
         }

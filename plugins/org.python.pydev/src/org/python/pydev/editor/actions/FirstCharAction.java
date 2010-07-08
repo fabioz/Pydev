@@ -58,11 +58,11 @@ public class FirstCharAction extends PyAction {
      * Creates a handler that will properly treat home considering python code (if it's still not defined
      * by the platform -- otherwise, just go with what the platform provides).
      */
-    public static VerifyKeyListener createVerifyKeyListener(final SourceViewer viewer, final IWorkbenchPart workbenchPart, boolean forceCreation) {
+    public static VerifyKeyListener createVerifyKeyListener(final SourceViewer viewer, final IWorkbenchPartSite site, boolean forceCreation) {
         // This only needs to be done for eclipse 3.2 (where line start is not
         // defined).
         // Eclipse 3.3 onwards already defines the home key in the text editor.
-        IWorkbenchPartSite site = workbenchPart.getSite();
+        
         final boolean isDefined;
         if(site != null){
             ICommandService commandService = (ICommandService) site.getService(ICommandService.class);

@@ -25,7 +25,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPartitions;
@@ -37,6 +40,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEditConfiguration;
 import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
 import org.python.pydev.editor.actions.FirstCharAction;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -119,14 +123,31 @@ public class PyMergeViewer extends TextMergeViewer {
     }
 
     /**
-     * Overridden to handle backspace (will only work on Eclipse 3.5)
+     * Overridden to handle backspace (will only be called on Eclipse 3.5)
      */
     @Override
     protected SourceViewer createSourceViewer(Composite parent, int textOrientation) {
         final SourceViewer viewer = super.createSourceViewer(parent, textOrientation);
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, null));
         IWorkbenchPart workbenchPart = getCompareConfiguration().getContainer().getWorkbenchPart();
-        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, workbenchPart, true);
+        
+        //Note that any site should be OK as it's just to know if a keybinding is active. 
+        IWorkbenchPartSite site = null;
+        if(workbenchPart != null){
+            site = workbenchPart.getSite();
+        }else{
+            IWorkbenchWindow window = PyAction.getActiveWorkbenchWindow();
+            if(window != null){
+                IWorkbenchPage activePage = window.getActivePage();
+                if(activePage != null){
+                    IWorkbenchPart activePart = activePage.getActivePart();
+                    if(activePart != null){
+                        site = activePart.getSite();
+                    }
+                }
+            }
+        }
+        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, site, true);
         if(createVerifyKeyListener != null){
         	viewer.appendVerifyKeyListener(createVerifyKeyListener);
         }
