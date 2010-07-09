@@ -1,7 +1,9 @@
 package org.python.pydev.red_core;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.python.pydev.core.callbacks.ICallbackListener;
+import org.python.pydev.core.log.Log;
 
 import com.aptana.theme.ThemePlugin;
 
@@ -27,7 +29,11 @@ public class AddRedCoreThemeToViewCallbacks {
 		onDispose = new ICallbackListener() {
 			
 			public Object call(Object obj) {
-				ThemePlugin.getDefault().getControlThemerFactory().dispose(treeViewerContainer.viewer);
+				try {
+                    ThemePlugin.getDefault().getControlThemerFactory().dispose(treeViewerContainer.viewer);
+                } catch (Throwable e) {
+                    Log.log(IStatus.ERROR, "Unable to dispose properly. Probably using incompatible version of Aptana Studio", e);
+                }
 				return null;
 			}
 		};
@@ -39,7 +45,11 @@ public class AddRedCoreThemeToViewCallbacks {
             public Object call(Object obj) {
 			    TreeViewer treeViewer = (TreeViewer) obj;
 			    treeViewerContainer = new TreeViewerContainer(treeViewer);
-                ThemePlugin.getDefault().getControlThemerFactory().apply(treeViewer);
+                try {
+                    ThemePlugin.getDefault().getControlThemerFactory().apply(treeViewer);
+                } catch (Throwable e) {
+                    Log.log(IStatus.ERROR, "Unable to apply theme. Probably using incompatible version of Aptana Studio", e);
+                }
 				return null;
 			}
 		};
