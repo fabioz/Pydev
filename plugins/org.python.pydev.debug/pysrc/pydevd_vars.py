@@ -337,7 +337,8 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
                 exec(expression, updated_globals, frame.f_locals)
             else:
                 result = eval(compiled, updated_globals, frame.f_locals)
-                sys.stdout.write('%s\n' % (result,))
+                if result is not None: #Only print if it's not None (as python does)
+                    sys.stdout.write('%s\n' % (result,))
             return
 
         else:

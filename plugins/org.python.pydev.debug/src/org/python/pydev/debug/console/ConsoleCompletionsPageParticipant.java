@@ -3,8 +3,10 @@ package org.python.pydev.debug.console;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
@@ -20,10 +22,14 @@ import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.internal.console.IOConsolePage;
 import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.XMLUtils;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
@@ -38,6 +44,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.plugin.KeyBindingHelper;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Will provide code-completion in debug sessions.
@@ -225,7 +232,22 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                 };
             };
             contentAssist.setInformationControlCreator(PyContentAssistant.createInformationControlCreator(viewer));
-            contentAssist.install(new ScriptConsoleViewerWrapper(viewer));
+            ILaunch launch = process.getLaunch();
+            IDebugTarget debugTarget = launch.getDebugTarget();
+            IInterpreterInfo projectInterpreter = null;
+            if(debugTarget instanceof PyDebugTarget){
+                PyDebugTarget pyDebugTarget = (PyDebugTarget) debugTarget;
+                PythonNature nature = PythonNature.getPythonNature(pyDebugTarget.project);
+                if(nature != null){
+                    try {
+                        projectInterpreter = nature.getProjectInterpreter();
+                    } catch (Throwable e1) {
+                        Log.log(e1);
+                    }
+                }
+                
+            }
+            contentAssist.install(new ScriptConsoleViewerWrapper(viewer, projectInterpreter));
 
             PydevConsoleInterpreter interpreter = new PydevConsoleInterpreter();
             interpreter.setConsoleCommunication(new GetCompletionsInDebug());

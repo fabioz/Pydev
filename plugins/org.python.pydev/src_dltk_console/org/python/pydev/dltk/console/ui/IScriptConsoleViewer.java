@@ -11,6 +11,7 @@ package org.python.pydev.dltk.console.ui;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
+import org.python.pydev.core.IInterpreterInfo;
 
 /**
  * Interface that must be implemented by the console viewer. Provides info related to what
@@ -44,5 +45,10 @@ public interface IScriptConsoleViewer extends ITextViewer {
      * @return the document being viewed by this console viewer
      */
     public IDocument getDocument();
+
+    /**
+     * @return the interpreter info (used to get the grammar version for resolving templates)
+     */
+    public IInterpreterInfo getInterpreterInfo();
 
 }

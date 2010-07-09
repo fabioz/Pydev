@@ -1687,6 +1687,15 @@ def __ne__(self, o):
       </template>
       <template
             autoinsert="true"
+            name="printdir"
+            icon="icons/template.gif"
+            description="print '\n'.join(sorted(dir(value)))"
+            contextTypeId="org.python.pydev.editor.templates.python"
+            id="org.python.pydev.editor.templates.python.printdir">
+         <pattern>print${space_if_py2}${lparen_if_py3}'\n'.join(sorted(dir(${cursor})))${rparen_if_py3}</pattern>
+      </template>
+      <template
+            autoinsert="true"
             name="printexc"
             icon="icons/template.gif"
             description="print current traceback"

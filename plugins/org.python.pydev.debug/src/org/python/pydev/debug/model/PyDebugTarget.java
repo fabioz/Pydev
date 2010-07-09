@@ -5,6 +5,7 @@
  */
 package org.python.pydev.debug.model;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -21,14 +22,17 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyDebugTarget extends AbstractDebugTarget {
     //private ILaunch launch;
-    private IProcess process;        
+    public volatile IProcess process;  
+    public final IProject project;
+    public volatile boolean finishedInit = false;
 
-    public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, RemoteDebugger debugger) {
+    public PyDebugTarget(ILaunch launch, IProcess process, IPath[] file, RemoteDebugger debugger, IProject project) {
         this.launch = launch;
         this.process = process;
         this.file = file;
         this.debugger = debugger;
         this.threads = new PyThread[0];
+        this.project = project;
         launch.addDebugTarget(this);
         debugger.addTarget(this);
         IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
@@ -52,11 +56,20 @@ public class PyDebugTarget extends AbstractDebugTarget {
     }
 
     public boolean canTerminate() {
-        // We can always terminate, it does no harm
+        if(!finishedInit){
+            //We must finish init to terminate
+            return false;
+        }
+        
+        // We can always terminate if it's still not terminated.
         return !this.isTerminated();
     }
 
     public boolean isTerminated() {
+        if(!finishedInit){
+            //We must finish init to terminate
+            return false;
+        }
         if(process == null){
             return true;
         }

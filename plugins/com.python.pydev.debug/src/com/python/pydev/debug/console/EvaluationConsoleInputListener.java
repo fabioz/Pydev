@@ -13,7 +13,17 @@ public class EvaluationConsoleInputListener implements IConsoleInputListener{
     private StringBuffer buf = new StringBuffer();
     
     public void newLineReceived(String lineReceived, AbstractDebugTarget target) {
-        if(lineReceived.length() == 0){
+        boolean evaluateNow = !lineReceived.startsWith(" ") && !lineReceived.startsWith("\t") && !lineReceived.endsWith(":") && !lineReceived.endsWith("\\");
+        
+        if(DEBUG){
+            System.out.println("line: '"+lineReceived+"'");
+        }
+        buf.append(lineReceived);
+        if(lineReceived.length() > 0){
+            buf.append("@LINE@");
+        }
+        
+        if(evaluateNow){
             final String toEval = buf.toString();
             if(toEval.trim().length() > 0){
                 IAdaptable context = DebugUITools.getDebugContext();
@@ -26,21 +36,15 @@ public class EvaluationConsoleInputListener implements IConsoleInputListener{
                 }
             }
             buf = new StringBuffer();
-            
-        }else{
-            if(DEBUG){
-                System.out.println("line: '"+lineReceived+"'");
-            }
-            buf.append(lineReceived);
-            buf.append("@LINE@");
         }
+        
     }
 
     public void pasteReceived(String text, AbstractDebugTarget target) {
         if(DEBUG){
             System.out.println("paste: '"+text+"'");
         }
-        text = text.replaceAll("\n", "@LINE@").replaceAll("\r","");
+        text = text.replaceAll("\r\n", "@LINE@").replaceAll("\r","@LINE@").replaceAll("\n","@LINE@");
         buf.append(text);
         buf.append("@LINE@");
     }

@@ -119,8 +119,16 @@ public class PythonRunner {
         processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
         processAttributes.put(Constants.PYDEV_DEBUG_IPROCESS_ATTR, Constants.PYDEV_DEBUG_IPROCESS_ATTR_TRUE);
         
-        IProcess process = registerWithDebugPluginForProcessType(config.getRunningName(), launch,p, processAttributes, config.getProcessType());
-        checkProcess(p, process);
+        //Set the debug target before registering with the debug plugin (we want it before creating the console).
+        PyDebugTarget t = new PyDebugTarget(launch, null, config.resource, debugger, config.project);
+        IProcess process;
+        try {
+            process = registerWithDebugPluginForProcessType(config.getRunningName(), launch,p, processAttributes, config.getProcessType());
+            checkProcess(p, process);
+            t.process = process;
+        } finally {
+            t.finishedInit = true;
+        }
 
         subMonitor.subTask("Waiting for connection...");
         Socket socket = null;
@@ -141,7 +149,6 @@ public class PythonRunner {
         }
         subMonitor.subTask("Done");
         // hook up debug model, and we are off & running
-        PyDebugTarget t = new PyDebugTarget(launch, process, config.resource, debugger);
         launch.setSourceLocator(new PySourceLocator());
         t.startTransmission(socket); // this starts reading/writing from sockets
         t.initialize();

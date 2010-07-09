@@ -23,7 +23,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
+import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codefolding.PySourceViewer;
@@ -76,9 +76,9 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContext {
 			}
     	}
     	
-    	if(this.viewer instanceof ScriptConsoleViewer){
+    	if(this.viewer instanceof IScriptConsoleViewer){
     		//interactive console
-    		ScriptConsoleViewer v = (ScriptConsoleViewer) this.viewer;
+    	    IScriptConsoleViewer v = (IScriptConsoleViewer) this.viewer;
     		IInterpreterInfo interpreterInfo = v.getInterpreterInfo();
     		if(interpreterInfo != null){
     			return interpreterInfo.getGrammarVersion();

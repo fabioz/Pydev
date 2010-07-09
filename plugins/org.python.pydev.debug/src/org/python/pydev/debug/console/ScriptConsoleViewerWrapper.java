@@ -49,15 +49,22 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.dltk.console.ui.IScriptConsoleViewer;
 
 public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleViewer {
 
     private TextConsoleViewer viewer;
+    private IInterpreterInfo info;
 
-    public ScriptConsoleViewerWrapper(TextConsoleViewer viewer) {
+    public ScriptConsoleViewerWrapper(TextConsoleViewer viewer, IInterpreterInfo info) {
         this.viewer = viewer;
+        this.info = info;
+    }
+
+    public IInterpreterInfo getInterpreterInfo() {
+        return info;
     }
 
     public String getCommandLine() {
@@ -636,5 +643,6 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
     public void setTabsToSpacesConverter(IAutoEditStrategy converter) {
         viewer.setTabsToSpacesConverter(converter);
     }
+
 
 }
