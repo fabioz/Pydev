@@ -342,8 +342,8 @@ def StartClient(host, port):
         PydevdLog(1, "Connected.")
         return s
     except:
-        sys.stderr.write("server timed out after 10 seconds, could not connect to %s: %s\n" % (host, port))
-        sys.stderr.write("Exiting. Bye!\n")
+        sys.stderr.write("Could not connect to %s: %s\n" % (host, port))
+        traceback.print_exc()
         sys.exit(1)
 
 
