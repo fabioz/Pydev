@@ -184,7 +184,34 @@ def set_pm_excepthook(handle_exceptions=None):
     sys.excepthook = excepthook
     
 
+import thread
+_original_start_new_thread = thread.start_new_thread
 
+#=======================================================================================================================
+# NewThreadStartup
+#=======================================================================================================================
+class NewThreadStartup:
+    
+    def __init__(self, original_func, args, kwargs):
+        self.original_func = original_func
+        self.args = args
+        self.kwargs = kwargs
+    
+    def __call__(self):
+        global_debugger = GetGlobalDebugger()
+        pydevd_tracing.SetTrace(global_debugger.trace_dispatch) 
+        self.original_func(*self.args, **self.kwargs)
+    
+
+#=======================================================================================================================
+# pydev_start_new_thread
+#=======================================================================================================================
+def pydev_start_new_thread(function, args, kwargs={}):
+    '''
+    We need to replace the original thread.start_new_thread with this function so that threads started through
+    it and not through the threading module are properly traced.
+    '''
+    return _original_start_new_thread(NewThreadStartup(function, args, kwargs), ())
 
 #=======================================================================================================================
 # PyDB
@@ -867,7 +894,13 @@ class PyDB:
         pydevd_tracing.SetTrace(self.trace_dispatch) 
         try:                   
             #not available in jython!  
-            threading.settrace(self.trace_dispatch) # for all future threads           
+            threading.settrace(self.trace_dispatch) # for all future threads
+        except:
+            pass
+        
+        try:
+            thread.start_new_thread = pydev_start_new_thread
+            thread.start_new = pydev_start_new_thread
         except:
             pass
 
@@ -963,7 +996,7 @@ def SetTraceForParents(frame, dispatch_func):
         frame = frame.f_back
     del frame
 
-def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=5678, suspend=True):
+def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=True):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
     
     @param host: the user may specify another host, if the debug server is not in the same machine
@@ -973,6 +1006,7 @@ def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=
     @param port: specifies which port to use for communicating with the server (note that the server must be started 
         in the same port). @note: currently it's hard-coded at 5678 in the client
     @param suspend: whether a breakpoint should be emulated as soon as this function is called. 
+    @param trace_only_current_thread: determines if only the current thread will be traced or all future threads will also have the tracing enabled.
     '''
     
     global connected
@@ -1017,11 +1051,24 @@ def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=
         if suspend:
             debugger.setSuspend(t, CMD_SET_BREAK)
         
-        #that's right, debug only threads that pass through this function
-        #(so, we just call sys.settrace and not threading.settrace)
         #note that we do that through pydevd_tracing.SetTrace so that the tracing
         #is not warned to the user!
         pydevd_tracing.SetTrace(debugger.trace_dispatch)
+        
+        if not trace_only_current_thread:
+            #Trace future threads?
+            try:                   
+                #not available in jython!  
+                threading.settrace(debugger.trace_dispatch) # for all future threads
+            except:
+                pass
+            
+            try:
+                thread.start_new_thread = pydev_start_new_thread
+                thread.start_new = pydev_start_new_thread
+            except:
+                pass
+        
         PyDBCommandThread(debugger).start()
         
     else:
@@ -1038,6 +1085,21 @@ def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=
             t.additionalInfo = additionalInfo
             
         pydevd_tracing.SetTrace(debugger.trace_dispatch)
+        
+        if not trace_only_current_thread:
+            #Trace future threads?
+            try:                   
+                #not available in jython!  
+                threading.settrace(debugger.trace_dispatch) # for all future threads
+            except:
+                pass
+            
+            try:
+                thread.start_new_thread = pydev_start_new_thread
+                thread.start_new = pydev_start_new_thread
+            except:
+                pass
+        
         if suspend:
             debugger.setSuspend(t, CMD_SET_BREAK)
     
@@ -1075,5 +1137,7 @@ if __name__ == '__main__':
 
     debugger = PyDB()
     debugger.connect(setup['client'], setup['port'])
+    
+    connected = True #Mark that we're connected when started from inside eclipse.
     debugger.run(setup['file'], None, None)
     
