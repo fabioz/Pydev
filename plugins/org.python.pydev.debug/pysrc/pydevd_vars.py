@@ -240,17 +240,43 @@ def dumpFrames(thread_id):
     for frame in iterFrames(curFrame):
         sys.stdout.write('%s\n' % id(frame))
 
+
+#===============================================================================
+# AdditionalFramesContainer
+#===============================================================================
+class AdditionalFramesContainer:
+    lock = threading.Lock()
+    additional_frames = {} #dict of dicts
+    
+
+def addAdditionalFrameById(thread_id, frames_by_id):
+    AdditionalFramesContainer.additional_frames[thread_id] = frames_by_id
+        
+        
+def removeAdditionalFrameById(thread_id):
+    del AdditionalFramesContainer.additional_frames[thread_id]
+        
+    
+        
+
 def findFrame(thread_id, frame_id):
     """ returns a frame on the thread that has a given frame_id """
     if thread_id != GetThreadId(threading.currentThread()) :
         raise VariableError("findFrame: must execute on same thread")
+    
+    lookingFor = int(frame_id)
+    
+    if AdditionalFramesContainer.additional_frames:
+        if DictContains(AdditionalFramesContainer.additional_frames, thread_id):
+            frame = AdditionalFramesContainer.additional_frames[thread_id].get(lookingFor)
+            if frame is not None:
+                return frame
 
     curFrame = GetFrame()
     if frame_id == "*":
         return curFrame # any frame is specified with "*"
 
     frameFound = None
-    lookingFor = int(frame_id)
 
     for frame in iterFrames(curFrame):
         if lookingFor == id(frame):
@@ -260,11 +286,11 @@ def findFrame(thread_id, frame_id):
 
         del frame
 
-    #for some reason unknown to me, python was holding a reference to the frame
-    #if we didn't explicitly add those deletes (even after ending this context)
-    #so, those dels are here for a reason (but still doesn't seem to fix everything)
+    #Important: python can hold a reference to the frame from the current context 
+    #if an exception is raised, so, if we don't explicitly add those deletes
+    #we might have those variables living much more than we'd want to.
 
-    #Reason: sys.exc_info holding reference to frame that raises exception (so, other places
+    #I.e.: sys.exc_info holding reference to frame that raises exception (so, other places
     #need to call sys.exc_clear()) 
     del curFrame
 

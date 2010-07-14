@@ -236,7 +236,7 @@ class ReaderThread(PyDBDaemonThread):
                 try:
                     r = self.sock.recv(1024)
                 except:
-                    GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
+                    GlobalDebuggerHolder.globalDbg.FinishDebuggingSession()
                     break #Finished communication.
                 if IS_PY3K:
                     r = r.decode('utf-8')
@@ -246,7 +246,7 @@ class ReaderThread(PyDBDaemonThread):
                     sys.stdout.write('received >>%s<<\n' % (buffer,))
                     
                 if len(buffer) == 0:
-                    GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
+                    GlobalDebuggerHolder.globalDbg.FinishDebuggingSession()
                     break
                 while buffer.find('\n') != -1:
                     command, buffer = buffer.split('\n', 1)
@@ -255,7 +255,7 @@ class ReaderThread(PyDBDaemonThread):
                     GlobalDebuggerHolder.globalDbg.processNetCommand(int(args[0]), int(args[1]), args[2])
         except:
             traceback.print_exc()
-            GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
+            GlobalDebuggerHolder.globalDbg.FinishDebuggingSession()
 
 
 #----------------------------------------------------------------------------------- SOCKET UTILITIES - WRITER
@@ -309,7 +309,7 @@ class WriterThread(PyDBDaemonThread):
                     break #interpreter shutdown
                 time.sleep(self.timeout)                
         except Exception:
-            GlobalDebuggerHolder.globalDbg.finishDebuggingSession = True
+            GlobalDebuggerHolder.globalDbg.FinishDebuggingSession()
             if DEBUG_TRACE_LEVEL >= 0:
                 traceback.print_exc()
     

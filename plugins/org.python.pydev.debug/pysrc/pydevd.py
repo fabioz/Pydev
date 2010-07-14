@@ -40,13 +40,17 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          StartClient, \
                          StartServer
 
-import pydevd_file_utils
+from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
+import pydevd_vars
 import traceback 
 import pydevd_vm_type 
 import pydevd_tracing 
 import pydevd_io
-import pydevd_additional_thread_info
+from pydevd_additional_thread_info import PyDBAdditionalThreadInfo 
 import time
+threadingEnumerate = threading.enumerate
+threadingCurrentThread = threading.currentThread
+
 
 DONT_TRACE = {
               #commonly used things from the stdlib that we don't want to trace
@@ -119,6 +123,67 @@ class PyDBCommandThread(PyDBDaemonThread):
             #PydevdLog(0, 'Finishing debug communication...(3)')
             
 
+_original_excepthook = None
+_handle_exceptions = None
+
+#=======================================================================================================================
+# excepthook
+#=======================================================================================================================
+def excepthook(exctype, value, tb):
+    if _handle_exceptions is not None:
+        if not issubclass(exctype, _handle_exceptions):
+            return _original_excepthook(exctype, value, tb)
+    
+    #Always call the original excepthook before going on to call the debugger post mortem to show it.
+    _original_excepthook(exctype, value, tb)
+    
+    frames = []
+    
+    while tb:
+        frames.append(tb.tb_frame)
+        tb = tb.tb_next
+
+    thread = threadingCurrentThread()
+    frames_byid = dict([(id(frame),frame) for frame in frames])
+    frame = frames[-1]
+    thread.additionalInfo.pydev_force_stop_at_exception = (frame, frames_byid)
+    debugger = GetGlobalDebugger()
+    debugger.force_post_mortem_stop += 1
+        
+        
+#=======================================================================================================================
+# set_pm_excepthook
+#=======================================================================================================================
+def set_pm_excepthook(handle_exceptions=None):
+    '''
+    Should be called to register the excepthook to be used.
+    
+    It's only useful for uncaucht exceptions. I.e.: exceptions that go up to the excepthook.
+    
+    Can receive a parameter to stop only on some exceptions.
+    
+    E.g.: 
+        register_excepthook((IndexError, ValueError))
+        
+        or 
+        
+        register_excepthook(IndexError)
+        
+        if passed without a parameter, will break on any exception
+    
+    @param handle_exceptions: exception or tuple(exceptions)
+        The exceptions that should be handled.
+    '''
+    global _handle_exceptions
+    global _original_excepthook
+    if sys.excepthook != excepthook:
+        #Only keep the original if it's not our own excepthook (if called many times).
+        _original_excepthook = sys.excepthook
+        
+    _handle_exceptions = handle_exceptions
+    sys.excepthook = excepthook
+    
+
 
 
 #=======================================================================================================================
@@ -156,7 +221,13 @@ class PyDB:
         self.readyToRun = False
         self.lock = threading.RLock()
         self.internalQueueLock = threading.Lock()
-        self.finishDebuggingSession = False
+        self._finishDebuggingSession = False
+        self.force_post_mortem_stop = 0
+        
+        
+    def FinishDebuggingSession(self):
+        self._finishDebuggingSession = True
+
         
     def acquire(self):
         if PyDBUseLocks:
@@ -205,7 +276,7 @@ class PyDB:
                         if not hasattr(t, 'additionalInfo'):
                             #see http://sourceforge.net/tracker/index.php?func=detail&aid=1955428&group_id=85796&atid=577329
                             #Let's create the additional info right away!
-                            t.additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
+                            t.additionalInfo = PyDBAdditionalThreadInfo()
                             
                         self.RUNNING_THREAD_IDS[thread_id] = t
                         cmd = self.cmdFactory.makeThreadCreatedMessage(t)
@@ -259,8 +330,8 @@ class PyDB:
             if bufferStdErrToServer:
                 self.checkOutput(sys.stderrBuf, 2) #@UndefinedVariable
 
-            currThreadId = GetThreadId(threading.currentThread())
-            threads = threading.enumerate()
+            currThreadId = GetThreadId(threadingCurrentThread())
+            threads = threadingEnumerate()
             foundNonPyDBDaemonThread = False
             foundThreads = {}
             
@@ -290,7 +361,7 @@ class PyDB:
                         # this is how we exit
 
             if not foundNonPyDBDaemonThread:
-                self.finishDebuggingSession = True
+                self.FinishDebuggingSession()
                 for t in threads: 
                     if hasattr(t, 'doKill'):
                         t.doKill()
@@ -470,7 +541,7 @@ class PyDB:
                         func_name = 'None' #Match anything if not specified.
                         
                     
-                    file = pydevd_file_utils.NormFileToServer(file)
+                    file = NormFileToServer(file)
                     
                     if not os.path.exists(file):
                         sys.stderr.write('pydev debugger: warning: trying to add breakpoint'\
@@ -496,7 +567,7 @@ class PyDB:
                     
                     #and enable the tracing for existing threads (because there may be frames being executed that
                     #are currently untraced).
-                    threads = threading.enumerate()
+                    threads = threadingEnumerate()
                     for t in threads:
                         if not t.getName().startswith('pydevd.'):
                             #TODO: optimize so that we only actually add that tracing if it's in
@@ -517,7 +588,7 @@ class PyDB:
                     #command to remove some breakpoint
                     #text is file\tline. Remove from breakpoints dictionary
                     file, line = text.split('\t', 1)
-                    file = pydevd_file_utils.NormFileToServer(file)
+                    file = NormFileToServer(file)
                     try:
                         line = int(line)
                     except ValueError:
@@ -588,7 +659,7 @@ class PyDB:
         self.writer.addCommand(cmd)
         
         info = thread.additionalInfo
-        while info.pydev_state == STATE_SUSPEND and not self.finishDebuggingSession:            
+        while info.pydev_state == STATE_SUSPEND and not self._finishDebuggingSession:            
             self.processInternalCommands()
             time.sleep(0.2)
             
@@ -667,45 +738,60 @@ class PyDB:
             pydev_notify_kill 
         '''
         try:
-            if self.finishDebuggingSession:
+            if self._finishDebuggingSession:
                 #that was not working very well because jython gave some socket errors
-                threads = threading.enumerate()
+                threads = threadingEnumerate()
                 for t in threads: 
                     if hasattr(t, 'doKill'):
                         t.doKill()
                 return None
     
-            filename, base = pydevd_file_utils.GetFilenameAndBase(frame)
+            filename, base = GetFilenameAndBase(frame)
     
-            if DictContains(DONT_TRACE, base): #we don't want to debug threading or anything related to pydevd
-                return None
-    
+            is_file_to_ignore = DictContains(DONT_TRACE, base) #we don't want to debug threading or anything related to pydevd
+            
+            if not self.force_post_mortem_stop: #If we're in post mortem mode, we might not have another chance to show that info!
+                if is_file_to_ignore:
+                    return None
+                
             #print('trace_dispatch', base, frame.f_lineno, event, frame.f_code.co_name)
             try:
                 #this shouldn't give an exception, but it could happen... (python bug)
                 #see http://mail.python.org/pipermail/python-bugs-list/2007-June/038796.html
                 #and related bug: http://bugs.python.org/issue1733757
-                t = threading.currentThread()
+                t = threadingCurrentThread()
             except:
                 frame.f_trace = self.trace_dispatch
                 return self.trace_dispatch
+            
+            try:
+                additionalInfo = t.additionalInfo
+            except:
+                additionalInfo = t.additionalInfo = PyDBAdditionalThreadInfo()
+            
+            if self.force_post_mortem_stop: #If we're in post mortem mode, we might not have another chance to show that info!
+                if additionalInfo.pydev_force_stop_at_exception:
+                    self.force_post_mortem_stop -= 1
+                    frame, frames_byid = additionalInfo.pydev_force_stop_at_exception
+                    thread_id = GetThreadId(t)
+                    used_id = pydevd_vars.addAdditionalFrameById(thread_id, frames_byid)
+                    try:
+                        self.setSuspend(t, CMD_STEP_INTO)
+                        self.doWaitSuspend(t, frame, 'exception', None)
+                    finally:
+                        additionalInfo.pydev_force_stop_at_exception = None
+                        pydevd_vars.removeAdditionalFrameById(thread_id)
             
             # if thread is not alive, cancel trace_dispatch processing
             if not t.isAlive():
                 self.processThreadNotAlive(GetThreadId(t))
                 return None # suspend tracing
+            
+            if is_file_to_ignore:
+                return None
 
-            try:
-                additionalInfo = t.additionalInfo
-            except AttributeError:
-                t.additionalInfo = additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
-            
-            #always keep a reference to the topmost frame so that we're able to start tracing it (if it was untraced)
-            #that's needed when a breakpoint is added in a current frame for a currently untraced context.
-            
             #each new frame...
-            dbFrame = additionalInfo.CreateDbFrame(self, filename, additionalInfo, t, frame)
-            return dbFrame.trace_dispatch(frame, event, arg)
+            return additionalInfo.CreateDbFrame(self, filename, additionalInfo, t, frame).trace_dispatch(frame, event, arg)
         
         except SystemExit:
             return None
@@ -918,11 +1004,11 @@ def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=
             
         SetTraceForParents(GetFrame(), debugger.trace_dispatch)
         
-        t = threading.currentThread()      
+        t = threadingCurrentThread()      
         try:
             additionalInfo = t.additionalInfo
         except AttributeError:
-            additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
+            additionalInfo = PyDBAdditionalThreadInfo()
             t.additionalInfo = additionalInfo
   
         while not debugger.readyToRun: 
@@ -944,11 +1030,11 @@ def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=
         
         SetTraceForParents(GetFrame(), debugger.trace_dispatch)
         
-        t = threading.currentThread()      
+        t = threadingCurrentThread()      
         try:
             additionalInfo = t.additionalInfo
         except AttributeError:
-            additionalInfo = pydevd_additional_thread_info.PyDBAdditionalThreadInfo()
+            additionalInfo = PyDBAdditionalThreadInfo()
             t.additionalInfo = additionalInfo
             
         pydevd_tracing.SetTrace(debugger.trace_dispatch)
