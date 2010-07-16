@@ -56,6 +56,7 @@ Thumbs.db
 ProfileProject
 de.loskutov.anyedit.AnyEditTools.prefs
 *asthelper.completions
-plugins/org.python.pydev.django_templates/
+plugins/org.kacprzak.eclipse.django.editor.plugin/
+plugins/org.python.pydev.django_templates/bin
 etc/
 plugins/org.python.pydev/tests/pysrc/extendable/bootstrap_dll/umath.pyd
