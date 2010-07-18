@@ -39,9 +39,11 @@ public class PydevPrefs {
         	List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
         	List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
         	for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-				IPreferenceStore preferenceStore = iPydevPreferencesProvider.getPreferenceStore();
+				IPreferenceStore preferenceStore[] = iPydevPreferencesProvider.getPreferenceStore();
 				if(preferenceStore != null){
-					stores.add(preferenceStore);
+				    for (IPreferenceStore iPreferenceStores : preferenceStore) {
+				        stores.add(iPreferenceStores);
+                    }
 				}
 			}
         	stores.add(PydevPlugin.getDefault().getPreferenceStore());

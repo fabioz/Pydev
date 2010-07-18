@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.RGB;
 
 public interface IPydevPreferencesProvider {
 
-	IPreferenceStore getPreferenceStore();
+	IPreferenceStore[] getPreferenceStore();
 
 	TextAttribute getSelfTextAttribute();
 

@@ -1,6 +1,7 @@
 package org.python.pydev.red_core;
 
 import com.aptana.editor.common.CommonEditorPlugin;
+import com.aptana.theme.ThemePlugin;
 
 /**
  * Helper just to know if red core is available.
@@ -12,7 +13,9 @@ public class AddRedCoreThemeAvailable {
 	public static boolean isRedCoreAvailable(){
 		if(redCoreAvailable == null){
 			try {
-				if(CommonEditorPlugin.getDefault() != null && CommonEditorPlugin.getDefault().getPreferenceStore() != null){
+				if(ThemePlugin.getDefault() != null && ThemePlugin.getDefault().getPreferenceStore() != null &&
+			       CommonEditorPlugin.getDefault() != null && CommonEditorPlugin.getDefault().getPreferenceStore() != null
+			        ){
 					redCoreAvailable = true;
 				}else{
 					redCoreAvailable = false;

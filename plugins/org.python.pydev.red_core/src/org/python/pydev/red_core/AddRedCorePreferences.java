@@ -16,11 +16,14 @@ import com.aptana.theme.ThemePlugin;
 public class AddRedCorePreferences implements IPydevPreferencesProvider{
 
 	
-	public IPreferenceStore getPreferenceStore() {
+	public IPreferenceStore[] getPreferenceStore() {
 		if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
 			return null;
 		}
-		return CommonEditorPlugin.getDefault().getPreferenceStore();
+		return new IPreferenceStore[]{
+		        ThemePlugin.getDefault().getPreferenceStore(),
+		        CommonEditorPlugin.getDefault().getPreferenceStore(),
+		};
 	}
 	
 	public boolean isColorOrStyleProperty(String property) {
