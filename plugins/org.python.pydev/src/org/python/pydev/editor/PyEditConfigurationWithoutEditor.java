@@ -252,13 +252,21 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
 
 	        if (reconciler != null) {
 	            //always update all (too much work in keeping this synchronized by type)
-	            codeScanner.updateColors();
+	            if(codeScanner != null){
+	                codeScanner.updateColors();
+	            }
 	            
-	            commentScanner.updateColorAndStyle();
+	            if(commentScanner != null){
+	                commentScanner.updateColorAndStyle();
+	            }
 	
-	            stringScanner.updateColorAndStyle();
+	            if(stringScanner != null){
+	                stringScanner.updateColorAndStyle();
+	            }
 	
-	            backquotesScanner.updateColorAndStyle();
+	            if(backquotesScanner != null){
+	                backquotesScanner.updateColorAndStyle();
+	            }
 	        }
     	}
     }
