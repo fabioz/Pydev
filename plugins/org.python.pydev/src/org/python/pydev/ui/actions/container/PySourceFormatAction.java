@@ -14,12 +14,11 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.PyEdit;
@@ -33,7 +32,7 @@ import org.python.pydev.plugin.PydevPlugin;
  *  
  * @author Fabio
  */
-public class PySourceFormatAction extends PyContainerAction implements IObjectActionDelegate {
+public class PySourceFormatAction extends PyContainerAction{
     
     /**
      * This is the class that'll be used for doing the source formatting 

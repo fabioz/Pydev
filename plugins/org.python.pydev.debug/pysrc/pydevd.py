@@ -184,7 +184,10 @@ def set_pm_excepthook(handle_exceptions=None):
     sys.excepthook = excepthook
     
 
-import thread
+try:
+    import thread
+except ImportError:
+    import _thread as thread #Py3K changed it.
 _original_start_new_thread = thread.start_new_thread
 
 #=======================================================================================================================

@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -26,13 +25,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
-import org.eclipse.ui.console.MessageConsole;
 import org.python.pydev.builder.PyDevBuilderVisitor;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
+import org.python.pydev.consoles.MessageConsoles;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
@@ -59,8 +56,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
 
     public static final List<PyLintThread> pyLintThreads = new ArrayList<PyLintThread>();
     
-    private static MessageConsole fConsole;
-    private static IOConsoleOutputStream fOutputStream;
+    private static Object lock = new Object();
     
     /**
      * This class runs as a thread to get the markers, and only stops the IDE when the markers are being added.
@@ -145,20 +141,9 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
             }
         }
 
-        private synchronized IOConsoleOutputStream getConsoleOutputStream() throws MalformedURLException {
+        private IOConsoleOutputStream getConsoleOutputStream() throws MalformedURLException {
             if(PyLintPrefPage.useConsole()){
-                if (fConsole == null){
-                    fConsole = new MessageConsole("PyLint", PydevPlugin.getImageCache().getDescriptor(UIConstants.PY_LINT_ICON));
-                    fOutputStream = fConsole.newOutputStream();
-                    
-        			HashMap<IOConsoleOutputStream, String> themeConsoleStreamToColor = new HashMap<IOConsoleOutputStream, String>();
-        			themeConsoleStreamToColor.put(fOutputStream, "console.output");
-
-                    fConsole.setAttribute("themeConsoleStreamToColor", themeConsoleStreamToColor);
-                    
-                    ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[]{fConsole});
-                }
-                return fOutputStream;
+                return MessageConsoles.getConsoleOutputStream("PyLint", UIConstants.PY_LINT_ICON);
             }else{
                 return null;
             }
@@ -381,8 +366,8 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
     
     public static void write(String cmdLineToExe, IOConsoleOutputStream out, Object ... args) {
         try {
-            if(fConsole != null && out != null){
-                synchronized(fConsole){
+            if(out != null){
+                synchronized(lock){
                     if(args != null){
                         for (Object arg : args) {
                             if(arg instanceof String){

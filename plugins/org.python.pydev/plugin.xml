@@ -140,6 +140,22 @@
          </action>
       </objectContribution>
       
+      <!-- 2To3 -->
+      <objectContribution
+            adaptable="true"
+            id="org.python.pydev.ui.actions.resources.py2To3"
+            objectClass="org.eclipse.core.resources.IResource">
+         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <action
+               class="org.python.pydev.ui.actions.resources.Py2To3"
+               enablesFor="+"
+               id="org.python.pydev.ui.actions.resources.py2To3"
+               label="Apply 2To3 (lib2to3 must be in PYTHONPATH)"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Apply 2To3 (lib2to3 must be available in the interpreter PYTHONPATH)">
+         </action>
+      </objectContribution>
+      
       <!-- remove errors -->
       <objectContribution
             adaptable="true"

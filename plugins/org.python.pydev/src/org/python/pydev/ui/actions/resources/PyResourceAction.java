@@ -1,11 +1,10 @@
-package org.python.pydev.ui.actions.container;
+package org.python.pydev.ui.actions.resources;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -14,7 +13,6 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
@@ -22,23 +20,23 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
- * Abstract class for actions that'll act upon the selected containers.
+ * Abstract class for actions that'll act upon the selected resources.
  * 
  * @author Fabio
  */
-public abstract class PyContainerAction implements IObjectActionDelegate {
+public abstract class PyResourceAction {
 
     /**
-     * Subclasses can override to determine if the container should be refreshed before the action is executed or not.
+     * Subclasses can override to determine if the resource should be refreshed before the action is executed or not.
      */
     protected boolean getRefreshBeforeExecute(){
         return true;
     }
     
     /**
-     * List with the containers the user selected 
+     * List with the resources the user selected 
      */
-    protected List<IContainer> selectedContainers;
+    protected List<IResource> selectedResources;
 
     
     public void setActivePart(IAction action, IWorkbenchPart targetPart) {
@@ -47,33 +45,33 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
     
     
     /**
-     * When the selection changes, we've to keep the selected containers...
+     * When the selection changes, we've to keep the selected resources...
      */
     @SuppressWarnings("unchecked")
     public void selectionChanged(IAction action, ISelection selection) {
         if (selection.isEmpty() || !(selection instanceof IStructuredSelection)) {
-            selectedContainers = null;
+            selectedResources = null;
             return;
         }
         
         IStructuredSelection selections = (IStructuredSelection) selection;
-        ArrayList<IContainer> containers = new ArrayList<IContainer>();
+        ArrayList<IResource> resources = new ArrayList<IResource>();
         
         for(Iterator<Object> it = selections.iterator(); it.hasNext();){
             Object o = it.next();
-            if(o instanceof IContainer){
-                containers.add((IContainer) o);
+            if(o instanceof IResource){
+                resources.add((IResource) o);
                 
             }else if(o instanceof IAdaptable){
                 IAdaptable adaptable = (IAdaptable) o;
-                IContainer container = (IContainer) adaptable.getAdapter(IContainer.class);
-                if(container != null){
-                    containers.add(container);
+                IResource resource = (IResource) adaptable.getAdapter(IResource.class);
+                if(resource != null){
+                    resources.add(resource);
                 }
             }
         }
         
-        this.selectedContainers = containers;
+        this.selectedResources = resources;
     }
     
     
@@ -82,7 +80,7 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
      */
     public void run(IAction action) {
         //should not happen
-        if(selectedContainers == null){
+        if(selectedResources == null){
             return;
         }
         
@@ -98,8 +96,8 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
             IRunnableWithProgress operation = new IRunnableWithProgress(){
 
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                    for (Iterator<IContainer> iter = selectedContainers.iterator(); iter.hasNext();) {
-                        IContainer next = iter.next();
+                    for (Iterator<IResource> iter = selectedResources.iterator(); iter.hasNext();) {
+                        IResource next = iter.next();
                         if(getRefreshBeforeExecute()){
                             //as files are generated externally, if we don't refresh, it's very likely that we won't delete a bunch of files.
                             try {
@@ -108,7 +106,7 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
                                 PydevPlugin.log(e);
                             }
                         }
-                        nChanged[0] += doActionOnContainer(next, monitor);
+                        nChanged[0] += doActionOnResource(next, monitor);
                     }
                 }
             };
@@ -158,12 +156,12 @@ public abstract class PyContainerAction implements IObjectActionDelegate {
 
 
     /**
-     * Executes the action on the container passed
+     * Executes the action on the resource passed
      * 
-     * @param next the container where the action should be executed
+     * @param next the resource where the action should be executed
      * @param monitor The monitor that should be used to report the progress.
      * @return the number of resources affected in the action
      */
-    protected abstract int doActionOnContainer(IContainer next, IProgressMonitor monitor);
+    protected abstract int doActionOnResource(IResource next, IProgressMonitor monitor);
 
 }

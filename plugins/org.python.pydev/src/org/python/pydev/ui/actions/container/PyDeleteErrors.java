@@ -6,7 +6,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.IObjectActionDelegate;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -14,7 +13,7 @@ import org.python.pydev.plugin.PydevPlugin;
  *  
  * @author Fabio
  */
-public class PyDeleteErrors extends PyContainerAction implements IObjectActionDelegate {
+public class PyDeleteErrors extends PyContainerAction {
     
 
     /**
