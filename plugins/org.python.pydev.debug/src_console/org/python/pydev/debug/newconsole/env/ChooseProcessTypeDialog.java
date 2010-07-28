@@ -185,8 +185,14 @@ final class ChooseProcessTypeDialog extends Dialog {
                     if(nature != null){
                         if(nature.getRelatedInterpreterManager() == this.interpreterManager){
                             natures.add(nature);
-                            pythonpath.addAll(nature.getPythonPathNature().
-                                    getCompleteProjectPythonPath(interpreter, this.interpreterManager));
+                            List<String> completeProjectPythonPath = nature.getPythonPathNature().
+                                    getCompleteProjectPythonPath(interpreter, this.interpreterManager);
+                            if(completeProjectPythonPath != null){
+                                pythonpath.addAll(completeProjectPythonPath);
+                            }else{
+                                PydevPlugin.logInfo(
+                                        "Unable to get pythonpath for project: "+nature.getProject()+" (initialization not finished).");
+                            }
                         }
                     }
                 }catch(Exception e){

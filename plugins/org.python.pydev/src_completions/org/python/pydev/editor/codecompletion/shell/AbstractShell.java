@@ -428,8 +428,10 @@ public abstract class AbstractShell {
 
             try {
 
-                int pWrite = SocketUtil.findUnusedLocalPort();
-                int pRead = SocketUtil.findUnusedLocalPort();
+                serverSocket = new ServerSocket(0); //read in this port
+                int pRead = serverSocket.getLocalPort();
+                SocketUtil.checkValidPort(pRead);
+                int pWrite = SocketUtil.findUnusedLocalPorts(1)[0];
 
                 if (process != null) {
                     endIt(); //end the current process
@@ -465,7 +467,6 @@ public abstract class AbstractShell {
                 dbg("connecting... ",1);
                 sleepALittle(milisSleep);
                 socketToWrite = null;
-                serverSocket = new ServerSocket(pRead); //read in this port
                 int maxAttempts = PyCodeCompletionPreferencesPage.getNumberOfConnectionAttempts();
                 
                 dbg("attempts: "+attempts,1);

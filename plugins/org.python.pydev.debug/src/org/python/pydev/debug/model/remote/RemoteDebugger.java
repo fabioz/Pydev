@@ -30,7 +30,7 @@ public class RemoteDebugger extends AbstractRemoteDebugger {
 
     public void startConnect(IProgressMonitor monitor) throws IOException, CoreException {
         monitor.subTask("Finding free socket...");
-        connector = new ListenConnector(config.getDebugPort(), config.acceptTimeout);
+        connector = config.getListenConnector();
         connectThread = new Thread(connector, "pydevd.connect");
         connectThread.start();
     }

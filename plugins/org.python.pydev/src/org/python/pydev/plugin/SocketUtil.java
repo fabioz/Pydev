@@ -7,6 +7,8 @@ package org.python.pydev.plugin;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility class to find a port to debug on.
@@ -27,28 +29,40 @@ public class SocketUtil {
      * @param searchTo the port number at which to stop searching
      * @return a free port in the specified range, or an exception if it cannot be found
      */
-    public static int findUnusedLocalPort() {
-        Exception exception = null;
-        ServerSocket socket = null;
+    public static Integer[] findUnusedLocalPorts(int ports) {
+        List<ServerSocket> socket = new ArrayList<ServerSocket>();
+        List<Integer> portsFound = new ArrayList<Integer>();
         try {
-            socket = new ServerSocket(0);
-            return socket.getLocalPort();
-        } catch (IOException e) {
-            exception = e;
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
+            try {
+                for(int i=0;i<ports;i++){
+                    ServerSocket s = new ServerSocket(0);
+                    socket.add(s);
+                    int localPort = s.getLocalPort();
+                    checkValidPort(localPort);
+                    portsFound.add(localPort);
+                }
+            } finally {
+                for(ServerSocket s:socket){
+                    if (s != null) {
+                        try {
+                            s.close();
+                        } catch (Exception e) {
+                            //Just ignore errors closing sockets
+                        }
+                    }
                 }
             }
+        } catch (Throwable e) {
+            String message = "Unable to find an unused local port (is there an enabled firewall?)";
+            throw new RuntimeException(message, e);
         }
+        
+        return portsFound.toArray(new Integer[portsFound.size()]);
+    }
 
-        String message = "Unable to find an unused local port (is your firewall enabled?)";
-        if (exception != null) {
-            throw new RuntimeException(message, exception);
-        } else {
-            throw new RuntimeException(message);
+    public static void checkValidPort(int port) throws IOException {
+        if(port == -1){
+            throw new IOException("Port not bound (found port -1). Is there an enabled firewall?");
         }
     }
 

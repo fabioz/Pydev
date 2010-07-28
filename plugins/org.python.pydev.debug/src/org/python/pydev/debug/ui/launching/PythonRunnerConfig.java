@@ -6,6 +6,7 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,9 +40,9 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.SocketUtil;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.pyunit.preferences.PyunitPrefsPage;
@@ -76,7 +77,6 @@ public class PythonRunnerConfig {
     // debugging
     public final boolean isDebug;
     public final boolean isInteractive;
-    private int debugPort = 0;  // use getDebugPort
     public int acceptTimeout = 5000; // miliseconds
     public String[] envp = null;
 
@@ -85,6 +85,7 @@ public class PythonRunnerConfig {
     /** One of RUN_ enums */
     private final String run;
     private final ILaunchConfiguration configuration;
+    private ListenConnector listenConnector;
 
     public boolean isCoverage(){
         return this.run.equals(RUN_COVERAGE);
@@ -504,16 +505,6 @@ public class PythonRunnerConfig {
     }
     
 
-    public int getDebugPort() throws CoreException {
-        if (debugPort == 0) {
-            debugPort= SocketUtil.findUnusedLocalPort();
-            if (debugPort == -1)
-                throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not find a free socket for debugger", null));
-        }
-        return debugPort;        
-    }
-
-
     /**
      * @return attribute value of {@code IProcess.ATTR_PROCESS_TYPE}
      */
@@ -539,19 +530,7 @@ public class PythonRunnerConfig {
         return getRunningName(resource);
     }
 
-    /**
-     * @throws CoreException if arguments are inconsistent
-     */
-    public void verify() throws CoreException {
-        if (resource == null || interpreter == null){
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
-        }
-        
-        if (isDebug && ( acceptTimeout < 0|| debugPort < 0) ){
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Invalid PythonRunnerConfig",null));
-        }
-    }
-
+    
     /**
      * @return
      * @throws CoreException
@@ -707,7 +686,11 @@ public class PythonRunnerConfig {
             cmdArgs.add("--client");
             cmdArgs.add("localhost");
             cmdArgs.add("--port");
-            cmdArgs.add(Integer.toString(debugPort));
+            try {
+                cmdArgs.add(Integer.toString(getListenConnector().getLocalPort()));
+            } catch (IOException e) {
+                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Unable to get port", e));
+            }
             cmdArgs.add("--file");
         }
     }
@@ -762,6 +745,13 @@ public class PythonRunnerConfig {
             return PydevPlugin.getIronpythonInterpreterManager();
         }
         return PydevPlugin.getPythonInterpreterManager();
+    }
+
+    public synchronized ListenConnector getListenConnector() throws IOException {
+        if(this.listenConnector == null){
+            this.listenConnector = new ListenConnector(this.acceptTimeout);
+        }
+        return this.listenConnector;
     }
 
 }

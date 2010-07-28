@@ -142,8 +142,9 @@ public class IProcessFactory {
     		Collection<String> pythonpath, IPythonNature nature, List<IPythonNature> naturesUsed) throws Exception {
     	Process process = null;
     	this.naturesUsed = naturesUsed;
-        int port = SocketUtil.findUnusedLocalPort();
-        int clientPort = SocketUtil.findUnusedLocalPort();
+        Integer[] ports = SocketUtil.findUnusedLocalPorts(2);
+        int port = ports[0];
+        int clientPort = ports[1];
         
         final Launch launch = new Launch(null, "interactive", null);
         launch.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, "false");

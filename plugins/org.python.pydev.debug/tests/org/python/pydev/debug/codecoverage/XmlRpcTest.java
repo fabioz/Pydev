@@ -137,9 +137,11 @@ public class XmlRpcTest extends TestCase{
     }
     
     public void checkServer(boolean python) throws XmlRpcException, IOException, InterruptedException {
-        int port = SocketUtil.findUnusedLocalPort();
-        int client_port = SocketUtil.findUnusedLocalPort();
-        Process process = startServer(client_port, port, python);
+        Integer[] ports = SocketUtil.findUnusedLocalPorts(2);
+        int port = ports[0];
+        int clientPort = ports[1];
+        
+        Process process = startServer(clientPort, port, python);
         
         
 //        int port = 8000;

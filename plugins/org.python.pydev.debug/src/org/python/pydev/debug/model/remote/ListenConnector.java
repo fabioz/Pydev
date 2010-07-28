@@ -6,14 +6,24 @@ import java.net.Socket;
 
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.SocketUtil;
 
-public class ListenConnector extends AbstractListenConnector {
-    boolean terminated;
+public class ListenConnector implements Runnable {
     
-    public ListenConnector(int port, int timeout) throws IOException {
-        this.port = port;
+    protected int timeout;
+    protected ServerSocket serverSocket;
+    protected Socket socket; // what got accepted
+    protected Exception e;
+    
+    public ListenConnector(int timeout) throws IOException {
         this.timeout = timeout;
-        serverSocket = new ServerSocket(port);
+        try {
+            serverSocket = new ServerSocket(0);
+        } catch (IOException e) {
+            PydevPlugin.log("Error when creating server socket.", e);
+            throw e;
+        }
     }
     
     Exception getException() {
@@ -25,13 +35,14 @@ public class ListenConnector extends AbstractListenConnector {
     }
 
     public void stopListening() {
-        if (serverSocket != null)
+        if (serverSocket != null){
             try {
                 serverSocket.close();
             } catch (IOException e) {
                 PydevDebugPlugin.log(IStatus.WARNING, "Error closing pydevd socket", e);
             }
-        terminated = true;
+            serverSocket = null;
+        }
     }
 
     public void run() {
@@ -41,6 +52,23 @@ public class ListenConnector extends AbstractListenConnector {
         }
         catch (IOException e) {
             this.e = e;
+        }
+    }
+
+    public int getLocalPort() throws IOException {
+        int localPort = serverSocket.getLocalPort();
+        SocketUtil.checkValidPort(localPort);
+        return localPort;
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        //Clear resources when garbage-collected.
+        try {
+            this.stopListening();
+        } catch (Throwable e) {
+            //Never fail!
+            PydevDebugPlugin.log(IStatus.WARNING, "Error finalizing ListenConnector", e);
         }
     }
 }
