@@ -18,10 +18,21 @@ public class RestartLaunchAction extends PyAction implements IUpdate{
 
     protected IPageBookViewPage page;
     protected ProcessConsole console;
+    private final ILaunch launch;
+    private final ILaunchConfiguration launchConfiguration;
+    
+    private static ILaunch lastLaunch;
+    private static ILaunchConfiguration lastConfig;
 
     public RestartLaunchAction(IPageBookViewPage page, ProcessConsole console) {
         this.page = page;
         this.console = console;
+        launch = this.console.getProcess().getLaunch();
+        launchConfiguration = launch.getLaunchConfiguration();
+        
+        lastLaunch = launch;
+        lastConfig = launch.getLaunchConfiguration();
+        
         update();
     }
 
@@ -41,19 +52,23 @@ public class RestartLaunchAction extends PyAction implements IUpdate{
         }
     }
     
+    public static void relaunch(ILaunch launch, ILaunchConfiguration launchConfiguration) {
+        if(launch != null && launchConfiguration != null){
+            try {
+                launch.terminate();
+            } catch (DebugException e) {
+                PydevPlugin.log(e);
+            }
+            try {
+                launchConfiguration.launch(launch.getLaunchMode(), null);
+            } catch (CoreException e) {
+                PydevPlugin.log(e);
+            }
+        }
+    }
+    
     public void run(IAction action) {
-        ILaunch launch = this.console.getProcess().getLaunch();
-        try {
-            launch.terminate();
-        } catch (DebugException e) {
-            PydevPlugin.log(e);
-        }
-        ILaunchConfiguration launchConfiguration = launch.getLaunchConfiguration();
-        try {
-            launchConfiguration.launch(launch.getLaunchMode(), null);
-        } catch (CoreException e) {
-            PydevPlugin.log(e);
-        }
+        relaunch(launch, launchConfiguration);
     }
     
     public void run() {
@@ -63,6 +78,10 @@ public class RestartLaunchAction extends PyAction implements IUpdate{
     public void dispose() {
         this.page = null;
         this.console = null;
+    }
+
+    public static void relaunchLast() {
+        relaunch(lastLaunch, lastConfig);
     }
 
 }

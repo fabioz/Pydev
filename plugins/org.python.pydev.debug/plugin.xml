@@ -20,6 +20,18 @@
            class="org.python.pydev.debug.ui.actions.RunEditorAsCustomUnitTestAction"
            id="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction">
      </action>
+     <action
+           definitionId="org.python.pydev.debug.ui.actions.relaunchLastAction"
+           label="Relaunch last pydev launch"
+           class="org.python.pydev.debug.ui.actions.RelaunchLastAction"
+           id="org.python.pydev.debug.ui.actions.relaunchLastAction">
+     </action>
+     <action
+           definitionId="org.python.pydev.debug.ui.actions.terminateAllLaunches"
+           label="Terminate all launches"
+           class="org.python.pydev.debug.ui.actions.TerminateAllLaunches"
+           id="org.python.pydev.debug.ui.actions.terminateAllLaunches">
+     </action>
 </editorContribution>
 </extension>
 <!--- run keybindings:commands -->
@@ -33,13 +45,25 @@
             description="Run the editor based on the python nature"
             id="org.python.pydev.debug.ui.actions.runEditorBasedOnNatureTypeAction"
             categoryId="org.python.pydev.ui.category.run"
-            name="Run from Python nature">
+            name="Run editor with current interpreter">
       </command>
       <command
             description="Run custom tests from editor."
             id="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"
             categoryId="org.python.pydev.ui.category.run"
             name="Run custom tests">
+      </command>
+      <command
+            description="Relaunch last pydev launch."
+            id="org.python.pydev.debug.ui.actions.relaunchLastAction"
+            categoryId="org.python.pydev.ui.category.run"
+            name="Relaunch last pydev launch">
+      </command>
+      <command
+            description="Terminate all launches"
+            id="org.python.pydev.debug.ui.actions.terminateAllLaunches"
+            categoryId="org.python.pydev.ui.category.run"
+            name="Terminate all launches">
       </command>
 	  <command id="org.python.pydev.debug.command.Display" name="Display Command">
       </command>
@@ -58,6 +82,18 @@
             sequence="M1+F9"
             contextId="org.python.pydev.ui.editor.scope"
             commandId="org.python.pydev.debug.ui.actions.runEditorAsCustomUnitTestAction"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M1+M2+F9"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.debug.ui.actions.relaunchLastAction"	
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M1+M3+F9"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.debug.ui.actions.terminateAllLaunches"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <!-- Ctrl+Shift == M1+M2 -->
