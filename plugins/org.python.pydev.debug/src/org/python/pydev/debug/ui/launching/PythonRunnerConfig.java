@@ -83,7 +83,7 @@ public class PythonRunnerConfig {
     private final boolean useUnittestWrapper;
 
     /** One of RUN_ enums */
-    private final String run;
+    public final String run;
     private final ILaunchConfiguration configuration;
     private ListenConnector listenConnector;
 

@@ -49,6 +49,7 @@ import org.python.pydev.plugin.nature.PythonNature;
 /**
  * Will provide code-completion in debug sessions.
  */
+@SuppressWarnings("restriction")
 public class ConsoleCompletionsPageParticipant implements IConsolePageParticipant {
 
     
@@ -183,7 +184,6 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
     /**
      * When a console page is initialized,
      */
-    @SuppressWarnings("restriction")
     public void init(IPageBookViewPage page, final IConsole console) {
         if(!(console instanceof ProcessConsole)){
             return;

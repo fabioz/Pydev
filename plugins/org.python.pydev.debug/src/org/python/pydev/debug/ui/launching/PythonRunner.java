@@ -123,7 +123,7 @@ public class PythonRunner {
         PyDebugTarget t = new PyDebugTarget(launch, null, config.resource, debugger, config.project);
         IProcess process;
         try {
-            process = registerWithDebugPluginForProcessType(config.getRunningName(), launch,p, processAttributes, config.getProcessType());
+            process = registerWithDebugPluginForProcessType(config.getRunningName(), launch,p, processAttributes, config);
             checkProcess(p, process);
             t.process = process;
         } finally {
@@ -184,7 +184,7 @@ public class PythonRunner {
         if(config.isInteractive){
             throw new RuntimeException("Interactive not supported here!");
         }
-        process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, config.getProcessType());
+        process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, config);
         checkProcess(p, process);
 
         // Registered the process with the debug plugin
@@ -220,9 +220,11 @@ public class PythonRunner {
      * It'll then display the appropriate UI.
      */
     private static IProcess registerWithDebugPluginForProcessType(String label, ILaunch launch, Process p, 
-            Map<Object, Object> processAttributes, String processType) {
-        processAttributes.put(IProcess.ATTR_PROCESS_TYPE, processType);
+            Map<Object, Object> processAttributes, PythonRunnerConfig config) {
+        processAttributes.put(IProcess.ATTR_PROCESS_TYPE, config.getProcessType());
         processAttributes.put(IProcess.ATTR_PROCESS_LABEL, label);
+        processAttributes.put(Constants.PYDEV_CONFIG_RUN, config.run);
+        processAttributes.put(Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR, Constants.PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE);
         processAttributes.put(DebugPlugin.ATTR_CAPTURE_OUTPUT, "true");
         
         return DebugPlugin.newProcess(launch,p, label, processAttributes);

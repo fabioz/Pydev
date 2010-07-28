@@ -98,6 +98,8 @@ public class UIConstants {
     public static final String COPY_QUALIFIED_NAME = "icons/cpyqual_menu.gif";
     public static final String SEARCH = "icons/search.gif";
     public static final String SEARCH_DOCS = "icons/search_docs.gif";
+    public static final String RELAUNCH = "icons/relaunch.png";
+    public static final String RELAUNCH1 = "icons/relaunch1.png";
     
 //browser
     public static final String STOP = "icons/showerr_tsk.gif";

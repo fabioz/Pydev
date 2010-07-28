@@ -661,5 +661,14 @@
          <enablement></enablement>
       </consolePageParticipant>
    </extension>
+    
+   <extension
+         point="org.eclipse.ui.console.consolePageParticipants">
+      <consolePageParticipant
+            class="org.python.pydev.debug.console.ConsoleRestartLaunchPageParticipant"
+            id="org.python.pydev.debug.console.consoleRestartLaunchPageParticipant">
+         <enablement></enablement>
+      </consolePageParticipant>
+   </extension>
 </plugin>
 

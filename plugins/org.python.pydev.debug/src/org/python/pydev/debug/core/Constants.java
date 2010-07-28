@@ -31,7 +31,10 @@ public interface Constants {
     static final String PROCESS_TYPE = "PYDEV.PYTHON";
     
     static final String PYDEV_DEBUG_IPROCESS_ATTR = "PYDEV_DEBUG_IPROCESS_ATTR";
-    static final String PYDEV_DEBUG_IPROCESS_ATTR_TRUE = "PYDEV_DEBUG_IPROCESS_ATTR_TRUE";
+    static final String PYDEV_DEBUG_IPROCESS_ATTR_TRUE = "true";
+    static final String PYDEV_ADD_RELAUNCH_IPROCESS_ATTR = "PYDEV_ADD_RELAUNCH_IPROCESS_ATTR";
+    static final String PYDEV_ADD_RELAUNCH_IPROCESS_ATTR_TRUE = "true";
+
     
     static final String ATTR_VM_ARGUMENTS = "org.python.pydev.debug.vm.arguments";
     static final String JAVA_NATURE = "org.eclipse.jdt.core.javanature";
@@ -54,6 +57,7 @@ public interface Constants {
     static final String ATTR_PROJECT = PLUGIN_ID + ".ATTR_PROJECT";
     static final String ATTR_RESOURCE_TYPE = PLUGIN_ID + ".ATTR_RESOURCE_TYPE";
     static final String ATTR_UNITTEST_TESTS = PLUGIN_ID + ".ATTR_UNITTEST_TESTS";
+    static final String PYDEV_CONFIG_RUN = "PYDEV_CONFIG_RUN";
     
     
 }
