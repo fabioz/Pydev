@@ -555,6 +555,7 @@ public class InterpreterInfo implements IInterpreterInfo{
                 //by default, we don't want to force anything to python.
                 forcedLibs.add("StringIO"); //jython bug: StringIO is not added
                 forcedLibs.add("re"); //re is very strange in Jython (while it's OK in Python)
+                forcedLibs.add("com.ziclix.python.sql"); //bultin to jython but not reported.
                 break;
                 
             case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
