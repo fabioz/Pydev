@@ -26,8 +26,8 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     
     public static final String[][] LABEL_AND_VALUE = new String[][]{
         {"underscore_separated" , String.valueOf(METHODS_FORMAT_UNDERSCORE_SEPARATED)},
-        {"CamelCase() with first upper"  , String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_LOWER)},
-        {"camelCase() with first lower", String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_UPPER)},
+        {"CamelCase() with first upper"  , String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_UPPER)},
+        {"camelCase() with first lower", String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_LOWER)},
     };
     
     public static final String[][] LOCALS_LABEL_AND_VALUE = new String[][]{
