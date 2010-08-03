@@ -40,6 +40,30 @@ It comes with many goodies such as:
 
 For more details on the provided features, check the `Features Matrix`_.
 
+Release 1.6.1
+==============
+
+* **Debugger**
+
+    * **Critical Fix: issue that prevented the debugger from working with Python 3 solved**
+    * Improving socket connection handling
+
+* **Launching**
+
+    * Restart last launch and terminate all launches actions created
+        * Restart last: **Ctrl+Shift+F9** (in pydev editor)
+        * Terminate all: **Ctrl+Alt+F9** (in pydev editor)
+        * Buttons were also added to pydev consoles 
+    
+* **Utilities**
+
+    * **2to3**: Right-clicking a folder or file will show an option in the Pydev menu to convert from python 2 to python 3 (note that lib2to3 must available in the python installation).
+    * Defining execfile in a Python 3 interactive console so that Ctrl+Alt+Enter works.
+    * Fixed issue in the code style preferences page (switched value shown).
+    * com.ziclix.python.sql added to the forced builtins in a Jython install by default.
+    * Improved some icons when on a dark theme (patch from Kenneth Belitzky)
+
+
 Release 1.6.0
 ==============
 
