@@ -100,6 +100,7 @@ public class UIConstants {
     public static final String SEARCH_DOCS = "icons/search_docs.gif";
     public static final String RELAUNCH = "icons/relaunch.png";
     public static final String RELAUNCH1 = "icons/relaunch1.png";
+    public static final String TERMINATE_ALL = "icons/terminate_all.gif";
     
 //browser
     public static final String STOP = "icons/showerr_tsk.gif";

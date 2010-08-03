@@ -27,10 +27,10 @@
            id="org.python.pydev.debug.ui.actions.relaunchLastAction">
      </action>
      <action
-           definitionId="org.python.pydev.debug.ui.actions.terminateAllLaunches"
+           definitionId="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction"
            label="Terminate all launches"
-           class="org.python.pydev.debug.ui.actions.TerminateAllLaunches"
-           id="org.python.pydev.debug.ui.actions.terminateAllLaunches">
+           class="org.python.pydev.debug.ui.actions.TerminateAllLaunchesAction"
+           id="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction">
      </action>
 </editorContribution>
 </extension>
@@ -61,7 +61,7 @@
       </command>
       <command
             description="Terminate all launches"
-            id="org.python.pydev.debug.ui.actions.terminateAllLaunches"
+            id="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction"
             categoryId="org.python.pydev.ui.category.run"
             name="Terminate all launches">
       </command>
@@ -93,7 +93,7 @@
       <key
             sequence="M1+M3+F9"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="org.python.pydev.debug.ui.actions.terminateAllLaunches"	
+            commandId="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction"	
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <!-- Ctrl+Shift == M1+M2 -->

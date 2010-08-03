@@ -14,6 +14,7 @@ import org.eclipse.ui.console.IConsolePageParticipant;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.actions.RestartLaunchAction;
+import org.python.pydev.debug.ui.actions.TerminateAllLaunchesAction;
 
 /**
  * Reference: ProcessConsolePageParticipant
@@ -22,6 +23,7 @@ import org.python.pydev.debug.ui.actions.RestartLaunchAction;
 public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticipant, IDebugEventSetListener {
 
     private RestartLaunchAction restartLaunchAction;
+    private TerminateAllLaunchesAction terminateAllLaunchesAction;
     private ProcessConsole fConsole;
 
     public void init(IPageBookViewPage page, IConsole console) {
@@ -47,7 +49,10 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
 
 
         restartLaunchAction = new RestartLaunchAction(page, processConsole);
+        terminateAllLaunchesAction = new TerminateAllLaunchesAction();
+        
         toolbarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, restartLaunchAction);
+        toolbarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, terminateAllLaunchesAction);
 
         bars.updateActionBars();
 
@@ -64,6 +69,9 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
                     public void run() {
                         if (restartLaunchAction != null) {
                             restartLaunchAction.update();
+                        }
+                        if (terminateAllLaunchesAction != null) {
+                            terminateAllLaunchesAction.update();
                         }
                     }
                 };
@@ -86,6 +94,10 @@ public class ConsoleRestartLaunchPageParticipant implements IConsolePageParticip
         if(restartLaunchAction != null){
             restartLaunchAction.dispose();
             restartLaunchAction = null;
+        }
+        if(terminateAllLaunchesAction != null){
+            terminateAllLaunchesAction.dispose();
+            terminateAllLaunchesAction = null;
         }
     }
 
