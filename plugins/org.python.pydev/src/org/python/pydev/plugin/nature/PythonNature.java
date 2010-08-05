@@ -1035,6 +1035,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         }else if("2.6".equals(grammarVersion)){
             return GRAMMAR_PYTHON_VERSION_2_6;
             
+        }else if("2.7".equals(grammarVersion)){
+            return GRAMMAR_PYTHON_VERSION_2_7;
+            
         }else if("3.0".equals(grammarVersion)){
             return GRAMMAR_PYTHON_VERSION_3_0;
         }
