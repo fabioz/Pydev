@@ -16,7 +16,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testTryExcept2();
+            test.testWithMultiple();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -46,6 +46,24 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
     public void testNewSetCompConstruct() throws Throwable {
         final String s = "" +
         "mutable_set = {x for x in xrange(10)}\n"+
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version > IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
+                    checkPrettyPrintEqual(s, s);
+                }
+                return true;
+            }
+        });
+    }
+    
+    public void testWithMultiple() throws Throwable {
+        final String s = "" +
+        "with a,b,c:\n" +
+        "    pass\n"+
         "";
         
         
@@ -155,6 +173,25 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             
             public Boolean call(Integer version) {
                 if(version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
+                    checkPrettyPrintEqual(s, s);
+                    
+                }
+                return true;
+            }
+        });
+        
+    }
+    
+    public void testDictComp() throws Throwable {
+        final String s = ""+
+        "d = {i:i * 2 for i in range(3)}\n" +
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
                     checkPrettyPrintEqual(s, s);
                     
                 }

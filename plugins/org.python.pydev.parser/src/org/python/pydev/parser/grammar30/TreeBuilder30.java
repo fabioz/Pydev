@@ -385,31 +385,9 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             return tryFinally;
             
         case JJTWITH_STMT:
-            suite = (Suite) stack.popNode();
-            arity--;
-            
-            WithItem[] items = new WithItem[arity];
-            while(arity>0){
-            	items[arity-1] = (WithItem) stack.popNode();
-            	arity--;
-            }
-            
-            
-            suiteType s = new suiteType(suite.body);
-            addSpecialsAndClearOriginal(suite, s);
-            
-            return new With(items, s);
+            return makeWithStmt(arity);
         case JJTWITH_ITEM:
-        	exprType expr = (exprType) stack.popNode(); //expr
-            arity--;
-            
-            exprType asExpr = null;
-            if(arity > 0){
-            	asExpr = expr;
-            	expr = (exprType) stack.popNode();
-                ctx.setStore(asExpr);
-            }
-            return new WithItem(expr, asExpr);
+            return makeWithItem(arity);
         case JJTEXTRAKEYWORDVALUELIST:
             return new ExtraArgValue(((exprType) stack.popNode()), JJTEXTRAKEYWORDVALUELIST);
         case JJTEXTRAARGVALUELIST:

@@ -5,6 +5,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
@@ -22,7 +23,7 @@ public class PyParser27Test extends PyParserTestBase{
         try {
             PyParser27Test test = new PyParser27Test();
             test.setUp();
-            test.testSetLiteralWithComp();
+            test.testWith();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser27Test.class);
@@ -40,8 +41,8 @@ public class PyParser27Test extends PyParserTestBase{
     
     public void testWith(){
         String str = "def m1():\n" +
-        		"    with a:\n" +
-        		"        print a\n" +
+        		"    with a, b, c:\n" +
+        		"        print a, b, c\n" +
         		"\n" +
         		"";
         parseLegalDocStr(str);
@@ -136,7 +137,7 @@ public class PyParser27Test extends PyParserTestBase{
         parseLegalDocStr(s);
     }
     
-    public void testSetLiteral() {
+    public void testSet() {
         String s = "" +
         "mutable_set = {1,2,3,4,5}\n" +
         "";
@@ -151,7 +152,7 @@ public class PyParser27Test extends PyParserTestBase{
         );
     }
     
-    public void testSetLiteralWithComp() {
+    public void testSetComp() {
         String s = "" +
         "mutable_set = {x for x in xrange(10)}\n" +
         "";
@@ -171,6 +172,18 @@ public class PyParser27Test extends PyParserTestBase{
         Module m = (Module) ast;
         Assign assign = (Assign) m.body[0];
         assertTrue(assign.value instanceof Dict);
+    }
+    
+    
+    public void testDictComp() {
+        String s = "" +
+        "d = {i: i*2 for i in range(3)}\n" +
+        "";
+        
+        SimpleNode ast = parseLegalDocStr(s);
+        Module m = (Module) ast;
+        Assign assign = (Assign) m.body[0];
+        assertTrue(assign.value instanceof DictComp);
     }
     
 }

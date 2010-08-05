@@ -455,6 +455,33 @@ def CreateCallAssert():
 
     
 #=======================================================================================================================
+# CreatePy3KWithStmt
+#=======================================================================================================================
+def CreatePy3KWithStmt(definitions):
+    PY3K_WITH_STMT = '''
+//with_stmt: 'with' with_item (',' with_item)*  ':' suite
+void with_stmt(): {}
+{ <WITH> 
+    {this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
+    
+    with_item()
+    ($COMMA with_item())*
+    
+    $COLON suite() 
+}
+
+//with_item: test ['as' expr]
+void with_item():{}
+{ test() [$AS2 expr()]}
+
+'''
+    PY3K_WITH_STMT = Template(PY3K_WITH_STMT)
+    substituted = str(PY3K_WITH_STMT.substitute(**definitions))
+    return substituted
+
+
+    
+#=======================================================================================================================
 # CreateIndenting
 #=======================================================================================================================
 def CreateIndenting():
@@ -636,6 +663,7 @@ void slice() #void: {}
     definitions['ASSERT'] = CreateAssertWithDeps(definitions)
     definitions['WHILE'] = CreateWhileWithDeps(definitions)
     definitions['BEGIN_ELSE'] = CreateBeginElseWithDeps(definitions)
+    definitions['PY3K_WITH_STMT'] = CreatePy3KWithStmt(definitions)
     
     
     files = [

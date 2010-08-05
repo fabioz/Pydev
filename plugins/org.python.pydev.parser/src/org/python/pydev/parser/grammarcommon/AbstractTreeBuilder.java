@@ -39,6 +39,8 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.StrJoin;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.UnaryOp;
+import org.python.pydev.parser.jython.ast.With;
+import org.python.pydev.parser.jython.ast.WithItem;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
@@ -615,7 +617,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
     }
 
     
-    protected ComprehensionCollection makeCompFor(int arity) throws Exception {
+    protected final ComprehensionCollection makeCompFor(int arity) throws Exception {
         ComprehensionCollection col = null;
         if(stack.peekNode() instanceof ComprehensionCollection){
             col = (ComprehensionCollection) stack.popNode();
@@ -637,7 +639,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
     }
 
     
-    protected SimpleNode makeDictionaryOrSet(int arity) {
+    protected final SimpleNode makeDictionaryOrSet(int arity) {
         if(arity == 0){
             return new Dict(new exprType[0], new exprType[0]);
         }
@@ -698,6 +700,38 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         }
 
         return new Dict(keys, vals);
+    }
+    
+    
+    protected final SimpleNode makeWithItem(int arity) throws Exception {
+        exprType expr = (exprType) stack.popNode(); //expr
+        arity--;
+        
+        exprType asExpr = null;
+        if(arity > 0){
+            asExpr = expr;
+            expr = (exprType) stack.popNode();
+            ctx.setStore(asExpr);
+        }
+        return new WithItem(expr, asExpr);
+    }
+
+
+    protected final SimpleNode makeWithStmt(int arity) {
+        Suite suite = (Suite) stack.popNode();
+        arity--;
+        
+        WithItem[] items = new WithItem[arity];
+        while(arity>0){
+            items[arity-1] = (WithItem) stack.popNode();
+            arity--;
+        }
+        
+        
+        suiteType s = new suiteType(suite.body);
+        addSpecialsAndClearOriginal(suite, s);
+        
+        return new With(items, s);
     }
 
 }
