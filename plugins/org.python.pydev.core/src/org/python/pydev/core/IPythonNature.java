@@ -4,7 +4,9 @@
 package org.python.pydev.core;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
@@ -23,6 +25,8 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
         public static final HashSet<String> ALL_JYTHON_VERSIONS = new HashSet<String>();
         public static final HashSet<String> ALL_IRONPYTHON_VERSIONS = new HashSet<String>();
         public static final HashSet<String> ALL_VERSIONS_ANY_FLAVOR = new HashSet<String>();
+        public static final List<String> VERSION_NUMBERS = new ArrayList<String>();
+        public static final String LAST_VERSION_NUMBER = "2.7";
         
         static{
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_1);
@@ -31,6 +35,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_4);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_5);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_6);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_7);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_0);
             
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_1);
@@ -39,6 +44,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_4);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_5);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_6);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_7);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_0);
             
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_1);
@@ -47,7 +53,17 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_4);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_5);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_6);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_7);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_0);
+            
+            VERSION_NUMBERS.add("2.1");
+            VERSION_NUMBERS.add("2.2");
+            VERSION_NUMBERS.add("2.3");
+            VERSION_NUMBERS.add("2.4");
+            VERSION_NUMBERS.add("2.5");
+            VERSION_NUMBERS.add("2.6");
+            VERSION_NUMBERS.add("2.7");
+            VERSION_NUMBERS.add("3.0");
             
             ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_JYTHON_VERSIONS);
             ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_PYTHON_VERSIONS);
@@ -65,6 +81,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     public static final String PYTHON_VERSION_2_4 = "python 2.4";
     public static final String PYTHON_VERSION_2_5 = "python 2.5";
     public static final String PYTHON_VERSION_2_6 = "python 2.6";
+    public static final String PYTHON_VERSION_2_7 = "python 2.7";
     public static final String PYTHON_VERSION_3_0 = "python 3.0";
     
     public static final String JYTHON_VERSION_2_1 = "jython 2.1";
@@ -73,6 +90,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     public static final String JYTHON_VERSION_2_4 = "jython 2.4";
     public static final String JYTHON_VERSION_2_5 = "jython 2.5";
     public static final String JYTHON_VERSION_2_6 = "jython 2.6";
+    public static final String JYTHON_VERSION_2_7 = "jython 2.7";
     public static final String JYTHON_VERSION_3_0 = "jython 3.0";
     
     public static final String IRONPYTHON_VERSION_2_1 = "ironpython 2.1";
@@ -81,11 +99,12 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     public static final String IRONPYTHON_VERSION_2_4 = "ironpython 2.4";
     public static final String IRONPYTHON_VERSION_2_5 = "ironpython 2.5";
     public static final String IRONPYTHON_VERSION_2_6 = "ironpython 2.6";
+    public static final String IRONPYTHON_VERSION_2_7 = "ironpython 2.7";
     public static final String IRONPYTHON_VERSION_3_0 = "ironpython 3.0";
     
     //NOTE: It's the latest in the 2 series (3 is as if it's a totally new thing)
     public static final String JYTHON_VERSION_LATEST = JYTHON_VERSION_2_6;
-    public static final String PYTHON_VERSION_LATEST = PYTHON_VERSION_2_6;
+    public static final String PYTHON_VERSION_LATEST = PYTHON_VERSION_2_7;
     
     /**
      * this id is provided so that we can have an identifier for python-related things (independent of its version)

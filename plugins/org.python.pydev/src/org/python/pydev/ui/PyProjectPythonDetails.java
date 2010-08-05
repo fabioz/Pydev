@@ -110,13 +110,9 @@ public class PyProjectPythonDetails extends PropertyPage{
             
             
             comboGrammarVersion = new Combo(topComp, SWT.READ_ONLY);
-            comboGrammarVersion.add("2.1");
-            comboGrammarVersion.add("2.2");
-            comboGrammarVersion.add("2.3");
-            comboGrammarVersion.add("2.4");
-            comboGrammarVersion.add("2.5");
-            comboGrammarVersion.add("2.6");
-            comboGrammarVersion.add("3.0");
+            for(String s:IPythonNature.Versions.VERSION_NUMBERS){
+                comboGrammarVersion.add(s);
+            }
             
             gd= new GridData(GridData.FILL_HORIZONTAL);
             comboGrammarVersion.setLayoutData(gd);
@@ -263,7 +259,7 @@ public class PyProjectPythonDetails extends PropertyPage{
 
         public void setDefaultSelection() {
             radioPy.setSelection(true);
-            comboGrammarVersion.setText("2.6");
+            comboGrammarVersion.setText(IPythonNature.Versions.LAST_VERSION_NUMBER);
             //Just to update things
             this.selectionListener.widgetSelected(null);
         }
