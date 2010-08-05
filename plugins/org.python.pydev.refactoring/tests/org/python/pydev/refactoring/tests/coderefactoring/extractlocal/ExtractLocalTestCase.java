@@ -37,7 +37,7 @@ public class ExtractLocalTestCase extends AbstractIOTestCase {
 	    RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
             
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
         });
 	    ExtractLocalRefactoring refactoring = new ExtractLocalRefactoring(info);

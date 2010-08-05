@@ -28,7 +28,7 @@ public class PrettyPrinterLibTest extends AbstractPrettyPrinterTestBase{
     protected void setUp() throws Exception {
         super.setUp();
         prefs = new PrettyPrinterPrefsV2("\n", "    ", versionProvider);
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
     }
 
     public void testOnCompleteLib() throws Exception {

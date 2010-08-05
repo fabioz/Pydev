@@ -111,7 +111,7 @@ public class MockupOverrideMethodsRequestProcessor implements IRequestProcessor<
 			        clazz, this.offsetStrategy, method, false, baseClassName, new AdapterPrefs("\n", new IGrammarVersionProvider() {
                         
                         public int getGrammarVersion() throws MisconfigurationException {
-                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                         }
                     }));
 			requests.add(req);

@@ -14,8 +14,11 @@ import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Break;
 import org.python.pydev.parser.jython.ast.Compare;
+import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Delete;
+import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.ExtSlice;
@@ -29,6 +32,8 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
+import org.python.pydev.parser.jython.ast.Set;
+import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.StrJoin;
@@ -607,6 +612,92 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             }
         }
         return new ImportFrom((NameTokType)nT, aliastL.toArray(new aliasType[0]), 0);
+    }
+
+    
+    protected ComprehensionCollection makeCompFor(int arity) throws Exception {
+        ComprehensionCollection col = null;
+        if(stack.peekNode() instanceof ComprehensionCollection){
+            col = (ComprehensionCollection) stack.popNode();
+            arity--;
+        }else{
+            col = new ComprehensionCollection();
+        }
+        
+        ArrayList<exprType> ifs = new ArrayList<exprType>();
+        for (int i = arity-3; i >= 0; i--) {
+            SimpleNode ifsNode = stack.popNode();
+            ifs.add((exprType) ifsNode);
+        }
+        exprType iter = (exprType) stack.popNode();
+        exprType target = (exprType) stack.popNode();
+        ctx.setStore(target);
+        col.added.add(new Comprehension(target, iter, ifs.toArray(new exprType[0])));
+        return col;
+    }
+
+    
+    protected SimpleNode makeDictionaryOrSet(int arity) {
+        if(arity == 0){
+            return new Dict(new exprType[0], new exprType[0]);
+        }
+        
+        SimpleNode dictNode0 = stack.popNode();
+        
+        if(dictNode0 instanceof Set){
+            Set set = (Set) dictNode0;
+            exprType[] elts = new exprType[arity-1]; //-1 because the set was already taken from there
+            for (int i = arity-2; i >= 0; i--) { //same thing here
+                elts[i] = (exprType) stack.popNode();
+            }
+            set.elts = elts;
+            return set;
+        }
+        
+        
+        if(dictNode0 instanceof ComprehensionCollection){
+            if(arity == 2){
+                ComprehensionCollection comp = (ComprehensionCollection) dictNode0;
+                return new SetComp((exprType)stack.popNode(), comp.getGenerators());
+                
+            }else if(arity == 3){
+                SimpleNode dictNode1 = stack.popNode(); //we must inverse things here...
+                ComprehensionCollection comp = (ComprehensionCollection) dictNode0;
+                return new DictComp((exprType) stack.popNode(), (exprType)dictNode1, comp.getGenerators());
+            }
+        }
+        
+        boolean isDictComplete = arity % 2 == 0;
+        
+        int l = arity / 2;
+        exprType[] keys;
+        if(isDictComplete){
+            keys = new exprType[l];
+        }else{
+            keys = new exprType[l+1]; //we have 1 additional entry in the keys (parse error actually, but let's recover at this point!)
+        }
+        boolean node0Used = false;
+        exprType[] vals = new exprType[l];
+        for (int i = l - 1; i >= 0; i--) {
+            if(!node0Used){
+                node0Used = true;
+                vals[i] = (exprType) dictNode0;
+                keys[i] = (exprType) stack.popNode();
+                
+            }else{
+                vals[i] = (exprType) stack.popNode();
+                keys[i] = (exprType) stack.popNode();
+            }
+        }
+        if(!isDictComplete){
+            if(node0Used){
+                keys[keys.length-1] = (exprType) stack.popNode();
+            }else{
+                keys[keys.length-1] = (exprType) dictNode0;
+            }
+        }
+
+        return new Dict(keys, vals);
     }
 
 }

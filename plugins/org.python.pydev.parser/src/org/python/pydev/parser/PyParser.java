@@ -47,6 +47,7 @@ import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.grammar26.PythonGrammar26;
+import org.python.pydev.parser.grammar27.PythonGrammar27;
 import org.python.pydev.parser.grammar30.PythonGrammar30;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.FastCharStream;
@@ -142,6 +143,9 @@ public class PyParser implements IPyParser {
         }else if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6){
         	return "grammar: Python 2.6";
         	
+        }else if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
+            return "grammar: Python 2.7";
+            
         }else if(grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0){
         	return "grammar: Python 3.0";
         	
@@ -599,6 +603,9 @@ public class PyParser implements IPyParser {
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_2_6:
                     grammar = new PythonGrammar26(in);
+                    break;
+                case IPythonNature.GRAMMAR_PYTHON_VERSION_2_7:
+                    grammar = new PythonGrammar27(in);
                     break;
                 case IPythonNature.GRAMMAR_PYTHON_VERSION_3_0:
                     grammar = new PythonGrammar30(in);

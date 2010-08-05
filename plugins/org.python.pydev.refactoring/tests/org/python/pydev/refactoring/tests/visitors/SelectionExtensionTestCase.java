@@ -40,7 +40,7 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 			        info.getParsedExtendedSelection().getASTParent(), "\n", new IGrammarVersionProvider() {
                         
                         public int getGrammarVersion() throws MisconfigurationException {
-                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                         }
                     });
 			buffer.append(source); // normalized source
@@ -65,7 +65,7 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 		RefactoringInfo info = new RefactoringInfo(doc, selection, new IGrammarVersionProvider() {
             
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
         });
 

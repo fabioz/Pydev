@@ -1,0 +1,176 @@
+package org.python.pydev.parser;
+
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Set;
+import org.python.pydev.parser.jython.ast.SetComp;
+import org.python.pydev.parser.visitors.NodeUtils;
+
+/**
+ * References:
+ * http://docs.python.org/whatsnew/2.7.html
+ * http://docs.python.org/2.7/reference/grammar.html?highlight=set%20grammar
+ * http://docs.python.org/2.6/reference/grammar.html?highlight=set%20grammar
+ */
+public class PyParser27Test extends PyParserTestBase{
+
+    public static void main(String[] args) {
+        try {
+            PyParser27Test test = new PyParser27Test();
+            test.setUp();
+            test.testSetLiteralWithComp();
+            test.tearDown();
+            System.out.println("Finished");
+            junit.textui.TestRunner.run(PyParser27Test.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        PyParser.USE_FAST_STREAM = true;
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_7);
+    }
+    
+    public void testWith(){
+        String str = "def m1():\n" +
+        		"    with a:\n" +
+        		"        print a\n" +
+        		"\n" +
+        		"";
+        parseLegalDocStr(str);
+    }
+
+    public void testExceptAs(){
+        String str = "" +
+        "try:\n" +
+        "    a = 10\n" +
+        "except RuntimeError as x:\n" +
+        "    print x\n" +
+        "";
+        parseLegalDocStr(str);
+    }
+    
+    public void testBinaryObj(){
+        String str = "" +
+        "b'foo'\n" +
+        "";
+        parseLegalDocStr(str);
+    }
+    
+    public void testOctal(){
+        String str = "" +
+        "0o700\n" +
+        "0700\n" +
+        "";
+        assertEquals("Module[body=[Expr[value=Num[n=448, type=Int, num=0o700]], Expr[value=Num[n=448, type=Int, num=0700]]]]",
+                parseLegalDocStr(str).toString());
+    }
+    
+    
+    public void testFunctionCall(){
+        String str = "" +
+        "Call(1,2,3, *(4,5,6), keyword=13, **kwargs)\n" +
+        "";
+        parseLegalDocStr(str);
+    }
+    
+    public void testFunctionCallWithListComp(){
+        String str = "" +
+        "any(cls.__subclasscheck__(c) for c in [subclass, subtype])\n" +
+        "";
+        parseLegalDocStr(str);
+    }
+    
+    public void testClassDecorator() {
+        String s = "" +
+                "@classdec\n" +
+                "@classdec2\n" +
+                "class A:\n" +
+                "    pass\n" +
+                "";
+        SimpleNode ast = parseLegalDocStr(s);
+        Module m = (Module) ast;
+        ClassDef d = (ClassDef) m.body[0];
+        assertEquals(2, d.decs.length);
+        assertEquals("classdec", NodeUtils.getRepresentationString(d.decs[0].func));
+        assertEquals("classdec2", NodeUtils.getRepresentationString(d.decs[1].func));        
+    }
+    
+    public void testCall() {
+        String s = "fubar(*list, x=4)";
+        
+        parseLegalDocStr(s);
+    }
+    
+    public void testCall2() {
+        String s = "fubar(1, *list, x=4)";
+        
+        parseLegalDocStr(s);
+    }
+    
+    public void testFuturePrintFunction() {
+        String s = "" +
+        		"from __future__ import print_function\n" +
+        		"print('test', 'print function', sep=' - ')\n" +
+        		"";
+        
+        parseLegalDocStr(s);
+    }
+    
+    
+    public void testBinNumber() {
+        String s = "" +
+        "0b00010\n" +
+        "0B00010\n" +
+        "0b00010L\n" +
+        "0B00010l\n" +
+        "";
+        
+        parseLegalDocStr(s);
+    }
+    
+    public void testSetLiteral() {
+        String s = "" +
+        "mutable_set = {1,2,3,4,5}\n" +
+        "";
+        
+        SimpleNode ast = parseLegalDocStr(s);
+        Module m = (Module) ast;
+        Assign assign = (Assign) m.body[0];
+        Set set = (Set)assign.value;
+        assertEquals(
+            "Set[elts=[Num[n=1, type=Int, num=1], Num[n=2, type=Int, num=2], Num[n=3, type=Int, num=3], Num[n=4, type=Int, num=4], Num[n=5, type=Int, num=5]]]", 
+            set.toString()
+        );
+    }
+    
+    public void testSetLiteralWithComp() {
+        String s = "" +
+        "mutable_set = {x for x in xrange(10)}\n" +
+        "";
+        
+        SimpleNode ast = parseLegalDocStr(s);
+        Module m = (Module) ast;
+        Assign assign = (Assign) m.body[0];
+        assertTrue(assign.value instanceof SetComp);
+    }
+    
+    public void testDictKept() {
+        String s = "" +
+        "d = {}\n" +
+        "";
+        
+        SimpleNode ast = parseLegalDocStr(s);
+        Module m = (Module) ast;
+        Assign assign = (Assign) m.body[0];
+        assertTrue(assign.value instanceof Dict);
+    }
+    
+}

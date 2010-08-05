@@ -59,7 +59,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 		RefactoringInfo info = new RefactoringInfo(doc, selection, new IGrammarVersionProvider() {
             
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
         });
 

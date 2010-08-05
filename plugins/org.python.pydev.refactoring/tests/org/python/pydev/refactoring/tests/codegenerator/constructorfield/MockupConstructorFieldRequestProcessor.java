@@ -49,7 +49,7 @@ public class MockupConstructorFieldRequestProcessor implements IRequestProcessor
 		        clazz, attributes, this.offsetStrategy, new AdapterPrefs("\n", new IGrammarVersionProvider() {
                     
                     public int getGrammarVersion() throws MisconfigurationException {
-                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }
                 }));
 

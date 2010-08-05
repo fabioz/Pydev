@@ -19,7 +19,8 @@ public interface IGrammarVersionProvider {
     public static final int GRAMMAR_PYTHON_VERSION_2_4 = 10;
     public static final int GRAMMAR_PYTHON_VERSION_2_5 = 11;
     public static final int GRAMMAR_PYTHON_VERSION_2_6 = 12;
-    public static final int LATEST_GRAMMAR_VERSION = GRAMMAR_PYTHON_VERSION_2_6;
+    public static final int GRAMMAR_PYTHON_VERSION_2_7 = 13;
+    public static final int LATEST_GRAMMAR_VERSION = GRAMMAR_PYTHON_VERSION_2_7;
 
     /**
      * Just in case you're wondering, Version 3.0 is not the latest... it's as if it's a new grammar entirely.
@@ -49,6 +50,7 @@ class GrammarsIterator {
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
+        grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
         return grammarVersions;
     }
@@ -58,6 +60,7 @@ class GrammarsIterator {
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4, "2.4");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5, "2.5");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6, "2.6");
+        ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7, "2.7");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0, "3.0");
         return ret;
     }

@@ -16,13 +16,48 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testVarious34();
+            test.testTryExcept2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
         } catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+    
+    
+    public void testNewSetConstruct() throws Throwable {
+        final String s = "" +
+        "mutable_set = {1,2,3,4,5}\n"+
+        "";
+        
+
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version > IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
+                    checkPrettyPrintEqual(s, s);
+                }
+                return true;
+            }
+        });
+    }
+    
+    public void testNewSetCompConstruct() throws Throwable {
+        final String s = "" +
+        "mutable_set = {x for x in xrange(10)}\n"+
+        "";
+        
+        
+        checkWithAllGrammars(new ICallback<Boolean, Integer>(){
+            
+            public Boolean call(Integer version) {
+                if(version > IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
+                    checkPrettyPrintEqual(s, s);
+                }
+                return true;
+            }
+        });
     }
     
     
@@ -231,7 +266,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6){
+                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6 || version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
                     checkPrettyPrintEqual(s);
                 }
                 return true;
@@ -252,7 +287,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6){
+                if(version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6 || version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
                     checkPrettyPrintEqual(s);
                 }
                 return true;
@@ -318,7 +353,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         checkWithAllGrammars(new ICallback<Boolean, Integer>(){
             
             public Boolean call(Integer version) {
-                if(version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6){
+                if(version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
                     checkPrettyPrintEqual(s);
                 }
                 return true;

@@ -811,6 +811,8 @@ public class PyParserTest extends PyParserTestBase{
         parseLegalDocStr(s);
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
         parseILegalDocStr(s);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
+        parseILegalDocStr(s);
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
         parseILegalDocStr(s);
     }

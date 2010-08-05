@@ -336,6 +336,46 @@ void dictmaker() #void: {}
     return substituted
     
     
+
+#=======================================================================================================================
+# CreateDictOrSetMakerWithDeps
+#=======================================================================================================================
+def CreateDictOrSetMakerWithDeps(definitions):
+    #Done later because it depends on others.
+    DICTMAKER = '''
+//dictorsetmaker: ( 
+//                   (test ':' test (comp_for | (',' test ':' test)* [','])) 
+//                  |(test (comp_for | (',' test)* [','])) 
+//                )
+void dictorsetmaker() #void: {}
+{
+    test()
+    
+    (
+        ( $COLON     try{test()}catch(ParseException e){handleNoValInDict(e);
+    } 
+         
+            (
+                comp_for()|
+                (LOOKAHEAD(2) $COMMA test()$COLON test())*
+                [$COMMA]
+            )
+        )
+        |
+        (
+          (LOOKAHEAD(2) comp_for() | ($COMMA test())*#set [$COMMA] )
+        )
+    )
+}
+
+'''
+
+
+    DICTMAKER = Template(DICTMAKER)
+    substituted = str(DICTMAKER.substitute(**definitions))
+    return substituted
+    
+    
     
 
 #=======================================================================================================================
@@ -591,6 +631,7 @@ void slice() #void: {}
     
     definitions['EXEC'] = CreateExec(definitions)
     definitions['DICTMAKER'] = CreateDictMakerWithDeps(definitions)
+    definitions['DICTORSETMAKER'] = CreateDictOrSetMakerWithDeps(definitions)
     definitions['IF'] = CreateIfWithDeps(definitions)
     definitions['ASSERT'] = CreateAssertWithDeps(definitions)
     definitions['WHILE'] = CreateWhileWithDeps(definitions)
@@ -601,6 +642,7 @@ void slice() #void: {}
         (os.path.join(parent_dir, 'grammar24', 'python.jjt_template'), 24),
         (os.path.join(parent_dir, 'grammar25', 'python.jjt_template'), 25),
         (os.path.join(parent_dir, 'grammar26', 'python.jjt_template'), 26),
+        (os.path.join(parent_dir, 'grammar27', 'python.jjt_template'), 27),
         (os.path.join(parent_dir, 'grammar30', 'python.jjt_template'), 30),
     ]
     

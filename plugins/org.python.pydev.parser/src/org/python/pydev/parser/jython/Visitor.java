@@ -1,6 +1,6 @@
 package org.python.pydev.parser.jython;
 
-import org.python.pydev.parser.jython.ast.*;
+import org.python.pydev.parser.jython.ast.VisitorBase;
 
 public class Visitor extends VisitorBase {
 

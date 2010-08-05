@@ -38,7 +38,7 @@ public class PyAstFactoryTest extends TestCase {
                 new AdapterPrefs("\n", new IGrammarVersionProvider() {
                     
                     public int getGrammarVersion() throws MisconfigurationException {
-                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }
                 }));
     }
@@ -87,7 +87,7 @@ public class PyAstFactoryTest extends TestCase {
                 new PrettyPrinterPrefsV2("\n", "    ", new IGrammarVersionProvider() {
                     
                     public int getGrammarVersion() throws MisconfigurationException {
-                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6;
+                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
                     }
                 }));
         String result = printer.print(functionDef);

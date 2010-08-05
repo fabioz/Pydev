@@ -521,7 +521,9 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 "\n" +
                 "";
                 
-                if(arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5 || arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6){
+                if(arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5 || 
+                        arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6 ||
+                        arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7){
                     parseLegalDocStr(s);
                     
                 }else{

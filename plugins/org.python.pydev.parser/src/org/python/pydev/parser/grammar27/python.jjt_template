@@ -20,46 +20,34 @@ options
 }
 
 
-PARSER_BEGIN(PythonGrammar30)
-package org.python.pydev.parser.grammar30;
+PARSER_BEGIN(PythonGrammar27)
+package org.python.pydev.parser.grammar27;
 $IMPORTS
 
-public final class PythonGrammar30 extends AbstractPythonGrammar implements IGrammar
+public final class PythonGrammar27 extends AbstractPythonGrammar implements IGrammar
 {
 
 $COMMOM_METHODS
-    
-    private void handleFutureImports(String importName){
-        
-    }
 
 
-
-    protected final void addSpecialToArgDef(Object str){
-        Token token = (Token)str;
-        SimpleNode peeked = jjtree.peekNode();
-        if(peeked instanceof JfpDef){
-            JfpDef jfpdef = (JfpDef) peeked;
-            if(jfpdef.typeDef != null){
-                jfpdef.typeDef.getSpecialsAfter().add(token.asSpecialStr());
-            }else{
-                jfpdef.nameNode.getSpecialsAfter().add(token.asSpecialStr());
-            }
-        }else{
-            peeked.getSpecialsAfter().add(token.asSpecialStr());
+    void handleFutureImports(String importName){
+        if(importName.equals("print_function")){
+            token_source.usePrintAsFunction = true;
         }
-        
     }
+
 
 }
 
 
-PARSER_END(PythonGrammar30)
+PARSER_END(PythonGrammar27)
 
 TOKEN_MGR_DECLS:
 {
+	public boolean usePrintAsFunction=false;
+	
     protected Class<?> getConstantsClass(){
-        return PythonGrammar30Constants.class;
+        return PythonGrammar27Constants.class;
     }
 
 
@@ -165,7 +153,6 @@ TOKEN : /* OPERATORS */
 {
     < PLUS: "+" >
 |   < MINUS: "-" >
-|   < MINUS_GREATER: "->" >
 |   < MULTIPLY: "*" >
 |   < DIVIDE: "/" >
 |   < FLOORDIVIDE: "//" >
@@ -183,6 +170,7 @@ TOKEN : /* OPERATORS */
 |   < EQEQUAL: "==" >
 |   < EQLESS: "<=" >
 |   < EQGREATER: ">=" >
+|   < LESSGREATER: "<>" >
 |   < NOTEQUAL: "!=" >
 |   < PLUSEQ: "+=" >
 |   < MINUSEQ: "-=" >
@@ -216,6 +204,7 @@ TOKEN : /* KEYWORDS */
 |   < DEF: "def" >
 |   < CLASS: "class" >
 |   < FINALLY: "finally" >
+|   < PRINT: "print" > {if(usePrintAsFunction){matchedToken.kind=NAME;}}
 |   < PASS: "pass" >
 |   < BREAK: "break" >
 |   < CONTINUE: "continue" >
@@ -226,31 +215,18 @@ TOKEN : /* KEYWORDS */
 |   < DEL: "del" >
 |   < RAISE: "raise" >
 |   < GLOBAL: "global" >
-|   < NONLOCAL: "nonlocal" >
+|   < EXEC: "exec" >
 |   < ASSERT: "assert" >
 |   < AS: "as" >
-|   < WITH: "with" >
-|   < FALSE: "False" >
-|   < TRUE: "True" >
-|   < NONE: "None" >
+|   <WITH: "with" >
 |   < AT: "@" >
 }
 
 
-//Python 3.0 can use unicode identifiers. So, the letter construct deals with that...
 TOKEN : /* Python identifiers */
 {
     < NAME: <LETTER> ( <LETTER> | <DIGIT>)* >
-|
-    < #LETTER: 
-    [
-       "a"-"z",
-       "A"-"Z",
-       "_",
-       "\u0080"-"\uffff" //Anything more than 128 is considered valid (unicode range)
-    
-    ] 
->
+|   < #LETTER: ["_","a"-"z","A"-"Z"] >
 }
 
 
@@ -261,7 +237,7 @@ TOKEN : /* Numeric literals */
       | "0"
       >
 |   < HEXNUMBER: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ (["l","L"])? >
-|   < OCTNUMBER: "0" ["o","O"] (["0"-"7"])* (["l","L"])? >
+|   < OCTNUMBER: "0" (["o","O"])? (["0"-"7"])* (["l","L"])? >
 |   < BINNUMBER: "0" (["b","B"])? (["0"-"1"])* (["l","L"])? >
 |
     < FLOAT:
@@ -277,10 +253,16 @@ TOKEN : /* Numeric literals */
 
 MORE : /* Strings */
 {
-    < (["b", "B"]) (["r", "R"])? "'" > :  IN_BSTRING11
+    < (["u", "U"]) (["r", "R"])? "'" > :  IN_USTRING11
+|   < (["u", "U"]) (["r", "R"])? "\"" > :  IN_USTRING21
+|   < (["u", "U"]) (["r", "R"])? "'''" > :  IN_USTRING13
+|   < (["u", "U"]) (["r", "R"])? "\"\"\"" > :  IN_USTRING23
+
+|   < (["b", "B"]) (["r", "R"])? "'" > :  IN_BSTRING11
 |   < (["b", "B"]) (["r", "R"])? "\"" > :  IN_BSTRING21
 |   < (["b", "B"]) (["r", "R"])? "'''" > :  IN_BSTRING13
 |   < (["b", "B"]) (["r", "R"])? "\"\"\"" > :  IN_BSTRING23
+
 |   < (["r", "R"])? "'" > :  IN_STRING11
 |   < (["r", "R"])? "\"" > :  IN_STRING21
 |   < (["r", "R"])? "'''" > :  IN_STRING13
@@ -305,6 +287,15 @@ MORE : /* Strings */
 <IN_BSTRING23> TOKEN : { <TRIPLE_BSTRING2: "\"\"\""> {
     matchedToken.image = image.toString(); } : DEFAULT}
 
+<IN_USTRING11> TOKEN : { <SINGLE_USTRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING21> TOKEN : { <SINGLE_USTRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING13> TOKEN : { <TRIPLE_USTRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING23> TOKEN : { <TRIPLE_USTRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
 <IN_STRING11> MORE:
 {
     <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING1NLC
@@ -315,6 +306,18 @@ MORE : /* Strings */
 {
     <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING2NLC
 |   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_STRING2NLC
+}
+
+<IN_USTRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING1NLC
+}
+
+<IN_USTRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING2NLC
 }
 
 <IN_BSTRING11> MORE:
@@ -339,6 +342,16 @@ MORE : /* Strings */
  <""> : IN_STRING21
 }
 
+<IN_USTRING1NLC> MORE:
+{
+ <""> : IN_USTRING11
+}
+
+<IN_USTRING2NLC> MORE:
+{
+ <""> : IN_USTRING21
+}
+
 <IN_BSTRING1NLC> MORE:
 {
  <""> : IN_BSTRING11
@@ -349,8 +362,8 @@ MORE : /* Strings */
  <""> : IN_BSTRING21
 }
 
-<IN_STRING11, IN_BSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
-<IN_STRING21, IN_BSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
+<IN_STRING11, IN_USTRING11, IN_BSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
+<IN_STRING21, IN_USTRING21, IN_BSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
 
 /* This is a test to see if we can make the loading of strings more efficient (and maybe replace the MORE that is declared below.
 I stopped this because I've seen that making the CharStream was apparently the number 1 thing to do, but it might be worth
@@ -377,7 +390,7 @@ comming back to this approach later).
 }
 */
 
-<IN_STRING13, IN_STRING23, IN_BSTRING13, IN_BSTRING23> MORE:
+<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23, IN_BSTRING13, IN_BSTRING23> MORE:
 {
     <"\r\n"> {
         int l = image.length();
@@ -394,97 +407,56 @@ comming back to this approach later).
 $FILE_INPUT
 
 
-//funcdef: 'def' NAME parameters ['->' test] ':' suite
+//funcdef: 'def' NAME parameters ':' suite
 void funcdef(): {}
 { 
-    $DEF_START parameters() [{this.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON 
-        suite() 
+    $DEF_START parameters() $COLON suite() 
 }
 
+//decorated: decorators (classdef | funcdef)
+void decorated():{}
+{
+    decorators() (classdef()|funcdef())
+}
 
 
 //decorators: decorator+
 //decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
 void decorators(): {}
 {
-    (begin_decorator() [<LPAREN>  {this.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] $RPAREN ] $NEWLINE )+ 
+    (begin_decorator() [$LPAREN1 insidetuporcall() $RPAREN ] $NEWLINE )+ 
 }
-
-
 void begin_decorator(): {}
 { $AT dotted_name()
 }
 
-//parameters: '(' [typedargslist] ')'
-void parameters() #void:  {}
+//parameters: '(' [varargslist] ')'
+void parameters() #void: {}
 { $LPAREN2
-  [typedargslist()] 
-  $RPAREN 
-}
-  
-//typedargslist: ((tfpdef ['=' test] ',')*
-//                ('*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
-//                | tfpdef ['=' test] (',' tfpdef ['=' test])* [','])
-void typedargslist() #void: {}
-{
-// Doing the exact same does not yield good results for javacc, so, we have to work with an alternative specification
-// (that does the same thing)
-//       (LOOKAHEAD(2) (defaultarg2() <COMMA>)*
-//        (ExtraArgList2() (<COMMA> defaultarg2())* [<COMMA> ExtraKeywordList2()] | ExtraKeywordList2())
-//        | defaultarg2() (<COMMA> defaultarg2())* [<COMMA>])
+  [varargslist()] 
+  $RPAREN
+  }
 
-
-       ((defaultarg2() (LOOKAHEAD(2)$COMMA defaultarg2())*) [LOOKAHEAD(2)$COMMA ((ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [$COMMA ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [$COMMA]
-    |  (ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [LOOKAHEAD(2)$COMMA ExtraKeywordList2()]) [$COMMA]   
-    |   ExtraKeywordList2() [$COMMA]
-}
-
-void ExtraArgList2(): {}
-{
-	<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
-}
-
-void ExtraKeywordList2(): {}
-{
-	<POWER> {this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
-}
-
-void defaultarg2(): {}
-{ tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
-
-
-void onlykeywordarg2(): {}
-{ tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
-
-
-//tfpdef: NAME [':' test]
-void tfpdef(): {}
-{ 
-	Name() [LOOKAHEAD(2)<COLON> {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
-}
-
-
-//varargslist: ((vfpdef ['=' test] ',')*
-//              ('*' [vfpdef] (',' vfpdef ['=' test])*  [',' '**' vfpdef] | '**' vfpdef)
-//              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
+//varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' ('**'|'*' '*') NAME] | ('**'|'*' '*') NAME) | fpdef ['=' test] (',' fpdef ['=' test])* [',']
 void varargslist() #void: {}
 {
-       ((defaultarg() (LOOKAHEAD(2)$COMMA defaultarg())*) [LOOKAHEAD(2)$COMMA ((ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [$COMMA ExtraKeywordList()]) | (ExtraKeywordList()) )]) [$COMMA]
-    |  (ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [LOOKAHEAD(2)$COMMA ExtraKeywordList()]) [$COMMA]   
-    |   ExtraKeywordList() [$COMMA]
+    defaultarg() (LOOKAHEAD(2) $COMMA defaultarg())*
+        [LOOKAHEAD(3) $COMMA ExtraArgList()]
+        [LOOKAHEAD(2) $COMMA ExtraKeywordList()]
+        [$COMMA]
+    |   ( LOOKAHEAD(2) ExtraArgList() [$COMMA ExtraKeywordList()]
+    | ExtraKeywordList()
+    )
 }
 
 void ExtraArgList(): {}
-{ <MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [Name()] }
+{ <MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} Name() }
 
 void ExtraKeywordList(): {}
 { (<POWER>{this.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
 
-void onlykeywordarg(): {}
-{ fpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
-
 void defaultarg(): {}
-{ fpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
+{ fpdef() [temporaryToken=<EQUAL> {this.prev.addSpecial(temporaryToken, true);} test()] }
 
 //fpdef: NAME | '(' fplist ')'
 void fpdef() #void: {}
@@ -501,16 +473,17 @@ $STMT
 $SIMPLE_STMT
 
 
-//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt 
+//small_stmt: expr_stmt | print_stmt  | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | exec_stmt | assert_stmt
 void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 {
     expr_stmt()
+|   print_stmt()
 |   del_stmt()
-|   spStr = pass_stmt() {addToPeek(spStr, false); }
+|   spStr=pass_stmt() {addToPeek(spStr, false); }
 |   flow_stmt()
 |   import_stmt()
 |   global_stmt()
-|   nonlocal_stmt()
+|   exec_stmt()
 |   $CALL_ASSERT
 }
 
@@ -518,7 +491,7 @@ void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 //                     ('=' (yield_expr|testlist))*)
 void expr_stmt() #void: {}
 {
-    testlist_star_expr() (
+    SmartTestList() (
     <PLUSEQ>        (yield_expr()|SmartTestList())   #aug_plus(2)
 |   <MINUSEQ>       (yield_expr()|SmartTestList())   #aug_minus(2)
 |   <MULTIPLYEQ>    (yield_expr()|SmartTestList())   #aug_multiply(2)
@@ -531,7 +504,20 @@ void expr_stmt() #void: {}
 |   <LSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_lshift(2)
 |   <RSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_rshift(2)
 |   <POWEREQ>       (yield_expr()|SmartTestList())   #aug_power(2)
-|  (<EQUAL>         (yield_expr()|testlist_star_expr()))* #expr_stmt(jjtree.nodeArity()+1))
+|  (<EQUAL>         (yield_expr()|SmartTestList()))* #expr_stmt(jjtree.nodeArity()+1))
+
+}
+
+//print_stmt: 'print' (test ',')* [test] | 'print' '>>' test (, test)+ [,]
+void print_stmt() #void: {}
+{
+    LOOKAHEAD(2) <PRINT> <RSHIFT>  
+    (test() [ (LOOKAHEAD(2) $COMMA test())+ [Comma()] ] )#printext_stmt
+    
+|   LOOKAHEAD(2) <PRINT> 
+    (test() (LOOKAHEAD(2) $COMMA test())* [Comma()])#print_stmt
+
+|   <PRINT>  #print_stmt
 
 }
 
@@ -567,9 +553,9 @@ void yield_stmt(): {}
 
 $YIELD
 
-//raise_stmt: 'raise' [test ['from' test]]
+//raise_stmt: 'raise' [test [',' test [',' test]]]
 void raise_stmt(): {}
-{ $RAISE [test() [{this.addSpecialToken(" from ");} <FROM> test()]] }
+{ $RAISE [test() [$COMMA test() [$COMMA test()]]] }
 
 
 $IMPORT_STMT
@@ -595,7 +581,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
         
         //from xxx import a,b,c
         | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);} 
-            ($COMMA (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
+        	($COMMA (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})* 
           ) 
         
         //from xxx import (a,b,c)
@@ -630,16 +616,12 @@ String import_as_name(): { Token t; }
 void global_stmt(): {}
 { $GLOBAL Name() ($COMMA Name())* }
 
-
-//nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
-void nonlocal_stmt(): {}
-{ <NONLOCAL> {this.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [$EQUAL2 testlist()]}
-
+$EXEC
 
 $ASSERT
 
 
-//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef
+//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated
 void compound_stmt() #void : {}
 {
     if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()
@@ -674,19 +656,19 @@ void begin_for_else_stmt(): {}
 void try_stmt() #void: {SimpleNode tryNode;int i=0;}
 { 
     begin_try_stmt() {tryNode = (SimpleNode)jjtree.peekNode();}  suite() (
-        (
-            (except_clause(tryNode) {i++;})+ 
+		(
+			(except_clause(tryNode) {i++;})+ 
     
-            [begin_try_else_stmt() suite() {i++;} #tryelse_stmt(2) ]
-            
-            [begin_finally_stmt()  suite() {i++;} #tryfinally_outer_stmt(2)]
-            
-            #try_stmt(i)
-        )
+			[begin_try_else_stmt() suite() {i++;} #tryelse_stmt(2) ]
+			
+			[begin_finally_stmt()  suite() {i++;} #tryfinally_outer_stmt(2)]
+			
+			#try_stmt(i)
+		)
         
-        | begin_finally_stmt() suite()
-            #tryfinally_stmt(jjtree.nodeArity()+1)
-    )
+		| begin_finally_stmt() suite()
+			#tryfinally_stmt(jjtree.nodeArity()+1)
+	)
 }
 
 //this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
@@ -701,43 +683,58 @@ void begin_finally_stmt(): {}
 { <FINALLY> {this.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {this.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON> 
 }
 
-//except_clause: 'except' [test [as test]]
+//except_clause: 'except' [test [('as' | ',') test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.addToPeek("except",false);} [test() [$AS test()]] $COLON suite() }
+{ begin_except_clause() {this.addToPeek("except",false);} [test() [  ($COMMA|$AS) test()]] $COLON suite() }
 
 void begin_except_clause(): {}
 { <EXCEPT> }
 
 
-//with_stmt: 'with' with_item (',' with_item)*  ':' suite
+//with_stmt: 'with' test [ with_var ] ':' suite
 void with_stmt(): {}
 { <WITH> 
-    {this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
-    
-	with_item()
-	($COMMA with_item())*
+	{this.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); } 
 	
-    $COLON suite() 
-}
+	test() 
+	
+	[with_var()] $COLON suite() }
 
-//with_item: test ['as' expr]
-void with_item():{}
-{ test() [$AS2 expr()]}
+//with_var: 'as' expr
+void with_var():{}
+{ $AS2 expr()}
+
+
 
 $SUITE
+
+
+//Backward compatibility cruft to support:
+//[ x for x in lambda: True, lambda: False if x() ]
+//even while also allowing:
+//lambda x: 5 if x else 2
+//(But not a mix of the two)
+//
+//testlist_safe: old_test [(',' old_test)+ [',']]
+void testlist_safe()#void:{}
+{old_test()  [  ({this.addSpecialToken(",");}<COMMA> old_test() )+ [{this.addSpecialToken(",");}<COMMA>]  ]}
+
+//old_test: or_test | old_lambdef
+void old_test()#void:{}
+{or_test() | old_lambdef()}
+
+//old_lambdef: 'lambda' [varargslist] ':' old_test
+void old_lambdef():{boolean hasArgs=false;}
+{ <LAMBDA> [varargslist(){hasArgs=true;}] $LAMBDA_COLON old_test() }
+
 
 //test: or_test ['if' or_test 'else' test] | lambdef
 void test(): {}
 {  lambdef() | or_test() [if_exp()] }
 
-//test_nocond: or_test | lambdef_nocond
-void test_nocond() #void: {}
-{  or_test() | lambdef_nocond() }
-
-
 $IF_EXP
 
-//or_test: and_test ('or' and_test)*
+//or_test: or_test: and_test ('or' and_test)*
 void or_test() #or_boolean(>1): {}
 { and_test() (<OR_BOOL> and_test())* }
 
@@ -755,7 +752,7 @@ void comparison() #void: {}
 { (expr() (comp_op() expr())*) #comparision(>2) }
 
 
-//comp_op: '<'|'>'|'=='|'>='|'<='|'!='|'in'|'not' 'in'|'is'|'is' 'not'
+//comp_op: '<'|'>'|'=='|'>='|'<='|'<>'|'!='|'in'|'not' 'in'|'is'|'is' 'not'
 void comp_op() #void: {}
 {
     <LESS> #less_cmp(0)
@@ -763,6 +760,7 @@ void comp_op() #void: {}
 |   <EQEQUAL> #equal_cmp(0)
 |   <EQGREATER> #greater_equal_cmp(0)
 |   <EQLESS> #less_equal_cmp(0)
+|   <LESSGREATER> #notequal_cmp(0)
 |   <NOTEQUAL> #notequal_cmp(0)
 |   <IN> #in_cmp(0)
 |   <NOT_BOOL> <IN> #not_in_cmp(0)
@@ -816,33 +814,37 @@ void factor() #void: {}
 
 //power: atom trailer* ('**' factor)*
 void power() #void: {}
-{ atom() (trailer())* (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
+{ atomtrailer() (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
-void trailer() #void: {Object spStr;Object spStr2;}
+void atomtrailer() #void: {Object spStr;Object spStr2;}
 {
- 
-    ({spStr  = createSpecialStr("(", false);} <LPAREN>  
-    [arglist()] 
-    <RPAREN> {spStr2 = createSpecialStr(")", false);}  
-    )#Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+atom() 
+(
+    LOOKAHEAD(2) (  
+    {spStr  = createSpecialStr("(", false);} <LPAREN>  
+    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+    )#Call_Op(1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
+
+|   LOOKAHEAD(2) (  
+    {spStr  = createSpecialStr("(", false);} <LPAREN>  
+    insidetuporcall() 
+    {spStr2 = createSpecialStr(")", false);} <RPAREN> 
+    ) #Call_Op(jjtree.nodeArity()+1) {addToPeekCallFunc(spStr, true); addToPeek(spStr2, true);}
 
 
-|   ({spStr = createSpecialStr("[", false);} <LBRACKET> 
+|   {spStr = createSpecialStr("[", false);} <LBRACKET> 
     subscriptlist()
-    <RBRACKET> {spStr2 = createSpecialStr("]", false);}   
-    )#Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
+    {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
+    #Index_Op(2) {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 |   <DOT> Name() #Dot_Op(2) 
+)*
 }
 
 
-
-//atom: ('(' [yield_expr|testlist_comp] ')' |
-//       '[' [testlist_comp] ']' |
-//       '{' [dictorsetmaker] '}' |
-//       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
-void atom() #void: {Object spStr;Object spStr2;}
+//atom: '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictorsetmaker] '}' | '`' testlist '`' | NAME | NUMBER | STRING+
+void atom() #void: {Object spStr;Object spStr2;boolean dict=false;}
 {
     LOOKAHEAD(2) (  
       {spStr  = createSpecialStr("(", false);} <LPAREN>  
@@ -851,39 +853,40 @@ void atom() #void: {Object spStr;Object spStr2;}
 
 |   LOOKAHEAD(2) (  
       {spStr  = createSpecialStr("(", false);} <LPAREN>  
-      (yield_expr() | testlist_comp())
+      (yield_expr() | insidetuporcall())
       {spStr2 = createSpecialStr(")", false);} <RPAREN> 
     ) #tuple {addToPeek(spStr, false); addToPeek(spStr2, true);}
 
 
+|   ( <LPAREN>  {this.addSpecialToken("(",STRATEGY_BEFORE_NEXT);}   [SmartTestList()] $RPAREN  )
+
 |   ( {spStr = createSpecialStr("[", false);} <LBRACKET> 
-      [testlist_comp()] 
+      [listmaker()] 
       {spStr2 = createSpecialStr("]", false);} <RBRACKET>  
     ) #list {addToPeek(spStr, false); addToPeek(spStr2, true);}
       
       
 |   ( {spStr  = createSpecialStr("{", false);}<LBRACE> 
       [dictorsetmaker()] 
-      {spStr2  = createSpecialStr("}", false);} <RBRACE> 
+      {spStr2  = createSpecialStr("}", false);} <RBRACE>
     ) #dictionary {addToPeek(spStr, false); addToPeek(spStr2, true);}
     
-|   (<FALSE>)#False
-|   (<TRUE>)#True
-|   (<NONE>)#None
+|   $BACKQUOTE
 |   Name() 
 |   Number()
 |   String() (String() #strjoin(2))*
+}
+
+//we can be inside a tuple or a call, and we may have list comprehension in it. (fabioz)
+void insidetuporcall() #void: {}
+{
+    arglist() (comp_for())*
 }
 
 //lambdef: 'lambda' [varargslist] ':' test
 //we add the colon to the args if there is some argument... otherwise, we add it to the first token that appears on the test
 void lambdef():{boolean hasArgs=false;}
 { <LAMBDA> [varargslist(){hasArgs=true;}] $LAMBDA_COLON test() }
-
-//lambdef_nocond: 'lambda' [varargslist] ':' test_nocond
-void lambdef_nocond():{boolean hasArgs=false;}
-{ <LAMBDA> [varargslist(){hasArgs=true;}] $LAMBDA_COLON test_nocond() }
-
 
 //subscriptlist: subscript (',' subscript)* [',']
 void subscriptlist() #void: {}
@@ -906,7 +909,7 @@ void Comma(): {} {<COMMA>}
 
 //exprlist: expr (',' expr)* [',']
 void exprlist() #void: {}
-{ ((expr()|star_expr()) (LOOKAHEAD(2) $COMMA (expr()|star_expr()))* [Comma()]) #tuple(>1) }
+{ (expr() (LOOKAHEAD(2) $COMMA expr())* [Comma()]) #tuple(>1) }
 
 //testlist: test (',' test)* [',']
 void SmartTestList() #void: {}
@@ -916,76 +919,73 @@ void SmartTestList() #void: {}
 void testlist() #void: {}
 { test() (LOOKAHEAD(2) $COMMA test())* [$COMMA]}
 
-//testlist_star_expr: test (',' test)* [',']
-void testlist_star_expr() #void: {}
-{ ( (test()|star_expr()) (LOOKAHEAD(2) $COMMA  (test()|star_expr()))* [Comma()]) #tuple(>1) }
-
-void star_expr(): {}
-{<MULTIPLY> {this.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
-
 
 $DICTORSETMAKER
 
 
-//testlist_comp: test ( comp_for | (',' test)* [','] )
-void testlist_comp() #void: {}
+//listmaker: test ( comp_for | (',' test)* [','] )
+void listmaker() #void: {}
 { test() ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) $COMMA test())* [Comma()] #tuple(>1)) }
-
 
 //comp_iter: [comp_for | comp_if]
 void comp_iter() #void: {}
 { comp_for() | comp_if() }
 
-//comp_for: 'for' exprlist 'in' or_test [comp_iter]
+//comp_for: 'for' exprlist 'in' testlist comp_iter
 void comp_for(): {}
-{ $FOR_COMP exprlist() $IN or_test() [comp_iter()] }
+{ $FOR_COMP exprlist() $IN testlist_safe() [comp_iter()] }
 
-//comp_if: 'if' test_nocond [comp_iter]
 void comp_if()#void:{}
-{ $IF_COMP test_nocond() [comp_iter()]}
+{ $IF_COMP old_test() [comp_iter()]}
 
 
-//decorated: decorators (classdef | funcdef)
-void decorated():{}
-{
-    decorators() (classdef()|funcdef())
-}
-
-//classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
-void classdef(): {Token spStr;Token spStr2;}
-{
-    $START_CLASS [$LPAREN3   [arglist()] $RPAREN ] $COLON
-        suite()
-}
+//classdef: 'class' NAME ['(' [testlist] ')'] ':' suite
+void classdef(): {}
+{$START_CLASS [$LPAREN1   [testlist()] $RPAREN  ] $COLON suite()}
 
 //arglist: (argument ',')* (argument [',']
 //                         |'*' test (',' argument)* [',' '**' test] 
 //                         |'**' test)
 void arglist() #void: {}
 {
-       ((argument() (LOOKAHEAD(2)$COMMA argument())*) [LOOKAHEAD(2)$COMMA ((ExtraArgValueList() (LOOKAHEAD(2)$COMMA argument())* [$COMMA ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [$COMMA]
-    |  (ExtraArgValueList() (LOOKAHEAD(2)$COMMA argument())* [LOOKAHEAD(2)$COMMA ExtraKeywordValueList()]) [$COMMA]   
-    |   ExtraKeywordValueList() [$COMMA]
+    normalargs() 
+    [
+        $COMMA
+        [
+            LOOKAHEAD(2) ExtraArgValueList() (LOOKAHEAD(2) $COMMA argument())*
+            [
+                $COMMA ExtraKeywordValueList() 
+            ] | ExtraKeywordValueList()
+        ]
+    ]
+    |   
+    [
+        LOOKAHEAD(2) 
+        ExtraArgValueList() (LOOKAHEAD(2) $COMMA argument())*
+        [ 
+            $COMMA ExtraKeywordValueList() 
+        ] 
+        | 
+        ExtraKeywordValueList()
+    ]
 }
 
+void normalargs() #void: {}
+{ argument() (LOOKAHEAD(2) $COMMA argument())* }
 
 void ExtraArgValueList(): {}
 { {this.addSpecialToken(createSpecialStr("*", false));} <MULTIPLY> test() }
 
 void ExtraKeywordValueList(): {}
-{ {this.addSpecialToken(createSpecialStr("**", false));} <POWER> test() }
+{ ({this.addSpecialToken(createSpecialStr("**", false));} <POWER>
+  |{this.addSpecialToken(createSpecialStr("**", false));} <MULTIPLY> <MULTIPLY>)
+  test() }
 
 
-//argument: test [comp_for] | test '=' test  # Really [keyword '='] test
-void argument(): {}
-{ 
-	   test() (LOOKAHEAD(2)  (Keyword()) |  [comp_for()])
-}
+//argument: [test '='] test     # Really [keyword '='] test
+void argument() #void: {}
+{ ([LOOKAHEAD(2) Name() $EQUAL] test()) #Keyword(>1) }
 
-void Keyword() : {}
-{
-	$EQUAL test()
-}
 
 void Number() #Num :
 {
@@ -1006,8 +1006,14 @@ void Number() #Num :
     )
 |   (
         t=<OCTNUMBER> {
-            s = t.image.substring(2, t.image.length());
-            makeInt(s, 8, t, (Num) jjtThis); 
+        	s = t.image;
+        	if(s.length() >= 2){
+        		char c = s.charAt(1);
+        		if(c == 'o' || c == 'O'){ 
+        	       s = t.image.substring(2, t.image.length());
+        		}
+        	}
+        	makeInt(s, 8, t, (Num) jjtThis); 
         } {}
     )
 |   (
@@ -1020,7 +1026,6 @@ void Number() #Num :
         t=<COMPLEX> { makeComplex(t, (Num)jjtThis); } {}
     )
 }
-
 
 void Complex(): {}
 { <FLOAT>   }
@@ -1038,6 +1043,10 @@ void String() #void :
 |   ( t=<SINGLE_STRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#String
 |   ( t=<TRIPLE_STRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
 |   ( t=<TRIPLE_STRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_USTRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<SINGLE_USTRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING2> { makeString(t.image, 3, (Str)jjtThis); } {} )#Unicode
 |   ( t=<SINGLE_BSTRING> { makeString(t.image, 1, (Str)jjtThis); } {} )#Binary
 |   ( t=<SINGLE_BSTRING2> { makeString(t.image, 1, (Str)jjtThis); } {} )#Binary
 |   ( t=<TRIPLE_BSTRING> { makeString(t.image, 3, (Str)jjtThis); } {} )#Binary
