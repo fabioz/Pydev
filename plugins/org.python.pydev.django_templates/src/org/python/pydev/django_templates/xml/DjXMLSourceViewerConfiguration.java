@@ -38,6 +38,9 @@ package org.python.pydev.django_templates.xml;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.python.pydev.django_templates.DjPartitionerSwitchStrategy;
+import org.python.pydev.django_templates.IDjConstants;
+import org.python.pydev.django_templates.html.DjHtmlSourceConfiguration;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
@@ -46,73 +49,67 @@ import com.aptana.editor.common.IPartitionerSwitchStrategy;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
 import com.aptana.editor.common.scripting.QualifiedContentType;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
-import org.python.pydev.django_templates.DjPartitionerSwitchStrategy;
-import org.python.pydev.django_templates.IDjConstants;
-import com.aptana.editor.ruby.RubySourceConfiguration;
 import com.aptana.editor.ruby.core.RubyDoubleClickStrategy;
 import com.aptana.editor.xml.XMLSourceConfiguration;
 
 /**
- * @author Max Stepanov
+ * @author Fabio Zadrozny
  */
-public class DjXMLSourceViewerConfiguration extends CompositeSourceViewerConfiguration
-{
+public class DjXMLSourceViewerConfiguration extends CompositeSourceViewerConfiguration {
 
-	static
-	{
-		IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
-		c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_XML), new QualifiedContentType(
-		        IDjConstants.TOPLEVEL_DJANGO_TEMPLATES_XML_SCOPE)); 
-		
-		c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_XML,
-				CompositePartitionScanner.START_SWITCH_TAG), new QualifiedContentType(
-		        IDjConstants.TOPLEVEL_DJANGO_TEMPLATES_XML_SCOPE, IDjConstants.EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE_XML)); 
-		
-		c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_XML,
-				CompositePartitionScanner.END_SWITCH_TAG), new QualifiedContentType(
-		        IDjConstants.TOPLEVEL_DJANGO_TEMPLATES_XML_SCOPE, IDjConstants.EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE_XML));
-	}
+    static {
+        IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_XML), new QualifiedContentType(
+                IDjConstants.TOPLEVEL_DJANGO_TEMPLATES_XML_SCOPE));
 
-	private RubyDoubleClickStrategy fDoubleClickStrategy;
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_XML, CompositePartitionScanner.START_SWITCH_TAG),
+                new QualifiedContentType(IDjConstants.TOPLEVEL_DJANGO_TEMPLATES_XML_SCOPE,
+                        IDjConstants.EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE_XML));
 
-	public DjXMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor)
-	{
-		super(XMLSourceConfiguration.getDefault(), RubySourceConfiguration.getDefault(), preferences, editor);
-	}
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_XML, CompositePartitionScanner.END_SWITCH_TAG),
+                new QualifiedContentType(IDjConstants.TOPLEVEL_DJANGO_TEMPLATES_XML_SCOPE,
+                        IDjConstants.EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE_XML));
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.CompositeSourceViewerConfiguration#getTopContentType()
-	 */
-	@Override
-	protected String getTopContentType()
-	{
-		return IDjConstants.CONTENT_TYPE_DJANGO_XML;
-	}
+    private RubyDoubleClickStrategy fDoubleClickStrategy;
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.CompositeSourceViewerConfiguration#getPartitionerSwitchStrategy()
-	 */
-	@Override
-	protected IPartitionerSwitchStrategy getPartitionerSwitchStrategy()
-	{
-		return DjPartitionerSwitchStrategy.getDefault();
-	}
+    public DjXMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor) {
+        super(XMLSourceConfiguration.getDefault(), DjHtmlSourceConfiguration.getDefault(), preferences, editor);
+    }
 
-	protected String getStartEndTokenType()
-	{
-		return "punctuation.section.embedded.django_templates"; //$NON-NLS-1$
-	}
-	
-	@Override
-	public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType)
-	{
-		if (fDoubleClickStrategy == null)
-		{
-			fDoubleClickStrategy = new RubyDoubleClickStrategy();
-		}
-		return fDoubleClickStrategy;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.aptana.editor.common.CompositeSourceViewerConfiguration#getTopContentType
+     * ()
+     */
+    @Override
+    protected String getTopContentType() {
+        return IDjConstants.CONTENT_TYPE_DJANGO_XML;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.aptana.editor.common.CompositeSourceViewerConfiguration#
+     * getPartitionerSwitchStrategy()
+     */
+    @Override
+    protected IPartitionerSwitchStrategy getPartitionerSwitchStrategy() {
+        return DjPartitionerSwitchStrategy.getDefault();
+    }
+
+    protected String getStartEndTokenType() {
+        return "punctuation.section.embedded.django_templates"; //$NON-NLS-1$
+    }
+
+    @Override
+    public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
+        if (fDoubleClickStrategy == null) {
+            fDoubleClickStrategy = new RubyDoubleClickStrategy();
+        }
+        return fDoubleClickStrategy;
+    }
 
 }

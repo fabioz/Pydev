@@ -11,8 +11,8 @@ import org.eclipse.core.runtime.content.ITextContentDescriber;
 
 public abstract class DjContentDescriber implements ITextContentDescriber {
 
-    private static final QualifiedName[] SUPPORTED_OPTIONS = new QualifiedName[] {
-            IContentDescription.CHARSET, IContentDescription.BYTE_ORDER_MARK };
+    private static final QualifiedName[] SUPPORTED_OPTIONS = new QualifiedName[] { IContentDescription.CHARSET,
+            IContentDescription.BYTE_ORDER_MARK };
 
     public int describe(Reader contents, IContentDescription description) throws IOException {
         BufferedReader reader = new BufferedReader(contents);

@@ -17,7 +17,10 @@ Require-Bundle: org.eclipse.core.runtime,
  com.aptana.editor.css;bundle-version="1.0.0",
  com.aptana.editor.js;bundle-version="1.0.0",
  com.aptana.parsing,
- beaver
+ beaver,
+ com.aptana.theme;bundle-version="1.0.0",
+ org.python.pydev;bundle-version="0.9.7.1",
+ org.python.pydev.core;bundle-version="0.9.7.1"
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Eclipse-ExtensibleAPI: true

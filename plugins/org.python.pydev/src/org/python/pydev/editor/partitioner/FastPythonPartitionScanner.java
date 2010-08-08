@@ -10,7 +10,7 @@ import org.python.pydev.core.IPythonPartitions;
 /**
  * Based on org.eclipse.jdt.internal.ui.text.FastJavaPartitionScanner
  * 
- * Could become a replacement
+ * Could become a replacement. Note that it's currently not used anywhere!
  * 
  * @author fabioz
  */

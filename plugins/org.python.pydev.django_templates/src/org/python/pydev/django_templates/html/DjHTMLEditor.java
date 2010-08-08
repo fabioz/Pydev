@@ -35,55 +35,83 @@
 
 package org.python.pydev.django_templates.html;
 
-import com.aptana.editor.common.outline.CommonOutlinePage;
-import com.aptana.editor.common.parsing.FileService;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineContentProvider;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineLabelProvider;
+import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.ui.ColorAndStyleCache;
+
+import com.aptana.editor.common.outline.CommonOutlinePage;
+import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.html.HTMLEditor;
 import com.aptana.editor.html.parsing.HTMLParseState;
 
 /**
- * @author Max Stepanov
- *
+ * @author Fabio Zadrozny
  */
 public class DjHTMLEditor extends HTMLEditor {
 
-	/* (non-Javadoc)
-	 * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
-	 */
-	@Override
+    private IPropertyChangeListener prefChangeListener;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
+     */
+    @Override
     protected void initializeEditor() {
         super.initializeEditor();
 
-        setSourceViewerConfiguration(new DjHTMLSourceViewerConfiguration(getPreferenceStore(), this));
+        IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+        prefChangeListener = this.createPrefChangeListener();
+        chainedPrefStore.addPropertyChangeListener(prefChangeListener);
+
+        setSourceViewerConfiguration(new DjHTMLSourceViewerConfiguration(chainedPrefStore, this));
         setDocumentProvider(new DjHTMLDocumentProvider());
     }
-	
-	@Override
-	protected FileService createFileService()
-	{
-		return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES, new HTMLParseState());
-	}
 
-	@Override
-	protected CommonOutlinePage createOutlinePage()
-	{
-		CommonOutlinePage outline = super.createOutlinePage();
-		outline.setContentProvider(new DjHTMLOutlineContentProvider());
-		outline.setLabelProvider(new DjHTMLOutlineLabelProvider(getFileService().getParseState()));
+    public IPropertyChangeListener createPrefChangeListener() {
+        return new IPropertyChangeListener() {
 
-		return outline;
-	}
-	
-	@Override
-	protected char[] getPairMatchingCharacters()
-	{
-		char[] orig = super.getPairMatchingCharacters();
-		char[] modified = new char[orig.length + 2];
-		System.arraycopy(orig, 0, modified, 0, orig.length);
-		modified[orig.length] ='%';
-		modified[orig.length + 1] ='%';
-		return modified;
-	}
+            public void propertyChange(PropertyChangeEvent event) {
+                String property = event.getProperty();
+                if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
+                    getISourceViewer().invalidateTextPresentation();
+                }
+            }
+        };
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        PydevPrefs.getChainedPrefStore().removePropertyChangeListener(prefChangeListener);
+    }
+
+    @Override
+    protected FileService createFileService() {
+        return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES, new HTMLParseState());
+    }
+
+    @Override
+    protected CommonOutlinePage createOutlinePage() {
+        CommonOutlinePage outline = super.createOutlinePage();
+        outline.setContentProvider(new DjHTMLOutlineContentProvider());
+        outline.setLabelProvider(new DjHTMLOutlineLabelProvider(getFileService().getParseState()));
+
+        return outline;
+    }
+
+    @Override
+    protected char[] getPairMatchingCharacters() {
+        char[] orig = super.getPairMatchingCharacters();
+        char[] modified = new char[orig.length + 2];
+        System.arraycopy(orig, 0, modified, 0, orig.length);
+        modified[orig.length] = '%';
+        modified[orig.length + 1] = '%';
+        return modified;
+    }
 }

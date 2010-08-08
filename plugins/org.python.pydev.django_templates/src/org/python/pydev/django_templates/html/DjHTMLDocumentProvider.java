@@ -35,23 +35,20 @@
 
 package org.python.pydev.django_templates.html;
 
-import com.aptana.editor.common.CompositeDocumentProvider;
 import org.python.pydev.django_templates.DjPartitionerSwitchStrategy;
 import org.python.pydev.django_templates.IDjConstants;
+
+import com.aptana.editor.common.CompositeDocumentProvider;
 import com.aptana.editor.html.HTMLSourceConfiguration;
-import com.aptana.editor.ruby.RubySourceConfiguration;
 
 /**
- * @author Max Stepanov
- *
+ * @author Fabio Zadrozny
  */
 public class DjHTMLDocumentProvider extends CompositeDocumentProvider {
 
-	protected DjHTMLDocumentProvider() {
-		super(IDjConstants.CONTENT_TYPE_DJANGO_HTML,
-				HTMLSourceConfiguration.getDefault(),
-				RubySourceConfiguration.getDefault(),
-				DjPartitionerSwitchStrategy.getDefault());
-	}
+    protected DjHTMLDocumentProvider() {
+        super(IDjConstants.CONTENT_TYPE_DJANGO_HTML, HTMLSourceConfiguration.getDefault(), DjHtmlSourceConfiguration.getDefault(),
+                DjPartitionerSwitchStrategy.getDefault());
+    }
 
 }

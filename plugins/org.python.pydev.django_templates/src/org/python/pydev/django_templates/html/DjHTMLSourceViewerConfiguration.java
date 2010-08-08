@@ -39,6 +39,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.python.pydev.django_templates.DjPartitionerSwitchStrategy;
+import org.python.pydev.django_templates.IDjConstants;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
@@ -48,95 +50,84 @@ import com.aptana.editor.common.scripting.IContentTypeTranslator;
 import com.aptana.editor.common.scripting.QualifiedContentType;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
 import com.aptana.editor.css.ICSSConstants;
-import org.python.pydev.django_templates.DjPartitionerSwitchStrategy;
-import org.python.pydev.django_templates.IDjConstants;
 import com.aptana.editor.html.HTMLSourceConfiguration;
 import com.aptana.editor.html.HTMLSourceViewerConfiguration;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.js.IJSConstants;
 import com.aptana.editor.ruby.IRubyConstants;
-import com.aptana.editor.ruby.RubySourceConfiguration;
 import com.aptana.editor.ruby.core.RubyDoubleClickStrategy;
 
 /**
- * @author Max Stepanov
- * @author cwilliams
+ * @author Fabio Zadrozny
  */
-public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfiguration implements IDjConstants
-{
+public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfiguration implements IDjConstants {
 
-	static
-	{
-		IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
-		c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML), new QualifiedContentType(
-				TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE));
-		c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML,
-				CompositePartitionScanner.START_SWITCH_TAG), new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE,
-				EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
-		c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML,
-				CompositePartitionScanner.END_SWITCH_TAG), new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE,
-				EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
+    static {
+        IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML), new QualifiedContentType(
+                TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE));
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, CompositePartitionScanner.START_SWITCH_TAG),
+                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, CompositePartitionScanner.END_SWITCH_TAG),
+                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE));
 
-		c.addTranslation(
-				new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IHTMLConstants.CONTENT_TYPE_HTML),
-				new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE));
-		c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, ICSSConstants.CONTENT_TYPE_CSS),
-				new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_CSS_SCOPE));
-		c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IJSConstants.CONTENT_TYPE_JS),
-				new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_JS_SCOPE));
-		c.addTranslation(
-				new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IRubyConstants.CONTENT_TYPE_RUBY),
-				new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_SCOPE));
-	}
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IHTMLConstants.CONTENT_TYPE_HTML),
+                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE));
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, ICSSConstants.CONTENT_TYPE_CSS),
+                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_CSS_SCOPE));
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IJSConstants.CONTENT_TYPE_JS),
+                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_JS_SCOPE));
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IRubyConstants.CONTENT_TYPE_RUBY),
+                new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_SCOPE));
+    }
 
-	private RubyDoubleClickStrategy fDoubleClickStrategy;
+    private RubyDoubleClickStrategy fDoubleClickStrategy;
 
-	protected DjHTMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor)
-	{
-		super(HTMLSourceConfiguration.getDefault(), RubySourceConfiguration.getDefault(), preferences, editor);
-	}
+    protected DjHTMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor) {
+        super(HTMLSourceConfiguration.getDefault(), DjHtmlSourceConfiguration.getDefault(), preferences, editor);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.CompositeSourceViewerConfiguration#getTopContentType()
-	 */
-	@Override
-	protected String getTopContentType()
-	{
-		return IDjConstants.CONTENT_TYPE_DJANGO_HTML;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.aptana.editor.common.CompositeSourceViewerConfiguration#getTopContentType
+     * ()
+     */
+    @Override
+    protected String getTopContentType() {
+        return IDjConstants.CONTENT_TYPE_DJANGO_HTML;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.aptana.editor.common.CompositeSourceViewerConfiguration#getLanguageSpecification()
-	 */
-	@Override
-	protected IPartitionerSwitchStrategy getPartitionerSwitchStrategy()
-	{
-		return DjPartitionerSwitchStrategy.getDefault();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.aptana.editor.common.CompositeSourceViewerConfiguration#
+     * getLanguageSpecification()
+     */
+    @Override
+    protected IPartitionerSwitchStrategy getPartitionerSwitchStrategy() {
+        return DjPartitionerSwitchStrategy.getDefault();
+    }
 
-	protected String getStartEndTokenType()
-	{
-		return "punctuation.section.embedded.ruby"; //$NON-NLS-1$
-	}
-	
-	@Override
-	public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType)
-	{
-		if (fDoubleClickStrategy == null)
-		{
-			fDoubleClickStrategy = new RubyDoubleClickStrategy();
-		}
-		return fDoubleClickStrategy;
-	}
+    protected String getStartEndTokenType() {
+        return "punctuation.section.embedded.ruby"; //$NON-NLS-1$
+    }
 
-	@Override
-	protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType)
-	{
-		// Just uses the HTML content assist processor for now
-		// TODO: needs to check for ruby content type when the content assist is available there
-		AbstractThemeableEditor editor = getAbstractThemeableEditor();
-		return HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
-	}
+    @Override
+    public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
+        if (fDoubleClickStrategy == null) {
+            fDoubleClickStrategy = new RubyDoubleClickStrategy();
+        }
+        return fDoubleClickStrategy;
+    }
+
+    @Override
+    protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType) {
+        // Just uses the HTML content assist processor for now
+        // TODO: needs to check for ruby content type when the content assist is
+        // available there
+        AbstractThemeableEditor editor = getAbstractThemeableEditor();
+        return HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
+    }
 }

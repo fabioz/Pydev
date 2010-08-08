@@ -35,30 +35,32 @@
 
 package org.python.pydev.django_templates.xml;
 
+import org.python.pydev.plugin.preferences.PydevPrefs;
+
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.parsing.FileService;
 import com.aptana.editor.ruby.parsing.IRubyParserConstants;
 
 /**
- * @author Max Stepanov
- *
+ * @author Fabio Zadrozny
  */
 public class DjXMLEditor extends AbstractThemeableEditor {
 
-	/* (non-Javadoc)
-	 * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
-	 */
-	@Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
+     */
+    @Override
     protected void initializeEditor() {
         super.initializeEditor();
 
-        setSourceViewerConfiguration(new DjXMLSourceViewerConfiguration(getPreferenceStore(), this));
+        setSourceViewerConfiguration(new DjXMLSourceViewerConfiguration(PydevPrefs.getChainedPrefStore(), this));
         setDocumentProvider(new DjXMLDocumentProvider());
     }
-	
-	@Override
-	protected FileService createFileService()
-	{
-		return new FileService(IRubyParserConstants.LANGUAGE);
-	}
+
+    @Override
+    protected FileService createFileService() {
+        return new FileService(IRubyParserConstants.LANGUAGE);
+    }
 }

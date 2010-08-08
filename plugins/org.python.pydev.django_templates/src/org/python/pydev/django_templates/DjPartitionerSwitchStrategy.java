@@ -38,38 +38,38 @@ package org.python.pydev.django_templates;
 import com.aptana.editor.common.PartitionerSwitchStrategy;
 
 /**
- * @author Max Stepanov
- *
+ * @author Fabio Zadrozny
  */
 public class DjPartitionerSwitchStrategy extends PartitionerSwitchStrategy {
 
-	private static DjPartitionerSwitchStrategy instance;
-	
-	private static final String[][] DJANGO_TEMPLATES_PAIRS = new String[][] {
-		{ "{%", "%}" }, //$NON-NLS-1$ //$NON-NLS-2$
-		{ "{{", "}}" } //$NON-NLS-1$ //$NON-NLS-2$
-	};
-	
-	
-	/**
-	 * 
-	 */
-	private DjPartitionerSwitchStrategy() {
-		super(DJANGO_TEMPLATES_PAIRS, new String[0][0]);
-	}
-	
-	public static DjPartitionerSwitchStrategy getDefault() {
-		if (instance == null) {
-			instance = new DjPartitionerSwitchStrategy();
-		}
-		return instance;
-	}
+    private static DjPartitionerSwitchStrategy instance;
 
-	/* (non-Javadoc)
-	 * @see com.aptana.editor.common.IPartitionerSwitchStrategy#getSwitchTagPairs()
-	 */
-	public String[][] getSwitchTagPairs() {
-		return DJANGO_TEMPLATES_PAIRS;
-	}
+    private static final String[][] DJANGO_TEMPLATES_PAIRS = new String[][] { { "{%", "%}" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "{{", "}}" } //$NON-NLS-1$ //$NON-NLS-2$
+    };
+
+    /**
+     * 
+     */
+    private DjPartitionerSwitchStrategy() {
+        super(DJANGO_TEMPLATES_PAIRS, new String[0][0]);
+    }
+
+    public static DjPartitionerSwitchStrategy getDefault() {
+        if (instance == null) {
+            instance = new DjPartitionerSwitchStrategy();
+        }
+        return instance;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.aptana.editor.common.IPartitionerSwitchStrategy#getSwitchTagPairs()
+     */
+    public String[][] getSwitchTagPairs() {
+        return DJANGO_TEMPLATES_PAIRS;
+    }
 
 }

@@ -15,63 +15,55 @@ import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
 import com.aptana.parsing.ast.ParseRootNode;
 
-public class DjHTMLParser extends CompositeParser
-{
+public class DjHTMLParser extends CompositeParser {
 
-	public DjHTMLParser()
-	{
-		// FIXME keep a reference to language and check out parser on demand?
-		super(new DjHTMLParserScanner(), new HTMLParser());
-	}
+    public DjHTMLParser() {
+        // FIXME keep a reference to language and check out parser on demand?
+        super(new DjHTMLParserScanner(), new HTMLParser());
+    }
 
-	@Override
-	protected IParseNode processEmbeddedlanguage(IParseState parseState) throws Exception
-	{
-		String source = new String(parseState.getSource());
-		int startingOffset = parseState.getStartingOffset();
-		IParseNode root = new ParseRootNode(IRubyParserConstants.LANGUAGE, new ParseNode[0], startingOffset,
-				startingOffset + source.length());
+    @Override
+    protected IParseNode processEmbeddedlanguage(IParseState parseState) throws Exception {
+        String source = new String(parseState.getSource());
+        int startingOffset = parseState.getStartingOffset();
+        IParseNode root = new ParseRootNode(IRubyParserConstants.LANGUAGE, new ParseNode[0], startingOffset, startingOffset
+                + source.length());
 
-		advance();
-		short id = getCurrentSymbol().getId();
-		while (id != DjangoTemplatesTokens.EOF)
-		{
-			// only cares about ruby tokens
-			switch (id)
-			{
-				case DjangoTemplatesTokens.RUBY:
-					processRubyBlock(root);
-					break;
-			}
-			advance();
-			id = getCurrentSymbol().getId();
-		}
-		return root;
-	}
+        advance();
+        short id = getCurrentSymbol().getId();
+        while (id != DjangoTemplatesTokens.EOF) {
+            // only cares about ruby tokens
+            switch (id) {
+            case DjangoTemplatesTokens.RUBY:
+                processRubyBlock(root);
+                break;
+            }
+            advance();
+            id = getCurrentSymbol().getId();
+        }
+        return root;
+    }
 
-	private void processRubyBlock(IParseNode root) throws IOException, Exception
-	{
-		Symbol startTag = getCurrentSymbol();
-		advance();
+    private void processRubyBlock(IParseNode root) throws IOException, Exception {
+        Symbol startTag = getCurrentSymbol();
+        advance();
 
-		// finds the entire ruby block
-		int start = getCurrentSymbol().getStart();
-		int end = start;
-		short id = getCurrentSymbol().getId();
-		while (id != DjangoTemplatesTokens.RUBY_END && id != DjangoTemplatesTokens.EOF)
-		{
-			end = getCurrentSymbol().getEnd();
-			advance();
-			id = getCurrentSymbol().getId();
-		}
+        // finds the entire ruby block
+        int start = getCurrentSymbol().getStart();
+        int end = start;
+        short id = getCurrentSymbol().getId();
+        while (id != DjangoTemplatesTokens.RUBY_END && id != DjangoTemplatesTokens.EOF) {
+            end = getCurrentSymbol().getEnd();
+            advance();
+            id = getCurrentSymbol().getId();
+        }
 
-		IParseNode result = getParseResult(new RubyParser(), start, end);
-		if (result != null)
-		{
-			Symbol endTag = getCurrentSymbol();
-			DjangoTemplatesNode node = new DjangoTemplatesNode((IRubyScript) result, startTag.value.toString(), endTag.value.toString());
-			node.setLocation(startTag.getStart(), endTag.getEnd());
-			root.addChild(node);
-		}
-	}
+        IParseNode result = getParseResult(new RubyParser(), start, end);
+        if (result != null) {
+            Symbol endTag = getCurrentSymbol();
+            DjangoTemplatesNode node = new DjangoTemplatesNode((IRubyScript) result, startTag.value.toString(), endTag.value.toString());
+            node.setLocation(startTag.getStart(), endTag.getEnd());
+            root.addChild(node);
+        }
+    }
 }
