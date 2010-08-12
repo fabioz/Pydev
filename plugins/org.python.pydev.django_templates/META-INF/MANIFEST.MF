@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.python.pydev.django_templates;singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-Activator: org.python.pydev.django_templates.Activator
+Bundle-Activator: org.python.pydev.django_templates.DjPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text,
@@ -20,7 +20,9 @@ Require-Bundle: org.eclipse.core.runtime,
  beaver,
  com.aptana.theme;bundle-version="1.0.0",
  org.python.pydev;bundle-version="0.9.7.1",
- org.python.pydev.core;bundle-version="0.9.7.1"
+ org.python.pydev.core;bundle-version="0.9.7.1",
+ org.eclipse.ui.workbench.texteditor,
+ org.junit
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Eclipse-ExtensibleAPI: true

@@ -1,23 +1,23 @@
 package org.python.pydev.django_templates.html.parsing;
 
-import com.aptana.editor.ruby.core.IRubyScript;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
+import org.python.pydev.django_templates.IDjConstants;
+
 import com.aptana.parsing.ast.ParseNode;
 
 public class DjangoTemplatesNode extends ParseNode {
 
-    private IRubyScript fScript;
+    private ParseNode fScript;
     private String fStartTag;
     private String fEndTag;
 
-    public DjangoTemplatesNode(IRubyScript script, String startTag, String endTag) {
-        super(IRubyParserConstants.LANGUAGE);
-        fScript = script;
+    public DjangoTemplatesNode(ParseNode parseNode, String startTag, String endTag) {
+        super(IDjConstants.LANGUAGE_DJANGO_TEMPLATES);
+        fScript = parseNode;
         fStartTag = startTag;
         fEndTag = endTag;
 
         setChildren(fScript.getChildren());
-        setLocation(script.getStartingOffset(), script.getEndingOffset());
+        setLocation(parseNode.getStartingOffset(), parseNode.getEndingOffset());
     }
 
     public String getStartTag() {
@@ -28,7 +28,7 @@ public class DjangoTemplatesNode extends ParseNode {
         return fEndTag;
     }
 
-    public IRubyScript getScript() {
+    public ParseNode getNode() {
         return fScript;
     }
 

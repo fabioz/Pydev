@@ -7,28 +7,28 @@ import com.aptana.editor.html.parsing.HTMLScanner;
 
 public class DjHTMLScanner extends HTMLScanner {
 
-    private static final String[] RUBY_ENTER_TOKENS = new String[] { DjangoTemplatesTokens.getTokenName(DjangoTemplatesTokens.RUBY) };
-    private static final String[] RUBY_EXIT_TOKENS = new String[] { DjangoTemplatesTokens.getTokenName(DjangoTemplatesTokens.RUBY_END) };
+    private static final String[] DJHTML_ENTER_TOKENS = new String[] { DjangoTemplatesTokens.getTokenName(DjangoTemplatesTokens.DJHTML_START) };
+    private static final String[] DJHTML_EXIT_TOKENS = new String[] { DjangoTemplatesTokens.getTokenName(DjangoTemplatesTokens.DJHTML_END) };
 
-    private static final IScannerSwitchStrategy RUBY_STRATEGY = new ScannerSwitchStrategy(RUBY_ENTER_TOKENS, RUBY_EXIT_TOKENS);
+    private static final IScannerSwitchStrategy DJHTML_STRATEGY = new ScannerSwitchStrategy(DJHTML_ENTER_TOKENS, DJHTML_EXIT_TOKENS);
 
-    private boolean isInRuby;
+    private boolean isInDjHtml;
 
     public DjHTMLScanner() {
-        super(new DjHTMLTokenScanner(), new IScannerSwitchStrategy[] { RUBY_STRATEGY });
+        super(new DjHTMLTokenScanner(), new IScannerSwitchStrategy[] { DJHTML_STRATEGY });
     }
 
     public short getTokenType(Object data) {
         IScannerSwitchStrategy strategy = getCurrentSwitchStrategy();
-        if (strategy == RUBY_STRATEGY) {
-            if (!isInRuby) {
-                isInRuby = true;
+        if (strategy == DJHTML_STRATEGY) {
+            if (!isInDjHtml) {
+                isInDjHtml = true;
             }
-            return DjangoTemplatesTokens.RUBY;
+            return DjangoTemplatesTokens.DJHTML_START;
         }
-        if (strategy == null && isInRuby) {
-            isInRuby = false;
-            return DjangoTemplatesTokens.RUBY_END;
+        if (strategy == null && isInDjHtml) {
+            isInDjHtml = false;
+            return DjangoTemplatesTokens.DJHTML_END;
         }
         return super.getTokenType(data);
     }

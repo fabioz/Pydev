@@ -2,14 +2,13 @@ package org.python.pydev.django_templates.html.parsing;
 
 import java.io.IOException;
 
+import org.python.pydev.django_templates.IDjConstants;
+import org.python.pydev.django_templates.parsing.lexer.DjangoTemplatesTokens;
+
 import beaver.Symbol;
 
 import com.aptana.editor.common.parsing.CompositeParser;
-import org.python.pydev.django_templates.parsing.lexer.DjangoTemplatesTokens;
 import com.aptana.editor.html.parsing.HTMLParser;
-import com.aptana.editor.ruby.core.IRubyScript;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
-import com.aptana.editor.ruby.parsing.RubyParser;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
@@ -26,16 +25,16 @@ public class DjHTMLParser extends CompositeParser {
     protected IParseNode processEmbeddedlanguage(IParseState parseState) throws Exception {
         String source = new String(parseState.getSource());
         int startingOffset = parseState.getStartingOffset();
-        IParseNode root = new ParseRootNode(IRubyParserConstants.LANGUAGE, new ParseNode[0], startingOffset, startingOffset
+        IParseNode root = new ParseRootNode(IDjConstants.LANGUAGE_DJANGO_TEMPLATES, new ParseNode[0], startingOffset, startingOffset
                 + source.length());
 
         advance();
         short id = getCurrentSymbol().getId();
         while (id != DjangoTemplatesTokens.EOF) {
-            // only cares about ruby tokens
+            // only cares about django templates tokens
             switch (id) {
-            case DjangoTemplatesTokens.RUBY:
-                processRubyBlock(root);
+            case DjangoTemplatesTokens.DJHTML_START:
+                processDjHtmlBlock(root);
                 break;
             }
             advance();
@@ -44,26 +43,25 @@ public class DjHTMLParser extends CompositeParser {
         return root;
     }
 
-    private void processRubyBlock(IParseNode root) throws IOException, Exception {
+    private void processDjHtmlBlock(IParseNode root) throws IOException, Exception {
         Symbol startTag = getCurrentSymbol();
         advance();
 
-        // finds the entire ruby block
+        // finds the entire django templates block
         int start = getCurrentSymbol().getStart();
         int end = start;
         short id = getCurrentSymbol().getId();
-        while (id != DjangoTemplatesTokens.RUBY_END && id != DjangoTemplatesTokens.EOF) {
+        while (id != DjangoTemplatesTokens.DJHTML_END && id != DjangoTemplatesTokens.EOF) {
             end = getCurrentSymbol().getEnd();
             advance();
             id = getCurrentSymbol().getId();
         }
 
-        IParseNode result = getParseResult(new RubyParser(), start, end);
-        if (result != null) {
-            Symbol endTag = getCurrentSymbol();
-            DjangoTemplatesNode node = new DjangoTemplatesNode((IRubyScript) result, startTag.value.toString(), endTag.value.toString());
-            node.setLocation(startTag.getStart(), endTag.getEnd());
-            root.addChild(node);
-        }
+        ParseNode parseNode = new ParseNode(IDjConstants.LANGUAGE_DJANGO_TEMPLATES);
+        parseNode.setLocation(start, end);
+        Symbol endTag = getCurrentSymbol();
+        DjangoTemplatesNode node = new DjangoTemplatesNode(parseNode, startTag.value.toString(), endTag.value.toString());
+        node.setLocation(startTag.getStart(), endTag.getEnd());
+        root.addChild(node);
     }
 }

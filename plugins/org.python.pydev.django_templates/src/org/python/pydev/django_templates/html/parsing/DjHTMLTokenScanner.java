@@ -15,22 +15,23 @@ import com.aptana.editor.html.parsing.HTMLTokenScanner;
 public class DjHTMLTokenScanner extends HTMLTokenScanner {
 
     @SuppressWarnings("nls")
-    private static final String[] RUBY_START = { "{%", "{{" };
+    private static final String[] DJHTML_START = { "{%", "{{" };
+    
     @SuppressWarnings("nls")
-    private static final String[] RUBY_END = new String[] { "%}", "}}" };
+    private static final String[] DJHTML_END = new String[] { "%}", "}}" };
 
     public DjHTMLTokenScanner() {
         List<IRule> rules = new ArrayList<IRule>();
-        // adds rules for finding the ruby start and end sequences
-        WordRule wordRule = new WordRule(new RubyStartDetector(), Token.UNDEFINED);
-        IToken token = createToken(getTokenName(DjangoTemplatesTokens.RUBY));
-        for (String word : RUBY_START) {
+        // adds rules for finding the django templates start and end sequences
+        WordRule wordRule = new WordRule(new DjStartDetector(), Token.UNDEFINED);
+        IToken token = createToken(getTokenName(DjangoTemplatesTokens.DJHTML_START));
+        for (String word : DJHTML_START) {
             wordRule.addWord(word, token);
         }
         rules.add(wordRule);
-        wordRule = new WordRule(new RubyEndDetector(), Token.UNDEFINED);
-        token = createToken(getTokenName(DjangoTemplatesTokens.RUBY_END));
-        for (String word : RUBY_END) {
+        wordRule = new WordRule(new DjEndDetector(), Token.UNDEFINED);
+        token = createToken(getTokenName(DjangoTemplatesTokens.DJHTML_END));
+        for (String word : DJHTML_END) {
             wordRule.addWord(word, token);
         }
         rules.add(wordRule);
@@ -46,7 +47,7 @@ public class DjHTMLTokenScanner extends HTMLTokenScanner {
         return DjangoTemplatesTokens.getTokenName(token);
     }
 
-    private static final class RubyStartDetector implements IWordDetector {
+    private static final class DjStartDetector implements IWordDetector {
 
         @Override
         public boolean isWordPart(char c) {
@@ -64,7 +65,7 @@ public class DjHTMLTokenScanner extends HTMLTokenScanner {
         }
     }
 
-    private static final class RubyEndDetector implements IWordDetector {
+    private static final class DjEndDetector implements IWordDetector {
 
         @Override
         public boolean isWordPart(char c) {

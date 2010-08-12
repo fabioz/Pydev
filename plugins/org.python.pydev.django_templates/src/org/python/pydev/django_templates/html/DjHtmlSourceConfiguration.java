@@ -36,22 +36,28 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
     private static final String SOURCE_DJHTML = "source.djhtml";
     private static final String STRING_QUOTED_DOUBLE_DJHTML = "string.quoted.double.djhtml";
     private static final String STRING_QUOTED_SINGLE_DJHTML = "string.quoted.single.djhtml";
+    private static final String COMMENT_DJHTML = "comment.djhtml";
 
     public final static String PREFIX = "__djhtml_";
     public final static String DEFAULT = "__djhtml" + IDocument.DEFAULT_CONTENT_TYPE;
     public final static String STRING_SINGLE = PREFIX + "string_single";
     public final static String STRING_DOUBLE = PREFIX + "string_double";
+    public final static String COMMENT = PREFIX + "comment";
 
-    public static final String[] CONTENT_TYPES = new String[] { DEFAULT, STRING_SINGLE, STRING_DOUBLE };
+    public static final String[] CONTENT_TYPES = new String[] { DEFAULT, STRING_SINGLE, STRING_DOUBLE, COMMENT };
 
     private static final String[][] TOP_CONTENT_TYPES = new String[][] { { IDjConstants.CONTENT_TYPE_DJANGO_HTML } };
 
-    private IPredicateRule[] partitioningRules = new IPredicateRule[] { new SingleLineRule("\"", "\"", new Token(STRING_DOUBLE), '\\'), //$NON-NLS-2$
-            new SingleLineRule("\'", "\'", new Token(STRING_SINGLE), '\\') }; //$NON-NLS-2$
+    private IPredicateRule[] partitioningRules = new IPredicateRule[] {
+            new SingleLineRule("\"", "\"", new Token(STRING_DOUBLE), '\\'),
+            new SingleLineRule("\'", "\'", new Token(STRING_SINGLE), '\\'), 
+            new SingleLineRule("{#", "#}", new Token(COMMENT)) 
+    };
 
     private PyCodeScanner codeScanner;
     private RuleBasedScanner singleQuotedStringScanner;
     private RuleBasedScanner doubleQuotedStringScanner;
+    private RuleBasedScanner commentScanner;
 
     private static DjHtmlSourceConfiguration instance;
 
@@ -60,6 +66,7 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
         c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML), new QualifiedContentType(SOURCE_DJHTML));
         c.addTranslation(new QualifiedContentType(STRING_SINGLE), new QualifiedContentType(STRING_QUOTED_SINGLE_DJHTML));
         c.addTranslation(new QualifiedContentType(STRING_DOUBLE), new QualifiedContentType(STRING_QUOTED_DOUBLE_DJHTML));
+        c.addTranslation(new QualifiedContentType(COMMENT), new QualifiedContentType(COMMENT_DJHTML));
     }
 
     public static DjHtmlSourceConfiguration getDefault() {
@@ -132,6 +139,10 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
         dr = new DefaultDamagerRepairer(getDoubleQuotedStringScanner());
         reconciler.setDamager(dr, DjHtmlSourceConfiguration.STRING_DOUBLE);
         reconciler.setRepairer(dr, DjHtmlSourceConfiguration.STRING_DOUBLE);
+        
+        dr = new DefaultDamagerRepairer(getCommentScanner());
+        reconciler.setDamager(dr, DjHtmlSourceConfiguration.COMMENT);
+        reconciler.setRepairer(dr, DjHtmlSourceConfiguration.COMMENT);
     }
 
     public PyCodeScanner getCodeScanner() {
@@ -149,6 +160,15 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
         return singleQuotedStringScanner;
     }
 
+    
+    private ITokenScanner getCommentScanner() {
+        if (commentScanner == null) {
+            commentScanner = new RuleBasedScanner();
+            commentScanner.setDefaultReturnToken(getToken(COMMENT_DJHTML));
+        }
+        return commentScanner;
+    }
+    
     private ITokenScanner getDoubleQuotedStringScanner() {
         if (doubleQuotedStringScanner == null) {
             doubleQuotedStringScanner = new RuleBasedScanner();

@@ -3,14 +3,13 @@ package org.python.pydev.django_templates.html.outline;
 import java.util.StringTokenizer;
 
 import org.eclipse.swt.graphics.Image;
-
+import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.html.parsing.DjangoTemplatesNode;
+
 import com.aptana.editor.html.Activator;
 import com.aptana.editor.html.outline.HTMLOutlineLabelProvider;
-import com.aptana.editor.ruby.core.IRubyScript;
-import com.aptana.editor.ruby.outline.RubyOutlineLabelProvider;
-import com.aptana.editor.ruby.parsing.IRubyParserConstants;
 import com.aptana.parsing.IParseState;
+import com.aptana.parsing.ast.ParseNode;
 
 public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
 
@@ -22,7 +21,7 @@ public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
 
     public DjHTMLOutlineLabelProvider(IParseState parseState) {
         fParseState = parseState;
-        addSubLanguage(IRubyParserConstants.LANGUAGE, new RubyOutlineLabelProvider());
+        addSubLanguage(IDjConstants.LANGUAGE_DJANGO_TEMPLATES, new DjOutlineLabelProvider());
     }
 
     @Override
@@ -45,10 +44,10 @@ public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
         StringBuilder text = new StringBuilder();
         text.append(script.getStartTag()).append(" "); //$NON-NLS-1$
         String source = new String(fParseState.getSource());
-        // locates the ruby source
-        IRubyScript ruby = script.getScript();
-        source = source.substring(ruby.getStartingOffset(), ruby.getEndingOffset());
-        // gets the first line of the ruby source
+        // locates the source
+        ParseNode node = script.getNode();
+        source = source.substring(node.getStartingOffset(), node.getEndingOffset()+1);
+        // gets the first line of the source
         StringTokenizer st = new StringTokenizer(source, "\n\r\f"); //$NON-NLS-1$
         source = st.nextToken();
         if (source.length() <= TRIM_TO_LENGTH) {

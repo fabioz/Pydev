@@ -35,12 +35,18 @@
 
 package org.python.pydev.django_templates.html;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.django_templates.DjPartitionerSwitchStrategy;
 import org.python.pydev.django_templates.IDjConstants;
+import org.python.pydev.django_templates.common.DjDoubleClickStrategy;
+import org.python.pydev.django_templates.completions.DjContentAssistProcessor;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
 import com.aptana.editor.common.CommonEditorPlugin;
@@ -54,8 +60,6 @@ import com.aptana.editor.html.HTMLSourceConfiguration;
 import com.aptana.editor.html.HTMLSourceViewerConfiguration;
 import com.aptana.editor.html.IHTMLConstants;
 import com.aptana.editor.js.IJSConstants;
-import com.aptana.editor.ruby.IRubyConstants;
-import com.aptana.editor.ruby.core.RubyDoubleClickStrategy;
 
 /**
  * @author Fabio Zadrozny
@@ -77,11 +81,11 @@ public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfig
                 new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_CSS_SCOPE));
         c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IJSConstants.CONTENT_TYPE_JS),
                 new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_JS_SCOPE));
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IRubyConstants.CONTENT_TYPE_RUBY),
+        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML, IDjConstants.CONTENT_TYPE_DJANGO_HTML),
                 new QualifiedContentType(TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE, EMBEDDED_DJANGO_TEMPLATES_SCOPE));
     }
 
-    private RubyDoubleClickStrategy fDoubleClickStrategy;
+    private Map<String, DjDoubleClickStrategy> fDoubleClickStrategy = new HashMap<String, DjDoubleClickStrategy>();
 
     protected DjHTMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor) {
         super(HTMLSourceConfiguration.getDefault(), DjHtmlSourceConfiguration.getDefault(), preferences, editor);
@@ -111,23 +115,29 @@ public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfig
     }
 
     protected String getStartEndTokenType() {
-        return "punctuation.section.embedded.ruby"; //$NON-NLS-1$
+        return "punctuation.section.embedded.djhtml"; //$NON-NLS-1$
     }
 
     @Override
     public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
-        if (fDoubleClickStrategy == null) {
-            fDoubleClickStrategy = new RubyDoubleClickStrategy();
+        DjDoubleClickStrategy strategy = fDoubleClickStrategy.get(contentType);
+        if (strategy == null) {
+            strategy = new DjDoubleClickStrategy(contentType);
+            fDoubleClickStrategy.put(contentType, strategy);
         }
-        return fDoubleClickStrategy;
+        return strategy;
     }
 
     @Override
     protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType) {
-        // Just uses the HTML content assist processor for now
-        // TODO: needs to check for ruby content type when the content assist is
-        // available there
+        if(DjHtmlSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
+            return new DjContentAssistProcessor(contentType, null);
+        }
         AbstractThemeableEditor editor = getAbstractThemeableEditor();
-        return HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
+        IContentAssistProcessor htmlContentAssistProcessor = HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
+        if("__html__dftl_partition_content_type".equals(contentType)){
+            return new DjContentAssistProcessor(contentType, htmlContentAssistProcessor);
+        }
+        return htmlContentAssistProcessor;
     }
 }

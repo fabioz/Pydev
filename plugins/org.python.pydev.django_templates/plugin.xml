@@ -54,5 +54,48 @@
             language="text/django_templates">
       </parser>
    </extension>
+   
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            name="Django Templates"
+            class="org.python.pydev.django_templates.preferences.DjangoTemplatesPreferencesPageRoot"
+            id="org.python.pydev.django_templates">
+      </page>
+      <page
+            name="Templates"
+            class="org.python.pydev.django_templates.completions.templates.DjTemplatePreferencesPage"
+            category="org.python.pydev.django_templates"
+            id="org.python.pydev.django_templates.templates"/>
 
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <contextType
+            class="org.python.pydev.django_templates.completions.templates.DjContextType"
+            id="org.python.pydev.django_templates.templatesContext"
+            name="Django full tags">
+      </contextType>
+      <include file="templates/default-templates.xml"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <contextType
+            class="org.python.pydev.django_templates.completions.templates.DjContextType"
+            id="org.python.pydev.django_templates.tagsTemplatesContext"
+            name="Django tags">
+      </contextType>
+      <include file="templates/default-templates-tags.xml"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <contextType
+            class="org.python.pydev.django_templates.completions.templates.DjContextType"
+            id="org.python.pydev.django_templates.filtersTemplatesContext"
+            name="Django filters">
+      </contextType>
+      <include file="templates/default-templates-filters.xml"/>
+   </extension>
+   
 </plugin>

@@ -35,11 +35,15 @@
 
 package org.python.pydev.django_templates.xml;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.django_templates.DjPartitionerSwitchStrategy;
 import org.python.pydev.django_templates.IDjConstants;
+import org.python.pydev.django_templates.common.DjDoubleClickStrategy;
 import org.python.pydev.django_templates.html.DjHtmlSourceConfiguration;
 
 import com.aptana.editor.common.AbstractThemeableEditor;
@@ -49,7 +53,6 @@ import com.aptana.editor.common.IPartitionerSwitchStrategy;
 import com.aptana.editor.common.scripting.IContentTypeTranslator;
 import com.aptana.editor.common.scripting.QualifiedContentType;
 import com.aptana.editor.common.text.rules.CompositePartitionScanner;
-import com.aptana.editor.ruby.core.RubyDoubleClickStrategy;
 import com.aptana.editor.xml.XMLSourceConfiguration;
 
 /**
@@ -71,7 +74,7 @@ public class DjXMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
                         IDjConstants.EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE_XML));
     }
 
-    private RubyDoubleClickStrategy fDoubleClickStrategy;
+    private Map<String, DjDoubleClickStrategy> fDoubleClickStrategy = new HashMap<String, DjDoubleClickStrategy>();
 
     public DjXMLSourceViewerConfiguration(IPreferenceStore preferences, AbstractThemeableEditor editor) {
         super(XMLSourceConfiguration.getDefault(), DjHtmlSourceConfiguration.getDefault(), preferences, editor);
@@ -106,10 +109,12 @@ public class DjXMLSourceViewerConfiguration extends CompositeSourceViewerConfigu
 
     @Override
     public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
-        if (fDoubleClickStrategy == null) {
-            fDoubleClickStrategy = new RubyDoubleClickStrategy();
+        DjDoubleClickStrategy strategy = fDoubleClickStrategy.get(contentType);
+        if (strategy == null) {
+            strategy = new DjDoubleClickStrategy(contentType);
+            fDoubleClickStrategy.put(contentType, strategy);
         }
-        return fDoubleClickStrategy;
+        return strategy;
     }
 
 }

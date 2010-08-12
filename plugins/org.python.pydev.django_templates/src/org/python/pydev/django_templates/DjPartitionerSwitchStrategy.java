@@ -44,8 +44,9 @@ public class DjPartitionerSwitchStrategy extends PartitionerSwitchStrategy {
 
     private static DjPartitionerSwitchStrategy instance;
 
-    private static final String[][] DJANGO_TEMPLATES_PAIRS = new String[][] { { "{%", "%}" }, //$NON-NLS-1$ //$NON-NLS-2$
-            { "{{", "}}" } //$NON-NLS-1$ //$NON-NLS-2$
+    private static final String[][] DJANGO_TEMPLATES_PAIRS = new String[][] { 
+        { "{%", "%}" }, 
+        { "{{", "}}" }
     };
 
     /**
