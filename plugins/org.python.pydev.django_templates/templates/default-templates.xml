@@ -9,10 +9,9 @@
         enabled="true"
         name="autoescape"
         id="org.python.pydev.django_templates.templatesContext.tags.autoescape"
-   >
-{% autoescape ${cursor}on|off %}
-{% endautoescape %}
-   </template>
+   >{% autoescape ${on_or_off} %}
+    ${cursor}
+{% endautoescape %}</template>
 
    <template
         autoinsert="true"
@@ -22,10 +21,9 @@
         enabled="true"
         name="block"
         id="org.python.pydev.django_templates.templatesContext.tags.block"
-   >
-{% block ${cursor}name %}
-{% endblock %}
-   </template>
+   >{% block ${name} %}
+    ${cursor}
+{% endblock %}</template>
 
    <template
         autoinsert="true"
@@ -35,11 +33,9 @@
         enabled="true"
         name="comment"
         id="org.python.pydev.django_templates.templatesContext.tags.comment"
-   >
-{% comment %}
-  ${cursor}
-{% endcomment %}
-   </template>
+   >{% comment %}
+    ${cursor}
+{% endcomment %}</template>
 
    <template
         autoinsert="true"
@@ -49,9 +45,7 @@
         enabled="true"
         name="csrf_token"
         id="org.python.pydev.django_templates.templatesContext.tags.csrf_token"
-   >
-{% csrf_token %}
-   </template>
+   >{% csrf_token %}</template>
 
    <template
         autoinsert="true"
@@ -61,9 +55,7 @@
         enabled="true"
         name="cycle"
         id="org.python.pydev.django_templates.templatesContext.tags.cycle"
-   >
-{% cycle ${cursor}'row1' 'row2' %}
-   </template>
+   >{% cycle ${row1} ${row2} %}</template>
 
    <template
         autoinsert="true"
@@ -73,9 +65,7 @@
         enabled="true"
         name="debug"
         id="org.python.pydev.django_templates.templatesContext.tags.debug"
-   >
-{% debug %}
-   </template>
+   >{% debug %}</template>
 
    <template
         autoinsert="true"
@@ -85,9 +75,7 @@
         enabled="true"
         name="extends"
         id="org.python.pydev.django_templates.templatesContext.tags.extends"
-   >
-{% extends ${cursor}"base.html" %}
-   </template>
+   >{% extends "${base_html}" %}</template>
 
    <template
         autoinsert="true"
@@ -97,10 +85,9 @@
         enabled="true"
         name="filter"
         id="org.python.pydev.django_templates.templatesContext.tags.filter"
-   >
-{% filter ${cursor}filter-name %}
-{% endfilter %}
-   </template>
+   >{% filter ${filter_name} %}
+    ${cursor}
+{% endfilter %}</template>
 
    <template
         autoinsert="true"
@@ -110,9 +97,7 @@
         enabled="true"
         name="firstof"
         id="org.python.pydev.django_templates.templatesContext.tags.firstof"
-   >
-{% firstof ${cursor}var1 var2 var3 %}
-   </template>
+   >{% firstof ${var1} ${var2} %}</template>
 
    <template
         autoinsert="true"
@@ -122,10 +107,9 @@
         enabled="true"
         name="for"
         id="org.python.pydev.django_templates.templatesContext.tags.for"
-   >
-{% for ${cursor}el in array %}
-{% endfor %}
-   </template>
+   >{% for ${el} in ${array} %}
+    ${cursor}
+{% endfor %}</template>
 
    <template
         autoinsert="true"
@@ -135,11 +119,10 @@
         enabled="true"
         name="forempty"
         id="org.python.pydev.django_templates.templatesContext.tags.forempty"
-   >
-{% for ${cursor}el in array %}
+   >{% for ${el} in ${array} %}
+    ${cursor}
 {% empty %}
-{% endfor %}
-   </template>
+{% endfor %}</template>
 
    <template
         autoinsert="true"
@@ -149,10 +132,9 @@
         enabled="true"
         name="if"
         id="org.python.pydev.django_templates.templatesContext.tags.if"
-   >
-{% if ${cursor}condition %}
-{% endif %}
-   </template>
+   >{% if ${condition} %}
+    ${cursor}
+{% endif %}</template>
 
    <template
         autoinsert="true"
@@ -162,11 +144,10 @@
         enabled="true"
         name="ifelse"
         id="org.python.pydev.django_templates.templatesContext.tags.ifelse"
-   >
-{% if ${cursor}condition %}
+   >{% if ${condition} %}
+    ${cursor}
 {% else %}
-{% endif %}
-   </template>
+{% endif %}</template>
 
    <template
         autoinsert="true"
@@ -176,10 +157,9 @@
         enabled="true"
         name="ifchanged"
         id="org.python.pydev.django_templates.templatesContext.tags.ifchanged"
-   >
-{% ifchanged ${cursor}what %}
-{% endifchanged %}
-   </template>
+   >{% ifchanged ${what} %}
+    ${cursor}
+{% endifchanged %}</template>
 
    <template
         autoinsert="true"
@@ -189,11 +169,10 @@
         enabled="true"
         name="ifchangedelse"
         id="org.python.pydev.django_templates.templatesContext.tags.ifchangedelse"
-   >
-{% ifchanged ${cursor}what %}
+   >{% ifchanged ${what} %}
+    ${cursor}
 {% else %}
-{% endifchanged %}
-   </template>
+{% endifchanged %}</template>
 
    <template
         autoinsert="true"
@@ -203,10 +182,9 @@
         enabled="true"
         name="ifequal"
         id="org.python.pydev.django_templates.templatesContext.tags.ifequal"
-   >
-{% ifequal ${cursor}par1 "par2" %}
-{% endifequal %}
-   </template>
+   >{% ifequal ${par1} ${par2} %}
+    ${cursor}
+{% endifequal %}</template>
 
    <template
         autoinsert="true"
@@ -216,10 +194,8 @@
         enabled="true"
         name="ifnotequal"
         id="org.python.pydev.django_templates.templatesContext.tags.ifnotequal"
-   >
-{% ifnotequal ${cursor}par1 "par2" %}
-{% endifnotequal %}
-   </template>
+   >{% ifnotequal ${par1} ${par2} %}
+{% endifnotequal %}</template>
 
    <template
         autoinsert="true"
@@ -229,9 +205,7 @@
         enabled="true"
         name="include"
         id="org.python.pydev.django_templates.templatesContext.tags.include"
-   >
-{% include ${cursor}"foo/bar.html" %}
-   </template>
+   >{% include "${path_to_html}" %}</template>
 
    <template
         autoinsert="true"
@@ -241,9 +215,7 @@
         enabled="true"
         name="load"
         id="org.python.pydev.django_templates.templatesContext.tags.load"
-   >
-{% load ${cursor}templ %}
-   </template>
+   >{% load ${templ} %}</template>
 
    <template
         autoinsert="true"
@@ -253,9 +225,7 @@
         enabled="true"
         name="now"
         id="org.python.pydev.django_templates.templatesContext.tags.now"
-   >
-{% now ${cursor}"c" %}
-   </template>
+   >{% now "${c}" %}</template>
 
    <template
         autoinsert="true"
@@ -265,9 +235,7 @@
         enabled="true"
         name="regroup"
         id="org.python.pydev.django_templates.templatesContext.tags.regroup"
-   >
-{% regroup ${cursor}x by y as list %}
-   </template>
+   >{% regroup ${x} by ${y} as ${list} %}</template>
 
    <template
         autoinsert="true"
@@ -277,11 +245,9 @@
         enabled="true"
         name="spaceless"
         id="org.python.pydev.django_templates.templatesContext.tags.spaceless"
-   >
-{% spaceless %}
-  ${cursor}
-{% endspaceless %}
-   </template>
+   >{% spaceless %}
+    ${cursor}
+{% endspaceless %}</template>
 
    <template
         autoinsert="true"
@@ -291,9 +257,7 @@
         enabled="true"
         name="ssi"
         id="org.python.pydev.django_templates.templatesContext.tags.ssi"
-   >
-{% ssi ${cursor}file-name %}
-   </template>
+   >{% ssi ${filename} %}</template>
 
    <template
         autoinsert="true"
@@ -303,9 +267,7 @@
         enabled="true"
         name="templatetag"
         id="org.python.pydev.django_templates.templatesContext.tags.templatetag"
-   >
-{% templatetag ${cursor}arg %}
-   </template>
+   >{% templatetag ${arg} %}</template>
 
    <template
         autoinsert="true"
@@ -315,9 +277,7 @@
         enabled="true"
         name="url"
         id="org.python.pydev.django_templates.templatesContext.tags.url"
-   >
-{% url ${cursor}path.to.some_view arg1=v1 arg2=v2 %}
-   </template>
+   >{% url ${path_to_some_view} ${args} %}</template>
 
    <template
         autoinsert="true"
@@ -327,9 +287,7 @@
         enabled="true"
         name="widthratio"
         id="org.python.pydev.django_templates.templatesContext.tags.widthratio"
-   >
-{% widthratio ${cursor}this_value max_value 100 %}
-   </template>
+   >{% widthratio ${this_value max_value} 100 %}</template>
 
    <template
         autoinsert="true"
@@ -339,9 +297,8 @@
         enabled="true"
         name="with"
         id="org.python.pydev.django_templates.templatesContext.tags.with"
-   >
-{% with ${cursor}x as y %}
-{% endwith %}
-   </template>
+   >{% with ${x} as ${y} %}
+    ${cursor}
+{% endwith %}</template>
 
 </templates>

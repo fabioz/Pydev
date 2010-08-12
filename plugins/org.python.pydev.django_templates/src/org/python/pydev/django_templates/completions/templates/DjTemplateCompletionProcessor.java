@@ -11,6 +11,7 @@ import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
 
 /**
  * @author Fabio Zadrozny
@@ -61,5 +62,12 @@ public class DjTemplateCompletionProcessor extends TemplateCompletionProcessor{
         return new DjTemplateProposal(template, context, region, getImage(template), relevance, displayOnlyName);
     }
 
-
+    /**
+     * Overridden so that we can do the indentation in this case.
+     */
+    @Override
+    protected TemplateContext createContext(final ITextViewer viewer, final IRegion region) {
+        TemplateContextType contextType= getContextType(viewer, region);
+        return PyTemplateCompletionProcessor.createContext(contextType, viewer, region);
+    }
 }

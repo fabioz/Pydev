@@ -30,7 +30,7 @@ import org.python.pydev.ui.ColorAndStyleCache;
 public class PyCodeScanner extends RuleBasedScanner {
     
     // keywords list has to be alphabetized for the keyword detector to work properly
-    static final public String[] KEYWORDS = {
+    static final public String[] DEFAULT_KEYWORDS = {
         "and","as","assert","break","class","continue",
         "def","del","elif","else","except","exec",
         "finally","for","from","global",
@@ -46,7 +46,9 @@ public class PyCodeScanner extends RuleBasedScanner {
     private IToken decoratorToken; 
     private IToken numberToken   ; 
     private IToken classNameToken; 
-    private IToken funcNameToken ; 
+    private IToken funcNameToken ;
+
+    private String[] keywords; 
     
     
     
@@ -150,12 +152,18 @@ public class PyCodeScanner extends RuleBasedScanner {
     }
     
     public PyCodeScanner(ColorAndStyleCache colorCache) {
+        this(colorCache, DEFAULT_KEYWORDS);
+    }
+    
+    public PyCodeScanner(ColorAndStyleCache colorCache, String[] keywords) {
         super();
+        this.keywords = keywords;
         this.colorCache = colorCache;
         
         setupRules();
     }
     
+
     public void updateColors() {
         setupRules();
     }
@@ -189,7 +197,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         defaults.put("self", selfToken);
         
         PyWordRule wordRule = new PyWordRule(new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken);
-        for (String keyword : KEYWORDS) {
+        for (String keyword : keywords) {
             IToken token = defaults.get(keyword);
             if(token == null){
                 token = keywordToken;
@@ -203,5 +211,13 @@ public class PyCodeScanner extends RuleBasedScanner {
         rules.add(new WordRule(new NumberDetector(), numberToken));
         
         setRules(rules.toArray(new IRule[0]));
+    }
+
+    /**
+     * Used from the django templates editor.
+     */
+    public void setKeywords(String[] keywords) {
+        this.keywords = keywords;
+        this.setupRules();
     }
 }

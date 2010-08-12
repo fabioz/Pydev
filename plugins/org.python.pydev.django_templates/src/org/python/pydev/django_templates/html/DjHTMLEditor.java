@@ -36,11 +36,17 @@
 package org.python.pydev.django_templates.html;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.TextViewer;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.django_templates.IDjConstants;
+import org.python.pydev.django_templates.completions.templates.TemplateHelper;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineContentProvider;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineLabelProvider;
+import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 
@@ -68,9 +74,20 @@ public class DjHTMLEditor extends HTMLEditor {
         IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
         prefChangeListener = this.createPrefChangeListener();
         chainedPrefStore.addPropertyChangeListener(prefChangeListener);
+        TemplateHelper.getTemplatesPreferenceStore().addPropertyChangeListener(prefChangeListener);
 
         setSourceViewerConfiguration(new DjHTMLSourceViewerConfiguration(chainedPrefStore, this));
         setDocumentProvider(new DjHTMLDocumentProvider());
+    }
+    
+    @Override
+    protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
+        ISourceViewer viewer = super.createSourceViewer(parent, ruler, styles);
+        if(viewer instanceof TextViewer){
+            TextViewer textViewer = (TextViewer) viewer;
+            ((TextViewer) viewer).appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(textViewer, null));
+        }
+        return viewer;
     }
 
     public IPropertyChangeListener createPrefChangeListener() {
@@ -78,7 +95,7 @@ public class DjHTMLEditor extends HTMLEditor {
 
             public void propertyChange(PropertyChangeEvent event) {
                 String property = event.getProperty();
-                if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
+                if (ColorAndStyleCache.isColorOrStyleProperty(property) || TemplateHelper.CUSTOM_TEMPLATES_DJ_KEY.equals(property)) {
                     getISourceViewer().invalidateTextPresentation();
                 }
             }

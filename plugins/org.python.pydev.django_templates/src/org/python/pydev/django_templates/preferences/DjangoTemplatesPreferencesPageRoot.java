@@ -1,19 +1,29 @@
 package org.python.pydev.django_templates.preferences;
 
-import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.utils.LabelFieldEditor;
 
-public class DjangoTemplatesPreferencesPageRoot extends PreferencePage implements IWorkbenchPreferencePage {
+public class DjangoTemplatesPreferencesPageRoot extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public void init(IWorkbench workbench) {
-        
+        setDescription("Django Templates Editor"); 
     }
 
-    protected Control createContents(Composite parent) {
-        return parent;
+
+    @Override
+    protected void createFieldEditors() {
+        Composite p = getFieldEditorParent();
+        
+        addField(new LabelFieldEditor("PREF_TO_IGNORE", 
+                "\n" +
+                "To change the editor colors use Aptana > Themes\n" +
+                "\n" +
+                "To change the keywords colored, edit the templates\n" +
+                "with the Context 'Django tags'\n" +
+                "", p));
     }
 
 }

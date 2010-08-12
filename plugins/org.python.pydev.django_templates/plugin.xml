@@ -57,8 +57,9 @@
    
    <extension point="org.eclipse.ui.preferencePages">
       <page
-            name="Django Templates"
+            name="Django Templates Editor"
             class="org.python.pydev.django_templates.preferences.DjangoTemplatesPreferencesPageRoot"
+            category="org.python.pydev.prefs"
             id="org.python.pydev.django_templates">
       </page>
       <page

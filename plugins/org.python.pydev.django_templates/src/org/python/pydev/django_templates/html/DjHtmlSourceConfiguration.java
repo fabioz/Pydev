@@ -1,5 +1,7 @@
 package org.python.pydev.django_templates.html;
 
+import java.util.ArrayList;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
@@ -11,9 +13,13 @@ import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.django_templates.IDjConstants;
+import org.python.pydev.django_templates.completions.templates.DjContextType;
+import org.python.pydev.django_templates.completions.templates.TemplateHelper;
 import org.python.pydev.editor.PyCodeScanner;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
@@ -147,9 +153,42 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
 
     public PyCodeScanner getCodeScanner() {
         if (codeScanner == null) {
-            codeScanner = new PyCodeScanner(getColorCache());
+            IPreferenceStore store = TemplateHelper.getTemplatesPreferenceStore();
+            codeScanner = new PyCodeScanner(getColorCache(), getKeywordsFromTemplates());
+            store.addPropertyChangeListener(new IPropertyChangeListener() {
+                
+                public void propertyChange(PropertyChangeEvent event) {
+                    if(TemplateHelper.CUSTOM_TEMPLATES_DJ_KEY.equals(event.getProperty())){
+                        updateCodeScannerKeywords();
+                    }
+                }
+            });
         }
         return codeScanner;
+    }
+
+
+
+    private void updateCodeScannerKeywords() {
+        if(this.codeScanner != null){
+            String[] keywords = getKeywordsFromTemplates();
+            this.codeScanner.setKeywords(keywords);
+        }
+    }
+
+    public String[] getKeywordsFromTemplates() {
+        Template[] templates = TemplateHelper.getTemplateStore().
+            getTemplates(DjContextType.DJ_TAGS_COMPLETIONS_CONTEXT_TYPE);
+        ArrayList<String> templateNames = new ArrayList<String>();
+        for (Template template : templates) {
+            String name = template.getName();
+            if(StringUtils.containsWhitespace(name)){
+                continue;
+            }
+            templateNames.add(name);
+        }
+        String[] keywords = templateNames.toArray(new String[templateNames.size()]);
+        return keywords;
     }
 
     private ITokenScanner getSingleQuotedStringScanner() {

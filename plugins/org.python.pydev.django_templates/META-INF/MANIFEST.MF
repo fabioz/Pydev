@@ -19,10 +19,10 @@ Require-Bundle: org.eclipse.core.runtime,
  com.aptana.parsing,
  beaver,
  com.aptana.theme;bundle-version="1.0.0",
- org.python.pydev;bundle-version="0.9.7.1",
  org.python.pydev.core;bundle-version="0.9.7.1",
  org.eclipse.ui.workbench.texteditor,
- org.junit
+ org.junit,
+ org.python.pydev;bundle-version="0.9.7.1"
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Eclipse-ExtensibleAPI: true

@@ -48,6 +48,7 @@
             as
             widthratio
             with               endwith
+            in
         '''
             
         for c in sorted(set([c.strip() for c in completions.split() if c.strip()])):
@@ -324,6 +325,16 @@
             
             id="org.python.pydev.django_templates.tagsTemplatesContext.ifnotequal"
         >ifnotequal</template>
+
+        <template
+            autoinsert="true"
+            context="org.python.pydev.django_templates.tagsTemplatesContext"
+            description="in"
+            enabled="true"
+            name="in"
+            
+            id="org.python.pydev.django_templates.tagsTemplatesContext.in"
+        >in</template>
 
         <template
             autoinsert="true"

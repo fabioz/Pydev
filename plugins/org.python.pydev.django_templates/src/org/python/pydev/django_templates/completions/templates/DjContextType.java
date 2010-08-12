@@ -38,6 +38,7 @@ public class DjContextType extends TemplateContextType {
         addResolver(new GlobalTemplateVariables.Year());
         addResolver(new GlobalTemplateVariables.Time());
         addResolver(new GlobalTemplateVariables.User());
+        addResolver(new DjTemplateVariableResolver("on_or_off", "Choose on or off", new String[]{"on", "off"}));
     }
     
 

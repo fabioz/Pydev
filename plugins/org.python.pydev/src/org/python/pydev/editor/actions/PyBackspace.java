@@ -10,7 +10,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -373,7 +373,7 @@ public class PyBackspace extends PyAction {
     /**
      * Creates a handler that will properly treat backspaces considering python code.
      */
-    public static VerifyKeyListener createVerifyKeyListener(final SourceViewer viewer, final PyEdit edit) {
+    public static VerifyKeyListener createVerifyKeyListener(final TextViewer viewer, final PyEdit edit) {
         return new VerifyKeyListener(){
             
             public void verifyKey(VerifyEvent event) {

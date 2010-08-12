@@ -2,6 +2,7 @@ package org.python.pydev.django_templates.completions.templates;
 
 import java.io.IOException;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
@@ -32,7 +33,7 @@ public class TemplateHelper {
     public static TemplateStore getTemplateStore() {
         if (fStore == null) {
             fStore = new ContributionTemplateStore(TemplateHelper.getContextTypeRegistry(), 
-                    DjPlugin.getDefault().getPreferenceStore(), CUSTOM_TEMPLATES_DJ_KEY);
+                    getTemplatesPreferenceStore(), CUSTOM_TEMPLATES_DJ_KEY);
             try {
                 fStore.load();
             } catch (IOException e) {
@@ -41,6 +42,10 @@ public class TemplateHelper {
             }
         }
         return fStore;
+    }
+
+    public static IPreferenceStore getTemplatesPreferenceStore() {
+        return DjPlugin.getDefault().getPreferenceStore();
     }
 
     /**

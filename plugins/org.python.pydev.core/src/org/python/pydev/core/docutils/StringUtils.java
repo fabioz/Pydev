@@ -867,6 +867,15 @@ public class StringUtils {
 		return result;
 	}
 
+    public static boolean containsWhitespace(String name) {
+        for(int i=0;i<name.length();i++){
+            if(Character.isWhitespace(name.charAt(i))){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 
 
