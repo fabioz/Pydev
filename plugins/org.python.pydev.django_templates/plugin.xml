@@ -15,6 +15,7 @@
                contentTypeId="org.python.pydev.contenttype.django_templates.html">
          </contentTypeBinding>
       </editor>
+      <!--xml not ready
       <editor
             class="org.python.pydev.django_templates.xml.DjXMLEditor"
             contributorClass="com.aptana.editor.common.CommonTextEditorActionContributor"
@@ -27,6 +28,7 @@
                contentTypeId="org.python.pydev.contenttype.django_templates.xml">
          </contentTypeBinding>
       </editor>
+      -->
    </extension>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
@@ -38,6 +40,7 @@
             name="%content-type.djhtml.name"
             priority="normal">
       </content-type>
+      <!--xml not ready
       <content-type
             base-type="org.eclipse.core.runtime.xml"
             describer="org.python.pydev.django_templates.xml.DjXMLContentDescriber"
@@ -46,6 +49,7 @@
             name="%content-type.djxml.name"
             priority="normal">
       </content-type>
+      -->
    </extension>
    <extension
          point="com.aptana.parsing.parser">
