@@ -1,4 +1,4 @@
-**Note: Instructions are targeted at Eclipse 3.5**
+**Note: Instructions are targeted at Eclipse 3.5 and 3.6**
 
 
 .. contents::

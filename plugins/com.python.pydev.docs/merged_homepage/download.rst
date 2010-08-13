@@ -15,7 +15,7 @@ Requirements
 .. _Python: http://www.python.org
 .. _Jython: http://www.jython.org
 .. _IronPython: http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython
-.. _Eclipse (3.2 to 3.5): http://www.eclipse.org
+.. _Eclipse (3.2 to 3.6): http://www.eclipse.org
 .. _Java: http://www.javasoft.com
 .. _JDT: http://www.eclipse.org/jdt/
 .. _Platform Runtime Binary: http://download.eclipse.org/eclipse/downloads/
@@ -30,7 +30,7 @@ At least one of:
 and 
 
 
-* `Aptana Studio`_ or `Eclipse (3.2 to 3.5)`_ 
+* `Aptana Studio`_ or `Eclipse (3.2 to 3.6)`_ 
 
 	* Python_ and IronPython_ require only the `Platform Runtime Binary`_ (download around 45-50 MB), and Jython_ also requires JDT_.
 	
