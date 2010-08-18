@@ -19,11 +19,21 @@ Require-Bundle: org.eclipse.core.runtime,
  com.aptana.parsing,
  beaver,
  com.aptana.theme;bundle-version="1.0.0",
- org.python.pydev.core;bundle-version="0.9.7.1",
+ org.python.pydev.core,
  org.eclipse.ui.workbench.texteditor,
  org.junit,
  org.python.pydev;bundle-version="0.9.7.1"
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Eclipse-ExtensibleAPI: true
-Export-Package: org.python.pydev.django_templates
+Export-Package: org.python.pydev.django_templates,
+ org.python.pydev.django_templates.common,
+ org.python.pydev.django_templates.completions,
+ org.python.pydev.django_templates.completions.templates,
+ org.python.pydev.django_templates.html,
+ org.python.pydev.django_templates.html.outline,
+ org.python.pydev.django_templates.html.parsing,
+ org.python.pydev.django_templates.parsing.lexer,
+ org.python.pydev.django_templates.preferences,
+ org.python.pydev.django_templates.xml
+Bundle-ClassPath: django-templates.jar
