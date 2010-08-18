@@ -350,15 +350,21 @@
         <copy file="${builder}/site.xml" tofile="${p2.repo.dir}/site.xml" />
         <replace token="{version.full}" value="${version.full}" file="${p2.repo.dir}/site.xml" />
     	
+    	
+    	
         <zip destfile="${buildDirectory}/org.python.pydev.feature-${version.full}.zip">
-            <fileset dir="${p2.repo.dir}" defaultexcludes="false" excludes="**org.python.pydev.django_templates**"/>
+            <fileset dir="${p2.repo.dir}" defaultexcludes="false" excludes="**/**org.python.pydev.django_templates**"/>
         </zip>
         <move file="${buildDirectory}/org.python.pydev.feature-${version.full}.zip" todir="${p2.repo.dir}" />
     	
+    	
+    	
         <zip destfile="${buildDirectory}/org.python.pydev.django_templates.feature-${version.full}.zip">
-            <fileset dir="${p2.repo.dir}" defaultexcludes="false" includes="**org.python.pydev.django_templates**"/>
+            <fileset dir="${p2.repo.dir}" defaultexcludes="false" includes="**/**org.python.pydev.django_templates**"/>
         </zip>
         <move file="${buildDirectory}/org.python.pydev.django_templates.feature-${version.full}.zip" todir="${p2.repo.dir}" />
+    	
+    	
     	
         <copy file="${builder}/index.html" tofile="${p2.repo.dir}/index.html" />
         <replace token="ZIP_FILE_PYDEV" value="org.python.pydev.feature-${version.full}.zip" file="${p2.repo.dir}/index.html" />
