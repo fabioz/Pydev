@@ -6,6 +6,10 @@
       <category name="PyDev"/>
    </feature>
    
+   <feature url="features/org.python.pydev.django_templates.feature_{version.full}.jar" id="org.python.pydev.django_templates.feature" version="{version.full}">
+      <category name="PyDev"/>
+   </feature>
+   
    <feature url="features/org.python.pydev.mylyn.feature_0.3.0.jar" id="org.python.pydev.mylyn.feature" version="0.3.0">
       <category name="PyDev Mylyn Integration"/>
    </feature>   

@@ -15,7 +15,12 @@
  	<target name="allElementsDelegator">
  		<ant antfile="${genericTargets}" target="${target}">
 	 		<property name="type" value="${topLevelElementType}" />
-	 		<property name="id" value="${topLevelElementId}" />
+	 		<property name="id" value="org.python.pydev.feature" />
+ 		</ant>
+ 		
+ 		<ant antfile="${genericTargets}" target="${target}">
+	 		<property name="type" value="${topLevelElementType}" />
+	 		<property name="id" value="org.python.pydev.django_templates.feature" />
  		</ant>
  	</target>
  
@@ -28,6 +33,7 @@
 	<!-- 		assembleScriptName: The assemble script to be called			-->
 	<!-- ====================================================================== -->
 	<target name="defaultAssemble">
+ 		<echo message="Default assemble: ${assembleScriptName}" />
 		<ant antfile="${assembleScriptName}" dir="${buildDirectory}" />
 	</target>	
 	
@@ -46,6 +52,13 @@
  	<!-- ====================================================================== -->
 	<property name="assemble.org.python.pydev.feature" value="true" />
  	<target name="assemble.org.python.pydev.feature">
+ 		<echo message="Assembling pydev templates with: ${assembleScriptName}" />
+ 		<ant antfile="${assembleScriptName}" dir="${buildDirectory}"/>
+ 	</target>
+	
+	<property name="assemble.org.python.pydev.django_templates.feature" value="true" />
+ 	<target name="assemble.org.python.pydev.django_templates.feature">
+ 		<echo message="Assembling django templates with: ${assembleScriptName}" />
  		<ant antfile="${assembleScriptName}" dir="${buildDirectory}"/>
  	</target>
 	
