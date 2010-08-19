@@ -8,7 +8,7 @@ import org.python.pydev.django_templates.parsing.lexer.DjangoTemplatesTokens;
 import beaver.Symbol;
 
 import com.aptana.editor.common.parsing.CompositeParser;
-import com.aptana.editor.html.parsing.HTMLParser;
+import com.aptana.editor.html.parsing.IHTMLParserConstants;
 import com.aptana.parsing.IParseState;
 import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
@@ -17,8 +17,7 @@ import com.aptana.parsing.ast.ParseRootNode;
 public class DjHTMLParser extends CompositeParser {
 
     public DjHTMLParser() {
-        // FIXME keep a reference to language and check out parser on demand?
-        super(new DjHTMLParserScanner(), new HTMLParser());
+        super(new DjHTMLParserScanner(), IHTMLParserConstants.LANGUAGE);
     }
 
     @Override

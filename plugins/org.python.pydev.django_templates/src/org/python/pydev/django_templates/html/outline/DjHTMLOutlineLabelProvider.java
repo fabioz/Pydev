@@ -3,17 +3,17 @@ package org.python.pydev.django_templates.html.outline;
 import java.util.StringTokenizer;
 
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.django_templates.DjPlugin;
 import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.html.parsing.DjangoTemplatesNode;
 
-import com.aptana.editor.html.Activator;
+import com.aptana.editor.common.outline.CommonOutlineItem;
 import com.aptana.editor.html.outline.HTMLOutlineLabelProvider;
 import com.aptana.parsing.IParseState;
+import com.aptana.parsing.ast.IParseNode;
 import com.aptana.parsing.ast.ParseNode;
 
 public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
-
-    private static final Image DJANGO_TEMPLATES_NODE_ICON = Activator.getImage("icons/element.gif"); //$NON-NLS-1$
 
     private static final int TRIM_TO_LENGTH = 20;
 
@@ -25,19 +25,26 @@ public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
     }
 
     @Override
-    protected Image getDefaultImage(Object element) {
-        if (element instanceof DjangoTemplatesNode) {
-            return DJANGO_TEMPLATES_NODE_ICON;
+    public Image getImage(Object element) {
+        if (element instanceof CommonOutlineItem) {
+            IParseNode node = ((CommonOutlineItem) element).getReferenceNode();
+
+            if (node instanceof DjangoTemplatesNode) {
+                return DjPlugin.getImageCache().get("icons/element.gif");
+            }
         }
-        return super.getDefaultImage(element);
+        return super.getImage(element);
     }
 
     @Override
-    protected String getDefaultText(Object element) {
-        if (element instanceof DjangoTemplatesNode) {
-            return getDisplayText((DjangoTemplatesNode) element);
+    public String getText(Object element) {
+        if (element instanceof CommonOutlineItem) {
+            IParseNode node = ((CommonOutlineItem) element).getReferenceNode();
+            if (node instanceof DjangoTemplatesNode) {
+                return getDisplayText((DjangoTemplatesNode) node);
+            }
         }
-        return super.getDefaultText(element);
+        return super.getText(element);
     }
 
     private String getDisplayText(DjangoTemplatesNode script) {
@@ -46,7 +53,7 @@ public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
         String source = new String(fParseState.getSource());
         // locates the source
         ParseNode node = script.getNode();
-        source = source.substring(node.getStartingOffset(), node.getEndingOffset()+1);
+        source = source.substring(node.getStartingOffset(), node.getEndingOffset() + 1);
         // gets the first line of the source
         StringTokenizer st = new StringTokenizer(source, "\n\r\f"); //$NON-NLS-1$
         source = st.nextToken();

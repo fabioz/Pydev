@@ -2,6 +2,9 @@ package org.python.pydev.django_templates;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.core.bundle.BundleInfo;
+import org.python.pydev.core.bundle.IBundleInfo;
+import org.python.pydev.core.bundle.ImageCache;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -13,6 +16,26 @@ public class DjPlugin extends AbstractUIPlugin {
 
     // The shared instance
     private static DjPlugin plugin;
+    
+    // ----------------- SINGLETON THINGS -----------------------------
+    public static IBundleInfo info;
+    public static IBundleInfo getBundleInfo(){
+        if(DjPlugin.info == null){
+            DjPlugin.info = new BundleInfo(DjPlugin.getDefault().getBundle());
+        }
+        return DjPlugin.info;
+    }
+    public static void setBundleInfo(IBundleInfo b){
+        DjPlugin.info = b;
+    }
+    /**
+     * @return the cache that should be used to access images within the pydev plugin.
+     */
+    public static ImageCache getImageCache(){
+        return DjPlugin.getBundleInfo().getImageCache();
+    }
+    // ----------------- END BUNDLE INFO THINGS --------------------------
+    
 
     /**
      * The constructor
