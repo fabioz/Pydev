@@ -12,6 +12,7 @@ import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
@@ -63,6 +64,20 @@ public final class DuplicationChecker {
             if(!visitor.scope.getPrevScopeItems().getIsInSubSubScope()){
                 String exists = stack.peek().get(name);
                 if(exists != null){
+                    if(node instanceof FunctionDef){
+                        FunctionDef functionDef = (FunctionDef) node;
+                        if(functionDef.decs != null && functionDef.decs.length > 0){
+                            for (decoratorsType dec : functionDef.decs) {
+                                if(dec.func != null){
+                                    String fullRepresentationString = NodeUtils.getFullRepresentationString(dec.func);
+                                    if(fullRepresentationString.startsWith(name+".")){
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
                     SourceToken token = AbstractVisitor.makeToken(node, "");
                     visitor.onAddDuplicatedSignature(token, name);
                 }

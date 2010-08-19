@@ -31,7 +31,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testPython30UnusedParameter();
+            analyzer2.testDuplicatedSignatureNotOnProperty();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2283,6 +2283,22 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(1, msgs.length); //it is created, but in ignore mode
         assertEquals(IMarker.SEVERITY_INFO, msgs[0].getSeverity());
         
+    }
+    
+    public void testDuplicatedSignatureNotOnProperty() {
+        doc = new Document(
+                "class C:             \n" +
+                "    @property\n" +
+                "    def m1(self):pass\n" +
+                "    @m1.setter\n" +
+                "    def m1(self):pass\n"+ 
+                "    @m1.deleter\n" +
+                "    def m1(self):pass\n" 
+        );
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+        
+        printMessages(msgs, 0);
     }
     
 
