@@ -203,7 +203,7 @@ public class PythonRunnerConfig {
      * file system
      */
     public static IPath getWorkingDirectory(ILaunchConfiguration configuration, IPythonNature nature) throws CoreException {
-        String location = configuration.getAttribute(Constants.ATTR_WORKING_DIRECTORY, (String) null);
+        String location = configuration.getAttribute(Constants.ATTR_WORKING_DIRECTORY, "${project_loc}");
         if (location != null) {
             String expandedLocation = getStringSubstitution(nature).performStringSubstitution(location);
             if (expandedLocation.length() > 0) {
