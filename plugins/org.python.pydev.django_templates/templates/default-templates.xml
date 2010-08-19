@@ -287,7 +287,7 @@
         enabled="true"
         name="widthratio"
         id="org.python.pydev.django_templates.templatesContext.tags.widthratio"
-   >{% widthratio ${this_value max_value} 100 %}</template>
+   >{% widthratio ${this_value} ${max_value} 100 %}</template>
 
    <template
         autoinsert="true"
