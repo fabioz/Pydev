@@ -13,6 +13,7 @@ import org.python.pydev.navigator.elements.ISortedElement;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonNode;
+import org.python.pydev.navigator.elements.PythonSourceFolder;
 
 public class PythonModelSorter extends ViewerSorter{
 
@@ -74,9 +75,17 @@ public class PythonModelSorter extends ViewerSorter{
         
         //If both were IWrappedResource they'd be handled at ISortedElement
         if(e1 instanceof IWrappedResource){
+            //Source folders should come before other resources
+            if(e1 instanceof PythonSourceFolder){
+                return -1;
+            }
         	e1 = ((IWrappedResource) e1).getActualObject();
         }
         if(e2 instanceof IWrappedResource){
+            //Source folders should come before other resources
+            if(e2 instanceof PythonSourceFolder){
+                return 1;
+            }
         	e2 = ((IWrappedResource) e2).getActualObject();
         }
         
