@@ -36,20 +36,28 @@ public class PydevPrefs {
      */
     public synchronized static IPreferenceStore getChainedPrefStore() {
         if(PydevPrefs.fChainedPrefStore == null){
-        	List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
-        	List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
-        	for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
-				IPreferenceStore preferenceStore[] = iPydevPreferencesProvider.getPreferenceStore();
-				if(preferenceStore != null){
-				    for (IPreferenceStore iPreferenceStores : preferenceStore) {
-				        stores.add(iPreferenceStores);
-                    }
-				}
-			}
-        	stores.add(PydevPlugin.getDefault().getPreferenceStore());
-        	stores.add(EditorsUI.getPreferenceStore());
+        	List<IPreferenceStore> stores = getDefaultStores(true);
             PydevPrefs.fChainedPrefStore = new ChainedPreferenceStore(stores.toArray(new IPreferenceStore[stores.size()]));
         }
         return PydevPrefs.fChainedPrefStore;
+    }
+
+
+    public static List<IPreferenceStore> getDefaultStores(boolean addEditorsUIStore) {
+        List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
+        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+        	IPreferenceStore preferenceStore[] = iPydevPreferencesProvider.getPreferenceStore();
+        	if(preferenceStore != null){
+        	    for (IPreferenceStore iPreferenceStores : preferenceStore) {
+        	        stores.add(iPreferenceStores);
+                }
+        	}
+        }
+        stores.add(PydevPlugin.getDefault().getPreferenceStore());
+        if(addEditorsUIStore){
+            stores.add(EditorsUI.getPreferenceStore());
+        }
+        return stores;
     }
 }
