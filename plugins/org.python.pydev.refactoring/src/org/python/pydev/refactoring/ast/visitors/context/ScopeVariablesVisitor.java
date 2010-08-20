@@ -8,6 +8,7 @@
 
 package org.python.pydev.refactoring.ast.visitors.context;
 
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -57,11 +58,16 @@ public class ScopeVariablesVisitor extends AbstractContextVisitor<SimpleAdapter>
 
     @Override
     public Object visitImport(Import node) throws Exception {
+        registerInContext(node);
         return null;
     }
 
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
+        if(AbstractVisitor.isWildImport(node)){
+            throw new RuntimeException("Cannot handle wild imports.");
+        }
+        registerInContext(node);
         return null;
     }
 

@@ -130,13 +130,15 @@ public class IndentVisitor extends VisitorBase {
 
     @Override
     public Object visitImport(Import node) throws Exception {
-        this.indent = 1;
+        this.indent = node.beginColumn;
+        this.indent -= "import ".length();
         return null;
     }
 
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
-        this.indent = 1;
+        this.indent = node.beginColumn;
+        this.indent -= "from ".length();
         return null;
     }
 

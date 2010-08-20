@@ -30,10 +30,10 @@ public class ExtractMethodChangeProcessor extends AbstractFileChangeProcessor<Ex
     }
 
     private void processExtraction(ExtractMethodRequest req) throws MisconfigurationException {
-        ExtractMethodEdit extractMethodEdit = new ExtractMethodEdit(req);
-        ExtractCallEdit extractCallEdit = new ExtractCallEdit(req);
+        ExtractMethodEdit extractedMethodEdit = new ExtractMethodEdit(req);
+        ExtractCallEdit callExtractedMethodEdit = new ExtractCallEdit(req);
 
-        registerEdit(extractMethodEdit, Messages.extractMethodChangeName);
-        registerEdit(extractCallEdit, Messages.extractMethodReplaceWithCall);
+        registerEdit(extractedMethodEdit, Messages.extractMethodChangeName);
+        registerEdit(callExtractedMethodEdit, Messages.extractMethodReplaceWithCall);
     }
 }

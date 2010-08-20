@@ -17,8 +17,12 @@ import java.util.Set;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NameTokType;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
@@ -174,6 +178,13 @@ public class ParameterReturnDeduce {
                     isStored = true; //NameTok are always store contexts.
                 }
                 
+            }else if(astNode instanceof Import){
+                Import importNode = (Import) astNode;
+                isStored = checkNames(var, importNode.names);
+                
+            }else if(astNode instanceof ImportFrom){
+                ImportFrom importFrom = (ImportFrom) astNode;
+                isStored = checkNames(var, importFrom.names);
             }
 
             if(isStored){
@@ -181,6 +192,25 @@ public class ParameterReturnDeduce {
             }
         }
         return isStored;
+    }
+
+    private boolean checkNames(String var, aliasType[] names) {
+        boolean isStored = false;
+        if(names != null){
+            for (aliasType alias : names) {
+                if(alias.asname != null){
+                    isStored = nameMatches(var, alias.asname);
+                }else if(alias.name != null){
+                    isStored = nameMatches(var, alias.name);
+                    
+                }
+            }
+        }
+        return isStored;
+    }
+
+    private boolean nameMatches(String var, NameTokType asname) {
+        return ((NameTok)asname).id.equals(var);
     }
 
     public List<String> getParameters() {

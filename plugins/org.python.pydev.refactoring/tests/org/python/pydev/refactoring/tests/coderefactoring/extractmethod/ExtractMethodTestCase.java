@@ -76,12 +76,12 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 			throws BadLocationException, MalformedTreeException, MisconfigurationException {
 		ExtractMethodRequest req = requestProcessor.getRefactoringRequests().get(0);
 
-		ExtractMethodEdit extractMethodEdit = new ExtractMethodEdit(req);
-		ExtractCallEdit extractCallEdit = new ExtractCallEdit(req);
+		ExtractMethodEdit extractedMethodEdit = new ExtractMethodEdit(req);
+		ExtractCallEdit callExtractedMethodEdit = new ExtractCallEdit(req);
 
 		MultiTextEdit edit = new MultiTextEdit();
-		edit.addChild(extractMethodEdit.getEdit());
-		edit.addChild(extractCallEdit.getEdit());
+		edit.addChild(extractedMethodEdit.getEdit());
+		edit.addChild(callExtractedMethodEdit.getEdit());
 
 		IDocument refactoringDoc = new Document(data.source);
 		edit.apply(refactoringDoc);

@@ -9,7 +9,6 @@
 package org.python.pydev.refactoring.core.edit;
 
 import org.eclipse.text.edits.InsertEdit;
-import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
@@ -20,7 +19,7 @@ public abstract class AbstractInsertEdit extends AbstractTextEdit {
     }
 
     @Override
-    public TextEdit getEdit() throws MisconfigurationException {
+    public InsertEdit getEdit() throws MisconfigurationException {
         return new InsertEdit(getOffset(), getFormattedNode());
     }
 

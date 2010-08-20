@@ -16,12 +16,20 @@ public class SelectionException extends Exception {
 
     private transient SimpleNode node;
 
+    private String msg;
+
+    public SelectionException(String msg) {
+        this.msg = msg;
+    }
     public SelectionException(SimpleNode node) {
         this.node = node;
     }
 
     @Override
     public String getMessage() {
-        return "Selection may not contain a(n) " + node.getClass().getSimpleName() + " statement (Line " + node.beginLine + "," + node.beginColumn + ")";
+        if(this.msg == null){
+            this.msg = "Selection may not contain a(n) " + node.getClass().getSimpleName() + " statement (Line " + node.beginLine + "," + node.beginColumn + ")";
+        }
+        return this.msg;
     }
 }

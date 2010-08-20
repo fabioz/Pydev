@@ -648,4 +648,9 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         }
         return false;
     }
+
+    public int getStartLineBefore(int selectionOffset) throws Exception {
+        int lineOfOffset = this.doc.getLineOfOffset(selectionOffset);
+        return this.doc.getLineOffset(lineOfOffset);
+    }
 }

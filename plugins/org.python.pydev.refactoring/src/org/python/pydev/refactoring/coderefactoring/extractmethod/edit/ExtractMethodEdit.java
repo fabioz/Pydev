@@ -47,6 +47,10 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
 
     private Map<String, String> renamedVariables;
 
+    private int selectionOffset;
+
+    private int selectionLen;
+
     public ExtractMethodEdit(ExtractMethodRequest req) {
         super(req);
         this.methodName = req.methodName;
@@ -57,6 +61,8 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
         this.parameters = req.parameters;
         this.returnVariables = req.returnVariables;
         this.renamedVariables = req.renamedVariables;
+        this.selectionOffset = req.selection.getOffset();
+        this.selectionLen = req.selection.getLength();
     }
 
     @Override
@@ -148,4 +154,16 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
         return offsetStrategy;
     }
 
+    @Override
+    public int getOffset() {
+        int superOffset = super.getOffset();
+        if(superOffset > this.selectionOffset && superOffset < this.selectionOffset+this.selectionLen){
+            try {
+                return this.moduleAdapter.getStartLineBefore(this.selectionOffset);
+            } catch (Exception e) {
+                return this.selectionOffset;
+            }
+        }
+        return superOffset;
+    }
 }

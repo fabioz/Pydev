@@ -8,12 +8,12 @@
 
 package org.python.pydev.refactoring.ast.visitors.selection;
 
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Break;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Return;
@@ -21,7 +21,7 @@ import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.Yield;
 
 public class SelectionValidationVisitor extends VisitorBase {
-    private Class<?>[] invalidNode = new Class<?>[] { Break.class, ClassDef.class, Continue.class, FunctionDef.class, ImportFrom.class, Import.class, Pass.class, Return.class, Yield.class };
+    private Class<?>[] invalidNode = new Class<?>[] { Break.class, ClassDef.class, Continue.class, FunctionDef.class, Pass.class, Return.class, Yield.class };
 
     @Override
     public void traverse(SimpleNode node) throws Exception {
@@ -32,6 +32,12 @@ public class SelectionValidationVisitor extends VisitorBase {
     }
 
     private void validateNode(SimpleNode node) throws SelectionException {
+        if(node instanceof ImportFrom){
+            if(AbstractVisitor.isWildImport(node)){
+                //Wild import
+                throw new SelectionException("Selection may not contain a wild import statement (Line " + node.beginLine + "," + node.beginColumn + ")");
+            }
+        }
         for(Class<?> clazz:invalidNode){
             if(clazz == node.getClass()){
                 throw new SelectionException(node);
