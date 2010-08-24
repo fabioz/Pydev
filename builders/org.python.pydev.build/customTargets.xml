@@ -216,7 +216,7 @@
         cog.outl('<echo message="Re-creating JARs with retroweaved binaries" />')
         for i, path in enumerate(paths):
             cog.outl('<jar jarfile="${jar%s}.jar" basedir="${jar%s}/out" update="true" manifest="${jar%s}/out/META-INF/MANIFEST.MF" />' % (i,i,i))
-            cog.outl('<echo message="Re-created ${jar%s}.jar" />')
+            cog.outl('<echo message="Re-created ${jar%s}.jar" />' % (i,))
         
         
 
@@ -349,12 +349,12 @@
         
 
     	
+	  	<echo message="Signing plugins and features at: ${p2.repo.dir}" />
     	<signjar 
     	    alias="aptana" keystore="${KEYSTORE}"
     	    storepass="${STOREPASS}"
     	    preservelastmodified="true">
     	  <path>
-    	  	<echo message="Signing plugins and features at: ${p2.repo.dir}" />
     	    <fileset dir="${p2.repo.dir}/plugins" includes="**/*.jar" />
     	    <fileset dir="${p2.repo.dir}/features" includes="**/*.jar" />
     	  </path>
