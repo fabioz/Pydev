@@ -1,4 +1,4 @@
-package org.python.pydev.django_templates.html;
+package org.python.pydev.django_templates.editor;
 
 import java.util.ArrayList;
 
@@ -24,11 +24,8 @@ import org.python.pydev.editor.PyCodeScanner;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 
-import com.aptana.editor.common.CommonEditorPlugin;
 import com.aptana.editor.common.IPartitioningConfiguration;
 import com.aptana.editor.common.ISourceViewerConfiguration;
-import com.aptana.editor.common.scripting.IContentTypeTranslator;
-import com.aptana.editor.common.scripting.QualifiedContentType;
 import com.aptana.editor.common.text.rules.ISubPartitionScanner;
 import com.aptana.editor.common.text.rules.SubPartitionScanner;
 import com.aptana.theme.IThemeManager;
@@ -37,50 +34,39 @@ import com.aptana.theme.ThemePlugin;
 /**
  * @author Fabio Zadrozny
  */
-public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, ISourceViewerConfiguration {
+public abstract class DjSourceConfiguration implements IPartitioningConfiguration, ISourceViewerConfiguration {
 
-    private static final String SOURCE_DJHTML = "source.djhtml";
-    private static final String STRING_QUOTED_DOUBLE_DJHTML = "string.quoted.double.djhtml";
-    private static final String STRING_QUOTED_SINGLE_DJHTML = "string.quoted.single.djhtml";
-    private static final String COMMENT_DJHTML = "comment.djhtml";
+    protected static final String SOURCE_DJ = "source.dj";
+    protected static final String STRING_QUOTED_DOUBLE_DJ = "string.quoted.double.dj";
+    protected static final String STRING_QUOTED_SINGLE_DJ = "string.quoted.single.dj";
+    protected static final String COMMENT_DJ = "comment.dj";
 
-    public final static String PREFIX = "__djhtml_";
-    public final static String DEFAULT = "__djhtml" + IDocument.DEFAULT_CONTENT_TYPE;
+    public final static String PREFIX = "__dj_";
+    public final static String DEFAULT = "__dj" + IDocument.DEFAULT_CONTENT_TYPE;
     public final static String STRING_SINGLE = PREFIX + "string_single";
     public final static String STRING_DOUBLE = PREFIX + "string_double";
     public final static String COMMENT = PREFIX + "comment";
 
     public static final String[] CONTENT_TYPES = new String[] { DEFAULT, STRING_SINGLE, STRING_DOUBLE, COMMENT };
 
-    private static final String[][] TOP_CONTENT_TYPES = new String[][] { { IDjConstants.CONTENT_TYPE_DJANGO_HTML } };
+    protected static final String[][] TOP_CONTENT_TYPES = new String[][] { { IDjConstants.CONTENT_TYPE_DJANGO_HTML } };
 
-    private IPredicateRule[] partitioningRules = new IPredicateRule[] {
+    protected IPredicateRule[] partitioningRules = new IPredicateRule[] {
             new SingleLineRule("\"", "\"", new Token(STRING_DOUBLE), '\\'),
             new SingleLineRule("\'", "\'", new Token(STRING_SINGLE), '\\'), 
             new SingleLineRule("{#", "#}", new Token(COMMENT)) 
     };
 
-    private PyCodeScanner codeScanner;
-    private RuleBasedScanner singleQuotedStringScanner;
-    private RuleBasedScanner doubleQuotedStringScanner;
-    private RuleBasedScanner commentScanner;
-
-    private static DjHtmlSourceConfiguration instance;
-
-    static {
-        IContentTypeTranslator c = CommonEditorPlugin.getDefault().getContentTypeTranslator();
-        c.addTranslation(new QualifiedContentType(IDjConstants.CONTENT_TYPE_DJANGO_HTML), new QualifiedContentType(SOURCE_DJHTML));
-        c.addTranslation(new QualifiedContentType(STRING_SINGLE), new QualifiedContentType(STRING_QUOTED_SINGLE_DJHTML));
-        c.addTranslation(new QualifiedContentType(STRING_DOUBLE), new QualifiedContentType(STRING_QUOTED_DOUBLE_DJHTML));
-        c.addTranslation(new QualifiedContentType(COMMENT), new QualifiedContentType(COMMENT_DJHTML));
+    protected PyCodeScanner codeScanner;
+    protected RuleBasedScanner singleQuotedStringScanner;
+    protected RuleBasedScanner doubleQuotedStringScanner;
+    protected RuleBasedScanner commentScanner;
+    private String contentType;
+    
+    public DjSourceConfiguration(String contentType){
+        this.contentType = contentType;
     }
 
-    public static DjHtmlSourceConfiguration getDefault() {
-        if (instance == null) {
-            instance = new DjHtmlSourceConfiguration();
-        }
-        return instance;
-    }
 
     /**
      * @see com.aptana.editor.common.IPartitioningConfiguration#getContentTypes()
@@ -121,7 +107,7 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
      */
     public String getDocumentContentType(String contentType) {
         if (contentType.startsWith(PREFIX)) {
-            return IDjConstants.CONTENT_TYPE_DJANGO_HTML;
+            return this.contentType;
         }
         return null;
     }
@@ -139,16 +125,16 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
         reconciler.setRepairer(dr, DEFAULT);
 
         dr = new DefaultDamagerRepairer(getSingleQuotedStringScanner());
-        reconciler.setDamager(dr, DjHtmlSourceConfiguration.STRING_SINGLE);
-        reconciler.setRepairer(dr, DjHtmlSourceConfiguration.STRING_SINGLE);
+        reconciler.setDamager(dr, DjSourceConfiguration.STRING_SINGLE);
+        reconciler.setRepairer(dr, DjSourceConfiguration.STRING_SINGLE);
 
         dr = new DefaultDamagerRepairer(getDoubleQuotedStringScanner());
-        reconciler.setDamager(dr, DjHtmlSourceConfiguration.STRING_DOUBLE);
-        reconciler.setRepairer(dr, DjHtmlSourceConfiguration.STRING_DOUBLE);
+        reconciler.setDamager(dr, DjSourceConfiguration.STRING_DOUBLE);
+        reconciler.setRepairer(dr, DjSourceConfiguration.STRING_DOUBLE);
         
         dr = new DefaultDamagerRepairer(getCommentScanner());
-        reconciler.setDamager(dr, DjHtmlSourceConfiguration.COMMENT);
-        reconciler.setRepairer(dr, DjHtmlSourceConfiguration.COMMENT);
+        reconciler.setDamager(dr, DjSourceConfiguration.COMMENT);
+        reconciler.setRepairer(dr, DjSourceConfiguration.COMMENT);
     }
 
     public PyCodeScanner getCodeScanner() {
@@ -169,7 +155,7 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
 
 
 
-    private void updateCodeScannerKeywords() {
+    protected void updateCodeScannerKeywords() {
         if(this.codeScanner != null){
             String[] keywords = getKeywordsFromTemplates();
             this.codeScanner.setKeywords(keywords);
@@ -191,27 +177,27 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
         return keywords;
     }
 
-    private ITokenScanner getSingleQuotedStringScanner() {
+    protected ITokenScanner getSingleQuotedStringScanner() {
         if (singleQuotedStringScanner == null) {
             singleQuotedStringScanner = new RuleBasedScanner();
-            singleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_SINGLE_DJHTML));
+            singleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_SINGLE_DJ));
         }
         return singleQuotedStringScanner;
     }
 
     
-    private ITokenScanner getCommentScanner() {
+    protected ITokenScanner getCommentScanner() {
         if (commentScanner == null) {
             commentScanner = new RuleBasedScanner();
-            commentScanner.setDefaultReturnToken(getToken(COMMENT_DJHTML));
+            commentScanner.setDefaultReturnToken(getToken(COMMENT_DJ));
         }
         return commentScanner;
     }
     
-    private ITokenScanner getDoubleQuotedStringScanner() {
+    protected ITokenScanner getDoubleQuotedStringScanner() {
         if (doubleQuotedStringScanner == null) {
             doubleQuotedStringScanner = new RuleBasedScanner();
-            doubleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_DOUBLE_DJHTML));
+            doubleQuotedStringScanner.setDefaultReturnToken(getToken(STRING_QUOTED_DOUBLE_DJ));
         }
         return doubleQuotedStringScanner;
     }
@@ -224,7 +210,7 @@ public class DjHtmlSourceConfiguration implements IPartitioningConfiguration, IS
         return ThemePlugin.getDefault().getThemeManager();
     }
 
-    private ColorAndStyleCache colorCache;
+    protected ColorAndStyleCache colorCache;
 
     public ColorAndStyleCache getColorCache() {
         if (colorCache == null) {

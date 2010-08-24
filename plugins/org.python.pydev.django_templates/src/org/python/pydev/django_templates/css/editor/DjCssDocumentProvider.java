@@ -33,44 +33,23 @@
  * Any modifications to this file must keep this entire header intact.
  */
 
-package org.python.pydev.django_templates;
+package org.python.pydev.django_templates.css.editor;
 
-import com.aptana.editor.common.PartitionerSwitchStrategy;
+import org.python.pydev.django_templates.IDjConstants;
+import org.python.pydev.django_templates.editor.DjSourceConfiguration;
+import org.python.pydev.django_templates.editor.DjPartitionerSwitchStrategy;
+
+import com.aptana.editor.common.CompositeDocumentProvider;
+import com.aptana.editor.css.CSSSourceConfiguration;
 
 /**
  * @author Fabio Zadrozny
  */
-public class DjPartitionerSwitchStrategy extends PartitionerSwitchStrategy {
+public class DjCssDocumentProvider extends CompositeDocumentProvider {
 
-    private static DjPartitionerSwitchStrategy instance;
-
-    private static final String[][] DJANGO_TEMPLATES_PAIRS = new String[][] { 
-        { "{%", "%}" }, 
-        { "{{", "}}" }
-    };
-
-    /**
-     * 
-     */
-    private DjPartitionerSwitchStrategy() {
-        super(DJANGO_TEMPLATES_PAIRS, new String[0][0]);
-    }
-
-    public static DjPartitionerSwitchStrategy getDefault() {
-        if (instance == null) {
-            instance = new DjPartitionerSwitchStrategy();
-        }
-        return instance;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.aptana.editor.common.IPartitionerSwitchStrategy#getSwitchTagPairs()
-     */
-    public String[][] getSwitchTagPairs() {
-        return DJANGO_TEMPLATES_PAIRS;
+    protected DjCssDocumentProvider() {
+        super(IDjConstants.CONTENT_TYPE_DJANGO_CSS, CSSSourceConfiguration.getDefault(), DjCssSourceConfiguration.getDefault(),
+                DjPartitionerSwitchStrategy.getDefault());
     }
 
 }

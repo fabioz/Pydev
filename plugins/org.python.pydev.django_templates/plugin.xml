@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="org.python.pydev.django_templates.html.DjHTMLEditor"
+            class="org.python.pydev.django_templates.html.editor.DjHTMLEditor"
             contributorClass="com.aptana.editor.common.CommonTextEditorActionContributor"
             default="true"
             extensions="html,djhtml,htm,djhtm"
@@ -15,47 +15,48 @@
                contentTypeId="org.python.pydev.contenttype.django_templates.html">
          </contentTypeBinding>
       </editor>
-      <!--xml not ready
       <editor
-            class="org.python.pydev.django_templates.xml.DjXMLEditor"
+            class="org.python.pydev.django_templates.html.editor.DjCssEditor"
             contributorClass="com.aptana.editor.common.CommonTextEditorActionContributor"
             default="true"
-            extensions="xml,djxml"
+            extensions="css,djcss"
             icon="icons/django_templates.png"
-            id="org.python.pydev.django_templates.xml"
-            name="%editor.djxml.name">
+            id="org.python.pydev.django_templates.css"
+            name="%editor.djcss.name">
          <contentTypeBinding
-               contentTypeId="org.python.pydev.contenttype.django_templates.xml">
+               contentTypeId="org.python.pydev.contenttype.django_templates.css">
          </contentTypeBinding>
       </editor>
-      -->
+
    </extension>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="com.aptana.contenttype.html"
-            describer="org.python.pydev.django_templates.html.DjHTMLContentDescriber"
+            describer="org.python.pydev.django_templates.html.editor.DjHTMLContentDescriber"
             file-extensions="html,djhtml,htm,djhtm"
             id="org.python.pydev.contenttype.django_templates.html"
             name="%content-type.djhtml.name"
             priority="normal">
       </content-type>
-      <!--xml not ready
       <content-type
-            base-type="org.eclipse.core.runtime.xml"
-            describer="org.python.pydev.django_templates.xml.DjXMLContentDescriber"
-            file-extensions="xml,djxml"
-            id="org.python.pydev.contenttype.django_templates.xml"
-            name="%content-type.djxml.name"
+            base-type="com.aptana.contenttype.css"
+            file-extensions="css,djcss"
+            id="org.python.pydev.contenttype.django_templates.css"
+            name="%content-type.djcss.name"
             priority="normal">
       </content-type>
-      -->
+
    </extension>
    <extension
          point="com.aptana.parsing.parser">
       <parser
             class="org.python.pydev.django_templates.html.parsing.DjHTMLParser"
-            language="text/django_templates">
+            language="text/django_templates_html">
+      </parser>
+      <parser
+            class="org.python.pydev.django_templates.css.parsing.DjCssParser"
+            language="text/django_templates_css">
       </parser>
    </extension>
    

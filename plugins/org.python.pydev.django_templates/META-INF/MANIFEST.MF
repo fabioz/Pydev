@@ -30,10 +30,8 @@ Export-Package: org.python.pydev.django_templates,
  org.python.pydev.django_templates.common,
  org.python.pydev.django_templates.completions,
  org.python.pydev.django_templates.completions.templates,
- org.python.pydev.django_templates.html,
+ org.python.pydev.django_templates.html.editor,
  org.python.pydev.django_templates.html.outline,
  org.python.pydev.django_templates.html.parsing,
- org.python.pydev.django_templates.parsing.lexer,
- org.python.pydev.django_templates.preferences,
- org.python.pydev.django_templates.xml
+ org.python.pydev.django_templates.preferences
 Bundle-ClassPath: django-templates.jar

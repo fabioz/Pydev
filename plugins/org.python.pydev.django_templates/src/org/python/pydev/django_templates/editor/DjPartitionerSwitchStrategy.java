@@ -33,34 +33,44 @@
  * Any modifications to this file must keep this entire header intact.
  */
 
-package org.python.pydev.django_templates.xml;
+package org.python.pydev.django_templates.editor;
 
-import org.python.pydev.django_templates.IDjConstants;
-import org.python.pydev.plugin.preferences.PydevPrefs;
-
-import com.aptana.editor.common.AbstractThemeableEditor;
-import com.aptana.editor.common.parsing.FileService;
+import com.aptana.editor.common.PartitionerSwitchStrategy;
 
 /**
  * @author Fabio Zadrozny
  */
-public class DjXMLEditor extends AbstractThemeableEditor {
+public class DjPartitionerSwitchStrategy extends PartitionerSwitchStrategy {
+
+    private static DjPartitionerSwitchStrategy instance;
+
+    private static final String[][] DJANGO_TEMPLATES_PAIRS = new String[][] { 
+        { "{%", "%}" }, 
+        { "{{", "}}" }
+    };
+
+    /**
+     * 
+     */
+    private DjPartitionerSwitchStrategy() {
+        super(DJANGO_TEMPLATES_PAIRS, new String[0][0]);
+    }
+
+    public static DjPartitionerSwitchStrategy getDefault() {
+        if (instance == null) {
+            instance = new DjPartitionerSwitchStrategy();
+        }
+        return instance;
+    }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.aptana.editor.common.AbstractThemeableEditor#initializeEditor()
+     * @see
+     * com.aptana.editor.common.IPartitionerSwitchStrategy#getSwitchTagPairs()
      */
-    @Override
-    protected void initializeEditor() {
-        super.initializeEditor();
-
-        setSourceViewerConfiguration(new DjXMLSourceViewerConfiguration(PydevPrefs.getChainedPrefStore(), this));
-        setDocumentProvider(new DjXMLDocumentProvider());
+    public String[][] getSwitchTagPairs() {
+        return DJANGO_TEMPLATES_PAIRS;
     }
 
-    @Override
-    protected FileService createFileService() {
-        return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES);
-    }
 }

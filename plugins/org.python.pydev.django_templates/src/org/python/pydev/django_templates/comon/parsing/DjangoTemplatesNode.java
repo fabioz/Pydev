@@ -1,6 +1,4 @@
-package org.python.pydev.django_templates.html.parsing;
-
-import org.python.pydev.django_templates.IDjConstants;
+package org.python.pydev.django_templates.comon.parsing;
 
 import com.aptana.parsing.ast.ParseNode;
 
@@ -10,8 +8,8 @@ public class DjangoTemplatesNode extends ParseNode {
     private String fStartTag;
     private String fEndTag;
 
-    public DjangoTemplatesNode(ParseNode parseNode, String startTag, String endTag) {
-        super(IDjConstants.LANGUAGE_DJANGO_TEMPLATES);
+    public DjangoTemplatesNode(String language, ParseNode parseNode, String startTag, String endTag) {
+        super(language);
         fScript = parseNode;
         fStartTag = startTag;
         fEndTag = endTag;

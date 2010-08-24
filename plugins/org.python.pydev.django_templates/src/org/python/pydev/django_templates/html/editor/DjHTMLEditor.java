@@ -33,7 +33,7 @@
  * Any modifications to this file must keep this entire header intact.
  */
 
-package org.python.pydev.django_templates.html;
+package org.python.pydev.django_templates.html.editor;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.TextViewer;
@@ -110,7 +110,7 @@ public class DjHTMLEditor extends HTMLEditor {
 
     @Override
     protected FileService createFileService() {
-        return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES, new HTMLParseState());
+        return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES_HTML, new HTMLParseState());
     }
 
     @Override

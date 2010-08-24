@@ -1,17 +1,17 @@
-package org.python.pydev.django_templates.html.parsing;
+package org.python.pydev.django_templates.css.parsing;
 
 import java.util.List;
 
 import org.eclipse.jface.text.rules.IRule;
 import org.python.pydev.django_templates.comon.parsing.DjTokenScanner;
 
-import com.aptana.editor.html.parsing.HTMLTokenScanner;
+import com.aptana.editor.css.parsing.CSSTokenScanner;
 
-public class DjHtmlTokenScanner extends HTMLTokenScanner {
+public class DjCssTokenScanner extends CSSTokenScanner{
 
     DjTokenScanner tokenScanner = new DjTokenScanner();
     
-    public DjHtmlTokenScanner() {
+    public DjCssTokenScanner() {
         List<IRule> rules = tokenScanner.getDjRules();
         
         //Re-add existing rules
@@ -21,6 +21,4 @@ public class DjHtmlTokenScanner extends HTMLTokenScanner {
 
         setRules(rules.toArray(new IRule[rules.size()]));
     }
-
-
 }

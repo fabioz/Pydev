@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.django_templates.DjPlugin;
 import org.python.pydev.django_templates.IDjConstants;
-import org.python.pydev.django_templates.html.parsing.DjangoTemplatesNode;
+import org.python.pydev.django_templates.comon.parsing.DjangoTemplatesNode;
 
 import com.aptana.editor.common.outline.CommonOutlineItem;
 import com.aptana.editor.html.outline.HTMLOutlineLabelProvider;
@@ -21,7 +21,7 @@ public class DjHTMLOutlineLabelProvider extends HTMLOutlineLabelProvider {
 
     public DjHTMLOutlineLabelProvider(IParseState parseState) {
         fParseState = parseState;
-        addSubLanguage(IDjConstants.LANGUAGE_DJANGO_TEMPLATES, new DjOutlineLabelProvider());
+        addSubLanguage(IDjConstants.LANGUAGE_DJANGO_TEMPLATES_HTML, new DjOutlineLabelProvider());
     }
 
     @Override

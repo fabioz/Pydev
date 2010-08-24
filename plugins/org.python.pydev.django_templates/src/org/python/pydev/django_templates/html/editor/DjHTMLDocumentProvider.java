@@ -33,22 +33,22 @@
  * Any modifications to this file must keep this entire header intact.
  */
 
-package org.python.pydev.django_templates.xml;
+package org.python.pydev.django_templates.html.editor;
 
-import org.python.pydev.django_templates.DjPartitionerSwitchStrategy;
 import org.python.pydev.django_templates.IDjConstants;
-import org.python.pydev.django_templates.html.DjHtmlSourceConfiguration;
+import org.python.pydev.django_templates.editor.DjSourceConfiguration;
+import org.python.pydev.django_templates.editor.DjPartitionerSwitchStrategy;
 
 import com.aptana.editor.common.CompositeDocumentProvider;
-import com.aptana.editor.xml.XMLSourceConfiguration;
+import com.aptana.editor.html.HTMLSourceConfiguration;
 
 /**
  * @author Fabio Zadrozny
  */
-public class DjXMLDocumentProvider extends CompositeDocumentProvider {
+public class DjHTMLDocumentProvider extends CompositeDocumentProvider {
 
-    protected DjXMLDocumentProvider() {
-        super(IDjConstants.CONTENT_TYPE_DJANGO_XML, XMLSourceConfiguration.getDefault(), DjHtmlSourceConfiguration.getDefault(),
+    protected DjHTMLDocumentProvider() {
+        super(IDjConstants.CONTENT_TYPE_DJANGO_HTML, HTMLSourceConfiguration.getDefault(), DjHtmlSourceConfiguration.getDefault(),
                 DjPartitionerSwitchStrategy.getDefault());
     }
 

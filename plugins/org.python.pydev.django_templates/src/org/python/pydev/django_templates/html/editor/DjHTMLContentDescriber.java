@@ -1,4 +1,4 @@
-package org.python.pydev.django_templates.html;
+package org.python.pydev.django_templates.html.editor;
 
 import org.python.pydev.django_templates.common.DjContentDescriber;
 
