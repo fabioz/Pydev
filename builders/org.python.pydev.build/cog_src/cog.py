@@ -761,7 +761,8 @@ def RunCogInFiles(files):
     start = time.clock()
     
     #-r to write back to the input file!
-    ret = Cog().main(['unused', '-r']+files)
+    #-U to write \n and not native lines
+    ret = Cog().main(['unused', '-r', '-U']+files)
     
     print "Time to run cog: %.2f sec" % (time.clock() - start)
     return ret
