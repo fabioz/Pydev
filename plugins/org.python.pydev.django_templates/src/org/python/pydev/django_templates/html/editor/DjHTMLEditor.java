@@ -42,6 +42,7 @@ import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.editor.DjEditor;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineContentProvider;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineLabelProvider;
+import org.python.pydev.utils.ICallback;
 
 import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.common.parsing.FileService;
@@ -64,7 +65,13 @@ public class DjHTMLEditor extends HTMLEditor {
     protected void initializeEditor() {
         super.initializeEditor();
         djEditor = new DjEditor();
-        this.djEditor.registerPrefChangeListener(this.getISourceViewer());
+        this.djEditor.registerPrefChangeListener(new ICallback() {
+            
+            @Override
+            public Object call(Object args) throws Exception {
+                return getISourceViewer();
+            }
+        });
         
         setSourceViewerConfiguration(new DjHTMLSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
         setDocumentProvider(new DjHTMLDocumentProvider());

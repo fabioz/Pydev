@@ -7,8 +7,10 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.django_templates.completions.templates.TemplateHelper;
 import org.python.pydev.editor.actions.PyBackspace;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
+import org.python.pydev.utils.ICallback;
 
 public class DjEditor {
 
@@ -23,20 +25,24 @@ public class DjEditor {
     }
 
     
-    public void registerPrefChangeListener(final ISourceViewer iSourceViewer) {
-        this.prefChangeListener = createPrefChangeListener(iSourceViewer);
+    public void registerPrefChangeListener(final ICallback getISourceViewer) {
+        this.prefChangeListener = createPrefChangeListener(getISourceViewer);
         getChainedPrefStore().addPropertyChangeListener(prefChangeListener);
         TemplateHelper.getTemplatesPreferenceStore().addPropertyChangeListener(prefChangeListener);
     }
     
     
-    private IPropertyChangeListener createPrefChangeListener(final ISourceViewer iSourceViewer) {
+    private IPropertyChangeListener createPrefChangeListener(final ICallback getISourceViewer) {
         return new IPropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent event) {
                 String property = event.getProperty();
                 if (ColorAndStyleCache.isColorOrStyleProperty(property) || TemplateHelper.CUSTOM_TEMPLATES_DJ_KEY.equals(property)) {
-                    iSourceViewer.invalidateTextPresentation();
+                    try {
+                        ((ISourceViewer)getISourceViewer.call(null)).invalidateTextPresentation();
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
                 }
             }
         };

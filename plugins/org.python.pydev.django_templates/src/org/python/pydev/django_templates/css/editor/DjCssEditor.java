@@ -40,6 +40,7 @@ import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.editor.DjEditor;
+import org.python.pydev.utils.ICallback;
 
 import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.common.parsing.FileService;
@@ -65,7 +66,13 @@ public class DjCssEditor extends CSSSourceEditor {
         super.initializeEditor();
         djEditor = new DjEditor();
 
-        this.djEditor.registerPrefChangeListener(this.getISourceViewer());
+        this.djEditor.registerPrefChangeListener(new ICallback() {
+            
+            @Override
+            public Object call(Object args) throws Exception {
+                return getISourceViewer();
+            }
+        });
         
         setSourceViewerConfiguration(new DjCssSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
         setDocumentProvider(new DjCssDocumentProvider());
