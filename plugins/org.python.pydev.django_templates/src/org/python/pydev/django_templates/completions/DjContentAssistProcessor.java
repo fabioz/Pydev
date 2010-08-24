@@ -13,11 +13,14 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.jface.text.templates.Template;
 import org.python.pydev.django_templates.completions.templates.DjContextType;
 import org.python.pydev.django_templates.completions.templates.DjTemplateCompletionProcessor;
+import org.python.pydev.django_templates.editor.DjSourceConfiguration;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
 import com.aptana.editor.common.contentassist.ICommonCompletionProposal;
 import com.aptana.editor.common.contentassist.ICommonContentAssistProcessor;
+import com.aptana.editor.css.CSSSourceConfiguration;
+import com.aptana.editor.html.HTMLSourceConfiguration;
 
 public class DjContentAssistProcessor implements IContentAssistProcessor, ICommonContentAssistProcessor {
 
@@ -120,24 +123,24 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
         //sequence {% (starting, meaning inside django tag) or %} (ending, meaning outside django tag.) 
 
         boolean completionsForTags = true;
-        if ("__djhtml__dftl_partition_content_type".equals(this.contentType)) {
+        if (DjSourceConfiguration.DEFAULT.equals(this.contentType)) {
             completionsForTags = true;
 
-        } else if ("__html__dftl_partition_content_type".equals(this.contentType)) {
+        } else if (HTMLSourceConfiguration.DEFAULT.equals(this.contentType) || CSSSourceConfiguration.DEFAULT.equals(this.contentType)) {
             completionsForTags = false;
 
-        } else if ("__dftl_partition_content_type".equals(this.contentType)) {
+        } else if (IDocument.DEFAULT_CONTENT_TYPE.equals(this.contentType)) {
             IDocument document = viewer.getDocument();
             try {
                 int discoverOffset = offset;
                 while (discoverOffset >= 0) {
                     String cont = document.getContentType(discoverOffset);
                     discoverOffset--;
-                    if ("__djhtml__dftl_partition_content_type".equals(cont)) {
+                    if (DjSourceConfiguration.DEFAULT.equals(cont)) {
                         completionsForTags = true;
                         break;
 
-                    } else if ("__html__dftl_partition_content_type".equals(cont)) {
+                    } else if (HTMLSourceConfiguration.DEFAULT.equals(cont) || CSSSourceConfiguration.DEFAULT.equals(cont)) {
                         completionsForTags = false;
                         break;
                     }

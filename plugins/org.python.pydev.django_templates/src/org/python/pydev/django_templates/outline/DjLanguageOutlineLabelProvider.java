@@ -1,11 +1,11 @@
-package org.python.pydev.django_templates.html.outline;
+package org.python.pydev.django_templates.outline;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 
 import com.aptana.editor.common.outline.CommonOutlineItem;
 
-public class DjOutlineLabelProvider extends LabelProvider {
+public class DjLanguageOutlineLabelProvider extends LabelProvider {
 
     @Override
     public Image getImage(Object element) {

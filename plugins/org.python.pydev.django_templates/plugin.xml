@@ -16,7 +16,7 @@
          </contentTypeBinding>
       </editor>
       <editor
-            class="org.python.pydev.django_templates.html.editor.DjCssEditor"
+            class="org.python.pydev.django_templates.css.editor.DjCssEditor"
             contributorClass="com.aptana.editor.common.CommonTextEditorActionContributor"
             default="true"
             extensions="css,djcss"

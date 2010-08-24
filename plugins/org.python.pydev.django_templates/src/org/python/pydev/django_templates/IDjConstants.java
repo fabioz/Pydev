@@ -52,8 +52,11 @@ public interface IDjConstants {
      */
     public static final String EMBEDDED_CSS_SCOPE = "source.css.embedded.html"; //$NON-NLS-1$
     public static final String EMBEDDED_JS_SCOPE = "source.js.embedded.html"; //$NON-NLS-1$
-    public static final String EMBEDDED_DJANGO_TEMPLATES_SCOPE = "source.django_templates.embedded.html"; //$NON-NLS-1$
+    public static final String EMBEDDED_DJANGO_TEMPLATES_HTML_SCOPE = "source.django_templates.embedded.html"; //$NON-NLS-1$
+    public static final String EMBEDDED_DJANGO_TEMPLATES_CSS_SCOPE = "source.django_templates.embedded.css"; //$NON-NLS-1$
+    
     public static final String TOPLEVEL_DJANGO_TEMPLATES_HTML_SCOPE = "text.html.django_templates"; //$NON-NLS-1$
+    public static final String TOPLEVEL_DJANGO_TEMPLATES_CSS_SCOPE = "text.css.django_templates"; //$NON-NLS-1$
     public static final String EMBEDDED_DJANGO_TEMPLATES_TAG_SCOPE = "source.django_templates.embedded.tag.html"; //$NON-NLS-1$
 
     public static final String TOPLEVEL_DJANGO_TEMPLATES_XML_SCOPE = "text.xml.django_templates"; //$NON-NLS-1$

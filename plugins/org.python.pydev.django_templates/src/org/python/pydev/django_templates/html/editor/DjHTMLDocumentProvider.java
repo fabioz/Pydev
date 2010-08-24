@@ -36,7 +36,6 @@
 package org.python.pydev.django_templates.html.editor;
 
 import org.python.pydev.django_templates.IDjConstants;
-import org.python.pydev.django_templates.editor.DjSourceConfiguration;
 import org.python.pydev.django_templates.editor.DjPartitionerSwitchStrategy;
 
 import com.aptana.editor.common.CompositeDocumentProvider;

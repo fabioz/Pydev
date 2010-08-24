@@ -33,27 +33,25 @@
  * Any modifications to this file must keep this entire header intact.
  */
 
-package org.python.pydev.django_templates.html.editor;
+package org.python.pydev.django_templates.css.editor;
 
-import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.editor.DjEditor;
-import org.python.pydev.django_templates.html.outline.DjHTMLOutlineContentProvider;
-import org.python.pydev.django_templates.html.outline.DjHTMLOutlineLabelProvider;
-import org.python.pydev.editor.actions.PyBackspace;
 
 import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.common.parsing.FileService;
-import com.aptana.editor.html.HTMLEditor;
-import com.aptana.editor.html.parsing.HTMLParseState;
+import com.aptana.editor.css.CSSSourceEditor;
+import com.aptana.editor.css.outline.CSSOutlineContentProvider;
+import com.aptana.editor.css.outline.CSSOutlineLabelProvider;
+import com.aptana.parsing.ParseState;
 
 /**
  * @author Fabio Zadrozny
  */
-public class DjHTMLEditor extends HTMLEditor {
+public class DjCssEditor extends CSSSourceEditor {
 
     private DjEditor djEditor;
     
@@ -66,10 +64,11 @@ public class DjHTMLEditor extends HTMLEditor {
     protected void initializeEditor() {
         super.initializeEditor();
         djEditor = new DjEditor();
+
         this.djEditor.registerPrefChangeListener(this.getISourceViewer());
         
-        setSourceViewerConfiguration(new DjHTMLSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
-        setDocumentProvider(new DjHTMLDocumentProvider());
+        setSourceViewerConfiguration(new DjCssSourceViewerConfiguration(this.djEditor.getChainedPrefStore(), this));
+        setDocumentProvider(new DjCssDocumentProvider());
     }
     
     @Override
@@ -88,14 +87,14 @@ public class DjHTMLEditor extends HTMLEditor {
 
     @Override
     protected FileService createFileService() {
-        return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES_HTML, new HTMLParseState());
+        return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES_CSS, new ParseState());
     }
 
     @Override
     protected CommonOutlinePage createOutlinePage() {
         CommonOutlinePage outline = super.createOutlinePage();
-        outline.setContentProvider(new DjHTMLOutlineContentProvider());
-        outline.setLabelProvider(new DjHTMLOutlineLabelProvider(getFileService().getParseState()));
+        outline.setContentProvider(new CSSOutlineContentProvider());
+        outline.setLabelProvider(new CSSOutlineLabelProvider());
 
         return outline;
     }
