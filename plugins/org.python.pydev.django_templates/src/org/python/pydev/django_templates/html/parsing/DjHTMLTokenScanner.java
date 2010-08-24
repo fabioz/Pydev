@@ -7,11 +7,11 @@ import org.python.pydev.django_templates.comon.parsing.DjTokenScanner;
 
 import com.aptana.editor.html.parsing.HTMLTokenScanner;
 
-public class DjHtmlTokenScanner extends HTMLTokenScanner {
+public class DjHTMLTokenScanner extends HTMLTokenScanner {
 
     DjTokenScanner tokenScanner = new DjTokenScanner();
     
-    public DjHtmlTokenScanner() {
+    public DjHTMLTokenScanner() {
         List<IRule> rules = tokenScanner.getDjRules();
         
         //Re-add existing rules

@@ -9,7 +9,7 @@ public class DjHTMLScanner extends HTMLScanner {
     private DjScanner djScanner = new DjScanner();
     
     public DjHTMLScanner() {
-        super(new DjHtmlTokenScanner(), DjScanner.SWITCH_STRATEGY);
+        super(new DjHTMLTokenScanner(), DjScanner.SWITCH_STRATEGY);
     }
 
     public short getTokenType(Object data) {

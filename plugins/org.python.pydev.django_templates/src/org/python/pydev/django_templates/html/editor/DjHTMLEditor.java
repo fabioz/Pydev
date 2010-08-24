@@ -35,7 +35,6 @@
 
 package org.python.pydev.django_templates.html.editor;
 
-import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.swt.widgets.Composite;
@@ -43,7 +42,6 @@ import org.python.pydev.django_templates.IDjConstants;
 import org.python.pydev.django_templates.editor.DjEditor;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineContentProvider;
 import org.python.pydev.django_templates.html.outline.DjHTMLOutlineLabelProvider;
-import org.python.pydev.editor.actions.PyBackspace;
 
 import com.aptana.editor.common.outline.CommonOutlinePage;
 import com.aptana.editor.common.parsing.FileService;
