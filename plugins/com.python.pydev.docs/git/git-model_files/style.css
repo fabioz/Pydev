@@ -1,0 +1,416 @@
+/* @override http://nvie.com/wp-content/themes/librio/style.css */
+
+/*
+Theme Name: Librio
+Description: Inspired by Mac OS X Leopard.
+Version: 1.0
+Author: Deniart
+Author URI: http://deniart.ru/
+Tags: fixed width, two columns, widgets, apple, mac, white, grey
+
+	Librio v1.0
+	http://deniart.ru/
+
+	This theme was designed and built by Denis Shakhov,
+	whose homepage you will find at http://deniart.ru/
+
+	The CSS, XHTML and design is released under GPL:
+	http://www.opensource.org/licenses/gpl-license.php
+
+*/
+
+/* Reset
+-------------------------------------------------------------------*/
+* { padding: 0; margin: 0; }
+ul, ol { list-style: none; list-style-position: inside; }
+ol ol, ul ul, ol ul, ul ol { margin-left: 4px; margin-bottom: 0; }
+img { border: none; }
+pre {
+	font: 12px/18px Menlo, Monaco, "Courier New";
+	background-color: #fbfbfb;
+	border: 1px solid #ebeaeb;
+	padding: 4px 8px;
+	margin: 12px 0px 12px 18px;
+}
+code {
+	font: 12px/18px Menlo, Monaco, "Courier New";
+	border: 1px solid #ebeaeb;
+	background-color: #fbfbfb;
+	padding: 2px;
+}
+
+
+/* Body
+-------------------------------------------------------------------*/
+body { 
+	font: 12px/18px "Lucida Grande", Tahoma, Helvetica, Arial, Geneva, sans-serif; 
+	color: #333; 
+	background: #fafafa url(images/bg.gif); 
+}
+
+h1, h2, h3, h4, h5,h6 { font-weight: normal; color: #333; }
+/* h1 { font-size: 20px; line-height: 26px; margin-bottom: 10px; } */
+/* h2 { font-size: 18px; line-height: 24px; margin-bottom: 7px; } */
+/* h3 { font-size: 16px; line-height: 22px; margin-bottom: 5px; } */
+/* h4 { font-size: 14px; line-height: 20px; margin-bottom: 5px; } */
+
+h1 { font-size: 24px; color: rgb(51, 51, 51); line-height: 1.2em; word-spacing: -0.1em; font-weight: bold;
+	padding-top: 10px;
+	margin-bottom: 10px;
+	margin-top: 1px;
+}
+h2 { margin: 10px 0px 0px 0px; overflow: hidden; padding: 10px 0px 4px; display: block; font-size: 18px; font-weight: bold; line-height: 1.2em;
+	border-bottom: 2px solid #e6edee;
+}
+h3 { color: #464949; font-size: 16px; font-weight: bold; word-spacing: -0.1em; line-height: 18px; display: block; margin-bottom: 4px;
+	margin-top: 12px;
+	padding-bottom: 4px;
+	border-bottom: 1px solid #e6edee;
+}
+h4 { display: block; line-height: 18px; font-weight: bold;
+	margin-bottom: 2px;
+	padding-bottom: 2px;
+	font-size: 14px;
+	font-weight: bold;
+	font-style: italic;
+	margin-top: 12px;
+	padding-top: 4px;
+	border-bottom: 1px solid #e6edee;
+	color: #8b9090;
+}
+h5 { font-size: 13px; line-height: 18px; margin-bottom: 5px; }
+h6 { font-size: 12px; line-height: 16px; margin-bottom: 5px; }
+
+h1 span { color: #999; word-spacing: 0; }
+
+a { color: rgb(0, 136, 204); text-decoration: none; }
+a:hover { color: rgb(0, 136, 204); text-decoration: underline; }
+a:visited { color: rgb(0, 136, 204); }
+
+p { margin-bottom: 8px;
+	margin-top: 4px;
+}
+
+input, textarea { font: 12px "Lucida Grande", Tahoma, Helvetica, Arial, Geneva, sans-serif; }
+
+blockquote { 
+	font: italic 14px/20px Georgia, Serif; 
+	padding: 4px 16px;
+	margin: 12px;
+	background: #fefee7;
+	border: 1px solid #fbefb2;
+}
+blockquote code {
+	font-style: italic; 
+	background: none;
+	border: none;
+}
+
+
+
+/* Container
+-------------------------------------------------------------------*/
+#container { 
+	width: 900px; 
+	padding-bottom: 10px; 
+	margin: 20px auto 20px auto;
+	overflow: hidden; 
+}
+#container #wrapper { 
+	width: 900px; 
+	float: left; 
+	overflow: hidden; 
+	background: #d6ded4 url(images/sidebar-bg.gif) repeat-y top right; 
+}
+
+
+
+/* Header
+-------------------------------------------------------------------*/
+#header { 
+	width: 900px; 
+	height: 53px; 
+	float: left; 
+	background: #fafafa url(images/header-bg.gif) no-repeat center; 
+	position: relative; 
+}
+#header h1 { 
+	font: 24px "Lucida Grande", Tahoma;
+	padding: 12px 0 12px 24px; 
+	margin-bottom: 0; 
+	color: #333; 
+}
+#header h1 a { 
+	color: #333; 
+	text-shadow: 1px 1px 1px #fff; 
+	text-decoration: none; 
+}
+#header h1 span { 
+	padding-left: 10px; 
+	font-size: 11px; 
+	color: #777; 
+}
+
+
+
+/* Search
+-------------------------------------------------------------------*/
+#search {
+	position: absolute;
+	top: 20px; 
+	right: 10px;
+}
+#search #s { 
+	width: 170px;
+	height: 14px;
+	padding: 5px 0 5px 23px;
+	vertical-align: bottom;
+	line-height: 1px;
+	font: normal 12px "Lucida Grande", Tahoma, Sans-Serif;
+	color: #777;
+	border: 0;
+	background: #fafafa url(images/search-bg.gif) no-repeat;
+}
+
+
+
+/* Navigation
+-------------------------------------------------------------------*/
+#nav { 
+	width: 900px;
+	float: left; 
+	height: 32px; 
+	background: #fafafa url(images/nav-bg.gif) repeat-x; 
+	position: relative; 
+}
+#nav ul { 
+	margin-left: 24px; 
+}
+#nav ul li { 
+	display: inline; 
+	margin-right: 20px; 
+}
+#nav ul li a { 
+	font-weight: bold; 
+	text-shadow: 1px 1px 1px #fff; 
+	text-decoration: none; 
+	color: #555; 
+	line-height: 33px; 
+}
+#nav ul li a:hover { 
+	color: #333; 
+}
+#nav #feed {  
+	position: absolute; 
+	right: 15px; 
+	top: 7px;
+	font-weight: bold;
+	color: #555;
+	text-decoration: none;
+	padding: 0 0 0 20px;
+	display: block; 
+	text-shadow: 1px 1px 1px #fff; 
+	background: url(images/feed.gif) no-repeat 0 3px; 
+}
+
+
+
+/* Content
+-------------------------------------------------------------------*/
+#content { 
+	font: 15px/22px Georgia, "Lucida Grande", Tahoma, Helvetica, Arial, Geneva, sans-serif;
+	width: 652px; 
+	float: left; 
+	padding: 10px 24px; 
+	background: #fff; 
+}
+
+#content .post { 
+	margin-bottom: 40px; 
+}
+#content .post h1.post-title { 
+	color: #333;
+}
+#content .post h1.post-title a { 
+	text-decoration: none;
+	color: #333;
+}
+
+#content .post .post-info { 
+	clear: both;
+	font-size: 13px; 
+	color: #777; 
+	padding: 3px 5px 3px 5px; 
+	margin-bottom: 20px; 
+	border: 1px solid #bdccdc; 
+	background: #e9eff5; 
+}
+#content .post .post-info a { color: #333; text-decoration:none; }
+#content .post .post-info a:hover { color: #555; text-decoration:none; }
+
+#content #pages { text-align: center; }
+#content #pages a { font: bold 20px "Trebuchet MS"; color: rgb(0, 136, 204); text-decoration: none; }
+#content #pages a:hover { color: rgb(0, 136, 204); }
+
+#content ul, ol, dl { margin-bottom: 8px; }
+#content ul { 
+	list-style: disc;
+	list-style-position: outside;
+	list-style-type: circle;
+	margin-left: 28px;
+}
+#content ol { 
+	list-style: decimal; 
+	list-style-position: outside; 
+	margin-left: 22px;
+}
+#content dl dt { 
+	font-weight: bold;
+}
+#content dl dd { 
+	font-style: italic;
+	margin: 0 0 5px 20px;
+	color: #555;
+}
+
+.aligncenter { margin-left: auto; margin-right: auto; }
+.alignleft { float: left; margin: 5px 15px 10px 0; }
+.alignright { float: right; margin: 5px 0 10px 15px; }
+
+
+
+/* Comment Form
+-------------------------------------------------------------------*/
+#commentform { 
+	background: #fafafa; 
+	border: 5px solid #e6efef; 
+	padding: 10px; 
+	color: #555; 
+}
+#commentform p { margin-bottom: 7px; }
+#commentform textarea { 
+	width: 630px; 
+	border: 1px solid #dcdcdc; 
+	height: 120px;
+}
+#commentform input.text { 
+	width: 150px; 
+	border: 1px solid #dcdcdc; 
+	margin-right: 10px; 
+	padding: 3px 3px; 
+}
+#commentform input#submit { padding: 3px 10px; }
+
+
+/* Comments
+-------------------------------------------------------------------*/
+#comments .comment { 
+	width: 670px;
+	background: #e6efef; 
+	margin-bottom: 10px; 
+	overflow: hidden; 
+	padding-bottom: 5px; 
+	border: 1px solid #ddd;
+}
+#comments .comment .comment-avatar { 
+	width: 50px; 
+	float: left; 
+	padding: 5px 7px; 
+}
+
+#comments .comment .comment-content { 
+	width: 570px;
+	float: left; 
+	padding: 10px 15px; 
+	margin: 5px 5px 0 0; 
+	background: #fafafa ; 
+}
+#comments .comment .comment-content a { color: #444; }
+
+#comments .comment .comment-info { 
+	font-size: 11px;
+	color: #777;
+	margin-bottom: 5px; 
+}
+#comments .comment .comment-info span {
+	font-weight: bold;
+	font-size: 20px;
+	padding-right: 10px; 
+	margin-bottom: 5px;
+}
+#comments .comment .comment-info a { 
+	color: #444; 
+	text-decoration: none;
+}
+
+
+
+/* Sidebar
+-------------------------------------------------------------------*/
+#sidebar { 
+	width: 200px; 
+	float: left; 
+	font-size: 11px; 
+	color: #555; 
+	margin-bottom: 15px;
+}
+#sidebar h3 { 
+	font: bold 12px "Lucida Grande", Tahoma; 
+	color: #333; 
+}
+
+#sidebar a { color: #333; text-decoration: none; }
+#sidebar a:hover { color: #777; }
+
+#sidebar .block { 
+	padding: 15px; 
+	overflow: hidden;
+	background: url(images/sidebar-block-bg.gif) no-repeat bottom center; 
+}
+#sidebar .block ul li { 
+	padding-left: 18px; 
+	background: url(images/arrow.gif) no-repeat 0px 3px; 
+}
+
+
+
+/* Calendar */
+#sidebar .block #calendar_wrap .pad { background: none; }
+#sidebar .block #calendar_wrap #prev { background: none; }
+#sidebar .block #calendar_wrap #next { background: none; }
+#sidebar .block #calendar_wrap table { width: 100%; margin: 0;padding: 0;}
+#sidebar .block #calendar_wrap table th { width: 14.2%; }
+#sidebar .block #calendar_wrap table td { width: 14.2%; background: #fafafa; text-align: center; color: #888; }
+#sidebar .block #calendar_wrap table td a { font-weight: bold; }
+
+
+
+/* Footer
+-------------------------------------------------------------------*/
+#footer {
+	width: 900px;
+	height: 29px;
+	float: left;
+	clear: both;  
+	position: relative;
+	background: #fafafa url(images/footer-bg.gif) no-repeat; 
+}
+#footer a#theme-author { 
+	position: absolute; 
+	top: 0px; 
+	right: 0px; 
+	display: block; 
+	height: 28px; 
+	width: 130px; 
+}
+#footer p { 
+	line-height: 28px; 
+	color: #333; 
+	padding-left: 24px; 
+	font-size: 11px; 
+	margin: 0; 
+}
+#footer a { 
+	color: #555;
+	text-decoration: underline;
+}

@@ -1,0 +1,2601 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" lang="en-US"><head profile="http://gmpg.org/xfn/11">
+
+
+
+
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<title>nvie.com  » Blog Archive   » A successful Git branching model</title>
+	
+	<link rel="alternate" type="application/rss+xml" title="nvie.com RSS Feed" href="http://nvie.com/feed">
+	<link rel="pingback" href="http://nvie.com/xmlrpc.php">
+	
+	<link rel="stylesheet" href="git-model_files/style.css" type="text/css" media="screen">
+	<!--[if IE]><link rel="stylesheet" type="text/css" href="http://nvie.com/wp-content/themes/librio/ie.css" media="screen" /><![endif]-->
+	
+	<link rel="alternate" type="application/rss+xml" title="nvie.com » A successful Git branching model Comments Feed" href="http://nvie.com/git-model/feed">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://nvie.com/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://nvie.com/wp-includes/wlwmanifest.xml"> 
+<link rel="index" title="nvie.com" href="http://nvie.com/">
+<link rel="start" title="NSPredicateEditor tutorial" href="http://nvie.com/archives/197">
+<link rel="prev" title="Avoiding fast-forward merges in Git" href="http://nvie.com/archives/319">
+<link rel="next" title="Building Git from scratch on Snow Leopard" href="http://nvie.com/archives/420">
+<meta name="generator" content="WordPress 3.0.1">
+<link rel="canonical" href="http://nvie.com/git-model">
+<link rel="shortlink" href="http://nvie.com/?p=323">
+
+<!-- tracker added by Ultimate Google Analytics plugin v1.6.0: http://www.oratransplant.nl/uga -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="git-model_files/ga.js" type="text/javascript"></script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-7780973-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+
+<link rel="stylesheet" href="git-model_files/wp-syntax.css" type="text/css" media="screen">
+	<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+</head><body>
+
+<div id="container">
+
+	<div id="header">
+		<h1><a href="http://nvie.com/">nvie.com</a><span>Anything that interests me.</span></h1>
+		<div id="search">
+			<form method="get" id="searchform" action="http://nvie.com/">
+				<input value="Search" name="s" id="s" onfocus="if(this.value=='Search')this.value=''" onblur="if(this.value=='')this.value='Search'" type="text">
+			</form>
+		</div>
+	</div>
+
+	<div id="nav">
+		<ul>
+			<li class="current_page_item"><a href="http://nvie.com/">Home</a></li>
+			<li class="page_item page-item-8"><a href="http://nvie.com/about" title="About">About</a></li>
+		</ul>
+		<a href="http://nvie.com/feed" id="feed">Subscribe</a>
+	</div>
+	
+	<div id="wrapper">
+
+<div id="content">
+
+	
+		<div class="post" id="post-323">
+			<h1 class="post-title">A successful Git branching model</h1>
+
+			<p>In this post I present the development model that I’ve introduced 
+for all of my projects (both at work and private) about a year ago, and 
+which has turned out to be very successful. I’ve been meaning to write 
+about it for a while now, but I’ve never really found the time to do 
+so&nbsp;thoroughly, until now. I won’t talk about any of the projects’ 
+details, merely about the branching strategy and release management.</p>
+<p style="text-align: center;"><img class="size-full wp-image-344 aligncenter" title="The branches of the branching model" src="git-model_files/Screen-shot-2009-12-24-at-11.png" alt="" height="815" width="611"></p>
+<p><span id="more-323"></span></p>
+<p>It focuses around <a onclick="javascript:pageTracker._trackPageview('/outgoing/git-scm.com');" href="http://git-scm.com/">Git</a> as the tool for the versioning of all of our source code.</p>
+<h2>Why git?</h2>
+<p>For a thorough discussion on the pros and cons of Git compared to centralized source code control systems, <a onclick="javascript:pageTracker._trackPageview('/outgoing/whygitisbetterthanx.com/');" href="http://whygitisbetterthanx.com/">see</a> <a onclick="javascript:pageTracker._trackPageview('/outgoing/www.looble.com/git-vs-svn-which-is-better/');" href="http://www.looble.com/git-vs-svn-which-is-better/">the</a> <a onclick="javascript:pageTracker._trackPageview('/outgoing/git.or.cz/gitwiki/GitSvnComparsion');" href="http://git.or.cz/gitwiki/GitSvnComparsion">web</a>.
+ There are plenty of flame wars going on there. As a developer, I prefer
+ Git above all other tools around today. Git really changed the way 
+developers think of merging and branching. From the classic 
+CVS/Subversion world I came from, merging/branching has always been 
+considered a bit scary (“beware of merge conflicts, they bite you!”) and
+ something you only do every once in a while.</p>
+<p>But with Git, these actions are extremely cheap and simple, and they are considered one of the core parts of your <em>daily</em> workflow, really. For example, in CVS/Subversion <a onclick="javascript:pageTracker._trackPageview('/outgoing/svnbook.red-bean.com');" href="http://svnbook.red-bean.com/">books</a>, branching and merging is first discussed in the later chapters (for advanced users), while in <a onclick="javascript:pageTracker._trackPageview('/outgoing/book.git-scm.com');" href="http://book.git-scm.com/">every</a> <a onclick="javascript:pageTracker._trackPageview('/outgoing/pragprog.com/titles/tsgit/pragmatic-version-control-using-git');" href="http://pragprog.com/titles/tsgit/pragmatic-version-control-using-git">Git</a> <a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/progit/progit');" href="http://github.com/progit/progit">book</a>, it’s already covered in chapter 3 (basics).</p>
+<p>As a consequence of its simplicity and repetitive nature, branching 
+and merging are no longer something to be afraid of. Version control 
+tools are supposed to assist in branching/merging more than anything 
+else.</p>
+<p>Enough about the tools, let’s head onto the development model.  The 
+model that I’m going to present here is essentially no more than a set 
+of procedures that every team member has to follow in order to come to a
+ managed software development process.</p>
+<h2>Decentralized but centralized</h2>
+<p>The repository setup that we use and that works well with this 
+branching model, is that with a central “truth” repo. Note that this 
+repo&nbsp;is only&nbsp;<em>considered</em> to be the central one (since 
+Git is a DVCS, there is no such thing as a central repo at a technical 
+level).&nbsp;We will refer to this repo as <code>origin</code>, since this name is familiar to all Git users.</p>
+<p style="text-align: center;"><a onclick="javascript:pageTracker._trackPageview('/wp-content/uploads/wp-content/uploads/2010/01/centr-decentr.png');" href="http://nvie.com/wp-content/uploads/2010/01/centr-decentr.png"><img class="alignnone size-full wp-image-413" title="Centralised, yet decentralised" src="git-model_files/centr-decentr.png" alt="" height="356" width="478"></a></p>
+<p>Each developer pulls and pushes to origin. But besides the 
+centralized push-pull relationships, each developer may also pull 
+changes from other peers to form sub teams. For example, this might be 
+useful to work together with two or more developers on a big new 
+feature, before pushing the work in progress to <code>origin</code> prematurely. In the figure above, there are subteams of Alice and Bob, Alice and David, and Clair and David.</p>
+<p>Technically, this means nothing more than that Alice has defined a Git remote, named <code>bob</code>, pointing to Bob’s repository, and vice versa.</p>
+<h2>The main branches</h2>
+<p><img class="size-full wp-image-348 alignright" title="Master-develop cycle" src="git-model_files/bm002.png" alt="" height="378" width="254"></p>
+<p>At the core, the development model is greatly inspired by existing 
+models out there.&nbsp;The central repo holds two main branches with an 
+infinite lifetime:</p>
+<ul>
+<li><code>master</code></li>
+<li><code>develop</code></li>
+</ul>
+<p>The <code>master</code> branch at <code>origin</code> should be familiar to every Git user.&nbsp;Parallel to the <code>master</code> branch, another branch exists called <code>develop</code>.</p>
+<p>We consider <code>origin/master</code> to be the main branch where the source code of <code>HEAD</code> always reflects a <em>production-ready</em> state.</p>
+<p>We consider <code>origin/develop</code> to be the main branch where the source code of <code>HEAD</code>
+ always reflects a state with the latest delivered development changes 
+for the next release. Some would call this the “integration branch”. 
+This is where any automatic nightly builds are built from.</p>
+<p>When the source code in the <code>develop</code> branch reaches a stable point and is ready to be released, all of the changes should be merged back into <code>master</code> somehow and then tagged with a release number. How this is done in detail will be discussed further on.</p>
+<p>Therefore, each time when changes are merged back into <code>master</code>, this is a new production release <em>by definition</em>.&nbsp;We
+ tend to be very strict at this, so that theoretically, we could use a 
+Git hook script to automatically build and roll-out our software to our 
+production servers everytime there was a commit on <code>master</code>.</p>
+<h2>Supporting branches</h2>
+<p>Next to the main branches <code>master</code> and <code>develop</code>,
+ our development model uses a variety of supporting branches to aid 
+parallel development between team members, ease tracking of features, 
+prepare for production releases and to assist in quickly fixing live 
+production problems. Unlike the main branches, these branches always 
+have a limited life time, since they will be removed eventually.</p>
+<p>The different types of branches we may use are:</p>
+<ul>
+<li>Feature branches</li>
+<li>Release branches</li>
+<li>Hotfix branches</li>
+</ul>
+<p>Each of these branches have a specific purpose and are bound to 
+strict rules as to which branches may be their originating branch and 
+which branches must be their merge targets. We will walk through them in
+ a minute.</p>
+<p>By no means are these branches “special” from a technical perspective. The branch types are categorized by how we <em>use</em> them. They are of course plain old Git branches.</p>
+<h3>Feature branches</h3>
+<p><img class="alignright size-full wp-image-368" title="Feature branch" src="git-model_files/fb.png" alt="" height="352" width="133">May branch off from:&nbsp;<code>develop</code></p>
+<p>Must merge back into:&nbsp;<code>develop</code></p>
+<p>Branch naming convention: anything except&nbsp;<code>master</code>, <code>develop</code>, <code>release-*</code>, or <code>hotfix-*</code></p>
+<p>Feature branches (or sometimes called topic branches) are used to 
+develop new features for the upcoming or a distant future release. When 
+starting development of a feature, the target release in which this 
+feature will be incorporated may well be unknown at that point. The 
+essence of a feature branch is that it exists as long as the feature is 
+in development, but will eventually be merged back into <code>develop</code> (to definitely add the new feature to the upcoming release) or discarded (in case of a disappointing experiment).</p>
+<p>Feature branches typically exist in developer repos only, not in <code>origin</code>.</p>
+<h4>Creating a feature branch</h4>
+<p>When starting work on a new feature, branch off from the <code>develop</code> branch.</p>
+<pre><strong>$ git checkout -b myfeature develop</strong>
+Switched to a new branch "myfeature"</pre>
+<h4>Incorporating a finished feature on develop</h4>
+<p>Finished features may be merged into the <code>develop</code> branch definitely add them to the upcoming release:</p>
+<pre><strong>$ git checkout develop</strong>
+Switched to branch 'develop'
+<strong>$ git merge --no-ff myfeature</strong>
+Updating ea1b82a..05e9557
+<em>(Summary of changes)</em>
+<strong>$ git branch -d myfeature</strong>
+Deleted branch myfeature (was 05e9557).
+<strong>$ git push origin develop</strong></pre>
+<p>The <code>--no-ff</code> flag causes the merge to always create a new
+ commit object, even if the merge could be performed with a 
+fast-forward. This avoids losing information about the historical 
+existence of a feature branch and groups together all commits that 
+together added the feature. Compare:</p>
+<p style="text-align: center;"><img class="alignnone size-full wp-image-394" title="Merging with or without fast-forwards" src="git-model_files/merge-without-ff.png" alt="" height="414" width="463"></p>
+<p>In the latter case, it is impossible to see from the Git history 
+which of the commit objects together have implemented a feature—you 
+would have to manually read all the log messages. Reverting a whole 
+feature (i.e. a group of commits), is a true headache in the latter 
+situation, whereas it is easily done if the <code>--no-ff</code> flag was used.</p>
+<p>Yes, it will create a few more (empty) commit objects, but the gain is much bigger that that cost.</p>
+<p>Unfortunately, I have not found a way to make <code>--no-ff</code> the default behaviour of <code>git merge</code> yet, but it really should be.</p>
+<h3>Release branches</h3>
+<p>May branch off from:&nbsp;<code>develop</code></p>
+<p>Must merge back into:&nbsp;<code>develop</code> and <code>master</code></p>
+<p>Branch naming convention: <code>release-*</code></p>
+<p>Release branches support preparation of a new production 
+release.&nbsp;They allow for last-minute dotting of i’s and crossing 
+t’s. Furthermore, they allow for minor bug fixes and preparing meta-data
+ for a release (version number, build dates, etc.). By doing all of this
+ work on a release branch, the <code>develop</code> branch is cleared to receive features for the next big release.</p>
+<p>The key moment to branch off a new release branch from <code>develop</code>
+ is when develop (almost) reflects the desired state of the new 
+release.&nbsp;At least all features that are targeted for the 
+release-to-be-built must be merged in to <code>develop</code> at this 
+point in time. All features targeted at future releases may not—they 
+must wait until after the release branch is branched off.</p>
+<p>It is exactly at the start of a release branch that the upcoming 
+release gets assigned a version number—not any earlier. Up until that 
+moment, the <code>develop</code> branch reflected changes for the “next 
+release”, but it is unclear whether that “next release” will eventually 
+become 0.3 or 1.0, until the release branch is started. That decision is
+ made on the start of the release branch and is carried out by the 
+project’s rules on version number bumping.</p>
+<h4>Creating a release branch</h4>
+<p>Release branches are created from the <code>develop</code> branch. For example, say version 1.1.5 is the current production release and we have a big release coming up. The state of <code>develop</code>
+ is ready for the “next release” and we have decided that this will 
+become version 1.2 (rather than 1.1.6 or 2.0). So we branch off and give
+ the release branch a name reflecting the new version number:</p>
+<pre><strong>$ git checkout -b release-1.2 develop</strong>
+Switched to a new branch "release-1.2"
+<strong>$ ./bump-version.sh 1.2</strong>
+Files modified successfully, version bumped to 1.2.
+<strong>$ git commit -a -m "Bumped version number to 1.2"</strong>
+[release-1.2 74d9424] Bumped version number to 1.2
+1 files changed, 1 insertions(+), 1 deletions(-)</pre>
+<p>After creating a new branch and switching to it, we bump the version number. Here,&nbsp;<code>bump-version.sh</code>
+ is a&nbsp;fictional&nbsp;shell script that changes some files in the 
+working copy to reflect the new version. (This can of course be a manual
+ change—the point being that <em>some</em> files change.) Then, the bumped version number is committed.</p>
+<p>This new branch may exist there for a while, until the release may be
+ rolled out definitely. During that time, bug fixes may be applied in 
+this branch (rather than on the <code>develop</code> branch). Adding large new features here is strictly prohibited. They must be merged into <code>develop</code>, and therefore, wait for the next big release.</p>
+<h4>Finishing a release branch</h4>
+<p>When the state of the release branch is ready to become a real 
+release, some actions need to be carried out. First, the release branch 
+is merged into <code>master</code> (since every commit on <code>master</code> is a new release <em>by definition</em>, remember). Next, that commit on <code>master</code>
+ must be tagged for easy future reference to this historical version. 
+Finally, the changes made on the release branch need to be merged back 
+into <code>develop</code>, so that future releases also contain these bug fixes.</p>
+<p>The first two steps in Git:</p>
+<pre><strong>$ git checkout master</strong>
+Switched to branch 'master'
+<strong>$ git merge --no-ff release-1.2
+</strong>Merge made by recursive.
+<em>(Summary of changes)</em>
+<strong>$ git tag -a 1.2</strong></pre>
+<p>The release is now done, and tagged for future reference.<br>
+<ins datetime="2010-02-06T12:31:04+00:00"><strong>Edit:</strong> You might as well want to use the <code>-s</code> or <code>-u &lt;key&gt;</code> flags to sign your tag cryptographically.</ins></p>
+<p>To keep the changes made in the release branch, we need to merge those back into <code>develop</code>, though. In Git:</p>
+<pre><strong>$ git checkout develop</strong>
+Switched to branch 'develop'
+<strong>$ git merge --no-ff release-1.2
+</strong>Merge made by recursive.
+<em>(Summary of changes)</em></pre>
+<p>This step may well lead to a merge conflict (probably even, since we have changed the version number). If so, fix it and commit.</p>
+<p>Now we are really done and the release branch may be removed, since we don’t need it anymore:</p>
+<pre><strong>$ git branch -d release-1.2</strong>
+Deleted branch release-1.2 (was ff452fe).</pre>
+<h3>Hotfix branches</h3>
+<p><img class="alignright size-full wp-image-390" title="Hotfix branching" src="git-model_files/hotfix-branches1.png" alt="" height="422" width="307">May branch off from:&nbsp;<code>master</code></p>
+<p>Must merge back into:&nbsp;<code>develop</code> and <code>master</code></p>
+<p>Branch naming convention: <code>hotfix-*</code></p>
+<p>Hotfix branches are very much like release branches in that they are 
+also meant to prepare for a new production release, albeit unplanned. 
+They arise from the necessity to act immediately upon an undesired state
+ of a live production version. When a critical bug in a production 
+version must be resolved immediately, a hotfix branch may be branched 
+off from the corresponding tag on the master branch that marks the 
+production version.</p>
+<p>The essence is that work of team members (on the <code>develop</code> branch) can continue, while another person is preparing a quick production fix.</p>
+<h4>Creating the hotfix branch</h4>
+<p>Hotfix branches are created from the&nbsp;<code>master</code> branch.
+ For example, say version 1.2 is the current production release running 
+live and causing troubles due to a severe bug. But changes on <code>develop</code> are yet unstable.&nbsp;We may then branch off a hotfix branch and start fixing the problem:</p>
+<pre><strong>$ git checkout -b hotfix-1.2.1 master</strong>
+Switched to a new branch "hotfix-1.2.1"
+<strong>$ ./bump-version.sh 1.2.1</strong>
+Files modified successfully, version bumped to 1.2.1.
+<strong>$ git commit -a -m "Bumped version number to 1.2.1"</strong>
+[hotfix-1.2.1 41e61bb] Bumped version number to 1.2.1
+1 files changed, 1 insertions(+), 1 deletions(-)</pre>
+<p>Don’t forget to bump the version number after branching off!</p>
+<p>Then, fix the bug and commit the fix in one or more separate commits.</p>
+<pre><strong>$ git commit -m "Fixed severe production problem"</strong>
+[hotfix-1.2.1 abbe5d6] Fixed severe production problem
+5 files changed, 32 insertions(+), 17 deletions(-)</pre>
+<p><strong>Finishing a hotfix branch</strong></p>
+<p>When finished, the bugfix needs to be merged back into <code>master</code>, but also needs to be merged back into <code>develop</code>,
+ in order to&nbsp;safeguard&nbsp;that the bugfix is included in the next
+ release as well. This is completely similar to how release branches are
+ finished.</p>
+<p>First, update <code>master</code> and tag the release.</p>
+<pre><strong>$ git checkout master</strong>
+Switched to branch 'master'
+<strong>$ git merge --no-ff hotfix-1.2.1</strong>
+Merge made by recursive.
+<em>(Summary of changes)</em>
+<strong>$ git tag -a 1.2.1</strong></pre>
+<p><ins datetime="2010-02-06T12:31:04+00:00"><strong>Edit:</strong> You might as well want to use the <code>-s</code> or <code>-u &lt;key&gt;</code> flags to sign your tag cryptographically.</ins></p>
+<p>Next,&nbsp;include the bugfix in <code>develop</code>, too:</p>
+<pre><strong>$ git checkout develop</strong>
+Switched to branch 'develop'
+<strong>$ git merge --no-ff hotfix-1.2.1</strong>
+Merge made by recursive.
+<em>(Summary of changes)</em></pre>
+<p>The one exception to the rule here is that,&nbsp;<strong>when a release branch currently exists, the hotfix changes need to be merged into that release branch, instead of </strong><code><strong>develop</strong></code>. Back-merging the bugfix into the release branch will eventually result in the bugfix being merged into <code>develop</code> too, when the release branch is finished. (If work in <code>develop</code> immediately requires this bugfix and cannot wait for the release branch to be finished, you may safely merge the bugfix into <code>develop</code> now already as well.)</p>
+<p>Finally, remove the temporary branch:</p>
+<pre><strong>$ git branch -d hotfix-1.2.1</strong>
+Deleted branch hotfix-1.2.1 (was abbe5d6).</pre>
+<h2>Summary</h2>
+<p>While there is nothing really shocking new to this branching model, 
+the “big picture” figure that this post began with has turned out to be 
+tremendously useful in our projects. It forms an elegant mental model 
+that is easy to comprehend and allows team members to develop a shared 
+understanding of the branching and releasing processes.</p>
+<p>A high-quality PDF version of the figure is provided here. Go ahead and hang it on the wall for quick reference at any time.</p>
+<p><ins datetime="2010-05-03T17:50:14+00:00"><strong>Update:</strong> And for anyone who requested it: here’s the <a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/downloads/nvie/gitflow/Git-branching-model-src.key.zip');" href="http://github.com/downloads/nvie/gitflow/Git-branching-model-src.key.zip">gitflow-model.src.key</a> of the main diagram image (Apple Keynote).</ins></p>
+<table border="0">
+<tbody>
+<tr>
+<td align="center"><a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/downloads/nvie/gitflow/Git-branching-model.pdf');" href="http://github.com/downloads/nvie/gitflow/Git-branching-model.pdf"><img class="alignnone size-full wp-image-383" title="Download PDF" src="git-model_files/pdf_icon.png" alt="" height="128" width="128"></a></td>
+</tr>
+<tr>
+<td align="center"><strong><a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/downloads/nvie/gitflow/Git-branching-model.pdf');" href="http://github.com/downloads/nvie/gitflow/Git-branching-model.pdf">Git-branching-model.pdf</a></strong></td>
+</tr>
+</tbody>
+</table>
+<p>Feel free to add your comments!</p>
+
+						
+			<div class="post-info">
+				January 5th, 2010 in
+				<a href="http://nvie.com/archives/category/git" title="View all posts in Git" rel="category tag">Git</a>, <a href="http://nvie.com/archives/category/git/gitflow" title="View all posts in gitflow" rel="category tag">gitflow</a>											</div>
+		</div>
+
+		
+
+	<h1 class="comments-title">122 Comments</h1>
+
+	<div id="comments">
+
+					<div class="comment" id="comment-144">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/63e65f31f971ff91f9e1496836810ec5.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>fefal</span>January 12th, 2010 at 08:16 </div>
+					
+					
+					<p>Excellent post to work with a team on git.<br>
+Thanks for sharing these ideas…let’s go to Twitt it.<br>
+Can u tell me what’s the software are u using for creating theses images?<br>
+Thanks again</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-145">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 12th, 2010 at 08:50 </div>
+					
+					
+					<p>@fefal: Thank you for your comment. The images were created using Apple’s Keynote. (Check the line styles.)</p>
+<p>Hopefully you can use this model to your advantage.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-148">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/b5a94b37532c7afb376b19f7dd19d226.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/jmesnil.net');" href="http://jmesnil.net/" rel="external nofollow" class="url">Jeff Mesnil</a></span>January 14th, 2010 at 22:55 </div>
+					
+					
+					<p>Very interesting article.</p>
+<p>About using –no-ff, you could configure it by default on your master and develop branches by adding this to ~/.gitconfig:</p>
+<p>[branch "master"]<br>
+    mergeoptions = –no-ff</p>
+<p>[branch "develop"]<br>
+    mergeoptions = –no-ff</p>
+<p>see <a onclick="javascript:pageTracker._trackPageview('/outgoing/www.kernel.org/pub/software/scm/git/docs/git-config.html');" href="http://www.kernel.org/pub/software/scm/git/docs/git-config.html" rel="nofollow">http://www.kernel.org/pub/software/scm/git/docs/git-config.html</a></p>
+				</div>
+			</div>
+					<div class="comment" id="comment-151">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 15th, 2010 at 10:34 </div>
+					
+					
+					<p>@Jeff: Interesting remark. That would be a great addition to the
+ branching model, since those rules only apply for develop and master.</p>
+<p>However, it would also affect the merges that are performed by 
+pulling in upstream changes from the origin repo and I think most 
+likely, you would like those to be fast-forwarded. Otherwise, your 
+commit tree explodes with branches that effectively carry no interesting
+ information.</p>
+<p>Summarized, you would want</p>
+<p>    git checkout develop; git merge myfeature</p>
+<p>to be –no-ff’ed, but:</p>
+<p>    git checkout develop; git pull</p>
+<p>to be –ff’ed.</p>
+<p>I think it’s just too much to ask this of git.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-155">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/b5a94b37532c7afb376b19f7dd19d226.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/jmesnil.net');" href="http://jmesnil.net/" rel="external nofollow" class="url">Jeff Mesnil</a></span>January 16th, 2010 at 10:58 </div>
+					
+					
+					<p>@vincent, you’re right, on the same branch sometimes you want to fast-forward, sometimes you don’t.</p>
+<p>After thinking about it, I agree that –no-ff should be default and 
+-ff should be explicit. It’d make sense to have the default preserve 
+history rather than destroy it.<br>
+But Git can be used in so many different ways that no default setting will satisfy everybody :)</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-161">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/e8e4c826878724f8ac097c412732e73c.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Elliot</span>January 19th, 2010 at 22:36 </div>
+					
+					
+					<p>This is fantastic, very well thought out.  Thank you!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-166">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/3ac52769480f3012c666568cd658419c.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/joelparkerhenderson.com');" href="http://joelparkerhenderson.com/" rel="external nofollow" class="url">Joel Parker Henderson</a></span>January 20th, 2010 at 02:09 </div>
+					
+					
+					<p>Great posting, thank you so much for creating this. My team is 
+working with git branches, deployment tactics, and we’re having similar 
+discussions about how to proceed. Your posting is valuable to me and I’m
+ happy to donate money to you or to a charity of your choice– feel free 
+to contact me using my full name @ gmail.com</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-167">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/08cc0b892f76188c75fb0f99edafd4d3.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.twitter.com/adymitruk');" href="http://www.twitter.com/adymitruk" rel="external nofollow" class="url">Adam D.</a></span>January 20th, 2010 at 02:18 </div>
+					
+					
+					<p>Perhaps there should be a ff default option for pull. Then you could have the default –no-ff for merging.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-168">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/fd0a1e2a0b535d0e508873abe64f75fc.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/iter8or.wordpress.com/');" href="http://iter8or.wordpress.com/" rel="external nofollow" class="url">zlost</a></span>January 20th, 2010 at 02:47 </div>
+					
+					
+					<p>Lovely, thanks!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-170">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/d1ab193da2440f9b2c6a3b196df8477b.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Stephen</span>January 20th, 2010 at 05:34 </div>
+					
+					
+					<p>This is great. I’m only in git-svn or github these days, so I 
+don’t use it anymore, but I wrote a commit hook to enforce master (we 
+renamed it to stable) only moving via no-ffs:</p>
+<p><a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/stephenh/git-central/blob/master/server/update-stable');" href="http://github.com/stephenh/git-central/blob/master/server/update-stable" rel="nofollow">http://github.com/stephenh/git-central/blob/master/server/update-stable</a></p>
+				</div>
+			</div>
+					<div class="comment" id="comment-174">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/bfb40fd549ddac9745ad7ec50b3b2995.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Ben</span>January 20th, 2010 at 07:47 </div>
+					
+					
+					<p>Great article. I found some errors you may want to fix. In some 
+places you use “were” (form of the verb ‘to be’) rather than “where”. 
+Other one: loosing-&gt;losing. Still, great article, I didn’t really 
+understand the multiple branch workflow before reading this.</p>
+<p>Also, starting at “Creating a feature branch” you create branch 
+‘myfeature’ and then start using ‘somefeature’ … did you mean to 
+myfeature instead?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-175">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/120c901c6b95625406d4653c0c625992.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Ash</span>January 20th, 2010 at 08:02 </div>
+					
+					
+					<p>Great post! It was very helpful that you explained the whole process.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-176">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/891eb2935969245909fca455735d96c7.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Santhosh</span>January 20th, 2010 at 08:15 </div>
+					
+					
+					<p>I was sure that somebody would have asked which software was used to create the images!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-177">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/72612665a14d48ee374957854de56ad7.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/blog.nunojob.com');" href="http://blog.nunojob.com/" rel="external nofollow" class="url">Nuno Job</a></span>January 20th, 2010 at 08:31 </div>
+					
+					
+					<p>Thanks, the article is great!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-178">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/42a5409066de023660a31932c65fb0e2.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Keong</span>January 20th, 2010 at 09:03 </div>
+					
+					
+					<p>Your big picture is excellent and it’s exactly what we do in our company!</p>
+<p>The only difference is that we use ClearCase and the built-in version
+ tree function shows us this exact picture based on the checkins and 
+branches contained in the ClearCase VOB.  It’s even interactive in the 
+GUI to let you select versions for diffs &amp; merges.  For us, the 
+mental model and the ClearCase reality is one and the same.  Hooray!  Of
+ course, ClearCase is not decentralised/distributed like Git, so it has 
+it’s own problems too :-)</p>
+<p>Generating this kind of version tree diagram should be standard 
+behaviour for all version control systems alike (git, hg, svn, cvs, 
+fossil, etc).  It’s one of the key reasons why I find it hard to adjust 
+to using these other tools.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-179">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/0fd9c0c07d7161defee1f25b6b46b20b.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/4loc.wordpress.com/');" href="http://4loc.wordpress.com/" rel="external nofollow" class="url">0x4a6f4672</a></span>January 20th, 2010 at 11:00 </div>
+					
+					
+					<p>Nice try, but I don’t see why the proliferation of branches is a
+ good thing. Have you ever worked on a large project? Every branch 
+increases the complexity of the project and the probability of a merge 
+conflict. Merge conflicts are just as nasty and ugly in GIT as they are 
+in SVN ( see <a onclick="javascript:pageTracker._trackPageview('/outgoing/bit.ly/17XoL');" href="http://bit.ly/17XoL" rel="nofollow">http://bit.ly/17XoL</a> )</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-181">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/78c706e3da2bac78585a30aa91c8e93a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.roryf.co.uk');" href="http://www.roryf.co.uk/" rel="external nofollow" class="url">Rory Fitzpatrick</a></span>January 20th, 2010 at 11:48 </div>
+					
+					
+					<p>Really good explanation of a model that works, thanks.</p>
+<p>Not sure what software you’re releasing, but I’m wondering how you 
+would handle hotfixing a previous release that you still had to support?
+ i.e. you’ve just released 2.0 but have to hotfix 1.0 for a customer, 
+where does the hotfix-1.0.1 branch get merged into and ultimately tagged
+ for release?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-184">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/d4601e3b4d910f89d02834751d58b526.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/blogage.de/');" href="http://blogage.de/" rel="external nofollow" class="url">Mutwin Kraus</a></span>January 20th, 2010 at 12:45 </div>
+					
+					
+					<p>Hi, great writeup. I employ a very similar model with my 
+development team, except we don’t merge branches to develop (called 
+next_master in our case), but use git rebase -i to squash the branch 
+into one or a few commits and then merge it into develop after rebasing.
+ This guarantees that all merges are fast-forwards and our git log is 
+clean of those annoying merge-commits.</p>
+<p>Is there a reason you decided against using rebase? In my experience 
+regular rebasing of topic/feature branches helps a lot in the long run.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-185">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 20th, 2010 at 12:52 </div>
+					
+					
+					<p>@Rory: That’s an excellent follow-up question. To be honest, I 
+haven’t thought about that scenario consciously. (The software I’m 
+releasing is mainly infrastructure tools that we use internally.)</p>
+<p>But say you have the following situation:</p>
+<ul>
+<li>You have tagged your releases <code>1.0</code>, <code>1.1</code> and <code>2.0</code>.</li>
+<li>1.x and 2.x are sold under different licenses.</li>
+<li>Some critical bug must be fixed in both the 1.x and 2.x versions, 
+and you do not want your customers to be forced to upgrade to 2.x</li>
+</ul>
+<p>My solution to that would be the following:</p>
+<ul>
+<li>Create a “support branch” called <code>support-1.x</code>, based on tag <code>1.1</code> (since that is the latest 1.x commit). This branch should be long-lived and can be safely removed if you drop support on 1.x.</li>
+<li>Create a branch <code>hotfix-1.1.1</code>, based on <code>support-1.x</code></li>
+<li>Create a branch <code>hotfix-2.0.1</code>, based on <code>2.0</code></li>
+<li>Fix the bug on each (<a onclick="javascript:pageTracker._trackPageview('/outgoing/www.kernel.org/pub/software/scm/git/docs/git-cherry-pick.html');" href="http://www.kernel.org/pub/software/scm/git/docs/git-cherry-pick.html" rel="nofollow">git cherry-pick</a> may help here)</li>
+</ul>
+<p>Then, finish <code>hotfix-1.1.1</code> by merging back into <code>support-1.x</code> (don’t forget <code>--no-ff</code>), so <strong>not</strong> into master or develop. Technically you could just merge back those changes into <code>develop</code>, but the commit graph would quickly become like a plate of spaghetti. Rather leave these situations to <code>git cherry-pick</code> (personal taste).</p>
+<p>You can finish <code>hotfix-2.0.1</code> as you would regularly (merge back into <code>master</code> or <code>develop</code>). Merging the fix into develop causes the bug be fixed in all future releases.</p>
+<p>Effectively, what you’re doing then, is having a master branch per supported product release.</p>
+<p>Maybe I’m forgetting something, haven’t thought about it too long yet. Very interesting addition to the article!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-186">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/7ca70d640864e28a6a700bbf265a42e3.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Dmitry</span>January 20th, 2010 at 12:53 </div>
+					
+					
+					<p>Thank you for sharing you way of work with git. I wonder why 
+when you make some fixes to release branch you don’t merge them 
+simultaneously to the “develop” branch? Release branch can have some 
+long time to live (for example week or two) and all that time there will
+ be no bug fix in develop branch?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-187">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 20th, 2010 at 13:03 </div>
+					
+					
+					<p>@Dmitry: Maybe I haven’t mentioned that one explicitly in the 
+article, but in fact, we do. This is also visible in the big picture 
+diagram, where I’ve annotated exactly that with “Bugfixes from rel. 
+branch may be continuously merged back into develop”. You can merge back
+ release branch commits to <code>develop</code> as often as you like.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-188">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 20th, 2010 at 13:12 </div>
+					
+					
+					<p>@Mutwin: I have no objections to rebasing feature branches. It’s
+ just personal taste: I don’t like huge commits that affect lots of 
+files. There is nothing wrong with squashing feature branches into 
+develop if that’s your favourite way of merging. However, I would advise
+ against rebasing/squashing anything other than feature branches.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-189">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/02d42cd510a549ef69b5527ff803fcf8.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Jarkko Oranen</span>January 20th, 2010 at 13:43 </div>
+					
+					
+					<p>@0x4a6f4672,</p>
+<p>Merge conflicts do happen, yes. SVN tries to force you to work in a 
+way that minimises branching; pretending that that it helps in avoiding 
+conflicts. </p>
+<p>That’s just wrong. Branches are a natural part of development. Every 
+checkout with any changes at all is in essence a branch, even though SVN
+ doesn’t call them so. When you commit, your changes need to be merged 
+to the central repository.</p>
+<p>The thing is, sometimes you have code that you need to work on, but 
+which you can’t commit because it’s not ready yet, so you need a real, 
+named branch.</p>
+<p>With Git, you can track origin (or anything you want, really) and 
+ensure your experimental changes do not conflict with anything, without 
+having to “commit” anything to the public repository.  Git is based on 
+the assumption that branching and *merging* happens all the time (as it 
+does), and is built to help you.</p>
+<p>Git is much smarter about merges because it knows at all times what 
+needs to be merged. Furthermore, since committing in Git is cheap, fast 
+and (locally) undoable, you can split your work into smaller, 
+independent changes, making merge conflicts much easier to resolve.</p>
+<p>It’s also much easier to coordinate changes with other developers 
+because you don’t need a branch on the “central” repository to send your
+ code back and forth. Also keep in mind that history is global accross 
+all clones, so when one of you eventually merges with origin and pushes 
+the changes, the other can pull without having to worry about merging at
+ all. The merge commit is fetched along the other changes, and it just 
+works.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-190">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/e7cff3cfd41c495e1012227d7dc24202.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/blog.mmediasys.com');" href="http://blog.mmediasys.com/" rel="external nofollow" class="url">Luis Lavena</a></span>January 20th, 2010 at 15:14 </div>
+					
+					
+					<p>@Vincent </p>
+<p>Nice workflow what you exposed here. An script that simplifies the 
+commands back and forth the scenarios will be amazing (thinking on 
+writing this right now)</p>
+<p>as for @Jeff comment about mergeoptions and pull, you can setup “git 
+up” which is similar to svn but perform the pull operation doing a 
+rebase, so your locally commits are lifted up and then applied back once
+ the pull has completed:</p>
+<p>alias.up=pull –rebase origin</p>
+<p>That is something I use when commit locally to avoid recursive merges when pushing to origin.</p>
+<p>Again, this workflow for version based release deployment is excellent, and really take advantage of Git features.</p>
+<p>Cheers!</p>
+<p>you can use mergeoptions for master and develop, and</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-192">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/7e0748043ab84bb627de8d0d8e739f9e.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/emphaticsolutions.com');" href="http://emphaticsolutions.com/" rel="external nofollow" class="url">brian doll</a></span>January 20th, 2010 at 16:11 </div>
+					
+					
+					<p>I think one of the advantages of git is that models like this 
+are fairly painless.  Your strategy seems fairly complicated, but may be
+ a great fit for your products.  </p>
+<p>One observation, though, is that regardless of the complexity of your
+ workflow, I think it’s exceedingly important to script that workflow.  
+Instead of executing a series of git commands to perform a hot-fix, for 
+example, you can encapsulate that work into a single script.  Even when 
+the steps are obvious, it can really reduce the cognitive overhead of 
+performing the work, and greatly reduces the chance of doing the wrong 
+thing.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-193">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/6e18f1f7becbfe66248caa034417b759.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/kuroikaze85.wordpress.com');" href="http://kuroikaze85.wordpress.com/" rel="external nofollow" class="url">Kuroki Kaze</a></span>January 20th, 2010 at 17:53 </div>
+					
+					
+					<p>Gotta try this approach. Simplified (i dont need such complexity), but still.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-194">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/e52bc145bc33c4d337698dd9f161ea89.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/spf13.com');" href="http://spf13.com/" rel="external nofollow" class="url">Steve Francia</a></span>January 20th, 2010 at 19:43 </div>
+					
+					
+					<p>This is exactly how software should be built. Amazingly only git
+ really makes this possible. Thank you for developing such excellent 
+charts and examples. I’m printing the PDF out now.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-197">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 21st, 2010 at 00:05 </div>
+					
+					
+					<p>@Luis: <del datetime="2010-01-21T11:01:13+00:00">Script support is something that I have not dared to start with</del><ins datetime="2010-01-21T11:01:13+00:00">I have started an initial outline of what those scripts would need to become at <a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/nvie/gitflow');" href="http://github.com/nvie/gitflow" rel="nofollow">Github</a> yesterday</ins>. At the moment, the shared mental model of our developers has been more important.</p>
+<p>Furthermore, your idea on the ‘up’ alias is very interesting. And if you only have a (local) <code>develop</code> branch that diverged from <code>origin/develop</code>, that kind of rebasing works just fine. But what if you would have, say, some feature branches that are based on a commit on <code>develop</code> that was (not yet) on <code>origin/develop</code>?<br>
+This</p>
+<pre>o---o---o  origin/develop
+     \
+      A---B---C---D  develop
+                  |\
+                  | o---o---o  feature1
+                  |
+                   `o---o  feature2
+</pre>
+<p>would then become</p>
+<pre>o---o---o---A---B---C---D  origin/develop, develop
+     \
+      A---B---C---D
+                  |\
+                  | o---o---o  feature1
+                  |
+                   `o---o  feature2
+</pre>
+<p>In other words, those feature branches are not rebased along with the new <code>develop</code>.
+ Understanding this while actively using the model raises complexity 
+significantly. Better to avoid it than to shoot yourself in the foot.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-198">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 21st, 2010 at 00:51 </div>
+					
+					
+					<p>@brian doll: I also encourage you to create such supporting 
+scripts. In order to “coordinate” such undertaking, I’ve added an empty <a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/nvie/gitflow');" href="http://github.com/nvie/gitflow" rel="nofollow">Github repo</a> for everybody to fork. Please feel free to cooperate. Of course, this repo has the branch layout as detailed in the article.</p>
+<p>Right now, the repo is almost empty yet, only some minor guidelines for what I think could be usable.</p>
+<p>Feel free to join!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-199">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 21st, 2010 at 01:39 </div>
+					
+					
+					<p>For anyone that wants to help with the supporting scripts, please fork the Github repo:</p>
+<p>     <a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/nvie/gitflow');" href="http://github.com/nvie/gitflow" rel="nofollow">http://github.com/nvie/gitflow</a></p>
+				</div>
+			</div>
+					<div class="comment" id="comment-202">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/5117b4aacf8b64bcb4d9e07f184aa8d7.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/betterexplained.com');" href="http://betterexplained.com/" rel="external nofollow" class="url">Kalid</a></span>January 21st, 2010 at 05:12 </div>
+					
+					
+					<p>Awesome diagram — it really helped your points come across. A picture truly is a thousand words :).</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-203">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/d5fa38c6dc1cd61b01397e11b30425d7.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/40withegg.com');" href="http://40withegg.com/" rel="external nofollow" class="url">@joem</a></span>January 21st, 2010 at 06:59 </div>
+					
+					
+					<p>Great article, good patterns.  How long on average are your 
+release cycles?  I wonder how this models would work in an environment 
+that pushes to production multiple times per day and has the desire to 
+pick and choose which feature branches go to production with each push.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-205">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/afed256b6c15ff939ea5b88e5cd25737.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.designabile.com');" href="http://www.designabile.com/" rel="external nofollow" class="url">francesco</a></span>January 21st, 2010 at 09:37 </div>
+					
+					
+					<p>Interesting post, thank you! I started using Git one month ago, 
+I’m a designer so I need a guide to this language, and your diagram help
+ me a lot :D</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-206">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/fd8c72f3c1db312f45e17192d678c111.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/leo.cuckoo.org/');" href="http://leo.cuckoo.org/" rel="external nofollow" class="url">Leo Lapworth</a></span>January 21st, 2010 at 10:00 </div>
+					
+					
+					<p>Fantastic article – just what I needed to get my head around this.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-207">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 21st, 2010 at 11:17 </div>
+					
+					
+					<p>@joem: If your release cycles are that short, this model will be
+ a bit overkill. However, it is not hard to think of a less formal model
+ with, for example, no release branches. In that scenario, you can merge
+ “stable” states from <code>develop</code> into <code>master</code> directly and have <code>master</code> auto-publish its state.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-208">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/2346977665098030b8c307b549785847.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/gabriel.dromard.free.fr');" href="http://gabriel.dromard.free.fr/" rel="external nofollow" class="url">Gabriel</a></span>January 21st, 2010 at 11:23 </div>
+					
+					
+					<p>Great article. I still have a question: do you know SVN, did you
+ tryed to apply this process with SVN ? Do you think that Git is a 
+requirement to apply this process ?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-209">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 21st, 2010 at 11:33 </div>
+					
+					
+					<p>@Gabriel: I know Subversion pretty well (used to be a Subversion
+ fan before I knew Git). Nevertheless, I’ve never come to such a smooth 
+model for release management under Subversion. But you should consider 
+that this model leans heavily on branching/merging, which is the main 
+reason to switch from Subversion to Git anyway.</p>
+<p>Although I’m not going to say that it can’t be done, I think you must brace yourself if you are going to try it.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-213">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/3d2583285416497e4a23ee93eae84708.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/edgecase.com');" href="http://edgecase.com/" rel="external nofollow" class="url">Ken Barker</a></span>January 21st, 2010 at 19:44 </div>
+					
+					
+					<p>Excellent article!</p>
+<p>We tend to do the opposite of your approach.  I suspect that our 
+projects and your products have a different life cycle.  We rebase 
+feature branches onto our development branch and then leave those 
+branches intact.  This becomes a stack of feature branches that are 
+ready for the next release.</p>
+<p>Couple questions come to mind from you workflow?  </p>
+<p>1.  Do most of your feature branches receive code from more than one 
+team member?  If not, do you simply use some other backup strategy to 
+make sure code is not lost on system failure?</p>
+<p>2.  Do you have a special technique for visualizing your history?  We
+ use gitx and git log.  I enjoy the swim lanes in your diagrams and I am
+ wondering if you have a history viewing approach that automatically 
+presents your history in those swim lanes.  Master is always on the 
+right.  Develop is in the middle, etc.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-216">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/74712fd9c19f36134151f23c4505435c.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/marcbowes.com');" href="http://marcbowes.com/" rel="external nofollow" class="url">Marc Bowes</a></span>January 21st, 2010 at 23:18 </div>
+					
+					
+					<p>Really great article. I think this is a really great resource to
+ help new-comers to conceptualise the power and usefulness of good 
+branch management..</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-217">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/d94dda0e68c2fa2121f5c9aff4544526.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Ryan McCuaig</span>January 22nd, 2010 at 00:01 </div>
+					
+					
+					<p>Thanks for the great concepts and writeup.</p>
+<p>My very minor quibble would be in assigning the semantic meaning 
+‘master’ == ‘current production,’ since ‘master’ exists in pretty much 
+every Git repo by default. That is, since it’s always there unless you 
+take definite action, committing to it doesn’t unequivocally mean 
+anything except by convention.</p>
+<p>I’d argue a stronger convention would be to have a branch called 
+‘production’ or ‘live’ or such taking the place of ‘master’ in your 
+diagram. Then committing to that branch would have a stronger sense of 
+definite action, which I think is what you’re rightly after.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-225">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/e91c022822ea405c6c7e9c96096296e6.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.twitter.com/slitz');" href="http://www.twitter.com/slitz" rel="external nofollow" class="url">Gil Abrantes</a></span>January 22nd, 2010 at 20:30 </div>
+					
+					
+					<p>Great article.</p>
+<p>I understand that not pushing your feature branches to the origin 
+saves you some maintenance tasks after they are merged onto the 
+development branch if you pushing them would give you a free backup.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-226">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/5f7d4136aa418d38d89d8b4792a03f16.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.cake-toppings.com');" href="http://www.cake-toppings.com/" rel="external nofollow" class="url">primeminister</a></span>January 22nd, 2010 at 21:02 </div>
+					
+					
+					<p>And how do you update/merge/checkot your production code?<br>
+If you tag it with v2.0 how would you update the code in the live 
+server? Is that a checkout of the release-2.0 branche? or is it an 
+checkou of the tag v2.0 (is this possible)?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-227">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 22nd, 2010 at 22:41 </div>
+					
+					
+					<p>@primeminister: That would be a checkout of the 2.0 tag, since 
+the release branch should be destroyed after it is merged in master. 
+(Release branches are not long-lived.)</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-228">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/5f7d4136aa418d38d89d8b4792a03f16.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.cake-toppings.com');" href="http://www.cake-toppings.com/" rel="external nofollow" class="url">primeminister</a></span>January 23rd, 2010 at 01:05 </div>
+					
+					
+					<p>figures… I should read on tags and how to deploy those. Thanks for the article!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-233">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/4568709b1cf252b0e791a6a9b78a65c9.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Dave Wolfe</span>January 23rd, 2010 at 18:45 </div>
+					
+					
+					<p>I’m getting too old for this business.  Kids, branching hasn’t 
+been a real problem in software development for a long time now.  
+Vincent’s diagram (which is lovely, btw) illustrates a branching 
+strategy that was in use long before git, hg, bzr or darcs ever showed 
+up.  I’m surprised that no one else has mentioned this.  On the 
+contrary, people are jumping out of their shoes to pat Vincent on the 
+back for “showing the way”.   With one of the most touted benefits of 
+git (and DVCS es in general) being that it “makes branching really 
+easy”, you’d think more of its adopters would already know how to put 
+those branches to good use.  Meh.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-237">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/b78f4794c25d10035574a98fa5c71cd3.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Jonas Schneider</span>January 24th, 2010 at 13:53 </div>
+					
+					
+					<p>Awesome. One question though: how do you keep track of your 
+databases? Do you use SQLite and version it too, or do you use MySQL and
+ always migrate when switching branches?<br>
+I like neither approach :|, and that is why I currently don’t use git branches at all…</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-239">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 24th, 2010 at 14:22 </div>
+					
+					
+					<p>Hi Jonas,</p>
+<p>In the past I’ve managed quite a few MySQL databases and have always used version control systems to track the <em>contents</em>
+ of the database. You do not necessarily have to use SQLite to achieve 
+that. In fact, if you dump the contents of your database into a file and
+ bring that file under version control, then you are safe. For MySQL, 
+you can do:</p>
+<pre>mysqldump -u<em>user</em> -p <em>dbname</em> &gt; db/dump.sql
+</pre>
+<p>to dump the actual contents to the file, and</p>
+<pre>mysql -u<em>user</em> -p <em>dbname</em> &lt; db/dump.sql
+</pre>
+<p>to restore the database again.</p>
+<p>The SQL file is textual (one line per record), which allows for easy 
+diff'ing and merging and allows your database schema to change from 
+branch to branch. But since you can easily regenerate your database, 
+you'll have no problems dealing with this.</p>
+<p>For extra ease, create Makefile&nbsp;targets&nbsp;<code>dump</code> and&nbsp;<code>restore</code> for exactly that (if you use make).</p>
+<p>Cheers,<br>
+Vincent
+				</p></div>
+			</div>
+					<div class="comment" id="comment-240">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/bf85f96fdc8527904a9688253d164db0.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Julián Landerreche</span>January 24th, 2010 at 23:53 </div>
+					
+					
+					<p>Very interesting. I’ve never used Git before, but when the time arrives, I’ll try to follow this model.</p>
+<p>For those still using SVN for branch-based development, you may find 
+very useful to follow the UQDS (Ultimate Quality Development System) 
+methodology[1], which relies on Combinator[2], a Python script by 
+Divmod.<br>
+It helps to make it easier to branch from and merge back to trunk (trunk being always an stable/production/master copy).</p>
+<p>[1] <a onclick="javascript:pageTracker._trackPageview('/outgoing/divmod.org/trac/wiki/UltimateQualityDevelopmentSystem');" href="http://divmod.org/trac/wiki/UltimateQualityDevelopmentSystem" rel="nofollow">http://divmod.org/trac/wiki/UltimateQualityDevelopmentSystem</a><br>
+[2] <a onclick="javascript:pageTracker._trackPageview('/outgoing/divmod.org/trac/wiki/DivmodCombinator');" href="http://divmod.org/trac/wiki/DivmodCombinator" rel="nofollow">http://divmod.org/trac/wiki/DivmodCombinator</a></p>
+				</div>
+			</div>
+					<div class="comment" id="comment-242">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/d9f41a5028eec398b73ec9fedbbff5be.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Martin Dale</span>January 25th, 2010 at 09:01 </div>
+					
+					
+					<p>Very nice article and it really shows how gits easy branching and merging can make the development process run a bit smoother.<br>
+Admittely, I’m still an SVN user because I am still struggling to 
+understand the principles of a DVCS.  I am a lone developer (although I 
+am trying to get a few colleagues involved with some coding) but without
+ a central repo I worry about working on a feature branch that gets lost
+ when my PC goes titsup.  What features are available in git for backing
+ up local branches in case of system failure?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-243">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 25th, 2010 at 15:06 </div>
+					
+					
+					<p>@Dave: I would have to disagree on that this branching model has
+ been in use in other-than-distributed VCS’s. While true, maybe, for the
+ release and hotfix branches, this is far from reality for the feature 
+branches as far as I’ve ever seen it.</p>
+<p>Where Git really shines (compared to non-distributed systems) is that
+ is makes merging so easy (there we have it again :) !) that it changes 
+the behavioral patterns of its users: short-lived feature branches 
+suddenly become a common pattern. Of course, theoretically, that could 
+as well be done in CVS/Subversion. In practice, however, I think you 
+must be nuts to try it.<br>
+<ins datetime="2010-01-25T14:07:17+00:00">Edit: or you must be using a tool like <a onclick="javascript:pageTracker._trackPageview('/outgoing/divmod.org/trac/wiki/DivmodCombinator');" href="http://divmod.org/trac/wiki/DivmodCombinator" rel="nofollow">DivModCombinator</a>, see previous comment by Julián.</ins></p>
+<p>But even for the releases and hotfixes, this model may be different. 
+Trying to merge back, say, a hotfix into develop, is something that many
+ traditional VCS users would rather do with manual diff’ing/patching 
+than to trust&nbsp;their tool in doing it for them, since most of them 
+lack merge tracking. With Git, you get all of this goodness for free.</p>
+<p>It’s not the users that are incompetent, it’s the tools.</p>
+<p>With my model, I never pretended to have created something entirely 
+new. Instead, I tried to summarize our approach (which bundles existing 
+practices together) simply because it works well in practice. On top of 
+that, the diagram with the swim lanes was deliberately drawn so to 
+visually clarify the workflow, making it attractive and easy to 
+reference to, and to create a shared understanding among team members.</p>
+<p>Apparently, judging from the comments, this way of looking at it is well-appreciated.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-244">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/75e9a11371cbe1566607180863efdf4c.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/nedbatchelder.com');" href="http://nedbatchelder.com/" rel="external nofollow" class="url">Ned Batchelder</a></span>January 25th, 2010 at 16:01 </div>
+					
+					
+					<p>This is a great concise write-up, and the diagram is fabulous.</p>
+<p> I won’t go as far as Dave Wolfe has, but I do think it’s important 
+not to re-invent the wheel.  Git and other DVCS’s make branching much 
+easier, but there’s also decades of experience with these sorts of 
+branching strategies.  For example, Streamed Lines (<a onclick="javascript:pageTracker._trackPageview('/outgoing/www.cmcrossroads.com/bradapp/acme/branching/');" href="http://www.cmcrossroads.com/bradapp/acme/branching/" rel="nofollow">http://www.cmcrossroads.com/bradapp/acme/branching/</a>)
+ talks *at length* about dozens of approaches to maintaining parallel 
+development streams, complete with patterns and criteria for choosing 
+among them.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-247">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/62c54476729274ddfefd6b1f53e311dc.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.speedata.de');" href="http://www.speedata.de/" rel="external nofollow" class="url">Patrick</a></span>January 25th, 2010 at 19:55 </div>
+					
+					
+					<p>This is by far the best git blog entry I have seen so far (in 
+let’s say about two years). I have printed out the diagram (PDF) and it 
+will be on my desk until I use the system by heart. Thanks!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-248">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 25th, 2010 at 21:25 </div>
+					
+					
+					<p>@Martin: Backup features for Git are no different than you would
+ have on your traditional VCS. Just setup a Git repo on a remote machine
+ and use that as the “truth” repo, just like you would with Subversion. 
+Use pull and push to communicate changes to that repo. It’s really that 
+simple.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-250">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/f11512869fe2f8d87a2f2b687b76686c.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/dev.hasenj.org');" href="http://dev.hasenj.org/" rel="external nofollow" class="url">hasenj</a></span>January 26th, 2010 at 07:29 </div>
+					
+					
+					<p>Awesome awesome awesome post!!</p>
+<p>I’ve been looking for articles/documents that could help convince 
+management and the rest of my team to switch over to git (or at least 
+consider it). This is definitely one great document/article towards that
+ goal.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-252">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/a7657b2354d983b2c8db0d6226d1ce20.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/zaa.ch');" href="http://zaa.ch/" rel="external nofollow" class="url">Zach</a></span>January 26th, 2010 at 17:33 </div>
+					
+					
+					<p>You should include a footnote about the support branch strategy.
+ The issue does arise in practice and its a subtle but useful addition 
+to a great article.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-253">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/141168800f88354741649660ec025253.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Joe</span>January 26th, 2010 at 22:37 </div>
+					
+					
+					<p>Nice article!  However I was wondering about the lifetime of the
+ release branches.  You delete them relatively quickly.  What happens if
+ you have a release in the field and you need a fix for that? I am not 
+talking about a production hotfix but rather a bug fix for a customer 
+that is using a release.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-254">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 26th, 2010 at 22:57 </div>
+					
+					
+					<p>@Joe: Actually, by “production release”, I mean every build that
+ is “out in the wild”. So every customer has a production release in 
+that terminology. (They may not have the <em>latest</em> one, though.)</p>
+<p>For supporting fixes on any production release from the past, please refer to <a href="#comment-185" rel="nofollow">this comment</a>. <a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/nvie/gitflow');" href="http://github.com/nvie/gitflow" rel="nofollow">gitflow</a> will be supporting this in the future.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-259">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/141168800f88354741649660ec025253.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Joe</span>January 27th, 2010 at 09:17 </div>
+					
+					
+					<p>Thanks.  I missed that previous comment and response ;)</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-260">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/141168800f88354741649660ec025253.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Joe</span>January 27th, 2010 at 09:36 </div>
+					
+					
+					<p>Acutally I think a more classical way of supporting the “in the 
+wild” releases is to keep the release branch (instead of deleting after 
+it is merged back to develop).  You would have (for example) release 
+1.2.x on one release branch with subsequent releases 1.2.1, 1.2.2, etc. 
+delivered from this branch and with bug fixes merged back to the develop
+ branch.  You would delete the release branch when you stop supporting a
+ release (but this is optional (you may want to keep the branch alive 
+even if is dormant).</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-261">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/0facec9c068710c8a7e5ad1804a1ac5b.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Glen Mailer</span>January 27th, 2010 at 12:33 </div>
+					
+					
+					<p>I’ve come over to Git  from Bazaar, as the company have decided 
+to use Git over SVN for all new projects, and i’ve borrowed a fairly 
+common feature use from Bazaar – aliases for common functions.</p>
+<p>For instance, i have “git a” be “git add -A”, which is my most common action when i want to update my index.</p>
+<p>I think that this also applies to your merge ff/no-ff problem, you 
+alias “git m” to “git merge –no-ff” and then feature merges can use the 
+short version, while other merges/pulls can use the normal 
+functionality.</p>
+<p>I also agree with one of the above posters about re-purposing master 
+as your production branch – as master is the default branch you’d get if
+ you clone the repository, giving it a meaning might open you up to 
+people accidentally messing up the production release history. We’ve 
+decided to use your model, but have “develop” be the master branch, and 
+your “master” we’re calling “final” (after some discussion over what to 
+call it we gave up and decided final was good enough)</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-265">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>January 28th, 2010 at 13:21 </div>
+					
+					
+					<p>@Glen: Fair enough. My main reasoning for naming it the branch 
+“master” is that if you check out that branch, you would get the latest 
+stable release automatically. Git’s model never gives others 
+write-access to your own repo. You rather pull from people when they 
+have changes ready, so the only one who can screw up your master is 
+yourself.</p>
+<p>If you would like to use the <code>git-flow</code> tool, you can easily set up your custom branch naming as follows:</p>
+<pre>$ git config gitflow.branch.master final
+$ git config gitflow.branch.develop master
+</pre>
+				</div>
+			</div>
+					<div class="comment" id="comment-269">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/357a20e8c56e69d6f9734d23ef9517e8.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>rares</span>January 30th, 2010 at 04:37 </div>
+					
+					
+					<p>I use the following to default the –no-ff behaviour in my ~/.gitconfig</p>
+<p>[alias]<br>
+  merge = merge –no-ff</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-320">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c3d6ca6890876752f8de3c16e6c01d37.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>toganet</span>February 4th, 2010 at 06:49 </div>
+					
+					
+					<p>How many git repos does your application span?  Do you have any 
+suggestions for working with multiple repos, in an environment with 
+overlapping release branches?  That is, where you may have more than one
+ release in development or QA at a time?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-322">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/db1e5a97a3d1f61d79e9e933df15fe7c.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/blog.martin.aatmaa.net');" href="http://blog.martin.aatmaa.net/" rel="external nofollow" class="url">Martin Aatmaa</a></span>February 5th, 2010 at 23:53 </div>
+					
+					
+					<p>Further to Dave Wolfe’s and Ned Batchelder’s comments, I would 
+also agree that this kind of branching structure is not new per se.</p>
+<p>For more branching strategies, and some nice visuals as well, refer 
+to the Microsoft Team Foundation Server Branching Guidance ( <a onclick="javascript:pageTracker._trackPageview('/outgoing/www.codeplex.com/BranchingGuidance');" href="http://www.codeplex.com/BranchingGuidance" rel="nofollow">http://www.codeplex.com/BranchingGuidance</a> ). The guidance there is not limited to TFS.</p>
+<p>In any case, I think Vincent’s diagram is an incredibly good 
+communication tool, and the concise integration steps with git are the 
+first I’ve seen of their kind. They have helped me to adopt this 
+workflow (which I have been using with TFS) to my git repositories.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-325">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/b28b7fd3a1e5e32cd810299d454a7365.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Sam Mulube</span>February 6th, 2010 at 12:39 </div>
+					
+					
+					<p>Hi Vincent,</p>
+<p>I think this write up is very interesting as we are currently 
+thinking about moving our main source code repository over to git (from 
+subversion).</p>
+<p>One question: I was wondering why after you’ve finished a release 
+branch, and you are tagging it on master, you only create a lightweight 
+tag (i.e. without the -a or -s flags). I’m no Git expert, but from 
+reading stuff like the section on gitready.com about tagging (<a onclick="javascript:pageTracker._trackPageview('/outgoing/www.gitready.com/beginner/2009/02/03/tagging.html');" href="http://www.gitready.com/beginner/2009/02/03/tagging.html" rel="nofollow">http://www.gitready.com/beginner/2009/02/03/tagging.html</a>), I got the impression that the tag command is another that does the wrong thing by default. To quote:</p>
+<p>&gt; Without arguments, git tag creates a “lightweight” tag that is 
+basically a branch that never moves. Lightweight tags are still useful 
+though, perhaps for marking a known good (or bad) version, or a bunch of
+ commits you may need to use in the future. Nevertheless, you probably 
+don’t want to push these kinds of tags.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-326">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>February 6th, 2010 at 13:37 </div>
+					
+					
+					<p>@Sam: You are absolutely right on that one. I’ve immediately edited the places in the article that mention <code>git tag</code>. Thanks for the note on that one.</p>
+<p>For the ones interested in <code>git-flow</code>: it will receive support for this kind of tagging before the 0.2 release, promised!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-339">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/bfca48ec34f9d5428e5bf3f280c7ed0a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Bjorn</span>February 8th, 2010 at 23:14 </div>
+					
+					
+					<p>Excellent article!</p>
+<p>This is exactly what I was looking for. I have read several articles 
+and books on GIT and understand the concepts, to a degree, but most fell
+ short of a complete picture. They lacked the visualizations that you 
+have included in your article here.</p>
+<p>I look forward to you incorporating the comment to Rory’s question 
+about hot-fixing a previous release as well as your progress on 
+git-flow.</p>
+<p>Thank you for this excellent piece of information.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-351">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/1c6f5b01e73791d1238c7c772000a279.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Matt</span>February 12th, 2010 at 07:20 </div>
+					
+					
+					<p>$ git checkout master<br>
+Switched to branch ‘master’<br>
+$ git merge –no-ff release-1.2<br>
+Merge made by recursive.<br>
+(Summary of changes)<br>
+$ git tag -a 1.2</p>
+<p>I believe “git tag -a 1.2″ go before “git checkout master” makes more
+ sense because it tags the current release branch that you finished.  
+This way after you do the merge, you can push the tag onto the 
+repository without needing to do an extra push step.  The revise 
+process:</p>
+<p>$ git tag -a 1.2<br>
+$ git checkout master<br>
+$ git merge –no-ff release-1.2<br>
+(you can do a push to the repo)<br>
+$git push repo<br>
+(And you can see the list of tag available to checkout)<br>
+$git tag -l<br>
+(To checkout a tag “version”, this will create a (no branch) branch which you have to create a branch for)<br>
+$git checkout 1.2<br>
+$git branch -b v1.2</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-371">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/5655d37e2708981bc85c67853d7e0cea.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.ryderross.com');" href="http://www.ryderross.com/" rel="external nofollow" class="url">Ryder Ross</a></span>February 15th, 2010 at 04:40 </div>
+					
+					
+					<p>Thank you for publishing this. I will definitely be using this in future projects.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-389">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/f516ddefdd47df8782f30b0edc806338.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Serge</span>February 16th, 2010 at 11:25 </div>
+					
+					
+					<p>First of all, thanks for a great article!</p>
+<p>One question: Let’s say I finished some feature, I merged my 
+feature-branch into develop and pushed develop. Then few month later our
+ marketing department decided that we don’t want this feature in the 
+upcoming release. What should I do in this case? Remove it from develop 
+applying a reverse patch?</p>
+<p>Thanks in advance.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-403">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/346ee50bff4d37b73cbc0004fb7499f8.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Jonathan Wright</span>February 18th, 2010 at 23:27 </div>
+					
+					
+					<p>Thanks for posting this useful model. It works well in theory, 
+and so far for me at least, has also been working well in practice.</p>
+<p>After having the poster pdf up on my wall for a few weeks, and 
+referring to it every so often, I can’t help but think the order of the 
+columns could be reversed. The current order is feature, dev, release, 
+hotfix, master. This left-to-right flow is how we work; first creating 
+features, and finally shipping when the code hits the master. However, 
+when arranged like this, it conjures up images of code finally, as it’s 
+last gasp, making it into the master.</p>
+<p>When I reference the diagram, it is usually at the end of a long 
+feature, and it is time to move those changes over a few columns. The 
+thought process goes something like, “Ok, feature complete. Time to 
+ship! Now, were is the master on this diagram…   Ah! There it is. Now, 
+lets walk backwards. I see, I need a release branch, oh, but the changes
+ have to be in dev first…” In other words, when I look at the diagram, 
+master is the “home row” and the starting point.</p>
+<p>If the column order was reversed (master on the left, features on the
+ right), then the focus is brought back on the master (which is what 
+everyone other than the developer cares about) and the story is more 
+about how changes are made and brought back into the base line.</p>
+<p>Just an idea. :-)</p>
+<p>Thanks again,<br>
+Jonathan Wright.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-427">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/b88b1c85a798a2aee3a35f5cd805d0e2.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/studio831.com');" href="http://studio831.com/" rel="external nofollow" class="url">Steve</a></span>February 23rd, 2010 at 00:41 </div>
+					
+					
+					<p>Thank you for contributing this article. </p>
+<p>It would be very helpful if you would publish a git-flow version of 
+your diagram that would label the appropriate arrows with the 
+appropriate git-flow commands.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-428">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>February 23rd, 2010 at 08:29 </div>
+					
+					
+					<p>@Steve: funny that you mention it—I have been planning to do 
+exactly this in a follow-up post, among some more thoughts I gained 
+recently as an effect of the discussion. If only I had more time. Will 
+be continued!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-429">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/567d58a73e646520420f9a3497df1805.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/jonkruger.com/blog');" href="http://jonkruger.com/blog" rel="external nofollow" class="url">Jon Kruger</a></span>February 23rd, 2010 at 14:30 </div>
+					
+					
+					<p>Best writeup of a git branching model I’ve seen yet.  Thanks!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-477">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/bade32aeb8ef38e30b0303080c88e574.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/echouser.com');" href="http://echouser.com/" rel="external nofollow" class="url">Etan Lightstone</a></span>March 4th, 2010 at 03:00 </div>
+					
+					
+					<p>Do you happen to use rails? I’ve always wondered what the best 
+practice was for cherry picking features from commits on the “develop” 
+branch that you want to prepare for a release. The scenario I’m thinking
+ of, is when you decide that one feature is more mature in another that 
+has already made it into “develop” and you’d like that to be pushed to 
+production without adding other features.</p>
+<p>So, you can “git cherry-pick” into a release branch… but what about 
+the migrations (rails term for database script) that are skipped over? 
+The second time you release something to production, adding in those 
+migrations you previously skipped over will end up being ignored by 
+db:migrate on your production server….</p>
+<p>Thoughts? </p>
+<p>My solution is basically to just change the timestamps / filenames for the old migration while you prepare the release.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-479">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/8122b44a4df0449569772098080752bd.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>mastkis</span>March 4th, 2010 at 10:15 </div>
+					
+					
+					<p>Hi Vincent, any many comments mentioned here, I think this is the best blog/document available for git branching.<br>
+I still use SVN at work and have nightmares with merges and conflicts. I
+ am very new to git. I have been thinking of using git but have been 
+skeptical because of the following </p>
+<p>i. the SCM team handles a enterprise web application which follows 
+only one pre-defined production schedule and all developers follow it. 
+We fear that the repositories on each developers/teams desktop might 
+fork out of the mainline and create a huge drift which would creates 
+bigger problems when merging the changes back to trunk. I think its ok 
+to have such scenarios in case on the linux kernel development.</p>
+<p>ii. I am not clear of the pull/push model for pushing changes. In 
+your model, how do the changes make it to the release branch or the 
+mainline. Who decides what changes go in? is it a push or pull of the 
+changes ? We have a very tight gate-keeping done for changes, how can we
+ ensure that when using git ?</p>
+<p>Again thanks for the great articles.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-480">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>March 4th, 2010 at 10:39 </div>
+					
+					
+					<p>@Etan: I don’t know Rails very well. But from your story, it sounds as if you are using the <code>develop</code>
+ and release branches in another way as I intended in this model. The 
+model’s equivalent of “including a feature in the next release” is 
+merging it into <code>develop</code>. It is important for the model to work that the <code>develop</code> branch is considered a bucket in which you put all the functionality that needs to be in the very next release.</p>
+<p>That way, the responsibility of the release branch mainly is to clear the path for the <code>develop</code>
+ branch to receive feature merges intended for the “next+1 release”. 
+Furthermore, you can use it to take a breath and dot the i’s in 
+preparing the definitive release. Our golden rule is that no commits 
+other than minor bug fixes are allowed on the release branch.</p>
+<p>As far as migrations are concerned: you should consider those as a 
+part of the integral feature requiring the migration in the first place.
+ That way, migrations are also changed on feature branches and, when 
+ready, merged into develop. It really isn’t more complicating than that.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-481">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>March 4th, 2010 at 11:04 </div>
+					
+					
+					<p>@mastkis: Thanks for the kind words.</p>
+<p>The fear you express in i.) is a common fear that every Subversion 
+person experiences and feels a lot like letting go of structure and 
+entering chaos. Partly, this is true. In practice, you can really drift 
+away from the “central” repo. However, when you do, you are also the 
+person who needs to deal with the conflict. So it is in everybody’s own 
+interest to keep up regularly with the central repo. In Subversion, you 
+typed “svn update” regularly. In Git, you type “git pull” regularly. But
+ I agree that Git may look a little daunting at first sight.</p>
+<p>Several models are possible. The model that I proposed here does not 
+require any of such models. The organisation of your team however, may 
+do so. For the model, it’s just relevant how changes make it from 
+feature -&gt; develop -&gt; release -&gt; master. Then, a person playing
+ the role of the “release manager” may push these changes to the central
+ repo. Determining who may push these changes to the central repo is key
+ to how you manage the central repo.</p>
+<p>Since my team is rather small, and we sit in a room together, almost 
+everybody has write access to the central repo. Before we decide what 
+goes in, we discuss it. That’s a choice, not a requirement at all. To 
+contrast, one of the recent additions to our team is a junior developer 
+with no Git experience whatsoever. Until he reaches the experience level
+ required to responsibly push to the central repo, he just asks me to 
+pull his commits directly from his local repo (where I have read 
+access). I would then review his code and push it to the central repo 
+myself. The other team members can then pull his commits from the 
+central repo.</p>
+<p>Git’s model is so flexible (too flexible?) that it does not guide you
+ in any way. However, you can bend that around into using it exactly to 
+your team’s needs. Typically, you want to give all team members read 
+access from the central repo, but you can simply restrict write access 
+to the central repo to those who are allowed. No complex configuration, 
+just setting Unix permission bits right.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-496">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c27d47451fe1aa3db6c92457da06083b.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/sethmason.com');" href="http://sethmason.com/" rel="external nofollow" class="url">Seth Mason</a></span>March 5th, 2010 at 19:48 </div>
+					
+					
+					<p>@Vincent</p>
+<p>Thanks for this in-depth and well illustrated post about your branching strategy….as well as the code on github.  </p>
+<p>I have a question though, how do you handle it when a feature needs 
+to be rolled back from a release branch?  Unfortunately, where I work, 
+this is an issue.  Since you are doing bugfixes in the release branch, 
+it would seem like it would be difficult to roll back a feature if there
+ are bug fixes committed after the initial merge.  </p>
+<p>Maybe this isn’t a problem you have?  If so, I’m jealous.</p>
+<p>Anyhow, thanks again for sharing your process.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-519">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/e85b6a92cd23b1f163f42b3364eae40a.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Rob Pachos</span>March 8th, 2010 at 22:23 </div>
+					
+					
+					<p>Thanks a lot for sharing Vincent. Very clear and concise 
+explanation.  It’s a big help to see the workflow that others are using 
+and compare it to our own.  The option –no-ff also makes a lot of sense 
+to ensure we clearly delineate a block of work being merged back.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-527">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/08182d53361d7ecbb602cb62c8fafe1a.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/obxdesignworks.com');" href="http://obxdesignworks.com/" rel="external nofollow" class="url">Billee D.</a></span>March 10th, 2010 at 21:01 </div>
+					
+					
+					<p>I like this approach. We do something similar, but I had never 
+considered using a development branch along with a features branch. Very
+ cool idea. We do the standard “topic” and “hotfixes” branching, but 
+development is done in our own master branches (which can and does cause
+ problems sometimes). Then we drop tags for releases when things are 
+groovy in the master branch. A little kludgey, but we have some members 
+on our team that are new to Git and this makes it easy for them to jump 
+in and contribute. However, I can see the benefits of your approach and 
+I’m interested in giving it a try.</p>
+<p>Thanks for the great read and the new ideas. :)</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-554">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/1817cd89797cbd677abe40a59b88a65c.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Roddie</span>March 15th, 2010 at 16:12 </div>
+					
+					
+					<p>Very helpful.</p>
+<p>Do you keep any external records of branches and structure as they 
+devlop, or do you rely only on information that can be retrieved from 
+Git itself?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-595">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/3d2583285416497e4a23ee93eae84708.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/edgecase.com');" href="http://edgecase.com/" rel="external nofollow" class="url">Ken Barker</a></span>March 21st, 2010 at 22:54 </div>
+					
+					
+					<p>Vincent, are your diagrams all hand crafted?  Do you have a tool
+ or technique to visualize your commit history in the same vertical swim
+ lanes in your diagram?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-596">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>March 22nd, 2010 at 01:18 </div>
+					
+					
+					<p>Yes, they are all hand-crafted, using Apple Keynote. There is no
+ tool to visualize commit graphs based on this development model (yet). 
+For me, the following <code>git log</code> command is what comes closest, although it does not provide the clarity that a swim lanes view would, by far:</p>
+<pre>git log --graph "--pretty=format:%C(yellow bold)%h%Creset by \
+%C(red)%an%Creset (%ar)%C(cyan bold)%d%Creset%n%s%n%b" --all</pre>
+				</div>
+			</div>
+					<div class="comment" id="comment-620">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/7459e2c18578d12a8b1621793df645f8.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.codingdomain.com/');" href="http://www.codingdomain.com/" rel="external nofollow" class="url">Diederik van der Boor</a></span>March 25th, 2010 at 16:43 </div>
+					
+					
+					<p>@Vincent, I can recommend adding  –decorate so that neat log commit. :)</p>
+<p>I currently have:<br>
+git config –global alias.log-graph ‘log –graph –all –decorate’</p>
+<p>So I can write: `git log-graph` or `git log-graph –oneline` to get an overview.<br>
+Despite looking really ugly, gitk helps too.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-622">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/5725ff795df2591808caaf38beb2cf30.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Chris Yager</span>March 25th, 2010 at 18:58 </div>
+					
+					
+					<p>Vincent, this article is great. Thanks for taking the time to 
+put it together. We’re looking to potentially move to git and create a 
+new merge/branch methodology and this looks perfect.</p>
+<p>Any chance you could send me the keynote file for the flow? It would 
+save me the time of recreating it just to update a few things for our 
+particular environment.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-646">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/3d5dc2c199f69a24ca3a74c90b473dd7.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>prairiedog</span>March 27th, 2010 at 23:02 </div>
+					
+					
+					<p>My favorite part is when you declared, for each branch – where 
+it may branch off from, and where it must merge back into.  Such a 
+simple thing, but it really helped to clarify my thinking.  Thank you 
+for the article.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-654">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/0faa87e72dc82dcb1d8387844df90ca7.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>noice</span>March 28th, 2010 at 16:38 </div>
+					
+					
+					<p>Great stuff.  We have a similar model w/ clearcase, which is 
+slow and ancient.  Its centralization does not elegantly permit 
+subteams, etc.  </p>
+<p>The terms for releases should be more clear: internal and external instead of release and real release.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-663">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/001c619e403b31af5a07c224d3719d63.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.cmcrossroads.com');" href="http://www.cmcrossroads.com/" rel="external nofollow" class="url">ignaci</a></span>March 29th, 2010 at 15:08 </div>
+					
+					
+					<p>Great post! I find the “build/develop” branch pattern very 
+interesting since it helps keeping the mainline always clean and ready 
+to be released. Cool.<br>
+My question here is: how would you combine it with continuous 
+integration? Every commit on “develop” will trigger the testsuite? Will 
+you also pass all tests on a per branch basis?<br>
+I’ve found a very interesting post follow up digging into some of the details here: <a onclick="javascript:pageTracker._trackPageview('/outgoing/codicesoftware.blogspot.com/2010/03/branching-strategies.html');" href="http://codicesoftware.blogspot.com/2010/03/branching-strategies.html" rel="nofollow">http://codicesoftware.blogspot.com/2010/03/branching-strategies.html</a></p>
+				</div>
+			</div>
+					<div class="comment" id="comment-686">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/0e47cb9d8b95e31e39a5b604ad2d16a2.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Will</span>April 1st, 2010 at 08:59 </div>
+					
+					
+					<p>I am also curious about how this works in an environment using a
+ continuous integration tool like Hudson. If I was to try to map this 
+model into our environment today, I would minimally create a job for the
+ develop branch and the release and hotfix branches as needed. However, 
+since we have Hudson set up to create a tag for every successful release
+ or hotfix build, the value of the master branch seems to be diminished.
+ If we need to get the exact state of production at any time (to branch a
+ new hot fix, for example), we can simply use the tag of the build that 
+was pushed to production. Am I missing some additional value gained by 
+having a full fledged branch that represents the state of production?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-701">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/9f391a5cc1ada0c32dc118473d9e5816.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/theelitist.net');" href="http://theelitist.net/" rel="external nofollow" class="url">Xeross</a></span>April 2nd, 2010 at 17:30 </div>
+					
+					
+					<p>At the moment I only use GIT solo without any additional 
+developers but I’ll keep this page bookmarked because it might prove 
+useful in the future.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-703">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>April 2nd, 2010 at 21:02 </div>
+					
+					
+					<p>@Xeross: Oh, well, this model is perfectly usable in one-person 
+projects, since it is not about cooperation but about release 
+management. Don’t let those two confuse you.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-737">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/2a1a18ae4650cf6dffab483bd6ed8854.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/http.//www.thegeekinside.net');" href="http://http.//www.thegeekinside.net" rel="external nofollow" class="url">The Geek Inside</a></span>April 5th, 2010 at 18:21 </div>
+					
+					
+					<p>Excellent article, this is aligned with my thoughs about this, 
+and the most important very very handy for use in any project using any 
+DVCS, Mercurial in my case.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-746">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/36b4b730bc6d058fd0737fc44119ed6f.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/shadowfiend.posterous.com/');" href="http://shadowfiend.posterous.com/" rel="external nofollow" class="url">Antonio Salazar Cardozo</a></span>April 6th, 2010 at 16:38 </div>
+					
+					
+					<p>Yes, could you also post the Keynote file? It would be great to 
+tweak this slightly for our own process and then print a full-size 
+version!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-757">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/4efe8f6a08b98bd0294ae851295440ac.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>crash</span>April 7th, 2010 at 16:51 </div>
+					
+					
+					<p>How do you handle the version numbers for the development branch
+ if you were doing nightly builds or CI? Seems like you would want the 
+version to reflect what release you were working towards rather than 
+waiting until you create the release branch.</p>
+<p>I’m trying to understand how issue tracking/QA is affected when using
+ nightly builds and these additional release/master branches.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-771">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/9763bd644fd98a34fdf5143794ed013f.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/hk.myblog.yahoo.com/poken-3dd13');" href="http://hk.myblog.yahoo.com/poken-3dd13" rel="external nofollow" class="url">3dd13</a></span>April 9th, 2010 at 07:54 </div>
+					
+					
+					<p>Thanks ! really nice post!<br>
+especially the diagram.<br>
+It clears some doubts on preventing conflicts too.<br>
+actually not preventing but preparing to merge.</p>
+<p>I will take this branching model and convention as one of the git best practice</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-814">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/d2bc85f56e32b0c01f0acc44f509ecd1.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/rubenlaguna.com/wp');" href="http://rubenlaguna.com/wp" rel="external nofollow" class="url">Rubén Laguna</a></span>April 14th, 2010 at 06:58 </div>
+					
+					
+					<p>I started to use this model but then I found that git-describe 
+will not work as I expected on the development branch as the tags are 
+only in the master. In order to have a meaningful git-describe on 
+develop what would be the best approach:</p>
+<p>1. create the 1.2 tag in branch release-1.2 instead so when this 
+branch is merged both to master and develop it will be “inherited” by 
+both of them.<br>
+2. merge master into develop after creating the tag<br>
+3. create a dev1.2 tag in branch release-1.2 and a 1.2 in master</p>
+<p>Thanks in advance for your help</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-831">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/a728403da6fa102c4f65cc76b29cb5f2.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/nathguil.free.fr');" href="http://nathguil.free.fr/" rel="external nofollow" class="url">Guyou</a></span>April 15th, 2010 at 09:33 </div>
+					
+					
+					<p>Really interesting post and work.</p>
+<p>Personnally, I encounter an issue with translations. In my project, 
+translations are done externally (via launchpad). The difficult is to 
+find a way to manage these contributions.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-833">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/13c07d600fd12a94c4b67fbaf5f749b1.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Thomas Wichern</span>April 15th, 2010 at 12:33 </div>
+					
+					
+					<p>Wow!<br>
+Thank you very much for this clear and comprehensive description I was searching some time for!<br>
+The diagram made it for me and my collegues to get a clue how we can use
+ git (instead of Visual SourceSafe…) and how to work with all the new 
+(to us!) features, such like branches.<br>
+For those wanting to move from VSS to git: there is a tool that helps “vss2git” (<a onclick="javascript:pageTracker._trackPageview('/outgoing/code.google.com/p/vss2git/');" href="http://code.google.com/p/vss2git/" rel="nofollow">http://code.google.com/p/vss2git/</a>)</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-939">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c981932cb3113e9f45f60e1575cc10e3.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Peter Spangler</span>April 20th, 2010 at 00:39 </div>
+					
+					
+					<p>This is a great write-up!  I’m fairly new to Git (coming from 
+subversion) so I’m still getting familiar with things.  Your write-up 
+here builds nicely on top of the regular git usage documentation.  I’ll 
+be sharing this with some of my colleagues.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1094">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/781fbad324e44f683e3a6b32a166a9bf.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Riccardo Galli</span>April 29th, 2010 at 15:36 </div>
+					
+					
+					<p>We probably will adopt your model, but we’d like to do a couple 
+changes to the pdf (mainly some name conventions to reflect our actual 
+repository).<br>
+Being yet the pdf with attribution license share alike, would you be so kind to release the sources ?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1144">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/0a5dd4ae243144680eb4e8cb518d8d27.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Ashish Jindal</span>May 2nd, 2010 at 13:19 </div>
+					
+					
+					<p>Is there a good guideline / approach for vendor branching?</p>
+<p>I have a scenario:<br>
+(1) I have main line of development (trunk / master)<br>
+(2) I would have customer-specific code — main problem is, how do I structure this!<br>
+   =&gt; At some point later in time, the customer code will undergo customization<br>
+   =&gt; At some point later in time, the code from mainline will have 
+to be propagated to all customer-specific code, preserving the 
+changes/customizations done specifically for customer</p>
+<p>Any help will be appreciated!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1164">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>May 3rd, 2010 at 18:55 </div>
+					
+					
+					<p>@Riccardo: I’ve updated the article with a link to the original Keynote source. Hope you like it!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1174">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/781fbad324e44f683e3a6b32a166a9bf.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Riccardo Galli</span>May 4th, 2010 at 09:19 </div>
+					
+					
+					<p>Yes, I like it ! Thank you very much, I’m sure me and my team will have an happier life following your development model</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1321">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/3e5e4869d7885e33e91f056d9522fe05.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/twitter.com/mamuf');" href="http://twitter.com/mamuf" rel="external nofollow" class="url">Adam Hošek</a></span>May 16th, 2010 at 23:11 </div>
+					
+					
+					<p>@Vincent Driessen (January 21st, 2010 at 00:05)</p>
+<p>In the case of rebasing subbranches on top of already rebased parent 
+branch Git is smart enough to skip the duplicate commits. But it may be 
+confusing when there are some other changes added on top of the rebased 
+parent branch before rebasing the subbranches. I agree that it is a 
+little bit messy. I would do this only with local topic branches when 
+doing some experiments etc.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1323">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/3e5e4869d7885e33e91f056d9522fe05.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/twitter.com/mamuf');" href="http://twitter.com/mamuf" rel="external nofollow" class="url">Adam Hošek</a></span>May 16th, 2010 at 23:24 </div>
+					
+					
+					<p>There may be methods how to do successful branching and merging 
+with Subversion etc. but I believe not many of us really tried or dared 
+to do that at large. In smaller teams it is too hard and annoying 
+(remember, programmers are lazy :-)). In our team (3 devs) we are using 
+only trunk for actual development. For each release a branch is created 
+and hotfixes are patched onto it from trunk (or vice versa). We had some
+ feature branches but those were really special cases with longer 
+development (more than few weeks or so).</p>
+<p>I actually use local git repo (with git-svn) for my own development 
+for some time now. Local branches is a must-have for any DVCS!</p>
+<p>Anyway, this is a great article. It gives good insight on how could be git workflow done in practice. Thanks! :-)</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1343">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/f68fa788969e2521a61540629ff2b0bd.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Ron</span>May 17th, 2010 at 21:12 </div>
+					
+					
+					<p>I like your article but I have a few questions since I am new to git.</p>
+<p>My understanding of your article is that in the “central” repository,
+ there would only be the master and develop branch?  This is because the
+ other branches (feature, release, hotfix) basically go ahead once 
+changes are merged into local master and develop and pushed, correct?</p>
+<p>What if those other branches had longer life spans (as some people 
+mentioned) and were in the central repository.  When developers would 
+clone something from the central repository, they would have to create 
+local branches for everything but master.  I can see this would get very
+ tedious after awhile.</p>
+<p>If you have central repositories with several “official” branches, 
+how does a developer easily create local (matching) branches to work on 
+after cloning a repository?</p>
+<p>btw, I like your diagram.  It is a great visualization aid.</p>
+<p>Thanks.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1383">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c8917803b079679256487650ca22b8d9.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/greycoast.com.br/');" href="http://greycoast.com.br/" rel="external nofollow" class="url">Adilson</a></span>May 20th, 2010 at 15:55 </div>
+					
+					
+					<p>Vincent, outstanding post.</p>
+<p>I’ve came into it searching on google form images to ilustrate our 
+company’s branching new rules, and after I start reading your post, I’ve
+ got to review some ideas.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1501">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>May 29th, 2010 at 13:08 </div>
+					
+					
+					<p>@Ron: You wrote:</p>
+<blockquote><p>This is because the other branches (feature, release, 
+hotfix) basically go ahead once changes are merged into local master and
+ develop and pushed, correct?</p></blockquote>
+<p>Yes, exactly, but only for small projects. For non-trivial projects 
+you would probably use an alternative way of dealing with release 
+branches. Typically, they would not only have a longer life-span, but 
+you would also want to access/modify the release branch by multiple 
+people.</p>
+<p>Here’s how we do it: depending on the number of persons involved in 
+bringing forth the release branch, we either push it out to the central 
+server, or the developers involved fetch directly from the “release 
+manager”‘s repo (we have read access to each others repo and I recommend
+ it very much).</p>
+<p>In both situations, we do not only have a <code>master/develop</code> branch locally, but each developer involved also has a <code>release/x.y.z</code> branch. It is not that tedious, as long as nobody but the “release master” merges the <code>release</code> branch into <code>develop</code> or <code>master</code>.</p>
+<p>The only disadvantage to this approach is that, after finishing the 
+release, each developer needs to manually remove the branch locally.</p>
+<p>The “release manager” may also have to remove the branch from the central repo (using <code>git push origin :refs/heads/release/x.y.z</code>).</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1503">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c25cc0ba3a534c4d7fcf5bb2a0d086d3.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/chrisburbridge.com');" href="http://chrisburbridge.com/" rel="external nofollow" class="url">Chris Burbridge</a></span>May 29th, 2010 at 17:55 </div>
+					
+					
+					<p>Vincent, this is super-valuable. And beautiful.</p>
+<p>I’ve been working with git on my own now for about 5 months, with 
+occasional collaborators. I was only introduced to the idea of having 
+release branches recently.</p>
+<p>Intuitively, I would work in the master branch, so that would be the 
+development branch, and then when I was ready to release, that would be 
+the deliberate (non-default) action. I guess from your comments the 
+danger would be that I would pollute the “main stream” with stuff I 
+wasn’t working on? Or that someone else would pollute my stream.</p>
+<p>Anyway, this aspect of things is still very new for me. I think I 
+will consider master to be the development branch. But we’ll see how 
+things go, as I progress. Thanks again!</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1633">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c3c542b8212594def41ce9fe4fb80104.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Alex Schwartz</span>June 9th, 2010 at 21:22 </div>
+					
+					
+					<p>@Vincent: Your post and the gitflow project ist great!</p>
+<p>We use a very similar branching model (with subversion — a real pain)
+ over the last two years. We had been inspired by Henrik Kniberg’s paper
+ “Version Control for Multiple Agile Teams” (InfoQ, <a onclick="javascript:pageTracker._trackPageview('/outgoing/www.infoq.com/articles/agile-version-control)');" href="http://www.infoq.com/articles/agile-version-control%29" rel="nofollow">http://www.infoq.com/articles/agile-version-control)</a>. He gave the hint &amp; the hope that it can make some sense to use branching within agile development.</p>
+<p>What’s different from our own model is the use of the 
+production=master branch. This concept cannot be easily used in 
+subversion.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1851">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/9a4757d78480b4c2a6226192280cd2d3.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Xiong Changnian</span>July 11th, 2010 at 15:31 </div>
+					
+					
+					<p>Excellent post; a true revelation. I’m new to Git and this supplied vital structure. </p>
+<p>I do have a few small quibbles with the main, top-of-page figure (Git-branching-model.pdf): </p>
+<p>* Although you’ve incorporated support branches into gitflow, they don’t show in the figure.<br>
+* I object to naming any branch ‘master’, since no branch should be 
+default. Users want ‘trunk’, developers want ‘devel’, at least.<br>
+* While your figure is beautiful, it is also expensive. Each 
+fuzzy-bordered commit symbol contains over 1800 path nodes. The PDF is 
+almost 4 Mb; deconstructed to SVG it is a hefty 7.4 Mb. My less-elegant 
+version comes in under 100 Kb. </p>
+<p>The new figure is at <a onclick="javascript:pageTracker._trackPageview('/mailto/git@github.com');" href="mailto:git@github.com">git@github.com</a>:Xiong/gitflow.git  on branch ‘figure-xiong-svg’: workflow.svg. I’m not sure where else it should go. </p>
+<p>Not everyone will prefer my choices but they may edit the figure to 
+serve their needs and desires. I encourage others to extend and improve.
+ </p>
+<p>Thanks again for an important conceptual tool.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1869">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/189f397298ac7dc5fcfc15a27429c9cf.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>boblu</span>July 13th, 2010 at 17:00 </div>
+					
+					
+					<p>Excellent write up. I leant a lot from your git workflow model.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1871">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/0b1b1c3a746a2e346d8cae668b109b6e.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Chris McGrath</span>July 13th, 2010 at 19:20 </div>
+					
+					
+					<p>I’d like to add my thanks for writing this up too. We’re just 
+about to move from svn to git and this model is perfect for us and  will
+ save us a *lot* of time.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1882">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/2515856e4452ac935394c3b5556ef323.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/codeslife.com');" href="http://codeslife.com/" rel="external nofollow" class="url">Larry Cai</a></span>July 15th, 2010 at 06:07 </div>
+					
+					
+					<p>Excellent work, and I learn a lot, hopefully Vincent can 
+summarize them in FAQ, furthermore I notice some comments are not 
+answered yet like Martin’s repo concerns</p>
+<p>And also as Xiong, I write it in balsamiq mockup format (<a onclick="javascript:pageTracker._trackPageview('/outgoing/www.balsamiq.com/');" href="http://www.balsamiq.com/" rel="nofollow">http://www.balsamiq.com/</a>), and contribute into my forked repo. see <a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/larrycai/gitflow/blob/develop/contrib/gitflow.bmml');" href="http://github.com/larrycai/gitflow/blob/develop/contrib/gitflow.bmml" rel="nofollow">http://github.com/larrycai/gitflow/blob/develop/contrib/gitflow.bmml</a></p>
+<p>You can visit my blog “Git branch flow in balsamiq mockup format” : <a onclick="javascript:pageTracker._trackPageview('/outgoing/codeslife.com/?p=134');" href="http://codeslife.com/?p=134" rel="nofollow">http://codeslife.com/?p=134</a> , see picture and pdf files. <a onclick="javascript:pageTracker._trackPageview('/outgoing/codeslife.com/wp-content/uploads/2010/07/gitbranchflow.pdf');" href="http://codeslife.com/wp-content/uploads/2010/07/gitbranchflow.pdf" rel="nofollow">http://codeslife.com/wp-content/uploads/2010/07/gitbranchflow.pdf</a></p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1883">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/7a77ba5031960fad02e002d3e961f432.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/webdev.zalewa.info');" href="http://webdev.zalewa.info/" rel="external nofollow" class="url">zalun</a></span>July 15th, 2010 at 09:48 </div>
+					
+					
+					<p>Thanks for the article (a friend gave me that link as a respone to “any good git model to follow?” question).<br>
+I will have to use slightly different approach as whole system has to be
+ transparent to the world – opensource development. The “main” repo will
+ have to remain writable for a small subset of people (1?). Also 
+personal repositories have to remain read only for others than authors.<br>
+I am also a fan of leaving the master branch a development one, it’s 
+something majority got used to and lowering the entry point is a good 
+thing in opensource.<br>
+With these exceptions will git-flow be a good tool for the repository managers?</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1884">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>July 15th, 2010 at 10:53 </div>
+					
+					
+					<p>@zalun: Of course you can easily change your develop branch to be the Git <code>master</code> branch, no problem. In fact, if you use <a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/nvie/gitflow');" href="http://github.com/nvie/gitflow" rel="nofollow">git-flow</a>, you can simply run <code>git flow init</code> and pick your preferred branch names for develop and master.</p>
+<p>On having a main repo that is writeable for the repo owners only: 
+that’s exactly what all Git repo’s are in the open source world. You 
+simply setup a repo on <a onclick="javascript:pageTracker._trackPageview('/outgoing/github.com/');" href="http://github.com/" rel="nofollow">Github</a> for example and you already have this situation. This model changes nothing to normal, good Git practices.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-1892">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>July 16th, 2010 at 07:16 </div>
+					
+					
+					<p>I’ve opened up a Google group for gitflow. It’s at <a onclick="javascript:pageTracker._trackPageview('/outgoing/groups.google.com/group/gitflow-users/');" href="http://groups.google.com/group/gitflow-users/" rel="nofollow">http://groups.google.com/group/gitflow-users/</a></p>
+				</div>
+			</div>
+					<div class="comment" id="comment-2659">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/07632e584c944c4471081a82bdc6ff8e.png" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span>Thilo</span>August 12th, 2010 at 09:28 </div>
+					
+					
+					<p>You need a Flattr button…</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-2808">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/0a74402748132d1aa4050bcebf1932d0.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a onclick="javascript:pageTracker._trackPageview('/outgoing/domfarr@blogspot.com');" href="http://blogspot.com/" rel="external nofollow" class="url">Dom Farr</a></span>August 20th, 2010 at 13:07 </div>
+					
+					
+					<p>Vincent.<br>
+How do your sub teams work? Does Jane pull directly from David, or does 
+David have to push his feature branch to origin and then Jane pull from 
+there?</p>
+<p>Our team is using Github and I’m wondering if I can have team members
+ pull directly from other team member’s local repo and save the house 
+keeping of origin.</p>
+<p>Thanks</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-2884">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>August 24th, 2010 at 13:01 </div>
+					
+					
+					<p>@Thilo: there is one now.</p>
+				</div>
+			</div>
+					<div class="comment" id="comment-2885">
+			
+				<div class="comment-avatar">
+					<img alt="" src="git-model_files/c5a7f21b46df698f3db31c37ed0cf55a.jpg" class="avatar avatar-50 photo" height="50" width="50">				</div>
+				
+				<div class="comment-content">
+					<div class="comment-info"><span><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a></span>August 24th, 2010 at 13:07 </div>
+					
+					
+					<p>@Dom: Here, we pull locally, but if you have a Github-style repo
+ with a separate public and private repo, there really is no difference.
+ In that case, you’d have to “publish” all of your private work to 
+Github to have other team members fetch your work, of course.</p>
+				</div>
+			</div>
+		
+	</div>
+
+
+
+
+
+	<h1 class="comments-title">Leave a comment</h1>
+
+			<form action="http://nvie.com/wp-comments-post.php" method="post" id="commentform">
+			Your comment
+			<p><textarea name="comment" id="comment"></textarea></p>
+			
+						
+				<p><input name="author" id="author" class="text" type="text">
+				<label for="author">Name (required)</label></p>
+
+				<p><input name="email" id="email" class="text" type="text">
+				<label for="email">Mail (will not be published) (required)</label></p>
+
+				<p><input name="url" id="url" class="text" type="text">
+				<label for="url">Website</label></p>
+						
+						
+			<p><input name="submit" id="submit" value="Submit Comment" type="submit"><input name="comment_post_ID" value="323" type="hidden"></p>
+			
+			
+
+		</form>
+
+
+
+	
+</div>
+
+<div id="sidebar">
+<div class="block"><h3 class="widgettitle">Flattr this</h3>			<div class="textwidget"><p>If you like the content on this website, please consider Flattr'ing me, by clicking the button below.<br>
+<a href="http://flattr.com/thing/53766/nvie-com" target="_blank"><br>
+<img src="git-model_files/button-compact-static-100x17.png" alt="Flattr this" title="Flattr this" border="0"></a></p>
+</div>
+		</div><div class="block"><h3 class="widgettitle">Author</h3>			<div class="textwidget"><p>Vincent Driessen is a Python and Cocoa enthusiast based in The Netherlands.</p>
+<p>Follow me on Twitter (<a href="https://twitter.com/nvie/">@nvie</a>).</p>
+<p><img src="git-model_files/vin.png" alt="Author" style="margin: 0pt; width: 170px; padding: 0pt;"></p>
+</div>
+		</div><div class="block"><h3 class="widgettitle">Categories</h3>		<ul>
+	<li class="cat-item cat-item-17"><a href="http://nvie.com/archives/category/core-data" title="View all posts filed under Core Data">Core Data</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="http://nvie.com/archives/category/general" title="View all posts filed under General">General</a>
+</li>
+	<li class="cat-item cat-item-23"><a href="http://nvie.com/archives/category/git" title="View all posts filed under Git">Git</a>
+<ul class="children">
+	<li class="cat-item cat-item-25"><a href="http://nvie.com/archives/category/git/gitflow" title="View all posts filed under gitflow">gitflow</a>
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-4"><a href="http://nvie.com/archives/category/iphone" title="View all posts filed under iPhone">iPhone</a>
+</li>
+	<li class="cat-item cat-item-5"><a href="http://nvie.com/archives/category/mac" title="View all posts filed under Mac">Mac</a>
+</li>
+	<li class="cat-item cat-item-19"><a href="http://nvie.com/archives/category/mogenerator" title="View all posts filed under mogenerator">mogenerator</a>
+</li>
+	<li class="cat-item cat-item-10"><a href="http://nvie.com/archives/category/objective-c" title="View all posts filed under Objective-C">Objective-C</a>
+</li>
+	<li class="cat-item cat-item-24"><a href="http://nvie.com/archives/category/python" title="Python">Python</a>
+</li>
+	<li class="cat-item cat-item-22"><a href="http://nvie.com/archives/category/user-scripts" title="View all posts filed under User scripts">User scripts</a>
+</li>
+	<li class="cat-item cat-item-21"><a href="http://nvie.com/archives/category/xcode" title="View all posts filed under Xcode">Xcode</a>
+</li>
+		</ul>
+</div><div class="block"><h3 class="widgettitle">Archives</h3>		<ul>
+			<li><a href="http://nvie.com/archives/date/2010/03" title="March 2010">March 2010</a></li>
+	<li><a href="http://nvie.com/archives/date/2010/01" title="January 2010">January 2010</a></li>
+	<li><a href="http://nvie.com/archives/date/2009/12" title="December 2009">December 2009</a></li>
+	<li><a href="http://nvie.com/archives/date/2009/10" title="October 2009">October 2009</a></li>
+	<li><a href="http://nvie.com/archives/date/2009/07" title="July 2009">July 2009</a></li>
+		</ul>
+</div><div class="block"><h3 class="widgettitle">Recent Comments</h3><ul id="recentcomments"><li class="recentcomments"><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a> on <a href="http://nvie.com/git-model/comment-page-2#comment-2885">A successful Git branching model</a></li><li class="recentcomments"><a href="http://nvie.com/" rel="external nofollow" class="url">Vincent Driessen</a> on <a href="http://nvie.com/git-model/comment-page-2#comment-2884">A successful Git branching model</a></li><li class="recentcomments"><a onclick="javascript:pageTracker._trackPageview('/outgoing/domfarr@blogspot.com');" href="http://blogspot.com/" rel="external nofollow" class="url">Dom Farr</a> on <a href="http://nvie.com/git-model/comment-page-2#comment-2808">A successful Git branching model</a></li><li class="recentcomments"><a onclick="javascript:pageTracker._trackPageview('/outgoing/www.thinknuts.net');" href="http://www.thinknuts.net/" rel="external nofollow" class="url">Aled</a> on <a href="http://nvie.com/archives/470/comment-page-1#comment-2762">Unexpected side effects in Python classes</a></li><li class="recentcomments">Thilo on <a href="http://nvie.com/git-model/comment-page-2#comment-2659">A successful Git branching model</a></li></ul></div></div>
+	</div>
+	
+	<div id="footer">
+		<p>
+			Copyright © 2008. All right reserved. 
+			Theme by <a href="http://deniart.ru/">deniart</a>
+		</p>
+	</div>
+</div>
+
+</body></html>
