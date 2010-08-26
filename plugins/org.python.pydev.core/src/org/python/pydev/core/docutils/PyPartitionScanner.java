@@ -14,6 +14,7 @@ import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.FastPartitioner;
+import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
@@ -73,8 +74,10 @@ public class PyPartitionScanner extends RuleBasedPartitionScanner implements IPy
         IToken multiLineString1 = new Token(IPythonPartitions.PY_MULTILINE_STRING1);
         IToken multiLineString2 = new Token(IPythonPartitions.PY_MULTILINE_STRING2);
         // deal with ''' and """ strings
-        rules.add(new MultiLineRule("'''", "'''", multiLineString1, '\\')); 
-        rules.add(new MultiLineRule("\"\"\"", "\"\"\"", multiLineString2,'\\'));
+        
+        boolean breaksOnEOF = true; //If we don't add this it won't properly recognize the rule while typing
+        rules.add(new MultiLineRule("'''", "'''", multiLineString1, '\\', breaksOnEOF)); 
+        rules.add(new MultiLineRule("\"\"\"", "\"\"\"", multiLineString2,'\\', breaksOnEOF));
         
         //there is a bug in this construct: When parsing a simple document such as:
         //
