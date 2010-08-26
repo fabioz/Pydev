@@ -572,6 +572,19 @@ public class StringUtils {
         return splitAndRemoveEmptyTrimmed(string, '.');
     }
 
+    public static String join(String delimiter, Object ... splitted) {
+        String [] newSplitted = new String[splitted.length];
+        for(int i=0;i<splitted.length;i++){
+            Object s = splitted[i];
+            if(s == null){
+                newSplitted[i] = "null";
+            }else{
+                newSplitted[i] = s.toString();
+            }
+        }
+        return join(delimiter, newSplitted);
+    }
+    
     /**
      * Same as Python join: Go through all the paths in the string and join them with the passed delimiter.
      */
