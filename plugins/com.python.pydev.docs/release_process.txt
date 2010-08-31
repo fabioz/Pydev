@@ -26,6 +26,11 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 		Execute the build_cmd.txt in cmd.exe
 		- Note, the Aptana Red Core plugins must be available in the 'vanilla eclipse' so that pydev compiles properly (org.python.pydev.red_core)
 
+Choose the branch:
+set BRANCH=master
+
+set BRANCH=development
+
 mkdir W:\git_build_dir
 mkdir W:\git_deploy_dir
 set path=%path%;D:\bin\eclipse_36_final_clean\plugins\org.apache.ant_1.7.1.v20100518-1145\bin
@@ -46,7 +51,8 @@ git clean -f -d plugins
 git clean -f -d repo
 del *.* /Y
 git checkout -f
-git pull
+git checkout %BRANCH%
+git pull origin %BRANCH%
 cd builders\org.python.pydev.build
 set GIT_EXECUTABLE="d:\bin\git\bin\git.exe"
 set KEYSTORE=W:\git_deploy_dir\pydevkeystore

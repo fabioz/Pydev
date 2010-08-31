@@ -44,12 +44,19 @@
 	
 	
 
+	<property environment="env" />
 	<property file="build_local.properties" />
 	<!-- Set is.windows property IF the OS is from the Windows family -->
 	<condition property="is.windows" value="true">
 		<os family="windows" />
 	</condition>
 	
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="ant-contrib/ant-contrib.jar" />
+        </classpath>
+    </taskdef>
+
 
 	<!-- ================================= 
           target: build              
@@ -89,42 +96,32 @@
 			</propertyset>
 		</echoproperties>
 	</target>
-
-	<!-- ================================= 
-          target: clean.sources      
-         ================================= -->
-	<target name="clean.sources" depends="generate.build.properties" description="Clean up temp and build files">
-		<delete failonerror="false">
-			<fileset dir="${buildDirectory}" defaultexcludes="true">
-				<include name="assemble.*" />
-				<include name="finalFeaturesVersions.*" />
-				<include name="finalPluginsVersions.*" />
-				<include name="package.*" />
-			</fileset>
-		</delete>
-		<delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
-		<java jar="${vanilla.eclipse}/plugins/${launcher.plugin}.jar" fork="true" failonerror="false">
-			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
-		</java>
-		<delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
-		<delete dir="${p2.repo.dir}" failonerror="false" />
-		<!-- Do an svn revert of the build directory -->
-		<git command = "checkout" dir="${buildDirectory}">
-		    <args>
-		        <arg value = "git://github.com/aptana/Pydev.git" />
-		        <arg value = "-f" />
-		    </args>
-		</git>
-		<svn>
-			<revert recurse="true" dir="${buildDirectory}" />
-		</svn>
-	</target>
+	
 	
     <!-- - - - - - - - - - - - - - - - - - 
           target: clean
          - - - - - - - - - - - - - - - - - -->
-    <target name="clean" depends="clean.sources">
+    <target name="clean" depends="generate.build.properties" description="Clean up temp and build files">
+        <delete failonerror="false">
+            <fileset dir="${buildDirectory}" defaultexcludes="true">
+                <include name="assemble.*" />
+                <include name="finalFeaturesVersions.*" />
+                <include name="finalPluginsVersions.*" />
+                <include name="package.*" />
+            </fileset>
+        </delete>
+        <delete dir="${buildDirectory}/${buildLabel}" failonerror="false" />
+        <java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="false">
+            <arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -nosplash clean" />
+        </java>
         <delete dir="${baseLocation}" />
+        <delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
+        <delete dir="${p2.repo.dir}" failonerror="false" />
+        <!-- Do an git checkout of the build directory -->
+        <exec executable="/bin/bash" dir="${buildDirectory}">
+            <arg value="-c" />
+            <arg value="${git.executable} checkout -f" />
+        </exec>
     </target>
     
 
@@ -157,7 +154,64 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="generate.base" depends="copy.base.windows,copy.base" />
+    <target name="generate.base" depends="copy.base.windows,copy.base">
+        <!-- Workaround for https://bugs.eclipse.org/241430 shouldn't be necessary when we move to 3.5 -->
+        <delete failonerror="false">
+            <fileset dir="${baseLocation}/configuration/.settings">
+                <include name="org.eclipse.equinox.p2.*.repository.prefs" />
+            </fileset>
+        </delete>
+        <!-- Copy the features and plugins over into a dropins folder. Installing makes it so that non-linux plugins/features won't be there! -->
+        <mkdir dir="${baseLocation}/dropins/eclipse" />
+        <copy todir="${baseLocation}/dropins/eclipse">
+            <fileset dir="${red-core.p2.repo}" defaultexcludes="true">
+                <include name="features/*" />
+                <include name="plugins/*" />
+            </fileset>
+        </copy>
+
+        <!-- Unjar the features -->
+        <for param="file">
+            <path>
+                <fileset dir="${baseLocation}/dropins/eclipse/features" defaultexcludes="true">
+                    <include name="*.jar" />
+                </fileset>
+            </path>
+            <sequential>
+                <echo message="Unzipping JAR @{file}" />
+                <basename file="@{file}" property="@{file}.name" suffix="jar" />
+                <mkdir dir="${baseLocation}/dropins/eclipse/features/${@{file}.name}" />
+                <unjar dest="${baseLocation}/dropins/eclipse/features/${@{file}.name}" src="@{file}" />
+                <delete file="@{file}" />
+                <echo message="Replacing the update site domain names." />
+                <!-- The following will replace update.aptana.org update/... sites with download.aptana.com/... update sites -->
+                <replaceregexp file="${baseLocation}/dropins/eclipse/features/${@{file}.name}/feature.xml" match="http://update.aptana.com/update/" replace="http://download.aptana.com/tools/studio/plugin/" byline="true" />
+                <!-- The following will replace aptana.org update sites with aptana.com update sites -->
+                <replaceregexp file="${baseLocation}/dropins/eclipse/features/${@{file}.name}/feature.xml" match="http://download.aptana.org/tools/studio/plugin/" replace="http://download.aptana.com/tools/studio/plugin/" byline="true" />
+            </sequential>
+        </for>
+        <!-- UnJAR the handful of plugins that we need to... -->
+        <for param="file">
+            <path>
+                <fileset dir="${baseLocation}/dropins/eclipse/plugins" defaultexcludes="true">
+                    <include name="com.aptana.terminal_*.jar" />
+                    <include name="com.aptana.libraries_*.jar" />
+                    <include name="org.jruby_*.jar" />
+                    <include name="com.aptana.branding_*.jar" />
+                    <include name="com.aptana.ide.libraries.subscription_*.jar" />
+                    <include name="com.aptana.parsing_*.jar" />
+                    <include name="com.aptana.portablegit.win32_*.jar" />
+                </fileset>
+            </path>
+            <sequential>
+                <echo message="Unzipping JAR @{file}" />
+                <basename file="@{file}" property="@{file}.name" suffix="jar" />
+                <mkdir dir="${baseLocation}/dropins/eclipse/plugins/${@{file}.name}" />
+                <unjar dest="${baseLocation}/dropins/eclipse/plugins/${@{file}.name}" src="@{file}" />
+                <delete file="@{file}" />
+            </sequential>
+        </for>
+    </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy.base                      
@@ -190,5 +244,11 @@
 			<arg line="/to=${baseLocation} /cmd=sync /auto_close ${vanilla.eclipse}" />
 		</exec>
 	</target>
-	 
+
+    <target name="create-artifact-symlink">
+        <exec executable="unlink">
+            <arg value="${env.WORKSPACE}/build-artifacts" />
+        </exec>
+        <symlink link="${env.WORKSPACE}/build-artifacts" resource="${deploy.dir}" failonerror="false" />
+     </target>
 </project>

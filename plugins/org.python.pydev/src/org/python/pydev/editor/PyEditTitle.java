@@ -222,12 +222,16 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 			public void run() {
 				for (IEditorReference iEditorReference : editorReferences) {
 					try {
-						IPath pathFromInput = getPathFromInput(iEditorReference.getEditorInput());
-						String lastSegment = pathFromInput.lastSegment();
-						if(lastSegment != null && 
-								(lastSegment.startsWith("__init__.") || PyTitlePreferencesPage.isDjangoModuleToDecorate(lastSegment))){
-							iEditorReference.getEditor(true); //restore it.
-						}
+					    if(iEditorReference != null){
+    						IPath pathFromInput = getPathFromInput(iEditorReference.getEditorInput());
+    						if(pathFromInput != null){
+        						String lastSegment = pathFromInput.lastSegment();
+        						if(lastSegment != null && 
+        								(lastSegment.startsWith("__init__.") || PyTitlePreferencesPage.isDjangoModuleToDecorate(lastSegment))){
+        							iEditorReference.getEditor(true); //restore it.
+        						}
+    						}
+					    }
 					} catch (PartInitException e) {
 						//ignore
 					}

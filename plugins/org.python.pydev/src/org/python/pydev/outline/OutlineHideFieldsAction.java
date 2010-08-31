@@ -8,6 +8,7 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.ui.UIConstants;
 
 /**
@@ -36,7 +37,11 @@ public class OutlineHideFieldsAction extends AbstractOutlineFilterAction {
                 if (element instanceof ParsedItem) {
                     ParsedItem item = (ParsedItem) element;
 
-                    SimpleNode token = item.getAstThis().node;
+                    ASTEntryWithChildren astThis = item.getAstThis();
+                    if(astThis == null){
+                        return false;
+                    }
+                    SimpleNode token = astThis.node;
 
                     //String name = null;
                     if (token instanceof Attribute) {

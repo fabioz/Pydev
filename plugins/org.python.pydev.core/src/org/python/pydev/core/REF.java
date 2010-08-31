@@ -54,6 +54,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
@@ -1049,5 +1050,10 @@ public class REF {
     public static double log(double a, double base){
         return Math.log(a) / Math.log(base);
      }
+
+
+    public static void print(Object ... objects) {
+        System.out.println(StringUtils.join(" ", objects));
+    }
 }
 

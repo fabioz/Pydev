@@ -350,6 +350,8 @@
 
     	
 	  	<echo message="Signing plugins and features at: ${p2.repo.dir}" />
+    	<!--
+    	Disable signing for some tests.
     	<signjar 
     	    alias="aptana" keystore="${KEYSTORE}"
     	    storepass="${STOREPASS}"
@@ -359,6 +361,7 @@
     	    <fileset dir="${p2.repo.dir}/features" includes="**/*.jar" />
     	  </path>
     	</signjar>
+    	-->
     	
         <antcall target="gatherLogs" />
         <antcall target="updateSite" />
