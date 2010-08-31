@@ -20,9 +20,7 @@
 	    <element name = "args" optional = "true" />
 	    <sequential>
 	        <echo message = "git @{command}" />
-	        <exec executable = "/bin/bash" dir = "@{dir}">
-	            <arg value = "-c" />
-	            <arg value = "${git.executable}" />
+	        <exec executable = "${git.executable}" dir = "@{dir}">
 	            <arg value = "@{command}" />
 	            <args/>
 	        </exec>
