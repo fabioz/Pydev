@@ -154,7 +154,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="generate.base" depends="copy.base.windows,copy.base">
+    <target name="generate.base" depends="copy.base.windows,copy.base" unless="is.local_build">
         <!-- Workaround for https://bugs.eclipse.org/241430 shouldn't be necessary when we move to 3.5 -->
         <delete failonerror="false">
             <fileset dir="${baseLocation}/configuration/.settings">
