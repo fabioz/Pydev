@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -41,12 +42,12 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     /**
      * identifies the key for the module in the cache
      */
-    public static final String MODULE_CACHE = "MODULE_CACHE";
+    private static final String MODULE_CACHE = "MODULE_CACHE";
 
     /**
      * identifies the key for the module name in the cache
      */
-    /*default*/ static final String MODULE_NAME_CACHE = "MODULE_NAME";
+    private static final String MODULE_NAME_CACHE = "MODULE_NAME";
     
     /*default*/ static final String MODULE_IN_PROJECT_PYTHONPATH = "MODULE_IN_PROJECT_PYTHONPATH";
 
@@ -146,13 +147,21 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @throws MisconfigurationException 
      */
     protected SourceModule getSourceModule(IResource resource, IDocument document, IPythonNature nature) throws MisconfigurationException {
-        SourceModule module = (SourceModule) memo.get(MODULE_CACHE);
+        SourceModule module = (SourceModule) memo.get(MODULE_CACHE+resource.getModificationStamp());
         if(module == null){
             module = createSoureModule(resource, document, getModuleName(resource, nature));
-            setModuleInCache(module);
+            setModuleInCache(resource, module);
         }
         return module;
     }
+    
+    /**
+     * @param module this is the module to set in the cache
+     */
+    protected void setModuleInCache(IResource resource, IModule module) {
+        memo.put(MODULE_CACHE+resource.getModificationStamp(), module);
+    }
+
 
     /**
      * @param resource
@@ -169,12 +178,6 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         return module;
     }
 
-    /**
-     * @param module this is the module to set in the cache
-     */
-    protected void setModuleInCache(IModule module) {
-        memo.put(MODULE_CACHE, module);
-    }
 
     /**
      * @param resource the resource we are analyzing
@@ -191,11 +194,11 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
      * @throws MisconfigurationException 
      */
     public String getModuleName(IResource resource, IPythonNature nature) throws MisconfigurationException {
-        String moduleName = (String) memo.get(MODULE_NAME_CACHE);
+        String moduleName = (String) memo.get(getModuleNameCacheKey(resource));
         if(moduleName == null){
             moduleName = nature.resolveModule(resource);
             if(moduleName != null){
-                setModuleNameInCache(moduleName);
+                setModuleNameInCache(memo, resource, moduleName);
             }else{
                 throw new RuntimeException("Unable to resolve module for:"+resource);
             }
@@ -203,11 +206,15 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
         return moduleName;
     }
 
+    private static String getModuleNameCacheKey(IResource resource) {
+        return MODULE_NAME_CACHE+resource.getModificationStamp();
+    }
+
     /**
      * @param moduleName the module name to set in the cache
      */
-    protected void setModuleNameInCache(String moduleName) {
-        memo.put(MODULE_NAME_CACHE, moduleName);
+    public static void setModuleNameInCache(Map<String, Object> memo, IResource resource, String moduleName) {
+        memo.put(getModuleNameCacheKey(resource), moduleName);
     }
     
     public boolean isResourceInPythonpathProjectSources(IResource resource, IPythonNature nature, boolean addExternal) throws CoreException, MisconfigurationException{
@@ -216,9 +223,7 @@ public abstract class PyDevBuilderVisitor implements Comparable<PyDevBuilderVisi
     		String moduleName = nature.resolveModuleOnlyInProjectSources(resource, addExternal);
     		isInProjectPythonpath = (moduleName != null);
     		if(isInProjectPythonpath){
-	    		if(memo.get(MODULE_NAME_CACHE) == null){
-	    			memo.put(MODULE_NAME_CACHE, moduleName);
-	    		}
+    		    setModuleNameInCache(memo, resource, moduleName);
     		}
     	}
     	return isInProjectPythonpath;

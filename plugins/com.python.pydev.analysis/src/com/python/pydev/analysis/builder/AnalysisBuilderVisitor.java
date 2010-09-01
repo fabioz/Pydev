@@ -51,13 +51,14 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         //Put things from the memo to final variables as we might need them later on and we cannot get them from
         //the memo later.
         final String moduleName;
+        final SourceModule module;
         try{
             moduleName = getModuleName(resource, nature);
+            module = getSourceModule(resource, document, nature);
         }catch(MisconfigurationException e){
             Log.log(e);
             return;
         }
-        final SourceModule module = (SourceModule) memo.get(MODULE_CACHE);
         
         //depending on the level of analysis we have to do, we'll decide whether we want
         //to make the full parse (slower) or the definitions parse (faster but only with info
@@ -126,7 +127,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         	if(moduleCallback != null){
         		throw new AssertionError("Only the module or the moduleCallback must be specified.");
         	}
-        	setModuleInCache(module);
+        	setModuleInCache(resource, module);
         	
         	moduleCallback = new ICallback<IModule, Integer>(){
         		
@@ -151,7 +152,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
         
         final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
                 document, resource, moduleCallback, isFullBuild(), moduleName, 
-                forceAnalysis, analysisCause, nature, documentTime);
+                forceAnalysis, analysisCause, nature, documentTime, resource.getModificationStamp());
        
         if(runnable == null){
             //It may be null if the document version of the new one is lower than one already active.
@@ -201,10 +202,11 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor{
                 		"Resource: "+resource+". Module name: "+moduleName);
                 documentTime = System.currentTimeMillis();
             }
+            long resourceModificationStamp = resource.getModificationStamp();
             
             
             final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(
-                    moduleName, nature, isFullBuild(), false, AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime);
+                    moduleName, nature, isFullBuild(), false, AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime, resourceModificationStamp);
             
             if(runnable == null){
                 //It may be null if the document version of the new one is lower than one already active.
