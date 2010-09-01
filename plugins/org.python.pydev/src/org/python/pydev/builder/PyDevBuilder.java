@@ -293,7 +293,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
                 IDocument doc = REF.getDocFromResource(r);
                 memo.put(PyDevBuilderVisitor.DOCUMENT_TIME, System.currentTimeMillis());
                 
-                memo.put(PyDevBuilderVisitor.MODULE_NAME_CACHE, moduleName);
+                PyDevBuilderVisitor.setModuleNameInCache(memo, r, moduleName);
                 
                 if(doc != null){ //might be out of synch
                     for (Iterator<PyDevBuilderVisitor> it = visitors.iterator(); it.hasNext() && monitor.isCanceled() == false;) {

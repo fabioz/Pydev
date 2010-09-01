@@ -27,8 +27,8 @@ public class AnalysisBuilderRunnableForRemove extends AbstractAnalysisBuilderRun
      */
     /*Default*/ AnalysisBuilderRunnableForRemove(String moduleName, IPythonNature nature, boolean isFullBuild, 
             IAnalysisBuilderRunnable oldAnalysisBuilderThread, boolean forceAnalysis, int analysisCause, long documentTime,
-            KeyForAnalysisRunnable key) {
-        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, key);
+            KeyForAnalysisRunnable key, long resourceModificationStamp) {
+        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, key, resourceModificationStamp);
     }
 
 

@@ -10,6 +10,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.builder.PyDevBuilderPrefPage;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
@@ -28,7 +29,7 @@ public class AnalysisBuilderRunnableFactory {
      * Cache to keep the last request time for a module. The key is the project name+module name and the value the documentTime
      * for the last analysis request for some module.
      */
-    private volatile static LRUCache<KeyForAnalysisRunnable, Long> analysisTimeCache = new LRUCache<KeyForAnalysisRunnable, Long>(100);
+    private volatile static LRUCache<KeyForAnalysisRunnable, Tuple<Long,Long>> analysisTimeCache = new LRUCache<KeyForAnalysisRunnable, Tuple<Long,Long>>(100);
     
     
     /**
@@ -70,11 +71,6 @@ public class AnalysisBuilderRunnableFactory {
         }
     }
     
-    private static void logExistingDocumentTimeHigher(IAnalysisBuilderRunnable oldAnalysisBuilderThread, String additionalInfo) {
-        if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
-            Log.toLogFile(oldAnalysisBuilderThread, "The document time from an existing is higher than a new one, so, leave it be... "+additionalInfo);
-        }
-    }
 
     // End Logging Helpers -------------------------------
 
@@ -95,11 +91,12 @@ public class AnalysisBuilderRunnableFactory {
      * @param moduleName the name of the module we'll analyze
      * @param documentTime the time of the creation of the document we're about to analyze.
      * @param available the existing threads.
+     * @param resourceModificationStamp 
      * 
      * @return The analysis key if all check were OK or null if some check failed.
      */
     private static synchronized KeyForAnalysisRunnable areNatureAndProjectAndTimeOK(
-            IPythonNature nature, String moduleName, long documentTime, Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available) {
+            IPythonNature nature, String moduleName, long documentTime, Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available, long resourceModificationStamp) {
         
         if(nature == null){
             return null;
@@ -113,24 +110,52 @@ public class AnalysisBuilderRunnableFactory {
         KeyForAnalysisRunnable analysisKey = new KeyForAnalysisRunnable(project.getName(), moduleName);
         IAnalysisBuilderRunnable oldAnalysisBuilderThread = available.get(analysisKey);
         
-        if(oldAnalysisBuilderThread != null && oldAnalysisBuilderThread.getDocumentTime() > documentTime-DELTA_TO_CONSIDER_SAME){
-            //If the document version of the new one is lower than the one already active, don't do the analysis
-            logExistingDocumentTimeHigher(
-                    oldAnalysisBuilderThread, oldAnalysisBuilderThread.getDocumentTime()+" > "+documentTime+" - "+DELTA_TO_CONSIDER_SAME+" (delta to consider equal)");
-            return null;
+        if(oldAnalysisBuilderThread != null){
+            if(!checkTimesOk(
+                    oldAnalysisBuilderThread, 
+                    oldAnalysisBuilderThread.getDocumentTime(), documentTime, 
+                    oldAnalysisBuilderThread.getResourceModificationStamp(), resourceModificationStamp)){
+                return null;
+            }
         }
         
-        Long lastTime = analysisTimeCache.getObj(analysisKey);
-        if(lastTime != null && lastTime > documentTime-DELTA_TO_CONSIDER_SAME){
-            //If the document version of the new one is lower than the one already active, don't do the analysis
-            logExistingDocumentTimeHigher(
-                    oldAnalysisBuilderThread, lastTime+" > "+documentTime+" - "+DELTA_TO_CONSIDER_SAME+" (delta to consider equal)");
-            return null;
+        Tuple<Long,Long> lastTime = analysisTimeCache.getObj(analysisKey);
+        if(lastTime != null){
+            long oldDocTime = lastTime.o1;
+            long oldResourceTime = lastTime.o2;
+            if(!checkTimesOk(oldAnalysisBuilderThread, oldDocTime, documentTime, oldResourceTime, resourceModificationStamp)){
+                return null;
+            }
         }
-        analysisTimeCache.add(analysisKey, documentTime);
+        analysisTimeCache.add(analysisKey, new Tuple<Long, Long>(documentTime, resourceModificationStamp));
 
         
         return analysisKey;
+    }
+
+    private static boolean checkTimesOk(IAnalysisBuilderRunnable oldAnalysisBuilderThread, long oldDocTime, long documentTime, long oldResourceStamp, long resourceStamp) {
+        if(oldAnalysisBuilderThread != null && oldDocTime > documentTime-DELTA_TO_CONSIDER_SAME){
+            //If the document version of the new one is lower than the one already active, don't do the analysis
+            if(oldResourceStamp != resourceStamp){
+                if(oldResourceStamp == IResource.NULL_STAMP || resourceStamp == IResource.NULL_STAMP){
+                    return true; //one of them is null, so, it's ok to keep going.
+                }
+                if(resourceStamp > oldResourceStamp){
+                    return true; //it actually changed in the meantime, so, just keep going
+                }
+            }
+            if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                Log.toLogFile(oldAnalysisBuilderThread, createExistinTimeHigherMessage(oldDocTime, documentTime, oldResourceStamp, resourceStamp));
+            }
+
+            return false;
+        }
+        return true;
+    }
+
+    private static String createExistinTimeHigherMessage(long oldTime, long documentTime, long oldResourceTime, long resourceTime) {
+        return "The document time from an existing is higher than a new one, so, leave it be... "+
+            oldTime+" > "+documentTime+" - "+DELTA_TO_CONSIDER_SAME+" (delta to consider equal) -- resource stamp (old, new): "+oldResourceTime+", "+resourceTime;
     }
     
     
@@ -145,12 +170,12 @@ public class AnalysisBuilderRunnableFactory {
      */
     /*Default*/ static synchronized IAnalysisBuilderRunnable createRunnable(IDocument document, IResource resource, 
             ICallback<IModule, Integer> module, boolean isFullBuild, 
-            String moduleName, boolean forceAnalysis, int analysisCause, IPythonNature nature, long documentTime){
+            String moduleName, boolean forceAnalysis, int analysisCause, IPythonNature nature, long documentTime, long resourceModificationStamp){
         
         
         Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
         synchronized(available){
-            KeyForAnalysisRunnable analysisKey = areNatureAndProjectAndTimeOK(nature, moduleName, documentTime, available);
+            KeyForAnalysisRunnable analysisKey = areNatureAndProjectAndTimeOK(nature, moduleName, documentTime, available, resourceModificationStamp);
             if(analysisKey == null){
                 return null;
             }
@@ -180,7 +205,7 @@ public class AnalysisBuilderRunnableFactory {
                 }
             }
             IAnalysisBuilderRunnable analysisBuilderThread = new AnalysisBuilderRunnable(document, resource, module, 
-                    isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, analysisKey);
+                    isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, analysisKey, resourceModificationStamp);
             
             logCreate(moduleName, analysisBuilderThread, "Factory: changed");
             
@@ -196,12 +221,12 @@ public class AnalysisBuilderRunnableFactory {
      * @return The new runnable or null if there's one there already that has a higher document version.
      */
     /*Default*/ static IAnalysisBuilderRunnable createRunnable(String moduleName, IPythonNature nature, boolean fullBuild,
-            boolean forceAnalysis, int analysisCause, long documentTime) {
+            boolean forceAnalysis, int analysisCause, long documentTime, long resourceModificationStamp) {
         
 
         Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
         synchronized(available){
-            KeyForAnalysisRunnable analysisKey = areNatureAndProjectAndTimeOK(nature, moduleName, documentTime, available);
+            KeyForAnalysisRunnable analysisKey = areNatureAndProjectAndTimeOK(nature, moduleName, documentTime, available, resourceModificationStamp);
             if(analysisKey == null){
                 return null;
             }
@@ -212,7 +237,7 @@ public class AnalysisBuilderRunnableFactory {
                 logStop(oldAnalysisBuilderThread, "Factory: remove");
             }
             IAnalysisBuilderRunnable analysisBuilderThread = new AnalysisBuilderRunnableForRemove(moduleName, nature, 
-                    fullBuild, oldAnalysisBuilderThread, forceAnalysis, analysisCause, documentTime, analysisKey);
+                    fullBuild, oldAnalysisBuilderThread, forceAnalysis, analysisCause, documentTime, analysisKey, resourceModificationStamp);
             
             logCreate(moduleName, analysisBuilderThread, "Factory: remove");
 

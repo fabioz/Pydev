@@ -91,8 +91,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
     /*Default*/ AnalysisBuilderRunnable(IDocument document, IResource resource, ICallback<IModule, Integer> module, 
             boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause, 
             IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime,
-            KeyForAnalysisRunnable key) {
-        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, key);
+            KeyForAnalysisRunnable key, long resourceModificationStamp) {
+        super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime, key, resourceModificationStamp);
         
         this.document = document;
         this.resource = new WeakReference<IResource>(resource);

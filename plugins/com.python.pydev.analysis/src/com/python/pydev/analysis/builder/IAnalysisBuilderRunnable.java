@@ -42,4 +42,6 @@ public interface IAnalysisBuilderRunnable extends IRunnableWithMonitor {
     String getAnalysisCauseStr();
     
     long getDocumentTime();
+
+    long getResourceModificationStamp();
 }

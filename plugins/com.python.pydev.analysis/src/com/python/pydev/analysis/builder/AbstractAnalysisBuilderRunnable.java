@@ -49,13 +49,14 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
     protected volatile boolean runFinished = false;
     private IAnalysisBuilderRunnable oldAnalysisBuilderThread;
     private long documentTime;
+    private long resourceModificationStamp;
     
     
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
     
     public AbstractAnalysisBuilderRunnable(boolean isFullBuild, String moduleName, boolean forceAnalysis, 
             int analysisCause, IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime,
-            KeyForAnalysisRunnable key) {
+            KeyForAnalysisRunnable key, long resourceModificationStamp) {
         this.isFullBuild = isFullBuild;
         this.moduleName = moduleName;
         this.forceAnalysis = forceAnalysis;
@@ -64,10 +65,15 @@ public abstract class AbstractAnalysisBuilderRunnable implements IAnalysisBuilde
         this.nature = nature;
         this.documentTime = documentTime;
         this.key = key;
+        this.resourceModificationStamp = resourceModificationStamp;
     }
     
     public long getDocumentTime() {
         return documentTime;
+    }
+    
+    public long getResourceModificationStamp() {
+        return resourceModificationStamp;
     }
     
     public int getAnalysisCause() {
