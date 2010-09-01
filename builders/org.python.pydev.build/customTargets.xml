@@ -356,7 +356,7 @@
     </target>
 	
     
-    <target name="signJars" if="${is.local_build}">
+    <target name="signJars" if="is.local_build">
         <echo message="Signing plugins and features at: ${p2.repo.dir}" />
         <signjar 
             alias="aptana" keystore="${KEYSTORE}"
