@@ -154,7 +154,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: generate.base                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="generate.base" depends="copy.base.windows,copy.base" unless="is.local_build">
+    <target name="generate.base" depends="copy.base.windows,copy.base" unless="${is.local_build}">
         <!-- Workaround for https://bugs.eclipse.org/241430 shouldn't be necessary when we move to 3.5 -->
         <delete failonerror="false">
             <fileset dir="${baseLocation}/configuration/.settings">
@@ -216,7 +216,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: copy.base                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="copy.base" unless="is.windows">
+	<target name="copy.base" unless="${is.windows}">
 		<!-- Copy over the original base eclipse to a new location.
 			Have to use exec cp to retain permissions on *nix, Mac -->
 		<exec executable="cp">
@@ -239,7 +239,7 @@
           target: copy.base.windows with fast copy (note that fastcopy must be available for it to work).
           If this doesn't properly work, the command above should be used.
          - - - - - - - - - - - - - - - - - -->
-	<target name="copy.base.windows" if="is.windows">
+	<target name="copy.base.windows" if="${is.windows}">
 		<exec executable="FastCopy">
 			<arg line="/to=${baseLocation} /cmd=sync /auto_close ${vanilla.eclipse}" />
 		</exec>

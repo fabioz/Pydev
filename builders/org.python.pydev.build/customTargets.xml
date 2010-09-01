@@ -349,24 +349,25 @@
         
 
     	
-	  	<echo message="Signing plugins and features at: ${p2.repo.dir}" />
-    	<!--
-    	Disable signing for some tests.
-    	<signjar 
-    	    alias="aptana" keystore="${KEYSTORE}"
-    	    storepass="${STOREPASS}"
-    	    preservelastmodified="true">
-    	  <path>
-    	    <fileset dir="${p2.repo.dir}/plugins" includes="**/*.jar" />
-    	    <fileset dir="${p2.repo.dir}/features" includes="**/*.jar" />
-    	  </path>
-    	</signjar>
-    	-->
-    	
+        <antcall target="signJars" />
         <antcall target="gatherLogs" />
         <antcall target="updateSite" />
         <antcall target="publish" />
     </target>
+	
+    
+    <target name="signJars" if="${is.local_build}">
+        <echo message="Signing plugins and features at: ${p2.repo.dir}" />
+        <signjar 
+            alias="aptana" keystore="${KEYSTORE}"
+            storepass="${STOREPASS}"
+            preservelastmodified="true">
+          <path>
+            <fileset dir="${p2.repo.dir}/plugins" includes="**/*.jar" />
+            <fileset dir="${p2.repo.dir}/features" includes="**/*.jar" />
+          </path>
+        </signjar>
+	</target>
 
     <target name="updateSite">
         <copy file="${builder}/site.xml" tofile="${p2.repo.dir}/site.xml" />
