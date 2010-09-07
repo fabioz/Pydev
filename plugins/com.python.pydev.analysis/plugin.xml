@@ -119,5 +119,14 @@
       </key>
 </extension>
 
+<!-- view: indexing info -->
+<extension point="org.eclipse.ui.views">
+   <view
+        class="com.python.pydev.analysis.indexview.PyIndexView"
+        icon="icons/class_obj_imp.gif"
+        category="org.python.pydev"
+        name="Index View"
+        id="com.python.pydev.analysis.indexview.PyIndexView"/>
+</extension>
 
 </plugin>

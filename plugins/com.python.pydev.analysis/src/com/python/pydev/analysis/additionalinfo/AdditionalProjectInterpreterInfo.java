@@ -244,6 +244,12 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     
     public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects) throws MisconfigurationException {
+        return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects, true);
+    }
+    
+    
+    public static Tuple<List<AbstractAdditionalInterpreterInfo>, List<IPythonNature>> getAdditionalInfoAndNature(
+            IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects, boolean addReferencedProjects) throws MisconfigurationException {
         
         List<AbstractAdditionalInterpreterInfo> ret = new ArrayList<AbstractAdditionalInterpreterInfo>();
         List<IPythonNature> natures = new ArrayList<IPythonNature>();
@@ -273,13 +279,15 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
             }
             
             try {
-                //get for the referenced projects
-                IProject[] referencedProjects = project.getReferencedProjects();
-                for (IProject refProject : referencedProjects) {
-                    additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
-                    if(additionalInfoForProject != null){
-                        ret.add(additionalInfoForProject);
-                        natures.add(PythonNature.getPythonNature(refProject));
+                if(addReferencedProjects){
+                    //get for the referenced projects
+                    IProject[] referencedProjects = project.getReferencedProjects();
+                    for (IProject refProject : referencedProjects) {
+                        additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
+                        if(additionalInfoForProject != null){
+                            ret.add(additionalInfoForProject);
+                            natures.add(PythonNature.getPythonNature(refProject));
+                        }
                     }
                 }
 
