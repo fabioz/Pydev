@@ -25,6 +25,41 @@
 </blockquote>
 <p>For more details on the provided features, check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
 </div>
+<div class="section" id="release-1-6-2">
+<h1>Release 1.6.2</h1>
+<ul>
+<li><p class="first">Pydev is now also distributed with Aptana Studio 3, so it can be gotten in a version that doesn't require installing it as
+a separate plugin. Get it at: <a class="reference external" href="http://aptana.com/products/studio3/download">http://aptana.com/products/studio3/download</a></p>
+</li>
+<li><p class="first"><strong>Django templates editor</strong> (requires Aptana Studio 3)</p>
+<blockquote>
+<ul class="simple">
+<li>Supports HTML files with HTML, CSS and Javascript</li>
+<li>Supports CSS files</li>
+<li>Outline page</li>
+<li>Code-completion for Django templates based on templates (window &gt; preferences &gt; pydev &gt; django templates editor &gt; templates)</li>
+<li>Code-completion for HTML, CSS and Javascript</li>
+<li>Syntax highlighting based on the templates with the 'Django tags' context</li>
+<li>Colors based on the Aptana themes</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Python 2.7 grammar</strong> supported</p>
+</li>
+<li><p class="first">Fixed indexing issue on contents getting getting stale in the cache</p>
+</li>
+<li><p class="first">Fixed issue where the partitioning became wrong when entering a multiline string</p>
+</li>
+<li><p class="first">Colors in the compare editor are now correct when using the Aptana themes</p>
+</li>
+<li><p class="first">Extract method refactoring now works with &quot;import&quot; and &quot;from ... import&quot; inside a method</p>
+</li>
+<li><p class="first">Source folders now appear before other folders</p>
+</li>
+<li><p class="first">Fixed False positive on code analysis when using the property decorator</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-1-6-1">
 <h1>Release 1.6.1</h1>
 <ul>
@@ -85,81 +120,6 @@
 <li>Interactive console may be created using the eclipse vm (which may be used for experimenting with Eclipse)</li>
 <li>Apply patch working (Fixed NPE when opening compare editor in a dialog)</li>
 <li>Added compatibility to Aptana Studio 3 (Beta) -- release from July 12th</li>
-</ul>
-</blockquote>
-</li>
-</ul>
-</div>
-<div class="section" id="release-1-5-9">
-<h1>Release 1.5.9</h1>
-<ul>
-<li><p class="first"><strong>Added compatibility to Aptana Studio 3 (Beta) -- release from June 24th</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Fixed issues related to backward incompatible changes</li>
-</ul>
-</blockquote>
-</li>
-</ul>
-</div>
-<div class="section" id="release-1-5-8">
-<h1>Release 1.5.8</h1>
-<ul>
-<li><p class="first"><strong>Features only available on Aptana Studio 3 (Beta) -- release from June 4th:</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Theming support provided by Aptana Studio used</li>
-<li>Find bar provided by Aptana used (instead of the default find/replace dialog)</li>
-<li>Aptana App Explorer provides Pydev nodes</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Eclipse:</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Eclipse 3.6 is now supported</li>
-<li>Pydev Jars are now signed</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Django:</strong></p>
-<blockquote>
-<ul class="simple">
-<li>DoesNotExist and MultipleObjectsReturned recognized in Django</li>
-<li>Added option to make the name of Django models,views,tests editors work as regular editors while still changing the icon</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Run/Debug:</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Ctrl+Shift+B properly working to toggle breakpoint</li>
-<li>If file is not found in debugger, only warn once (and properly cache the return)</li>
-<li>Run configuration menus: Only showing the ones that have an available interpreter configured</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Outline/Pydev Package Explorer:</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Fixed sorting issue in pydev package explorer when comparing elements from the python model with elements from the eclipse resource model</li>
-<li>Fixed issue when the 'go into' was used in the pydev package explorer (refresh was not automatic)</li>
-<li>Added decoration to class attributes</li>
-<li>Added node identifying if __name__ == '__main__'</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>General:</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Properly working with editor names when the path would be the same for different editors</li>
-<li>Fixed issue where aptanavfs appeared in the title for aptana remote files</li>
-<li>Fixed halting condition</li>
-<li>Not always applying completion of dot in interactive console on context-insensitive completions</li>
-<li>Home key properly handled in compare editor</li>
-<li>Interactive console working with pickle</li>
-<li>String substitution configuration in interpreter properly works</li>
-<li>On import completions, full module names are not shown anymore, only the next submodule alternative</li>
 </ul>
 </blockquote>
 </li>
