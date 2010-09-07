@@ -5,6 +5,82 @@
 <br/>
 
 
+
+<h1>Release 1.5.9</h1>
+<ul>
+<li><p class="first"><strong>Added compatibility to Aptana Studio 3 (Beta) -- release from June 24th</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed issues related to backward incompatible changes</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+
+
+<h1>Release 1.5.8</h1>
+<ul>
+<li><p class="first"><strong>Features only available on Aptana Studio 3 (Beta) -- release from June 4th:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Theming support provided by Aptana Studio used</li>
+<li>Find bar provided by Aptana used (instead of the default find/replace dialog)</li>
+<li>Aptana App Explorer provides Pydev nodes</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Eclipse:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Eclipse 3.6 is now supported</li>
+<li>Pydev Jars are now signed</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Django:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>DoesNotExist and MultipleObjectsReturned recognized in Django</li>
+<li>Added option to make the name of Django models,views,tests editors work as regular editors while still changing the icon</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Run/Debug:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Ctrl+Shift+B properly working to toggle breakpoint</li>
+<li>If file is not found in debugger, only warn once (and properly cache the return)</li>
+<li>Run configuration menus: Only showing the ones that have an available interpreter configured</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Outline/Pydev Package Explorer:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fixed sorting issue in pydev package explorer when comparing elements from the python model with elements from the eclipse resource model</li>
+<li>Fixed issue when the 'go into' was used in the pydev package explorer (refresh was not automatic)</li>
+<li>Added decoration to class attributes</li>
+<li>Added node identifying if __name__ == '__main__'</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>General:</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Properly working with editor names when the path would be the same for different editors</li>
+<li>Fixed issue where aptanavfs appeared in the title for aptana remote files</li>
+<li>Fixed halting condition</li>
+<li>Not always applying completion of dot in interactive console on context-insensitive completions</li>
+<li>Home key properly handled in compare editor</li>
+<li>Interactive console working with pickle</li>
+<li>String substitution configuration in interpreter properly works</li>
+<li>On import completions, full module names are not shown anymore, only the next submodule alternative</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+
+
 <h1>Release 1.5.7</h1>
 
 <ul>

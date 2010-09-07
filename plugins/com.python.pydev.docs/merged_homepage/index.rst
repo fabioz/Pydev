@@ -40,6 +40,37 @@ It comes with many goodies such as:
 
 For more details on the provided features, check the `Features Matrix`_.
 
+Release 1.6.2
+==============
+
+* Pydev is now also distributed with Aptana Studio 3, so it can be gotten in a version that doesn't require installing it as 
+  a separate plugin. Get it at: http://aptana.com/products/studio3/download 
+
+* **Django templates editor** (requires Aptana Studio 3)
+
+    * Supports HTML files with HTML, CSS and Javascript
+    * Supports CSS files
+    * Outline page
+    * Code-completion for Django templates based on templates (window > preferences > pydev > django templates editor > templates)
+    * Code-completion for HTML, CSS and Javascript 
+    * Syntax highlighting based on the templates with the 'Django tags' context
+    * Colors based on the Aptana themes
+    
+* **Python 2.7 grammar** supported
+
+* Fixed indexing issue on contents getting getting stale in the cache
+
+* Fixed issue where the partitioning became wrong when entering a multiline string
+
+* Colors in the compare editor are now correct when using the Aptana themes
+
+* Extract method refactoring now works with "import" and "from ... import" inside a method
+
+* Source folders now appear before other folders
+
+* Fixed False positive on code analysis when using the property decorator
+
+
 Release 1.6.1
 ==============
 
@@ -82,63 +113,6 @@ Release 1.6.0
     * Apply patch working (Fixed NPE when opening compare editor in a dialog)
     * Added compatibility to Aptana Studio 3 (Beta) -- release from July 12th
 
-
-    
-Release 1.5.9
-==============
-
-* **Added compatibility to Aptana Studio 3 (Beta) -- release from June 24th**
-
-    * Fixed issues related to backward incompatible changes
-
-Release 1.5.8
-==============
-
-* **Features only available on Aptana Studio 3 (Beta) -- release from June 4th:**
-
-    * Theming support provided by Aptana Studio used
-    * Find bar provided by Aptana used (instead of the default find/replace dialog)
-    * Aptana App Explorer provides Pydev nodes
-    
-    
-* **Eclipse:**
-
-    * Eclipse 3.6 is now supported
-    * Pydev Jars are now signed
-
-
-* **Django:**
-
-    * DoesNotExist and MultipleObjectsReturned recognized in Django    
-    * Added option to make the name of Django models,views,tests editors work as regular editors while still changing the icon
-
-
-* **Run/Debug:**
-
-    * Ctrl+Shift+B properly working to toggle breakpoint
-    * If file is not found in debugger, only warn once (and properly cache the return)
-    * Run configuration menus: Only showing the ones that have an available interpreter configured
-    
-    
-* **Outline/Pydev Package Explorer:**
-
-    * Fixed sorting issue in pydev package explorer when comparing elements from the python model with elements from the eclipse resource model
-    * Fixed issue when the 'go into' was used in the pydev package explorer (refresh was not automatic)
-    * Added decoration to class attributes
-    * Added node identifying if __name__ == '__main__'
-    
-    
-* **General:**
-    
-    * Properly working with editor names when the path would be the same for different editors
-    * Fixed issue where aptanavfs appeared in the title for aptana remote files
-    * Fixed halting condition
-    * Not always applying completion of dot in interactive console on context-insensitive completions
-    * Home key properly handled in compare editor
-    * Interactive console working with pickle
-    * String substitution configuration in interpreter properly works
-    * On import completions, full module names are not shown anymore, only the next submodule alternative
-    
 
     
 What happened to Pydev Extensions?

@@ -20,6 +20,7 @@ Requirements
 .. _JDT: http://www.eclipse.org/jdt/
 .. _Platform Runtime Binary: http://download.eclipse.org/eclipse/downloads/
 .. _`Aptana Studio`: http://aptana.com/studio
+.. _`Aptana Studio 3`: http://aptana.com/products/studio3/download
 
 At least one of:
 
@@ -33,6 +34,11 @@ and
 * `Aptana Studio`_ or `Eclipse (3.2 to 3.6)`_ 
 
 	* Python_ and IronPython_ require only the `Platform Runtime Binary`_ (download around 45-50 MB), and Jython_ also requires JDT_.
+	
+* For using the Django Templates editor, `Aptana Studio 3` is required.
+
+* Pydev is now preinstalled in `Aptana Studio 3`, so it can be gotten directly from http://aptana.com/products/studio3/download in
+  a download where it doesn't need to be installed separately.
 	
 * Java_ 1.4 or higher
 
