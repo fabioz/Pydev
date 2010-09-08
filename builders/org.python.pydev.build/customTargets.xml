@@ -138,31 +138,6 @@
     <!-- Steps to do before running assemble. -->
     <!-- ===================================================================== -->
     <target name="preAssemble">
-    </target>
-
-    <!-- ===================================================================== -->
-    <!-- Steps to do after  running assemble. -->
-    <!-- ===================================================================== -->
-    <target name="postAssemble">
-    </target>
-
-    <!-- ===================================================================== -->
-    <!-- Steps to do before running package. -->
-    <!-- ===================================================================== -->
-    <target name="prePackage">
-    </target>
-
-    <!-- ===================================================================== -->
-    <!-- Steps to do after  running package. -->
-    <!-- ===================================================================== -->
-    <target name="postPackage">
-    </target>
-
-    <!-- ===================================================================== -->
-    <!-- Steps to do after the build is done. -->
-    <!-- ===================================================================== -->
-    <target name="postBuild">
-    	
         <!-- 
         Set up retroweaver to run on the jar's contents 
         
@@ -346,9 +321,30 @@
         <jar jarfile="${jar16}.jar" basedir="${jar16}/out" update="true" manifest="${jar16}/out/META-INF/MANIFEST.MF" />
         <echo message="Re-created ${jar16}.jar" />
         <!--[[[end]]]-->
-        
+    </target>
 
-    	
+    <!-- ===================================================================== -->
+    <!-- Steps to do after  running assemble. -->
+    <!-- ===================================================================== -->
+    <target name="postAssemble">
+    </target>
+
+    <!-- ===================================================================== -->
+    <!-- Steps to do before running package. -->
+    <!-- ===================================================================== -->
+    <target name="prePackage">
+    </target>
+
+    <!-- ===================================================================== -->
+    <!-- Steps to do after  running package. -->
+    <!-- ===================================================================== -->
+    <target name="postPackage">
+    </target>
+
+    <!-- ===================================================================== -->
+    <!-- Steps to do after the build is done. -->
+    <!-- ===================================================================== -->
+    <target name="postBuild">
         <antcall target="signJars" />
         <antcall target="gatherLogs" />
         <antcall target="updateSite" />
@@ -375,17 +371,15 @@
     	
     	
     	
-        <zip destfile="${buildDirectory}/org.python.pydev.feature-${version.full}.zip">
+        <zip destfile="${p2.repo.dir}/org.python.pydev.feature-${version.full}.zip">
             <fileset dir="${p2.repo.dir}" defaultexcludes="false" excludes="**/**org.python.pydev.django_templates**"/>
         </zip>
-        <move file="${buildDirectory}/org.python.pydev.feature-${version.full}.zip" todir="${p2.repo.dir}" />
     	
     	
     	
-        <zip destfile="${buildDirectory}/org.python.pydev.django_templates.feature-${version.full}.zip">
+        <zip destfile="${p2.repo.dir}/org.python.pydev.django_templates.feature-${version.full}.zip">
             <fileset dir="${p2.repo.dir}" defaultexcludes="false" includes="**/**org.python.pydev.django_templates**"/>
         </zip>
-        <move file="${buildDirectory}/org.python.pydev.django_templates.feature-${version.full}.zip" todir="${p2.repo.dir}" />
     	
     	
     	
