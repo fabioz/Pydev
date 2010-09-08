@@ -22,6 +22,14 @@
 	 		<property name="type" value="${topLevelElementType}" />
 	 		<property name="id" value="org.python.pydev.django_templates.feature" />
  		</ant>
+ 		
+ 		<!--
+ 		If we ever want to build the mylyn integration...
+ 		<ant antfile="${genericTargets}" target="${target}">
+	 		<property name="type" value="${topLevelElementType}" />
+	 		<property name="id" value="org.python.pydev.mylyn.feature" />
+ 		</ant>
+ 		-->
  	</target>
  
 	<!-- ====================================================================== -->
@@ -61,5 +69,15 @@
  		<echo message="Assembling django templates with: ${assembleScriptName}" />
  		<ant antfile="${assembleScriptName}" dir="${buildDirectory}"/>
  	</target>
+	
+    <!--
+     If we ever want to build the mylyn integration...
+
+	<property name="assemble.org.python.pydev.mylyn.feature" value="true" />
+ 	<target name="assemble.org.python.pydev.mylyn.feature">
+ 		<echo message="Assembling mylyn with: ${assembleScriptName}" />
+ 		<ant antfile="${assembleScriptName}" dir="${buildDirectory}"/>
+ 	</target>
+ 	-->
 	
 </project>
