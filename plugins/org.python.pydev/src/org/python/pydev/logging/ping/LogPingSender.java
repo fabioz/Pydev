@@ -46,7 +46,11 @@ public class LogPingSender implements ILogPingSender{
 			connection.setRequestProperty("Content-Encoding", "gzip"); //$NON-NLS-1$ //$NON-NLS-2$
 			connection.setRequestProperty("Content-Length", String.valueOf(gzippedData.length)); //$NON-NLS-1$
 			connection.setRequestProperty("User-Agent", "Pydev/" + PydevPlugin.version); //$NON-NLS-1$
-			connection.setReadTimeout(1000 * 60); // 1 minute read timeout
+			try {
+                connection.setReadTimeout(1000 * 60); // 1 minute read timeout
+            } catch (Throwable e) {
+                //ignore (not available for java 1.4)
+            }
 
 			// write POST
 			DataOutputStream output = new DataOutputStream(connection.getOutputStream());
