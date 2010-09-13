@@ -6,7 +6,7 @@
       <editor
             class="org.python.pydev.django_templates.html.editor.DjHTMLEditor"
             contributorClass="com.aptana.editor.common.CommonTextEditorActionContributor"
-            default="true"
+            default="false"
             extensions="html,djhtml,htm,djhtm"
             icon="icons/django_templates.png"
             id="org.python.pydev.django_templates.html"
@@ -18,7 +18,7 @@
       <editor
             class="org.python.pydev.django_templates.css.editor.DjCssEditor"
             contributorClass="com.aptana.editor.common.CommonTextEditorActionContributor"
-            default="true"
+            default="false"
             extensions="css,djcss"
             icon="icons/django_templates.png"
             id="org.python.pydev.django_templates.css"
