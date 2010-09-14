@@ -3,10 +3,14 @@ package com.python.pydev.refactoring.ui;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.core.cache.PyPreferencesCache;
+import org.python.pydev.utils.LinkFieldEditor;
 
 import com.python.pydev.refactoring.RefactoringPlugin;
 
@@ -32,6 +36,22 @@ public class MarkOccurrencesPreferencesPage extends FieldEditorPreferencePage im
 
         addField(new BooleanFieldEditor(USE_MARK_OCCURRENCES, "Mark Occurrences?", p));
         addField(new BooleanFieldEditor(USE_MARK_OCCURRENCES_IN_STRINGS, "Mark Occurrences in strings and comments?", p));
+        
+
+        LinkFieldEditor colorsAndFontsLinkFieldEditor = new LinkFieldEditor(
+                "UNUSED", "Color of the occurences may be changed at\n" +
+                		"<a>Annotations</a>: Occurrences (Pydev)", p, new SelectionListener() {
+                    
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.eclipse.ui.editors.preferencePages.Annotations";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
+                    
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
+        colorsAndFontsLinkFieldEditor.getLinkControl(p);
     }
     
     public void init(IWorkbench workbench) {
