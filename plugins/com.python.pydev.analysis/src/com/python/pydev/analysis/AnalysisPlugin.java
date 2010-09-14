@@ -168,7 +168,7 @@ public class AnalysisPlugin extends AbstractUIPlugin {
             case IInfo.CLASS_WITH_IMPORT_TYPE:
                 return imageCache.get(UIConstants.CLASS_ICON); 
             case IInfo.METHOD_WITH_IMPORT_TYPE:
-                return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+                return imageCache.get(UIConstants.METHOD_ICON);
             case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
                 return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);
             default:                  

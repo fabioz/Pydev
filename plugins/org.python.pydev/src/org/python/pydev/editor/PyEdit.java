@@ -1269,7 +1269,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             if(stmtType instanceof ClassDef){
                 image = UIConstants.CLASS_ICON;
             }else if(stmtType instanceof FunctionDef){
-                image = UIConstants.PUBLIC_METHOD_ICON;
+                image = UIConstants.METHOD_ICON;
             }else{
                 image = UIConstants.ERROR;
             }

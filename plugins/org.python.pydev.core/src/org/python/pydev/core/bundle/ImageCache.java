@@ -23,6 +23,7 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.Tuple3;
+import org.python.pydev.core.Tuple4;
 import org.python.pydev.core.log.Log;
 
 /**
@@ -126,13 +127,30 @@ public class ImageCache {
         }
     }
 
+    public Image getImageDecorated(String key, String decoration) {
+        return getImageDecorated(key, decoration, DECORATION_LOCATION_TOP_RIGHT);
+    }
+    
+    public final static int DECORATION_LOCATION_TOP_RIGHT = 0;
+    public final static int DECORATION_LOCATION_BOTTOM_RIGHT = 1;
+    
+    public Image getImageDecorated(String key, String decoration, int decorationLocation) {
+        return getImageDecorated(key, decoration, decorationLocation, null, -1);
+    }
     /**
      * @param key the key of the image that should be decorated (relative path to the plugin directory)
      * @param decoration the key of the image that should be decorated (relative path to the plugin directory)
      */
-    public Image getImageDecorated(String key, String decoration) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public Image getImageDecorated(
+            String key, String decoration, int decorationLocation, String secondDecoration, int secondDecorationLocation) {
         synchronized(lock){
-            Tuple3<String, String, String> cacheKey = new Tuple3<String, String, String>(key, decoration, "imageDecoration");
+            Object cacheKey = new Tuple4(
+                    key, decoration, decorationLocation, "imageDecoration");
+            if(secondDecoration != null){
+                //Also add the second decoration to the cache key.
+                cacheKey = new Tuple3(cacheKey, secondDecoration, secondDecorationLocation); 
+            }
             
             Image image = imageHash.get(cacheKey);
             if(image == null){
@@ -141,8 +159,22 @@ public class ImageCache {
                 //Note that changing the image data gotten here won't affect the original image.
                 ImageData baseImageData = get(key).getImageData();
                 ImageData decorationImageData = get(decoration).getImageData();
-                ImageData imageData = imageDecorator.drawDecoration(
-                        baseImageData, decorationImageData, baseImageData.width-decorationImageData.width, 0);
+                ImageData imageData;
+                switch(decorationLocation){
+                    case DECORATION_LOCATION_TOP_RIGHT:
+                        imageData = imageDecorator.drawDecoration(
+                                baseImageData, decorationImageData, baseImageData.width-decorationImageData.width, 0);
+                        break;
+                        
+                    case DECORATION_LOCATION_BOTTOM_RIGHT:
+                        imageData = imageDecorator.drawDecoration(
+                                baseImageData, decorationImageData, baseImageData.width-decorationImageData.width, 
+                                baseImageData.height-decorationImageData.height);
+                        break;
+                        
+                    default:
+                        throw new AssertionError("Decoration location not recognized: "+decorationLocation);
+                }
                 
                 image = new Image(display, imageData);
                 imageHash.put(cacheKey, image);

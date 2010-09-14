@@ -27,7 +27,7 @@ public class PyCodeCompletionImages {
                 return imageCache.get(UIConstants.COMPLETION_CLASS_ICON);
     
             case IToken.TYPE_FUNCTION:
-                return imageCache.get(UIConstants.PUBLIC_METHOD_ICON);
+                return imageCache.get(UIConstants.METHOD_ICON);
     
             case IToken.TYPE_ATTR:
                 return imageCache.get(UIConstants.PUBLIC_ATTR_ICON);

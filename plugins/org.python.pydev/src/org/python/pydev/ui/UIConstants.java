@@ -11,36 +11,29 @@ package org.python.pydev.ui;
 public class UIConstants {
 // Outline view
     public static final String CLASS_ICON = "icons/class_obj.gif";
+    public static final String METHOD_ICON = "icons/method_obj.gif";
+    
     public static final String IMPORT_ICON = "icons/imp_obj.gif";
-    public static final String IMPORTS_ICON = "icons/impc_obj.gif";
-    public static final String BUILTINS_ICON = "icons/builtin_obj.gif";
-    public static final String PRIVATE_CLASS_ICON = "icons/class_private_obj.gif";
-    public static final String PRIVATE_METHOD_ICON = "icons/methpri_obj.gif";
-    public static final String PRIVATE_CLASS_METHOD_ICON = "icons/methpri_class_obj.gif";
-    public static final String PRIVATE_STATIC_METHOD_ICON = "icons/methpri_static_obj.gif";
+    
     public static final String PRIVATE_FIELD_ICON = "icons/field_private_obj.gif";
-    public static final String PROTECTED_CLASS_ICON = "icons/class_protected_obj.gif";
-    public static final String PROTECTED_METHOD_ICON = "icons/methpro_obj.gif";
-    public static final String PROTECTED_CLASS_METHOD_ICON = "icons/methpro_class_obj.gif";
-    public static final String PROTECTED_STATIC_METHOD_ICON = "icons/methpro_static_obj.gif";
     public static final String PROTECTED_FIELD_ICON = "icons/field_protected_obj.gif";
-    public static final String PUBLIC_METHOD_ICON = "icons/methpub_obj.gif";
-    public static final String PUBLIC_CLASS_METHOD_ICON = "icons/methpub_class_obj.gif";
-    public static final String PUBLIC_STATIC_METHOD_ICON = "icons/methpub_static_obj.gif";
-    public static final String PUBLIC_FIELD_ICON = "icons/field_public_obj.gif";
-    public static final String MAGIC_METHOD_ICON = "icons/methmag_obj.gif";
-    public static final String MAGIC_CLASS_METHOD_ICON = "icons/methmag_class_obj.gif";
-    public static final String MAGIC_STATIC_METHOD_ICON = "icons/methmag_static_obj.gif";
-    public static final String MAGIC_FIELD_ICON = "icons/field_default_obj.gif";
+    public static final String MAGIC_FIELD_ICON = "icons/field_magic_obj.gif";
     public static final String PUBLIC_ATTR_ICON = "icons/attrpub_obj.gif";
+    
+    public static final String MAIN_FUNCTION_ICON = "icons/mainfunction.gif";
+    public static final String COMMENT = "icons/python_comment.png";
+    
+    //Actions in outline
+    public static final String COMMENT_BLACK = "icons/python_comment_black.png";
+    public static final String MAGIC_OBJECT_ICON = "icons/magic_co.gif";
     public static final String STATIC_MEMBER_HIDE_ICON = "icons/static_co.gif";
     public static final String FIELDS_HIDE_ICON = "icons/fields_co.gif";
-    public static final String MAIN_FUNCTION_ICON = "icons/mainfunction.gif";
-    public static final String MAGIC_OBJECT_ICON = "icons/magic_co.gif";
-    public static final String COMPLETION_PACKAGE_ICON = "icons/package_obj.gif";
-    public static final String COMPLETION_TEMPLATE = "icons/template.gif";
-    public static final String COMMENT = "icons/python_comment.png";
-    public static final String COMMENT_BLACK = "icons/python_comment_black.png";
+    
+    //Decorations
+    public static final String PRIVATE_ICON = "icons/private_obj.gif"; //__XXX
+    public static final String PROTECTED_ICON = "icons/protected_obj.gif"; // _XXX
+    public static final String MAGIC_ICON = "icons/magic_obj.gif"; // __XXX__
+    
     
     public static final String DECORATION_CLASS = "icons/decoration_class_obj.png";
     public static final String DECORATION_STATIC = "icons/decoration_static_obj.png";
@@ -64,6 +57,10 @@ public class UIConstants {
     public static final String PROJECT_SOURCE_FOLDER_ICON = "icons/project_source_folder.gif";
     
 //completion
+    public static final String BUILTINS_ICON = "icons/builtin_obj.gif";
+
+    public static final String COMPLETION_PACKAGE_ICON = "icons/package_obj.gif";
+    public static final String COMPLETION_TEMPLATE = "icons/template.gif";
     public static final String COMPLETION_IMPORT_ICON = "icons/imp_obj.gif";
     public static final String COMPLETION_RELATIVE_IMPORT_ICON = "icons/imp_rel_obj.gif";
     public static final String COMPLETION_CLASS_ICON = "icons/class_obj.gif";
