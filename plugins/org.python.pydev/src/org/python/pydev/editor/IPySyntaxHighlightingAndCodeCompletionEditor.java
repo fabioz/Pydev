@@ -32,4 +32,6 @@ public interface IPySyntaxHighlightingAndCodeCompletionEditor extends IAdaptable
 
     File getEditorFile();
 
+    void resetIndentPrefixes();
+
 }

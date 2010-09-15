@@ -562,12 +562,20 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     	return indentStrategy;
     }
     
+    
+    //Just making interface public
+    public void resetIndentPrefixes(){
+        super.updateIndentPrefixes();
+    }
+    
+    
     /**
      * Overriden becaus pydev already handles spaces -> tabs
      */
     @Override
     protected void installTabsToSpacesConverter() {
         //Do nothing (pydev already handles that)
+        updateIndentPrefixes();
     }
     
     /**
@@ -576,6 +584,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @Override
     protected void uninstallTabsToSpacesConverter() {
         //Do nothing (pydev already handles that)
+        updateIndentPrefixes();
     }
 
     /**
@@ -656,13 +665,16 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 		    		}
 		    		editor.getIndentPrefs().regenerateIndentString();
 		    		sourceViewer.getTextWidget().setTabs(DefaultIndentPrefs.getStaticTabWidth());
+		    		editor.resetIndentPrefixes();
 		    		
 		    	}else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
 		    		editor.getIndentPrefs().regenerateIndentString();
+		    		editor.resetIndentPrefixes();
 		    		
 		    		//auto adjust for file tabs
 		    	} else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
 		    		editor.resetForceTabs();
+		    		editor.resetIndentPrefixes();
 		    		
 		    		//colors and styles
 		    	} else if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
@@ -673,7 +685,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 		    }
 		};
     }
-    
 
     /**
      * When we have the editor input re-set, we have to change the parser and the partition scanner to
