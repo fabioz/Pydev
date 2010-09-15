@@ -13,16 +13,17 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
-import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
 public class DontAnalyzeFileMarkerParticipant implements IAssistProps {
 
     private Image annotationImage;
     public DontAnalyzeFileMarkerParticipant(){
-        ImageCache analysisImageCache = AnalysisPlugin.getDefault().getImageCache();
-        annotationImage = analysisImageCache.get("icons/annotation_obj.gif");
+        ImageCache analysisImageCache = PydevPlugin.getImageCache();
+        annotationImage = analysisImageCache.get(UIConstants.ASSIST_ANNOTATION);
     }
 
 

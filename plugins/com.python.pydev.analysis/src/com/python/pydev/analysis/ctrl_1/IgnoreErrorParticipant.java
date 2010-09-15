@@ -18,8 +18,9 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
-import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
 
@@ -28,8 +29,8 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
     private Image annotationImage;
 
     public IgnoreErrorParticipant() {
-        ImageCache analysisImageCache = AnalysisPlugin.getDefault().getImageCache();
-        annotationImage = analysisImageCache.get("icons/annotation_obj.gif");
+        ImageCache analysisImageCache = PydevPlugin.getImageCache();
+        annotationImage = analysisImageCache.get(UIConstants.ASSIST_ANNOTATION);
     }
 
     /** 

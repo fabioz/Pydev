@@ -101,15 +101,15 @@ public class ParsedItem implements Comparable<Object>{
     private static final int QUALIFIER_PUBLIC    = 0;
     private static final int QUALIFIER_PROTECTED = 1; 
     private static final int QUALIFIER_PRIVATE   = 2; 
-    private static final int QUALIFIER_MAGIC     = 3; 
 
     private static int qualifierFromName(String name) {
-        if (   (name.startsWith("__")) 
-                && (name.endsWith("__"))) {
-            return QUALIFIER_MAGIC;
-        }
-        else if (name.startsWith("__")) {
-            return QUALIFIER_PRIVATE;
+        if (name.startsWith("__")) {
+            if(!name.endsWith("__")){
+                return QUALIFIER_PRIVATE;
+                
+            }else{
+                return QUALIFIER_PUBLIC;
+            }
         }
         else if (name.startsWith("_")) {
             return QUALIFIER_PROTECTED;
@@ -147,9 +147,6 @@ public class ParsedItem implements Comparable<Object>{
             String methodName = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name);
             String qualifierIcon=null;
             switch (qualifierFromName(methodName)) {
-                case QUALIFIER_MAGIC:
-                    qualifierIcon = UIConstants.MAGIC_ICON;
-                    break;
                 case QUALIFIER_PRIVATE: 
                     qualifierIcon = UIConstants.PRIVATE_ICON;
                     break;
@@ -218,7 +215,7 @@ public class ParsedItem implements Comparable<Object>{
             String image;
             if (name.startsWith("__")) {
                 if(name.endsWith("__")){
-                    image = UIConstants.MAGIC_FIELD_ICON;
+                    image = UIConstants.PUBLIC_ATTR_ICON;
                 }else{
                     image = UIConstants.PRIVATE_FIELD_ICON;
                 }

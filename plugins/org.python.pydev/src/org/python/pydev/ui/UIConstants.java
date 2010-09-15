@@ -1,7 +1,7 @@
 /*
  * Author: atotic
  * Created: Jul 29, 2003
- * License: Common Public License v1.0
+ * License: Eclipse Public License v1.0
  */
 package org.python.pydev.ui;
 
@@ -10,15 +10,14 @@ package org.python.pydev.ui;
  */
 public class UIConstants {
 // Outline view
-    public static final String CLASS_ICON = "icons/class_obj.gif";
-    public static final String METHOD_ICON = "icons/method_obj.gif";
+    public static final String CLASS_ICON = "icons/new/class_obj.gif";
+    public static final String METHOD_ICON = "icons/new/method_obj.gif";
     
-    public static final String IMPORT_ICON = "icons/imp_obj.gif";
+    public static final String IMPORT_ICON = "icons/new/imp_obj.gif";
     
     public static final String PRIVATE_FIELD_ICON = "icons/field_private_obj.gif";
     public static final String PROTECTED_FIELD_ICON = "icons/field_protected_obj.gif";
-    public static final String MAGIC_FIELD_ICON = "icons/field_magic_obj.gif";
-    public static final String PUBLIC_ATTR_ICON = "icons/attrpub_obj.gif";
+    public static final String PUBLIC_ATTR_ICON = "icons/new/attrpub_obj.gif";
     
     public static final String MAIN_FUNCTION_ICON = "icons/mainfunction.gif";
     public static final String COMMENT = "icons/python_comment.png";
@@ -32,7 +31,7 @@ public class UIConstants {
     //Decorations
     public static final String PRIVATE_ICON = "icons/private_obj.gif"; //__XXX
     public static final String PROTECTED_ICON = "icons/protected_obj.gif"; // _XXX
-    public static final String MAGIC_ICON = "icons/magic_obj.gif"; // __XXX__
+    public static final String CTX_INSENSITIVE_DECORATION_ICON = "icons/new/imp_dec.gif";
     
     
     public static final String DECORATION_CLASS = "icons/decoration_class_obj.png";
@@ -61,18 +60,19 @@ public class UIConstants {
 
     public static final String COMPLETION_PACKAGE_ICON = "icons/package_obj.gif";
     public static final String COMPLETION_TEMPLATE = "icons/template.gif";
-    public static final String COMPLETION_IMPORT_ICON = "icons/imp_obj.gif";
-    public static final String COMPLETION_RELATIVE_IMPORT_ICON = "icons/imp_rel_obj.gif";
-    public static final String COMPLETION_CLASS_ICON = "icons/class_obj.gif";
+    public static final String COMPLETION_IMPORT_ICON = IMPORT_ICON;
+    public static final String COMPLETION_RELATIVE_IMPORT_ICON = "icons/new/imp_rel_obj.gif";
+    public static final String COMPLETION_CLASS_ICON = CLASS_ICON;
     public static final String COMPLETION_PARAMETERS_ICON = "icons/parameters_obj.gif";
     public static final String COMPLETION_EPYDOC = "icons/annotation_obj.gif";
 
 //content assist
+    public static final String ASSIST_ANNOTATION = "icons/annotation_obj.gif";
     public static final String ASSIST_TRY_EXCEPT = COMPLETION_TEMPLATE;
     public static final String ASSIST_TRY_FINNALLY = COMPLETION_TEMPLATE;
 
     public static final String ASSIST_NEW_METHOD = "icons/add_correction.gif";
-    public static final String ASSIST_NEW_CLASS = "icons/class_obj.gif";
+    public static final String ASSIST_NEW_CLASS = CLASS_ICON;
     
     public static final String ASSIST_MOVE_IMPORT = "icons/correction_move.gif";
         

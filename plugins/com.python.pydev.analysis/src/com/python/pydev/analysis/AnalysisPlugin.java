@@ -30,7 +30,6 @@ public class AnalysisPlugin extends AbstractUIPlugin {
 
     //The shared instance.
     private static AnalysisPlugin plugin;
-    private static ImageCache imageCache;
     
     /**
      * The constructor.
@@ -119,41 +118,15 @@ public class AnalysisPlugin extends AbstractUIPlugin {
     }
 
 
-    public static ImageCache getImageCache() {
-        if (imageCache != null) {
-            return imageCache;
-        }
-            
-        if(plugin != null){
-            imageCache = new ImageCache(plugin.getBundle().getEntry("/"));
-        }else{
-            // we don't have it on tests
-            org.python.pydev.plugin.PydevPlugin.log("unable to get image cache");
-            
-            //return one that always return null
-            imageCache = new ImageCache(){
-                @Override
-                public Image get(String key) {
-                    return null;
-                }
-            };
-        }
-        return imageCache;
-    }
-    
-    public static final String CLASS_WITH_IMPORT_ICON = "icons/class_obj_imp.gif";
-    public static final String METHOD_WITH_IMPORT_ICON = "icons/method_obj_imp.gif";
-    public static final String ATTR_WITH_IMPORT_ICON = "icons/attr_obj_imp.gif";
-    
     public static Image getImageForAutoImportTypeInfo(IInfo info){
-        ImageCache imageCache = getImageCache();
+        ImageCache imageCache = org.python.pydev.plugin.PydevPlugin.getImageCache();
         switch(info.getType()){
             case IInfo.CLASS_WITH_IMPORT_TYPE:
-                return imageCache.get(AnalysisPlugin.CLASS_WITH_IMPORT_ICON); 
+                return imageCache.getImageDecorated(UIConstants.CLASS_ICON, UIConstants.CTX_INSENSITIVE_DECORATION_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT); 
             case IInfo.METHOD_WITH_IMPORT_TYPE:
-                return imageCache.get(AnalysisPlugin.METHOD_WITH_IMPORT_ICON);
+                return imageCache.getImageDecorated(UIConstants.METHOD_ICON, UIConstants.CTX_INSENSITIVE_DECORATION_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT); 
             case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
-                return imageCache.get(AnalysisPlugin.ATTR_WITH_IMPORT_ICON);
+                return imageCache.getImageDecorated(UIConstants.PUBLIC_ATTR_ICON, UIConstants.CTX_INSENSITIVE_DECORATION_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT); 
             default:                  
                 throw new RuntimeException("Undefined type.");
 

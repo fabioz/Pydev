@@ -158,30 +158,40 @@ public class ImageCache {
                 
                 //Note that changing the image data gotten here won't affect the original image.
                 ImageData baseImageData = get(key).getImageData();
-                ImageData decorationImageData = get(decoration).getImageData();
-                ImageData imageData;
-                switch(decorationLocation){
-                    case DECORATION_LOCATION_TOP_RIGHT:
-                        imageData = imageDecorator.drawDecoration(
-                                baseImageData, decorationImageData, baseImageData.width-decorationImageData.width, 0);
-                        break;
-                        
-                    case DECORATION_LOCATION_BOTTOM_RIGHT:
-                        imageData = imageDecorator.drawDecoration(
-                                baseImageData, decorationImageData, baseImageData.width-decorationImageData.width, 
-                                baseImageData.height-decorationImageData.height);
-                        break;
-                        
-                    default:
-                        throw new AssertionError("Decoration location not recognized: "+decorationLocation);
+                image = decorateImage(decoration, decorationLocation, display, baseImageData);
+                if(secondDecoration != null){
+                    image = decorateImage(secondDecoration, secondDecorationLocation, display, image.getImageData());
                 }
-                
-                image = new Image(display, imageData);
                 imageHash.put(cacheKey, image);
                 
             }
             return image;
         }
+    }
+
+
+    private Image decorateImage(String decoration, int decorationLocation, Display display, ImageData baseImageData) throws AssertionError {
+        Image image;
+        ImageData decorationImageData = get(decoration).getImageData();
+        ImageData imageData;
+        switch(decorationLocation){
+            case DECORATION_LOCATION_TOP_RIGHT:
+                imageData = imageDecorator.drawDecoration(
+                        baseImageData, decorationImageData, baseImageData.width-decorationImageData.width, 0);
+                break;
+                
+            case DECORATION_LOCATION_BOTTOM_RIGHT:
+                imageData = imageDecorator.drawDecoration(
+                        baseImageData, decorationImageData, baseImageData.width-decorationImageData.width, 
+                        baseImageData.height-decorationImageData.height);
+                break;
+                
+            default:
+                throw new AssertionError("Decoration location not recognized: "+decorationLocation);
+        }
+        
+        image = new Image(display, imageData);
+        return image;
     }
     /**
      * @param key the key of the image that should be decorated (relative path to the plugin directory)
