@@ -109,7 +109,7 @@ public class PyHierarchyView extends ViewPart implements HierarchyNodeViewListen
                                 TreeItem item = null;
                                 if(entry.node instanceof FunctionDef){
                                     item = createTreeItem(c, entry);
-                                    item.setImage(PydevPlugin.getImageCache().get(UIConstants.PUBLIC_METHOD_ICON));
+                                    item.setImage(PydevPlugin.getImageCache().get(UIConstants.METHOD_ICON));
                                     if(view.model.module != null){
                                         item.setData(new ItemPointer(view.model.module.getFile(), ((FunctionDef)entry.node).name));
                                     }

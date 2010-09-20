@@ -19,6 +19,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
@@ -190,6 +191,16 @@ public class PyMergeViewer extends TextMergeViewer {
             
             public void resetForceTabs() {
                 
+            }
+            
+            public void resetIndentPrefixes() {
+                SourceViewerConfiguration configuration= getEditConfiguration();
+                String[] types= configuration.getConfiguredContentTypes(sourceViewer);
+                for (int i= 0; i < types.length; i++) {
+                    String[] prefixes= configuration.getIndentPrefixes(sourceViewer, types[i]);
+                    if (prefixes != null && prefixes.length > 0)
+                        sourceViewer.setIndentPrefixes(prefixes, types[i]);
+                }
             }
             
             public IIndentPrefs getIndentPrefs() {

@@ -29,7 +29,7 @@
             filter             endfilter
             firstof
             for                endfor
-            if                 endif
+            if                 endif         else
             not
             and
             or
@@ -135,6 +135,16 @@
             
             id="org.python.pydev.django_templates.tagsTemplatesContext.debug"
         >debug</template>
+
+        <template
+            autoinsert="true"
+            context="org.python.pydev.django_templates.tagsTemplatesContext"
+            description="else"
+            enabled="true"
+            name="else"
+            
+            id="org.python.pydev.django_templates.tagsTemplatesContext.else"
+        >else</template>
 
         <template
             autoinsert="true"

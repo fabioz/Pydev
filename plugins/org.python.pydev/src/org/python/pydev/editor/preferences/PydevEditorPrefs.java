@@ -17,6 +17,8 @@ package org.python.pydev.editor.preferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -30,6 +32,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.editor.actions.PyFormatStd;
@@ -37,6 +40,8 @@ import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.AbstractPydevPrefs;
 import org.python.pydev.plugin.preferences.ColorEditor;
+import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
+import org.python.pydev.plugin.preferences.IPydevPreferencesProvider2;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.utils.LinkFieldEditor;
 
@@ -63,6 +68,8 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
      */
     private StyledTextForShowingCodeFactory formatAndStyleRangeHelper;
 
+    private IPropertyChangeListener updateLabelExampleOnPrefsChanges;
+
     public PydevEditorPrefs() {
         setDescription("Pydev editor appearance settings:\nNote: Pydev ignores the 'Insert spaces for tabs' in the general settings."); 
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
@@ -85,6 +92,74 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         
         addCheckBox(appearanceComposite, "Assume tab spacing when files contain tabs?", GUESS_TAB_SUBSTITUTION, 0);
         
+        java.util.List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        boolean handledColorOptions = false;
+        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+            if(iPydevPreferencesProvider instanceof IPydevPreferencesProvider2){
+                if(((IPydevPreferencesProvider2) iPydevPreferencesProvider).createColorOptions(appearanceComposite, this)){
+                    handledColorOptions = true;
+                    break;
+                }
+            }
+        }
+        
+        if(!handledColorOptions){
+            createColorOptions(appearanceComposite);
+        }
+        
+        formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
+        labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(appearanceComposite);
+        updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
+
+        
+        LinkFieldEditor colorsAndFontsLinkFieldEditor = new LinkFieldEditor(
+                "UNUSED", "Other settings:\n\n<a>Text Editors</a>: print margin, line numbers ...", appearanceComposite, new SelectionListener() {
+                    
+            public void widgetSelected(SelectionEvent e) {
+                String id = "org.eclipse.ui.preferencePages.GeneralTextEditor";
+                IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                workbenchPreferenceContainer.openPage(id, null);
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        colorsAndFontsLinkFieldEditor.getLinkControl(appearanceComposite);
+        
+        colorsAndFontsLinkFieldEditor = new LinkFieldEditor(
+                "UNUSED", "<a>Colors and Fonts</a>: text font, content assist color ...", appearanceComposite, new SelectionListener() {
+                    
+            public void widgetSelected(SelectionEvent e) {
+                String id = "org.eclipse.ui.preferencePages.ColorsAndFonts";
+                IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                workbenchPreferenceContainer.openPage(id, null);
+            }
+            
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        colorsAndFontsLinkFieldEditor.getLinkControl(appearanceComposite);
+        
+        
+        colorsAndFontsLinkFieldEditor = new LinkFieldEditor(
+                "UNUSED", "<a>Annotations</a>: occurrences, markers ...", appearanceComposite, new SelectionListener() {
+                    
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.eclipse.ui.editors.preferencePages.Annotations";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
+                    
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
+        colorsAndFontsLinkFieldEditor.getLinkControl(appearanceComposite);
+        
+        return appearanceComposite;
+    }
+
+    private void createColorOptions(Composite appearanceComposite) {
+        GridLayout layout;
         Label l= new Label(appearanceComposite, SWT.LEFT );
         GridData gd= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
         gd.horizontalSpan= 2;
@@ -178,44 +253,10 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
 
         fFontBoldCheckBox = addStyleCheckBox(stylesComposite, "Bold");
         fFontItalicCheckBox = addStyleCheckBox(stylesComposite, "Italic");
-        
-        formatAndStyleRangeHelper = new StyledTextForShowingCodeFactory();
-        labelExample = formatAndStyleRangeHelper.createStyledTextForCodePresentation(parent);
-        updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
-        
-        LinkFieldEditor colorsAndFontsLinkFieldEditor = new LinkFieldEditor(
-                "UNUSED", "For additional settings see the <a>Text Editors</a>", parent, new SelectionListener() {
-                    
-            public void widgetSelected(SelectionEvent e) {
-                String id = "org.eclipse.ui.preferencePages.GeneralTextEditor";
-                IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
-                workbenchPreferenceContainer.openPage(id, null);
-            }
-
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-        });
-        colorsAndFontsLinkFieldEditor.getLinkControl(parent);
-        
-        colorsAndFontsLinkFieldEditor = new LinkFieldEditor(
-                "UNUSED", "and  the <a>Colors and Fonts</a> preference pages\n", parent, new SelectionListener() {
-                    
-            public void widgetSelected(SelectionEvent e) {
-                String id = "org.eclipse.ui.preferencePages.ColorsAndFonts";
-                IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
-                workbenchPreferenceContainer.openPage(id, null);
-            }
-            
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-        });
-        colorsAndFontsLinkFieldEditor.getLinkControl(parent);
-        
-        return appearanceComposite;
     }
 
     
-    private void updateLabelExample(FormatStd formatStd, IPreferenceStore store){
+    public void updateLabelExample(FormatStd formatStd, IPreferenceStore store){
         String str= 
             "class Example(object):\n"+
             "\n"+
@@ -269,6 +310,25 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
     @Override
     public void dispose(){
         super.dispose();
-        formatAndStyleRangeHelper.dispose();
+        if(formatAndStyleRangeHelper != null){
+            formatAndStyleRangeHelper.dispose();
+            formatAndStyleRangeHelper = null;
+        }
+        if(updateLabelExampleOnPrefsChanges != null){
+            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(updateLabelExampleOnPrefsChanges);
+            updateLabelExampleOnPrefsChanges = null;
+        }
+    }
+
+    public void setUpdateLabelExampleOnPrefsChanges() {
+        updateLabelExampleOnPrefsChanges = new IPropertyChangeListener() {
+            
+            @Override
+            public void propertyChange(PropertyChangeEvent event) {
+                updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
+            }
+        };
+        PydevPrefs.getChainedPrefStore().addPropertyChangeListener(updateLabelExampleOnPrefsChanges);
+        
     }
 }

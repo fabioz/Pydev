@@ -183,12 +183,7 @@ public abstract class AbstractShell {
 					for(AbstractShell val2:val.values()){
 						val2.endIt();
 					}
-					IInterpreterManager[] interpreterManagers = new IInterpreterManager[]{
-						PydevPlugin.getPythonInterpreterManager(),
-						PydevPlugin.getJythonInterpreterManager(),
-						PydevPlugin.getIronpythonInterpreterManager()
-					};
-					
+					IInterpreterManager[] interpreterManagers = PydevPlugin.getAllInterpreterManagers();
 					for (IInterpreterManager iInterpreterManager : interpreterManagers) {
 						try {
 							IInterpreterInfo[] interpreterInfos = iInterpreterManager.getInterpreterInfos();

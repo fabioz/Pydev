@@ -102,6 +102,15 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     public static IInterpreterManager getIronpythonInterpreterManager(boolean haltOnStub) {
         return ironpythonInterpreterManager;
     }
+    
+    public static IInterpreterManager[] getAllInterpreterManagers() {
+        return new IInterpreterManager[]{
+                PydevPlugin.getPythonInterpreterManager(),
+                PydevPlugin.getJythonInterpreterManager(),
+                PydevPlugin.getIronpythonInterpreterManager()
+        };
+    }
+
     // ----------------- END SINGLETON THINGS --------------------------
 
     /**

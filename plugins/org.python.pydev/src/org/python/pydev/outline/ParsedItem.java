@@ -101,15 +101,15 @@ public class ParsedItem implements Comparable<Object>{
     private static final int QUALIFIER_PUBLIC    = 0;
     private static final int QUALIFIER_PROTECTED = 1; 
     private static final int QUALIFIER_PRIVATE   = 2; 
-    private static final int QUALIFIER_MAGIC     = 3; 
 
     private static int qualifierFromName(String name) {
-        if (   (name.startsWith("__")) 
-                && (name.endsWith("__"))) {
-            return QUALIFIER_MAGIC;
-        }
-        else if (name.startsWith("__")) {
-            return QUALIFIER_PRIVATE;
+        if (name.startsWith("__")) {
+            if(!name.endsWith("__")){
+                return QUALIFIER_PRIVATE;
+                
+            }else{
+                return QUALIFIER_PUBLIC;
+            }
         }
         else if (name.startsWith("_")) {
             return QUALIFIER_PROTECTED;
@@ -132,9 +132,11 @@ public class ParsedItem implements Comparable<Object>{
             String className = NodeUtils.getNameFromNameTok((NameTok) ((ClassDef)token).name);
             switch (qualifierFromName(className)) {
             case QUALIFIER_PROTECTED:
-                return imageCache.get(UIConstants.PROTECTED_CLASS_ICON);
+                return imageCache.getImageDecorated(
+                        UIConstants.CLASS_ICON, UIConstants.PROTECTED_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
             case QUALIFIER_PRIVATE:
-                return imageCache.get(UIConstants.PRIVATE_CLASS_ICON);
+                return imageCache.getImageDecorated(
+                        UIConstants.CLASS_ICON, UIConstants.PRIVATE_ICON, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT);
             default:
                 return imageCache.get(UIConstants.CLASS_ICON);
             }
@@ -143,33 +145,43 @@ public class ParsedItem implements Comparable<Object>{
             FunctionDef functionDefToken = (FunctionDef) token;
 
             String methodName = NodeUtils.getNameFromNameTok((NameTok) ((FunctionDef)token).name);
-            String image;
+            String qualifierIcon=null;
             switch (qualifierFromName(methodName)) {
-                case QUALIFIER_MAGIC:
-                    image = UIConstants.MAGIC_METHOD_ICON;
                 case QUALIFIER_PRIVATE: 
-                    image = UIConstants.PRIVATE_METHOD_ICON;
+                    qualifierIcon = UIConstants.PRIVATE_ICON;
+                    break;
                 case QUALIFIER_PROTECTED:
-                    image = UIConstants.PROTECTED_METHOD_ICON;
-                default:
-                    image = UIConstants.PUBLIC_METHOD_ICON;
-                }
-            
-            
+                    qualifierIcon = UIConstants.PROTECTED_ICON;
+                    break;
+            }
+            String decorationIcon = null;
             if(functionDefToken.decs != null){
                 for (decoratorsType decorator : functionDefToken.decs) {
                     if (decorator.func instanceof Name) {
                         Name decoratorFuncName = (Name) decorator.func;
                         if (decoratorFuncName.id.equals("staticmethod")) {
-                            return imageCache.getImageDecorated(image, UIConstants.DECORATION_STATIC);
+                            decorationIcon = UIConstants.DECORATION_STATIC;
                         }
                         else if (decoratorFuncName.id.equals("classmethod")) {
-                            return imageCache.getImageDecorated(image, UIConstants.DECORATION_CLASS);
+                            decorationIcon = UIConstants.DECORATION_CLASS;
                         }
                     }
                 }
             }
-            return imageCache.get(image);
+            if(qualifierIcon != null){
+                //it's OK if the decorationIcon is null as that's properly handled in getImageDecorated.
+                return imageCache.getImageDecorated(
+                        UIConstants.METHOD_ICON, 
+                        qualifierIcon, ImageCache.DECORATION_LOCATION_BOTTOM_RIGHT, 
+                        decorationIcon, ImageCache.DECORATION_LOCATION_TOP_RIGHT);
+                
+            }else if(decorationIcon != null){
+                return imageCache.getImageDecorated(
+                        UIConstants.METHOD_ICON, 
+                        decorationIcon, ImageCache.DECORATION_LOCATION_TOP_RIGHT);
+            }
+            
+            return imageCache.get(UIConstants.METHOD_ICON);
             
         }
         else if (token instanceof Import) {
@@ -201,18 +213,18 @@ public class ParsedItem implements Comparable<Object>{
             
 
             String image;
-            if (   (name.startsWith("__")) 
-                    && (name.endsWith("__"))) {
-                image = UIConstants.MAGIC_FIELD_ICON;
-            }
-            else if (name.startsWith("__")) {
-                image = UIConstants.PRIVATE_FIELD_ICON;
+            if (name.startsWith("__")) {
+                if(name.endsWith("__")){
+                    image = UIConstants.PUBLIC_ATTR_ICON;
+                }else{
+                    image = UIConstants.PRIVATE_FIELD_ICON;
+                }
             }
             else if (name.startsWith("_")) {
                 image = UIConstants.PROTECTED_FIELD_ICON;
             }
             else {
-                image = UIConstants.PUBLIC_FIELD_ICON;
+                image = UIConstants.PUBLIC_ATTR_ICON;
             }
             
             if(astThis.parent != null && astThis.parent.node != null && astThis.parent.node instanceof ClassDef){

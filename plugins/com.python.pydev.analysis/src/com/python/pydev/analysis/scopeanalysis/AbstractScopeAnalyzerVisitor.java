@@ -36,6 +36,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
@@ -46,6 +47,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
+import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
@@ -737,6 +739,41 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
         Object r = super.visitTryFinally(node);
         scope.removeIfSubScope();
         return r;
+    }
+    
+    @Override
+    public Object visitDictComp(DictComp node) throws Exception {
+        unhandled_node(node);
+        if (node.generators != null) {
+            for (int i = 0; i < node.generators.length; i++) {
+                if (node.generators[i] != null){
+                    node.generators[i].accept(this);
+                }
+            }
+        }
+        if (node.key != null){
+            node.key.accept(this);
+        }
+        if (node.value != null){
+            node.value.accept(this);
+        }
+        return null;
+    }
+    
+    @Override
+    public Object visitSetComp(SetComp node) throws Exception {
+        unhandled_node(node);
+        if (node.generators != null) {
+            for (int i = 0; i < node.generators.length; i++) {
+                if (node.generators[i] != null){
+                    node.generators[i].accept(this);
+                }
+            }
+        }
+        if (node.elt != null){
+            node.elt.accept(this);
+        }
+        return null;
     }
     
     /**
