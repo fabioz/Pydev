@@ -34,14 +34,14 @@
       <content-type
             base-type="com.aptana.contenttype.html"
             describer="org.python.pydev.django_templates.html.editor.DjHTMLContentDescriber"
-            file-extensions="html,djhtml,htm,djhtm"
+            file-extensions="djhtml,djhtm"
             id="org.python.pydev.contenttype.django_templates.html"
             name="%content-type.djhtml.name"
             priority="normal">
       </content-type>
       <content-type
             base-type="com.aptana.contenttype.css"
-            file-extensions="css,djcss"
+            file-extensions="djcss"
             id="org.python.pydev.contenttype.django_templates.css"
             name="%content-type.djcss.name"
             priority="normal">
