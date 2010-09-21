@@ -84,6 +84,12 @@ public class EvaluateActionSetter implements IPyEditListener{
                                 }
                                 buf.append(character);
                             }
+                            if(buf.startsWith('"')){
+                                buf.deleteFirst();
+                            }
+                            if(buf.endsWith('"')){
+                                buf.deleteLast();
+                            }
                             document.replace(document.getLength(), 0, StringUtils.format("execfile('%s')\n", buf.toString()));
                         }
                     }

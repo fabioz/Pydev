@@ -436,6 +436,20 @@ public final class FastStringBuffer{
         return startsWith(prefix, 0);
     }
     
+    public boolean startsWith(char c) {
+        if(this.count < 1){
+            return false;
+        }
+        return this.value[0] == c;
+    }
+    
+    public boolean endsWith(char c) {
+        if(this.count < 1){
+            return false;
+        }
+        return this.value[this.count-1] == c;
+    }
+
     public boolean startsWith(String prefix, int offset) {
         char ta[] = value;
         int to = offset;
@@ -464,5 +478,6 @@ public final class FastStringBuffer{
     public void setLength(int i) {
         this.count = i;
     }
+
     
 }
