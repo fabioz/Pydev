@@ -482,16 +482,17 @@ public class CodeCompletionTestsBase extends TestCase {
      * @param string the string we're looking for 
      * @param codeCompletionProposals the proposals found
      */
-    public static void assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
+    public static ICompletionProposal assertContains(String string, ICompletionProposal[] codeCompletionProposals) {
         for (int i = 0; i < codeCompletionProposals.length; i++) {
             ICompletionProposal completionProposal = codeCompletionProposals[i];
             if(checkIfEquals(string, completionProposal)){
-                return ;
+                return completionProposal;
             }
         }
         StringBuffer buffer = getAvailableAsStr(codeCompletionProposals);
         
         fail("The string >>"+string+"<< was not found in the returned completions.\nAvailable:\n"+buffer);
+        return null;
     }
     
     /**

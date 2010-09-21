@@ -909,32 +909,37 @@ public class PySelection {
         return new Tuple<String, Integer>(prefix+post, start);
     }
  
+    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf) {
+        String line = getLine();
+        int openParIndex = line.indexOf('(');
+        if (openParIndex <= -1) { // we are in a line that does not have a parenthesis
+            return null;
+        }        
+
+        int lineOffset = getStartLineOffset();
+        int i = lineOffset + openParIndex;
+
+        return getInsideParentesisToks(addSelf, i);
+    }
+    
    /**
     * This function gets the tokens inside the parenthesis that start at the current selection line
     * 
     * @param addSelf: this defines whether tokens named self should be added if it is found.
     * 
     * @return a Tuple so that the first param is the list and 
-    * the second the offset of the end of the parentesis it may return null if no starting parentesis was found at the current line
+    * the second the offset of the end of the parenthesis it may return null if no starting parenthesis was found at the current line
     */
-    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf) {
+    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int offset) {
         List<String> l = new ArrayList<String>();
-
-        String line = getLine();
-        int openParIndex = line.indexOf('(');
-        if (openParIndex == -1) { // we are in a line that does not have a parentesis
-            return null;
-        }
-        int lineOffset = getStartLineOffset();
         String docContents = doc.get();
-        int i = lineOffset + openParIndex;
         int j;
         try{
-            j = ParsingUtils.create(docContents).eatPar(i, null);
+            j = ParsingUtils.create(docContents).eatPar(offset, null);
         }catch(SyntaxErrorException e){
             throw new RuntimeException(e);
         }
-        String insideParentesisTok = docContents.substring(i + 1, j);
+        String insideParentesisTok = docContents.substring(offset + 1, j);
 
         StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
         while (tokenizer.hasMoreTokens()) {
@@ -1226,17 +1231,22 @@ public class PySelection {
     }
 
     public static class ActivationTokenAndQual{
-        public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip, boolean alreadyHasParams) {
+        public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip, 
+                boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam) {
             this.activationToken = activationToken;
             this.qualifier = qualifier;
             this.changedForCalltip = changedForCalltip;
             this.alreadyHasParams = alreadyHasParams;
+            this.isInMethodKeywordParam = isInMethodKeywordParam;
+            this.offsetForKeywordParam = offsetForKeywordParam;
         }
         
-        public String activationToken;
-        public String qualifier;
-        public boolean changedForCalltip;
-        public boolean alreadyHasParams;
+        public final String activationToken;
+        public final String qualifier;
+        public final boolean changedForCalltip;
+        public final boolean alreadyHasParams;
+        public final boolean isInMethodKeywordParam;
+        public final int offsetForKeywordParam; //only set when isInMethodKeywordParam == true
     }
 
     /**
@@ -1267,7 +1277,7 @@ public class PySelection {
      * 
      * @param documentOffset the current cursor offset (we may have to change it if getFullQualifier is true)
      * @param handleForCalltips if true, it will take into account that we may be looking for the activation token and
-     * qualifier for a calltip, in which case we should return the activation token and qualifier before a parentesis (if we're
+     * qualifier for a calltip, in which case we should return the activation token and qualifier before a parenthesis (if we're
      * just after a '(' or ',' ).
      * 
      * @return the activation token and the qualifier.
@@ -1276,7 +1286,9 @@ public class PySelection {
         boolean changedForCalltip = false;
         boolean alreadyHasParams = false; //only useful if we're in a calltip
         int parOffset = -1;
-        
+        boolean isInMethodKeywordParam = false;
+        int offsetForKeywordParam = -1;
+
         if(handleForCalltips){
             int calltipOffset = documentOffset-1;
             //ok, in this case, we have to check if we're just after a ( or ,
@@ -1288,8 +1300,8 @@ public class PySelection {
                         c = doc.getChar(calltipOffset);
                     }
                     if(c == '(' || c == ','){
-                        //ok, we're just after a parentesis or comma, so, we have to get the
-                        //activation token and qualifier as if we were just before the last parentesis
+                        //ok, we're just after a parenthesis or comma, so, we have to get the
+                        //activation token and qualifier as if we were just before the last parenthesis
                         //(that is, if we're in a function call and not inside a list, string or dict declaration)
                         parOffset = calltipOffset;
                         calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
@@ -1297,6 +1309,19 @@ public class PySelection {
                         if(calltipOffset != -1){
                             documentOffset = calltipOffset;
                             changedForCalltip = true;
+                        }
+                    }else{
+                        c = doc.getChar(calltipOffset);
+                        while((Character.isJavaIdentifierPart(c) || Character.isWhitespace(c)) && calltipOffset > 0){
+                            calltipOffset--;
+                            c = doc.getChar(calltipOffset);
+                        }
+                        if(c == '(' || c == ','){
+                            calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
+                            if(calltipOffset != -1){
+                                offsetForKeywordParam = calltipOffset;
+                                isInMethodKeywordParam = true;
+                            }
                         }
                     }
                 } catch (BadLocationException e) {
@@ -1306,7 +1331,7 @@ public class PySelection {
         }
         
         if(parOffset != -1){
-            //ok, let's see if there's something inside the parentesis
+            //ok, let's see if there's something inside the parenthesis
             try {
                 char c = doc.getChar(parOffset);
                 if(c == '('){ //only do it 
@@ -1314,7 +1339,7 @@ public class PySelection {
                     while(parOffset < doc.getLength()){
                         c = doc.getChar(parOffset);
                         if(c == ')'){
-                            break; //finished the parentesis
+                            break; //finished the parenthesis
                         }
                         
                         if(!Character.isWhitespace(c)){
@@ -1416,7 +1441,7 @@ public class PySelection {
             qualifier = activationToken.trim();
             activationToken = "";
         }
-        return new ActivationTokenAndQual(activationToken, qualifier, changedForCalltip, alreadyHasParams);
+        return new ActivationTokenAndQual(activationToken, qualifier, changedForCalltip, alreadyHasParams, isInMethodKeywordParam, offsetForKeywordParam);
     }
 
 
