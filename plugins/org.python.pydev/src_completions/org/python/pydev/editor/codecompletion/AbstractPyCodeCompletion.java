@@ -53,7 +53,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                 int l = name.length();
                 
                 String args = "";
-                if(!importsTip ){
+                if(!importsTip){
                     boolean getIt = true;
                     if(AbstractToken.isClassDef(element)){
                         if(!request.isInCalltip){
@@ -205,12 +205,12 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
 
 
 
-    protected String getArgs(IToken element, ICompletionState state) {
+    protected static String getArgs(IToken element, ICompletionState state) {
         int lookingFor = state.getLookingFor();
         return getArgs(element, lookingFor);
     }
     
-    private String getArgs(IToken element, int lookingFor) {
+    private static String getArgs(IToken element, int lookingFor) {
         return getArgs(element.getArgs(), element.getType(), lookingFor);
     }
     

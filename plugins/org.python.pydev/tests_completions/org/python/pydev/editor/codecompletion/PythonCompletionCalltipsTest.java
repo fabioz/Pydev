@@ -17,7 +17,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
           //DEBUG_TESTS_BASE = true;
           PythonCompletionCalltipsTest test = new PythonCompletionCalltipsTest();
           test.setUp();
-          test.testCalltips6();
+          test.testCalltips7();
           test.tearDown();
           System.out.println("Finished");
 
@@ -193,6 +193,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         assertEquals(StringUtils.format(s0, "a, b"), document.get());
     }
     
+
     public void testCalltips6() throws Exception {
         String s = 
             "from extendable import calltips\n" +
@@ -201,6 +202,47 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         requestCompl(s, s.length(), 4, new String[] {"__file__", "__name__", "method1(a, b)", "__path__"});
     }
         
+    
+    public void testCalltips7() throws Exception {
+        String s0 = 
+            "class TestCase(object):\n" +
+            "    def __init__(self, param1, param2):\n" +
+            "        pass\n" +
+            "    \n" +
+            "TestCase(para%s)";
+        
+        String s = StringUtils.format(s0, "");
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+        assertEquals(2, proposals.length); 
+        PyCompletionProposal param1Proposal = (PyCompletionProposal) assertContains("param1=", proposals);
+        assertContains("param2=", proposals);
+        
+        
+        Document document = new Document(s);
+        param1Proposal.apply(document);
+        assertEquals(StringUtils.format(s0, "m1="), document.get());
+    }
+    
+    
+    public void testCalltips8() throws Exception {
+        String s0 = 
+            "class TestCase(object):\n" +
+            "    def __init__(self, param1, param2):\n" +
+            "        pass\n" +
+            "    \n" +
+            "TestCase(param1=10, para%s)";
+        
+        String s = StringUtils.format(s0, "");
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        PyCompletionProposal paramProposal = (PyCompletionProposal) assertContains("param2=", proposals);
+        
+        
+        Document document = new Document(s);
+        paramProposal.apply(document);
+        assertEquals(StringUtils.format(s0, "m2="), document.get());
+    }
+    
     
     public void testMakeArgsForDocumentReplacement() throws Exception {
         

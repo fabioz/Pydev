@@ -52,7 +52,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testMultilineImportCompletion();
+            test.testGetActTok();
             test.tearDown();
             System.out.println("Finished");
 
@@ -732,24 +732,49 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("m1", act.qualifier);
         assertTrue(act.changedForCalltip);
         assertFalse(act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
         
         act = PySelection.getActivationTokenAndQual(new Document("m1.m2()"), 6, false, true); 
         assertEquals("m1.", act.activationToken);
         assertEquals("m2", act.qualifier);
         assertTrue(act.changedForCalltip);
         assertFalse(act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
         
         act = PySelection.getActivationTokenAndQual(new Document("m1.m2(  \t)"), 9, false, true); 
         assertEquals("m1.", act.activationToken);
         assertEquals("m2", act.qualifier);
         assertTrue(act.changedForCalltip);
         assertFalse(act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
         
         act = PySelection.getActivationTokenAndQual(new Document("m1(a  , \t)"), 9, false, true); 
         assertEquals("", act.activationToken);
         assertEquals("m1", act.qualifier);
         assertTrue(act.changedForCalltip);
         assertTrue(act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document("m1(a)"), 4, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("a", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document("m1(a.)"), 5, false, true); 
+        assertEquals("a.", act.activationToken);
+        assertEquals("", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document("m1(a, b)"), 7, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("b", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(act.isInMethodKeywordParam);
     }
 
     /**

@@ -11,9 +11,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -31,6 +33,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -112,11 +115,15 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             ICompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null, request.nature, request.qualifier);
             state.setIsInCalltip(request.isInCalltip);
 
+
+            Map<String, IToken> alreadyChecked = new HashMap<String, IToken>();
+
             boolean importsTip = false;
             
             if (importsTipper.importsTipperStr.length() != 0) {
                 //code completion in imports 
                 request.isInCalltip = false; //if found after (, but in an import, it is not a calltip!
+                request.isInMethodKeywordParam = false; //if found after (, but in an import, it is not a calltip!
                 importsTip = doImportCompletion(request, astManager, tokensList, importsTipper);
 
             } else if (trimmed.length() > 0 && request.activationToken.indexOf('.') != -1) {
@@ -126,9 +133,53 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             } else { 
                 //go to globals
                 doGlobalsCompletion(request, astManager, tokensList, state);
+                
+                //At this point, after doing the globals completion, we may also need to check if we need to show
+                //keyword parameters to the user.
+                if(request.isInMethodKeywordParam){
+                    CompletionRequest completionRequestForKeywordParam = request.createCopyForKeywordParamRequest();
+                    int lineForKeywordParam = request.doc.getLineOfOffset(request.documentOffset);
+                    IRegion regionForKeywordParam = request.doc.getLineInformation(line);
+                    
+                    PySelection ps = request.getPySelection();
+                    Tuple<List<String>, Integer> insideParentesisToks = ps.getInsideParentesisToks(false, completionRequestForKeywordParam.documentOffset);
+                    HashSet<String> ignore = new HashSet<String>();
+                    ignore.add("self");
+                    ignore.add("cls");
+                    if(insideParentesisToks!=null && insideParentesisToks.o1 != null){
+                        for (String object : insideParentesisToks.o1) {
+                            ignore.add(object);
+                        }
+                    }
+
+                    ICompletionState stateForKeywordParam = new CompletionState(
+                            lineForKeywordParam, request.documentOffset - regionForKeywordParam.getOffset(), 
+                            null, request.nature, request.qualifier);
+                    state.setIsInCalltip(true);
+                    List<Object> tokensListForKeywordParam = new ArrayList<Object>();
+                    doGlobalsCompletion(completionRequestForKeywordParam, astManager, tokensListForKeywordParam, stateForKeywordParam);
+                    if(tokensListForKeywordParam.size() > 0){
+                        for (Object object : tokensListForKeywordParam) {
+                            if(object instanceof IToken){
+                                IToken iToken = (IToken) object;
+                                String args = iToken.getArgs();
+                                StringTokenizer tokenizer = new StringTokenizer(args, "(, )");
+                                while(tokenizer.hasMoreTokens()){
+                                    String nextToken = tokenizer.nextToken();
+                                    if(ignore.contains(nextToken)){
+                                        continue;
+                                    }
+                                    String kwParam = nextToken+"=";
+                                    SimpleNode node = new NameTok(kwParam, NameTok.KwArg);
+                                    alreadyChecked.put(kwParam, new SourceToken(node, kwParam, "", "", "", IToken.TYPE_LOCAL));
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
 
-            Map<String, IToken> alreadyChecked = new HashMap<String, IToken>();
             
             String lowerCaseQual = request.qualifier.toLowerCase();
             if(lowerCaseQual.length() >= PyCodeCompletionPreferencesPage.getArgumentsDeepAnalysisNChars()){
