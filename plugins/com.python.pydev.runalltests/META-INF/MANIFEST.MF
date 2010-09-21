@@ -4,7 +4,7 @@ Bundle-Name: Runalltests2 Plug-in
 Bundle-SymbolicName: com.python.pydev.runalltests2
 Bundle-Version: 1.0.0
 Bundle-Activator: com.python.pydev.runalltests2.Activator
-Bundle-Vendor: PYTHON
+Bundle-Vendor: Aptana, Inc.
 Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
  org.eclipse.ui,
  org.eclipse.core.runtime,

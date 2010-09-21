@@ -31,7 +31,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testDuplicatedSignatureNotOnProperty();
+            analyzer2.testSetComprehension();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2800,6 +2800,46 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     	}finally{
     		GRAMMAR_TO_USE_FOR_PARSING = initial;
     	}
+    }
+    
+    public void testDictComprehension() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try{
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            doc = new Document(
+                    "class Bar(object):\n" +
+                    "    def __init__(self, row):\n" +
+                    "        self.__dict__.update({'Input.'+k: v for k,v in row.items()})\n" +
+                    ""
+            );
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+            
+            printMessages(msgs, 0);
+        }finally{
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+    
+    public void testSetComprehension() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try{
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            doc = new Document(
+                    "class Bar(object):\n" +
+                    "    def __init__(self, row):\n" +
+                    "        self.__dict__.update({v for v in row.items()})\n" +
+                    "        self.__dict__.update({v for v in (w for w in row.keys())})\n" +
+                    "        self.__dict__.update({v for v in w for w in row.keys()})\n" +
+                    ""
+            );
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+            
+            printMessages(msgs, 0);
+        }finally{
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
     }
     
 }

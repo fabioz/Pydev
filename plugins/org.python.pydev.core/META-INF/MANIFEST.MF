@@ -7,7 +7,7 @@ Bundle-ClassPath: core.jar,
  retroweaver-rt.jar,
  commons-codec.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
-Bundle-Vendor: Aptana
+Bundle-Vendor: Aptana, Inc.
 Bundle-Localization: plugin
 Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
  org.eclipse.ui,

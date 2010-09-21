@@ -11,7 +11,7 @@ Bundle-ClassPath: pydev-debug.jar,
  xmlrpc-common-3.1.jar,
  xmlrpc-server-3.1.jar
 Bundle-Activator: org.python.pydev.debug.core.PydevDebugPlugin
-Bundle-Vendor: Aptana
+Bundle-Vendor: Aptana, Inc.
 Bundle-Localization: plugin
 Require-Bundle: org.junit;bundle-version="[3.8.0,3.9.9]";resolution:=optional,
  org.eclipse.ui,

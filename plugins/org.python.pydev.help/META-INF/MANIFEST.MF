@@ -3,6 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Online Help
 Bundle-SymbolicName: org.python.pydev.help; singleton:=true
 Bundle-Version: 0.9.7.1
-Bundle-Vendor: Aptana
+Bundle-Vendor: Aptana, Inc.
 Bundle-Localization: plugin
 Eclipse-LazyStart: true

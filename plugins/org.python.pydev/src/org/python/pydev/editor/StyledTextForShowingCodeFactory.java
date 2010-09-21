@@ -22,7 +22,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyPartitionScanner;
@@ -71,7 +70,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener{
         }
         updateBackgroundColor();
         
-        EditorsUI.getPreferenceStore().addPropertyChangeListener(this);
+        PydevPrefs.getChainedPrefStore().addPropertyChangeListener(this);
             
         return styledText;
     }
@@ -107,7 +106,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener{
      * It needs to be called so that we're properly garbage-collected and clear our caches.
      */
     public void dispose(){
-        EditorsUI.getPreferenceStore().removePropertyChangeListener(this);
+        PydevPrefs.getChainedPrefStore().removePropertyChangeListener(this);
         this.backgroundColorCache.dispose();
         this.colorCache.dispose();
     }

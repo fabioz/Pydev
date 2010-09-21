@@ -1,7 +1,6 @@
 package org.python.pydev.editor;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
@@ -57,7 +56,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      * The SourceViewer will ignore double-clicks and any other configuration behaviors inside any partition not declared here
      */
     public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-        return new String[] { IDocument.DEFAULT_CONTENT_TYPE, IPythonPartitions.PY_COMMENT, 
+        return new String[] { IDocument.DEFAULT_CONTENT_TYPE, IPythonPartitions.PY_COMMENT, IPythonPartitions.PY_BACKQUOTES, 
                 IPythonPartitions.PY_SINGLELINE_STRING1, IPythonPartitions.PY_SINGLELINE_STRING2, 
                 IPythonPartitions.PY_MULTILINE_STRING1, IPythonPartitions.PY_MULTILINE_STRING2 };
     }
@@ -114,7 +113,7 @@ public class PyEditConfigurationWithoutEditor extends TextSourceViewerConfigurat
      * when user resets the tabs vs. spaces preference
      */
     public void resetIndentPrefixes() {
-        Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+        IPreferenceStore prefs = PydevPlugin.getDefault().getPreferenceStore();
         int tabWidth = DefaultIndentPrefs.getStaticTabWidth();
         FastStringBuffer spaces = new FastStringBuffer(8);
 
