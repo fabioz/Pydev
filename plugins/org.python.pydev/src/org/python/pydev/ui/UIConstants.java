@@ -76,8 +76,8 @@ public class UIConstants {
     
     public static final String ASSIST_MOVE_IMPORT = "icons/correction_move.gif";
         
-    public static final String ASSIST_ASSIGN_TO_LOCAL = "icons/methpub_obj.gif";
-    public static final String ASSIST_ASSIGN_TO_CLASS = "icons/methpub_obj.gif";
+    public static final String ASSIST_ASSIGN_TO_LOCAL = METHOD_ICON;
+    public static final String ASSIST_ASSIGN_TO_CLASS = METHOD_ICON;
     
     public static final String ASSIST_DOCSTRING = COMPLETION_TEMPLATE;
     
