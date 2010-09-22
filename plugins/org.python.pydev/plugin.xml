@@ -1296,13 +1296,16 @@
 	  	  class="org.python.pydev.navigator.filters.PyTildaFilter"> 
 	  </commonFilter>		 
 	  
-	  <!-- the ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'-->
+	  <!-- The ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'
+	  
+	  It seems that eclipse 3.6 fixed that, so, it's not needed anymore.
       <commonFilter activeByDefault="true" 
 	      name="Pydev: .* resources" 
 	      description="Pydev: .*resources"  
 	      id="org.python.pydev.navigator.filters.startsWithDot"
 	  	  class="org.python.pydev.navigator.filters.DotStartFilter"> 
       </commonFilter>
+      -->
       
       <commonFilter activeByDefault="true" 
 	      name="Pydev: .class resources" 

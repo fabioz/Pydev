@@ -60,7 +60,10 @@ public class CompletionRequest implements ICompletionRequest {
         this.activationToken = act.activationToken;
         this.qualifier = act.qualifier;
         this.isInCalltip = act.changedForCalltip;
+        this.isInMethodKeywordParam = act.isInMethodKeywordParam;
+        this.offsetForKeywordParam = act.offsetForKeywordParam;
         this.alreadyHasParams = act.alreadyHasParams;
+        this.calltipOffset=  act.calltipOffset;
 
 
         int qlen = qualifier.length();
@@ -72,6 +75,15 @@ public class CompletionRequest implements ICompletionRequest {
 
         this.fullQualifier = getPySelection().getActivationTokenAndQual(true)[1];
     }
+
+    
+    
+    public CompletionRequest createCopyForKeywordParamRequest() {
+        CompletionRequest request = new CompletionRequest(editorFile, nature, doc, this.offsetForKeywordParam, codeCompletion);
+        request.isInMethodKeywordParam = false; //Just making sure it will not be another request for keyword params
+        return request;
+    }
+
 
     /**
      * This is the file where the request was created. Note that it might be
@@ -133,8 +145,24 @@ public class CompletionRequest implements ICompletionRequest {
 
     /**
      * Defines if we're getting the completions for a calltip
+     * This happens when we're after a '(' or ',' in a method call. 
      */
     public boolean isInCalltip;
+    
+    /**
+     * Defines if we're in a method call.
+     */
+    public boolean isInMethodKeywordParam;
+    
+    /**
+     * Only really valid when isInMethodKeywordParam == true. Defines the offset of the method call.
+     */
+    public int offsetForKeywordParam;
+    
+    /**
+     * Offset of the parens in a calltip.
+     */
+    public int calltipOffset;
 
     /**
      * Useful only if we're in a calltip
@@ -195,4 +223,5 @@ public class CompletionRequest implements ICompletionRequest {
         }
         return initialModule;
     }
+
 }

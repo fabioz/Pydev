@@ -135,6 +135,10 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
         throw new RuntimeException("Unexpected apply mode:"+onApplyAction);
     }
     
+    public int getReplacementOffset() {
+        return fReplacementOffset;
+    }
+    
     /*
      * @see ICompletionProposal#getSelection(IDocument)
      */

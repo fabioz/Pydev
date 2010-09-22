@@ -91,6 +91,31 @@ public class FastStringBufferTest extends TestCase{
 		assertEquals("   aaabbbbbb", buf.appendN("bb", 3).toString());
 	}
     
+    public void testStartsWith() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(0);
+        assertFalse(buf.startsWith('"'));
+        buf.append("a");
+        assertFalse(buf.startsWith('"'));
+        assertTrue(buf.startsWith('a'));
+        buf.deleteFirst();
+        assertFalse(buf.startsWith('"'));
+        assertFalse(buf.startsWith('a'));
+    }
+    
+    public void testEndsWithChar() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(0);
+        assertFalse(buf.endsWith('"'));
+        buf.append("a");
+        assertFalse(buf.endsWith('"'));
+        assertTrue(buf.endsWith('a'));
+        buf.deleteFirst();
+        assertFalse(buf.endsWith('"'));
+        assertFalse(buf.endsWith('a'));
+        buf.append("ab");
+        assertTrue(buf.endsWith('b'));
+        assertFalse(buf.endsWith('a'));
+    }
+    
     
 //    public void testFastString() throws Exception {
 //        

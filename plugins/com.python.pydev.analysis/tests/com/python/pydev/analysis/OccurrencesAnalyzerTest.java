@@ -2829,14 +2829,16 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                     "class Bar(object):\n" +
                     "    def __init__(self, row):\n" +
                     "        self.__dict__.update({v for v in row.items()})\n" +
-                    "        self.__dict__.update({v for v in (w for w in row.keys())})\n" +
-                    "        self.__dict__.update({v for v in w for w in row.keys()})\n" +
+                    "        self.__dict__.update({v for v in (w for w in row.keys())})\n" + //all works well here
+                    "        self.__dict__.update({v for v in jj for jj in row.keys()})\n" + //jj is not defined in this case
                     ""
             );
             analyzer = new OccurrencesAnalyzer();
             msgs = analyzeDoc();
             
-            printMessages(msgs, 0);
+            printMessages(msgs, 2);
+            assertContainsMsg("Unused variable: jj", msgs);
+            assertContainsMsg("Undefined variable: jj", msgs);
         }finally{
             GRAMMAR_TO_USE_FOR_PARSING = initial;
         }

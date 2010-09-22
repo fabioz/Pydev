@@ -52,7 +52,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testMultilineImportCompletion();
+            test.testGetActTok();
             test.tearDown();
             System.out.println("Finished");
 
@@ -732,24 +732,49 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("m1", act.qualifier);
         assertTrue(act.changedForCalltip);
         assertFalse(act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
         
         act = PySelection.getActivationTokenAndQual(new Document("m1.m2()"), 6, false, true); 
         assertEquals("m1.", act.activationToken);
         assertEquals("m2", act.qualifier);
         assertTrue(act.changedForCalltip);
         assertFalse(act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
         
         act = PySelection.getActivationTokenAndQual(new Document("m1.m2(  \t)"), 9, false, true); 
         assertEquals("m1.", act.activationToken);
         assertEquals("m2", act.qualifier);
         assertTrue(act.changedForCalltip);
         assertFalse(act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
         
         act = PySelection.getActivationTokenAndQual(new Document("m1(a  , \t)"), 9, false, true); 
         assertEquals("", act.activationToken);
         assertEquals("m1", act.qualifier);
         assertTrue(act.changedForCalltip);
         assertTrue(act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document("m1(a)"), 4, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("a", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document("m1(a.)"), 5, false, true); 
+        assertEquals("a.", act.activationToken);
+        assertEquals("", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document("m1(a, b)"), 7, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("b", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(act.isInMethodKeywordParam);
     }
 
     /**
@@ -869,7 +894,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         "class Foo:\n" +
         "    def __init__(self, a, b):pass\n\n" +
         "    def m1(self):pass\n\n" +
-        "Foo(%s)" + //completion inside the empty parentesis should: add the parameters in link mode (a, b) and let the calltip there.
+        "Foo(%s)" + //completion inside the empty parenthesis should: add the parameters in link mode (a, b) and let the calltip there.
         "";  
         s = StringUtils.format(original, "");
         
@@ -878,9 +903,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         ICompletionProposal prop = proposals[0];
         assertEquals("Foo(a, b)", prop.getDisplayString());
         
-        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) prop.getContextInformation();
-        assertEquals("a, b", contextInformation.getContextDisplayString());
-        assertEquals("a, b", contextInformation.getInformationDisplayString());
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) prop.getContextInformation();
+        assertEquals("self, a, b", contextInformation.getContextDisplayString());
+        assertEquals("self, a, b", contextInformation.getInformationDisplayString());
         
         Document doc = new Document(s);
         prop.apply(doc);

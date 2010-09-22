@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
@@ -40,6 +41,28 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
         FastStringBuffer result = new FastStringBuffer();
         FastStringBuffer temp = new FastStringBuffer();
         
+        int replacementOffset = request.documentOffset - request.qlen;
+        
+        
+        int forcedContextInformationOffset = -1;
+        
+        //that's negated so that we can use it as an integer later on (to sum it)
+        int notInCalltip = 1;
+        int onApplyAction = PyCompletionProposal.ON_APPLY_DEFAULT;
+        if(request.isInCalltip){
+            notInCalltip = 0; //when we're in the calltip, we don't have to add a char '(' to the start of the context information.
+            if(request.alreadyHasParams){
+                onApplyAction = PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO;
+                forcedContextInformationOffset = request.calltipOffset;
+                
+            }else{
+                onApplyAction = PyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
+            }
+        }
+        
+        
+
+
         for (Iterator<Object> iter = iTokenList.iterator(); iter.hasNext();) {
             
             Object obj = iter.next();
@@ -53,7 +76,7 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                 int l = name.length();
                 
                 String args = "";
-                if(!importsTip ){
+                if(!importsTip){
                     boolean getIt = true;
                     if(AbstractToken.isClassDef(element)){
                         if(!request.isInCalltip){
@@ -82,22 +105,16 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
                 }
                 
-                //that's negated so that we can use it as an integer later on (to sum it)
-                int notInCalltip = 1;
-                int onApplyAction = PyCompletionProposal.ON_APPLY_DEFAULT;
-                if(request.isInCalltip){
-                    notInCalltip = 0; //when we're in the calltip, we don't have to add a char '(' to the start of the context information.
-                    if(request.alreadyHasParams){
-                        onApplyAction = PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO;
-                        
-                    }else{
-                        onApplyAction = PyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS;
-                    }
-                }
-                int replacementOffset = request.documentOffset - request.qlen;
-                PyCalltipsContextInformation pyContextInformation = null;
+                IContextInformation pyContextInformation = null;
                 if(args.length() > 2){
-                    pyContextInformation = new PyCalltipsContextInformation(args, replacementOffset+name.length()+notInCalltip); //just after the parenthesis
+                    int contextInformationOffset;
+                    if(forcedContextInformationOffset < 0){
+                        contextInformationOffset = replacementOffset+name.length()+notInCalltip;
+                    }else{
+                        contextInformationOffset = forcedContextInformationOffset;
+                    }
+                    pyContextInformation = new PyCalltipsContextInformationFromIToken(element, args, 
+                            contextInformationOffset); //just after the parenthesis
                 }
                 
                 
@@ -205,12 +222,12 @@ public abstract class AbstractPyCodeCompletion  implements IPyCodeCompletion  {
 
 
 
-    protected String getArgs(IToken element, ICompletionState state) {
+    protected static String getArgs(IToken element, ICompletionState state) {
         int lookingFor = state.getLookingFor();
         return getArgs(element, lookingFor);
     }
     
-    private String getArgs(IToken element, int lookingFor) {
+    private static String getArgs(IToken element, int lookingFor) {
         return getArgs(element.getArgs(), element.getType(), lookingFor);
     }
     

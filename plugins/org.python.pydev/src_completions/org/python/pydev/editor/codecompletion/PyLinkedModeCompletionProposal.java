@@ -251,7 +251,19 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
                 }
                 doReturn = true;
             }else{
-                doc.replace(offset-dif, dif+this.fLen, rep);
+                int sumReplace = 0;
+                if(rep.endsWith("=")){
+                    //Special case when applying keyword completions (i.e.: call(param=10)), where the text added is "param=")
+                    try {
+                        char c = doc.getChar(offset+this.fLen);
+                        if(c == '='){
+                            sumReplace ++;
+                        }
+                    } catch (BadLocationException e) {
+                        //just ignore it!
+                    }
+                }
+                doc.replace(offset-dif, dif+this.fLen+sumReplace, rep);
             }
         }else{
             if(trigger == '.' || trigger == '('){
@@ -371,6 +383,11 @@ public class PyLinkedModeCompletionProposal extends AbstractPyCompletionProposal
     @Override
     public String toString() {
         return "PyLinkedModeCompletionProposal("+this.getDisplayString()+")";
+    }
+
+    //testing
+    void setLen(int i) {
+        this.fLen = i;
     }
 
 }

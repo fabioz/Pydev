@@ -11,7 +11,9 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.commentType;
 
 /**
@@ -61,6 +63,26 @@ public class PrettyPrinterV2 {
 
     public PrettyPrinterV2(IPrettyPrinterPrefs prefs) {
         this.prefs = prefs;
+    }
+    
+    public static String printArguments(IGrammarVersionProvider versionProvider, argumentsType args){
+        String newLine = "\n";
+        String indent = "    ";
+        PrettyPrinterPrefsV2 prefsV2 = new PrettyPrinterPrefsV2(newLine, indent, versionProvider);
+        prefsV2.setSpacesAfterComma(1);
+        PrettyPrinterV2 printerV2 = new PrettyPrinterV2(prefsV2);
+        SimpleNode newArgs = args.createCopy();
+        String result = "";
+        try {
+            result = printerV2.print(newArgs);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        while(result.endsWith("\n") || result.endsWith("\r")){
+            result = result.substring(0, result.length()-1);
+        }
+        return result;
+        
     }
 
     

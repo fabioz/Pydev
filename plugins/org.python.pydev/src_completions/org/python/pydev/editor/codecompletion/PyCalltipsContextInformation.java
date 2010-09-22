@@ -5,10 +5,9 @@
 package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 
-public class PyCalltipsContextInformation implements IContextInformation{
+public class PyCalltipsContextInformation implements IPyCalltipsContextInformation{
 
 
     /** 
@@ -50,7 +49,7 @@ public class PyCalltipsContextInformation implements IContextInformation{
      * @param argumentsWithParens the arguments available.
      * @param replacementOffset the offset where the replacement started
      */
-    public PyCalltipsContextInformation(Image image, String argumentsWithParens, int replacementOffset) {
+    private PyCalltipsContextInformation(Image image, String argumentsWithParens, int replacementOffset) {
         Assert.isNotNull(argumentsWithParens);
 
         fImage= image;
@@ -102,7 +101,7 @@ public class PyCalltipsContextInformation implements IContextInformation{
     }
 
 
-    public int getReplacementOffset() {
+    public int getShowCalltipsOffset() {
         return this.fReplacementOffset;
     }
 
