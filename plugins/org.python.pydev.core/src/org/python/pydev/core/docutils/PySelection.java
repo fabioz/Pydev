@@ -1232,13 +1232,15 @@ public class PySelection {
 
     public static class ActivationTokenAndQual{
         public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip, 
-                boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam) {
+                boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam,
+                int calltipOffset) {
             this.activationToken = activationToken;
             this.qualifier = qualifier;
             this.changedForCalltip = changedForCalltip;
             this.alreadyHasParams = alreadyHasParams;
             this.isInMethodKeywordParam = isInMethodKeywordParam;
             this.offsetForKeywordParam = offsetForKeywordParam;
+            this.calltipOffset = calltipOffset;
         }
         
         public final String activationToken;
@@ -1247,6 +1249,7 @@ public class PySelection {
         public final boolean alreadyHasParams;
         public final boolean isInMethodKeywordParam;
         public final int offsetForKeywordParam; //only set when isInMethodKeywordParam == true
+        public final int calltipOffset; //this is where the parameters start
     }
 
     /**
@@ -1289,6 +1292,7 @@ public class PySelection {
         boolean isInMethodKeywordParam = false;
         int offsetForKeywordParam = -1;
 
+        int foundCalltipOffset = -1;
         if(handleForCalltips){
             int calltipOffset = documentOffset-1;
             //ok, in this case, we have to check if we're just after a ( or ,
@@ -1309,6 +1313,7 @@ public class PySelection {
                         if(calltipOffset != -1){
                             documentOffset = calltipOffset;
                             changedForCalltip = true;
+                            foundCalltipOffset = calculateProperCalltipOffset(doc, calltipOffset);
                         }
                     }else{
                         c = doc.getChar(calltipOffset);
@@ -1321,6 +1326,7 @@ public class PySelection {
                             if(calltipOffset != -1){
                                 offsetForKeywordParam = calltipOffset;
                                 isInMethodKeywordParam = true;
+                                foundCalltipOffset = calculateProperCalltipOffset(doc, calltipOffset);
                             }
                         }
                     }
@@ -1328,6 +1334,7 @@ public class PySelection {
                     throw new RuntimeException(e);
                 }
             }
+            
         }
         
         if(parOffset != -1){
@@ -1441,7 +1448,23 @@ public class PySelection {
             qualifier = activationToken.trim();
             activationToken = "";
         }
-        return new ActivationTokenAndQual(activationToken, qualifier, changedForCalltip, alreadyHasParams, isInMethodKeywordParam, offsetForKeywordParam);
+        return new ActivationTokenAndQual(
+                activationToken, qualifier, changedForCalltip, alreadyHasParams, isInMethodKeywordParam, offsetForKeywordParam, foundCalltipOffset);
+    }
+
+
+    private static int calculateProperCalltipOffset(IDocument doc, int calltipOffset) {
+        try {
+            char c = doc.getChar(calltipOffset);
+            while(c != '('){
+                calltipOffset ++;
+                c = doc.getChar(calltipOffset);
+            }
+            calltipOffset ++; //right after the parenthesis
+            return calltipOffset;
+        } catch (BadLocationException e) {
+        }
+        return -1;
     }
 
 

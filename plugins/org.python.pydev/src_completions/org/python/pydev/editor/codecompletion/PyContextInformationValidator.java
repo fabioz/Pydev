@@ -4,9 +4,6 @@
  */
 package org.python.pydev.editor.codecompletion;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -16,10 +13,8 @@ import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationPresenter;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -29,31 +24,22 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyContextInformationValidator implements IContextInformationValidator, IContextInformationPresenter {
 
-    public PyCalltipsContextInformation fInformation;
+    public IPyCalltipsContextInformation fInformation;
 
     public IDocument doc;
-
-    public int fCurrentParameter;
 
     public boolean returnedFalseOnce;
 
     private int fPosition;
 
     /**
-     * Holds the comma positions for the context information to display
-     */
-    int[] commaPositions;
-
-    /**
      * IContextInformationValidator
      */
     public void install(IContextInformation info, IDocument doc, int offset) {
         this.returnedFalseOnce = false;
-        this.fInformation = (PyCalltipsContextInformation) info;
+        this.fInformation = (IPyCalltipsContextInformation) info;
         this.doc = doc;
-        this.fPosition = fInformation.getReplacementOffset();
-        this.fCurrentParameter = -1;
-        this.commaPositions = null;
+        this.fPosition = fInformation.getShowCalltipsOffset();
     }
 
     /**
@@ -108,78 +94,7 @@ public class PyContextInformationValidator implements IContextInformationValidat
      * @see IContextInformationPresenter#updatePresentation(int, TextPresentation)
      */
     public boolean updatePresentation(int position, TextPresentation presentation) {
-        int currentParameter = -1;
-
-        try {
-            currentParameter = getCurrentParameter(doc, fPosition, position, ",", "", true);
-        } catch (BadLocationException x) {
-            return false;
-        }catch(SyntaxErrorException e){
-            return false;
-        }
-
-        if (fCurrentParameter != -1) {
-            if (currentParameter == fCurrentParameter) {
-                return false;
-            }
-        }
-
-        presentation.clear();
-        fCurrentParameter = currentParameter;
-
-        String s = fInformation.getInformationDisplayString();
-        int[] commas = computeCommaPositions();
-
-        if (commas.length - 2 < fCurrentParameter) {
-            presentation.addStyleRange(new StyleRange(0, s.length(), null, null, SWT.NORMAL));
-            return true;
-        }
-
-        int start = commas[fCurrentParameter] + 1;
-        int end = commas[fCurrentParameter + 1];
-        if (start > 0) {
-            presentation.addStyleRange(new StyleRange(0, start, null, null, SWT.NORMAL));
-        }
-
-        if (end > start) {
-            presentation.addStyleRange(new StyleRange(start, end - start, null, null, SWT.BOLD));
-        }
-
-        if (end < s.length()) {
-            presentation.addStyleRange(new StyleRange(end, s.length() - end, null, null, SWT.NORMAL));
-        }
-
-        return true;
-    }
-
-    private int[] computeCommaPositions() {
-        if (commaPositions == null) {
-            final String code = fInformation.getInformationDisplayString();
-            final int length = code.length();
-            int pos = 0;
-            List<Integer> positions = new ArrayList<Integer>();
-            positions.add(new Integer(-1));
-            while (pos < length && pos != -1) {
-                char ch = code.charAt(pos);
-                switch (ch) {
-                case ',':
-                    positions.add(new Integer(pos));
-                    break;
-                default:
-                    break;
-                }
-                if (pos != -1)
-                    pos++;
-            }
-            positions.add(new Integer(length));
-
-            int[] fields = new int[positions.size()];
-            for (int i = 0; i < fields.length; i++) {
-                fields[i] = ((Integer) positions.get(i)).intValue();
-            }
-            commaPositions = fields;
-        }
-        return commaPositions;
+        return false;
     }
 
     /**

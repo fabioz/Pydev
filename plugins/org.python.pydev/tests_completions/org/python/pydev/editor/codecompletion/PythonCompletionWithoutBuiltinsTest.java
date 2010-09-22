@@ -894,7 +894,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         "class Foo:\n" +
         "    def __init__(self, a, b):pass\n\n" +
         "    def m1(self):pass\n\n" +
-        "Foo(%s)" + //completion inside the empty parentesis should: add the parameters in link mode (a, b) and let the calltip there.
+        "Foo(%s)" + //completion inside the empty parenthesis should: add the parameters in link mode (a, b) and let the calltip there.
         "";  
         s = StringUtils.format(original, "");
         
@@ -903,9 +903,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         ICompletionProposal prop = proposals[0];
         assertEquals("Foo(a, b)", prop.getDisplayString());
         
-        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) prop.getContextInformation();
-        assertEquals("a, b", contextInformation.getContextDisplayString());
-        assertEquals("a, b", contextInformation.getInformationDisplayString());
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) prop.getContextInformation();
+        assertEquals("self, a, b", contextInformation.getContextDisplayString());
+        assertEquals("self, a, b", contextInformation.getInformationDisplayString());
         
         Document doc = new Document(s);
         prop.apply(doc);

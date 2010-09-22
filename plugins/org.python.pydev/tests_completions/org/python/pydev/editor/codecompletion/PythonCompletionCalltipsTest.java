@@ -2,6 +2,7 @@ package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.StringUtils;
@@ -17,7 +18,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
           //DEBUG_TESTS_BASE = true;
           PythonCompletionCalltipsTest test = new PythonCompletionCalltipsTest();
           test.setUp();
-          test.testCalltips7();
+          test.testCalltips8a();
           test.tearDown();
           System.out.println("Finished");
 
@@ -85,7 +86,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         assertEquals(PyCompletionProposal.ON_APPLY_JUST_SHOW_CTX_INFO, p4.onApplyAction);
         
         //the display string for the context 'context' and 'information' should be the same
-        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) prop.getContextInformation();
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) prop.getContextInformation();
         assertEquals("a, b", contextInformation.getContextDisplayString());
         assertEquals("a, b", contextInformation.getInformationDisplayString());
         
@@ -126,7 +127,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         int requestOffset = s.length()-1;
         ICompletionProposal[] proposals = requestCompl(s, requestOffset, -1, new String[] {});
         assertEquals(1, proposals.length); 
-        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) proposals[0].getContextInformation();
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) proposals[0].getContextInformation();
         
         validator.install(contextInformation, new Document(s), requestOffset);
         assertFalse(validator.isContextInformationValid(0));
@@ -138,20 +139,20 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
     public void testCalltips3a() throws Exception {
         String s;
         s = "" +
-        "def m1((a, b), c):\n" +
+        "def m1((a, b), c):\n" + //yes, this is no longer supported (and this construct is rarely used).
         "    print a, b, c\n" +
         "m1()";  
         PyContextInformationValidator validator = new PyContextInformationValidator();
         int requestOffset = s.length()-1;
         ICompletionProposal[] proposals = requestCompl(s, requestOffset, -1, new String[] {});
         assertEquals(1, proposals.length); 
-        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) proposals[0].getContextInformation();
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) proposals[0].getContextInformation();
         
         validator.install(contextInformation, new Document(s), requestOffset);
         assertFalse(validator.isContextInformationValid(0));
         assertTrue(validator.isContextInformationValid(requestOffset));
         assertFalse(validator.isContextInformationValid(requestOffset+1));
-        assertEquals("(a, b), c", contextInformation.getContextDisplayString());
+        assertEquals("a, b, c", contextInformation.getContextDisplayString());
     }
     
     public void testCalltips4() throws Exception {
@@ -164,7 +165,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         ICompletionProposal[] proposals = requestCompl(s, requestOffset, -1, new String[] {});
         assertEquals(1, proposals.length); 
         PyContextInformationValidator validator = new PyContextInformationValidator();
-        PyCalltipsContextInformation contextInformation = (PyCalltipsContextInformation) proposals[0].getContextInformation();
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) proposals[0].getContextInformation();
         
         validator.install(contextInformation, new Document(s), requestOffset);
         assertFalse(validator.isContextInformationValid(requestOffset-1));
@@ -234,13 +235,74 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         
         String s = StringUtils.format(s0, "");
         ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
-        assertEquals(1, proposals.length); 
-        PyCompletionProposal paramProposal = (PyCompletionProposal) assertContains("param2=", proposals);
+        assertEquals(2, proposals.length); 
+        PyCompletionProposal paramProposal = (PyCompletionProposal) assertContains("param1=", proposals);
+        paramProposal = (PyCompletionProposal) assertContains("param2=", proposals);
         
         
         Document document = new Document(s);
         paramProposal.apply(document);
         assertEquals(StringUtils.format(s0, "m2="), document.get());
+    }
+    
+    public void testCalltips8a() throws Exception {
+        String s0 = 
+            "class TestCase(object):\n" +
+            "    def __init__(self, param1, param2):\n" +
+            "        pass\n" +
+            "    \n" +
+            "TestCase(param1=10, para%s=20)";
+        String s = StringUtils.format(s0, "m3");
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-7, -1, new String[] {});
+        assertEquals(2, proposals.length); 
+        PyLinkedModeCompletionProposal paramProposal = (PyLinkedModeCompletionProposal) assertContains("param1=", proposals);
+        paramProposal = (PyLinkedModeCompletionProposal) assertContains("param2=", proposals);
+        
+        
+        Document document = new Document(s);
+        paramProposal.setLen(2); //only the 'm3'
+        paramProposal.applyOnDoc(paramProposal.getReplacementOffset()+4, true, document, 4, '\0');
+        assertEquals(StringUtils.format(s0, "m2"), document.get());
+    }
+    
+    public void testCalltips9() throws Exception {
+        String s0 = 
+            "class TestCase(object):\n" +
+            "    def __init__(self, param1, param2, *args, **kwargs):\n" +
+            "        pass\n" +
+            "    \n" +
+            "TestCase(%s)";
+        
+        String s = StringUtils.format(s0, "");
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) proposals[0].getContextInformation();
+        assertEquals("self, param1, param2, *args, **kwargs", contextInformation.getContextDisplayString());
+        assertEquals(108, contextInformation.getShowCalltipsOffset());
+        
+        Document document = new Document(s);
+        proposals[0].apply(document);
+        assertEquals(StringUtils.format(s0, "param1, param2"), document.get());
+    }
+    
+    public void testCalltips10() throws Exception {
+        String s0 = 
+            "class TestCase(object):\n" +
+            "    def __init__(self, param1, param2, *args, **kwargs):\n" +
+            "        pass\n" +
+            "    \n" +
+            "TestCase(param1=10, p)";
+        
+        String s = StringUtils.format(s0, "");
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-2, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        IPyCalltipsContextInformation contextInformation = (IPyCalltipsContextInformation) proposals[0].getContextInformation();
+        assertEquals("self, param1, param2, *args, **kwargs", contextInformation.getContextDisplayString());
+        assertEquals(108, contextInformation.getShowCalltipsOffset());
+        
+        Document document = new Document(s);
+        proposals[0].apply(document);
+        assertEquals(StringUtils.format(s0, "param1, param2"), document.get());
     }
     
     

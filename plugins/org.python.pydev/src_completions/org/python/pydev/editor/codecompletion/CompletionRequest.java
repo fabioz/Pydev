@@ -63,6 +63,7 @@ public class CompletionRequest implements ICompletionRequest {
         this.isInMethodKeywordParam = act.isInMethodKeywordParam;
         this.offsetForKeywordParam = act.offsetForKeywordParam;
         this.alreadyHasParams = act.alreadyHasParams;
+        this.calltipOffset=  act.calltipOffset;
 
 
         int qlen = qualifier.length();
@@ -157,6 +158,11 @@ public class CompletionRequest implements ICompletionRequest {
      * Only really valid when isInMethodKeywordParam == true. Defines the offset of the method call.
      */
     public int offsetForKeywordParam;
+    
+    /**
+     * Offset of the parens in a calltip.
+     */
+    public int calltipOffset;
 
     /**
      * Useful only if we're in a calltip

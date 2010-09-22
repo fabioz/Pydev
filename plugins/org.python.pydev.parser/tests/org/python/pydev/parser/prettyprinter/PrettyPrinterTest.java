@@ -7,7 +7,9 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 
 public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
 
@@ -16,7 +18,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testWithMultiple();
+            test.testPrintOnlyArgs2();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -2877,8 +2879,32 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         });
     }
     
+    public void testPrintOnlyArgs() throws Throwable {
+        final String s = ""+
+        "def Method(a,b,c=10,d=20,*args,**kwargs):\n" +
+        "    pass\n" +
+        "";
+
+        
+        Module node = (Module) parseLegalDocStr(s);
+        FunctionDef funcDef = (FunctionDef) node.body[0];
+        assertEquals("a, b, c=10, d=20, *args, **kwargs", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
+        
+    }
     
-    
+    public void testPrintOnlyArgs2() throws Throwable {
+        final String s = ""+
+        "def Method((a, b), c):\n" +
+        "    pass\n" +
+        "";
+        
+        
+        Module node = (Module) parseLegalDocStr(s);
+        FunctionDef funcDef = (FunctionDef) node.body[0];
+        //yes, just making sure it's not supported.
+        assertEquals("a, b, c", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
+        
+    }
     
     
 }

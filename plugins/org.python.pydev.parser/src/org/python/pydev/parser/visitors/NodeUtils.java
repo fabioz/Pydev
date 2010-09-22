@@ -13,6 +13,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -49,23 +50,14 @@ public class NodeUtils {
      */
     public static String getNodeArgs(SimpleNode node) {
         if(node instanceof ClassDef){
-            ClassDef c = (ClassDef) node;
-            for(stmtType t: c.body){
-                if(t instanceof FunctionDef){
-                    FunctionDef def = (FunctionDef) t;
-                    if(((NameTok)def.name).id.equals("__init__")){
-                        node = def;
-                        break; //keep going to get the arguments of the __init__
-                    }
-                }
-            }
+            node = getClassDefInit((ClassDef) node);
         }
         
         if(node instanceof FunctionDef){
             FunctionDef f = (FunctionDef)node;
             
             String startPar = "( ";
-            StringBuffer buffer = new StringBuffer(startPar);
+            FastStringBuffer buffer = new FastStringBuffer(startPar, 40);
             
             for (int i = 0; i < f.args.args.length; i++) {
                 if(buffer.length() > startPar.length()){
@@ -77,6 +69,19 @@ public class NodeUtils {
             return buffer.toString();
         }
         return "";
+    }
+
+
+    public static SimpleNode getClassDefInit(ClassDef classDef) {
+        for(stmtType t: classDef.body){
+            if(t instanceof FunctionDef){
+                FunctionDef def = (FunctionDef) t;
+                if(((NameTok)def.name).id.equals("__init__")){
+                    return def;
+                }
+            }
+        }
+        return null;
     }
 
     

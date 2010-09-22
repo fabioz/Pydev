@@ -25,6 +25,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
@@ -32,8 +33,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -142,15 +141,16 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     IRegion regionForKeywordParam = request.doc.getLineInformation(line);
                     
                     PySelection ps = request.getPySelection();
-                    Tuple<List<String>, Integer> insideParentesisToks = ps.getInsideParentesisToks(false, completionRequestForKeywordParam.documentOffset);
+                    //Changed: showing duplicated parameters (only removing self and cls).
+//                    Tuple<List<String>, Integer> insideParentesisToks = ps.getInsideParentesisToks(false, completionRequestForKeywordParam.documentOffset);
                     HashSet<String> ignore = new HashSet<String>();
                     ignore.add("self");
                     ignore.add("cls");
-                    if(insideParentesisToks!=null && insideParentesisToks.o1 != null){
-                        for (String object : insideParentesisToks.o1) {
-                            ignore.add(object);
-                        }
-                    }
+//                    if(insideParentesisToks!=null && insideParentesisToks.o1 != null){
+//                        for (String object : insideParentesisToks.o1) {
+//                            ignore.add(object);
+//                        }
+//                    }
 
                     ICompletionState stateForKeywordParam = new CompletionState(
                             lineForKeywordParam, request.documentOffset - regionForKeywordParam.getOffset(), 
