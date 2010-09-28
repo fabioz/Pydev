@@ -38,7 +38,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testPreferCompiledOnBootstrap();
+            builtins.testKeywordCompletions();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -505,6 +505,17 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
                 "User.";
             
             requestCompl(s, -1, new String[] {"DoesNotExist"});
+        }
+    }
+    
+    public void testKeywordCompletions() throws Exception{
+        String s = "assert isinstance(lo";
+        
+        ICompletionProposal[] requestCompl = requestCompl(s, -1, new String[]{});
+        for (ICompletionProposal iCompletionProposal : requestCompl) {
+            if(iCompletionProposal.getDisplayString().equals("locals={}=")){
+                fail("A locals={}= should not be found.");
+            }
         }
     }
     

@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -27,6 +28,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -40,12 +42,16 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.editor.codecompletion.revisited.AssignAnalysis;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionState;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -136,33 +142,32 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 //At this point, after doing the globals completion, we may also need to check if we need to show
                 //keyword parameters to the user.
                 if(request.isInMethodKeywordParam){
-                    CompletionRequest completionRequestForKeywordParam = request.createCopyForKeywordParamRequest();
-                    int lineForKeywordParam = request.doc.getLineOfOffset(request.documentOffset);
                     IRegion regionForKeywordParam = request.doc.getLineInformation(line);
                     
-                    PySelection ps = request.getPySelection();
+                    PySelection ps = new PySelection(request.doc, regionForKeywordParam.getOffset());
+                    RefactoringRequest findRequest = new RefactoringRequest(
+                            request.editorFile, ps, new NullProgressMonitor(), request.nature, null);
+                    ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+                    PyRefactoringFindDefinition.findActualDefinition(findRequest, new CompletionCache(), selected);
+                    
+                    
                     //Changed: showing duplicated parameters (only removing self and cls).
-//                    Tuple<List<String>, Integer> insideParentesisToks = ps.getInsideParentesisToks(false, completionRequestForKeywordParam.documentOffset);
+                    //Tuple<List<String>, Integer> insideParentesisToks = ps.getInsideParentesisToks(false, completionRequestForKeywordParam.documentOffset);
                     HashSet<String> ignore = new HashSet<String>();
                     ignore.add("self");
                     ignore.add("cls");
-//                    if(insideParentesisToks!=null && insideParentesisToks.o1 != null){
-//                        for (String object : insideParentesisToks.o1) {
-//                            ignore.add(object);
-//                        }
-//                    }
+                    //if(insideParentesisToks!=null && insideParentesisToks.o1 != null){
+                    //    for (String object : insideParentesisToks.o1) {
+                    //        ignore.add(object);
+                    //    }
+                    //}
 
-                    ICompletionState stateForKeywordParam = new CompletionState(
-                            lineForKeywordParam, request.documentOffset - regionForKeywordParam.getOffset(), 
-                            null, request.nature, request.qualifier);
-                    state.setIsInCalltip(true);
-                    List<Object> tokensListForKeywordParam = new ArrayList<Object>();
-                    doGlobalsCompletion(completionRequestForKeywordParam, astManager, tokensListForKeywordParam, stateForKeywordParam);
-                    if(tokensListForKeywordParam.size() > 0){
-                        for (Object object : tokensListForKeywordParam) {
-                            if(object instanceof IToken){
-                                IToken iToken = (IToken) object;
-                                String args = iToken.getArgs();
+                    
+                    for (IDefinition iDefinition : selected) {
+                        if(iDefinition instanceof Definition){
+                            Definition definition = (Definition) iDefinition;
+                            if(definition.ast != null){
+                                String args = NodeUtils.getNodeArgs(definition.ast);
                                 StringTokenizer tokenizer = new StringTokenizer(args, "(, )");
                                 while(tokenizer.hasMoreTokens()){
                                     String nextToken = tokenizer.nextToken();
@@ -177,7 +182,6 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         }
                     }
                 }
-
             }
 
             
