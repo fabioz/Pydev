@@ -75,7 +75,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         if (PyDevBuilderPrefPage.usePydevBuilders() == false)
             return null;
 
-        if (kind == IncrementalProjectBuilder.FULL_BUILD) {
+        if (kind == IncrementalProjectBuilder.FULL_BUILD || kind == IncrementalProjectBuilder.CLEAN_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
             performFullBuild(monitor);
 
