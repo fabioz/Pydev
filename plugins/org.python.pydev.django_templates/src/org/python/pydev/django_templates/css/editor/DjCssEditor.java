@@ -68,7 +68,6 @@ public class DjCssEditor extends CSSSourceEditor {
 
         this.djEditor.registerPrefChangeListener(new ICallback() {
             
-            @Override
             public Object call(Object args) throws Exception {
                 return getISourceViewer();
             }

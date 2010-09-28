@@ -16,7 +16,6 @@ public class MisconfigurationElement extends ElementWithChildren{
         return e.toString();
     }
 
-    @Override
     public boolean hasChildren() {
         return false;
     }

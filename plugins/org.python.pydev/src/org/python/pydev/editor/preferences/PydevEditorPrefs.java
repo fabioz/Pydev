@@ -323,7 +323,6 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
     public void setUpdateLabelExampleOnPrefsChanges() {
         updateLabelExampleOnPrefsChanges = new IPropertyChangeListener() {
             
-            @Override
             public void propertyChange(PropertyChangeEvent event) {
                 updateLabelExample(PyFormatStd.getFormat(), PydevPrefs.getChainedPrefStore());
             }

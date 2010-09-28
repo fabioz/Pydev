@@ -67,7 +67,6 @@ public class DjHTMLEditor extends HTMLEditor {
         djEditor = new DjEditor();
         this.djEditor.registerPrefChangeListener(new ICallback() {
             
-            @Override
             public Object call(Object args) throws Exception {
                 return getISourceViewer();
             }

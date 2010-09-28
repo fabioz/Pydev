@@ -41,7 +41,6 @@ public class DjTokenScanner {
 
     private static final class DjStartDetector implements IWordDetector {
 
-        @Override
         public boolean isWordPart(char c) {
             switch (c) {
             case '{':
@@ -51,7 +50,6 @@ public class DjTokenScanner {
             return false;
         }
 
-        @Override
         public boolean isWordStart(char c) {
             return c == '{';
         }
@@ -59,7 +57,6 @@ public class DjTokenScanner {
 
     private static final class DjEndDetector implements IWordDetector {
 
-        @Override
         public boolean isWordPart(char c) {
             switch (c) {
             case '%':
@@ -69,7 +66,6 @@ public class DjTokenScanner {
             return false;
         }
 
-        @Override
         public boolean isWordStart(char c) {
             return c == '}' || c == '%';
         }

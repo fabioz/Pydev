@@ -11,7 +11,6 @@ public class ProjectsGroup extends ElementWithChildren {
         super(indexRoot);
     }
 
-    @Override
     public boolean hasChildren() {
         return true;
     }
