@@ -12,8 +12,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.console.IOConsoleOutputStream;
@@ -98,6 +104,12 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate{
             msg += "\n";
             msg += tup.o2;
         }
+        final List<String> splitInLines = StringUtils.splitInLines(msg);
+        int max = 10;
+        for (String string : splitInLines) {
+            max = Math.max(string.length(), max);
+        }
+        final int maxChars = max;
         
         InputDialog d = new InputDialog(
                 PyAction.getShell(), 
@@ -105,14 +117,38 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate{
                 msg, 
                 "", 
                 null){
+            int averageCharWidth;
+            int height;
             protected Control createDialogArea(Composite parent) {
-//                try {
-//                    FontData labelFontData = new FontData("Courier New", 8, SWT.NONE);
-//                    parent.setFont(new Font(parent.getDisplay(), labelFontData));
-//                } catch (Throwable e) {
-//                    //ignore
-//                }
+                
+                try {
+                    FontData labelFontData = new FontData("Courier New", 8, SWT.NONE);
+                    Display display = parent.getDisplay();
+                    Font font = new Font(display, labelFontData);
+                    parent.setFont(font);
+                    
+                    GC gc = new GC(display);
+                    gc.setFont(font);
+                    FontMetrics fontMetrics = gc.getFontMetrics();
+                    averageCharWidth = fontMetrics.getAverageCharWidth();
+                    height = fontMetrics.getHeight();
+                    gc.dispose();
+                } catch (Throwable e) {
+                    //ignore
+                }
                 return super.createDialogArea(parent);
+            }
+            
+            protected Point getInitialSize() {
+                Point result = super.getInitialSize();
+                //Check if we were able to get proper values before changing it.
+                if(averageCharWidth > 0 && maxChars > 0){
+                    result.x = (int)(averageCharWidth * maxChars * 1.15);
+                }
+                if(height > 0 && splitInLines.size() > 0){
+                    result.y = height * (splitInLines.size() + 6); //put some lines extra (we need the input line too)
+                }
+                return result;
             }
         };
 
