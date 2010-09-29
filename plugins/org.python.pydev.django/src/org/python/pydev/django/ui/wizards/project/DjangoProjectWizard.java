@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -278,5 +279,11 @@ public class DjangoProjectWizard extends PythonProjectWizard {
     protected void initializeDefaultPageImageDescriptor() {
         ImageDescriptor desc = PydevPlugin.imageDescriptorFromPlugin(DjangoPlugin.getPluginID(), "icons/django_logo.png");//$NON-NLS-1$
         setDefaultPageImageDescriptor(desc);
+    }
+    
+    @Override
+    public boolean canFinish() {
+        IWizardPage currentPage = this.getContainer().getCurrentPage();
+        return currentPage == this.settingsPage; //can only finish at the last page!
     }
 }

@@ -455,7 +455,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      * @return <code>true</code> if all controls are valid, and
      *   <code>false</code> if at least one is invalid
      */
-    private boolean validatePage() {
+    protected boolean validatePage() {
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
         String projectFieldContents = getProjectNameFieldValue();
