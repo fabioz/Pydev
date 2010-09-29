@@ -51,7 +51,6 @@ public class NatureGroup extends ElementWithChildren {
         this.nature = nature;
     }
 
-    @Override
     public boolean hasChildren() {
         return true;
     }

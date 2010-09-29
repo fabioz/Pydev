@@ -59,7 +59,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener{
      * @return a styled text that can be used to show code with the colors based on the color cache received.
      */
     public StyledText createStyledTextForCodePresentation(Composite parent){
-        styledText = new StyledText(parent, SWT.BORDER);
+        styledText = new StyledText(parent, SWT.BORDER|SWT.READ_ONLY);
         this.backgroundColorCache = new ColorAndStyleCache(new PreferenceStore());
         this.colorCache = new ColorAndStyleCache(null);
         try {

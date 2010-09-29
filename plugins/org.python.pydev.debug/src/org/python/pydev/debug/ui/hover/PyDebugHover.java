@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugElement;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IWatchExpression;
 import org.eclipse.debug.ui.DebugUITools;
@@ -42,6 +43,10 @@ public class PyDebugHover implements IPyHoverParticipant{
         }
         
         if(context != null){
+            IDebugTarget debugTarget = context.getDebugTarget();
+            if(debugTarget == null || debugTarget.isTerminated()){
+                return null;
+            }
             String act = null;
             ITextSelection textSelection = (ITextSelection) selection;
             int mouseOffset = ps.getAbsoluteCursorOffset();

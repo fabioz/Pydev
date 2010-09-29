@@ -209,7 +209,6 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
         return null;
     }
 
-    @Override
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset, char activationChar, boolean autoActivated) {
         ICompletionProposal[] proposals = null;
         if (this.htmlContentAssistProcessor != null) {

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -27,23 +28,23 @@ public class DjangoSettingsPage extends WizardPage {
 	public static final String JYTHON = "jython";
 	
 	static final ArrayList<String> DJANGO_VERSIONS = new ArrayList<String>() {{
+	    add("1.2 or later");
+	    add("1.1");
+	    add("1.0");
 		add("pre-1.0");
-		add("1.0");
-		add("1.1");
-		add("1.2 or later");
 	}};
 
 	static final Map<String, List<String>> DB_ENGINES = new HashMap<String, List<String>>() {{
 		put(CPYTHON, new ArrayList<String>() {{
+		    add("sqlite3");
 			add("postgresql_psycopg2");
-			add("sqlite3");
 			add("mysql");
 			add("oracle");
 			add("other (just type in combo)");
 		}});
 		put(JYTHON, new ArrayList<String>() {{
+		    add("doj.backends.zxjdbc.sqlite3");
 			add("doj.backends.zxjdbc.postgresql");
-			add("doj.backends.zxjdbc.sqlite3");
 			add("doj.backends.zxjdbc.mysql");
 			add("doj.backends.zxjdbc.oracle");
 			add("other (just type in combo)");
@@ -61,6 +62,7 @@ public class DjangoSettingsPage extends WizardPage {
     private Text userText;
     private Text passText;
 	private ICallback0<IWizardNewProjectNameAndLocationPage> projectPageCallback;
+	private String previousProjectType = "";
 
     public DjangoSettingsPage(String pageName, ICallback0<IWizardNewProjectNameAndLocationPage> projectPage) {
         super(pageName);
@@ -90,23 +92,31 @@ public class DjangoSettingsPage extends WizardPage {
     	super.setPreviousPage(page);
         final IWizardNewProjectNameAndLocationPage projectPage = projectPageCallback.call();
         
-        djVersionCombo.removeAll();
-        for (String version : DJANGO_VERSIONS) {
-			djVersionCombo.add(version);
-		}
+        if(djVersionCombo.getItemCount() == 0){
+            //fill it only if it's still not properly filled
+            djVersionCombo.removeAll();
+            for (String version : DJANGO_VERSIONS) {
+    			djVersionCombo.add(version);
+    		}
         
-        djVersionCombo.setText(DJANGO_VERSIONS.get(0));
+            djVersionCombo.setText(DJANGO_VERSIONS.get(0));
+        }
         
 		String projectType = projectPage.getProjectType();
-		List<String> engines = DB_ENGINES.get(
-				projectType.startsWith("jython") ? DjangoSettingsPage.JYTHON : DjangoSettingsPage.CPYTHON);
-		engineCombo.removeAll();
-		for (String engine : engines) {
-			engineCombo.add(engine);
+		if(!projectType.equals(previousProjectType)){
+		    previousProjectType = projectType;
+    		List<String> engines = DB_ENGINES.get(
+    				projectType.startsWith("jython") ? DjangoSettingsPage.JYTHON : DjangoSettingsPage.CPYTHON);
+    		engineCombo.removeAll();
+    		for (String engine : engines) {
+    			engineCombo.add(engine);
+    		}
+    		
+            engineCombo.setText(engines.get(0));
 		}
-		
-        engineCombo.setText(engines.get(0));
-
+        
+        //Always update the sqlite path if needed.
+        updateSqlitePathIfNeeded(projectPage);
     }
 	
 	public void createControl(Composite parent) {
@@ -156,14 +166,10 @@ public class DjangoSettingsPage extends WizardPage {
         engineCombo.addSelectionListener(new SelectionListener() {
 			
 			public void widgetSelected(SelectionEvent e) {
-				String selection = engineCombo.getText();
-				if(selection.endsWith("sqlite3")){
-			        String projectName = projectPage.getProjectName();
-					nameText.setText(projectPage.getLocationPath().append(projectName).append("sqlite.db").toOSString());
-				}
+				updateSqlitePathIfNeeded(projectPage);
 			}
-			
-			
+
+
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
@@ -217,6 +223,19 @@ public class DjangoSettingsPage extends WizardPage {
 		return s;
 	}
 
+    public void updateSqlitePathIfNeeded(final IWizardNewProjectNameAndLocationPage projectPage) {
+        String selection = engineCombo.getText();
+        if(selection.endsWith("sqlite3")){
+            String projectName = projectPage.getProjectName();
+            boolean shouldCreatSourceFolder = projectPage.shouldCreatSourceFolder();
+            IPath base = projectPage.getLocationPath().append(projectName);
+            if(shouldCreatSourceFolder){
+                base = base.append("src");
+            }
+            nameText.setText(base.append("sqlite.db").toOSString());
+        }
+    }
+    
 
 	private String escapeSlashes(String text) {
 		return StringUtils.replaceAll(text, "\\", "\\\\\\\\");
