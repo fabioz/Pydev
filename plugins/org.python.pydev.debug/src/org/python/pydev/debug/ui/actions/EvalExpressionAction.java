@@ -96,7 +96,7 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
         Display.getDefault().asyncExec(new Runnable() {
             public void run() {
                 expression.evaluate();
-                waitForExrpessionEvaluation(expression);
+                waitForExpressionEvaluation(expression);
                 try {
                     IValue value = expression.getValue();
                     String result = null;
@@ -121,7 +121,7 @@ public class EvalExpressionAction extends AbstractHandler implements IHandler, I
      * 
      * @param expression the watch expression we shoud wait for
      */
-    public static void waitForExrpessionEvaluation(final IWatchExpression expression) {
+    public static void waitForExpressionEvaluation(final IWatchExpression expression) {
         while (expression.isPending()) {
             try {
                 Thread.sleep(50);
