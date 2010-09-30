@@ -27,6 +27,7 @@ manualAdv = (
     ('templateManual.html', 'manual_adv_remote_debugger'               , 'Remote Debugger'                 ),
     ('templateManual.html', 'manual_adv_debug_console'                 , 'Debug Console'                   ),
     ('templateManual.html', 'manual_adv_django'                        , 'Django'                          ),
+    ('templateManual.html', 'manual_articles_scripting' , 'Jython Scripting in Pydev'),
 )
 
 manual101 = (
@@ -40,11 +41,6 @@ manual101 = (
     ('templateManual.html', 'manual_101_eclipse'        , 'Configuring Eclipse'             ),
     ('templateManual.html', 'manual_101_tips'           , 'Some useful tips'                ),
 
-)
-
-manualArticles = (
-    ('templateManual.html', 'manual_articles'           , 'Articles'                 ),
-    ('templateManual.html', 'manual_articles_scripting' , 'Jython Scripting in Pydev'),
 )
 
 manualScreencasts = (
