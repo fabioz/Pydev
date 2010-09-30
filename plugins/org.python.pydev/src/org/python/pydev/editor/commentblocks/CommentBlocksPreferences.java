@@ -10,6 +10,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.structure.FastStringBuffer;
@@ -51,6 +52,8 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
         multiBlock = new StringFieldEditor(MULTI_BLOCK_COMMENT_CHAR, "Multi-block char (ctrl+4):", 2, p);
+        multiBlock.getTextControl(p).setTextLimit(1);
+        multiBlock.setEmptyStringAllowed(false);
         addField(multiBlock);
         
         addField(new BooleanFieldEditor(MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME, "In a class name, create block only with class name above of class?", p));
@@ -59,6 +62,8 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
         labelMulti = new Label(p, SWT.NONE);
         
         singleBlock = new StringFieldEditor(SINGLE_BLOCK_COMMENT_CHAR, "Single-block char (ctrl+shift+4):", 2, p);
+        singleBlock.setEmptyStringAllowed(false);
+        singleBlock.getTextControl(p).setTextLimit(1);
         addField(singleBlock);
         
         alignSingle = new BooleanFieldEditor(SINGLE_BLOCK_COMMENT_ALIGN_RIGHT, "Align text in single-block to the right?", p);
