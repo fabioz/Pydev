@@ -25,6 +25,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -73,7 +74,9 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
         setSelectionHistory(new InfoSelectionHistory(pythonNatures));
 
         setTitle("Pydev: Globals Browser");
-        setMessage("Select an item to open (? = any character, * = any string).\nDotted names may be used to filter with package (e.g.: django.utils.In)");
+        setMessage(
+                "Matching: ? = any char    * = any str    CamelCase (TC=TestCase)    Space in the end = exact match.\n" +
+        		"Dotted names may be used to filter with package (e.g.: django.utils.In or just dj.ut.in)");
 
         NameIInfoLabelProvider resourceItemLabelProvider = new NameIInfoStyledLabelProvider(true);
 
@@ -342,8 +345,18 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
      */
     protected class InfoFilter extends ItemsFilter{
 
+        private String initialPattern;
+
+
         public InfoFilter() {
             super();
+            //We have to get the actual text from the control, because the 
+            Text pattern = (Text) getPatternControl();
+            String stringPattern = ""; //$NON-NLS-1$
+            if (pattern != null && !pattern.getText().equals("*")) { //$NON-NLS-1$
+                stringPattern = pattern.getText();
+            }
+            this.initialPattern = stringPattern;
         }
 
         
@@ -370,7 +383,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
                 return false;
             }
 
-            return MatchHelper.isSubFilter(this.patternMatcher.getPattern(), ((InfoFilter) filter).patternMatcher.getPattern());
+            return MatchHelper.isSubFilter(this.initialPattern, ((InfoFilter) filter).initialPattern);
         }
 
         /**
@@ -380,7 +393,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
             if(!(filter instanceof InfoFilter)){
                 return false;
             }
-            return MatchHelper.equalsFilter(this.patternMatcher.getPattern(), ((InfoFilter) filter).patternMatcher.getPattern());
+            return MatchHelper.equalsFilter(this.initialPattern, ((InfoFilter) filter).initialPattern);
         }
 
 
