@@ -148,7 +148,7 @@ public class PyGlobalsBrowser extends PyAction{
     public static void doSelect(List<IPythonNature> pythonNatures, List<AbstractAdditionalInterpreterInfo> additionalInfo, 
             String selectedText) {
         
-        SelectionDialog dialog = GlobalsDialogFactory.create(getShell(), additionalInfo, selectedText);
+        SelectionDialog dialog = GlobalsDialogFactory.create(getShell(), additionalInfo, selectedText, pythonNatures);
 
         dialog.open();
         Object[] result = dialog.getResult();

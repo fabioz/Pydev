@@ -51,7 +51,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery{
             Map<Tuple<String, IFile>, HashSet<ASTEntry>> occurrences;
             occurrences = pyRefactoring.findAllOccurrences(req);
             if(occurrences == null){
-                return null;
+                return Status.OK_STATUS;
             }
             int length = req.initialName.length();
             

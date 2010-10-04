@@ -514,6 +514,16 @@ public class StringUtils {
         return ret;
     }
     
+    public static List<String> splitAndRemoveEmptyNotTrimmed(String string, char c){
+        List<String> split = split(string, c);
+        for(int i=split.size()-1;i>=0;i--){
+            if(split.get(i).length() == 0){
+                split.remove(i);
+            }
+        }
+        return split;
+    }
+    
     public static List<String> splitAndRemoveEmptyTrimmed(String string, char c){
         List<String> split = split(string, c);
         for(int i=split.size()-1;i>=0;i--){

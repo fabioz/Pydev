@@ -93,8 +93,8 @@ public class MatchHelper{
             return false;
         }
         
-        List<String> thisSplit = StringUtils.splitAndRemoveEmptyTrimmed(thisPattern, '.');
-        List<String> otherSplit = StringUtils.splitAndRemoveEmptyTrimmed(otherPattern, '.');
+        List<String> thisSplit = StringUtils.splitAndRemoveEmptyNotTrimmed(thisPattern, '.');
+        List<String> otherSplit = StringUtils.splitAndRemoveEmptyNotTrimmed(otherPattern, '.');
         
         if(thisEndsWithPoint){
             thisSplit.add("");

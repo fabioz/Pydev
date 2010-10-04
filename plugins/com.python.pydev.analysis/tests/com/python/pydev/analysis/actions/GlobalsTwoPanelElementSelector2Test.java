@@ -67,6 +67,8 @@ public class GlobalsTwoPanelElementSelector2Test extends TestCase{
     }
     
     public void testPatternSubAndEquals() throws Exception{
+        assertFalse(MatchHelper.equalsFilter("aa", "aa "));
+        
         assertTrue(MatchHelper.equalsFilter("aa", "aa"));
         assertFalse(MatchHelper.equalsFilter("aa.", "aa"));
         assertFalse(MatchHelper.equalsFilter("aa", "aa."));

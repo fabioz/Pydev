@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 
 args = sys.argv[1:]
 this_script_path = sys.argv[0]
@@ -74,6 +75,16 @@ if __name__ == '__main__':
     
     print 'Generating rst for merged_homepage'
     os.chdir(os.path.join(this_script_dir, 'merged_homepage'))
+    
+    #Copy the update site redirections
+    shutil.rmtree(os.path.join('final', 'updates'), ignore_errors=True)
+    shutil.copytree('updates', os.path.join('final', 'updates'))
+    
+    shutil.rmtree(os.path.join('final', 'nightly'), ignore_errors=True)
+    shutil.copytree('nightly', os.path.join('final', 'nightly'))
+    
+    shutil.copyfile('stylesheet.css', os.path.join('final', 'stylesheet.css'))
+    
     GenerateRstInDir('.', True)
     
     sys.path.insert(0, os.path.join(this_script_dir, 'merged_homepage', 'scripts'))

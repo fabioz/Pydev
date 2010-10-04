@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.plugin.PydevPlugin;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
@@ -19,11 +20,12 @@ public class GlobalsDialogFactory{
 
     /**
      * Creates the dialog according to the Eclipse version we have (on 3.2, the old API is used)
+     * @param pythonNatures 
      */
-    public static SelectionDialog create(Shell shell, List<AbstractAdditionalInterpreterInfo> additionalInfo, String selectedText){
+    public static SelectionDialog create(Shell shell, List<AbstractAdditionalInterpreterInfo> additionalInfo, String selectedText, List<IPythonNature> pythonNatures){
         boolean expectedError = true;
         try{
-            GlobalsTwoPanelElementSelector2 newDialog = new GlobalsTwoPanelElementSelector2(shell, true, selectedText);
+            GlobalsTwoPanelElementSelector2 newDialog = new GlobalsTwoPanelElementSelector2(shell, true, selectedText, pythonNatures);
             //If we were able to instance it, the error is no longer expected!
             expectedError = false;
             

@@ -25,6 +25,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -36,6 +37,10 @@ import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.actions.WorkingSetFilterActionGroup;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
+import org.python.pydev.editor.model.ItemPointer;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalInterpreterInfo;
@@ -62,14 +67,16 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
 
     private String selectedText;
 
-    public GlobalsTwoPanelElementSelector2(Shell shell, boolean multi, String selectedText) {
+    public GlobalsTwoPanelElementSelector2(Shell shell, boolean multi, String selectedText, List<IPythonNature> pythonNatures) {
         super(shell, multi);
         this.selectedText = selectedText;
 
-        setSelectionHistory(new InfoSelectionHistory());
+        setSelectionHistory(new InfoSelectionHistory(pythonNatures));
 
         setTitle("Pydev: Globals Browser");
-        setMessage("Select an item to open (? = any character, * = any string).\nDotted names may be used to filter with package (e.g.: django.utils.In)");
+        setMessage(
+                "Matching: ? = any char    * = any str    CamelCase (TC=TestCase)    Space in the end = exact match.\n" +
+        		"Dotted names may be used to filter with package (e.g.: django.utils.In or just dj.ut.in)");
 
         NameIInfoLabelProvider resourceItemLabelProvider = new NameIInfoStyledLabelProvider(true);
 
@@ -338,8 +345,18 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
      */
     protected class InfoFilter extends ItemsFilter{
 
+        private String initialPattern;
+
+
         public InfoFilter() {
             super();
+            //We have to get the actual text from the control, because the 
+            Text pattern = (Text) getPatternControl();
+            String stringPattern = ""; //$NON-NLS-1$
+            if (pattern != null && !pattern.getText().equals("*")) { //$NON-NLS-1$
+                stringPattern = pattern.getText();
+            }
+            this.initialPattern = stringPattern;
         }
 
         
@@ -366,7 +383,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
                 return false;
             }
 
-            return MatchHelper.isSubFilter(this.patternMatcher.getPattern(), ((InfoFilter) filter).patternMatcher.getPattern());
+            return MatchHelper.isSubFilter(this.initialPattern, ((InfoFilter) filter).initialPattern);
         }
 
         /**
@@ -376,7 +393,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
             if(!(filter instanceof InfoFilter)){
                 return false;
             }
-            return MatchHelper.equalsFilter(this.patternMatcher.getPattern(), ((InfoFilter) filter).patternMatcher.getPattern());
+            return MatchHelper.equalsFilter(this.initialPattern, ((InfoFilter) filter).initialPattern);
         }
 
 
@@ -398,10 +415,34 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
      */
     private class InfoSelectionHistory extends SelectionHistory{
 
+        private List<IPythonNature> pythonNatures;
+        private CompletionCache completionCache;
+
+        public InfoSelectionHistory(List<IPythonNature> pythonNatures) {
+            this.pythonNatures = pythonNatures;
+            this.completionCache = new CompletionCache();
+        }
+
         protected Object restoreItemFromMemento(IMemento element){
             InfoFactory infoFactory = new InfoFactory();
             AdditionalInfoAndIInfo resource = (AdditionalInfoAndIInfo) infoFactory.createElement(element);
-            return resource;
+            if(resource != null){
+                for(IPythonNature pythonNature:pythonNatures){
+                    //Try to find in one of the natures... if we don't find it, return null, as that means
+                    //it doesn't exist anymore!
+                    ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+                    if(astManager == null){
+                        continue;
+                    }
+                    List<ItemPointer> pointers = new ArrayList<ItemPointer>();
+                    AnalysisPlugin.getDefinitionFromIInfo(pointers, astManager, pythonNature, resource.info, completionCache);
+                    if(pointers.size() > 0){
+                        return resource;
+                    }
+                }
+            }
+
+            return null;
         }
 
         protected void storeItemToMemento(Object item, IMemento element){

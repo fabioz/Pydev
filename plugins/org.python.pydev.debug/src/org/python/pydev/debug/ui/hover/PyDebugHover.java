@@ -53,9 +53,11 @@ public class PyDebugHover implements IPyHoverParticipant{
             
             int offset = textSelection.getOffset();
             int len = textSelection.getLength();
+            boolean reportSyntaxErrors = false;
             if(len > 0 && mouseOffset >= offset && offset+len >= mouseOffset){
                 try {
                     act = ps.getDoc().get(offset, len);
+                    reportSyntaxErrors = true; //the user has text selected
                 } catch (BadLocationException e) {
                     //that's Ok... we were not able to get the actual selection here
                     PydevPlugin.log(e);
@@ -70,11 +72,20 @@ public class PyDebugHover implements IPyHoverParticipant{
             //OK, we're in a debug context...
             IWatchExpression watchExpression = EvalExpressionAction.createWatchExpression(act);
             watchExpression.evaluate();
-            EvalExpressionAction.waitForExrpessionEvaluation(watchExpression);
+            EvalExpressionAction.waitForExpressionEvaluation(watchExpression);
             IValue value = watchExpression.getValue();
             if(value != null){
                 try {
-                    return value.getValueString()+"\n";
+                    String valueString = value.getValueString();
+                    if(valueString != null){
+                        if(!reportSyntaxErrors){
+                            if(valueString.startsWith("SyntaxError") && valueString.indexOf("<string>") != -1){
+                                //Don't report syntax errors in the hover
+                                return null;
+                            }
+                        }
+                        return valueString+"\n";
+                    }
                 } catch (DebugException e) {
                     PydevPlugin.log(e);
                 }
