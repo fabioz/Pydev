@@ -134,6 +134,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             } else if (trimmed.length() > 0 && request.activationToken.indexOf('.') != -1) {
                 //code completion for a token
                 doTokenCompletion(request, astManager, tokensList, trimmed, state);
+                handleKeywordParam(request, line, alreadyChecked);
 
             } else { 
                 //go to globals
@@ -141,47 +142,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 
                 //At this point, after doing the globals completion, we may also need to check if we need to show
                 //keyword parameters to the user.
-                if(request.isInMethodKeywordParam){
-                    IRegion regionForKeywordParam = request.doc.getLineInformation(line);
-                    
-                    PySelection ps = new PySelection(request.doc, regionForKeywordParam.getOffset());
-                    RefactoringRequest findRequest = new RefactoringRequest(
-                            request.editorFile, ps, new NullProgressMonitor(), request.nature, null);
-                    ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-                    PyRefactoringFindDefinition.findActualDefinition(findRequest, new CompletionCache(), selected);
-                    
-                    
-                    //Changed: showing duplicated parameters (only removing self and cls).
-                    //Tuple<List<String>, Integer> insideParentesisToks = ps.getInsideParentesisToks(false, completionRequestForKeywordParam.documentOffset);
-                    HashSet<String> ignore = new HashSet<String>();
-                    ignore.add("self");
-                    ignore.add("cls");
-                    //if(insideParentesisToks!=null && insideParentesisToks.o1 != null){
-                    //    for (String object : insideParentesisToks.o1) {
-                    //        ignore.add(object);
-                    //    }
-                    //}
-
-                    
-                    for (IDefinition iDefinition : selected) {
-                        if(iDefinition instanceof Definition){
-                            Definition definition = (Definition) iDefinition;
-                            if(definition.ast != null){
-                                String args = NodeUtils.getNodeArgs(definition.ast);
-                                StringTokenizer tokenizer = new StringTokenizer(args, "(, )");
-                                while(tokenizer.hasMoreTokens()){
-                                    String nextToken = tokenizer.nextToken();
-                                    if(ignore.contains(nextToken)){
-                                        continue;
-                                    }
-                                    String kwParam = nextToken+"=";
-                                    SimpleNode node = new NameTok(kwParam, NameTok.KwArg);
-                                    alreadyChecked.put(kwParam, new SourceToken(node, kwParam, "", "", "", IToken.TYPE_LOCAL));
-                                }
-                            }
-                        }
-                    }
-                }
+                handleKeywordParam(request, line, alreadyChecked);
             }
 
             
@@ -277,6 +238,53 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
 
         return ret;
+    }
+
+    private void handleKeywordParam(CompletionRequest request, int line, Map<String, IToken> alreadyChecked) throws BadLocationException,
+            CompletionRecursionException {
+        if(request.isInMethodKeywordParam){
+            
+            PySelection ps = new PySelection(request.doc, request.offsetForKeywordParam);
+            RefactoringRequest findRequest = new RefactoringRequest(
+                    request.editorFile, ps, new NullProgressMonitor(), request.nature, null);
+            ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+            PyRefactoringFindDefinition.findActualDefinition(findRequest, new CompletionCache(), selected);
+            
+            
+            //Changed: showing duplicated parameters (only removing self and cls).
+            //Tuple<List<String>, Integer> insideParentesisToks = ps.getInsideParentesisToks(false, completionRequestForKeywordParam.documentOffset);
+            HashSet<String> ignore = new HashSet<String>();
+            ignore.add("self");
+            ignore.add("cls");
+            //if(insideParentesisToks!=null && insideParentesisToks.o1 != null){
+            //    for (String object : insideParentesisToks.o1) {
+            //        ignore.add(object);
+            //    }
+            //}
+
+            
+            for (IDefinition iDefinition : selected) {
+                if(iDefinition instanceof Definition){
+                    Definition definition = (Definition) iDefinition;
+                    if(definition.ast != null){
+                        String args = NodeUtils.getNodeArgs(definition.ast);
+                        String fullArgs = NodeUtils.getFullArgs(definition.ast);
+                        StringTokenizer tokenizer = new StringTokenizer(args, "(, )");
+                        while(tokenizer.hasMoreTokens()){
+                            String nextToken = tokenizer.nextToken();
+                            if(ignore.contains(nextToken)){
+                                continue;
+                            }
+                            String kwParam = nextToken+"=";
+                            SimpleNode node = new NameTok(kwParam, NameTok.KwArg);
+                            SourceToken sourceToken = new SourceToken(node, kwParam, "", "", "", IToken.TYPE_LOCAL);
+                            sourceToken.setDocStr(fullArgs);
+                            alreadyChecked.put(kwParam, sourceToken);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

@@ -522,11 +522,11 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         return null;
     }
 
-    private void pushTupleNeedsParens() {
+    public void pushTupleNeedsParens() {
         this.tupleNeedsParens += 1;
     }
     
-    private void popTupleNeedsParens() {
+    public void popTupleNeedsParens() {
         this.tupleNeedsParens -= 1;
     }
 

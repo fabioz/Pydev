@@ -77,27 +77,11 @@ public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContex
             if(token instanceof SourceToken){
                 SourceToken sourceToken = (SourceToken) token;
                 SimpleNode ast = sourceToken.getAst();
-                if(ast != null){
-                    if(ast instanceof ClassDef){
-                        ast = NodeUtils.getClassDefInit((ClassDef) ast);
-                    }
-                    if(ast instanceof FunctionDef){
-                        FunctionDef functionDef = (FunctionDef) ast;
-                        if(functionDef.args != null){
-                            String printed = PrettyPrinterV2.printArguments(new IGrammarVersionProvider() {
-                                
-                                public int getGrammarVersion() throws MisconfigurationException {
-                                    return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
-                                }
-                            }, functionDef.args);
-                            if(printed != null){
-                                if(!printed.startsWith("(")){
-                                    printed = "("+printed+")";
-                                }
-                                argumentsWithParens = printed;
-                            }
-                        }
-                    }
+                String fullArgs = NodeUtils.getFullArgs(ast);
+                if(fullArgs.length() == 0){
+                    argumentsWithParens = null;
+                }else{
+                    argumentsWithParens = fullArgs;
                 }
             }
             if(argumentsWithParens == null){

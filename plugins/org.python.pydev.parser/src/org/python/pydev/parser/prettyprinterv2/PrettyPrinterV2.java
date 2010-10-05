@@ -108,6 +108,9 @@ public class PrettyPrinterV2 {
     public String print(SimpleNode ast) throws IOException {
         PrettyPrinterDocV2 doc = new PrettyPrinterDocV2();
         PrettyPrinterVisitorV2 visitor = new PrettyPrinterVisitorV2(prefs, doc);
+        if(ast instanceof argumentsType){
+            visitor.pushTupleNeedsParens();
+        }
         try{
             visitor.visitNode(ast);
         }catch(Exception e){
