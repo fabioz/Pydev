@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
@@ -39,6 +41,7 @@ import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 
@@ -67,6 +70,33 @@ public class NodeUtils {
             }
             buffer.append(" )");
             return buffer.toString();
+        }
+        return "";
+    }
+
+    
+    public static String getFullArgs(SimpleNode ast) {
+        if(ast != null){
+            if(ast instanceof ClassDef){
+                ast = NodeUtils.getClassDefInit((ClassDef) ast);
+            }
+            if(ast instanceof FunctionDef){
+                FunctionDef functionDef = (FunctionDef) ast;
+                if(functionDef.args != null){
+                    String printed = PrettyPrinterV2.printArguments(new IGrammarVersionProvider() {
+                        
+                        public int getGrammarVersion() throws MisconfigurationException {
+                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+                        }
+                    }, functionDef.args);
+                    if(printed != null){
+                        if(!printed.startsWith("(") || !printed.endsWith(")")){
+                            printed = "("+printed+")";
+                        }
+                        return printed;
+                    }
+                }
+            }
         }
         return "";
     }

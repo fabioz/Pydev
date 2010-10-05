@@ -723,7 +723,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("a", strs[1]);
         
         //Ok, now, the tests for getting the activation token and qualifier for the calltips.
-        //We should 'know' that we're just after a parentesis and get the contents before it
+        //We should 'know' that we're just after a parenthesis and get the contents before it
         //This means: get the char before the offset (excluding spaces and tabs) and see
         //if it is a ',' or '(' and if it is, go to that offset and do the rest of the process
         //as if we were on that position

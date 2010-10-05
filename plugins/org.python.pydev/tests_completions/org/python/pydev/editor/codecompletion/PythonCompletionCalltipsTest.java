@@ -18,7 +18,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
           //DEBUG_TESTS_BASE = true;
           PythonCompletionCalltipsTest test = new PythonCompletionCalltipsTest();
           test.setUp();
-          test.testCalltips8a();
+          test.testCalltips3a();
           test.tearDown();
           System.out.println("Finished");
 
@@ -152,7 +152,7 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         assertFalse(validator.isContextInformationValid(0));
         assertTrue(validator.isContextInformationValid(requestOffset));
         assertFalse(validator.isContextInformationValid(requestOffset+1));
-        assertEquals("a, b, c", contextInformation.getContextDisplayString());
+        assertEquals("(a, b), c", contextInformation.getContextDisplayString());
     }
     
     public void testCalltips4() throws Exception {
@@ -303,6 +303,25 @@ public class PythonCompletionCalltipsTest  extends CodeCompletionTestsBase {
         Document document = new Document(s);
         proposals[0].apply(document);
         assertEquals(StringUtils.format(s0, "param1, param2"), document.get());
+    }
+    
+    public void testCalltips11() throws Exception {
+        String s0 = 
+            "class TestCase(object):\n" +
+            "    \n" +
+            "    def M1(self, kkk, xxx):\n" +
+            "        pass\n" +
+            "\n" +
+            "    def __init__(self):\n" +
+            "        self.M1(k%s)";
+        
+        String s = StringUtils.format(s0, "");
+        ICompletionProposal[] proposals = requestCompl(s, s.length()-1, -1, new String[] {});
+        assertEquals(1, proposals.length); 
+        
+        Document document = new Document(s);
+        proposals[0].apply(document);
+        assertEquals(StringUtils.format(s0, "kk="), document.get());
     }
     
     

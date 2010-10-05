@@ -2902,7 +2902,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         Module node = (Module) parseLegalDocStr(s);
         FunctionDef funcDef = (FunctionDef) node.body[0];
         //yes, just making sure it's not supported.
-        assertEquals("a, b, c", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
+        assertEquals("(a, b), c", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
         
     }
     

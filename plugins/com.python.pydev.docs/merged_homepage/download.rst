@@ -2,12 +2,9 @@
 Download (Current release: **LAST_VERSION_TAG**)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Notes
-~~~~~~
 
-* If you previously used the separate version of Pydev Extensions, it should be uninstalled before getting
-  the newest Pydev version (which incorporated its features).
-
+First time users are advised to read the `Getting started guide`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Requirements
 ~~~~~~~~~~~~~
@@ -19,8 +16,9 @@ Requirements
 .. _Java: http://www.javasoft.com
 .. _JDT: http://www.eclipse.org/jdt/
 .. _Platform Runtime Binary: http://download.eclipse.org/eclipse/downloads/
-.. _`Aptana Studio`: http://aptana.com/studio
-.. _`Aptana Studio 3`: http://aptana.com/products/studio3/download
+.. _`Aptana Studio 2`: http://aptana.com/products/studio2
+.. _`Aptana Studio 3`: http://aptana.com/products/studio3
+.. _`Getting started guide`: manual_101_root.html
 
 At least one of:
 
@@ -31,16 +29,23 @@ At least one of:
 and 
 
 
-* `Aptana Studio`_ or `Eclipse (3.2 to 3.6)`_ 
+* `Aptana Studio 2`_, `Aptana Studio 3`_ (Beta) or `Eclipse (3.2 to 3.6)`_ 
 
 	* Python_ and IronPython_ require only the `Platform Runtime Binary`_ (download around 45-50 MB), and Jython_ also requires JDT_.
 	
-* For using the Django Templates editor, `Aptana Studio 3` is required.
-
-* Pydev is now preinstalled in `Aptana Studio 3`, so it can be gotten directly from http://aptana.com/products/studio3/download in
-  a download where it doesn't need to be installed separately.
-	
 * Java_ 1.4 or higher
+
+  
+Important
+~~~~~~~~~~~
+
+* Pydev is now preinstalled in `Aptana Studio 3`_ (in the download from http://aptana.com/products/studio3/download it doesn't need to be installed separately).
+  
+* For using the Django Templates editor, `Aptana Studio 3`_ is required.
+
+* If Pydev is used with Aptana Studio 3, it **cannot** be installed or updated separately (Aptana Studio 3 must always be updated as a whole)
+
+
 
 
 .. _http://pydev.sourceforge.net/updates: http://pydev.sourceforge.net/updates
@@ -51,7 +56,7 @@ and
 Urls to use when updating with the Eclipse update manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:Mirrors:
+:Main:
 
     * `http://pydev.org/updates`_
     
@@ -60,8 +65,6 @@ Urls to use when updating with the Eclipse update manager
     * `http://pydev.org/nightly`_
 
         
-        
-
 
 Get zip releases
 ~~~~~~~~~~~~~~~~~~

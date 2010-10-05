@@ -40,6 +40,42 @@ It comes with many goodies such as:
 
 For more details on the provided features, check the `Features Matrix`_.
 
+Release 1.6.3
+==============
+
+
+* Improved editor preferences page when using Aptana themes
+
+* Icons updated to work better with dark backgrounds
+
+* Handling code-completion for keywords (e.g.: a method definition with a parameter 'call' will have a 'call=' completion on the caller)
+
+* Showing a better tooltip for parameters
+
+* No longer marking the Django templates editor as the default editor for css nor html (it can be restored at window > preferences > general > editors > file associations)
+
+* **Globals Browser**
+    * Improved message in globals browser to better explan its features:
+        * Exact match with a whitespace in the end
+        * CamelCase matching (so, entering only TC would be enough to find a class named TestCase)  
+        * Dotted names may be used to filter through the packages (so, dj.ut.TC would find a TestCase class defined in the django.utils package)
+    * Fix: When a space is added in the end, an exact match is done
+    * Fix: No longer restoring items that don't exist anymore
+    
+* Bug Fixes
+    * Fixed issue on dict and set comprehension code analysis
+    * Syntax errors on hover in a debug session not shown
+    * Block preferences page validation before save
+    * Improved django wizard configuration a bit to cover cases where the user does not have django installed or tries to add 'django' as the project name
+    * The example code in the pydev editor preferences is no longer editable
+    * 2to3 only added in the context menu of projects with the pydev nature
+    * If a debug session is terminated, no message saying that the variable can't be resolved in the hover is shown if the debug target is still selected
+    * Fixed path issues in sqlite3 path in django project creation
+    * Fixed issue where quotes could end up in the execfile when they should not be there
+    * Fixed issue where shift right did not work properly because the indent prefixes were not properly set when the tab preference changed
+    
+
+
 Release 1.6.2
 ==============
 

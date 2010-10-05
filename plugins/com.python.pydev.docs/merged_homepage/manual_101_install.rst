@@ -1,11 +1,21 @@
-**Note: Instructions are targeted at Eclipse 3.5 and 3.6**
-
-
 .. contents::
+
+.. _`Aptana Studio 3`: http://aptana.com/products/studio3
+
+
+Note for users with Aptana Studio 3 (Beta)
+==========================================
+
+Pydev already comes preinstalled in `Aptana Studio 3`_, so, this step can be skipped (note that if `Aptana Studio 3`_ is used,
+Pydev cannot be installed or update separately, as it must always be updated as a whole). 
+
+
 
 
 Installing with the update site 
 ================================
+
+**Note: Instructions are targeted at Eclipse 3.5 and 3.6**
 
 To install Pydev and Pydev Extensions using the Eclipse Update Manager, you need to use the **Help > Install New Software...**
 menu (note that in older versions, this would be the 'Find and Install' menu).
@@ -22,7 +32,6 @@ In the next screen, add the update site(s) you want to work with (**See below fo
    :align: center   
    
    
-.. _http://pydev.sourceforge.net/updates: http://pydev.sourceforge.net/updates
 .. _http://pydev.org/updates: http://pydev.org/updates
 .. _http://pydev.org/nightly: http://pydev.org/nightly
 .. _SourceForge download: http://sourceforge.net/projects/pydev/files/
@@ -33,9 +42,8 @@ _`Available update sites`
 
     
 
-:Mirrors:
+:Main:
 
-    * `http://pydev.sourceforge.net/updates`_
     * `http://pydev.org/updates`_
     
 :Nightly builds: 

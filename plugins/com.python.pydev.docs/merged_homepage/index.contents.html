@@ -25,6 +25,59 @@
 </blockquote>
 <p>For more details on the provided features, check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
 </div>
+<div class="section" id="release-1-6-3">
+<h1>Release 1.6.3</h1>
+<ul>
+<li><p class="first">Improved editor preferences page when using Aptana themes</p>
+</li>
+<li><p class="first">Icons updated to work better with dark backgrounds</p>
+</li>
+<li><p class="first">Handling code-completion for keywords (e.g.: a method definition with a parameter 'call' will have a 'call=' completion on the caller)</p>
+</li>
+<li><p class="first">Showing a better tooltip for parameters</p>
+</li>
+<li><p class="first">No longer marking the Django templates editor as the default editor for css nor html (it can be restored at window &gt; preferences &gt; general &gt; editors &gt; file associations)</p>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Globals Browser</strong></dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>Improved message in globals browser to better explan its features:</dt>
+<dd><ul class="first last simple">
+<li>Exact match with a whitespace in the end</li>
+<li>CamelCase matching (so, entering only TC would be enough to find a class named TestCase)</li>
+<li>Dotted names may be used to filter through the packages (so, dj.ut.TC would find a TestCase class defined in the django.utils package)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Fix: When a space is added in the end, an exact match is done</p>
+</li>
+<li><p class="first">Fix: No longer restoring items that don't exist anymore</p>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Bug Fixes</dt>
+<dd><ul class="first last simple">
+<li>Fixed issue on dict and set comprehension code analysis</li>
+<li>Syntax errors on hover in a debug session not shown</li>
+<li>Block preferences page validation before save</li>
+<li>Improved django wizard configuration a bit to cover cases where the user does not have django installed or tries to add 'django' as the project name</li>
+<li>The example code in the pydev editor preferences is no longer editable</li>
+<li>2to3 only added in the context menu of projects with the pydev nature</li>
+<li>If a debug session is terminated, no message saying that the variable can't be resolved in the hover is shown if the debug target is still selected</li>
+<li>Fixed path issues in sqlite3 path in django project creation</li>
+<li>Fixed issue where quotes could end up in the execfile when they should not be there</li>
+<li>Fixed issue where shift right did not work properly because the indent prefixes were not properly set when the tab preference changed</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
 <div class="section" id="release-1-6-2">
 <h1>Release 1.6.2</h1>
 <ul>
