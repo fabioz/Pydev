@@ -10,6 +10,7 @@ import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -514,6 +515,9 @@ public final class FastDefinitionsParser {
         try{
             parser.extractBody();
         }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);
+        }catch(StackOverflowError e){
+            Log.log("Error parsing: "+moduleName+"\nContents:\n"+new String(cs), e);
             throw new RuntimeException(e);
         }
         List<stmtType> body = parser.body;

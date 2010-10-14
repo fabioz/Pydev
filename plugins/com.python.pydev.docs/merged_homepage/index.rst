@@ -131,25 +131,6 @@ Release 1.6.1
     * Improved some icons when on a dark theme (patch from Kenneth Belitzky)
 
 
-Release 1.6.0
-==============
-
-
-* **Debugger**
-
-    * Code-completion added to the debug console
-    * Entries in the debug console are evaluated on a line-by-line basis (previously an empty line was needed)
-    * Threads started with thread.start_new_thread are now properly traced in the debugger
-    * Added method -- pydevd.set_pm_excepthook() -- which clients may use to debug uncaught exceptions
-    * Printing exception when unable to connect in the debugger
-    
-* **General**
-
-    * Interactive console may be created using the eclipse vm (which may be used for experimenting with Eclipse) 
-    * Apply patch working (Fixed NPE when opening compare editor in a dialog)
-    * Added compatibility to Aptana Studio 3 (Beta) -- release from July 12th
-
-
     
 What happened to Pydev Extensions?
 ====================================

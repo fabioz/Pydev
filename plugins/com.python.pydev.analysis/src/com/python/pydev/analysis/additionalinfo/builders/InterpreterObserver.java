@@ -219,7 +219,7 @@ public class InterpreterObserver implements IInterpreterObserver {
                                                 errorDesc.message:"unable to determine"));
                             }
 
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                             PydevPlugin.log(IStatus.ERROR, "Problem parsing the file :" + key.file + ".", e);
                         }
                     }

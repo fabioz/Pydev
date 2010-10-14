@@ -1,0 +1,20 @@
+To enable .htacces to work:
+
+sudo a2enmod rewrite
+
+And at /etc/apache2/sites-available/default, set AllowOverride:
+
+ <Directory /var/www/>
+         Options Indexes FollowSymLinks MultiViews
+         AllowOverride All
+         Order allow,deny
+         allow from all
+ </Directory>
+
+Restart,stop,start
+/etc/init.d/apache2 restart
+/etc/init.d/apache2 start
+/etc/init.d/apache2 stop
+
+find /var/www -type d -exec chmod 755 {} \;
+find /var/www -type f -exec chmod 644 {} \;
