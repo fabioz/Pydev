@@ -56,6 +56,10 @@ public class Log {
     public static void log(String msg) {
         log(IStatus.ERROR, msg, new RuntimeException(msg));
     }
+    
+    public static void log(String msg, Throwable e) {
+        log(IStatus.ERROR, msg, e);
+    }
 
     
     //------------ Log that writes to a new console
