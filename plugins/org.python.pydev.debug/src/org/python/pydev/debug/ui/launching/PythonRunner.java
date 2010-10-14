@@ -30,6 +30,8 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
+import org.python.pydev.debug.pyunit.PyUnitServer;
+import org.python.pydev.debug.pyunit.PyUnitView;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleRunner;
 
@@ -70,18 +72,19 @@ public class PythonRunner {
     public static void run(final PythonRunnerConfig config, ILaunch launch, IProgressMonitor monitor) throws CoreException, IOException {
 
         try{
+            PyUnitServer pyUnitServer = null;
+            if(config.isUnittest()){
+                pyUnitServer = config.createPyUnitServer(config, launch);
+                PyUnitView.registerPyUnitServer(pyUnitServer);
+            }
+            
             if (config.isDebug) {
                 runDebug(config, launch, monitor);
-                
-            }else if (config.isUnittest()) {
-                //I know it's the same, but let's leave it separate (if some day we want to show
-                //a view and connect to the process through sockets, this is the place for doing it...)
-                //for now, only the command line (which is handled by the config) is needed.
-                doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
                 
             }else { //default - just configured by command line (the others need special attention)
                 doIt(config, monitor, config.envp, config.getCommandLine(true), config.workingDirectory, launch);
             }
+            
         }catch (final JDTNotAvailableException e) {
             PydevPlugin.log(e);
             final Display display = Display.getDefault();

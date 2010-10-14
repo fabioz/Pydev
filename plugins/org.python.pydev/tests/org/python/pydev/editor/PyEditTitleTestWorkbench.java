@@ -56,7 +56,9 @@ public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase{
             assertEquals("my_file.py (pydev_title_project)", editor.getPartName());
             assertEquals("my_file.py (folder)", editor2.getPartName());
         } finally {
-            editor2.close(true);
+            if(editor2 != null){
+                editor2.close(true);
+            }
             editor = null;
         }
         

@@ -20,12 +20,16 @@ if __name__ == '__main__':
     
     #Here we'll run either with nose or with the pydev_runfiles.
     import pydev_runfiles
+    import pydev_runfiles_xml_rpc
+    
+    files_or_dirs, verbosity, test_filter, tests, port = pydev_runfiles.parse_cmdline([sys.argv[0]] + pydev_params)
+    pydev_runfiles_xml_rpc.InitializeServer(port)
+
     try:
         import nose
     except ImportError:
         sys.stderr.write('Warning: Could not import the nose test runner. Running with the default pydev unittest runner.\n')
-        sys.argv = [sys.argv[0]] + pydev_params
-        pydev_runfiles.main()
+        pydev_runfiles.main(files_or_dirs, verbosity, test_filter, tests, port)
         
     else:
         #We'll convert the parameters to what nose expects.
@@ -38,52 +42,27 @@ if __name__ == '__main__':
         #--verbosity = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY)
         #--filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER)
         
-        DEBUG = True
-        files_or_dirs, verbosity, test_filter, tests = pydev_runfiles.parse_cmdline()
+        DEBUG = False
         
         #Nose usage: http://somethingaboutorange.com/mrl/projects/nose/0.11.2/usage.html
-        
-        #Should pass a --id-file that pydev controls! (so .nosetests is not created in the working dir)
-        rerun_failures = False
-        if not rerun_failures:
-            show_stdout_option = ['-s']
-#            show_stdout_option = []
-            processes_option = ['--processes=2']
-#            processes_option = []
+        show_stdout_option = ['-s']
+#        show_stdout_option = []
+        processes_option = ['--processes=2']
+#        processes_option = []
             
-            if tests:
-                new_files_or_dirs = []
-                for f in files_or_dirs:
-                    for t in tests:
-                        new_files_or_dirs.append(f+':'+t)
-                files_or_dirs = new_files_or_dirs
-            argv = ['--verbosity='+str(verbosity)] + processes_option + show_stdout_option + nose_params + files_or_dirs
-        else:
-            argv = ['--with-id', '--failed'] + files_or_dirs
+        if tests:
+            new_files_or_dirs = []
+            for f in files_or_dirs:
+                for t in tests:
+                    new_files_or_dirs.append(f+':'+t)
+            files_or_dirs = new_files_or_dirs
+        argv = ['--verbosity='+str(verbosity)] + processes_option + show_stdout_option + nose_params + files_or_dirs
         
         argv.insert(0, sys.argv[0])
         
         if DEBUG:
-            print 'Nose args:', sys.argv[1:]
+            print 'Nose args:', argv[1:]
 
-        from nose.plugins.base import Plugin
-        class PydevPlugin(Plugin):
-            
-            def startTest(self, test):
-                print "Pydev: started %s" % test
-                
-        
-            def addTestCase(self, kind, test, err=None):
-                print "Pydev: add test case %s" % test
-        
-            def addError(self, test, err):
-                print "Pydev: add error %s" % test
-        
-            def addFailure(self, test, err):
-                print "Pydev: add failure %s" % test
-        
-            def addSuccess(self, test):
-                print "Pydev: add success %s" % test
-                
+        from pydev_runfiles_nose import PYDEV_NOSE_PLUGIN_SINGLETON
         argv.append('--with-pydevplugin')
-        nose.run(argv=argv, addplugins=[PydevPlugin()])
+        nose.run(argv=argv, addplugins=[PYDEV_NOSE_PLUGIN_SINGLETON])

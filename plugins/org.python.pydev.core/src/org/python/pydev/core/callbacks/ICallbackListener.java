@@ -4,8 +4,8 @@ package org.python.pydev.core.callbacks;
 /**
  * A simple callback that will allow extensions to know about what they need.
  */
-public interface ICallbackListener {
+public interface ICallbackListener<X> {
 
-	Object call(Object obj);
+	Object call(X obj);
 
 }

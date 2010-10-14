@@ -195,20 +195,27 @@ def short_has_arg(opt, shortopts):
 #=======================================================================================================================
 # parse_cmdline
 #=======================================================================================================================
-def parse_cmdline():
+def parse_cmdline(argv=None):
     """ parses command line and returns test directories, verbosity, test filter and test suites
         usage: 
             runfiles.py  -v|--verbosity <level>  -f|--filter <regex>  -t|--tests <Test.test1,Test2>  dirs|files
     """
+    if argv is None:
+        argv = sys.argv
+        
     verbosity = 2
     test_filter = None
     tests = None
+    port = None
 
-    optlist, dirs = gnu_getopt(sys.argv[1:], "v:f:t:", ["verbosity=", "filter=", "tests="])
+    optlist, dirs = gnu_getopt(argv[1:], "v:f:t:p:", ["verbosity=", "filter=", "tests=", "port="])
     for opt, value in optlist:
         if opt in ("-v", "--verbosity"):
             verbosity = value
 
+        elif opt in ("-p", "--port"):
+            port = int(value)
+            
         elif opt in ("-f", "--filter"):
             test_filter = value.split(',')
 
@@ -226,7 +233,7 @@ def parse_cmdline():
         else:
             ret_dirs.append(d)
 
-    return ret_dirs, int(verbosity), test_filter, tests
+    return ret_dirs, int(verbosity), test_filter, tests, port
 
 
 #=======================================================================================================================
@@ -523,6 +530,5 @@ class PydevTestRunner:
         return
 
 
-def main():
-    files_or_dirs, verbosity, test_filter, tests = parse_cmdline()
+def main(files_or_dirs, verbosity, test_filter, tests, port):
     PydevTestRunner(files_or_dirs, test_filter, verbosity, tests).run_tests()

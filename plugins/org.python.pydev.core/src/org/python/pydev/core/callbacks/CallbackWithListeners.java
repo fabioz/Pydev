@@ -4,17 +4,17 @@ import java.util.ArrayList;
 
 import org.python.pydev.core.log.Log;
 
-public class CallbackWithListeners implements ICallbackWithListeners{
+public class CallbackWithListeners<X> implements ICallbackWithListeners<X>{
 
-	private ArrayList<ICallbackListener> listeners;
+	private ArrayList<ICallbackListener<X>> listeners;
 
 	public CallbackWithListeners() {
-		this.listeners = new ArrayList<ICallbackListener>();
+		this.listeners = new ArrayList<ICallbackListener<X>>();
 	}
 	
-	public Object call(Object obj) {
+	public Object call(X obj) {
 		Object result = null;
-		for(ICallbackListener listener:this.listeners){
+		for(ICallbackListener<X> listener:this.listeners){
 			try {
 				Object callResult = listener.call(obj);
 				if(callResult != null){
@@ -28,7 +28,7 @@ public class CallbackWithListeners implements ICallbackWithListeners{
 		return result;
 	}
 
-	public void registerListener(ICallbackListener listener) {
+	public void registerListener(ICallbackListener<X> listener) {
 		this.listeners.add(listener);
 	}
 
