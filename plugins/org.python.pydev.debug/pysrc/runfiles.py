@@ -45,10 +45,10 @@ if __name__ == '__main__':
         DEBUG = False
         
         #Nose usage: http://somethingaboutorange.com/mrl/projects/nose/0.11.2/usage.html
-        show_stdout_option = ['-s']
-#        show_stdout_option = []
-        processes_option = ['--processes=2']
-#        processes_option = []
+#        show_stdout_option = ['-s']
+        show_stdout_option = []
+#        processes_option = ['--processes=2']
+        processes_option = []
             
         if tests:
             new_files_or_dirs = []

@@ -20,7 +20,7 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
 
-public class PyUnitServer  {
+public class PyUnitServer implements IPyUnitServer  {
     
     /**
      * Server used to get information on the tests running.
@@ -62,14 +62,17 @@ public class PyUnitServer  {
             String method = request.getMethodName();
             if("notifyTest".equals(method)){
                 int parameterCount = request.getParameterCount();
-                if(parameterCount != 3){
-                    PydevPlugin.log("Error. Expected 3 parameters in notifyTest. Received: "+parameterCount);
+                if(parameterCount != 5){
+                    PydevPlugin.log("Error. Expected 5 parameters in notifyTest. Received: "+parameterCount);
                 }else{
                     String status = request.getParameter(0).toString();
-                    String location = request.getParameter(1).toString();
-                    String test = request.getParameter(2).toString();
+                    String capturedOutput = request.getParameter(1).toString();
+                    String errorContents = request.getParameter(2).toString();
+                    String location = request.getParameter(3).toString();
+                    String test = request.getParameter(4).toString();
+                    
                     for(IPyUnitServerListener listener:listeners){
-                        listener.notifyTest(status, location, test);
+                        listener.notifyTest(status, location, test, capturedOutput, errorContents);
                     }
                 }
                 

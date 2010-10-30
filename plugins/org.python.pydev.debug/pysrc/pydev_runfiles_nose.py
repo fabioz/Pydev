@@ -9,13 +9,13 @@ import pydev_runfiles_xml_rpc
 #===============================================================================
 class PydevPlugin(Plugin):
     
-    def reportCond(self, cond, address):
+    def reportCond(self, cond, address, captured_output='', error_contents=''):
         '''
         @param cond: fail, error, ok
         @param address: list(location, test)
             E.g.: ['D:\\src\\mod1\\hello.py', 'TestCase.testMet1']
         '''
-        pydev_runfiles_xml_rpc.NotifyTest(cond, *address)
+        pydev_runfiles_xml_rpc.NotifyTest(cond, captured_output, error_contents, *address)
         
         
     def convertAddr(self, addr):
@@ -26,17 +26,43 @@ class PydevPlugin(Plugin):
         '''
         return [addr[0], addr[2]]
     
+    def getIoFromError(self, err):
+        from StringIO import StringIO
+        s = StringIO()
+        etype, value, tb = err
+        import traceback;traceback.print_exception(etype, value, tb, file=s)
+        return s.getvalue()
+    
+    def getCapturedOutput(self, test):
+        if test.capturedOutput:
+            return test.capturedOutput
+        return ''
     
     def addError(self, test, err):
-        self.reportCond('error', self.convertAddr(test.address()))
+        self.reportCond(
+            'error', 
+            self.convertAddr(test.address()), 
+            self.getCapturedOutput(test), 
+            self.getIoFromError(err), 
+        )
 
 
     def addFailure(self, test, err):
-        self.reportCond('fail', self.convertAddr(test.address()))
+        self.reportCond(
+            'fail', 
+            self.convertAddr(test.address()), 
+            self.getCapturedOutput(test), 
+            self.getIoFromError(err), 
+        )
 
 
     def addSuccess(self, test):
-        self.reportCond('ok', self.convertAddr(test.address()))
+        self.reportCond(
+            'ok', 
+            self.convertAddr(test.address()), 
+            self.getCapturedOutput(test), 
+        )
+        
         
 PYDEV_NOSE_PLUGIN_SINGLETON = PydevPlugin()
 

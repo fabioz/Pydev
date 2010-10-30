@@ -1,9 +1,16 @@
 package org.python.pydev.debug.pyunit;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -14,11 +21,15 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
+import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.ui.IViewCreatedObserver;
 
 /**
- * ViewPart that'll listen to the PyUnitServer and show what's happening (with a green/red bar).
+ * ViewPart that'll listen to the PyUnitServer and show what'sash happening (with a green/red bar).
  * 
  * Other features should include:
  * 
@@ -47,48 +58,106 @@ import org.python.pydev.core.log.Log;
  * Sort indicator in column header ( http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet192.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
  * 
  * 
- * org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it's really not meant to be reused)
+ * org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it'sash really not meant to be reused)
  * 
  */
-public class PyUnitView extends ViewPart{
-
-    private SashForm s;
-    Tree tree;
+public class PyUnitView extends ViewPartWithOrientation implements SelectionListener, MouseListener{
     
+    public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
+    public final ICallbackWithListeners onDispose = new CallbackWithListeners();
+    private List<PyUnitTestRun> allRuns = new ArrayList<PyUnitTestRun>();
+    private PyUnitTestRun currentRun;
+
+    public PyUnitView() {
+        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
+                ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+        for (IViewCreatedObserver iViewCreatedObserver : participants) {
+            iViewCreatedObserver.notifyViewCreated(this);
+        }
+    }
+
+    private SashForm sash;
+    private Tree tree;
+    private StyledText text;
+    private CounterPanel fCounterPanel;
+    private PyUnitProgressBar fProgressBar;
+    private Composite fCounterComposite;
+    
+    public PyUnitProgressBar getProgressBar() {
+        return fProgressBar;
+    }
+    
+    public CounterPanel getCounterPanel() {
+        return fCounterPanel;
+    }
 
     @Override
     public void createPartControl(Composite parent) {
+        super.createPartControl(parent);
         final ToolTipHandler tooltip = new ToolTipHandler(parent.getShell());
 
         GridLayout layout = new GridLayout();
-        layout.numColumns = 2;
+        layout.numColumns = 1;
         layout.verticalSpacing = 2;
         layout.marginWidth = 0;
         layout.marginHeight = 2;
         parent.setLayout(layout);
+        
+        
+        fCounterComposite= new Composite(parent, SWT.NONE);
+        layout= new GridLayout();
+        fCounterComposite.setLayout(layout);
+        fCounterComposite.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 
-        s = new SashForm(parent, SWT.HORIZONTAL);
-        //s.setOrientation(SWT.VERTICAL); //Update orientation: should be automatic!
+        fCounterPanel = new CounterPanel(fCounterComposite);
+        fCounterPanel.setLayoutData(
+            new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+        fProgressBar = new PyUnitProgressBar(fCounterComposite);
+        fProgressBar.setLayoutData(
+                new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+
+        sash = new SashForm(parent, SWT.HORIZONTAL);
         GridData layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
         layoutData.verticalAlignment = GridData.FILL;
-        s.setLayoutData(layoutData);
+        sash.setLayoutData(layoutData);
                 
-        tree = new Tree(s, SWT.FULL_SELECTION|SWT.SINGLE);
+        tree = new Tree(sash, SWT.FULL_SELECTION|SWT.SINGLE);
         tooltip.activateHoverHelp(tree);
         tree.setHeaderVisible(true);
-        createColumn("Result", 50);
-        createColumn("File", 200);
-        createColumn("Test", 100);
-        createColumn("Time (s)", 50);
-
-        parent = s;
-
+        createColumn("Result", 70);
+        createColumn("File", 180);
+        createColumn("Test", 180);
+        createColumn("Time (s)", 80);
+        onControlCreated.call(tree);
         
-    }
+        tree.addMouseListener(this);
+        tree.addSelectionListener(this);
 
+
+        text = new StyledText(sash, SWT.MULTI);
+        onControlCreated.call(text);
+    }
+    
+    @Override
+    protected void setNewOrientation(int orientation) {
+        if(sash != null && !sash.isDisposed() && fCounterComposite != null && !fCounterComposite.isDisposed()){
+            GridLayout layout= (GridLayout) fCounterComposite.getLayout();
+            if(orientation == VIEW_ORIENTATION_HORIZONTAL){
+                sash.setOrientation(SWT.HORIZONTAL);
+                layout.numColumns = 2;
+                
+            }else{
+                sash.setOrientation(SWT.VERTICAL);
+                layout.numColumns = 1;
+            }
+            fParent.layout();
+        }
+    }
+    
+    
     private void createColumn(String text, int width) {
         TreeColumn column1;
         column1 = new TreeColumn(tree, SWT.LEFT);
@@ -101,33 +170,161 @@ public class PyUnitView extends ViewPart{
     public void setFocus() {
         
     }
+    
+    @Override
+    public void dispose() {
+        if(this.tree != null){
+            Tree t = this.tree;
+            this.tree = null;
+            t.dispose();
+            onDispose.call(t);
+        }
+        if(this.text != null){
+            StyledText t = this.text;
+            this.text = null;
+            t.dispose();
+            onDispose.call(t);
+        }
+        super.dispose();
+    }
 
-    public static void registerPyUnitServer(final PyUnitServer pyUnitServer) {
+    public static PyUnitViewServerListener registerPyUnitServer(final IPyUnitServer pyUnitServer) {
+        return registerPyUnitServer(pyUnitServer, true);
+    }
+    
+    public static PyUnitViewServerListener registerPyUnitServer(final IPyUnitServer pyUnitServer, boolean async) {
         //We create a listener before and later set the view so that we don't run into racing condition errors!
         final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer);
         
         Runnable r = new Runnable() {
             public void run() {
-                IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
                 try {
-                    IWorkbenchPage page= workbenchWindow.getActivePage();
-                    PyUnitView view = (PyUnitView) page.showView("org.python.pydev.debug.pyunit.pyUnitView", null, IWorkbenchPage.VIEW_VISIBLE);
-                    serverListener.setView(view);
+                    PyUnitView view = getView();
+                    if(view != null){
+                        serverListener.setView(view);
+                        view.addTestRunAndMakecurrent(serverListener.getTestRun());
+                    }else{
+                        Log.log("Could not get pyunit view");
+                    }
                 } catch (Exception e) {
                     Log.log(e);
                 }
             }
         };
         
-        Display.getDefault().asyncExec(r);
+        if(async){
+            Display.getDefault().asyncExec(r);
+        }else{
+            Display.getDefault().syncExec(r);
+        }
+        return serverListener;
     }
 
-    /*default*/ void notifyTest(String status, String location, String test) {
+    
+    public static PyUnitView getView() {
+        IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        try {
+            IWorkbenchPage page= workbenchWindow.getActivePage();
+            return (PyUnitView) page.showView("org.python.pydev.debug.pyunit.pyUnitView", null, IWorkbenchPage.VIEW_VISIBLE);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return null;
+    }
+    
+    protected void addTestRunAndMakecurrent(PyUnitTestRun testRun) {
+        allRuns.add(testRun);
+        setCurrentRun(testRun);
+    }
+
+    /*default */ void notifyFinished(PyUnitTestRun testRun) {
+        if(testRun != currentRun){
+            return;
+        }
+        updateCountersAndBar();
+    }
+
+    
+    /*default*/ void notifyTest(PyUnitTestResult result) {
+        notifyTest(result, true);
+    }
+    
+    private void notifyTest(PyUnitTestResult result, boolean updateBar) {
+        if(result.getTestRun() != currentRun){
+            return;
+        }
         TreeItem treeItem = new TreeItem(tree, 0);
-        File file = new File(location);
-        treeItem.setText(new String[]{status, file.getName(), test});
-        treeItem.setData ("TIP_TEXT", location);
-
+        File file = new File(result.location);
+        treeItem.setText(new String[]{result.status, file.getName(), result.test});
+        treeItem.setData ("TIP_TEXT", result.location);
+        treeItem.setData("RESULT", result);
+        
+        if(updateBar){
+            updateCountersAndBar();
+        }
     }
+
+    private void updateCountersAndBar() {
+        int numberOfRuns = currentRun.getNumberOfRuns();
+        int numberOfErrors = currentRun.getNumberOfErrors();
+        int numberOfFailures = currentRun.getNumberOfFailures();
+        
+        fCounterPanel.setRunValue(numberOfRuns);
+        fCounterPanel.setErrorValue(numberOfErrors);
+        fCounterPanel.setFailureValue(numberOfFailures);
+        
+        setShowBarWithError(numberOfErrors + numberOfFailures > 0, numberOfRuns > 0, currentRun.getFinished());
+    }
+    
+
+    private void setShowBarWithError(boolean hasError, boolean hasRuns, boolean finished) {
+        fProgressBar.reset(hasError, false, hasRuns?1:0, finished?1:2);
+    }
+
+    private FastStringBuffer temp = new FastStringBuffer();
+    public void widgetSelected(SelectionEvent e) {
+        if(e.item != null){
+            PyUnitTestResult result = (PyUnitTestResult) e.item.getData("RESULT");
+            temp.clear();
+            if(result.capturedOutput != null){
+                temp.append(result.capturedOutput);
+            }
+            if(result.errorContents != null){
+                temp.append(result.errorContents);
+            }
+            text.setText(temp.toString());
+        }
+        
+    }
+
+    public void widgetDefaultSelected(SelectionEvent e) {
+    }
+
+    public void mouseDoubleClick(MouseEvent e) {
+        if(e.widget == tree){
+            System.out.println("Double click tree.");
+        }
+    }
+
+    public void mouseDown(MouseEvent e) {
+    }
+
+    public void mouseUp(MouseEvent e) {
+    }
+
+    public PyUnitTestRun getCurrentTestRun() {
+        return this.currentRun;
+    }
+
+    public void setCurrentRun(PyUnitTestRun testRun) {
+        this.currentRun = testRun;
+        tree.clearAll(true);
+        List<PyUnitTestResult> sharedResultsList = testRun.getSharedResultsList();
+        for (PyUnitTestResult result : sharedResultsList) {
+            notifyTest(result, false);
+        }
+        updateCountersAndBar();
+    }
+
 
 }

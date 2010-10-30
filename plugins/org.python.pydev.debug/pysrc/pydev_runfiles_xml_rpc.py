@@ -19,10 +19,10 @@ def InitializeServer(port):
 #=======================================================================================================================
 # NotifyTest
 #=======================================================================================================================
-def NotifyTest(cond, file, test):
+def NotifyTest(cond, captured_output, error_contents, file, test):
     '''
     @param cond: ok, fail, error
     @param file: the tests file (c:/temp/test.py)
     @param test: the test ran (i.e.: TestCase.test1)
     '''
-    SERVER.notifyTest(cond, file, test)
+    SERVER.notifyTest(cond, captured_output, error_contents, file, test)

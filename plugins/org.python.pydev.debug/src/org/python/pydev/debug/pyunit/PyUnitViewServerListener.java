@@ -41,25 +41,47 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
             return Status.OK_STATUS;
         }
     };
+
+    private final PyUnitTestRun testRun;
     
     
-    public PyUnitViewServerListener(PyUnitServer pyUnitServer) {
+    public PyUnitViewServerListener(IPyUnitServer pyUnitServer) {
+        this.testRun = new PyUnitTestRun();
         pyUnitServer.registerOnNotifyTest(this);
-        updateJob.setPriority(Job.SHORT);
+        updateJob.setPriority(JOBS_PRIORITY);
         updateJob.setSystem(true);
     }
 
-    public void notifyTest(final String status, final String location, final String test) {
+    public static int TIMEOUT = 25;
+    public static int JOBS_PRIORITY = Job.SHORT;
+    
+    public void notifyTest(final String status, final String location, final String test, final String capturedOutput, final String errorContents) {
         synchronized (notifications) {
             notifications.add(new ICallback0<Object>() {
 
                 public Object call() {
-                    view.notifyTest(status, location, test);
+                    PyUnitTestResult result = new PyUnitTestResult(testRun, status, location, test, capturedOutput, errorContents);
+                    testRun.addResult(result);
+                    view.notifyTest(result);
                     return null;
                 }
             });
         }
-        updateJob.schedule(25);
+        updateJob.schedule(TIMEOUT);
+    }
+    
+    public void notifyFinished() {
+        synchronized (notifications) {
+            notifications.add(new ICallback0<Object>() {
+                
+                public Object call() {
+                    testRun.setFinished(true);
+                    view.notifyFinished(testRun);
+                    return null;
+                }
+            });
+        }
+        updateJob.schedule(TIMEOUT);
     }
 
     public void notifyDispose() {
@@ -68,5 +90,9 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
 
     public void setView(PyUnitView view) {
         this.view = view;
+    }
+
+    public PyUnitTestRun getTestRun() {
+        return testRun;
     }
 }
