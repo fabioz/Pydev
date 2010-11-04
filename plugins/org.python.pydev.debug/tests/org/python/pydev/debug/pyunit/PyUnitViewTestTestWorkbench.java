@@ -37,6 +37,8 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
     IPyUnitServerListener pyUnitViewServerListener;
     protected boolean terminated1 = false;
     protected boolean terminated2 = false;
+    protected boolean relaunched1 = false;
+    protected boolean relaunched2 = false;
     
     public void testPyUnitView() throws Exception {
         PyUnitViewServerListener.TIMEOUT = 0;
@@ -52,6 +54,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
             public void stop() {
                 terminated1 = true;
             }
+            
+            public void relaunch() {
+                relaunched1 = true;
+            }
         };
         
         IPyUnitServer pyUnitServer2 = new IPyUnitServer() {
@@ -62,6 +68,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
             
             public void stop() {
                 terminated2 = true;
+            }
+            
+            public void relaunch() {
+                relaunched2 = true;
             }
         };
         
@@ -155,6 +165,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         menuCreator.fillMenuManager(actionsMenu);
         assertEquals(1, actions.size()); //the other was terminated
         assertEquals(1, terminatedActions.size());
+        
+        
+        execute(view, RelaunchAction.class);
+        assertTrue(relaunched2);
         
         goToManual();
           

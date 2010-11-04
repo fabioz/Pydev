@@ -82,4 +82,13 @@ public class PyUnitTestRun {
         }
         
     }
+
+    public void relaunch() {
+        if(this.server != null){
+            IPyUnitServer s = this.server.get();
+            if(s != null){
+                s.relaunch();
+            }
+        }
+    }
 }

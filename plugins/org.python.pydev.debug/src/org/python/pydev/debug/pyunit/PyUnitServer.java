@@ -17,6 +17,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
+import org.python.pydev.debug.ui.actions.RestartLaunchAction;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
@@ -213,4 +214,7 @@ public class PyUnitServer implements IPyUnitServer  {
         
     }
 
+    public void relaunch() {
+        RestartLaunchAction.relaunch(launch, configuration);
+    }
 }

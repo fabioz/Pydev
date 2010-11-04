@@ -6,14 +6,14 @@ import org.eclipse.jface.action.Action;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
-public class StopAction extends Action {
-
+public class RelaunchAction extends Action{
+    
     private WeakReference<PyUnitView> view;
 
-    public StopAction(PyUnitView view){
-        setToolTipText("Stops the execution of the current test being run.");
-        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.TERMINATE));
-        this.view = new WeakReference<PyUnitView>(view);
+    public RelaunchAction(PyUnitView pyUnitView) {
+        this.view = new WeakReference<PyUnitView>(pyUnitView);
+        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH1));
+        this.setToolTipText("Relaunches the currently selected test run.");
     }
     
     @Override
@@ -21,9 +21,7 @@ public class StopAction extends Action {
         PyUnitView pyUnitView = view.get();
         PyUnitTestRun currentTestRun = pyUnitView.getCurrentTestRun();
         if(currentTestRun != null){
-            currentTestRun.stop();
+            currentTestRun.relaunch();
         }
     }
-    
-    
 }

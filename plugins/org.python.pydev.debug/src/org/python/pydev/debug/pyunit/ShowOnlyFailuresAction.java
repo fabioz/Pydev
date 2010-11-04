@@ -14,6 +14,7 @@ public class ShowOnlyFailuresAction extends Action {
         this.pyUnitView = new WeakReference<PyUnitView>(pyUnitView);
         this.setChecked(false);
         this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor(UIConstants.SHOW_ONLY_ERRORS));
+        this.setToolTipText("If pressed, shows only the failures");
     }
 
     @Override

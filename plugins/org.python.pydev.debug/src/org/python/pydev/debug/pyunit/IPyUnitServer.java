@@ -6,4 +6,6 @@ public interface IPyUnitServer {
 
     void stop();
 
+    void relaunch();
+
 }

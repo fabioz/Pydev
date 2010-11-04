@@ -89,6 +89,7 @@ public class HistoryAction extends Action{
     public HistoryAction(PyUnitView view){
         this.view = new WeakReference<PyUnitView>(view);
         setMenuCreator(new HistoryMenuCreator());
+        setToolTipText("Test Run History");
         this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.HISTORY));
     }
 }

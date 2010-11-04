@@ -11,6 +11,7 @@ public class ClearTerminatedAction extends Action{
     public ClearTerminatedAction(WeakReference<PyUnitView> view) {
         this.view = view;
         this.setText("Clear terminated");
+        this.setToolTipText("Removes all terminated tests from the history");
     }
     
     @Override

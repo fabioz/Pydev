@@ -153,6 +153,7 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     private void configureToolBar() {
         IActionBars actionBars= getViewSite().getActionBars();
         IToolBarManager toolBar= actionBars.getToolBarManager();
+        toolBar.add(new RelaunchAction(this));
         toolBar.add(new StopAction(this));
         toolBar.add(new ShowOnlyFailuresAction(this));
         toolBar.add(new HistoryAction(this));
