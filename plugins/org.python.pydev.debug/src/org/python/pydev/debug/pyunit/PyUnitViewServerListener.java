@@ -46,7 +46,7 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     
     
     public PyUnitViewServerListener(IPyUnitServer pyUnitServer) {
-        this.testRun = new PyUnitTestRun();
+        this.testRun = new PyUnitTestRun(pyUnitServer);
         pyUnitServer.registerOnNotifyTest(this);
         updateJob.setPriority(JOBS_PRIORITY);
         updateJob.setSystem(true);

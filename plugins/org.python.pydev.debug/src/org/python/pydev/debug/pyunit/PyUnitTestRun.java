@@ -1,5 +1,6 @@
 package org.python.pydev.debug.pyunit;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +16,15 @@ public class PyUnitTestRun {
     private int numberOfErrors;
     private int numberOfFailures;
     private boolean finished;
+    private WeakReference<IPyUnitServer> server;
     
-    public PyUnitTestRun() {
+    public PyUnitTestRun(IPyUnitServer server) {
         synchronized (lock) {
-            this.name = "Test Result:"+currentRun;
+            this.name = "Test Run:"+currentRun;
             currentRun += 1;
+        }
+        if(server != null){
+            this.server = new WeakReference<IPyUnitServer>(server);
         }
         this.results = new ArrayList<PyUnitTestResult>();
     }
@@ -66,5 +71,15 @@ public class PyUnitTestRun {
     
     public boolean getFinished() {
         return finished;
+    }
+
+    public void stop() {
+        if(this.server != null){
+            IPyUnitServer s = this.server.get();
+            if(s != null){
+                s.stop();
+            }
+        }
+        
     }
 }

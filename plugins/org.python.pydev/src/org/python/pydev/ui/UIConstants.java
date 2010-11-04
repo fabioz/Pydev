@@ -87,6 +87,7 @@ public class UIConstants {
     public static final String LIB_FORCED_BUILTIN = "icons/jar_obj.gif";
     
 //general
+    public static final String HISTORY = "icons/history_list.gif";
     public static final String ERROR = "icons/showerr_tsk.gif";
     public static final String ERROR_SMALL = "icons/error_small.gif";
     public static final String PY_INTERPRETER_ICON = "icons/python_16x16.png";
@@ -98,6 +99,8 @@ public class UIConstants {
     public static final String RELAUNCH = "icons/relaunch.png";
     public static final String RELAUNCH1 = "icons/relaunch1.png";
     public static final String TERMINATE_ALL = "icons/terminate_all.gif";
+    public static final String TERMINATE = "icons/terminate.gif";
+    public static final String SHOW_ONLY_ERRORS = "icons/failures.gif";
     
 //browser
     public static final String STOP = "icons/showerr_tsk.gif";

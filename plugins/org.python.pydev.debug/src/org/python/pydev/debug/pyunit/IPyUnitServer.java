@@ -4,4 +4,6 @@ public interface IPyUnitServer {
 
     void registerOnNotifyTest(IPyUnitServerListener pyUnitViewServerListener);
 
+    void stop();
+
 }

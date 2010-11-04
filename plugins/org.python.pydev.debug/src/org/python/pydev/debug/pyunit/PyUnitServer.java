@@ -11,6 +11,7 @@ import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -201,5 +202,15 @@ public class PyUnitServer implements IPyUnitServer  {
         this.dispose();
     }
 
+    public void stop() {
+        if(!disposed){
+            try {
+                this.launch.terminate(); //doing this should call dispose later on.
+            } catch (DebugException e) {
+                PydevPlugin.log(e);
+            }
+        }
+        
+    }
 
 }

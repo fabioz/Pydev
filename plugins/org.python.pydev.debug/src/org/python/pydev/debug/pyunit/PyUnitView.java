@@ -2,8 +2,10 @@ package org.python.pydev.debug.pyunit;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -18,6 +20,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -27,6 +30,7 @@ import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.ui.IViewCreatedObserver;
+
 
 /**
  * ViewPart that'll listen to the PyUnitServer and show what'sash happening (with a green/red bar).
@@ -63,6 +67,7 @@ import org.python.pydev.ui.IViewCreatedObserver;
  */
 public class PyUnitView extends ViewPartWithOrientation implements SelectionListener, MouseListener{
     
+    public static int MAX_RUNS_TO_KEEP = 10;
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
     public final ICallbackWithListeners onDispose = new CallbackWithListeners();
     private List<PyUnitTestRun> allRuns = new ArrayList<PyUnitTestRun>();
@@ -90,6 +95,10 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     public CounterPanel getCounterPanel() {
         return fCounterPanel;
     }
+    
+    public Tree getTree() {
+        return tree;
+    }
 
     @Override
     public void createPartControl(Composite parent) {
@@ -102,7 +111,7 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         layout.marginWidth = 0;
         layout.marginHeight = 2;
         parent.setLayout(layout);
-        
+        configureToolBar();
         
         fCounterComposite= new Composite(parent, SWT.NONE);
         layout= new GridLayout();
@@ -141,6 +150,15 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         onControlCreated.call(text);
     }
     
+    private void configureToolBar() {
+        IActionBars actionBars= getViewSite().getActionBars();
+        IToolBarManager toolBar= actionBars.getToolBarManager();
+        toolBar.add(new StopAction(this));
+        toolBar.add(new ShowOnlyFailuresAction(this));
+        toolBar.add(new HistoryAction(this));
+        
+    }
+
     @Override
     protected void setNewOrientation(int orientation) {
         if(sash != null && !sash.isDisposed() && fCounterComposite != null && !fCounterComposite.isDisposed()){
@@ -233,6 +251,9 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     }
     
     protected void addTestRunAndMakecurrent(PyUnitTestRun testRun) {
+        if(allRuns.size() +1 > MAX_RUNS_TO_KEEP){
+            allRuns.remove(0);
+        }
         allRuns.add(testRun);
         setCurrentRun(testRun);
     }
@@ -253,11 +274,13 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         if(result.getTestRun() != currentRun){
             return;
         }
-        TreeItem treeItem = new TreeItem(tree, 0);
-        File file = new File(result.location);
-        treeItem.setText(new String[]{result.status, file.getName(), result.test});
-        treeItem.setData ("TIP_TEXT", result.location);
-        treeItem.setData("RESULT", result);
+        if(!showOnlyErrors || (showOnlyErrors && !result.status.equals("ok"))){
+            TreeItem treeItem = new TreeItem(tree, 0);
+            File file = new File(result.location);
+            treeItem.setText(new String[]{result.status, file.getName(), result.test});
+            treeItem.setData ("TIP_TEXT", result.location);
+            treeItem.setData("RESULT", result);
+        }
         
         if(updateBar){
             updateCountersAndBar();
@@ -265,15 +288,23 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     }
 
     private void updateCountersAndBar() {
-        int numberOfRuns = currentRun.getNumberOfRuns();
-        int numberOfErrors = currentRun.getNumberOfErrors();
-        int numberOfFailures = currentRun.getNumberOfFailures();
-        
-        fCounterPanel.setRunValue(numberOfRuns);
-        fCounterPanel.setErrorValue(numberOfErrors);
-        fCounterPanel.setFailureValue(numberOfFailures);
-        
-        setShowBarWithError(numberOfErrors + numberOfFailures > 0, numberOfRuns > 0, currentRun.getFinished());
+        if(currentRun != null){
+            int numberOfRuns = currentRun.getNumberOfRuns();
+            int numberOfErrors = currentRun.getNumberOfErrors();
+            int numberOfFailures = currentRun.getNumberOfFailures();
+            
+            fCounterPanel.setRunValue(numberOfRuns);
+            fCounterPanel.setErrorValue(numberOfErrors);
+            fCounterPanel.setFailureValue(numberOfFailures);
+            
+            setShowBarWithError(numberOfErrors + numberOfFailures > 0, numberOfRuns > 0, currentRun.getFinished());
+        }else{
+            fCounterPanel.setRunValue(0);
+            fCounterPanel.setErrorValue(0);
+            fCounterPanel.setFailureValue(0);
+            
+            setShowBarWithError(false, false, false);
+        }
     }
     
 
@@ -282,6 +313,7 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     }
 
     private FastStringBuffer temp = new FastStringBuffer();
+    private boolean showOnlyErrors;
     public void widgetSelected(SelectionEvent e) {
         if(e.item != null){
             PyUnitTestResult result = (PyUnitTestResult) e.item.getData("RESULT");
@@ -318,12 +350,44 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
 
     public void setCurrentRun(PyUnitTestRun testRun) {
         this.currentRun = testRun;
-        tree.clearAll(true);
-        List<PyUnitTestResult> sharedResultsList = testRun.getSharedResultsList();
-        for (PyUnitTestResult result : sharedResultsList) {
-            notifyTest(result, false);
+        tree.removeAll();
+        if(testRun != null){
+            List<PyUnitTestResult> sharedResultsList = testRun.getSharedResultsList();
+            for (PyUnitTestResult result : sharedResultsList) {
+                notifyTest(result, false);
+            }
         }
         updateCountersAndBar();
+    }
+
+    public List<PyUnitTestRun> getAllTestRuns() {
+        return new ArrayList<PyUnitTestRun>(allRuns);
+    }
+
+    public void setShowOnlyErrors(boolean b) {
+        this.showOnlyErrors = b;
+        this.setCurrentRun(currentRun); //update all!
+    }
+
+    public void clearAllTerminated() {
+        boolean removedCurrent = false;
+        
+        for(Iterator<PyUnitTestRun> it=this.allRuns.iterator();it.hasNext();){
+            PyUnitTestRun next = it.next();
+            if(next.getFinished()){
+                if(next == this.currentRun){
+                    removedCurrent = true;
+                }
+                it.remove();
+            }
+        }
+        if(removedCurrent){
+            if(this.allRuns.size() > 0){
+                this.setCurrentRun(this.allRuns.get(0));
+            }else{
+                this.setCurrentRun(null);
+            }
+        }
     }
 
 
