@@ -4,25 +4,28 @@ import sys
 
 # stupid jython. plain old __file__ isnt working for some reason
 import test_runfiles #@UnresolvedImport - importing the module itself
+import pydev_runfiles_unittest
+import pydev_runfiles_xml_rpc
+import pydevd_io
 this_file_name = test_runfiles.__file__
 
 desired_runfiles_path = os.path.normpath(os.path.dirname(this_file_name) + "/..")
 sys.path.insert(0, desired_runfiles_path)
 
-#remove existing runfiles from modules (if any), so that we can be sure we have the correct version
-if 'runfiles' in sys.modules:
-    del sys.modules['runfiles']
+#remove existing pydev_runfiles from modules (if any), so that we can be sure we have the correct version
+if 'pydev_runfiles' in sys.modules:
+    del sys.modules['pydev_runfiles']
 
 
-import runfiles
+import pydev_runfiles
 import unittest
 import tempfile
 import re
 
 #this is an early test because it requires the sys.path changed
 orig_syspath = sys.path
-a_file = runfiles.__file__
-runfiles.PydevTestRunner(test_dir=[a_file])
+a_file = pydev_runfiles.__file__
+pydev_runfiles.PydevTestRunner(pydev_runfiles.Configuration(files_or_dirs=[a_file]))
 file_dir = os.path.dirname(a_file)
 assert file_dir in sys.path
 sys.path = orig_syspath[:]
@@ -31,11 +34,17 @@ sys.path = orig_syspath[:]
 sys.path.remove(desired_runfiles_path)
 
 class RunfilesTest(unittest.TestCase):
-    def _setup_scenario(self, path, t_filter, tests=None):
-        self.MyTestRunner = runfiles.PydevTestRunner(test_dir=path,
-                                                     test_filter=t_filter,
-                                                     verbosity=1,
-                                                     tests=tests)
+    
+    def _setup_scenario(self, path, t_filter=None, tests=None, config_file_contents=None):
+        self.MyTestRunner = pydev_runfiles.PydevTestRunner(
+            pydev_runfiles.Configuration(
+                files_or_dirs=path,
+                test_filter=t_filter,
+                verbosity=1,
+                tests=tests,
+                config_file_contents=config_file_contents,
+            )
+        )
         self.files = self.MyTestRunner.find_import_files()
         self.modules = self.MyTestRunner.find_modules_from_files(self.files)
         self.all_tests = self.MyTestRunner.find_tests_from_modules(self.modules)
@@ -44,58 +53,63 @@ class RunfilesTest(unittest.TestCase):
     def setUp(self):
         self.file_dir = [os.path.abspath(os.path.join(desired_runfiles_path, 'tests/samples'))]
         self._setup_scenario(self.file_dir, None)
+        
+        
+    def test_suite_used(self):
+        for suite in self.all_tests+self.filtered_tests:
+            self.assert_(isinstance(suite, pydev_runfiles_unittest.TestSuite))
 
     def test_parse_cmdline(self):
-        sys.argv = "runfiles.py ./".split()
-        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
-        self.assertEquals([sys.argv[1]], test_dir)
-        self.assertEquals(2, verbosity)        # default value
-        self.assertEquals(None, test_filter)   # default value
+        sys.argv = "pydev_runfiles.py ./".split()
+        configuration = pydev_runfiles.parse_cmdline()
+        self.assertEquals([sys.argv[1]], configuration.files_or_dirs)
+        self.assertEquals(2, configuration.verbosity)        # default value
+        self.assertEquals(None, configuration.test_filter)   # default value
 
-        sys.argv = "runfiles.py ../images c:/temp".split()
-        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
-        self.assertEquals(sys.argv[1:3], test_dir)
-        self.assertEquals(2, verbosity)
+        sys.argv = "pydev_runfiles.py ../images c:/temp".split()
+        configuration = pydev_runfiles.parse_cmdline()
+        self.assertEquals(sys.argv[1:3], configuration.files_or_dirs)
+        self.assertEquals(2, configuration.verbosity)
 
-        sys.argv = "runfiles.py --verbosity 3 ../junk c:/asdf ".split()
-        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
-        self.assertEquals(sys.argv[3:], test_dir)
-        self.assertEquals(int(sys.argv[2]), verbosity)
+        sys.argv = "pydev_runfiles.py --verbosity 3 ../junk c:/asdf ".split()
+        configuration = pydev_runfiles.parse_cmdline()
+        self.assertEquals(sys.argv[3:], configuration.files_or_dirs)
+        self.assertEquals(int(sys.argv[2]), configuration.verbosity)
 
-        sys.argv = "runfiles.py -f Abc.test_def ./".split()
-        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
-        self.assertEquals([sys.argv[-1]], test_dir)
-        self.assertEquals([sys.argv[2]], test_filter)
+        sys.argv = "pydev_runfiles.py -f Abc.test_def ./".split()
+        configuration = pydev_runfiles.parse_cmdline()
+        self.assertEquals([sys.argv[-1]], configuration.files_or_dirs)
+        self.assertEquals([sys.argv[2]], configuration.test_filter)
 
-        sys.argv = "runfiles.py -f Abc.test_def,Mod.test_abc c:/junk/".split()
-        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
-        self.assertEquals([sys.argv[-1]], test_dir)
-        self.assertEquals(sys.argv[2].split(','), test_filter)
+        sys.argv = "pydev_runfiles.py -f Abc.test_def,Mod.test_abc c:/junk/".split()
+        configuration = pydev_runfiles.parse_cmdline()
+        self.assertEquals([sys.argv[-1]], configuration.files_or_dirs)
+        self.assertEquals(sys.argv[2].split(','), configuration.test_filter)
 
-        sys.argv = ('C:\\eclipse-SDK-3.2-win32\\eclipse\\plugins\\org.python.pydev.debug_1.2.2\\pysrc\\runfiles.py ' + 
+        sys.argv = ('C:\\eclipse-SDK-3.2-win32\\eclipse\\plugins\\org.python.pydev.debug_1.2.2\\pysrc\\pydev_runfiles.py ' + 
                     '--verbosity 1 ' + 
                     'C:\\workspace_eclipse\\fronttpa\\tests\\gui_tests\\calendar_popup_control_test.py ').split()
-        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
-        self.assertEquals([sys.argv[-1]], test_dir)
-        self.assertEquals(1, verbosity)
+        configuration = pydev_runfiles.parse_cmdline()
+        self.assertEquals([sys.argv[-1]], configuration.files_or_dirs)
+        self.assertEquals(1, configuration.verbosity)
 
-        sys.argv = "runfiles.py --verbosity 1 -f Mod.test_abc c:/junk/ ./".split()
-        test_dir, verbosity, test_filter, tests = runfiles.parse_cmdline()
-        self.assertEquals(sys.argv[5:], test_dir)
-        self.assertEquals(int(sys.argv[2]), verbosity)
-        self.assertEquals([sys.argv[4]], test_filter)
-        return
+        sys.argv = "pydev_runfiles.py --verbosity 1 -f Mod.test_abc c:/junk/ ./".split()
+        configuration = pydev_runfiles.parse_cmdline()
+        self.assertEquals(sys.argv[5:], configuration.files_or_dirs)
+        self.assertEquals(int(sys.argv[2]), configuration.verbosity)
+        self.assertEquals([sys.argv[4]], configuration.test_filter)
+
     
     def test___adjust_python_path_works_for_directories(self):
         orig_syspath = sys.path
         tempdir = tempfile.gettempdir()
-        runfiles.PydevTestRunner(test_dir=[tempdir])
+        pydev_runfiles.PydevTestRunner(pydev_runfiles.Configuration(files_or_dirs=[tempdir]))
         self.assertEquals(1, tempdir in sys.path)
         sys.path = orig_syspath[:]
     
     
     def test___adjust_python_path_breaks_for_unkown_type(self):
-        self.assertRaises(RuntimeError, runfiles.PydevTestRunner, ["./LIKE_THE_NINJA_YOU_WONT_FIND_ME.txt"])
+        self.assertRaises(RuntimeError, pydev_runfiles.PydevTestRunner, pydev_runfiles.Configuration(["./LIKE_THE_NINJA_YOU_WONT_FIND_ME.txt"]))
 
     def test___setup_test_filter(self):
         setup_tf = self.MyTestRunner._PydevTestRunner__setup_test_filter
@@ -124,7 +138,7 @@ class RunfilesTest(unittest.TestCase):
         
     def test_finding_a_file_from_file_system(self):
         test_file = "simple_test.py"
-        self.MyTestRunner.test_dir = [self.file_dir[0] + test_file]
+        self.MyTestRunner.files_or_dirs = [self.file_dir[0] + test_file]
         files = self.MyTestRunner.find_import_files()
         self.assertEquals(1, len(files))
         self.assertEquals(files[0], self.file_dir[0] + test_file)
@@ -226,6 +240,49 @@ class RunfilesTest(unittest.TestCase):
         self._setup_scenario(self.file_dir, None, ['StillYetAnotherSampleTest', 'SampleTest.test_xxxxxx1'])
         filtered_tests = self.MyTestRunner.filter_tests(self.all_tests)
         self.assertEqual(2, self.count_tests(filtered_tests))
+        
+    def test_xml_rpc_communication(self):
+        notifications = []
+        class Server:
+            
+            def notifyConnected(self):
+                #This method is called at the very start (in runfiles.py), and we do not check this here
+                raise AssertionError('Should not be called from the run tests.')
+            
+            
+            def notifyTestsCollected(self, number_of_tests):
+                notifications.append(('notifyTestsCollected', number_of_tests))
+            
+            def notifyTest(self, cond, captured_output, error_contents, file, test, time):
+                notifications.append(('notifyTest', cond, captured_output, error_contents, file, test))
+            
+        server = Server()
+        pydev_runfiles_xml_rpc.SetServer(server)
+        simple_test = os.path.join(self.file_dir[0], 'simple_test.py')
+        simple_test2 = os.path.join(self.file_dir[0], 'simple2_test.py')
+        
+        config_file_contents = ''
+        config_file_contents += simple_test +'|SampleTest.test_xxxxxx1\n'
+        config_file_contents += simple_test +'|SampleTest.test_xxxxxx2\n'
+        config_file_contents += simple_test +'|SampleTest.test_non_unique_name\n'
+        config_file_contents += simple_test2 +'|YetAnotherSampleTest.test_abc\n'
+        
+        self._setup_scenario(None, config_file_contents=config_file_contents)
+        self.MyTestRunner.verbosity = 2
+        
+        import sys
+        sys.stdout = pydevd_io.IORedirector
+        self.MyTestRunner.run_tests()
+        self.assertEqual(4, len(notifications))
+        self.assertEqual(
+            [
+                ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_non_unique_name'), 
+                ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_xxxxxx1'), 
+                ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_xxxxxx2'), 
+                ('notifyTest', 'ok', '', '', simple_test2, 'YetAnotherSampleTest.test_abc')],
+            notifications
+        )
+        
 
         
 

@@ -1,6 +1,5 @@
-from nose.plugins.multiprocess import MultiProcess, MultiProcessTestRunner
+from nose.plugins.multiprocess import MultiProcessTestRunner
 from nose.plugins.base import Plugin
-import time
 import sys
 import pydev_runfiles_xml_rpc
 
@@ -33,10 +32,12 @@ class PydevPlugin(Plugin):
         import traceback;traceback.print_exception(etype, value, tb, file=s)
         return s.getvalue()
     
+    
     def getCapturedOutput(self, test):
         if test.capturedOutput:
             return test.capturedOutput
         return ''
+    
     
     def addError(self, test, err):
         self.reportCond(

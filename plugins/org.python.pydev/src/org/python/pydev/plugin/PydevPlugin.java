@@ -5,8 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -271,6 +273,15 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 		}
 	}
     
+    private Set<String> erasePrefixes = new HashSet<String>();
+    
+    public File getTempFile(String prefix) {
+        erasePrefixes.add(prefix);
+        IPath stateLocation = getStateLocation();
+        File file = stateLocation.toFile();
+        File tempFileAt = REF.getTempFileAt(file, prefix);
+        return tempFileAt;
+    }
 
     /**
      * This is called when the plugin is being stopped.
@@ -278,6 +289,11 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
     public void stop(BundleContext context) throws Exception {
+        IPath stateLocation = getStateLocation();
+        File file = stateLocation.toFile();
+        for(String prefix:erasePrefixes){
+            REF.clearTempFilesAt(file, prefix);
+        }
     	try {
 			asyncLogPing.stop();
 		} catch (Exception e1) {
@@ -623,5 +639,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             
             fileInputStream);
     }
+    
 
 }

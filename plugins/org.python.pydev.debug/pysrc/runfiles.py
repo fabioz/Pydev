@@ -22,14 +22,15 @@ if __name__ == '__main__':
     import pydev_runfiles
     import pydev_runfiles_xml_rpc
     
-    files_or_dirs, verbosity, test_filter, tests, port = pydev_runfiles.parse_cmdline([sys.argv[0]] + pydev_params)
-    pydev_runfiles_xml_rpc.InitializeServer(port)
+    configuration = pydev_runfiles.parse_cmdline([sys.argv[0]] + pydev_params)
+    pydev_runfiles_xml_rpc.InitializeServer(configuration.port)
 
     try:
         import nose
+        raise ImportError() #TODO: remove this (for now we only support the default test runner).
     except ImportError:
         sys.stderr.write('Warning: Could not import the nose test runner. Running with the default pydev unittest runner.\n')
-        pydev_runfiles.main(files_or_dirs, verbosity, test_filter, tests, port)
+        pydev_runfiles.main(configuration)
         
     else:
         #We'll convert the parameters to what nose expects.
@@ -50,13 +51,13 @@ if __name__ == '__main__':
 #        processes_option = ['--processes=2']
         processes_option = []
             
-        if tests:
+        if configuration.tests:
             new_files_or_dirs = []
-            for f in files_or_dirs:
-                for t in tests:
+            for f in configuration.files_or_dirs:
+                for t in configuration.tests:
                     new_files_or_dirs.append(f+':'+t)
             files_or_dirs = new_files_or_dirs
-        argv = ['--verbosity='+str(verbosity)] + processes_option + show_stdout_option + nose_params + files_or_dirs
+        argv = ['--verbosity='+str(configuration.verbosity)] + processes_option + show_stdout_option + nose_params + files_or_dirs
         
         argv.insert(0, sys.argv[0])
         

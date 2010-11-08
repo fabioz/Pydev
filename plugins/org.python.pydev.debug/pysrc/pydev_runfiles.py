@@ -3,6 +3,7 @@ import os.path
 import re
 import sys
 import unittest
+import pydev_runfiles_unittest
 
 
 
@@ -190,7 +191,15 @@ def short_has_arg(opt, shortopts):
 
 
 
-
+class Configuration:
+    
+    def __init__(self, files_or_dirs='', verbosity=2, test_filter=None, tests=None, port=None, config_file_contents=None):
+        self.files_or_dirs = files_or_dirs
+        self.verbosity = verbosity
+        self.test_filter = test_filter
+        self.tests = tests
+        self.port = port
+        self.config_file_contents = config_file_contents
 
 #=======================================================================================================================
 # parse_cmdline
@@ -207,8 +216,9 @@ def parse_cmdline(argv=None):
     test_filter = None
     tests = None
     port = None
+    config_file_contents = None
 
-    optlist, dirs = gnu_getopt(argv[1:], "v:f:t:p:", ["verbosity=", "filter=", "tests=", "port="])
+    optlist, dirs = gnu_getopt(argv[1:], "v:f:t:p:c:", ["verbosity=", "filter=", "tests=", "port=", "config_file="])
     for opt, value in optlist:
         if opt in ("-v", "--verbosity"):
             verbosity = value
@@ -221,6 +231,17 @@ def parse_cmdline(argv=None):
 
         elif opt in ("-t", "--tests"):
             tests = value.split(',')
+            
+        elif opt in ("-c", "--config_file"):
+            config_file = value.strip()
+            if os.path.exists(config_file):
+                f = open(config_file, 'rU')
+                try:
+                    config_file_contents = f.read()
+                finally:
+                    f.close()
+            else:
+                sys.stderr.write('Could not find config file: %s\n' % (config_file,))
 
     if type([]) != type(dirs):
         dirs = [dirs]
@@ -233,34 +254,75 @@ def parse_cmdline(argv=None):
         else:
             ret_dirs.append(d)
 
-    return ret_dirs, int(verbosity), test_filter, tests, port
+    return Configuration(ret_dirs, int(verbosity), test_filter, tests, port, config_file_contents)
 
 
+try:
+    object
+except NameError:
+    #Support for jython
+    class object:
+        pass
+            
+     
 #=======================================================================================================================
 # PydevTestRunner
 #=======================================================================================================================
-class PydevTestRunner:
+class PydevTestRunner(object):
     """ finds and runs a file or directory of files as a unit test """
 
     __py_extensions = ["*.py", "*.pyw"]
     __exclude_files = ["__init__.*"]
+    
+    #Just to check that only this attributes will be written to this file
+    __slots__= [
+        'verbosity', #Always used
+         
+        'files_to_tests', #If this one is given, the ones below are not used
+        
+        'files_or_dirs', #Files or directories received in the command line
+        'test_filter', #The filter used to collect the tests
+        'tests',  #Strings with the tests to be run
+    ]
 
-    def __init__(self, test_dir, test_filter=None, verbosity=2, tests=None):
-        self.test_dir = test_dir
-        self.__adjust_path()
-        self.test_filter = self.__setup_test_filter(test_filter)
-        self.verbosity = verbosity
-        self.tests = tests
+    def __init__(self, configuration):
+        config_file_contents = configuration.config_file_contents
+        if config_file_contents:
+            config_file_contents = config_file_contents.strip()
+            
+        self.verbosity = configuration.verbosity
+        
+        if config_file_contents:
+            files_to_tests = {}
+            for line in config_file_contents.splitlines():
+                file_and_test = line.split('|')
+                if len(file_and_test) == 2:
+                    file, test = file_and_test
+                    if DictContains(files_to_tests, file):
+                        files_to_tests[file].append(test)
+                    else:
+                        files_to_tests[file] = [test]  
+                    
+            self.files_to_tests = files_to_tests
+            self.files_or_dirs = files_to_tests.keys()
+            self.test_filter = None
+            self.tests = None
+        else:
+            self.files_to_tests = {}
+            self.files_or_dirs = configuration.files_or_dirs
+            self.__adjust_path()
+            self.test_filter = self.__setup_test_filter(configuration.test_filter)
+            self.tests = configuration.tests
 
 
     def __adjust_path(self):
         """ add the current file or directory to the python path """
         path_to_append = None
-        for n in xrange(len(self.test_dir)):
-            dir_name = self.__unixify(self.test_dir[n])
+        for n in xrange(len(self.files_or_dirs)):
+            dir_name = self.__unixify(self.files_or_dirs[n])
             if os.path.isdir(dir_name):
                 if not dir_name.endswith("/"):
-                    self.test_dir[n] = dir_name + "/"
+                    self.files_or_dirs[n] = dir_name + "/"
                 path_to_append = os.path.normpath(dir_name)
             elif os.path.isfile(dir_name):
                 path_to_append = os.path.dirname(dir_name)
@@ -271,7 +333,6 @@ class PydevTestRunner:
             #Add it as the last one (so, first things are resolved against the default dirs and 
             #if none resolves, then we try a relative import).
             sys.path.append(path_to_append)
-        return
 
     def __setup_test_filter(self, test_filter):
         """ turn a filter string into a list of filter regexes """
@@ -320,14 +381,16 @@ class PydevTestRunner:
             if self.__is_valid_py_file(fname):
                 name_without_base_dir = self.__unixify(os.path.join(root, fname))
                 pyfiles.append(name_without_base_dir)
-        return
 
 
     def find_import_files(self):
         """ return a list of files to import """
+        if self.files_to_tests:
+            return self.files_to_tests.keys()
+        
         pyfiles = []
 
-        for base_dir in self.test_dir:
+        for base_dir in self.files_or_dirs:
             if os.path.isdir(base_dir):
                 if hasattr(os, 'walk'):
                     for root, dirs, files in os.walk(base_dir):
@@ -341,7 +404,7 @@ class PydevTestRunner:
 
         return pyfiles
 
-    def __get_module_from_str(self, modname, print_exception):
+    def __get_module_from_str(self, modname, print_exception, pyfile):
         """ Import the module in the given import path.
             * Returns the "final" module, so importing "coilib40.subject.visu" 
             returns the "visu" module, not the "coilib40" as returned by __import__ """
@@ -353,13 +416,13 @@ class PydevTestRunner:
         except:
             if print_exception:
                 import traceback;traceback.print_exc()
-                sys.stderr.write('ERROR: Module: %s could not be imported.\n' % (modname,))
+                sys.stderr.write('ERROR: Module: %s could not be imported (file: %s).\n' % (modname, pyfile))
             return None
 
     def find_modules_from_files(self, pyfiles):
         """ returns a lisst of modules given a list of files """
         #let's make sure that the paths we want are in the pythonpath...
-        imports = [self.__importify(s) for s in pyfiles]
+        imports = [(s, self.__importify(s)) for s in pyfiles]
 
         system_paths = []
         for s in sys.path:
@@ -367,7 +430,7 @@ class PydevTestRunner:
 
 
         ret = []
-        for imp in imports:
+        for pyfile, imp in imports:
             if imp is None:
                 continue #can happen if a file is not a valid module
             choices = []
@@ -382,19 +445,73 @@ class PydevTestRunner:
                 sys.stdout.write('PYTHONPATH not found for file: %s\n' % imp)
             else:
                 for i, import_str in enumerate(choices):
-                    mod = self.__get_module_from_str(import_str, print_exception=i == len(choices) - 1)
+                    print_exception = i == len(choices) - 1
+                    mod = self.__get_module_from_str(import_str, print_exception, pyfile)
                     if mod is not None:
-                        ret.append(mod)
+                        ret.append((pyfile, mod))
                         break
 
 
         return ret
+    
+    #===================================================================================================================
+    # GetTestCaseNames
+    #===================================================================================================================
+    class GetTestCaseNames:
+        """Yes, we need a class for that (cannot use outer context on jython 2.1)"""
 
-    def find_tests_from_modules(self, modules):
+        def __init__(self, accepted_classes, accepted_methods):
+            self.accepted_classes = accepted_classes
+            self.accepted_methods = accepted_methods
+
+        def __call__(self, testCaseClass):
+            """Return a sorted sequence of method names found within testCaseClass"""
+            testFnNames = []
+            className = testCaseClass.__name__
+
+            if DictContains(self.accepted_classes, className):
+                for attrname in dir(testCaseClass):
+                    #If a class is chosen, we select all the 'test' methods'
+                    if attrname.startswith('test') and hasattr(getattr(testCaseClass, attrname), '__call__'):
+                        testFnNames.append(attrname)
+
+            else:
+                for attrname in dir(testCaseClass):
+                    #If we have the class+method name, we must do a full check and have an exact match.
+                    if DictContains(self.accepted_methods, className + '.' + attrname):
+                        if hasattr(getattr(testCaseClass, attrname), '__call__'):
+                            testFnNames.append(attrname)
+
+            #sorted() is not available in jython 2.1
+            testFnNames.sort()
+            return testFnNames
+
+    def find_tests_from_modules(self, file_and_modules):
         """ returns the unittests given a list of modules """
+        #Use our own suite!
+        unittest.TestLoader.suiteClass = pydev_runfiles_unittest.PydevTestSuite
         loader = unittest.TestLoader()
-
+        
         ret = []
+        if self.files_to_tests:
+            for pyfile, m in file_and_modules:
+                accepted_classes = {}
+                accepted_methods = {}
+                tests = self.files_to_tests[pyfile]
+                for t in tests:
+                    accepted_methods[t] = t
+                
+                loader.getTestCaseNames = self.GetTestCaseNames(accepted_classes, accepted_methods)
+                
+                suite = loader.loadTestsFromModule(m)
+                for test in suite._tests:
+                    test.__pydev_pyfile__ = pyfile
+                    for test in test._tests:
+                        test.__pydev_pyfile__ = pyfile
+                ret.append(suite)
+            return ret
+        
+        
         if self.tests:
             accepted_classes = {}
             accepted_methods = {}
@@ -407,43 +524,16 @@ class PydevTestRunner:
                 elif len(splitted) == 2:
                     accepted_methods[t] = t
 
-            #===========================================================================================================
-            # GetTestCaseNames
-            #===========================================================================================================
-            class GetTestCaseNames:
-                """Yes, we need a class for that (cannot use outer context on jython 2.1)"""
-
-                def __init__(self, accepted_classes, accepted_methods):
-                    self.accepted_classes = accepted_classes
-                    self.accepted_methods = accepted_methods
-
-                def __call__(self, testCaseClass):
-                    """Return a sorted sequence of method names found within testCaseClass"""
-                    testFnNames = []
-                    className = testCaseClass.__name__
-
-                    if DictContains(self.accepted_classes, className):
-                        for attrname in dir(testCaseClass):
-                            #If a class is chosen, we select all the 'test' methods'
-                            if attrname.startswith('test') and hasattr(getattr(testCaseClass, attrname), '__call__'):
-                                testFnNames.append(attrname)
-
-                    else:
-                        for attrname in dir(testCaseClass):
-                            #If we have the class+method name, we must do a full check and have an exact match.
-                            if DictContains(self.accepted_methods, className + '.' + attrname):
-                                if hasattr(getattr(testCaseClass, attrname), '__call__'):
-                                    testFnNames.append(attrname)
-
-                    #sorted() is not available in jython 2.1
-                    testFnNames.sort()
-                    return testFnNames
+            loader.getTestCaseNames = self.GetTestCaseNames(accepted_classes, accepted_methods)
 
 
-            loader.getTestCaseNames = GetTestCaseNames(accepted_classes, accepted_methods)
-
-
-        ret.extend([loader.loadTestsFromModule(m) for m in modules])
+        for pyfile, m in file_and_modules:
+            suite = loader.loadTestsFromModule(m)
+            for test in suite._tests:
+                test.__pydev_pyfile__ = pyfile
+                for test in test._tests:
+                    test.__pydev_pyfile__ = pyfile
+            ret.append(suite)
 
         return ret
 
@@ -507,13 +597,16 @@ class PydevTestRunner:
 
     def run_tests(self):
         """ runs all tests """
-        sys.stdout.write("Finding files...\n")
+        sys.stdout.write("Finding files... ")
         files = self.find_import_files()
-        sys.stdout.write('%s %s\n' % (self.test_dir, '... done'))
+        if self.verbosity > 3:
+            sys.stdout.write('%s ... done.\n' % (self.files_or_dirs))
+        else:
+            sys.stdout.write('done.\n')
         sys.stdout.write("Importing test modules ... ")
-        modules = self.find_modules_from_files(files)
+        file_and_modules = self.find_modules_from_files(files)
         sys.stdout.write("done.\n")
-        all_tests = self.find_tests_from_modules(modules)
+        all_tests = self.find_tests_from_modules(file_and_modules)
         if self.test_filter or self.tests:
 
             if self.test_filter:
@@ -525,10 +618,9 @@ class PydevTestRunner:
             all_tests = self.filter_tests(all_tests)
 
         sys.stdout.write('\n')
-        runner = unittest.TextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
+        runner = pydev_runfiles_unittest.PydevTextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
         runner.run(unittest.TestSuite(all_tests))
-        return
 
 
-def main(files_or_dirs, verbosity, test_filter, tests, port):
-    PydevTestRunner(files_or_dirs, test_filter, verbosity, tests).run_tests()
+def main(configuration):
+    PydevTestRunner(configuration).run_tests()

@@ -1,6 +1,12 @@
 package org.python.pydev.debug.pyunit;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,12 +17,18 @@ import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
+import org.python.pydev.core.REF;
+import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.actions.RestartLaunchAction;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
@@ -216,5 +228,24 @@ public class PyUnitServer implements IPyUnitServer  {
 
     public void relaunch() {
         RestartLaunchAction.relaunch(launch, configuration);
+    }
+    
+    public void relaunchTestResults(ArrayList<PyUnitTestResult> runsToRelaunch) {
+        FastStringBuffer buf = new FastStringBuffer(100*runsToRelaunch.size());
+        for (PyUnitTestResult pyUnitTestResult : runsToRelaunch) {
+            buf.append(pyUnitTestResult.location).append(":").append(pyUnitTestResult.test).append('\n');
+        }
+        
+        try {
+            ILaunchConfigurationWorkingCopy workingCopy = configuration.getWorkingCopy();
+            //When running it, it'll put the contents we set in the buf string into a file and pass that 
+            //file to the actual unittest run.
+            workingCopy.setAttribute(Constants.ATTR_UNITTEST_CONFIGURATION_FILE, buf.toString());
+            ILaunchConfiguration newConf = workingCopy.doSave();
+            RestartLaunchAction.relaunch(launch, newConf);
+        } catch (CoreException e) {
+            throw new RuntimeException(e);
+        }
+        
     }
 }

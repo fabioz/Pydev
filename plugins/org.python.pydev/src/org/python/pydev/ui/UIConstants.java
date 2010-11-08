@@ -98,6 +98,7 @@ public class UIConstants {
     public static final String SEARCH_DOCS = "icons/search_docs.gif";
     public static final String RELAUNCH = "icons/relaunch.png";
     public static final String RELAUNCH1 = "icons/relaunch1.png";
+    public static final String RELAUNCH_ERRORS = "icons/relaunch_errors.png";
     public static final String TERMINATE_ALL = "icons/terminate_all.gif";
     public static final String TERMINATE = "icons/terminate.gif";
     public static final String SHOW_ONLY_ERRORS = "icons/failures.gif";

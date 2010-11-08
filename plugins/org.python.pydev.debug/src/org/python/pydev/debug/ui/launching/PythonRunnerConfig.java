@@ -6,7 +6,9 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -665,21 +667,57 @@ public class PythonRunnerConfig {
             cmdArgs.add("--verbosity");
             cmdArgs.add(PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY));
 
-            String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
-            if (filter.length() > 0) {
-                cmdArgs.add("--filter");
-                cmdArgs.add(filter);
-            }
-            
-            String tests = this.configuration.getAttribute(Constants.ATTR_UNITTEST_TESTS, "");
-            if(tests.length() > 0){
-                cmdArgs.add("--tests");
-                cmdArgs.add(tests);
+
+            String configurationFile = this.configuration.getAttribute(Constants.ATTR_UNITTEST_CONFIGURATION_FILE, "");
+            if(configurationFile.length() > 0){
+                cmdArgs.add("--config_file");
+                if(actualRun){
+                    //We should write the contents to a temporary file (because it may be too long, so, always write
+                    //to a file and read from it later on).
+                    File tempFile = PydevPlugin.getDefault().getTempFile("custom_pydev_unittest_launch_");
+                    try {
+                        OutputStream fileOutputStream = new FileOutputStream(tempFile);
+                        try {
+                            try {
+                                fileOutputStream.write(configurationFile.getBytes());
+                            } catch (IOException e) {
+                                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error writing to: "+tempFile, e));
+                            }
+                        } finally {
+                            fileOutputStream.close();
+                        }
+                    } catch (Exception e) {
+                        if(e instanceof CoreException){
+                            throw (CoreException)e;
+                        }
+                        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error writing to: "+tempFile, e));
+                    }
+                    cmdArgs.add(tempFile.toString());
+                }else{
+                    cmdArgs.add(configurationFile);
+                }
+            }else{
+                //The filter and the tests are only used if the configuration file is not used.
+                String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
+                if (filter.length() > 0) {
+                    cmdArgs.add("--filter");
+                    cmdArgs.add(filter);
+                }
+                
+                String tests = this.configuration.getAttribute(Constants.ATTR_UNITTEST_TESTS, "");
+                if(tests.length() > 0){
+                    cmdArgs.add("--tests");
+                    cmdArgs.add(tests);
+                }
             }
             
             //If we want to use the PyUnitView, we need to get the port used so that the python side can connect.
             cmdArgs.add("--port");
-            cmdArgs.add(String.valueOf(getPyUnitServer().getPort()));
+            if(actualRun){
+                cmdArgs.add(String.valueOf(getPyUnitServer().getPort()));
+            }else{
+                cmdArgs.add("0");
+            }
         }
     }
 

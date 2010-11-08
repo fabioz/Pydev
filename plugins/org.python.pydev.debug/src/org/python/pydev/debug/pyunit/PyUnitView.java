@@ -65,6 +65,7 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it'sash really not meant to be reused)
  * 
  */
+@SuppressWarnings("rawtypes")
 public class PyUnitView extends ViewPartWithOrientation implements SelectionListener, MouseListener{
     
     public static int MAX_RUNS_TO_KEEP = 10;
@@ -73,6 +74,7 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     private List<PyUnitTestRun> allRuns = new ArrayList<PyUnitTestRun>();
     private PyUnitTestRun currentRun;
 
+    @SuppressWarnings("unchecked")
     public PyUnitView() {
         List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
                 ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
@@ -153,6 +155,7 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     private void configureToolBar() {
         IActionBars actionBars= getViewSite().getActionBars();
         IToolBarManager toolBar= actionBars.getToolBarManager();
+        toolBar.add(new RelaunchErrorsAction(this));
         toolBar.add(new RelaunchAction(this));
         toolBar.add(new StopAction(this));
         toolBar.add(new ShowOnlyFailuresAction(this));
@@ -243,6 +246,9 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     public static PyUnitView getView() {
         IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         try {
+            if(workbenchWindow == null){
+                return null;
+            }
             IWorkbenchPage page= workbenchWindow.getActivePage();
             return (PyUnitView) page.showView("org.python.pydev.debug.pyunit.pyUnitView", null, IWorkbenchPage.VIEW_VISIBLE);
         } catch (Exception e) {

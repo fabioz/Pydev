@@ -30,7 +30,10 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
@@ -43,6 +46,7 @@ import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -1054,6 +1058,75 @@ public class REF {
 
     public static void print(Object ... objects) {
         System.out.println(StringUtils.join(" ", objects));
+    }
+
+
+    private static final Map<File, Set<String>> alreadyReturned = new HashMap<File, Set<String>>();
+    private static Object lockTempFiles = new Object();
+    public static File getTempFileAt(File parentDir, String prefix) {
+        synchronized (lockTempFiles) {
+            Assert.isTrue(parentDir.isDirectory());
+            Set<String> current = alreadyReturned.get(parentDir);
+            if(current == null){
+                current = new HashSet<String>();
+                alreadyReturned.put(parentDir, current);
+            }
+            current.addAll(getFilesStartingWith(parentDir, prefix));
+            
+            
+            for(long i=0;i<Long.MAX_VALUE;i++){
+                String v = prefix+i;
+                if(current.contains(v)){
+                    continue;
+                }
+                File file = new File(parentDir, v);
+                if(!file.exists()){
+                    current.add(file.getName());
+                    return file;
+                }
+            }
+            return null;
+        }
+    }
+
+
+    public static HashSet<String> getFilesStartingWith(File parentDir, String prefix) {
+        String[] list = parentDir.list();
+        HashSet<String> hashSet = new HashSet<String>();
+        for (String string : list) {
+            if(string.startsWith(prefix)){
+                hashSet.add(string);
+            }
+        }
+        return hashSet;
+    }
+
+
+    public static void clearTempFilesAt(File parentDir, String prefix) {
+        synchronized (lockTempFiles) {
+            try{
+                Assert.isTrue(parentDir.isDirectory());
+                String[] list = parentDir.list();
+                for (String string : list) {
+                    if(string.startsWith(prefix)){
+                        String integer = string.substring(prefix.length());
+                        try {
+                            Integer.parseInt(integer);
+                            try {
+                                new File(parentDir, string).delete();
+                            } catch (Exception e) {
+                                //ignore
+                            }
+                        } catch (NumberFormatException e) {
+                            //ignore (not a file we generated)
+                        }
+                    }
+                }
+                alreadyReturned.remove(parentDir);
+            }catch(Throwable e){
+                Log.log(e); //never give an error here, just log it.
+            }
+        }
     }
 }
 

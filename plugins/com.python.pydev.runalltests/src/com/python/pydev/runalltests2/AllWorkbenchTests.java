@@ -4,6 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.python.pydev.customizations.app_engine.wizards.AppEngineConfigWizardPageTestWorkbench;
+import org.python.pydev.debug.pyunit.PyUnitView2TestTestWorkbench;
 import org.python.pydev.debug.pyunit.PyUnitViewTestTestWorkbench;
 import org.python.pydev.debug.ui.DebuggerTestWorkbench;
 import org.python.pydev.debug.ui.SourceLocatorTestWorkbench;
@@ -46,6 +47,7 @@ public class AllWorkbenchTests {
         suite.addTestSuite(PydevRemoteDebuggerServerTestWorkbench.class); 
         suite.addTestSuite(DebuggerTestWorkbench.class); 
         suite.addTestSuite(PyUnitViewTestTestWorkbench.class); 
+        suite.addTestSuite(PyUnitView2TestTestWorkbench.class); 
         
         if (suite.countTestCases() == 0) {
             throw new Error("There are no test cases to run");

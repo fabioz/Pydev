@@ -479,5 +479,9 @@ public final class FastStringBuffer{
         this.count = i;
     }
 
+    public byte[] getBytes() {
+        return this.toString().getBytes();
+    }
+
     
 }

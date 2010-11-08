@@ -91,4 +91,29 @@ public class PyUnitTestRun {
             }
         }
     }
+    
+    @Override
+    public String toString() {
+        return "PyUnitTestResult.\n" +
+        		"    Finished: "+this.finished+"\n" +
+				"    Number of runs: "+this.results.size()+"" +
+				"    Number of failures:"+this.numberOfFailures+"\n" +
+				"    Number of errors: "+this.numberOfErrors+"\n" +
+				"";
+    }
+
+    public void relaunchOnlyErrors() {
+        if(this.server != null){
+            IPyUnitServer s = this.server.get();
+            if(s != null){
+                ArrayList<PyUnitTestResult> arrayList = new ArrayList<PyUnitTestResult>(this.results.size());
+                for (PyUnitTestResult pyUnitTestResult : this.results) {
+                    if(!pyUnitTestResult.status.equals("ok")){
+                        arrayList.add(pyUnitTestResult);
+                    }
+                }
+                s.relaunchTestResults(arrayList);
+            }
+        }
+    }
 }

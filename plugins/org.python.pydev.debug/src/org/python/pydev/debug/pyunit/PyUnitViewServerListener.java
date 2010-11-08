@@ -54,6 +54,7 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
 
     public static int TIMEOUT = 25;
     public static int JOBS_PRIORITY = Job.SHORT;
+    private boolean finishedNotified = false;
     
     public void notifyTest(final String status, final String location, final String test, final String capturedOutput, final String errorContents) {
         synchronized (notifications) {
@@ -72,20 +73,23 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     
     public void notifyFinished() {
         synchronized (notifications) {
-            notifications.add(new ICallback0<Object>() {
-                
-                public Object call() {
-                    testRun.setFinished(true);
-                    view.notifyFinished(testRun);
-                    return null;
-                }
-            });
+            if(!finishedNotified){
+                finishedNotified = true;
+                notifications.add(new ICallback0<Object>() {
+                    
+                    public Object call() {
+                        testRun.setFinished(true);
+                        view.notifyFinished(testRun);
+                        return null;
+                    }
+                });
+            }
         }
         updateJob.schedule(TIMEOUT);
     }
 
     public void notifyDispose() {
-        
+        notifyFinished();
     }
 
     public void setView(PyUnitView view) {

@@ -58,6 +58,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
             public void relaunch() {
                 relaunched1 = true;
             }
+            
+            public void relaunchTestResults(ArrayList<PyUnitTestResult> arrayList) {
+                
+            }
         };
         
         IPyUnitServer pyUnitServer2 = new IPyUnitServer() {
@@ -72,6 +76,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
             
             public void relaunch() {
                 relaunched2 = true;
+            }
+            
+            public void relaunchTestResults(ArrayList<PyUnitTestResult> arrayList) {
+                
             }
         };
         
@@ -122,11 +130,11 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         assertEquals(false, progressBar.getHasErrors());
         assertEquals(false, progressBar.getHasFinished());
 
-        execute(view, StopAction.class);
+        executePyUnitViewAction(view, StopAction.class);
         assertTrue(terminated2);
         assertFalse(terminated1);
         
-        HistoryAction historyAction = (HistoryAction) getAction(view, HistoryAction.class);
+        HistoryAction historyAction = (HistoryAction) getPyUnitViewAction(view, HistoryAction.class);
         HistoryAction.HistoryMenuCreator menuCreator = (HistoryMenuCreator) historyAction.getMenuCreator();
         final List<SetCurrentRunAction> actions = new ArrayList<SetCurrentRunAction>();
         final List<ClearTerminatedAction> terminatedActions = new ArrayList<ClearTerminatedAction>();
@@ -151,7 +159,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         
         assertEquals(terminatedActions.size(), 1);
         
-        ShowOnlyFailuresAction action = (ShowOnlyFailuresAction) getAction(view, ShowOnlyFailuresAction.class);
+        ShowOnlyFailuresAction action = (ShowOnlyFailuresAction) getPyUnitViewAction(view, ShowOnlyFailuresAction.class);
         assertFalse(action.isChecked());
         action.setChecked(true);//clicking it should do this.
         action.run();
@@ -167,7 +175,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         assertEquals(1, terminatedActions.size());
         
         
-        execute(view, RelaunchAction.class);
+        executePyUnitViewAction(view, RelaunchAction.class);
         assertTrue(relaunched2);
         
         goToManual();
@@ -212,30 +220,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         assertEquals(0, tree.getItemCount());
     }
 
-    
-    private IAction execute(PyUnitView view, Class<?> class1) {
-        IAction action = getAction(view, class1);
-        action.run();
-        return action;
-    }
 
-    private IAction getAction(PyUnitView view, Class<?> class1) {
-        IAction action = null;
-        IContributionItem[] items = view.getViewSite().getActionBars().getToolBarManager().getItems();
-        for (IContributionItem iContributionItem : items) {
-            if(iContributionItem instanceof ActionContributionItem){
-                ActionContributionItem item = (ActionContributionItem) iContributionItem;
-                IAction lAction = item.getAction();
-                if(class1.isInstance(lAction)){
-                    action = lAction;
-                }
-            }
-        }
-        if(action == null){
-            fail("Could not find action of class: "+class1);
-        }
-        return action;
-    }
 
     private void notifyFinished() {
         pyUnitViewServerListener.notifyFinished();
