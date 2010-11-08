@@ -804,6 +804,18 @@ public class REF {
             return null;
         }
     }
+    
+    /**
+     * This is usually what's on disk
+     */
+    public static String BOM_UTF8 = new String(new char[]{0xEF, 0xBB, 0xBF});
+    
+    
+    /**
+     * When we convert a string from the disk to a java string, if it had an UTF-8 BOM, it'll have that BOM converted
+     * to this BOM. See: org.python.pydev.parser.PyParser27Test.testBom()
+     */
+    public static String BOM_UNICODE = new String(new char[]{0xFEFF});
 
     /**
      * The encoding declared in the reader is returned (according to the PEP: http://www.python.org/doc/peps/pep-0263/)
@@ -819,20 +831,33 @@ public class REF {
         String ret = null;
         BufferedReader reader = new BufferedReader(inputStreamReader);
         try{
+            String lEnc = null;
+            
             //pep defines that coding must be at 1st or second line: http://www.python.org/doc/peps/pep-0263/
             String l1 = reader.readLine();
-            String l2 = reader.readLine();
+            if(l1 != null){
+                //Special case -- determined from the python docs:
+                //http://docs.python.org/reference/lexical_analysis.html#encoding-declarations
+                //We can return promptly in this case as utf-8 should be always valid.
+                if(l1.startsWith(BOM_UTF8)){
+                    return "utf-8";
+                }
+
+                if (l1.indexOf("coding") != -1){
+                    lEnc = l1; 
+                }
+            }
             
-            String lEnc = null;
-            //encoding must be specified in first or second line...
-            if (l1 != null && l1.indexOf("coding") != -1){
-                lEnc = l1; 
-            }
-            else if (l2 != null && l2.indexOf("coding") != -1){
-                lEnc = l2; 
-            }
-            else{
-                ret = null;
+            if(lEnc == null){
+                String l2 = reader.readLine();
+                
+                //encoding must be specified in first or second line...
+                if (l2 != null && l2.indexOf("coding") != -1){
+                    lEnc = l2; 
+                }
+                else{
+                    ret = null;
+                }
             }
             
             if(lEnc != null){

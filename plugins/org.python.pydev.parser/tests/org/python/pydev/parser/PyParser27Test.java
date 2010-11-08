@@ -1,12 +1,19 @@
 package org.python.pydev.parser;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+
+import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.REF;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.SetComp;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -23,7 +30,7 @@ public class PyParser27Test extends PyParserTestBase{
         try {
             PyParser27Test test = new PyParser27Test();
             test.setUp();
-            test.testWith();
+            test.testBom();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser27Test.class);
@@ -184,6 +191,28 @@ public class PyParser27Test extends PyParserTestBase{
         Module m = (Module) ast;
         Assign assign = (Assign) m.body[0];
         assertTrue(assign.value instanceof DictComp);
+    }
+    
+    
+    public void testBom() throws BadLocationException, UnsupportedEncodingException {
+        File file = new File(
+                TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC+"/tests/org/python/pydev/parser/utf8_with_bom.py");
+        
+        String s = REF.getFileContents(file);
+        assertTrue(s.startsWith(REF.BOM_UTF8));
+        
+        assertEquals("utf-8", REF.getPythonFileEncoding(file));
+        SimpleNode ast = parseLegalDocStr(s);
+        Module m = (Module) ast;
+        Pass p = (Pass) m.body[0];
+        
+        s = new String(s.getBytes(), "utf-8"); //it's unicode now
+        assertTrue(s.startsWith(REF.BOM_UNICODE));
+        
+        ast = parseLegalDocStr(s);
+        m = (Module) ast;
+        p = (Pass) m.body[0];
+        
     }
     
 }

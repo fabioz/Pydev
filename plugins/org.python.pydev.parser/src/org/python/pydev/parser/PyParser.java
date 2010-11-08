@@ -34,6 +34,7 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.callbacks.ICallback;
@@ -44,6 +45,7 @@ import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.IParserObserver2;
 import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.IPyParser;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.grammar26.PythonGrammar26;
@@ -576,15 +578,31 @@ public class PyParser implements IPyParser {
             //If empty, don't bother to parse!
             return new Tuple<SimpleNode, Throwable>(new Module(new stmtType[0]), null);
         }
+        
+        int length = startDoc.length();
+        int skipAtStart = 0;
+        if(startDoc.startsWith(REF.BOM_UTF8)){
+            skipAtStart = REF.BOM_UTF8.length();
+        }else if(startDoc.startsWith(REF.BOM_UNICODE)){
+            skipAtStart = REF.BOM_UNICODE.length();
+        }
+        
+        int addAtEnd = 0;
         if(!startDoc.endsWith("\n") && !startDoc.endsWith("\r")){
-            startDoc+="\n";
+            addAtEnd = 1;
+        }
+        
+        char []charArray = new char[length-skipAtStart+addAtEnd];
+        startDoc.getChars(skipAtStart, length, charArray, 0);
+        if(addAtEnd > 0){
+            charArray[charArray.length-1] = '\n';
         }
         
         CharStream in = null;
         if(USE_FAST_STREAM){
-            in = new FastCharStream(startDoc.toCharArray());
+            in = new FastCharStream(charArray);
         }else{
-            in = new ReaderCharStream(new StringReader(startDoc));
+            in = new ReaderCharStream(new StringReader(new String(charArray)));
             throw new RuntimeException("This char stream reader was deprecated (it's maintained only for testing purposes).");
         }
         startDoc = null; //it can be garbage-collected now.

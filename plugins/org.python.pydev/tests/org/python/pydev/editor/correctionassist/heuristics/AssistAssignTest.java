@@ -49,7 +49,7 @@ public class AssistAssignTest extends TestCase {
         try{
             AssistAssignTest test = new AssistAssignTest();
             test.setUp();
-            test.testSimple11();
+            test.testSimple12();
             test.tearDown();
             junit.textui.TestRunner.run(AssistAssignTest.class);
         }catch(Exception e){
@@ -118,7 +118,7 @@ public class AssistAssignTest extends TestCase {
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
         assertEquals(2, props.size());
-        assertContains("Assign to local (_newMethod)", props);
+        assertContains("Assign to local (newMethod)", props);
     }
     
     public void testSimple3() throws BadLocationException {
@@ -166,7 +166,8 @@ public class AssistAssignTest extends TestCase {
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
         assertEquals(2, props.size());
-        assertContains("Assign to local (_new_method)", props);
+        assertContains("Assign to local (new_method)", props);
+        assertContains("Assign to field (self._new_method)", props);
     }
     
     public void testSimple4() throws BadLocationException {
@@ -296,6 +297,22 @@ public class AssistAssignTest extends TestCase {
     	List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
     	assertEquals(2, props.size());
     	assertContains("Assign to local (custom_report_document)", props);
+    }
+    
+    public void testSimple12() throws BadLocationException {
+        assist = new AssistAssign(new NonCamelCodingStd());
+        
+        String d = ""+
+        "_callMe()";
+        
+        Document doc = new Document(d);
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (call_me)", props);
     }
     
     
