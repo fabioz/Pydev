@@ -1,6 +1,5 @@
 package org.python.pydev.debug.pyunit;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,20 +14,23 @@ public class PyUnitTestRun {
     private static Object lock = new Object();
     private int numberOfErrors;
     private int numberOfFailures;
+    private String totalNumberOfRuns="0";
     private boolean finished;
-    private WeakReference<IPyUnitServer> server;
+    private IPyUnitLaunch pyUnitLaunch;
     
-    public PyUnitTestRun(IPyUnitServer server) {
+    public PyUnitTestRun(IPyUnitLaunch server) {
         synchronized (lock) {
             this.name = "Test Run:"+currentRun;
             currentRun += 1;
         }
-        if(server != null){
-            this.server = new WeakReference<IPyUnitServer>(server);
-        }
+        this.pyUnitLaunch = server;
         this.results = new ArrayList<PyUnitTestResult>();
     }
 
+    public void setTotalNumberOfRuns(String totalNumberOfRuns) {
+        this.totalNumberOfRuns = totalNumberOfRuns;
+    }
+    
     public synchronized void addResult(PyUnitTestResult result) {
         if(result.status.equals("fail")){
             numberOfFailures += 1;
@@ -65,6 +67,10 @@ public class PyUnitTestRun {
         return numberOfFailures;
     }
 
+    public String getTotalNumberOfRuns() {
+        return totalNumberOfRuns;
+    }
+
     public void setFinished(boolean finished) {
         this.finished = finished;
     }
@@ -74,8 +80,8 @@ public class PyUnitTestRun {
     }
 
     public void stop() {
-        if(this.server != null){
-            IPyUnitServer s = this.server.get();
+        if(this.pyUnitLaunch != null){
+            IPyUnitLaunch s = this.pyUnitLaunch;
             if(s != null){
                 s.stop();
             }
@@ -84,8 +90,8 @@ public class PyUnitTestRun {
     }
 
     public void relaunch() {
-        if(this.server != null){
-            IPyUnitServer s = this.server.get();
+        if(this.pyUnitLaunch != null){
+            IPyUnitLaunch s = this.pyUnitLaunch;
             if(s != null){
                 s.relaunch();
             }
@@ -103,17 +109,16 @@ public class PyUnitTestRun {
     }
 
     public void relaunchOnlyErrors() {
-        if(this.server != null){
-            IPyUnitServer s = this.server.get();
-            if(s != null){
-                ArrayList<PyUnitTestResult> arrayList = new ArrayList<PyUnitTestResult>(this.results.size());
-                for (PyUnitTestResult pyUnitTestResult : this.results) {
-                    if(!pyUnitTestResult.status.equals("ok")){
-                        arrayList.add(pyUnitTestResult);
-                    }
+        IPyUnitLaunch s = this.pyUnitLaunch;
+        if(s != null){
+            ArrayList<PyUnitTestResult> arrayList = new ArrayList<PyUnitTestResult>(this.results.size());
+            for (PyUnitTestResult pyUnitTestResult : this.results) {
+                if(!pyUnitTestResult.status.equals("ok")){
+                    arrayList.add(pyUnitTestResult);
                 }
-                s.relaunchTestResults(arrayList);
             }
+            s.relaunchTestResults(arrayList);
         }
     }
+
 }

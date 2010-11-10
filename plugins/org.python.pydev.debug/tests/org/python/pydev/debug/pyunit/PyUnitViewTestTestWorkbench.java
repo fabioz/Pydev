@@ -7,9 +7,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.swt.widgets.Tree;
 import org.python.pydev.debug.pyunit.HistoryAction.HistoryMenuCreator;
 import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
@@ -51,16 +49,21 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
                 PyUnitViewTestTestWorkbench.this.pyUnitViewServerListener = pyUnitViewServerListener;
             }
 
-            public void stop() {
-                terminated1 = true;
-            }
-            
-            public void relaunch() {
-                relaunched1 = true;
-            }
-            
-            public void relaunchTestResults(ArrayList<PyUnitTestResult> arrayList) {
-                
+            public IPyUnitLaunch getPyUnitLaunch() {
+                return new IPyUnitLaunch() {
+                    
+                    public void stop() {
+                        terminated1 = true;
+                    }
+                    
+                    public void relaunch() {
+                        relaunched1 = true;
+                    }
+                    
+                    public void relaunchTestResults(ArrayList<PyUnitTestResult> arrayList) {
+                    }
+                    
+                };
             }
         };
         
@@ -69,17 +72,22 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
             public void registerOnNotifyTest(IPyUnitServerListener pyUnitViewServerListener) {
                 PyUnitViewTestTestWorkbench.this.pyUnitViewServerListener = pyUnitViewServerListener;
             }
+
             
-            public void stop() {
-                terminated2 = true;
-            }
-            
-            public void relaunch() {
-                relaunched2 = true;
-            }
-            
-            public void relaunchTestResults(ArrayList<PyUnitTestResult> arrayList) {
-                
+            public IPyUnitLaunch getPyUnitLaunch() {
+                return new IPyUnitLaunch() {
+                    
+                    public void stop() {
+                        terminated2 = true;
+                    }
+                    
+                    public void relaunchTestResults(ArrayList<PyUnitTestResult> arrayList) {
+                    }
+                    
+                    public void relaunch() {
+                        relaunched2 = true;
+                    }
+                };
             }
         };
         
@@ -89,28 +97,28 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         CounterPanel counterPanel = view.getCounterPanel();
         PyUnitProgressBar progressBar = view.getProgressBar();
 
-        notifyTest("ok", "d:/temp/a.py", "TestCase.testMet1", "", "");
+        notifyTestsCollected(9);
+        assertEquals("Runs: 0/9", counterPanel.fNumberOfRuns.getText());
+        
+        notifyTest("ok", "d:/temp/a.py", "TestCase.testMet1", "", "", "0.1");
         assertSame(view.getCurrentTestRun(), serverListener1.getTestRun());
         assertEquals(1, serverListener1.getTestRun().getSharedResultsList().size());
-        assertEquals("Runs: 1", counterPanel.fNumberOfRuns.getText());
+        assertEquals("Runs: 1/9", counterPanel.fNumberOfRuns.getText());
         assertEquals("0", counterPanel.fNumberOfErrors.getText());
         assertEquals("0", counterPanel.fNumberOfFailures.getText());
         assertEquals(false, progressBar.getHasErrors());
-        assertEquals(false, progressBar.getHasFinished());
         
-        notifyTest("fail", "d:/temp/a.py", "TestCase.testMet2", "", "");
-        assertEquals("Runs: 2", counterPanel.fNumberOfRuns.getText());
+        notifyTest("fail", "d:/temp/a.py", "TestCase.testMet2", "", "", "0.3");
+        assertEquals("Runs: 2/9", counterPanel.fNumberOfRuns.getText());
         assertEquals("0", counterPanel.fNumberOfErrors.getText());
         assertEquals("1", counterPanel.fNumberOfFailures.getText());
         assertEquals(true, progressBar.getHasErrors());
-        assertEquals(false, progressBar.getHasFinished());
         
-        notifyTest("error", "d:/temp/a.py", "TestCase.testMet2", "", "");
-        assertEquals("Runs: 3", counterPanel.fNumberOfRuns.getText());
+        notifyTest("error", "d:/temp/a.py", "TestCase.testMet2", "", "", "0.5");
+        assertEquals("Runs: 3/9", counterPanel.fNumberOfRuns.getText());
         assertEquals("1", counterPanel.fNumberOfErrors.getText());
         assertEquals("1", counterPanel.fNumberOfFailures.getText());
         assertEquals(true, progressBar.getHasErrors());
-        assertEquals(false, progressBar.getHasFinished());
         
         notifyFinished();
         checkRun1Active(view, serverListener1);
@@ -124,11 +132,9 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         
         view.setCurrentRun(serverListener1.getTestRun());
         assertEquals(true, progressBar.getHasErrors());
-        assertEquals(true, progressBar.getHasFinished());
         
         view.setCurrentRun(serverListener2.getTestRun());
         assertEquals(false, progressBar.getHasErrors());
-        assertEquals(false, progressBar.getHasFinished());
 
         executePyUnitViewAction(view, StopAction.class);
         assertTrue(terminated2);
@@ -178,7 +184,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         executePyUnitViewAction(view, RelaunchAction.class);
         assertTrue(relaunched2);
         
-        goToManual();
+//        goToManual();
           
     }
 
@@ -192,11 +198,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         assertEquals(3, serverListener1.getTestRun().getSharedResultsList().size());
         CounterPanel counterPanel = view.getCounterPanel();
         PyUnitProgressBar progressBar = view.getProgressBar();
-        assertEquals("Runs: 3", counterPanel.fNumberOfRuns.getText());
+        assertEquals("Runs: 3/9", counterPanel.fNumberOfRuns.getText());
         assertEquals("1", counterPanel.fNumberOfErrors.getText());
         assertEquals("1", counterPanel.fNumberOfFailures.getText());
         assertEquals(true, progressBar.getHasErrors());
-        assertEquals(true, progressBar.getHasFinished());
         Tree tree = view.getTree();
         if(onlyFailuresInTree){
             assertEquals(2, tree.getItemCount());
@@ -211,11 +216,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         CounterPanel counterPanel = view.getCounterPanel();
         assertSame(serverListener2.getTestRun(), view.getCurrentTestRun());
         assertEquals(0, serverListener2.getTestRun().getSharedResultsList().size());
-        assertEquals("Runs: 0", counterPanel.fNumberOfRuns.getText());
+        assertEquals("Runs: 0/0", counterPanel.fNumberOfRuns.getText());
         assertEquals("0", counterPanel.fNumberOfErrors.getText());
         assertEquals("0", counterPanel.fNumberOfFailures.getText());
         assertEquals(false, progressBar.getHasErrors());
-        assertEquals(false, progressBar.getHasFinished());
         Tree tree = view.getTree();
         assertEquals(0, tree.getItemCount());
     }
@@ -226,9 +230,14 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
         pyUnitViewServerListener.notifyFinished();
         goToManual(50); //should be enough for it to execute
     }
+    
+    private void notifyTestsCollected(int totalTestsCount) {
+        pyUnitViewServerListener.notifyTestsCollected(""+totalTestsCount);
+        goToManual(50); //should be enough for it to execute
+    }
 
-    private void notifyTest(String status, String location, String test, String capturedOutput, String errorContents) {
-        pyUnitViewServerListener.notifyTest(status, location, test, capturedOutput, errorContents);
+    private void notifyTest(String status, String location, String test, String capturedOutput, String errorContents, String time) {
+        pyUnitViewServerListener.notifyTest(status, location, test, capturedOutput, errorContents, time);
         goToManual(50); //should be enough for it to execute
     }
 }

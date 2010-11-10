@@ -36,7 +36,7 @@ public class CounterPanel extends Composite {
 		gridLayout.marginWidth= 0;
 		setLayout(gridLayout);
 
-		fNumberOfRuns= createLabel("Runs: ", null, "0"); //$NON-NLS-1$
+		fNumberOfRuns= createLabel("Runs: ", null, "0/0"); //$NON-NLS-1$
 		fNumberOfErrors= createLabel("", fErrorIcon, "0"); //$NON-NLS-1$
 		fNumberOfErrors.setToolTipText("Errors");
 		fNumberOfFailures= createLabel("", fFailureIcon, "0"); //$NON-NLS-1$
@@ -91,12 +91,12 @@ public class CounterPanel extends Composite {
 	public void reset() {
 		setErrorValue(0);
 		setFailureValue(0);
-		setRunValue(0);
+		setRunValue(0, "0");
 	}
 
 
-	public void setRunValue(int value) {
-		String runString= "Runs: "+Integer.toString(value);
+	public void setRunValue(int value, String total) {
+		String runString= "Runs: "+Integer.toString(value)+"/"+total;
 		fNumberOfRuns.setText(runString);
 
 		fNumberOfRuns.redraw();

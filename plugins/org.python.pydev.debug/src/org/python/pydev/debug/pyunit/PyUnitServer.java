@@ -1,12 +1,6 @@
 package org.python.pydev.debug.pyunit;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,19 +11,12 @@ import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
-import org.python.pydev.core.REF;
-import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.debug.core.Constants;
-import org.python.pydev.debug.ui.actions.RestartLaunchAction;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.SocketUtil;
@@ -73,24 +60,49 @@ public class PyUnitServer implements IPyUnitServer  {
         
 
         public Object execute(XmlRpcRequest request) throws XmlRpcException {
-            String method = request.getMethodName();
-            if("notifyTest".equals(method)){
+            try{
+                String method = request.getMethodName();
                 int parameterCount = request.getParameterCount();
-                if(parameterCount != 5){
-                    PydevPlugin.log("Error. Expected 5 parameters in notifyTest. Received: "+parameterCount);
-                }else{
-                    String status = request.getParameter(0).toString();
-                    String capturedOutput = request.getParameter(1).toString();
-                    String errorContents = request.getParameter(2).toString();
-                    String location = request.getParameter(3).toString();
-                    String test = request.getParameter(4).toString();
-                    
-                    for(IPyUnitServerListener listener:listeners){
-                        listener.notifyTest(status, location, test, capturedOutput, errorContents);
+                if("notifyTest".equals(method)){
+                    if(parameterCount != 6){
+                        PydevPlugin.log("Error. Expected 6 parameters in notifyTest. Received: "+parameterCount);
+                    }else{
+                        String status = request.getParameter(0).toString();
+                        String capturedOutput = request.getParameter(1).toString();
+                        String errorContents = request.getParameter(2).toString();
+                        String location = request.getParameter(3).toString();
+                        String test = request.getParameter(4).toString();
+                        String time = request.getParameter(5).toString();
+                        
+                        for(IPyUnitServerListener listener:listeners){
+                            listener.notifyTest(status, location, test, capturedOutput, errorContents, time);
+                        }
                     }
+                    
+                }else if("notifyTestsCollected".equals(method)){
+                    if(parameterCount != 1){
+                        PydevPlugin.log("Error. Expected 1 parameters in notifyTestsCollected. Received: "+parameterCount);
+                    }else{
+                        String totalTestsCount = request.getParameter(0).toString();
+                        for(IPyUnitServerListener listener:listeners){
+                            listener.notifyTestsCollected(totalTestsCount);
+                        }
+                    }
+                    
+                }else if("notifyConnected".equals(method)){
+                    //ignore this one
+                    
+                }else if("notifyTestRunFinished".equals(method)){
+                    for(IPyUnitServerListener listener:listeners){
+                        listener.notifyFinished();
+                    }
+                    
+                }else{
+                    Log.log("Unhandled notification: "+method);
                 }
-                
-                
+            }catch(Throwable e){
+                //Never return any error here (we don't want to stop running the tests because of some error here).
+                PydevPlugin.log(e);
             }
             return "OK";
         }
@@ -208,44 +220,11 @@ public class PyUnitServer implements IPyUnitServer  {
         }
     }
     
-    @Override
-    protected void finalize() throws Throwable {
-        //Just making sure it's disposed (this shouldn't really be needed, but is here as a safeguard so that
-        //we release the connection if this object is no longer accessible).
-        this.dispose();
-    }
 
-    public void stop() {
-        if(!disposed){
-            try {
-                this.launch.terminate(); //doing this should call dispose later on.
-            } catch (DebugException e) {
-                PydevPlugin.log(e);
-            }
-        }
-        
-    }
-
-    public void relaunch() {
-        RestartLaunchAction.relaunch(launch, configuration);
-    }
     
-    public void relaunchTestResults(ArrayList<PyUnitTestResult> runsToRelaunch) {
-        FastStringBuffer buf = new FastStringBuffer(100*runsToRelaunch.size());
-        for (PyUnitTestResult pyUnitTestResult : runsToRelaunch) {
-            buf.append(pyUnitTestResult.location).append(":").append(pyUnitTestResult.test).append('\n');
-        }
-        
-        try {
-            ILaunchConfigurationWorkingCopy workingCopy = configuration.getWorkingCopy();
-            //When running it, it'll put the contents we set in the buf string into a file and pass that 
-            //file to the actual unittest run.
-            workingCopy.setAttribute(Constants.ATTR_UNITTEST_CONFIGURATION_FILE, buf.toString());
-            ILaunchConfiguration newConf = workingCopy.doSave();
-            RestartLaunchAction.relaunch(launch, newConf);
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
-        }
-        
+    public IPyUnitLaunch getPyUnitLaunch() {
+        return new PyUnitLaunch(launch, configuration);
     }
+
+    
 }

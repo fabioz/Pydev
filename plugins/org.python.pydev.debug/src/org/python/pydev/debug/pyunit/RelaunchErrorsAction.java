@@ -13,7 +13,7 @@ public class RelaunchErrorsAction extends Action{
     public RelaunchErrorsAction(PyUnitView pyUnitView) {
         this.view = new WeakReference<PyUnitView>(pyUnitView);
         this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH_ERRORS));
-        this.setToolTipText("Relaunches the currently selected test run.");
+        this.setToolTipText("Relaunches only the errors in the currently selected test run.");
     }
     
     @Override

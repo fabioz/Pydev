@@ -45,8 +45,8 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     private final PyUnitTestRun testRun;
     
     
-    public PyUnitViewServerListener(IPyUnitServer pyUnitServer) {
-        this.testRun = new PyUnitTestRun(pyUnitServer);
+    public PyUnitViewServerListener(IPyUnitServer pyUnitServer, IPyUnitLaunch pyUnitLaunch) {
+        this.testRun = new PyUnitTestRun(pyUnitLaunch);
         pyUnitServer.registerOnNotifyTest(this);
         updateJob.setPriority(JOBS_PRIORITY);
         updateJob.setSystem(true);
@@ -56,12 +56,20 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     public static int JOBS_PRIORITY = Job.SHORT;
     private boolean finishedNotified = false;
     
-    public void notifyTest(final String status, final String location, final String test, final String capturedOutput, final String errorContents) {
+    public void notifyTest(
+            final String status, 
+            final String location,
+            final String test, 
+            final String capturedOutput, 
+            final String errorContents,
+            final String time
+            ) {
         synchronized (notifications) {
             notifications.add(new ICallback0<Object>() {
 
                 public Object call() {
-                    PyUnitTestResult result = new PyUnitTestResult(testRun, status, location, test, capturedOutput, errorContents);
+                    PyUnitTestResult result = new PyUnitTestResult(
+                            testRun, status, location, test, capturedOutput, errorContents, time);
                     testRun.addResult(result);
                     view.notifyTest(result);
                     return null;
@@ -98,5 +106,10 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
 
     public PyUnitTestRun getTestRun() {
         return testRun;
+    }
+
+    public void notifyTestsCollected(String totalTestsCount) {
+        testRun.setTotalNumberOfRuns(totalTestsCount);
+        view.notifyTestsCollected();
     }
 }

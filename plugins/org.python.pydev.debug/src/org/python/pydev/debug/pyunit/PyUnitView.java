@@ -29,6 +29,7 @@ import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.ui.IViewCreatedObserver;
 
 
@@ -216,7 +217,7 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     
     public static PyUnitViewServerListener registerPyUnitServer(final IPyUnitServer pyUnitServer, boolean async) {
         //We create a listener before and later set the view so that we don't run into racing condition errors!
-        final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer);
+        final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer, pyUnitServer.getPyUnitLaunch());
         
         Runnable r = new Runnable() {
             public void run() {
@@ -277,6 +278,18 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         notifyTest(result, true);
     }
     
+
+    /*default*/ void notifyTestsCollected() {
+        RunInUiThread.async(new Runnable() {
+            
+            public void run() {
+                updateCountersAndBar();
+            }
+        });
+    }
+
+
+    
     private void notifyTest(PyUnitTestResult result, boolean updateBar) {
         if(result.getTestRun() != currentRun){
             return;
@@ -284,7 +297,7 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         if(!showOnlyErrors || (showOnlyErrors && !result.status.equals("ok"))){
             TreeItem treeItem = new TreeItem(tree, 0);
             File file = new File(result.location);
-            treeItem.setText(new String[]{result.status, file.getName(), result.test});
+            treeItem.setText(new String[]{result.status, file.getName(), result.test, result.time});
             treeItem.setData ("TIP_TEXT", result.location);
             treeItem.setData("RESULT", result);
         }
@@ -296,17 +309,29 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
 
     private void updateCountersAndBar() {
         if(currentRun != null){
+            String totalNumberOfRuns = currentRun.getTotalNumberOfRuns();
             int numberOfRuns = currentRun.getNumberOfRuns();
             int numberOfErrors = currentRun.getNumberOfErrors();
             int numberOfFailures = currentRun.getNumberOfFailures();
             
-            fCounterPanel.setRunValue(numberOfRuns);
+            fCounterPanel.setRunValue(numberOfRuns, totalNumberOfRuns);
             fCounterPanel.setErrorValue(numberOfErrors);
             fCounterPanel.setFailureValue(numberOfFailures);
             
-            setShowBarWithError(numberOfErrors + numberOfFailures > 0, numberOfRuns > 0, currentRun.getFinished());
+            try {
+                int totalAsInt;
+                if(currentRun.getFinished()){
+                    totalAsInt = numberOfRuns;
+                }else{
+                    totalAsInt = Integer.parseInt(totalNumberOfRuns);
+                }
+                fProgressBar.reset(numberOfErrors + numberOfFailures > 0, false, numberOfRuns, totalAsInt);
+            } catch (NumberFormatException e) {
+                //use this if we're unable to collect the number of runs as a string.
+                setShowBarWithError(numberOfErrors + numberOfFailures > 0, numberOfRuns > 0, currentRun.getFinished());
+            }
         }else{
-            fCounterPanel.setRunValue(0);
+            fCounterPanel.setRunValue(0, "0");
             fCounterPanel.setErrorValue(0);
             fCounterPanel.setFailureValue(0);
             
@@ -396,6 +421,5 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
             }
         }
     }
-
 
 }

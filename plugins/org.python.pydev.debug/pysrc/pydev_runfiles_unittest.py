@@ -57,9 +57,10 @@ class PydevTestResult(_PythonTextTestResult):
             test_name = test.__class__.__name__+"."+test._TestCase__testMethodName
             
         
+        diff_time = '%.2f' % (end_time - self.start_time)
         if not self._current_errors_stack and not self._current_failures_stack:
             pydev_runfiles_xml_rpc.NotifyTest(
-                'ok', captured_output, error_contents, test.__pydev_pyfile__, test_name, end_time-self.start_time)
+                'ok', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
         else:
             error_contents = []
             for test, s in self._current_errors_stack+self._current_failures_stack:
@@ -68,15 +69,15 @@ class PydevTestResult(_PythonTextTestResult):
             error_contents = ('\n'+self.separator1).join(error_contents)
             if self._current_errors_stack and not self._current_failures_stack:
                 pydev_runfiles_xml_rpc.NotifyTest(
-                    'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, end_time-self.start_time)
+                    'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
                 
             elif self._current_failures_stack and not self._current_errors_stack:
                 pydev_runfiles_xml_rpc.NotifyTest(
-                    'fail', captured_output, error_contents, test.__pydev_pyfile__, test_name, end_time-self.start_time)
+                    'fail', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
             
             else: #Ok, we got both, errors and failures. Let's mark it as an error in the end.
                 pydev_runfiles_xml_rpc.NotifyTest(
-                    'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, end_time-self.start_time)
+                    'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
                 
 
 
