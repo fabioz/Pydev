@@ -200,6 +200,7 @@ else:
                 
             return ret
         input.__doc__ = original_input.__doc__
+        builtins.input = input
     except:
         #Don't report errors at this stage
         if DEBUG:
