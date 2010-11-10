@@ -619,7 +619,11 @@ class PydevTestRunner(object):
 
         sys.stdout.write('\n')
         runner = pydev_runfiles_unittest.PydevTextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
-        runner.run(unittest.TestSuite(all_tests))
+        test_suite = unittest.TestSuite(all_tests)
+        import pydev_runfiles_xml_rpc
+        pydev_runfiles_xml_rpc.NotifyTestsCollected(test_suite.countTestCases())
+        runner.run(test_suite)
+        pydev_runfiles_xml_rpc.NotifyTestRunFinished()
 
 
 def main(configuration):

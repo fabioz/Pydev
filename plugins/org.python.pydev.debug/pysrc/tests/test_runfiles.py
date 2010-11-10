@@ -57,7 +57,7 @@ class RunfilesTest(unittest.TestCase):
         
     def test_suite_used(self):
         for suite in self.all_tests+self.filtered_tests:
-            self.assert_(isinstance(suite, pydev_runfiles_unittest.TestSuite))
+            self.assert_(isinstance(suite, pydev_runfiles_unittest.PydevTestSuite))
 
     def test_parse_cmdline(self):
         sys.argv = "pydev_runfiles.py ./".split()
@@ -153,7 +153,7 @@ class RunfilesTest(unittest.TestCase):
 
     def test___get_module_from_str(self):
         my_importer = self.MyTestRunner._PydevTestRunner__get_module_from_str
-        my_os_path = my_importer("os.path", True)
+        my_os_path = my_importer("os.path", True, 'unused')
         from os import path
         import os.path as path2
         self.assertEquals(path, my_os_path)
@@ -253,8 +253,14 @@ class RunfilesTest(unittest.TestCase):
             def notifyTestsCollected(self, number_of_tests):
                 notifications.append(('notifyTestsCollected', number_of_tests))
             
+            
             def notifyTest(self, cond, captured_output, error_contents, file, test, time):
-                notifications.append(('notifyTest', cond, captured_output, error_contents, file, test))
+                if error_contents:
+                    error_contents = error_contents.splitlines()[-1].strip()
+                notifications.append(('notifyTest', cond, captured_output.strip(), error_contents, file, test))
+                
+            def notifyTestRunFinished(self):
+                notifications.append(('notifyTestRunFinished',))
             
         server = Server()
         pydev_runfiles_xml_rpc.SetServer(server)
@@ -270,18 +276,25 @@ class RunfilesTest(unittest.TestCase):
         self._setup_scenario(None, config_file_contents=config_file_contents)
         self.MyTestRunner.verbosity = 2
         
-        import sys
-        sys.stdout = pydevd_io.IORedirector
-        self.MyTestRunner.run_tests()
-        self.assertEqual(4, len(notifications))
-        self.assertEqual(
-            [
-                ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_non_unique_name'), 
-                ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_xxxxxx1'), 
-                ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_xxxxxx2'), 
-                ('notifyTest', 'ok', '', '', simple_test2, 'YetAnotherSampleTest.test_abc')],
-            notifications
-        )
+        buf = pydevd_io.StartRedirect(keep_original_redirection=False)
+        try:
+            self.MyTestRunner.run_tests()
+            self.assertEqual(6, len(notifications))
+            self.assertEqual(
+                [
+                    ('notifyTestsCollected', 4),
+                    ('notifyTest', 'ok', 'non unique name ran', '', simple_test, 'SampleTest.test_non_unique_name'), 
+                    ('notifyTest', 'fail', '', 'AssertionError: Fail test 2', simple_test, 'SampleTest.test_xxxxxx1'), 
+                    ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_xxxxxx2'), 
+                    ('notifyTest', 'ok', '', '', simple_test2, 'YetAnotherSampleTest.test_abc'),
+                    ('notifyTestRunFinished',),
+                ],
+                notifications
+            )
+        finally:
+            pydevd_io.EndRedirect()
+        b = buf.getvalue()
+        self.assert_('Ran 4 tests in ' in b, 'Found: '+b)
         
 
         

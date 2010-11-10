@@ -23,6 +23,7 @@ class _ServerHolder:
 def SetServer(server):
     _ServerHolder.SERVER = server
 
+
 #=======================================================================================================================
 # InitializeServer
 #=======================================================================================================================
@@ -31,6 +32,13 @@ def InitializeServer(port):
         _ServerHolder.SERVER = xmlrpclib.Server('http://%s:%s' % ('localhost', port))
         
     _ServerHolder.SERVER.notifyConnected()
+    
+    
+#=======================================================================================================================
+# NotifyTest
+#=======================================================================================================================
+def NotifyTestsCollected(tests_count):
+    _ServerHolder.SERVER.notifyTestsCollected(tests_count)
     
     
 #=======================================================================================================================
@@ -46,3 +54,9 @@ def NotifyTest(cond, captured_output, error_contents, file, test, time):
     @param time: float with the number of seconds elapsed
     '''
     _ServerHolder.SERVER.notifyTest(cond, captured_output, error_contents, file, test, time)
+
+#=======================================================================================================================
+# NotifyTestRunFinished
+#=======================================================================================================================
+def NotifyTestRunFinished():
+    _ServerHolder.SERVER.notifyTestRunFinished()

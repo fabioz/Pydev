@@ -1,6 +1,7 @@
 import unittest as python_unittest
 import pydev_runfiles_xml_rpc
 import time
+import pydevd_io
 
 try:
     enumerate
@@ -21,70 +22,72 @@ except NameError:
 class PydevTextTestRunner(python_unittest.TextTestRunner):
     
     def _makeResult(self):
-        original = python_unittest.TextTestRunner._makeResult(self)
-        return PydevTestResult(original)
+        return PydevTestResult(self.stream, self.descriptions, self.verbosity)
 
+
+_PythonTextTestResult = python_unittest.TextTestRunner()._makeResult().__class__
 
 #=======================================================================================================================
 # PydevTestResult
 #=======================================================================================================================
-class PydevTestResult(python_unittest.TestResult):
+class PydevTestResult(_PythonTextTestResult):
     
-    def __init__(self, wrapped):
-        python_unittest.TestResult.__init__(self)
-        self.wrapped = wrapped
-
 
     def startTest(self, test):
-        python_unittest.TestResult.startTest(self, test)
-        self.wrapped.startTest(test)
+        _PythonTextTestResult.startTest(self, test)
+        self.buf = pydevd_io.StartRedirect(keep_original_redirection=True, std='both')
         self.start_time = time.time()
+        self._current_errors_stack = []
+        self._current_failures_stack = []
 
 
     def stopTest(self, test):
-        self.end_time = time.time()
-        python_unittest.TestResult.stopTest(self, test)
-        self.wrapped.stopTest(test)
-        if self.wasSuccessful():
-            captured_output, error_contents = '', ''
+        end_time = time.time()
+        pydevd_io.EndRedirect(std='both')
+        
+        _PythonTextTestResult.stopTest(self, test)
+        
+        captured_output = self.buf.getvalue()
+        del self.buf
+        error_contents = ''
+        try:
             test_name = test.__class__.__name__+"."+test._testMethodName
+        except AttributeError:
+            #Support for jython 2.1 (__testMethodName is pseudo-private in the test case)
+            test_name = test.__class__.__name__+"."+test._TestCase__testMethodName
+            
+        
+        if not self._current_errors_stack and not self._current_failures_stack:
             pydev_runfiles_xml_rpc.NotifyTest(
-                'ok', captured_output, error_contents, test.__pydev_pyfile__, test_name, self.end_time-self.start_time)
+                'ok', captured_output, error_contents, test.__pydev_pyfile__, test_name, end_time-self.start_time)
+        else:
+            error_contents = []
+            for test, s in self._current_errors_stack+self._current_failures_stack:
+                error_contents.append(s)
+            
+            error_contents = ('\n'+self.separator1).join(error_contents)
+            if self._current_errors_stack and not self._current_failures_stack:
+                pydev_runfiles_xml_rpc.NotifyTest(
+                    'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, end_time-self.start_time)
+                
+            elif self._current_failures_stack and not self._current_errors_stack:
+                pydev_runfiles_xml_rpc.NotifyTest(
+                    'fail', captured_output, error_contents, test.__pydev_pyfile__, test_name, end_time-self.start_time)
+            
+            else: #Ok, we got both, errors and failures. Let's mark it as an error in the end.
+                pydev_runfiles_xml_rpc.NotifyTest(
+                    'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, end_time-self.start_time)
+                
 
 
     def addError(self, test, err):
-        python_unittest.TestResult.addError(self, test, err)
-        self.wrapped.addError(test, err)
+        _PythonTextTestResult.addError(self, test, err)
+        self._current_errors_stack.append(self.errors[-1])
 
 
     def addFailure(self, test, err):
-        python_unittest.TestResult.addFailure(self, test, err)
-        self.wrapped.addFailure(test, err)
-
-
-    def addSuccess(self, test):
-        python_unittest.TestResult.addSuccess(self, test)
-        self.wrapped.addSuccess(test)
-
-
-    def wasSuccessful(self):
-        return python_unittest.TestResult.wasSuccessful(self)
-    
-
-    def stop(self):
-        self.wrapped.stop()
-        return python_unittest.TestResult.stop(self)
-    
-    
-    separator1 = '=' * 70
-    separator2 = '-' * 70
-
-
-    def printErrors(self):
-        self.wrapped.printErrors()
-
-    def printErrorList(self, flavour, errors):
-        self.wrapped.printErrorList(flavour, errors)
+        _PythonTextTestResult.addFailure(self, test, err)
+        self._current_failures_stack.append(self.failures[-1])
 
 
 

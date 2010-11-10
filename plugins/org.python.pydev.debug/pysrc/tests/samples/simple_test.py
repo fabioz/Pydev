@@ -9,7 +9,7 @@ class SampleTest(unittest.TestCase):
         pass
 
     def test_xxxxxx1(self):
-        pass
+        self.fail('Fail test 2')
     def test_xxxxxx2(self):
         pass
     def test_xxxxxx3(self):
@@ -17,7 +17,7 @@ class SampleTest(unittest.TestCase):
     def test_xxxxxx4(self):
         pass
     def test_non_unique_name(self):
-        pass
+        print 'non unique name ran'
 
 
 class AnotherSampleTest(unittest.TestCase):
