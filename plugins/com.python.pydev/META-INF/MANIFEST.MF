@@ -27,8 +27,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide
 Eclipse-LazyStart: true
 Bundle-ClassPath: pydev.jar,
- retroweaver-rt.jar,
- mail.jar
+ retroweaver-rt.jar
 Export-Package: com.python.pydev,
  com.python.pydev.actions,
  com.python.pydev.refactoring,
