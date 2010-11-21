@@ -137,6 +137,10 @@ public class PyBackspace extends PyAction {
                 return;
             }
         }
+    	if(!canModifyEditor()){
+    		return;
+    	}
+
         PySelection ps = new PySelection(getTextEditor());
         perform(ps);
     }

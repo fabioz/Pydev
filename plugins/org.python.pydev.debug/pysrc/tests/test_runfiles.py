@@ -1,13 +1,16 @@
 import os
 import sys
 
-
-# stupid jython. plain old __file__ isnt working for some reason
-import test_runfiles #@UnresolvedImport - importing the module itself
+try:
+    this_file_name = __file__
+except NameError:
+    # stupid jython. plain old __file__ isnt working for some reason
+    import test_runfiles #@UnresolvedImport - importing the module itself
+    this_file_name = test_runfiles.__file__
+    
 import pydev_runfiles_unittest
 import pydev_runfiles_xml_rpc
 import pydevd_io
-this_file_name = test_runfiles.__file__
 
 desired_runfiles_path = os.path.normpath(os.path.dirname(this_file_name) + "/..")
 sys.path.insert(0, desired_runfiles_path)
@@ -245,24 +248,27 @@ class RunfilesTest(unittest.TestCase):
         notifications = []
         class Server:
             
+            def __init__(self, notifications):
+                self.notifications = notifications
+            
             def notifyConnected(self):
                 #This method is called at the very start (in runfiles.py), and we do not check this here
                 raise AssertionError('Should not be called from the run tests.')
             
             
             def notifyTestsCollected(self, number_of_tests):
-                notifications.append(('notifyTestsCollected', number_of_tests))
+                self.notifications.append(('notifyTestsCollected', number_of_tests))
             
             
             def notifyTest(self, cond, captured_output, error_contents, file, test, time):
                 if error_contents:
                     error_contents = error_contents.splitlines()[-1].strip()
-                notifications.append(('notifyTest', cond, captured_output.strip(), error_contents, file, test))
+                self.notifications.append(('notifyTest', cond, captured_output.strip(), error_contents, file, test))
                 
             def notifyTestRunFinished(self):
-                notifications.append(('notifyTestRunFinished',))
+                self.notifications.append(('notifyTestRunFinished',))
             
-        server = Server()
+        server = Server(notifications)
         pydev_runfiles_xml_rpc.SetServer(server)
         simple_test = os.path.join(self.file_dir[0], 'simple_test.py')
         simple_test2 = os.path.join(self.file_dir[0], 'simple2_test.py')

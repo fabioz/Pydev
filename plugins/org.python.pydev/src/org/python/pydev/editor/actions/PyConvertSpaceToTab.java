@@ -31,6 +31,10 @@ public class PyConvertSpaceToTab extends PyAction {
      */
     public void run(IAction action) {
         try {
+        	if(!canModifyEditor()){
+        		return;
+        	}
+
             // Select from text editor
             ps = new PySelection(getTextEditor());
             ps.selectAll(false);
