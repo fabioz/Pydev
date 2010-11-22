@@ -19,6 +19,7 @@ import org.eclipse.search.ui.text.FileTextSearchScope;
 import org.eclipse.search.ui.text.TextSearchQueryProvider;
 import org.eclipse.search.ui.text.TextSearchQueryProvider.TextSearchInput;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.PydevPlugin;
@@ -114,7 +115,7 @@ public class RefactorerFindReferences {
                             FileTypesPreferencesPage.getWildcardValidSourceFiles(), true));
             
             final ISearchQuery query = searchQueryProvider.createQuery(textSearchInput);
-            IStatus status = query.run(request.getMonitor());
+            final IStatus status = query.run(request.getMonitor());
 
             if (status.matches(IStatus.CANCEL)) {
                 return l;
@@ -124,7 +125,13 @@ public class RefactorerFindReferences {
                 PydevPlugin.log(status);
                 
                 if (status.getSeverity() == IStatus.ERROR) {
-                    ErrorDialog.openError(PyAction.getShell(), "Error when searching for references", "Error when searching for references", status);
+                    RunInUiThread.async(new Runnable() {
+                        
+                        public void run() {
+                            ErrorDialog.openError(PyAction.getShell(), 
+                                    "Error when searching for references", "Error when searching for references", status);
+                        }
+                    });
                 }
                 return l;
             }
