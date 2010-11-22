@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -13,6 +16,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -30,6 +34,9 @@ import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
+import org.python.pydev.debug.newconsole.prefs.ColorManager;
+import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
 
 
@@ -74,6 +81,8 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     public final ICallbackWithListeners onDispose = new CallbackWithListeners();
     private List<PyUnitTestRun> allRuns = new ArrayList<PyUnitTestRun>();
     private PyUnitTestRun currentRun;
+    
+    private ColorAndStyleCache colorAndStyleCache;
 
     @SuppressWarnings("unchecked")
     public PyUnitView() {
@@ -82,6 +91,29 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         for (IViewCreatedObserver iViewCreatedObserver : participants) {
             iViewCreatedObserver.notifyViewCreated(this);
         }
+        colorAndStyleCache= new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
+        IPropertyChangeListener prefListener= new IPropertyChangeListener() {
+            
+            public void propertyChange(PropertyChangeEvent event) {
+                String property = event.getProperty();
+                if(ColorAndStyleCache.isColorOrStyleProperty(property)){
+                    colorAndStyleCache.reloadNamedColor(property);
+                    Color errorColor = getErrorColor();
+                    TreeItem[] items = tree.getItems();
+                    for(TreeItem item:items){
+                        PyUnitTestResult result = (PyUnitTestResult) item.getData("RESULT");
+                        if(result!= null && !result.isOk()){
+                            item.setForeground(errorColor);
+                        }
+                    }
+                    
+                    if(fProgressBar != null){
+                        fProgressBar.updateErrorColor(true);
+                    }
+                }
+            }
+        };
+        PydevPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
     }
 
     private SashForm sash;
@@ -298,6 +330,10 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
             TreeItem treeItem = new TreeItem(tree, 0);
             File file = new File(result.location);
             treeItem.setText(new String[]{result.status, file.getName(), result.test, result.time});
+            if(!result.isOk()){
+                Color errorColor = getErrorColor();
+                treeItem.setForeground(errorColor);
+            }
             treeItem.setData ("TIP_TEXT", result.location);
             treeItem.setData("RESULT", result);
         }
@@ -305,6 +341,12 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         if(updateBar){
             updateCountersAndBar();
         }
+    }
+
+    public Color getErrorColor() {
+        TextAttribute attribute = ColorManager.getDefault().getConsoleErrorTextAttribute();
+        Color errorColor = attribute.getForeground();
+        return errorColor;
     }
 
     private void updateCountersAndBar() {

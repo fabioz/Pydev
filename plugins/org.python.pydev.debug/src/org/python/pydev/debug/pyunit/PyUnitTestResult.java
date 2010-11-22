@@ -13,6 +13,10 @@ public class PyUnitTestResult {
     public final String time;
     private WeakReference<PyUnitTestRun> testRun;
     
+    public final String STATUS_OK = "ok";
+    public final String STATUS_FAIL = "fail";
+    public final String STATUS_ERROR = "error";
+    
     
     public PyUnitTestResult(PyUnitTestRun testRun, String status, String location, String test, String capturedOutput, String errorContents, String time) {
         //note that the parent has a strong reference to the children.
@@ -28,5 +32,10 @@ public class PyUnitTestResult {
 
     public PyUnitTestRun getTestRun() {
         return this.testRun.get();
+    }
+
+
+    public boolean isOk() {
+        return STATUS_OK.equals(this.status);
     }
 }

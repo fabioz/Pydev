@@ -1,5 +1,6 @@
 package org.python.pydev.debug.pyunit;
 
+import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -14,6 +15,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.debug.newconsole.prefs.ColorManager;
 
 /**
  * A progress bar with a red/green indication for success or failure.
@@ -55,10 +57,24 @@ public class PyUnitProgressBar extends Canvas {
 			}
 		});
 		Display display= parent.getDisplay();
-		fFailureColor= new Color(display, 159, 63, 63);
 		fOKColor= new Color(display, 95, 191, 95);
 		fStoppedColor= new Color(display, 120, 120, 120);
+		updateErrorColor(false);
 	}
+	
+	public void updateErrorColor(boolean redraw) {
+	    if(fFailureColor != null){
+	        fFailureColor.dispose();
+	        fFailureColor = null;
+	    }
+	    TextAttribute attribute = ColorManager.getDefault().getConsoleErrorTextAttribute();
+
+	    fFailureColor= new Color(Display.getDefault(), attribute.getForeground().getRGB());
+	    if(redraw){
+	        this.redraw();
+	    }
+    }
+	
 
 	public void setMaximum(int max) {
 		fMaxTickCount= max;
