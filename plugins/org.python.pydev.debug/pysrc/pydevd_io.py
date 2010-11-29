@@ -1,3 +1,11 @@
+try:
+    __setFalse = False
+except:
+    import __builtin__
+    setattr(__builtin__, 'True', 1)
+    setattr(__builtin__, 'False', 0)
+
+
 class IORedirector:
     '''This class works to redirect the write function to many streams
     '''

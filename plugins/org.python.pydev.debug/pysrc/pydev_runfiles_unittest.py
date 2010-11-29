@@ -2,6 +2,7 @@ import unittest as python_unittest
 import pydev_runfiles_xml_rpc
 import time
 import pydevd_io
+import traceback
 
 try:
     enumerate
@@ -64,9 +65,19 @@ class PydevTestResult(_PythonTextTestResult):
         else:
             error_contents = []
             for test, s in self._current_errors_stack+self._current_failures_stack:
+                if type(s) == type((1,)): #If it's a tuple (for jython 2.1)
+                    try:
+                        from StringIO import StringIO
+                    except:
+                        from io import StringIO
+                    sio = StringIO()
+                    traceback.print_exception(s[0], s[1], s[2], file=sio)
+                    s = sio.getvalue()
                 error_contents.append(s)
             
-            error_contents = ('\n'+self.separator1).join(error_contents)
+            sep = '\n'+self.separator1
+            error_contents = sep.join(error_contents)
+            
             if self._current_errors_stack and not self._current_failures_stack:
                 pydev_runfiles_xml_rpc.NotifyTest(
                     'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)

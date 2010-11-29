@@ -2,8 +2,6 @@ package org.python.pydev.debug.pyunit;
 
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -27,6 +25,7 @@ public class CounterPanel extends Composite {
 
 	public CounterPanel(Composite parent) {
 		super(parent, SWT.WRAP);
+		//Note: don't dispose of icons in the cache
 		fErrorIcon= PydevDebugPlugin.getImageCache().get("icons/ovr16/error_ovr.gif"); //$NON-NLS-1$
 		fFailureIcon= PydevDebugPlugin.getImageCache().get("icons/ovr16/failed_ovr.gif"); //$NON-NLS-1$
 		
@@ -36,25 +35,13 @@ public class CounterPanel extends Composite {
 		gridLayout.marginWidth= 0;
 		setLayout(gridLayout);
 
-		fNumberOfRuns= createLabel("Runs: ", null, "0/0"); //$NON-NLS-1$
-		fNumberOfErrors= createLabel("", fErrorIcon, "0"); //$NON-NLS-1$
-		fNumberOfErrors.setToolTipText("Errors");
-		fNumberOfFailures= createLabel("", fFailureIcon, "0"); //$NON-NLS-1$
-		fNumberOfErrors.setToolTipText("Failures");
-
-		addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				disposeIcons();
-			}
-		});
+		fNumberOfRuns= createLabel("Runs: ", null, "0/0", "Test Run/Tests Collected"); //$NON-NLS-1$
+		fNumberOfErrors= createLabel("", fErrorIcon, "0", "Errors"); //$NON-NLS-1$
+		fNumberOfFailures= createLabel("", fFailureIcon, "0", "Failures"); //$NON-NLS-1$
 	}
 
-	private void disposeIcons() {
-		fErrorIcon.dispose();
-		fFailureIcon.dispose();
-	}
 
-	private Text createLabel(String name, Image image, String init) {
+	private Text createLabel(String name, Image image, String init, String tooltip) {
 	    Label label;
 	    
 	    if(image != null){
@@ -63,6 +50,7 @@ public class CounterPanel extends Composite {
     			image.setBackground(label.getBackground());
     			label.setImage(image);
     		}
+    		label.setToolTipText(tooltip);
     		GridData gridData = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
     		gridData.minimumWidth = 14;
     		label.setLayoutData(gridData);
@@ -79,6 +67,7 @@ public class CounterPanel extends Composite {
 		//label.setFont(JFaceResources.getBannerFont());
 
 		Text value= new Text(this, SWT.READ_ONLY);
+		value.setToolTipText(tooltip);
 		value.setText(init);
 		// bug: 39661 Junit test counters do not repaint correctly [JUnit]
 		value.setBackground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
@@ -96,7 +85,7 @@ public class CounterPanel extends Composite {
 
 
 	public void setRunValue(int value, String total) {
-		String runString= "Runs: "+Integer.toString(value)+"/"+total;
+		String runString= Integer.toString(value)+"/"+total;
 		fNumberOfRuns.setText(runString);
 
 		fNumberOfRuns.redraw();

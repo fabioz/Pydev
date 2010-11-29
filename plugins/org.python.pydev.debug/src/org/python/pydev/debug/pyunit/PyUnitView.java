@@ -6,16 +6,21 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -24,17 +29,28 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
+import org.python.pydev.debug.ui.ILinkContainer;
+import org.python.pydev.debug.ui.PythonConsoleLineTracker;
+import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.parser.fastparser.FastDefinitionsParser;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 import org.python.pydev.ui.IViewCreatedObserver;
@@ -74,13 +90,19 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * 
  */
 @SuppressWarnings("rawtypes")
-public class PyUnitView extends ViewPartWithOrientation implements SelectionListener, MouseListener{
+public class PyUnitView extends ViewPartWithOrientation{
     
-    public static int MAX_RUNS_TO_KEEP = 10;
+    public static int MAX_RUNS_TO_KEEP = 15;
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
     public final ICallbackWithListeners onDispose = new CallbackWithListeners();
     private List<PyUnitTestRun> allRuns = new ArrayList<PyUnitTestRun>();
     private PyUnitTestRun currentRun;
+    private PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
+    ActivateLinkmouseListener activateLinkmouseListener = new ActivateLinkmouseListener();
+    
+    /*default*/ PythonConsoleLineTracker getLineTracker() {
+        return lineTracker;
+    }
     
     private ColorAndStyleCache colorAndStyleCache;
 
@@ -91,37 +113,52 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         for (IViewCreatedObserver iViewCreatedObserver : participants) {
             iViewCreatedObserver.notifyViewCreated(this);
         }
-        colorAndStyleCache= new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
-        IPropertyChangeListener prefListener= new IPropertyChangeListener() {
+        
+        lineTracker.init(new ILinkContainer() {
             
-            public void propertyChange(PropertyChangeEvent event) {
-                String property = event.getProperty();
-                if(ColorAndStyleCache.isColorOrStyleProperty(property)){
-                    colorAndStyleCache.reloadNamedColor(property);
-                    Color errorColor = getErrorColor();
-                    TreeItem[] items = tree.getItems();
-                    for(TreeItem item:items){
-                        PyUnitTestResult result = (PyUnitTestResult) item.getData("RESULT");
-                        if(result!= null && !result.isOk()){
-                            item.setForeground(errorColor);
-                        }
-                    }
-                    
-                    if(fProgressBar != null){
-                        fProgressBar.updateErrorColor(true);
-                    }
+            public void addLink(IHyperlink link, int offset, int length) {
+                if(testOutputText == null){
+                    return;
                 }
+                StyleRange range = new StyleRange();
+                range.underline = true;
+                try{
+                    range.underlineStyle = SWT.UNDERLINE_LINK;
+                }catch(Throwable e){
+                    //Ignore (not available on earlier versions of eclipse)
+                }
+                
+                //Set the proper color if it's available.
+                TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
+                if(textAttribute != null){
+                    range.foreground = textAttribute.getForeground();
+                }
+                range.start = offset;
+                range.length = length+1;
+                range.data = link;
+                testOutputText.setStyleRange(range);
             }
-        };
-        PydevPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
+
+            
+            public String getContents(int lineOffset, int lineLength) throws BadLocationException {
+                if(testOutputText == null){
+                    return "";
+                }
+                if(lineLength <= 0){
+                    return "";
+                }
+                return testOutputText.getText(lineOffset, lineOffset+lineLength);
+            }
+        });
     }
 
     private SashForm sash;
     private Tree tree;
-    private StyledText text;
+    private StyledText testOutputText;
     private CounterPanel fCounterPanel;
     private PyUnitProgressBar fProgressBar;
     private Composite fCounterComposite;
+    private IPropertyChangeListener prefListener;
     
     public PyUnitProgressBar getProgressBar() {
         return fProgressBar;
@@ -135,6 +172,7 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         return tree;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);
@@ -177,12 +215,39 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         createColumn("Time (s)", 80);
         onControlCreated.call(tree);
         
-        tree.addMouseListener(this);
-        tree.addSelectionListener(this);
+        tree.addMouseListener(new DoubleClickTreeItemMouseListener());
+        tree.addKeyListener(new EnterProssedTreeItemKeyListener());
+        tree.addSelectionListener(new SelectResultSelectionListener());
+        
+        if(PydevPlugin.getDefault() != null){
+            colorAndStyleCache= new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
+            prefListener= new IPropertyChangeListener() {
+                
+                public void propertyChange(PropertyChangeEvent event) {
+                    if(tree != null){
+                        String property = event.getProperty();
+                        if(ColorAndStyleCache.isColorOrStyleProperty(property)){
+                            colorAndStyleCache.reloadNamedColor(property);
+                            Color errorColor = getErrorColor();
+                            TreeItem[] items = tree.getItems();
+                            for(TreeItem item:items){
+                                PyUnitTestResult result = (PyUnitTestResult) item.getData("RESULT");
+                                if(result!= null && !result.isOk()){
+                                    item.setForeground(errorColor);
+                                }
+                            }
+                            
+                            if(fProgressBar != null){
+                                fProgressBar.updateErrorColor(true);
+                            }
+                        }
+                    }
+                }
+            };
+            PydevPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
+        }
 
-
-        text = new StyledText(sash, SWT.MULTI);
-        onControlCreated.call(text);
+        this.setTextComponent(new StyledText(sash, SWT.MULTI));
     }
     
     private void configureToolBar() {
@@ -226,6 +291,7 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public void dispose() {
         if(this.tree != null){
@@ -234,11 +300,19 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
             t.dispose();
             onDispose.call(t);
         }
-        if(this.text != null){
-            StyledText t = this.text;
-            this.text = null;
+        if(this.testOutputText != null){
+            StyledText t = this.testOutputText;
+            this.testOutputText = null;
             t.dispose();
             onDispose.call(t);
+        }
+        if(this.fCounterPanel != null){
+            this.fCounterPanel.dispose();
+            this.fCounterPanel = null;
+        }
+        if(this.prefListener != null){
+            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);   
+            this.prefListener = null;
         }
         super.dispose();
     }
@@ -247,6 +321,10 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         return registerPyUnitServer(pyUnitServer, true);
     }
     
+    /**
+     * Registers a pyunit server in the pyunit view (and vice versa), so, the server starts notifying the view
+     * about changes in it and the view makes the test run from the server the current one.
+     */
     public static PyUnitViewServerListener registerPyUnitServer(final IPyUnitServer pyUnitServer, boolean async) {
         //We create a listener before and later set the view so that we don't run into racing condition errors!
         final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer, pyUnitServer.getPyUnitLaunch());
@@ -276,6 +354,9 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     }
 
     
+    /**
+     * Gets the py unit view. May only be called in the UI thread. If the view is not visible, shows it.
+     */
     public static PyUnitView getView() {
         IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         try {
@@ -290,6 +371,10 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         return null;
     }
     
+    /**
+     * Adds a given test run to our list of test runs and makes it current. If there are too many test runs, removes 
+     * the oldest one before adding another one.
+     */
     protected void addTestRunAndMakecurrent(PyUnitTestRun testRun) {
         if(allRuns.size() +1 > MAX_RUNS_TO_KEEP){
             allRuns.remove(0);
@@ -298,20 +383,39 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         setCurrentRun(testRun);
     }
 
+    /**
+     * Notifies that the test run has finished.
+     */
     /*default */ void notifyFinished(PyUnitTestRun testRun) {
         if(testRun != currentRun){
             return;
         }
-        updateCountersAndBar();
+        asyncUpdateCountersAndBar();
     }
 
     
+    /**
+     * Notifies that a test result has been added.
+     */
     /*default*/ void notifyTest(PyUnitTestResult result) {
         notifyTest(result, true);
     }
     
 
-    /*default*/ void notifyTestsCollected() {
+    /**
+     * Used to update the number of tests available. 
+     */
+    /*default*/ void notifyTestsCollected(PyUnitTestRun testRun) {
+        if(testRun != currentRun){
+            return;
+        }
+        asyncUpdateCountersAndBar();
+    }
+
+    /**
+     * Calls an update in the counters and progress bar asynchronously (in the UI thread).
+     */
+    public void asyncUpdateCountersAndBar() {
         RunInUiThread.async(new Runnable() {
             
             public void run() {
@@ -321,7 +425,9 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     }
 
 
-    
+    /**
+     * Called after a test has been run (so that we properly update the tree).
+     */
     private void notifyTest(PyUnitTestResult result, boolean updateBar) {
         if(result.getTestRun() != currentRun){
             return;
@@ -343,13 +449,22 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
         }
     }
 
+    /**
+     * @return the color that should be used for errors.
+     */
     public Color getErrorColor() {
         TextAttribute attribute = ColorManager.getDefault().getConsoleErrorTextAttribute();
         Color errorColor = attribute.getForeground();
         return errorColor;
     }
 
+    /**
+     * Updates the number of test runs and the bar with the current progress.
+     */
     private void updateCountersAndBar() {
+        if(fCounterPanel == null){
+            return;
+        }
         if(currentRun != null){
             String totalNumberOfRuns = currentRun.getTotalNumberOfRuns();
             int numberOfRuns = currentRun.getNumberOfRuns();
@@ -382,46 +497,194 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
     }
     
 
+    /**
+     * Helper method to reset the bar to a state knowing only about if we have errors, runs and whether it's finished.
+     * 
+     * Only really used if we have no errors or if we don't know how to collect the current number of test runs.
+     */
     private void setShowBarWithError(boolean hasError, boolean hasRuns, boolean finished) {
         fProgressBar.reset(hasError, false, hasRuns?1:0, finished?1:2);
     }
 
-    private FastStringBuffer temp = new FastStringBuffer();
+    /**
+     * Whether we should show only errors or not.
+     */
     private boolean showOnlyErrors;
-    public void widgetSelected(SelectionEvent e) {
-        if(e.item != null){
-            PyUnitTestResult result = (PyUnitTestResult) e.item.getData("RESULT");
-            temp.clear();
-            if(result.capturedOutput != null){
-                temp.append(result.capturedOutput);
+    
+    /**
+     * Selection listener added to the tree so that the text output is updated when the selection changes.
+     */
+    private final class SelectResultSelectionListener extends SelectionAdapter{
+        public void widgetSelected(SelectionEvent e) {
+            if(e.item != null){
+                PyUnitTestResult result = (PyUnitTestResult) e.item.getData("RESULT");
+                onSelectResult(result);
             }
-            if(result.errorContents != null){
-                temp.append(result.errorContents);
-            }
-            text.setText(temp.toString());
         }
         
     }
+    
 
-    public void widgetDefaultSelected(SelectionEvent e) {
+    /**
+     * Should only be used in the onSelectResult.
+     */
+    private final FastStringBuffer tempOnSelectResult = new FastStringBuffer();
+    
+    /**
+     * Called when a test is selected in the tree (shows its results in the text output text component).
+     * Makes the line tracker aware of the changes so that links are properly created.
+     */
+    /*default*/ void onSelectResult(PyUnitTestResult result) {
+        tempOnSelectResult.clear();
+        
+        String errorsHeader = "============================= ERRORS =============================\n";
+        String capturedOutputHeader = "======================== CAPTURED OUTPUT =========================\n";
+        
+        boolean addedErrors = false;
+        if(result != null){
+            if(result.errorContents != null && result.errorContents.length() > 0){
+                addedErrors = true;
+                tempOnSelectResult.append(errorsHeader);
+                tempOnSelectResult.append(result.errorContents);
+            }
+            
+            if(result.capturedOutput != null && result.capturedOutput.length() > 0){
+                if(tempOnSelectResult.length() > 0){
+                    tempOnSelectResult.append("\n");
+                }
+                tempOnSelectResult.append(capturedOutputHeader);
+                tempOnSelectResult.append(result.capturedOutput);
+            }
+        }
+        String string = tempOnSelectResult.toString();
+        testOutputText.setText(string);
+        testOutputText.setStyleRange(new StyleRange());
+        
+        if(addedErrors){
+            StyleRange range = new StyleRange();
+            //Set the proper color if it's available.
+            TextAttribute errorTextAttribute = ColorManager.getDefault().getConsoleErrorTextAttribute();
+            if(errorTextAttribute != null){
+                range.foreground = errorTextAttribute.getForeground();
+            }
+            range.start = errorsHeader.length();
+            range.length = result.errorContents.length();
+            testOutputText.setStyleRange(range);
+        }
+
+        
+        int len = string.length();
+        int last = 0;
+        char c;
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            
+            if (c == '\r') {
+                lineTracker.lineAppended(new Region(last, (i-last)-1));
+                if (i < len - 1 && string.charAt(i + 1) == '\n') {
+                    i++;
+                }
+                last = i+1;
+            }
+            if (c == '\n') {
+                lineTracker.lineAppended(new Region(last, (i-last)-1));
+                last = i+1;
+            }
+        }
+        lineTracker.lineAppended(new Region(last, len-last));
     }
 
-    public void mouseDoubleClick(MouseEvent e) {
-        if(e.widget == tree){
-            System.out.println("Double click tree.");
+    
+    /**
+     * Activates the link that was clicked (if the given style range actually has a link).
+     */
+    private static final class ActivateLinkmouseListener extends MouseAdapter {
+        
+        public void mouseUp(MouseEvent e) {
+            Widget w = e.widget;
+            if(w instanceof StyledText){
+                StyledText styledText = (StyledText) w;
+                int offset = styledText.getCaretOffset();
+                if(offset >= 0 && offset < styledText.getCharCount()){
+                    StyleRange styleRangeAtOffset = styledText.getStyleRangeAtOffset(offset);
+                    if(styleRangeAtOffset != null){
+                        Object l = styleRangeAtOffset.data;
+                        if(l instanceof IHyperlink){
+                            ((IHyperlink) l).linkActivated();
+                        }
+                    }
+                }
+            }
         }
     }
 
-    public void mouseDown(MouseEvent e) {
+
+    /**
+     * Makes the test double clicked in the tree active in the editor.
+     */
+    private final class DoubleClickTreeItemMouseListener extends MouseAdapter {
+        public void mouseDoubleClick(MouseEvent e) {
+            if(e.widget == tree){
+                onTriggerGoToTest();
+            }
+        }
+    }
+    
+    /**
+     * Makes the test with the enter pressed in the tree active in the editor.
+     */
+    private final class EnterProssedTreeItemKeyListener extends KeyAdapter {
+        public void keyReleased(KeyEvent e) {
+            if(e.widget == tree && (e.keyCode == SWT.LF || e.keyCode == SWT.CR)){
+                onTriggerGoToTest();
+            }
+        }
+    }
+    
+
+    /**
+     * Makes the test currently selected in the tree the active test in the editor.
+     */
+    public void onTriggerGoToTest() {
+        TreeItem[] selection = tree.getSelection();
+        if(selection.length >= 1){
+            PyUnitTestResult result = (PyUnitTestResult) selection[0].getData("RESULT");
+            File file = new File(result.location);
+            if(file.exists()){
+                PyOpenAction openAction = new PyOpenAction();
+                String fileContents = REF.getFileContents(file);
+                SimpleNode testNode = null;
+                if(fileContents != null){
+                    SimpleNode node = FastDefinitionsParser.parse(fileContents, "");
+                    if(result.test != null && result.test.length() > 0){
+                        testNode = NodeUtils.getNodeFromPath(node, result.test);
+                    }
+                }
+                
+                ItemPointer itemPointer;
+                if(testNode!= null){
+                    itemPointer = new ItemPointer(file, testNode);
+                }else{
+                    itemPointer = new ItemPointer(file);
+                    
+                }
+                openAction.run(itemPointer);
+            }
+        }
     }
 
-    public void mouseUp(MouseEvent e) {
-    }
-
+    
+    /**
+     * @return the current test run.
+     */
     public PyUnitTestRun getCurrentTestRun() {
         return this.currentRun;
     }
 
+    
+    /**
+     * Sets the current run (updates the UI)
+     */
     public void setCurrentRun(PyUnitTestRun testRun) {
         this.currentRun = testRun;
         tree.removeAll();
@@ -432,17 +695,28 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
             }
         }
         updateCountersAndBar();
+        testOutputText.setText(""); //leave no result selected
     }
 
+    /**
+     * @return returns a copy with the test runs available.
+     */
     public List<PyUnitTestRun> getAllTestRuns() {
         return new ArrayList<PyUnitTestRun>(allRuns);
     }
 
+    /**
+     * Sets whether only errors should be shown.
+     */
     public void setShowOnlyErrors(boolean b) {
         this.showOnlyErrors = b;
         this.setCurrentRun(currentRun); //update all!
     }
 
+    
+    /**
+     * Removes all the terminated test runs.
+     */
     public void clearAllTerminated() {
         boolean removedCurrent = false;
         
@@ -463,5 +737,16 @@ public class PyUnitView extends ViewPartWithOrientation implements SelectionList
             }
         }
     }
+
+    /**
+     * Sets the text component to be used (in tests we want to set it externally)
+     */
+    @SuppressWarnings("unchecked")
+    /*default*/ void setTextComponent(StyledText text) {
+        this.testOutputText = text;
+        onControlCreated.call(text);
+        text.addMouseListener(this.activateLinkmouseListener);
+    }
+
 
 }

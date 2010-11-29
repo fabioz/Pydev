@@ -110,6 +110,6 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
 
     public void notifyTestsCollected(String totalTestsCount) {
         testRun.setTotalNumberOfRuns(totalTestsCount);
-        view.notifyTestsCollected();
+        view.notifyTestsCollected(testRun);
     }
 }

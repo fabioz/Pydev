@@ -8,12 +8,13 @@ except NameError:
     import test_runfiles #@UnresolvedImport - importing the module itself
     this_file_name = test_runfiles.__file__
     
-import pydev_runfiles_unittest
-import pydev_runfiles_xml_rpc
-import pydevd_io
 
 desired_runfiles_path = os.path.normpath(os.path.dirname(this_file_name) + "/..")
 sys.path.insert(0, desired_runfiles_path)
+
+import pydev_runfiles_unittest
+import pydev_runfiles_xml_rpc
+import pydevd_io
 
 #remove existing pydev_runfiles from modules (if any), so that we can be sure we have the correct version
 if 'pydev_runfiles' in sys.modules:
@@ -300,7 +301,7 @@ class RunfilesTest(unittest.TestCase):
         finally:
             pydevd_io.EndRedirect()
         b = buf.getvalue()
-        self.assert_('Ran 4 tests in ' in b, 'Found: '+b)
+        self.assert_(b.find('Ran 4 tests in ') != -1, 'Found: '+b)
         
 
         

@@ -118,6 +118,10 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevP
 	public TextAttribute getConsolePromptTextAttribute() {
 		return getFromTheme("console.prompt.py");
 	}
+	
+	public TextAttribute getHyperlinkTextAttribute() {
+	    return getFromTheme("hyperlink.py");
+	}
 
 	public RGB getConsoleBackgroundRGB() {
 	    if(!AddRedCoreThemeAvailable.isRedCoreAvailable()){
