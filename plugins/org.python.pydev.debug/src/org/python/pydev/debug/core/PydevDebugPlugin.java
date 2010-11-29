@@ -82,9 +82,6 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
         return plugin.imageCache;
     }
 
-    protected void initializeDefaultPluginPreferences() {
-        PydevDebugPrefs.initializeDefaultPreferences(getPluginPreferences());
-    }
 
     /**
      * Returns the active workbench window or <code>null</code> if none

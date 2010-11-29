@@ -42,6 +42,7 @@ import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
@@ -92,6 +93,9 @@ import org.python.pydev.ui.IViewCreatedObserver;
 @SuppressWarnings("rawtypes")
 public class PyUnitView extends ViewPartWithOrientation{
     
+    public static final String PYUNIT_VIEW_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_SHOW_ONLY_ERRORS";
+    public static final boolean PYUNIT_VIEW_DEFAULT_SHOW_ONLY_ERRORS = true;
+    
     public static int MAX_RUNS_TO_KEEP = 15;
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
     public final ICallbackWithListeners onDispose = new CallbackWithListeners();
@@ -108,6 +112,12 @@ public class PyUnitView extends ViewPartWithOrientation{
 
     @SuppressWarnings("unchecked")
     public PyUnitView() {
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        
+        if(plugin != null){
+            this.showOnlyErrors = plugin.getPreferenceStore().getBoolean(PYUNIT_VIEW_SHOW_ONLY_ERRORS);
+        }
+        
         List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
                 ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
         for (IViewCreatedObserver iViewCreatedObserver : participants) {
@@ -159,6 +169,11 @@ public class PyUnitView extends ViewPartWithOrientation{
     private PyUnitProgressBar fProgressBar;
     private Composite fCounterComposite;
     private IPropertyChangeListener prefListener;
+    
+    /**
+     * Whether we should show only errors or not.
+     */
+    private boolean showOnlyErrors;
     
     public PyUnitProgressBar getProgressBar() {
         return fProgressBar;
@@ -256,7 +271,9 @@ public class PyUnitView extends ViewPartWithOrientation{
         toolBar.add(new RelaunchErrorsAction(this));
         toolBar.add(new RelaunchAction(this));
         toolBar.add(new StopAction(this));
-        toolBar.add(new ShowOnlyFailuresAction(this));
+        ShowOnlyFailuresAction action = new ShowOnlyFailuresAction(this);
+        toolBar.add(action);
+        action.setChecked(this.showOnlyErrors);
         toolBar.add(new HistoryAction(this));
         
     }
@@ -506,10 +523,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         fProgressBar.reset(hasError, false, hasRuns?1:0, finished?1:2);
     }
 
-    /**
-     * Whether we should show only errors or not.
-     */
-    private boolean showOnlyErrors;
+
     
     /**
      * Selection listener added to the tree so that the text output is updated when the selection changes.
@@ -529,6 +543,8 @@ public class PyUnitView extends ViewPartWithOrientation{
      * Should only be used in the onSelectResult.
      */
     private final FastStringBuffer tempOnSelectResult = new FastStringBuffer();
+    private final String ERRORS_HEADER = "============================= ERRORS =============================\n";
+    private final String CAPTURED_OUTPUT_HEADER = "======================== CAPTURED OUTPUT =========================\n";
     
     /**
      * Called when a test is selected in the tree (shows its results in the text output text component).
@@ -537,14 +553,11 @@ public class PyUnitView extends ViewPartWithOrientation{
     /*default*/ void onSelectResult(PyUnitTestResult result) {
         tempOnSelectResult.clear();
         
-        String errorsHeader = "============================= ERRORS =============================\n";
-        String capturedOutputHeader = "======================== CAPTURED OUTPUT =========================\n";
-        
         boolean addedErrors = false;
         if(result != null){
             if(result.errorContents != null && result.errorContents.length() > 0){
                 addedErrors = true;
-                tempOnSelectResult.append(errorsHeader);
+                tempOnSelectResult.append(ERRORS_HEADER);
                 tempOnSelectResult.append(result.errorContents);
             }
             
@@ -552,7 +565,7 @@ public class PyUnitView extends ViewPartWithOrientation{
                 if(tempOnSelectResult.length() > 0){
                     tempOnSelectResult.append("\n");
                 }
-                tempOnSelectResult.append(capturedOutputHeader);
+                tempOnSelectResult.append(CAPTURED_OUTPUT_HEADER);
                 tempOnSelectResult.append(result.capturedOutput);
             }
         }
@@ -567,7 +580,7 @@ public class PyUnitView extends ViewPartWithOrientation{
             if(errorTextAttribute != null){
                 range.foreground = errorTextAttribute.getForeground();
             }
-            range.start = errorsHeader.length();
+            range.start = ERRORS_HEADER.length();
             range.length = result.errorContents.length();
             testOutputText.setStyleRange(range);
         }
@@ -684,6 +697,9 @@ public class PyUnitView extends ViewPartWithOrientation{
     
     /**
      * Sets the current run (updates the UI)
+     * 
+     * Note that it can be called to update the current test run when changing whether only errors should be
+     * shown or not (so, we don't check if it's the current or not, just go on and update all).
      */
     public void setCurrentRun(PyUnitTestRun testRun) {
         this.currentRun = testRun;
@@ -710,6 +726,7 @@ public class PyUnitView extends ViewPartWithOrientation{
      */
     public void setShowOnlyErrors(boolean b) {
         this.showOnlyErrors = b;
+        PydevDebugPlugin.getDefault().getPreferenceStore().setValue(PYUNIT_VIEW_SHOW_ONLY_ERRORS, b);
         this.setCurrentRun(currentRun); //update all!
     }
 

@@ -7,7 +7,6 @@ package org.python.pydev.debug.ui;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
@@ -61,9 +60,4 @@ public class DebugPrefsPage extends FieldEditorPreferencePage
     }
     
 
-    /**
-     * Sets default preference values
-     */
-    protected void initializeDefaultPreferences(Preferences prefs) {
-    }
 }

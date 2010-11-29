@@ -652,6 +652,11 @@
 
 
 
+<!-- preferences -->
+  <extension point="org.eclipse.core.runtime.preferences">
+     <initializer class="org.python.pydev.debug.core.PydevDebugPreferencesInitializer"/>
+  </extension>
+  
 <!-- console stuff -->
   <extension point="org.eclipse.ui.console.consoleFactories">
     <consoleFactory

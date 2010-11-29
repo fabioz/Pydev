@@ -63,7 +63,11 @@ public class ColorManager {
      * @return a color to be used.
      */
     private Color getPreferenceColor(String type) {
-        IPreferenceStore preferenceStore = PydevDebugPlugin.getDefault().getPreferenceStore();
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        if(plugin == null){
+            return null;
+        }
+        IPreferenceStore preferenceStore = plugin.getPreferenceStore();
         return getColor(PreferenceConverter.getColor(preferenceStore, type));
     }
 

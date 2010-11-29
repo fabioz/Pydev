@@ -71,7 +71,9 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
                     PyUnitTestResult result = new PyUnitTestResult(
                             testRun, status, location, test, capturedOutput, errorContents, time);
                     testRun.addResult(result);
-                    view.notifyTest(result);
+                    if(view != null){
+                        view.notifyTest(result);
+                    }
                     return null;
                 }
             });
@@ -87,7 +89,9 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
                     
                     public Object call() {
                         testRun.setFinished(true);
-                        view.notifyFinished(testRun);
+                        if(view != null){
+                            view.notifyFinished(testRun);
+                        }
                         return null;
                     }
                 });
@@ -110,6 +114,8 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
 
     public void notifyTestsCollected(String totalTestsCount) {
         testRun.setTotalNumberOfRuns(totalTestsCount);
-        view.notifyTestsCollected(testRun);
+        if(view != null){
+            view.notifyTestsCollected(testRun);
+        }
     }
 }
