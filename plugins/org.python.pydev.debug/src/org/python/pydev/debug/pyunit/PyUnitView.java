@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -36,21 +36,16 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.REF;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
-import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.parser.fastparser.FastDefinitionsParser;
-import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
@@ -191,7 +186,8 @@ public class PyUnitView extends ViewPartWithOrientation{
     @Override
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);
-        final ToolTipHandler tooltip = new ToolTipHandler(parent.getShell());
+        IInformationPresenter presenter = new InformationPresenterWithLineTracker();
+        final ToolTipPresenterHandler tooltip = new ToolTipPresenterHandler(parent.getShell(), presenter);
 
         GridLayout layout = new GridLayout();
         layout.numColumns = 1;
@@ -222,7 +218,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         sash.setLayoutData(layoutData);
                 
         tree = new Tree(sash, SWT.FULL_SELECTION|SWT.SINGLE);
-        tooltip.activateHoverHelp(tree);
+        tooltip.install(tree);
         tree.setHeaderVisible(true);
         createColumn("Result", 70);
         createColumn("File", 180);
@@ -262,7 +258,8 @@ public class PyUnitView extends ViewPartWithOrientation{
             PydevPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
         }
 
-        this.setTextComponent(new StyledText(sash, SWT.MULTI));
+        StyledText text = new StyledText(sash, SWT.MULTI|SWT.H_SCROLL|SWT.V_SCROLL|SWT.READ_ONLY);
+        this.setTextComponent(text);
     }
     
     private void configureToolBar() {
@@ -457,7 +454,8 @@ public class PyUnitView extends ViewPartWithOrientation{
                 Color errorColor = getErrorColor();
                 treeItem.setForeground(errorColor);
             }
-            treeItem.setData ("TIP_TEXT", result.location);
+            
+            treeItem.setData (ToolTipPresenterHandler.TIP_DATA, result);
             treeItem.setData("RESULT", result);
         }
         
@@ -586,25 +584,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         }
 
         
-        int len = string.length();
-        int last = 0;
-        char c;
-        for (int i = 0; i < len; i++) {
-            c = string.charAt(i);
-            
-            if (c == '\r') {
-                lineTracker.lineAppended(new Region(last, (i-last)-1));
-                if (i < len - 1 && string.charAt(i + 1) == '\n') {
-                    i++;
-                }
-                last = i+1;
-            }
-            if (c == '\n') {
-                lineTracker.lineAppended(new Region(last, (i-last)-1));
-                last = i+1;
-            }
-        }
-        lineTracker.lineAppended(new Region(last, len-last));
+        lineTracker.splitInLinesAndAppendToLineTracker(string);
     }
 
     
@@ -662,30 +642,9 @@ public class PyUnitView extends ViewPartWithOrientation{
         TreeItem[] selection = tree.getSelection();
         if(selection.length >= 1){
             PyUnitTestResult result = (PyUnitTestResult) selection[0].getData("RESULT");
-            File file = new File(result.location);
-            if(file.exists()){
-                PyOpenAction openAction = new PyOpenAction();
-                String fileContents = REF.getFileContents(file);
-                SimpleNode testNode = null;
-                if(fileContents != null){
-                    SimpleNode node = FastDefinitionsParser.parse(fileContents, "");
-                    if(result.test != null && result.test.length() > 0){
-                        testNode = NodeUtils.getNodeFromPath(node, result.test);
-                    }
-                }
-                
-                ItemPointer itemPointer;
-                if(testNode!= null){
-                    itemPointer = new ItemPointer(file, testNode);
-                }else{
-                    itemPointer = new ItemPointer(file);
-                    
-                }
-                openAction.run(itemPointer);
-            }
+            result.open();
         }
     }
-
     
     /**
      * @return the current test run.

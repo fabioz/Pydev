@@ -18,6 +18,7 @@ import org.eclipse.debug.ui.console.IConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.editor.actions.PyOpenAction;
@@ -36,7 +37,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
     private boolean onlyCreateLinksForExistingFiles = true;
     
     /** pattern for detecting error lines */
-    static Pattern linePattern = Pattern.compile("\\s*File \\\"([^\\\"]*)\\\", line (\\d*).*");
+    static Pattern linePattern = Pattern.compile("\\s*(File) \\\"([^\\\"]*)\\\", line (\\d*).*");
 
     /**
      * Opens up a file with a given line
@@ -102,9 +103,9 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
         int fileStart = -1;
         // match
         if (m.matches()) {
-            fileName = m.group(1);
-            lineNumber = m.group(2);
-            fileStart = m.start(0); // The beginning of the line, "File  "
+            fileName = m.group(2);
+            lineNumber = m.group(3);
+            fileStart = m.start(1); // The beginning of the line, "File  "
         }
         // hyperlink if we found something
         if (fileName != null) {
@@ -148,6 +149,29 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
 
     public void setOnlyCreateLinksForExistingFiles(boolean b) {
         this.onlyCreateLinksForExistingFiles = b;
+    }
+
+    
+    public void splitInLinesAndAppendToLineTracker(String string){
+        int len = string.length();
+        int last = 0;
+        char c;
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            
+            if (c == '\r') {
+                this.lineAppended(new Region(last, (i-last)-1));
+                if (i < len - 1 && string.charAt(i + 1) == '\n') {
+                    i++;
+                }
+                last = i+1;
+            }
+            if (c == '\n') {
+                this.lineAppended(new Region(last, (i-last)-1));
+                last = i+1;
+            }
+        }
+        this.lineAppended(new Region(last, len-last));
     }
 
 }

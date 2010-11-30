@@ -1,15 +1,11 @@
-package org.python.pydev.debug.pyunit;
+package org.python.pydev.core.tooltips.presenter;
 
+import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.HelpEvent;
-import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Control;
@@ -22,7 +18,9 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
 
 /**
- * Based on http://demo.spars.info/j/frameset.cgi?compo_id=146467&q=mouseexit&hl=mouseexit&packagename=org.eclipse.swt.examples.hoverhelp&componame=org.eclipse.swt.examples.hoverhelp.HoverHelp$ToolTipHandler&CASE=0&MORPHO=1&location=1111111111111111111&ref=1&mode=frameset&LANG=1
+ * Shows tooltips as an information presenter, so, links can be added and the user can interact with it.
+ * 
+ * Based on http://demo.spars.info/j/frameset.cgi?compo_id=146467&q=mouseexit&hl=mouseexit&packagename=org.eclipse.swt.examples.hoverhelp&componame=org.eclipse.swt.examples.hoverhelp.HoverHelp$ToolTipPresenterHandler&CASE=0&MORPHO=1&location=1111111111111111111&ref=1&mode=frameset&LANG=1
  * 
  * Emulated tooltip handler
  * Notice that we could display anything in a tooltip besides text and images.
@@ -30,21 +28,26 @@ import org.eclipse.swt.widgets.Widget;
  * data under inspection to material elsewhere, or perform dynamic lookup for creating
  * tooltip text on the fly.
  */
-public class ToolTipHandler {
-    private Shell parentShell;
+public class ToolTipPresenterHandler {
+    
+    public static final String TIP_DATA = "TIP_DATA";
     private Shell tipShell;
     private Label tipLabelImage, tipLabelText;
     private Widget tipWidget; // widget this tooltip is hovering over
-    private Point tipPosition; // the position being hovered over
+    private InformationPresenterControlManager tooltip;
+    private IInformationPresenter presenter;
 
+    public ToolTipPresenterHandler(Shell parent) {
+        this(parent, null);
+        
+    }
     /**
      * Creates a new tooltip handler
      *
      * @param parent the parent Shell
      */
-    public ToolTipHandler(Shell parent) {
+    public ToolTipPresenterHandler(Shell parent, IInformationPresenter presenter) {
         final Display display = parent.getDisplay();
-        this.parentShell = parent;
 
         tipShell = new Shell(parent, SWT.ON_TOP | SWT.TOOL);
         GridLayout gridLayout = new GridLayout();
@@ -64,6 +67,10 @@ public class ToolTipHandler {
         tipLabelText.setForeground(display.getSystemColor(SWT.COLOR_INFO_FOREGROUND));
         tipLabelText.setBackground(display.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
         tipLabelText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_CENTER));
+
+        tooltip = new InformationPresenterControlManager(presenter);
+        this.presenter = presenter;
+
     }
 
     /**
@@ -71,7 +78,9 @@ public class ToolTipHandler {
      * 
      * @control the control on which to enable hoverhelp
      */
-    public void activateHoverHelp(final Control control) {
+    public void install(final Control control) {
+        tooltip.install(control);
+
         /*
          * Get out of the way if we attempt to activate the control underneath the tooltip
          */
@@ -115,68 +124,41 @@ public class ToolTipHandler {
                 if (widget == tipWidget)
                     return;
                 tipWidget = widget;
-                tipPosition = control.toDisplay(pt);
-                String text = (String) widget.getData("TIP_TEXT");
-                Image image = (Image) widget.getData("TIP_IMAGE");
-                tipLabelText.setText(text != null ? text : "");
-                tipLabelImage.setImage(image); // accepts null
-                tipShell.pack();
-                setHoverLocation(tipShell, tipPosition);
-                tipShell.setVisible(true);
-            }
-        });
-
-        /*
-         * Trap F1 Help to pop up a custom help box
-         */
-        control.addHelpListener(new HelpListener() {
-            public void helpRequested(HelpEvent event) {
-                if (tipWidget == null)
+                Object data = widget.getData(TIP_DATA);
+                if(data == null){
                     return;
-                ToolTipHelpTextHandler handler = (ToolTipHelpTextHandler) tipWidget.getData("TIP_HELPTEXTHANDLER");
-                if (handler == null)
-                    return;
-                String text = handler.getHelpText(tipWidget);
-                if (text == null)
-                    return;
-
-                if (tipShell.isVisible()) {
-                    tipShell.setVisible(false);
-                    Shell helpShell = new Shell(parentShell, SWT.SHELL_TRIM);
-                    helpShell.setLayout(new FillLayout());
-                    Label label = new Label(helpShell, SWT.NONE);
-                    label.setText(text);
-                    helpShell.pack();
-                    setHoverLocation(helpShell, tipPosition);
-                    helpShell.open();
                 }
+                final String text;
+                if(data instanceof String){
+                    text = (String) data;
+                }else{
+                    text = data.toString();
+                }
+                if(text == null){
+                    return;
+                }
+                final Point pos = new Point(pt.x + 10, pt.y);
+                ITooltipInformationProvider provider = new ITooltipInformationProvider() {
+
+                    public Object getInformation(Control fControl) {
+                        return text;
+                    }
+
+                    public Point getPosition(Control fControl) {
+                        return pos;
+                    }
+                };
+
+                if(presenter instanceof IInformationPresenterAsTooltip){
+                    IInformationPresenterAsTooltip iInformationPresenterAsTooltip = (IInformationPresenterAsTooltip) presenter;
+                    iInformationPresenterAsTooltip.setData(data);
+                }
+                tooltip.setInformationProvider(provider);
+                tooltip.showInformation();
+                
             }
         });
-    }
 
-    /**
-     * Sets the location for a hovering shell
-     * @param shell the object that is to hover
-     * @param position the position of a widget to hover over
-     * @return the top-left location for a hovering box
-     */
-    private void setHoverLocation(Shell shell, Point position) {
-        Rectangle displayBounds = shell.getDisplay().getBounds();
-        Rectangle shellBounds = shell.getBounds();
-        shellBounds.x = Math.max(Math.min(position.x, displayBounds.width - shellBounds.width), 0);
-        shellBounds.y = Math.max(Math.min(position.y + 16, displayBounds.height - shellBounds.height), 0);
-        shell.setBounds(shellBounds);
     }
 }
 
-/**
- * ToolTip help handler
- */
-interface ToolTipHelpTextHandler {
-    /**
-     * Get help text
-     * @param widget the widget that is under help
-     * @return a help text string
-     */
-    public String getHelpText(Widget widget);
-}

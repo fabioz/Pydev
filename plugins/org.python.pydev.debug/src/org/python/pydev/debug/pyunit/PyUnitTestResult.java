@@ -1,6 +1,15 @@
 package org.python.pydev.debug.pyunit;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
+
+import org.python.pydev.core.REF;
+import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.parser.fastparser.FastDefinitionsParser;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 
 public class PyUnitTestResult {
@@ -37,5 +46,52 @@ public class PyUnitTestResult {
 
     public boolean isOk() {
         return STATUS_OK.equals(this.status);
+    }
+    
+    /**
+     * Note that this string is used for the tooltip in the tree (so, be careful when changing it, as the information
+     * presentation is based on its format to add a different formatting).
+     */
+    @Override
+    public String toString() {
+        int fixedContentsLen = 50;
+        FastStringBuffer buf = new FastStringBuffer(
+                this.test.length()+
+                this.status.length()+
+                this.time.length()+
+                this.location.length()+
+                this.errorContents.length()+
+                this.capturedOutput.length()+
+                fixedContentsLen
+        );
+        
+        return buf.append(this.test).append(" Status: ").append(this.status).append(" Time: ").append(this.time).append("\n\n").
+        append("File: ").append(this.location).append("\n\n").
+        append(this.errorContents).append("\n\n").
+        append(this.capturedOutput).append("\n\n").toString();
+    }
+    
+    public void open(){
+        File file = new File(this.location);
+        if(file.exists()){
+            PyOpenAction openAction = new PyOpenAction();
+            String fileContents = REF.getFileContents(file);
+            SimpleNode testNode = null;
+            if(fileContents != null){
+                SimpleNode node = FastDefinitionsParser.parse(fileContents, "");
+                if(this.test != null && this.test.length() > 0){
+                    testNode = NodeUtils.getNodeFromPath(node, this.test);
+                }
+            }
+            
+            ItemPointer itemPointer;
+            if(testNode!= null){
+                itemPointer = new ItemPointer(file, testNode);
+            }else{
+                itemPointer = new ItemPointer(file);
+                
+            }
+            openAction.run(itemPointer);
+        }
     }
 }

@@ -287,15 +287,18 @@ class RunfilesTest(unittest.TestCase):
         try:
             self.MyTestRunner.run_tests()
             self.assertEqual(6, len(notifications))
-            self.assertEqual(
-                [
+            expected = [
                     ('notifyTestsCollected', 4),
                     ('notifyTest', 'ok', 'non unique name ran', '', simple_test, 'SampleTest.test_non_unique_name'), 
                     ('notifyTest', 'fail', '', 'AssertionError: Fail test 2', simple_test, 'SampleTest.test_xxxxxx1'), 
                     ('notifyTest', 'ok', '', '', simple_test, 'SampleTest.test_xxxxxx2'), 
                     ('notifyTest', 'ok', '', '', simple_test2, 'YetAnotherSampleTest.test_abc'),
                     ('notifyTestRunFinished',),
-                ],
+                ]
+            expected.sort()
+            notifications.sort()
+            self.assertEqual(
+                expected,
                 notifications
             )
         finally:
