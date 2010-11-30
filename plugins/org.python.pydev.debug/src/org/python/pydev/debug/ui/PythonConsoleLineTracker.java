@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.ui.console.FileLink;
 import org.eclipse.debug.ui.console.IConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
@@ -121,7 +120,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
             if(PydevPlugin.getDefault() == null){
                 files = null;
             }else{
-                files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(new Path(fileName));
+                files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(new File(fileName).toURI());
                 
             }
             if (files != null && files.length > 0 && files[0].exists())

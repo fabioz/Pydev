@@ -2,14 +2,28 @@ package org.python.pydev.debug.pyunit;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.python.pydev.core.ICompletionCache;
+import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PythonNature;
 
 
 public class PyUnitTestResult {
@@ -76,22 +90,60 @@ public class PyUnitTestResult {
         if(file.exists()){
             PyOpenAction openAction = new PyOpenAction();
             String fileContents = REF.getFileContents(file);
-            SimpleNode testNode = null;
-            if(fileContents != null){
-                SimpleNode node = FastDefinitionsParser.parse(fileContents, "");
-                if(this.test != null && this.test.length() > 0){
-                    testNode = NodeUtils.getNodeFromPath(node, this.test);
-                }
-            }
-            
-            ItemPointer itemPointer;
-            if(testNode!= null){
-                itemPointer = new ItemPointer(file, testNode);
-            }else{
-                itemPointer = new ItemPointer(file);
-                
-            }
+            ItemPointer itemPointer = getItemPointer(file, fileContents, this.test);
             openAction.run(itemPointer);
         }
+    }
+
+
+    public static ItemPointer getItemPointer(File file, String fileContents, String testPath) {
+        SimpleNode testNode = null;
+        if(fileContents != null){
+            SimpleNode node = FastDefinitionsParser.parse(fileContents, "");
+            if(testPath != null && testPath.length() > 0){
+                testNode = NodeUtils.getNodeFromPath(node, testPath);
+            }
+        }
+        
+        ItemPointer itemPointer;
+        if(testNode!= null){
+            itemPointer = new ItemPointer(file, testNode);
+        }else{
+            //Ok, it's not defined directly here (it's probably in a superclass), so, let's go on and 
+            //do an actual (more costly) find definition.
+            try {
+                PySourceLocatorBase locator = new PySourceLocatorBase();
+                IFile workspaceFile = locator.getWorkspaceFile(file);
+                if(workspaceFile != null && workspaceFile.exists()){
+                    IProject project = workspaceFile.getProject();
+                    if(project != null && project.exists()){
+                        PythonNature nature = PythonNature.getPythonNature(project);
+                        String moduleName = nature.resolveModule(file);
+                        if(moduleName != null){
+                            IModule mod = nature.getAstManager().getModule(moduleName, nature, true);
+                            if(mod != null){
+                                ICompletionCache completionCache = new CompletionCache();
+                                IDefinition[] definitions = mod.findDefinition(
+                                        CompletionStateFactory.getEmptyCompletionState(testPath, nature, completionCache), -1, -1, nature);
+    
+                                if(definitions != null && definitions.length > 0){
+                                    List<ItemPointer> pointers = new ArrayList<ItemPointer>();
+                                    PyRefactoringFindDefinition.getAsPointers(pointers, (Definition[]) definitions);
+                                    if(pointers.size() > 0){
+                                        return pointers.get(0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
+            //if we couldn't actually get the definition line, at least open the file we had (although that may not really
+            //be the place where it's defined if it's a test in a superclass).
+            itemPointer = new ItemPointer(file);
+        }
+        return itemPointer;
     }
 }

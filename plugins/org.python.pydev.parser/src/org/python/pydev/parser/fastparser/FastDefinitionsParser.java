@@ -115,14 +115,15 @@ public final class FastDefinitionsParser {
      * @throws SyntaxErrorException 
      */
     private void extractBody() throws SyntaxErrorException {
+        ParsingUtils parsingUtils = ParsingUtils.create(cs);
+        
         if(currIndex < length){
-            handleNewLine();
+            handleNewLine(parsingUtils);
         }
         //in the 1st attempt to handle the 1st line, if it had nothing we could actually go backward 1 char
         if(currIndex < 0){
             currIndex=0;
         }
-        ParsingUtils parsingUtils = ParsingUtils.create(cs);
         
         for (;currIndex < length; currIndex++, col++) {
             char c = cs[currIndex];
@@ -135,7 +136,11 @@ public final class FastDefinitionsParser {
                         System.out.println("literal");
                     }
                     //go to the end of the literal
+                    int initialIndex=currIndex;
                     currIndex = parsingUtils.getLiteralEnd(currIndex, c);
+                    
+                    //keep the row count correct
+                    updateCountRow(initialIndex, currIndex);
                     break;
                     
                     
@@ -145,24 +150,14 @@ public final class FastDefinitionsParser {
                         System.out.println("comment");
                     }
                     //go to the end of the comment
-                    currIndex++;
-                    OUT:
                     while(currIndex < length){
                         c = cs[currIndex];
-                        currIndex++;
-                        switch(c){
-                            case '\r': 
-                                if(currIndex < length-1 && cs[currIndex+1] == '\n'){
-                                    currIndex++;
-                                }
-                                /*FALLTHROUGH**/
-                            case '\n': 
-                                break OUT;
+                        if(c == '\r' || c == '\n'){
+                            currIndex--;
+                            break;
                         }
+                        currIndex++;
                     }
-                    
-                    //after a comment, we'll always be in a new line
-                    handleNewLine();
                     
                     break;
                     
@@ -171,7 +166,11 @@ public final class FastDefinitionsParser {
                 case '[':
                 case '(':
                     //starting some call, dict, list, tuple... those don't count on getting some actual definition
+                    initialIndex = currIndex;
                     currIndex = parsingUtils.eatPar(currIndex, null, c);
+                    
+                    //keep the row count correct
+                    updateCountRow(initialIndex, currIndex);
                     break;
                 
                 case '\r': 
@@ -181,7 +180,10 @@ public final class FastDefinitionsParser {
                     /*FALLTHROUGH**/
                 case '\n': 
                     currIndex++;
-                    handleNewLine();
+                    handleNewLine(parsingUtils);
+                    if(currIndex < length){
+                        c = cs[currIndex];
+                    }
                     
                     break;
                     
@@ -197,8 +199,14 @@ public final class FastDefinitionsParser {
                         }
                         
                         //if we've an '=', let's get the whole line contents to analyze...
+                        //Note: should have stopped just before the new line (so, as we'll do currIndex++ in the 
+                        //next loop, that's ok).
+                        initialIndex = currIndex;
                         currIndex = parsingUtils.getFullFlattenedLine(currIndex, lineBuffer);
-                        currIndex--; //step one back to get the new line and handle it correctly
+                        
+                        //keep the row count correct
+                        updateCountRow(initialIndex, currIndex);
+
                         
                         String equalsLine = lineBuffer.toString().trim();
                         lineBuffer.clear();
@@ -253,12 +261,36 @@ public final class FastDefinitionsParser {
             endScope();
         }
     }
+
+
+    public void updateCountRow(int initialIndex, int currIndex) {
+        char c;
+        int len = cs.length;
+        for (int k = initialIndex; k < len && k <= currIndex; k++) {
+            c = cs[k];
+            switch(c){
+                case '\n':
+                    row += 1;
+                    break;
+                    
+                case '\r':
+                    row += 1;
+                    if(k < len-1 && k <= currIndex-1){
+                        if(cs[k+1] == '\n'){
+                            k++; //skip the \n after the \r
+                        }
+                    }
+                    break;
+            }
+        }
+    }
     
     
     /**
      * Called when a new line is found. Tries to make the match of function and class definitions.
+     * @throws SyntaxErrorException 
      */
-    private void handleNewLine() {
+    private void handleNewLine(ParsingUtils parsingUtils) throws SyntaxErrorException {
         if(currIndex >= length-1){
             return;
         }
@@ -293,8 +325,98 @@ public final class FastDefinitionsParser {
             
             startMethod(getNextIdentifier(c), row, startMethodCol);
         }
-        currIndex --;
         firstCharCol = col;
+        if(currIndex < length){
+            
+            //starting some call, dict, list, tuple... those don't count on getting some actual definition
+            int initialIndex = currIndex;
+            
+            int tempIndex = skipWhitespaces(currIndex);
+            
+            if(tempIndex >= length){
+                return;
+            }
+            c = cs[tempIndex];
+            
+            boolean updateIndex = false;
+            switch(c){
+                case '(':
+                    tempIndex = parsingUtils.eatPar(tempIndex, null, c);
+                    
+                    
+                    if(tempIndex < length){
+                        tempIndex = skipWhitespaces(tempIndex);
+                        
+                        c = cs[tempIndex];
+                        if(c == ')'){
+                            tempIndex++;
+                        }
+                    }
+
+
+                    if(tempIndex < length){
+                        tempIndex = skipWhitespaces(tempIndex);
+                        
+                        c = cs[tempIndex];
+                        if(c == ':'){
+                            tempIndex++;
+                            
+                            if(tempIndex < length){
+                                c = cs[tempIndex];
+                                if(c != '\r' && c != '\n'){
+                                    updateIndex = true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    
+                    if(updateIndex){
+                        tempIndex = skipWhitespaces(tempIndex);
+                        currIndex = tempIndex;
+                        //keep the row count correct
+                        updateCountRow(initialIndex, currIndex);
+                        
+                        //now, update the first char col to be the char after the ':' in "def m2(self):", in a line as
+                        //def m2(self): self.a = 10 (all in a single line)
+                        int i = tempIndex;
+                        while(i > 0 && i < length){
+                            c = cs[i];
+                            if(c == '\r' || c == '\n'){
+                                break;
+                            }
+                            i--;
+                        }
+                        firstCharCol = tempIndex-i;
+                    }else{
+                        currIndex --;
+                    }
+                    
+                    break;
+                    
+                default:
+                    currIndex --;
+                    break;
+                
+            }
+        }
+    }
+
+
+    /**
+     * Note that it'll only skip whitespaces (not newlines)
+     */
+    private int skipWhitespaces(int tempIndex) {
+        char c;
+        while(tempIndex < length){
+            c = cs[tempIndex];
+            if(c == ' ' || c == '\t'){
+                tempIndex++;
+            }else{
+                break;
+            }
+        }
+        return tempIndex;
     }
 
 

@@ -74,8 +74,7 @@ public class PySourceLocatorBase {
      */
     public IFile[] getWorkspaceFiles(File file) {
         IWorkspace workspace= ResourcesPlugin.getWorkspace();
-        IPath location= Path.fromOSString(file.getAbsolutePath());
-        IFile[] files= workspace.getRoot().findFilesForLocation(location);
+        IFile[] files= workspace.getRoot().findFilesForLocationURI(file.toURI());
         files= filterNonExistentFiles(files);
         if (files == null || files.length == 0){
             return null;

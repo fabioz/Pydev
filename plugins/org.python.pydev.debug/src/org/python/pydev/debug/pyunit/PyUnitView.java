@@ -221,8 +221,8 @@ public class PyUnitView extends ViewPartWithOrientation{
         tooltip.install(tree);
         tree.setHeaderVisible(true);
         createColumn("Result", 70);
-        createColumn("File", 180);
         createColumn("Test", 180);
+        createColumn("File", 180);
         createColumn("Time (s)", 80);
         onControlCreated.call(tree);
         
@@ -449,7 +449,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         if(!showOnlyErrors || (showOnlyErrors && !result.status.equals("ok"))){
             TreeItem treeItem = new TreeItem(tree, 0);
             File file = new File(result.location);
-            treeItem.setText(new String[]{result.status, file.getName(), result.test, result.time});
+            treeItem.setText(new String[]{result.status, result.test, file.getName(), result.time});
             if(!result.isOk()){
                 Color errorColor = getErrorColor();
                 treeItem.setForeground(errorColor);

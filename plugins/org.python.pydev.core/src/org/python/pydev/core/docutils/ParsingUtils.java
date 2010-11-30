@@ -296,7 +296,8 @@ public abstract class ParsingUtils implements IPythonPartitions{
     /**
      * @param i the index where we should start getting chars
      * @param buf the buffer that should be filled with the contents gotten (if null, they're ignored)
-     * @return the index where the parsing stopped
+     * @return the index where the parsing stopped. It should always be the character just before the new line 
+     * (or before the end of the document).
      * @throws SyntaxErrorException 
      */
     public int getFullFlattenedLine(int i, FastStringBuffer buf) throws SyntaxErrorException {
@@ -312,7 +313,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
                 i = eatLiterals(null, i-1)+1;
                 
             }else if(c == '#'){
-                i = eatComments(null, i-1)+1;
+                i = eatComments(null, i-1);
                 break;
                 
             }else if( c == '(' || c == '[' || c == '{'){ //open par.
@@ -320,6 +321,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
             
             }else if( c == '\r' || c == '\n' ){
                 if(!ignoreNextNewLine){
+                    i--;
                     break;
                 }
                 
@@ -335,6 +337,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
             
             ignoreNextNewLine = false;
         }
+        i--; //we have to do that because we passed 1 char in the beggining of the while.
         return i;
     }
 

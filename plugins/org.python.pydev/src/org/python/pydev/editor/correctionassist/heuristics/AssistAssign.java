@@ -211,7 +211,7 @@ public class AssistAssign implements IAssistProps {
 		if(string == null){
 			string = PyAction.getLineWithoutComments(ps);
 		}
-		return string;
+		return string.trim();
 	}
     
 	
@@ -239,8 +239,7 @@ public class AssistAssign implements IAssistProps {
      * @return the token which should be used to make the assign.
      */ 
     private String getTokToAssign(PySelection ps) {
-    	String string = getStringToAnalyze(ps);
-    	string = string.trim();
+    	String string = getStringToAnalyze(ps); //it's already trimmed!
     	
         String beforeParentesisTok = getBeforeParentesisTok(string);
         if(beforeParentesisTok.length() > 0){
