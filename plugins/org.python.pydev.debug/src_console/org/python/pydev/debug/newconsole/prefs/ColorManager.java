@@ -176,6 +176,18 @@ public class ColorManager {
         }
         return null; //use default
     }
+    
+    @SuppressWarnings("unchecked")
+    public TextAttribute getForegroundTextAttribute() {
+        List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+            TextAttribute textAttribute = iPydevPreferencesProvider.getCodeTextAttribute();
+            if(textAttribute != null){
+                return textAttribute;
+            }
+        }
+        return null; //use default
+    }
 }
 
 

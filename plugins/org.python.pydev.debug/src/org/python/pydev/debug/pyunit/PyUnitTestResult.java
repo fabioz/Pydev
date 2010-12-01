@@ -39,6 +39,7 @@ public class PyUnitTestResult {
     public final String STATUS_OK = "ok";
     public final String STATUS_FAIL = "fail";
     public final String STATUS_ERROR = "error";
+    public final String index;
     
     
     public PyUnitTestResult(PyUnitTestRun testRun, String status, String location, String test, String capturedOutput, String errorContents, String time) {
@@ -50,6 +51,7 @@ public class PyUnitTestResult {
         this.capturedOutput = capturedOutput;
         this.errorContents = errorContents;
         this.time = time;
+        this.index = testRun.getNextTestIndex();
     }
 
 

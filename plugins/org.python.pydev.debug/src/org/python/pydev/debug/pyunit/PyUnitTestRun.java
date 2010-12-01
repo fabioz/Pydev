@@ -17,6 +17,7 @@ public class PyUnitTestRun {
     private String totalNumberOfRuns="0";
     private boolean finished;
     private IPyUnitLaunch pyUnitLaunch;
+    private int nextIndex = 0;
     
     public PyUnitTestRun(IPyUnitLaunch server) {
         synchronized (lock) {
@@ -119,6 +120,10 @@ public class PyUnitTestRun {
             }
             s.relaunchTestResults(arrayList);
         }
+    }
+
+    public synchronized String getNextTestIndex() {
+        return Integer.toString(++nextIndex);
     }
 
 }

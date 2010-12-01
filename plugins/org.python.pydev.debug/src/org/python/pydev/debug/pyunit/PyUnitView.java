@@ -26,6 +26,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -53,22 +54,38 @@ import org.python.pydev.ui.IViewCreatedObserver;
 
 
 /**
- * ViewPart that'll listen to the PyUnitServer and show what'sash happening (with a green/red bar).
+ * ViewPart that'll listen to the PyUnitServer and show what's happening (with a green/red bar).
  * 
- * Other features should include:
+ * Features:
  * 
- * - Relaunching the tests
- * - Relaunching only the tests that failed
- * - Show stack traces of errors (when selected)
- * - Show output of test cases (when selected)
- * - If a string was different, show a diff
- * - Show tests ran
- * - Show only failed tests ran
- * - Stop execution of the tests
- * - Show the number of sucesses, failures and errors
- * - Double-click to go to test
- * - Show time of test (and allow reorderig based on it)
- * - Auto-show on test run should be an option
+ * - Red/green bar -- OK
+ * - Relaunching the tests -- OK
+ * - Relaunching only the tests that failed -- OK
+ * - Show stack traces of errors (when selected) -- OK
+ * - Show output of test cases (when selected) -- OK
+ * - Show tests ran -- OK
+ * - Show only failed tests ran -- OK
+ * - Stop execution of the tests -- OK
+ * - Show the number of successes, failures and errors -- OK
+ * - Double-click to go to test -- OK
+ * - Show time of test (and allow reordering based on it) -- OK
+ * - Tooltip on hover for test with links -- OK
+ * - Use theme colors -- OK
+ * 
+ * 
+ * Must be done before initial release:
+ * - Auto-show on test run should be an option.
+ * - Select some tests and make a new run with them.
+ * - Allow the user to select test runner (Initially at least default and nose. Step 2: py.test)
+ * - Check: if it's created after a test suite started running, the results should be properly shown.
+ *
+ * 
+ * Nice to have:
+ * - Show current test(s) being run (handle parallel execution)
+ * - Hide or show output pane 
+ * - If a string was different, show an improved diff (as JDT)
+ * - Save column order (tree.setColumnOrder(order))
+ * - Hide columns
  * 
  * 
  * References:
@@ -77,13 +94,11 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * 
  * Notes on tree/table: http://www.eclipse.org/swt/R3_2/new_and_noteworthy.html (see links below)
  * 
- * Sort table by column (applicable to tree: http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet2.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
- * Reorder columns by drag ( http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet193.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
- * Sort indicator in column header ( http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet192.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
+ * Working: Sort table by column (applicable to tree: http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet2.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
+ * Working: Reorder columns by drag ( http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet193.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
+ * Working: Sort indicator in column header ( http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet192.java?view=markup&content-type=text%2Fvnd.viewcvs-markup&revision=HEAD )
  * 
- * 
- * org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it'sash really not meant to be reused)
- * 
+ * Based on org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it's really not meant to be reused)
  */
 @SuppressWarnings("rawtypes")
 public class PyUnitView extends ViewPartWithOrientation{
@@ -92,18 +107,45 @@ public class PyUnitView extends ViewPartWithOrientation{
     public static final boolean PYUNIT_VIEW_DEFAULT_SHOW_ONLY_ERRORS = true;
     
     public static int MAX_RUNS_TO_KEEP = 15;
+    
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
     public final ICallbackWithListeners onDispose = new CallbackWithListeners();
-    private List<PyUnitTestRun> allRuns = new ArrayList<PyUnitTestRun>();
+    private final List<PyUnitTestRun> allRuns = new ArrayList<PyUnitTestRun>();
     private PyUnitTestRun currentRun;
-    private PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
-    ActivateLinkmouseListener activateLinkmouseListener = new ActivateLinkmouseListener();
+    private final PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
+    private final ActivateLinkmouseListener activateLinkmouseListener = new ActivateLinkmouseListener();
+    
+    /*default*/ static final int COL_INDEX = 0;
+    /*default*/ static final int COL_RESULT = 1;
+    /*default*/ static final int COL_TEST = 2;
+    /*default*/ static final int COL_FILENAME = 3;
+    /*default*/ static final int COL_TIME = 4;
+    /*default*/ static final int NUMBER_OF_COLUMNS = 5;
+    
     
     /*default*/ PythonConsoleLineTracker getLineTracker() {
         return lineTracker;
     }
     
     private ColorAndStyleCache colorAndStyleCache;
+    
+    private SashForm sash;
+    private Tree tree;
+    private StyledText testOutputText;
+    private CounterPanel fCounterPanel;
+    private PyUnitProgressBar fProgressBar;
+    private Composite fCounterComposite;
+    private IPropertyChangeListener prefListener;
+    
+    /**
+     * Whether we should show only errors or not.
+     */
+    private boolean showOnlyErrors;
+    /*default*/ TreeColumn colIndex;
+    /*default*/ TreeColumn colResult;
+    /*default*/ TreeColumn colTest;
+    /*default*/ TreeColumn colFile;
+    /*default*/ TreeColumn colTime;
 
     @SuppressWarnings("unchecked")
     public PyUnitView() {
@@ -157,18 +199,6 @@ public class PyUnitView extends ViewPartWithOrientation{
         });
     }
 
-    private SashForm sash;
-    private Tree tree;
-    private StyledText testOutputText;
-    private CounterPanel fCounterPanel;
-    private PyUnitProgressBar fProgressBar;
-    private Composite fCounterComposite;
-    private IPropertyChangeListener prefListener;
-    
-    /**
-     * Whether we should show only errors or not.
-     */
-    private boolean showOnlyErrors;
     
     public PyUnitProgressBar getProgressBar() {
         return fProgressBar;
@@ -220,11 +250,24 @@ public class PyUnitView extends ViewPartWithOrientation{
         tree = new Tree(sash, SWT.FULL_SELECTION|SWT.SINGLE);
         tooltip.install(tree);
         tree.setHeaderVisible(true);
-        createColumn("Result", 70);
-        createColumn("Test", 180);
-        createColumn("File", 180);
-        createColumn("Time (s)", 80);
+        colIndex = createColumn(" ", 50);
+        colResult = createColumn("Result", 70);
+        colTest = createColumn("Test", 180);
+        colFile = createColumn("File", 180);
+        colTime = createColumn("Time (s)", 80);
         onControlCreated.call(tree);
+        
+        Listener sortListener = new PyUnitSortListener(this);
+
+        colIndex.addListener(SWT.Selection, sortListener);
+        colResult.addListener(SWT.Selection, sortListener);
+        colTest.addListener(SWT.Selection, sortListener);
+        colFile.addListener(SWT.Selection, sortListener);
+        colTime.addListener(SWT.Selection, sortListener);
+        
+        tree.setSortColumn(colIndex);
+        tree.setSortDirection(SWT.DOWN);
+
         
         tree.addMouseListener(new DoubleClickTreeItemMouseListener());
         tree.addKeyListener(new EnterProssedTreeItemKeyListener());
@@ -292,12 +335,13 @@ public class PyUnitView extends ViewPartWithOrientation{
     }
     
     
-    private void createColumn(String text, int width) {
+    private TreeColumn createColumn(String text, int width) {
         TreeColumn column1;
         column1 = new TreeColumn(tree, SWT.LEFT);
         column1.setText(text);
         column1.setWidth(width);
         column1.setMoveable(true);
+        return column1;
     }
 
     @Override
@@ -449,7 +493,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         if(!showOnlyErrors || (showOnlyErrors && !result.status.equals("ok"))){
             TreeItem treeItem = new TreeItem(tree, 0);
             File file = new File(result.location);
-            treeItem.setText(new String[]{result.status, result.test, file.getName(), result.time});
+            treeItem.setText(new String[]{result.index, result.status, result.test, file.getName(), result.time});
             if(!result.isOk()){
                 Color errorColor = getErrorColor();
                 treeItem.setForeground(errorColor);
@@ -469,6 +513,21 @@ public class PyUnitView extends ViewPartWithOrientation{
      */
     public Color getErrorColor() {
         TextAttribute attribute = ColorManager.getDefault().getConsoleErrorTextAttribute();
+        if(attribute == null){
+            return null;
+        }
+        Color errorColor = attribute.getForeground();
+        return errorColor;
+    }
+    
+    /**
+     * @return the color that should be used for the foreground.
+     */
+    public Color getForegroundColor() {
+        TextAttribute attribute = ColorManager.getDefault().getForegroundTextAttribute();
+        if(attribute == null){
+            return null;
+        }
         Color errorColor = attribute.getForeground();
         return errorColor;
     }
@@ -522,7 +581,7 @@ public class PyUnitView extends ViewPartWithOrientation{
     }
 
 
-    
+
     /**
      * Selection listener added to the tree so that the text output is updated when the selection changes.
      */
