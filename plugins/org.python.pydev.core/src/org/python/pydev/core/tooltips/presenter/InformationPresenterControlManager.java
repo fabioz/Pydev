@@ -1,12 +1,15 @@
 package org.python.pydev.core.tooltips.presenter;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.AbstractInformationControlManager;
+import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IWidgetTokenKeeper;
 import org.eclipse.jface.text.IWidgetTokenKeeperExtension;
 import org.eclipse.jface.text.IWidgetTokenOwner;
 import org.eclipse.jface.text.IWidgetTokenOwnerExtension;
-import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
+import org.eclipse.jface.util.Geometry;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.FocusEvent;
@@ -15,10 +18,14 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.python.pydev.core.tooltips.presenter.InformationPresenterHelpers.PyInformationControl;
 
 /**
  * Based on org.eclipse.jface.text.information.InformationPresenter (but without the references to 
@@ -27,18 +34,18 @@ import org.eclipse.swt.widgets.Display;
  * To be used on controls to show tooltips that 'stick' and the user can interact with.
  */
 public final class InformationPresenterControlManager extends AbstractInformationControlManager implements IWidgetTokenKeeper,
-        IWidgetTokenKeeperExtension {
+        IWidgetTokenKeeperExtension, IInformationPresenterControlManager {
 
     public InformationPresenterControlManager(IInformationPresenter presenter) {
         super(new InformationPresenterHelpers.TooltipInformationControlCreator(presenter));
-        if(presenter instanceof IInformationPresenterAsTooltip){
+        if (presenter instanceof IInformationPresenterAsTooltip) {
             IInformationPresenterAsTooltip presenterAsTooltip = (IInformationPresenterAsTooltip) presenter;
             presenterAsTooltip.setInformationPresenterControlManager(this);
         }
         setCloser(new Closer());
         takesFocusWhenVisible(true);
     }
-    
+
     /**
      * Creates a new information presenter that uses the given information control creator.
      * The presenter is not installed on any text viewer yet. By default, an information
@@ -61,14 +68,17 @@ public final class InformationPresenterControlManager extends AbstractInformatio
      * Internal information control closer. Listens to several events issued by its subject control
      * and closes the information control when necessary.
      */
-    class Closer implements IInformationControlCloser, ControlListener, MouseListener, FocusListener, KeyListener {
+    class Closer implements IInformationControlCloser, ControlListener, MouseListener, FocusListener, KeyListener, MouseMoveListener,
+            Listener {
 
         /** The subject control. */
         private Control fSubjectControl;
         /** The information control. */
-        private IInformationControl fInformationControlToClose;
+        private PyInformationControl fInformationControlToClose;
         /** Indicates whether this closer is active. */
         private boolean fIsActive = false;
+        private Rectangle fShellTooltipArea;
+        private Display fDisplay;
 
         /*
          * @see IInformationControlCloser#setSubjectControl(Control)
@@ -81,27 +91,47 @@ public final class InformationPresenterControlManager extends AbstractInformatio
          * @see IInformationControlCloser#setInformationControl(IInformationControl)
          */
         public void setInformationControl(IInformationControl control) {
-            fInformationControlToClose = control;
+            Assert.isTrue(control instanceof PyInformationControl);
+            fInformationControlToClose = (PyInformationControl) control;
         }
 
         /*
          * @see IInformationControlCloser#start(Rectangle)
          */
         public void start(Rectangle informationArea) {
-
-            if (fIsActive)
+            fShellTooltipArea = fInformationControlToClose.getShellTooltipBounds();
+            if (fIsActive) {
                 return;
+            }
             fIsActive = true;
 
             if (fSubjectControl != null && !fSubjectControl.isDisposed()) {
                 fSubjectControl.addControlListener(this);
                 fSubjectControl.addMouseListener(this);
+                fSubjectControl.addMouseMoveListener(this);
                 fSubjectControl.addFocusListener(this);
                 fSubjectControl.addKeyListener(this);
+
+                fDisplay = fSubjectControl.getDisplay();
+                if (!fDisplay.isDisposed()) {
+                    fDisplay.addFilter(SWT.Activate, this);
+                    fDisplay.addFilter(SWT.MouseVerticalWheel, this);
+
+                    fDisplay.addFilter(SWT.FocusOut, this);
+
+                    fDisplay.addFilter(SWT.MouseDown, this);
+                    fDisplay.addFilter(SWT.MouseUp, this);
+
+                    fDisplay.addFilter(SWT.MouseMove, this);
+                    fDisplay.addFilter(SWT.MouseEnter, this);
+                    fDisplay.addFilter(SWT.MouseExit, this);
+                }
             }
 
-            if (fInformationControlToClose != null)
+            if (fInformationControlToClose != null) {
                 fInformationControlToClose.addFocusListener(this);
+            }
+
         }
 
         /*
@@ -109,19 +139,38 @@ public final class InformationPresenterControlManager extends AbstractInformatio
          */
         public void stop() {
 
-            if (!fIsActive)
+            if (!fIsActive) {
                 return;
+            }
             fIsActive = false;
 
-            if (fInformationControlToClose != null)
+            if (fInformationControlToClose != null) {
                 fInformationControlToClose.removeFocusListener(this);
+            }
 
             if (fSubjectControl != null && !fSubjectControl.isDisposed()) {
                 fSubjectControl.removeControlListener(this);
+                fSubjectControl.removeMouseMoveListener(this);
                 fSubjectControl.removeMouseListener(this);
                 fSubjectControl.removeFocusListener(this);
                 fSubjectControl.removeKeyListener(this);
             }
+
+            if (fDisplay != null && !fDisplay.isDisposed()) {
+                fDisplay.removeFilter(SWT.Activate, this);
+                fDisplay.removeFilter(SWT.MouseVerticalWheel, this);
+
+                fDisplay.removeFilter(SWT.FocusOut, this);
+
+                fDisplay.removeFilter(SWT.MouseDown, this);
+                fDisplay.removeFilter(SWT.MouseUp, this);
+
+                fDisplay.removeFilter(SWT.MouseMove, this);
+                fDisplay.removeFilter(SWT.MouseEnter, this);
+                fDisplay.removeFilter(SWT.MouseExit, this);
+            }
+            fDisplay = null;
+
         }
 
         /*
@@ -172,8 +221,9 @@ public final class InformationPresenterControlManager extends AbstractInformatio
             d.asyncExec(new Runnable() {
                 // Without the asyncExec, mouse clicks to the workbench window are swallowed.
                 public void run() {
-                    if (fInformationControlToClose == null || !fInformationControlToClose.isFocusControl())
+                    if (fInformationControlToClose == null || !fInformationControlToClose.isFocusControl()){
                         hideInformationControl();
+                    }
                 }
             });
         }
@@ -189,6 +239,67 @@ public final class InformationPresenterControlManager extends AbstractInformatio
          * @see KeyListener#keyReleased(KeyEvent)
          */
         public void keyReleased(KeyEvent e) {
+        }
+
+        public void mouseMove(MouseEvent e) {
+            if (fInformationControl != null && fInformationControl.isFocusControl()) {
+                if (!inKeepUpZone(e.x, e.y, fSubjectControl, fSubjectControl.getDisplay())) {
+                    hideInformationControl();
+                }
+            }
+        }
+
+        public void handleEvent(Event event) {
+            switch (event.type) {
+            case SWT.Activate:
+            case SWT.MouseVerticalWheel:
+            case SWT.MouseUp:
+            case SWT.MouseDown:
+            case SWT.FocusOut:
+                IInformationControl iControl = fInformationControl;
+                if (iControl != null && !iControl.isFocusControl()) {
+                    hideInformationControl();
+                }
+                break;
+
+            case SWT.MouseMove:
+            case SWT.MouseEnter:
+            case SWT.MouseExit:
+                handleMouseMove(event);
+                break;
+            }
+        }
+
+        private void handleMouseMove(Event event) {
+            if (!(event.widget instanceof Control)) {
+                return;
+            }
+            Control control = (Control) event.widget;
+            Display display = control.getDisplay();
+
+            if (!inKeepUpZone(event.x, event.y, control, display)) {
+                hideInformationControl();
+            }
+        }
+
+        /**
+         * Note that all parameters (x, y, shellTooltipArea) must be in display coordinates.
+         * @param control 
+         * @param display 
+         */
+        private boolean inKeepUpZone(int x, int y, Control control, Display display) {
+            if (display.isDisposed()) {
+                return true; //received something from a dead display? Let's keep on showing it... (not sure if this actually happens)
+            }
+            Point point = display.map(control, null, x, y);
+
+            int margin = 20;
+            //the bounds are in display coordinates
+            Rectangle bounds = Geometry.copy(fShellTooltipArea);
+
+            //expand so that we have some tolerance to keep it open 
+            Geometry.expand(bounds, margin, margin, margin, margin);
+            return bounds.contains(point.x, point.y);
         }
     }
 
@@ -232,15 +343,18 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     protected void showInformationControl(Rectangle subjectArea) {
         if (fControl instanceof IWidgetTokenOwnerExtension && fControl instanceof IWidgetTokenOwner) {
             IWidgetTokenOwnerExtension extension = (IWidgetTokenOwnerExtension) fControl;
-            if (extension.requestWidgetToken(this, WIDGET_PRIORITY))
+            if (extension.requestWidgetToken(this, WIDGET_PRIORITY)) {
                 super.showInformationControl(subjectArea);
+            }
         } else if (fControl instanceof IWidgetTokenOwner) {
             IWidgetTokenOwner owner = (IWidgetTokenOwner) fControl;
-            if (owner.requestWidgetToken(this))
+            if (owner.requestWidgetToken(this)) {
                 super.showInformationControl(subjectArea);
+            }
 
-        } else
+        } else {
             super.showInformationControl(subjectArea);
+        }
     }
 
     /*

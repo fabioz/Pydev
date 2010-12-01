@@ -5,7 +5,7 @@ public interface IInformationPresenterAsTooltip {
     /**
      * Sets the control manager (used to hide it when needed)
      */
-    void setInformationPresenterControlManager(InformationPresenterControlManager informationPresenterControlManager);
+    void setInformationPresenterControlManager(IInformationPresenterControlManager informationPresenterControlManager);
 
     /**
      * Sets the data passed to the tooltip.

@@ -34,7 +34,7 @@ public class ToolTipPresenterHandler {
     private Shell tipShell;
     private Label tipLabelImage, tipLabelText;
     private Widget tipWidget; // widget this tooltip is hovering over
-    private InformationPresenterControlManager tooltip;
+    private IInformationPresenterControlManager tooltip;
     private IInformationPresenter presenter;
 
     public ToolTipPresenterHandler(Shell parent) {

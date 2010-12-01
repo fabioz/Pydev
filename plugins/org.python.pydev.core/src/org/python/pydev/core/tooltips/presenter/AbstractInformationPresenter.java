@@ -17,7 +17,7 @@ public abstract class AbstractInformationPresenter implements DefaultInformation
      * The line delimiter that should be used in the tooltip.
      */
     public static final String LINE_DELIM = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-    protected InformationPresenterControlManager informationPresenterControlManager;
+    protected IInformationPresenterControlManager informationPresenterControlManager;
     protected Object data;
     
     
@@ -51,7 +51,7 @@ public abstract class AbstractInformationPresenter implements DefaultInformation
         return str;
     }
 
-    public void setInformationPresenterControlManager(InformationPresenterControlManager informationPresenterControlManager){
+    public void setInformationPresenterControlManager(IInformationPresenterControlManager informationPresenterControlManager){
         this.informationPresenterControlManager = informationPresenterControlManager;
     }
     
