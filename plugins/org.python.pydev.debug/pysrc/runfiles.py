@@ -26,10 +26,14 @@ if __name__ == '__main__':
     pydev_runfiles_xml_rpc.InitializeServer(configuration.port)
 
     try:
-        import nose
-        raise ImportError() #TODO: remove this (for now we only support the default test runner).
+        if found_nose_param:
+            import nose
+        else:
+            raise ImportError()
     except ImportError:
-        sys.stderr.write('Warning: Could not import the nose test runner. Running with the default pydev unittest runner.\n')
+        if found_nose_param:
+            sys.stderr.write('Warning: Could not import the nose test runner. Running with the default pydev unittest runner.\n')
+            
         pydev_runfiles.main(configuration)
         
     else:
@@ -43,7 +47,7 @@ if __name__ == '__main__':
         #--verbosity = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY)
         #--filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER)
         
-        DEBUG = False
+        DEBUG = True
         
         #Nose usage: http://somethingaboutorange.com/mrl/projects/nose/0.11.2/usage.html
 #        show_stdout_option = ['-s']

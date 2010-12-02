@@ -6,7 +6,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
@@ -115,7 +115,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
     }
     
     public void testIntegration() throws Exception {
-        Preferences preferences = new Preferences();
+        PreferenceStore preferences = new PreferenceStore();
         PyParserManager pyParserManager = PyParserManager.getPyParserManager(preferences);
         
         Document doc = new Document();
@@ -142,7 +142,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
     
 
     public void testDifferentEditorsSameInput() throws Exception {
-        Preferences preferences = new Preferences();
+        PreferenceStore preferences = new PreferenceStore();
         PyParserManager pyParserManager = PyParserManager.getPyParserManager(preferences);
         
         Document doc = new Document();
@@ -190,7 +190,7 @@ public class PyParserEditorIntegrationTest extends TestCase {
     }
     
     public void testChangeInput() throws Exception {
-        Preferences preferences = new Preferences();
+        PreferenceStore preferences = new PreferenceStore();
         PyParserManager pyParserManager = PyParserManager.getPyParserManager(preferences);
         
         Document doc = new Document();

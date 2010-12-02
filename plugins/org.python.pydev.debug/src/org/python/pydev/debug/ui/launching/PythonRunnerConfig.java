@@ -665,7 +665,7 @@ public class PythonRunnerConfig {
         if (isUnittest()) {
             cmdArgs.add(getRunFilesScript());
             cmdArgs.add("--verbosity");
-            cmdArgs.add(PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY));
+            cmdArgs.add(PydevPrefs.getPreferenceStore().getString(PyunitPrefsPage.PYUNIT_VERBOSITY));
 
 
             String configurationFile = this.configuration.getAttribute(Constants.ATTR_UNITTEST_CONFIGURATION_FILE, "");

@@ -81,11 +81,12 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * 
  * 
  * Must be done before initial release:
- * - Select some tests and make a new run with them.
  * - Allow the user to select test runner (Initially at least default and nose. Step 2: py.test)
+ * - Don't show results in the unittest view (only show in the console): in this situation, don't even start the server or use xml-rpc.
  *
  * 
  * Nice to have:
+ * - Select some tests and make a new run with them.
  * - Show current test(s) being run (handle parallel execution)
  * - Hide or show output pane 
  * - If a string was different, show an improved diff (as JDT)
