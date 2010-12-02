@@ -19,6 +19,7 @@ import org.python.pydev.plugin.PydevPlugin;
 final class PyUnitViewServerListener implements IPyUnitServerListener {
     
     private PyUnitView view;
+    private Object lockView = new Object();
 
     private LinkedList<ICallback0<Object>> notifications = new LinkedList<ICallback0<Object>>();
     
@@ -71,8 +72,10 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
                     PyUnitTestResult result = new PyUnitTestResult(
                             testRun, status, location, test, capturedOutput, errorContents, time);
                     testRun.addResult(result);
-                    if(view != null){
-                        view.notifyTest(result);
+                    synchronized (lockView) {
+                        if(view != null){
+                            view.notifyTest(result);
+                        }
                     }
                     return null;
                 }
@@ -89,8 +92,10 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
                     
                     public Object call() {
                         testRun.setFinished(true);
-                        if(view != null){
-                            view.notifyFinished(testRun);
+                        synchronized (lockView) {
+                            if(view != null){
+                                view.notifyFinished(testRun);
+                            }
                         }
                         return null;
                     }
@@ -105,7 +110,15 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     }
 
     public void setView(PyUnitView view) {
-        this.view = view;
+        synchronized (lockView) {
+            this.view = view;
+        }
+    }
+    
+    public PyUnitView getView() {
+        synchronized (lockView) {
+            return view;
+        }
     }
 
     public PyUnitTestRun getTestRun() {
@@ -114,8 +127,10 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
 
     public void notifyTestsCollected(String totalTestsCount) {
         testRun.setTotalNumberOfRuns(totalTestsCount);
-        if(view != null){
-            view.notifyTestsCollected(testRun);
+        synchronized (lockView) {
+            if(view != null){
+                view.notifyTestsCollected(testRun);
+            }
         }
     }
 }

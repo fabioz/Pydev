@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.TextAttribute;
@@ -32,6 +36,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -71,13 +76,13 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * - Show time of test (and allow reordering based on it) -- OK
  * - Tooltip on hover for test with links -- OK
  * - Use theme colors -- OK
+ * - Auto-show on test run should be an option. -- OK
+ * - Check: if it's created after a test suite started running, the results should be properly shown. -- OK
  * 
  * 
  * Must be done before initial release:
- * - Auto-show on test run should be an option.
  * - Select some tests and make a new run with them.
  * - Allow the user to select test runner (Initially at least default and nose. Step 2: py.test)
- * - Check: if it's created after a test suite started running, the results should be properly shown.
  *
  * 
  * Nice to have:
@@ -86,6 +91,7 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * - If a string was different, show an improved diff (as JDT)
  * - Save column order (tree.setColumnOrder(order))
  * - Hide columns
+ * - Theming bug: when columns order change, the selected text for the last columns is not appearing
  * 
  * 
  * References:
@@ -103,14 +109,21 @@ import org.python.pydev.ui.IViewCreatedObserver;
 @SuppressWarnings("rawtypes")
 public class PyUnitView extends ViewPartWithOrientation{
     
+    private static final String PY_UNIT_VIEW_ID = "org.python.pydev.debug.pyunit.pyUnitView";
     public static final String PYUNIT_VIEW_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_SHOW_ONLY_ERRORS";
     public static final boolean PYUNIT_VIEW_DEFAULT_SHOW_ONLY_ERRORS = true;
+    
+    public static final String PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN = "PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN";
+    public static final boolean PYUNIT_VIEW_DEFAULT_SHOW_VIEW_ON_TEST_RUN = true;
     
     public static int MAX_RUNS_TO_KEEP = 15;
     
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
     public final ICallbackWithListeners onDispose = new CallbackWithListeners();
-    private final List<PyUnitTestRun> allRuns = new ArrayList<PyUnitTestRun>();
+    
+    private static final Object lockServerListeners = new Object();
+    private static final List<PyUnitViewServerListener> serverListeners = new ArrayList<PyUnitViewServerListener>();
+    
     private PyUnitTestRun currentRun;
     private final PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
     private final ActivateLinkmouseListener activateLinkmouseListener = new ActivateLinkmouseListener();
@@ -141,18 +154,25 @@ public class PyUnitView extends ViewPartWithOrientation{
      * Whether we should show only errors or not.
      */
     private boolean showOnlyErrors;
+    
     /*default*/ TreeColumn colIndex;
     /*default*/ TreeColumn colResult;
     /*default*/ TreeColumn colTest;
     /*default*/ TreeColumn colFile;
     /*default*/ TreeColumn colTime;
+    
+    /**
+     * Have we disposed of the view?
+     */
+    private boolean disposed = false;
 
     @SuppressWarnings("unchecked")
     public PyUnitView() {
         PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
         
         if(plugin != null){
-            this.showOnlyErrors = plugin.getPreferenceStore().getBoolean(PYUNIT_VIEW_SHOW_ONLY_ERRORS);
+            IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+            this.showOnlyErrors = preferenceStore.getBoolean(PYUNIT_VIEW_SHOW_ONLY_ERRORS);
         }
         
         List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
@@ -215,6 +235,7 @@ public class PyUnitView extends ViewPartWithOrientation{
     @SuppressWarnings("unchecked")
     @Override
     public void createPartControl(Composite parent) {
+        Assert.isTrue(!disposed);
         super.createPartControl(parent);
         IInformationPresenter presenter = new InformationPresenterWithLineTracker();
         final ToolTipPresenterHandler tooltip = new ToolTipPresenterHandler(parent.getShell(), presenter);
@@ -250,21 +271,16 @@ public class PyUnitView extends ViewPartWithOrientation{
         tree = new Tree(sash, SWT.FULL_SELECTION|SWT.SINGLE);
         tooltip.install(tree);
         tree.setHeaderVisible(true);
-        colIndex = createColumn(" ", 50);
-        colResult = createColumn("Result", 70);
-        colTest = createColumn("Test", 180);
-        colFile = createColumn("File", 180);
-        colTime = createColumn("Time (s)", 80);
-        onControlCreated.call(tree);
         
         Listener sortListener = new PyUnitSortListener(this);
-
-        colIndex.addListener(SWT.Selection, sortListener);
-        colResult.addListener(SWT.Selection, sortListener);
-        colTest.addListener(SWT.Selection, sortListener);
-        colFile.addListener(SWT.Selection, sortListener);
-        colTime.addListener(SWT.Selection, sortListener);
+        colIndex = createColumn(" ", 50, sortListener);
+        colResult = createColumn("Result", 70, sortListener);
+        colTest = createColumn("Test", 180, sortListener);
+        colFile = createColumn("File", 180, sortListener);
+        colTime = createColumn("Time (s)", 80, sortListener);
+        onControlCreated.call(tree);
         
+
         tree.setSortColumn(colIndex);
         tree.setSortDirection(SWT.DOWN);
 
@@ -303,17 +319,28 @@ public class PyUnitView extends ViewPartWithOrientation{
 
         StyledText text = new StyledText(sash, SWT.MULTI|SWT.H_SCROLL|SWT.V_SCROLL|SWT.READ_ONLY);
         this.setTextComponent(text);
+        onTestRunAdded();
     }
     
     private void configureToolBar() {
         IActionBars actionBars= getViewSite().getActionBars();
         IToolBarManager toolBar= actionBars.getToolBarManager();
-        toolBar.add(new RelaunchErrorsAction(this));
-        toolBar.add(new RelaunchAction(this));
-        toolBar.add(new StopAction(this));
+        IMenuManager menuManager = actionBars.getMenuManager();
+        
+        ShowViewOnTestRunAction showViewOnTestRunAction = new ShowViewOnTestRunAction(this);
+        menuManager.add(showViewOnTestRunAction);
+        
+        
         ShowOnlyFailuresAction action = new ShowOnlyFailuresAction(this);
         toolBar.add(action);
         action.setChecked(this.showOnlyErrors);
+        
+        toolBar.add(new Separator());
+        toolBar.add(new RelaunchErrorsAction(this));
+        toolBar.add(new RelaunchAction(this));
+        toolBar.add(new StopAction(this));
+        
+        toolBar.add(new Separator());
         toolBar.add(new HistoryAction(this));
         
     }
@@ -335,13 +362,16 @@ public class PyUnitView extends ViewPartWithOrientation{
     }
     
     
-    private TreeColumn createColumn(String text, int width) {
-        TreeColumn column1;
-        column1 = new TreeColumn(tree, SWT.LEFT);
-        column1.setText(text);
-        column1.setWidth(width);
-        column1.setMoveable(true);
-        return column1;
+    private TreeColumn createColumn(String text, int width, Listener sortListener) {
+        TreeColumn col;
+        col = new TreeColumn(tree, SWT.LEFT);
+        col.setText(text);
+        col.setWidth(width);
+        col.setMoveable(true);
+        
+        col.addListener(SWT.Selection, sortListener);
+
+        return col;
     }
 
     @Override
@@ -352,6 +382,10 @@ public class PyUnitView extends ViewPartWithOrientation{
     @SuppressWarnings("unchecked")
     @Override
     public void dispose() {
+        if(this.disposed){
+            return;
+        }
+        this.disposed = true;
         if(this.tree != null){
             Tree t = this.tree;
             this.tree = null;
@@ -386,16 +420,14 @@ public class PyUnitView extends ViewPartWithOrientation{
     public static PyUnitViewServerListener registerPyUnitServer(final IPyUnitServer pyUnitServer, boolean async) {
         //We create a listener before and later set the view so that we don't run into racing condition errors!
         final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer, pyUnitServer.getPyUnitLaunch());
+        PyUnitView.addServerListener(serverListener);
         
         Runnable r = new Runnable() {
             public void run() {
                 try {
                     PyUnitView view = getView();
                     if(view != null){
-                        serverListener.setView(view);
-                        view.addTestRunAndMakecurrent(serverListener.getTestRun());
-                    }else{
-                        Log.log("Could not get pyunit view");
+                        view.onTestRunAdded();
                     }
                 } catch (Exception e) {
                     Log.log(e);
@@ -410,10 +442,29 @@ public class PyUnitView extends ViewPartWithOrientation{
         }
         return serverListener;
     }
+    
+    /**
+     * Must be called on the UI thread. Sets the view on all the server listeners (even if it was already set before
+     * as it may be that a view was closed and then a new one created).
+     */
+    private void onTestRunAdded(){
+        synchronized (lockServerListeners) {
+            for(PyUnitViewServerListener listener:serverListeners){
+                listener.setView(this); //Set in all, as it may be that they have an already disposed view registered.
+            }
+            if(serverListeners.size() > 0){
+                //make the last one active.
+                this.setCurrentRun(serverListeners.get(serverListeners.size()-1).getTestRun());
+            }
+        }
+    }
 
     
     /**
-     * Gets the py unit view. May only be called in the UI thread. If the view is not visible, shows it.
+     * Gets the py unit view. May only be called in the UI thread. If the view is not visible, shows it if the
+     * preference to do that is set to true.
+     * 
+     * Note that it may return null if the preference to show it is false and the view is not currently shown.
      */
     public static PyUnitView getView() {
         IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -422,29 +473,46 @@ public class PyUnitView extends ViewPartWithOrientation{
                 return null;
             }
             IWorkbenchPage page= workbenchWindow.getActivePage();
-            return (PyUnitView) page.showView("org.python.pydev.debug.pyunit.pyUnitView", null, IWorkbenchPage.VIEW_VISIBLE);
+            if(ShowViewOnTestRunAction.getShowViewOnTestRun()){
+                return (PyUnitView) page.showView(PY_UNIT_VIEW_ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+            }else{
+                IViewReference viewReference = page.findViewReference(PY_UNIT_VIEW_ID);
+                if(viewReference != null){
+                    //if it's there, return it (but don't restore it if it's still not there).
+                    //when made visible, it'll handle things properly later on.
+                    return (PyUnitView) viewReference.getView(false);
+                }
+            }
         } catch (Exception e) {
             Log.log(e);
         }
         return null;
     }
     
+    
     /**
-     * Adds a given test run to our list of test runs and makes it current. If there are too many test runs, removes 
-     * the oldest one before adding another one.
+     * Adds a server listener to the static list of available server listeners. This is needed so that we start
+     * to listen to it when the view is restored later on (if it's still not visible).
      */
-    protected void addTestRunAndMakecurrent(PyUnitTestRun testRun) {
-        if(allRuns.size() +1 > MAX_RUNS_TO_KEEP){
-            allRuns.remove(0);
+    protected static void addServerListener(PyUnitViewServerListener serverListener) {
+        synchronized (lockServerListeners) {
+            
+            if(serverListeners.size() +1 > MAX_RUNS_TO_KEEP){
+                serverListeners.remove(0);
+            }
+            serverListeners.add(serverListener);
         }
-        allRuns.add(testRun);
-        setCurrentRun(testRun);
     }
+    
 
     /**
      * Notifies that the test run has finished.
      */
     /*default */ void notifyFinished(PyUnitTestRun testRun) {
+        if(this.disposed){
+            return;
+        }
+
         if(testRun != currentRun){
             return;
         }
@@ -456,6 +524,10 @@ public class PyUnitView extends ViewPartWithOrientation{
      * Notifies that a test result has been added.
      */
     /*default*/ void notifyTest(PyUnitTestResult result) {
+        if(this.disposed){
+            return;
+        }
+        
         notifyTest(result, true);
     }
     
@@ -464,6 +536,10 @@ public class PyUnitView extends ViewPartWithOrientation{
      * Used to update the number of tests available. 
      */
     /*default*/ void notifyTestsCollected(PyUnitTestRun testRun) {
+        if(this.disposed){
+            return;
+        }
+        
         if(testRun != currentRun){
             return;
         }
@@ -487,6 +563,10 @@ public class PyUnitView extends ViewPartWithOrientation{
      * Called after a test has been run (so that we properly update the tree).
      */
     private void notifyTest(PyUnitTestResult result, boolean updateBar) {
+        if(this.disposed){
+            return;
+        }
+
         if(result.getTestRun() != currentRun){
             return;
         }
@@ -721,22 +801,33 @@ public class PyUnitView extends ViewPartWithOrientation{
      */
     public void setCurrentRun(PyUnitTestRun testRun) {
         this.currentRun = testRun;
-        tree.removeAll();
-        if(testRun != null){
-            List<PyUnitTestResult> sharedResultsList = testRun.getSharedResultsList();
-            for (PyUnitTestResult result : sharedResultsList) {
-                notifyTest(result, false);
+        tree.setRedraw(false);
+        try {
+            tree.removeAll();
+            if(testRun != null){
+                List<PyUnitTestResult> sharedResultsList = testRun.getSharedResultsList();
+                for (PyUnitTestResult result : sharedResultsList) {
+                    notifyTest(result, false);
+                }
             }
+            updateCountersAndBar();
+            testOutputText.setText(""); //leave no result selected
+        } finally {
+            tree.setRedraw(true);
         }
-        updateCountersAndBar();
-        testOutputText.setText(""); //leave no result selected
     }
 
     /**
      * @return returns a copy with the test runs available.
      */
     public List<PyUnitTestRun> getAllTestRuns() {
-        return new ArrayList<PyUnitTestRun>(allRuns);
+        synchronized (lockServerListeners) {
+            ArrayList<PyUnitTestRun> ret = new ArrayList<PyUnitTestRun>();
+            for(PyUnitViewServerListener listener:serverListeners){
+                ret.add(listener.getTestRun());
+            }
+            return ret;
+        }
     }
 
     /**
@@ -747,28 +838,30 @@ public class PyUnitView extends ViewPartWithOrientation{
         PydevDebugPlugin.getDefault().getPreferenceStore().setValue(PYUNIT_VIEW_SHOW_ONLY_ERRORS, b);
         this.setCurrentRun(currentRun); //update all!
     }
-
+    
     
     /**
      * Removes all the terminated test runs.
      */
     public void clearAllTerminated() {
-        boolean removedCurrent = false;
-        
-        for(Iterator<PyUnitTestRun> it=this.allRuns.iterator();it.hasNext();){
-            PyUnitTestRun next = it.next();
-            if(next.getFinished()){
-                if(next == this.currentRun){
-                    removedCurrent = true;
+        synchronized (lockServerListeners) {
+            boolean removedCurrent = false;
+            
+            for(Iterator<PyUnitViewServerListener> it=serverListeners.iterator();it.hasNext();){
+                PyUnitTestRun next = it.next().getTestRun();
+                if(next.getFinished()){
+                    if(next == this.currentRun){
+                        removedCurrent = true;
+                    }
+                    it.remove();
                 }
-                it.remove();
             }
-        }
-        if(removedCurrent){
-            if(this.allRuns.size() > 0){
-                this.setCurrentRun(this.allRuns.get(0));
-            }else{
-                this.setCurrentRun(null);
+            if(removedCurrent){
+                if(serverListeners.size() > 0){
+                    this.setCurrentRun(serverListeners.get(0).getTestRun());
+                }else{
+                    this.setCurrentRun(null);
+                }
             }
         }
     }
