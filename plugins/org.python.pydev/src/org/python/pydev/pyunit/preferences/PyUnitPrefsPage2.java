@@ -59,6 +59,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
                  "Test Runner", 
                  new String[][] {
                      {"Pydev test runner", Integer.toString(TEST_RUNNER_PYDEV)},
+                     {"Py.test runner", Integer.toString(TEST_RUNNER_PY_TEST)},
                      {"Nose test runner", Integer.toString(TEST_RUNNER_NOSE)},
                  },
                  p
@@ -80,6 +81,9 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         switch(testRunner){
             case TEST_RUNNER_NOSE:
                 ret = "--nose-params "+ret; //From this point onwards, only nose parameters.
+                break;
+            case TEST_RUNNER_PY_TEST:
+                ret = "--py-test-params "+ret; //From this point onwards, only py.test parameters.
                 break;
         }
         
