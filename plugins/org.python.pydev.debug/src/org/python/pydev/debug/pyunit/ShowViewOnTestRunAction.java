@@ -12,7 +12,7 @@ public class ShowViewOnTestRunAction extends Action{
     public ShowViewOnTestRunAction(PyUnitView pyUnitView) {
         this.pyUnitView = new WeakReference<PyUnitView>(pyUnitView);
         this.setChecked(getShowViewOnTestRun());
-        this.setText("Show unittest view on a new unittest run.");
+        this.setText("Show unittest view on a new unittest run");
         this.setToolTipText("If checked, shows the view on a new unittest run.");
     }
 

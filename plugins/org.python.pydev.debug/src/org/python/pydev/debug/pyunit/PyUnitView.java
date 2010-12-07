@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
@@ -110,6 +111,7 @@ import org.python.pydev.ui.IViewCreatedObserver;
 @SuppressWarnings("rawtypes")
 public class PyUnitView extends ViewPartWithOrientation{
     
+    public static final String PY_UNIT_TEST_RESULT = "RESULT";
     private static final String PY_UNIT_VIEW_ID = "org.python.pydev.debug.pyunit.pyUnitView";
     public static final String PYUNIT_VIEW_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_SHOW_ONLY_ERRORS";
     public static final boolean PYUNIT_VIEW_DEFAULT_SHOW_ONLY_ERRORS = true;
@@ -135,6 +137,7 @@ public class PyUnitView extends ViewPartWithOrientation{
     /*default*/ static final int COL_FILENAME = 3;
     /*default*/ static final int COL_TIME = 4;
     /*default*/ static final int NUMBER_OF_COLUMNS = 5;
+    private static final NumberFormatException NUMBER_FORMAT_EXCEPTION = new NumberFormatException();
     
     
     /*default*/ PythonConsoleLineTracker getLineTracker() {
@@ -302,7 +305,7 @@ public class PyUnitView extends ViewPartWithOrientation{
                             Color errorColor = getErrorColor();
                             TreeItem[] items = tree.getItems();
                             for(TreeItem item:items){
-                                PyUnitTestResult result = (PyUnitTestResult) item.getData("RESULT");
+                                PyUnitTestResult result = (PyUnitTestResult) item.getData(PY_UNIT_TEST_RESULT);
                                 if(result!= null && !result.isOk()){
                                     item.setForeground(errorColor);
                                 }
@@ -330,6 +333,8 @@ public class PyUnitView extends ViewPartWithOrientation{
         
         ShowViewOnTestRunAction showViewOnTestRunAction = new ShowViewOnTestRunAction(this);
         menuManager.add(showViewOnTestRunAction);
+        IAction showTestRunnerPreferencesAction = new ShowTestRunnerPreferencesAction(this);
+        menuManager.add(showTestRunnerPreferencesAction);
         
         
         ShowOnlyFailuresAction action = new ShowOnlyFailuresAction(this);
@@ -581,7 +586,7 @@ public class PyUnitView extends ViewPartWithOrientation{
             }
             
             treeItem.setData (ToolTipPresenterHandler.TIP_DATA, result);
-            treeItem.setData("RESULT", result);
+            treeItem.setData(PY_UNIT_TEST_RESULT, result);
         }
         
         if(updateBar){
@@ -626,22 +631,28 @@ public class PyUnitView extends ViewPartWithOrientation{
             int numberOfErrors = currentRun.getNumberOfErrors();
             int numberOfFailures = currentRun.getNumberOfFailures();
             
-            fCounterPanel.setRunValue(numberOfRuns, totalNumberOfRuns);
-            fCounterPanel.setErrorValue(numberOfErrors);
-            fCounterPanel.setFailureValue(numberOfFailures);
             
             try {
                 int totalAsInt;
                 if(currentRun.getFinished()){
                     totalAsInt = numberOfRuns;
+                    totalNumberOfRuns = Integer.toString(totalAsInt);
                 }else{
                     totalAsInt = Integer.parseInt(totalNumberOfRuns);
+                }
+                if(totalAsInt == 0 && numberOfRuns > 0){
+                    totalNumberOfRuns = "?";
+                    throw NUMBER_FORMAT_EXCEPTION;
                 }
                 fProgressBar.reset(numberOfErrors + numberOfFailures > 0, false, numberOfRuns, totalAsInt);
             } catch (NumberFormatException e) {
                 //use this if we're unable to collect the number of runs as a string.
                 setShowBarWithError(numberOfErrors + numberOfFailures > 0, numberOfRuns > 0, currentRun.getFinished());
             }
+            
+            fCounterPanel.setRunValue(numberOfRuns, totalNumberOfRuns);
+            fCounterPanel.setErrorValue(numberOfErrors);
+            fCounterPanel.setFailureValue(numberOfFailures);
         }else{
             fCounterPanel.setRunValue(0, "0");
             fCounterPanel.setErrorValue(0);
@@ -669,7 +680,7 @@ public class PyUnitView extends ViewPartWithOrientation{
     private final class SelectResultSelectionListener extends SelectionAdapter{
         public void widgetSelected(SelectionEvent e) {
             if(e.item != null){
-                PyUnitTestResult result = (PyUnitTestResult) e.item.getData("RESULT");
+                PyUnitTestResult result = (PyUnitTestResult) e.item.getData(PY_UNIT_TEST_RESULT);
                 onSelectResult(result);
             }
         }
@@ -781,7 +792,7 @@ public class PyUnitView extends ViewPartWithOrientation{
     public void onTriggerGoToTest() {
         TreeItem[] selection = tree.getSelection();
         if(selection.length >= 1){
-            PyUnitTestResult result = (PyUnitTestResult) selection[0].getData("RESULT");
+            PyUnitTestResult result = (PyUnitTestResult) selection[0].getData(PY_UNIT_TEST_RESULT);
             result.open();
         }
     }

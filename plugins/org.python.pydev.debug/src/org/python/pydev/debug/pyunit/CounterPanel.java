@@ -85,7 +85,7 @@ public class CounterPanel extends Composite {
 
 
 	public void setRunValue(int value, String total) {
-		String runString= Integer.toString(value)+"/"+total;
+		String runString= Integer.toString(value)+" / "+total;
 		fNumberOfRuns.setText(runString);
 
 		fNumberOfRuns.redraw();

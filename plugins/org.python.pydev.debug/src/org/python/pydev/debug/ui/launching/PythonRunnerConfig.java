@@ -49,7 +49,7 @@ import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.pyunit.preferences.PyunitPrefsPage;
+import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -627,7 +627,10 @@ public class PythonRunnerConfig {
             }
     
         }
-        addUnittestArgs(cmdArgs, actualRun);
+        
+        if (isUnittest()) {
+            cmdArgs.add(getRunFilesScript());
+        }
         
         for(IPath p:resource){
             cmdArgs.add(p.toOSString());
@@ -642,6 +645,9 @@ public class PythonRunnerConfig {
         for (int i=0; runArguments != null && i<runArguments.length; i++){
             cmdArgs.add(runArguments[i]);
         }
+        
+        //Last thing (first the files and last the special parameters the user passed -- i.e.: nose parameters) 
+        addUnittestArgs(cmdArgs, actualRun);
         
         String[] retVal = new String[cmdArgs.size()];
         cmdArgs.toArray(retVal);
@@ -663,11 +669,8 @@ public class PythonRunnerConfig {
      */
     private void addUnittestArgs(List<String> cmdArgs, boolean actualRun) throws CoreException {
         if (isUnittest()) {
-            cmdArgs.add(getRunFilesScript());
-            cmdArgs.add("--verbosity");
-            cmdArgs.add(PydevPrefs.getPreferenceStore().getString(PyunitPrefsPage.PYUNIT_VERBOSITY));
 
-
+            //The tests are either written to a configuration file or passed as a parameter. 
             String configurationFile = this.configuration.getAttribute(Constants.ATTR_UNITTEST_CONFIGURATION_FILE, "");
             if(configurationFile.length() > 0){
                 cmdArgs.add("--config_file");
@@ -697,13 +700,6 @@ public class PythonRunnerConfig {
                     cmdArgs.add(configurationFile);
                 }
             }else{
-                //The filter and the tests are only used if the configuration file is not used.
-                String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
-                if (filter.length() > 0) {
-                    cmdArgs.add("--filter");
-                    cmdArgs.add(filter);
-                }
-                
                 String tests = this.configuration.getAttribute(Constants.ATTR_UNITTEST_TESTS, "");
                 if(tests.length() > 0){
                     cmdArgs.add("--tests");
@@ -711,12 +707,19 @@ public class PythonRunnerConfig {
                 }
             }
             
-            //If we want to use the PyUnitView, we need to get the port used so that the python side can connect.
-            cmdArgs.add("--port");
-            if(actualRun){
-                cmdArgs.add(String.valueOf(getPyUnitServer().getPort()));
-            }else{
-                cmdArgs.add("0");
+            if(PyUnitPrefsPage2.getUsePyUnitView()){
+                //If we want to use the PyUnitView, we need to get the port used so that the python side can connect.
+                cmdArgs.add("--port");
+                if(actualRun){
+                    cmdArgs.add(String.valueOf(getPyUnitServer().getPort()));
+                }else{
+                    cmdArgs.add("0");
+                }
+            }
+            
+            //Last thing: nose parameters or parameters the user configured.
+            for(String s:parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters())){
+                cmdArgs.add(s);
             }
         }
     }

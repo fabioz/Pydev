@@ -96,8 +96,9 @@ public class PyUnitProgressBar extends Canvas {
 		fCurrentTickCount= ticksDone;
 		fMaxTickCount= maximum;
 		fColorBarWidth= scale(ticksDone);
-		if (! noChange)
+		if (! noChange){
 			redraw();
+		}
 	}
 
 	private void paintStep(int startX, int endX) {
@@ -110,12 +111,13 @@ public class PyUnitProgressBar extends Canvas {
 	}
 
 	private void setStatusColor(GC gc) {
-		if (fStopped)
+		if (fStopped){
 			gc.setBackground(fStoppedColor);
-		else if (fError)
+		}else if (fError){
 			gc.setBackground(fFailureColor);
-		else
+		}else{
 			gc.setBackground(fOKColor);
+		}
 	}
 
 	public void stopped() {

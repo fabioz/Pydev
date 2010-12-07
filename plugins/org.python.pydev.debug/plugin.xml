@@ -716,9 +716,9 @@
 <extension point="org.eclipse.ui.views">
    <view
         class="org.python.pydev.debug.pyunit.PyUnitView"
-        icon="icons/junit.gif"
+        icon="icons/pyunit.png"
         category="org.python.pydev"
-        name="Python Unittest View"
+        name="PyUnit"
         id="org.python.pydev.debug.pyunit.pyUnitView"/>
 </extension>
 </plugin>

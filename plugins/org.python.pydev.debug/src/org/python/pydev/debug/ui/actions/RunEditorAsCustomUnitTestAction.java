@@ -12,16 +12,19 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.Window;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.python.pydev.core.IInterpreterManager;
@@ -39,8 +42,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.pyunit.preferences.PyunitPrefsPage;
+import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 
 
@@ -61,7 +63,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
         TreeSelectionDialog dialog = new TreeSelectionDialog(getShell(), new SelectTestLabelProvider(),
                 new SelectTestTreeContentProvider()){
 
-            RadioGroupFieldEditor verbosityEditor;
+            Link configTestRunner;
             
             public boolean close(){
                 memento.writeSettings(getShell());
@@ -71,9 +73,17 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             public Control createDialogArea(Composite parent){
                 memento.readSettings();
                 Control ret = super.createDialogArea(parent);
-                verbosityEditor= PyunitPrefsPage.createVerbosityEditor(parent);
-                verbosityEditor.setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-                verbosityEditor.load();
+                configTestRunner= new Link(parent, SWT.PUSH);
+                configTestRunner.setText(
+                        "        <a>Configure test runner</a>: allows the configuration of the test runner\n" +
+                        "        used and additional parameters passed." +
+                		"");
+                configTestRunner.addSelectionListener(new SelectionAdapter() {
+                    public void widgetSelected(SelectionEvent e) {
+                        PyUnitPrefsPage2.showPage();
+                    }
+
+                });
                 return ret;
             }
 
@@ -90,7 +100,6 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
              */
             @SuppressWarnings("unchecked")
             protected void computeResult() {
-                verbosityEditor.store();
                 IStructuredSelection selection = (IStructuredSelection) getTreeViewer().getSelection();
                 List<Object> list = selection.toList();
                 if(list.size() > 0){
