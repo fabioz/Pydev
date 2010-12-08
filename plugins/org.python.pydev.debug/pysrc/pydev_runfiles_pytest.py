@@ -1,6 +1,5 @@
 import pydev_runfiles_xml_rpc
 import time
-import pytest
 from _pytest import runner
 import os
 from py._code import code
@@ -67,8 +66,18 @@ class PydevPlugin:
                 status = 'ok'
                 for r in reports:
                     if r.outcome not in ('passed', 'skipped'):
-                        #it has only passed, skipped and failed (no error)
-                        status = 'fail'
+                        #It has only passed, skipped and failed (no error), so, let's consider error if not on call.
+                        if r.when == 'setup':
+                            if status == 'ok':
+                                status = 'error'
+                            
+                        elif r.when == 'teardown':
+                            if status == 'ok':
+                                status = 'error'
+                            
+                        else:
+                            #any error in the call (not in setup or teardown) is considered a regular failure.
+                            status = 'fail'
                         
                     if r.longrepr:
                         self._MockFileRepresentation()

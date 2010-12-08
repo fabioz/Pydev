@@ -114,7 +114,7 @@ if __name__ == '__main__':
             if configuration.tests:
                 #Tests passed (works together with the files_or_dirs)
                 files_or_dirs = []
-                for f in configuration.files_or_dirs:
+                for file in configuration.files_or_dirs:
                     for t in configuration.tests:
                         if test_framework == NOSE_FRAMEWORK:
                             files_or_dirs.append(file+':'+t)
