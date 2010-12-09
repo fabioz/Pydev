@@ -25,6 +25,7 @@ if __name__ == '__main__':
     import pydev_runfiles
     import pydev_runfiles_xml_rpc
     import pydevd_constants
+    from pydevd_file_utils import _NormFile
     
     DEBUG = 1
     if DEBUG:
@@ -80,7 +81,7 @@ if __name__ == '__main__':
         #The only thing actually handled here are the tests that we want to run, which we'll 
         #handle and pass as what the test framework expects.
 
-                
+        py_test_accept_filter = {}
         config_file_contents = configuration.config_file_contents
         if config_file_contents:
             config_file_contents = config_file_contents.strip()
@@ -99,32 +100,34 @@ if __name__ == '__main__':
                         files_to_tests[file] = [test]  
                         
             for file, tests in files_to_tests.items():
-                for test in tests:
-                    if test_framework == NOSE_FRAMEWORK:
+                if test_framework == NOSE_FRAMEWORK:
+                    for test in tests:
                         files_or_dirs.append(file+':'+test)
                         
-                    elif test_framework == PY_TEST_FRAMEWORK:
-                        files_or_dirs.append(file)
-                        files_or_dirs.append(test)
-                    
-                    else:
-                        raise AssertionError('Cannot handle test framework: %s at this point.' % (test_framework,))
+                elif test_framework == PY_TEST_FRAMEWORK:
+                    file = _NormFile(file)
+                    py_test_accept_filter[file] = tests
+                    files_or_dirs.append(file)
+                
+                else:
+                    raise AssertionError('Cannot handle test framework: %s at this point.' % (test_framework,))
                         
         else:
             if configuration.tests:
                 #Tests passed (works together with the files_or_dirs)
                 files_or_dirs = []
                 for file in configuration.files_or_dirs:
-                    for t in configuration.tests:
-                        if test_framework == NOSE_FRAMEWORK:
+                    if test_framework == NOSE_FRAMEWORK:
+                        for t in configuration.tests:
                             files_or_dirs.append(file+':'+t)
                             
-                        elif test_framework == PY_TEST_FRAMEWORK:
-                            files_or_dirs.append(file)
-                            files_or_dirs.append(t)
-                            
-                        else:
-                            raise AssertionError('Cannot handle test framework: %s at this point.' % (test_framework,))
+                    elif test_framework == PY_TEST_FRAMEWORK:
+                        file = _NormFile(file)
+                        py_test_accept_filter[file] = configuration.tests
+                        files_or_dirs.append(file)
+                        
+                    else:
+                        raise AssertionError('Cannot handle test framework: %s at this point.' % (test_framework,))
             else:
                 #Only files or dirs passed (let it do the test-loading based on those paths)
                 files_or_dirs = configuration.files_or_dirs
@@ -148,8 +151,12 @@ if __name__ == '__main__':
             if DEBUG:
                 print 'Final test framework args:', argv
                 
-            from pydev_runfiles_pytest import PYDEV_PYTEST_PLUGIN_SINGLETON
-            pytest.main(argv, plugins=[PYDEV_PYTEST_PLUGIN_SINGLETON])
+            from pydev_runfiles_pytest import PydevPlugin
+            pydev_plugin = PydevPlugin(py_test_accept_filter)
+            
+            pytest.main(argv, plugins=[pydev_plugin])
         
         else:
             raise AssertionError('Cannot handle test framework: %s at this point.' % (test_framework,))
+        
+        

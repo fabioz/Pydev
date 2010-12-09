@@ -382,7 +382,7 @@ public class PyUnitView extends ViewPartWithOrientation{
 
     @Override
     public void setFocus() {
-        
+        this.tree.setFocus();
     }
     
     @SuppressWarnings("unchecked")

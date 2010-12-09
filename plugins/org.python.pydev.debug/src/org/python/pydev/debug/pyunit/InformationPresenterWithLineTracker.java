@@ -82,7 +82,7 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
                 if (lineLength <= 0) {
                     return "";
                 }
-                return hoverInfo.substring(lineOffset, lineOffset + lineLength);
+                return hoverInfo.substring(lineOffset, lineOffset + lineLength + 1);
             }
         });
         lineTracker.splitInLinesAndAppendToLineTracker(hoverInfo);

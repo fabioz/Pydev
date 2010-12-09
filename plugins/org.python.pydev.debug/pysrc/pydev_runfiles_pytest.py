@@ -1,13 +1,36 @@
 import pydev_runfiles_xml_rpc
 import time
 from _pytest import runner
-import os
+from _pytest import unittest as pytest_unittest
 from py._code import code
+from pydevd_file_utils import _NormFile
+import os
 
-#===============================================================================
+
+#=======================================================================================================================
+# _CollectTestsFromUnittestCase
+#=======================================================================================================================
+class _CollectTestsFromUnittestCase:
+    
+    def __init__(self, found_methods_starting, unittest_case):
+        self.found_methods_starting = found_methods_starting
+        self.unittest_case = unittest_case
+
+    
+    def __call__(self):
+        for name in self.found_methods_starting:
+            yield pytest_unittest.TestCaseFunction(name, parent=self.unittest_case)
+            
+
+#=======================================================================================================================
 # PydevPlugin
-#===============================================================================
+#=======================================================================================================================
 class PydevPlugin:
+    
+    def __init__(self, py_test_accept_filter):
+        self.py_test_accept_filter = py_test_accept_filter
+        self._original_pytest_collect_makeitem = pytest_unittest.pytest_pycollect_makeitem
+        pytest_unittest.pytest_pycollect_makeitem = self.__pytest_pycollect_makeitem
     
     def reportCond(self, cond, filename, test, captured_output, error_contents, delta):
         '''
@@ -17,6 +40,42 @@ class PydevPlugin:
         '''
         time_str = '%.2f' % (delta,)
         pydev_runfiles_xml_rpc.NotifyTest(cond, captured_output, error_contents, filename, test, time_str)
+        
+        
+    def __pytest_pycollect_makeitem(self, collector, name, obj):
+        if not self.py_test_accept_filter:
+            return self._original_pytest_collect_makeitem(collector, name, obj)
+            
+        f = _NormFile(collector.fspath.strpath)
+        
+        if f not in self.py_test_accept_filter:
+            return
+        
+        tests = self.py_test_accept_filter[f]
+        found_methods_starting = []
+        for test in tests:
+            
+            if test == name:
+                #Direct match of the test (just go on with the default loading)
+                return self._original_pytest_collect_makeitem(collector, name, obj)
+
+            
+            if test.startswith(name+'.'):
+                found_methods_starting.append(test[len(name)+1:])
+        else:
+            if not found_methods_starting:
+                return
+            
+        #Ok, we found some method starting with the test name, let's gather those
+        #and load them.
+        unittest_case = self._original_pytest_collect_makeitem(collector, name, obj)
+        if unittest_case is None:
+            return
+
+        unittest_case.collect = _CollectTestsFromUnittestCase(
+            found_methods_starting, unittest_case)
+        return unittest_case
+        
         
 
     def _MockFileRepresentation(self):
@@ -36,16 +95,21 @@ class PydevPlugin:
 
 
     def _UninstallMockFileRepresentation(self):
-        code.ReprFileLocation.toterminal = code.ReprFileLocation._original_toterminal
+        code.ReprFileLocation.toterminal = code.ReprFileLocation._original_toterminal #@UndefinedVariable
 
 
     def pytest_runtestloop(self, session):
-        pydev_runfiles_xml_rpc.NotifyTestsCollected(len(session.session.items))
+        #This mock will make all file representations to be printed as Pydev expects, 
+        #so that hyperlinks are properly created in errors. Note that we don't unmock it!
+        self._MockFileRepresentation()
+        
+        #Based on the default run test loop: _pytest.session.pytest_runtestloop
+        #but getting the times we need, reporting the number of tests found and notifying as each
+        #test is run.
         
         try:
-            #Based on the default run test loop: _pytest.session.pytest_runtestloop
-            #but getting the times we need, reporting the number of tests found and notifying as each
-            #test is run.
+            pydev_runfiles_xml_rpc.NotifyTestsCollected(len(session.session.items))
+            
             if session.config.option.collectonly:
                 return True
             
@@ -80,22 +144,18 @@ class PydevPlugin:
                             status = 'fail'
                         
                     if r.longrepr:
-                        self._MockFileRepresentation()
-                        try:
-                            rep = r.longrepr
-                            reprcrash = rep.reprcrash
-                            error_contents += str(reprcrash)
+                        rep = r.longrepr
+                        reprcrash = rep.reprcrash
+                        error_contents += str(reprcrash)
+                        error_contents += '\n'
+                        error_contents += str(rep.reprtraceback)
+                        for name, content, sep in rep.sections:
+                            error_contents += sep * 40 
+                            error_contents += name 
+                            error_contents += sep * 40 
                             error_contents += '\n'
-                            error_contents += str(rep.reprtraceback)
-                            for name, content, sep in rep.sections:
-                                error_contents += sep * 40 
-                                error_contents += name 
-                                error_contents += sep * 40 
-                                error_contents += '\n'
-                                error_contents += content 
-                                error_contents += '\n'
-                        finally:
-                            self._UninstallMockFileRepresentation()
+                            error_contents += content 
+                            error_contents += '\n'
                 
                 self.reportCond(status, filename, test, captured_output, error_contents, delta)
                 
@@ -105,6 +165,3 @@ class PydevPlugin:
             pydev_runfiles_xml_rpc.NotifyTestRunFinished()
         return True
             
-
-        
-PYDEV_PYTEST_PLUGIN_SINGLETON = PydevPlugin()
