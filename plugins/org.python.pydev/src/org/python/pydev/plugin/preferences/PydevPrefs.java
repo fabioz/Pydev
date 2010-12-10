@@ -26,8 +26,8 @@ public class PydevPrefs {
     /**
      * @return the place where this plugin preferences are stored.
      */
-    public static Preferences getPreferences() {
-        return PydevPlugin.getDefault().getPluginPreferences();
+    public static IPreferenceStore getPreferences() {
+        return getPreferenceStore();
     }
 
     
@@ -59,5 +59,10 @@ public class PydevPrefs {
             stores.add(EditorsUI.getPreferenceStore());
         }
         return stores;
+    }
+
+
+    public static IPreferenceStore getPreferenceStore() {
+        return PydevPlugin.getDefault().getPreferenceStore();
     }
 }

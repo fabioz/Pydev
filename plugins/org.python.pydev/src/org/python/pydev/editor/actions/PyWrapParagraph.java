@@ -14,6 +14,10 @@ public class PyWrapParagraph extends PyAction {
      */
     public void run(IAction action) {
         try {
+        	if(!canModifyEditor()){
+        		return;
+        	}
+
         	PyEdit pyEdit = getPyEdit();
         	Collection<ActionInfo> offlineActionDescriptions = pyEdit.getOfflineActionDescriptions();
         	for (ActionInfo actionInfo : offlineActionDescriptions) {

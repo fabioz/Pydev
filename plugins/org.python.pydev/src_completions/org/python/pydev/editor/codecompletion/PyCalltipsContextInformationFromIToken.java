@@ -6,14 +6,9 @@ package org.python.pydev.editor.codecompletion;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public class PyCalltipsContextInformationFromIToken implements IPyCalltipsContextInformation{

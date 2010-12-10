@@ -3,7 +3,6 @@ package org.python.pydev.debug.console;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.ILaunch;
@@ -23,8 +22,6 @@ import org.eclipse.ui.internal.console.IOConsolePage;
 import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;

@@ -24,6 +24,9 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -32,6 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
@@ -546,6 +550,32 @@ public class AbstractWorkbenchTestCase extends TestCase{
                 workbenchWindow.getActivePage().hideView(ref);
             }
         }
+    }
+    
+    
+    
+    protected IAction executePyUnitViewAction(ViewPart view, Class<?> class1) {
+        IAction action = getPyUnitViewAction(view, class1);
+        action.run();
+        return action;
+    }
+
+    protected IAction getPyUnitViewAction(ViewPart view, Class<?> class1) {
+        IAction action = null;
+        IContributionItem[] items = view.getViewSite().getActionBars().getToolBarManager().getItems();
+        for (IContributionItem iContributionItem : items) {
+            if(iContributionItem instanceof ActionContributionItem){
+                ActionContributionItem item = (ActionContributionItem) iContributionItem;
+                IAction lAction = item.getAction();
+                if(class1.isInstance(lAction)){
+                    action = lAction;
+                }
+            }
+        }
+        if(action == null){
+            fail("Could not find action of class: "+class1);
+        }
+        return action;
     }
 
 }

@@ -479,5 +479,32 @@ public final class FastStringBuffer{
         this.count = i;
     }
 
+    public byte[] getBytes() {
+        return this.toString().getBytes();
+    }
+
+    public int countNewLines() {
+        int lines = 0;
+        
+        for(int i=0;i<count;i++){
+            char c = value[i];
+            switch(c){
+                case '\n':
+                    lines += 1;
+                    break;
+                    
+                case '\r':
+                    lines += 1;
+                    if(i < count-1){
+                        if(value[i+1] == '\n'){
+                            i++; //skip the \n after the \r
+                        }
+                    }
+                    break;
+            }
+        }
+        return lines;
+    }
+
     
 }

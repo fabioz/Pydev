@@ -47,7 +47,6 @@ public interface Constants {
     /** Attribute holding alternate location that is used to actually run the resource. */
     static final String ATTR_ALTERNATE_LOCATION = "org.python.pydev.debug.core" + ".ATTR_ALTERNATE_LOCATION";
     /** Attribute to control if a wrapper for test runner should be used. */
-    static final String ATTR_NO_UNITTEST_WRAPPER = "org.python.pydev.debug.core" + ".ATTR_NO_UNITTEST_WRAPPER";
     static final String ATTR_WORKING_DIRECTORY = "org.eclipse.ui.externaltools" + ".ATTR_WORKING_DIRECTORY";
     static final String ATTR_OTHER_WORKING_DIRECTORY = "org.eclipse.ui.externaltools" + ".ATTR_OTHER_WORKING_DIRECTORY";
     static final String ATTR_PROGRAM_ARGUMENTS = "org.eclipse.ui.externaltools" + ".ATTR_TOOL_ARGUMENTS";
@@ -57,6 +56,7 @@ public interface Constants {
     static final String ATTR_PROJECT = PLUGIN_ID + ".ATTR_PROJECT";
     static final String ATTR_RESOURCE_TYPE = PLUGIN_ID + ".ATTR_RESOURCE_TYPE";
     static final String ATTR_UNITTEST_TESTS = PLUGIN_ID + ".ATTR_UNITTEST_TESTS";
+    static final String ATTR_UNITTEST_CONFIGURATION_FILE = PLUGIN_ID + ".ATTR_UNITTEST_CONFIGURATION_FILE";
     static final String PYDEV_CONFIG_RUN = "PYDEV_CONFIG_RUN";
     
     

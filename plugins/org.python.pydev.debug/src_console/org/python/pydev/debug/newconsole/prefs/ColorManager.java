@@ -63,7 +63,11 @@ public class ColorManager {
      * @return a color to be used.
      */
     private Color getPreferenceColor(String type) {
-        IPreferenceStore preferenceStore = PydevDebugPlugin.getDefault().getPreferenceStore();
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        if(plugin == null){
+            return null;
+        }
+        IPreferenceStore preferenceStore = plugin.getPreferenceStore();
         return getColor(PreferenceConverter.getColor(preferenceStore, type));
     }
 
@@ -159,6 +163,30 @@ public class ColorManager {
     	}
     	Color color = getPreferenceColor(PydevConsoleConstants.CONSOLE_BACKGROUND_COLOR);
     	return color;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public TextAttribute getHyperlinkTextAttribute() {
+        List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+            TextAttribute textAttribute = iPydevPreferencesProvider.getHyperlinkTextAttribute();
+            if(textAttribute != null){
+                return textAttribute;
+            }
+        }
+        return null; //use default
+    }
+    
+    @SuppressWarnings("unchecked")
+    public TextAttribute getForegroundTextAttribute() {
+        List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+            TextAttribute textAttribute = iPydevPreferencesProvider.getCodeTextAttribute();
+            if(textAttribute != null){
+                return textAttribute;
+            }
+        }
+        return null; //use default
     }
 }
 

@@ -23,6 +23,10 @@ public class PyShiftLeft extends PyAction{
      */
     public void run(IAction action) {
         try {
+        	if(!canModifyEditor()){
+        		return;
+        	}
+
             PyEdit pyEdit = (PyEdit) getTextEditor();
             IIndentPrefs indentPrefs = pyEdit.getIndentPrefs();
             PySelection ps = new PySelection(pyEdit);

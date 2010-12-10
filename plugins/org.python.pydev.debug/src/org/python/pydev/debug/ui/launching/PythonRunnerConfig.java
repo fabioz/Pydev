@@ -6,7 +6,9 @@
 package org.python.pydev.debug.ui.launching;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +25,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
@@ -41,11 +44,12 @@ import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.ListenConnector;
+import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
-import org.python.pydev.pyunit.preferences.PyunitPrefsPage;
+import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
@@ -80,12 +84,11 @@ public class PythonRunnerConfig {
     public int acceptTimeout = 5000; // miliseconds
     public String[] envp = null;
 
-    private final boolean useUnittestWrapper;
-
     /** One of RUN_ enums */
     public final String run;
     private final ILaunchConfiguration configuration;
     private ListenConnector listenConnector;
+    private PyUnitServer pyUnitServer;
 
     public boolean isCoverage(){
         return this.run.equals(RUN_COVERAGE);
@@ -363,8 +366,6 @@ public class PythonRunnerConfig {
         this.run = run;
         isDebug = mode.equals(ILaunchManager.DEBUG_MODE);
         isInteractive = mode.equals("interactive");
-        useUnittestWrapper = !run.equals(RUN_UNITTEST) || 
-            !conf.getAttribute(Constants.ATTR_NO_UNITTEST_WRAPPER, false);
         
         resource = getLocation(conf, pythonNature);
         arguments = getArguments(conf, makeArgumentsVariableSubstitution);
@@ -553,11 +554,15 @@ public class PythonRunnerConfig {
     
     /**
      * Create a command line for launching.
+     * 
+     * @param actualRun if true it'll make the variable substitution and start the listen connector in the case
+     * of a debug session.
+     * 
      * @return command line ready to be exec'd
      * @throws CoreException 
      * @throws JDTNotAvailableException 
      */
-    public String[] getCommandLine(boolean makeVariableSubstitution) throws CoreException, JDTNotAvailableException {
+    public String[] getCommandLine(boolean actualRun) throws CoreException, JDTNotAvailableException {
         List<String> cmdArgs = new ArrayList<String>();
         
         if(isJython()){
@@ -591,7 +596,7 @@ public class PythonRunnerConfig {
                 //cmdArgs.add("-Dpython.security.respectJavaAccessibility=false"); 
                 
                 cmdArgs.add("org.python.util.jython");
-                addDebugArgs(cmdArgs, "jython");
+                addDebugArgs(cmdArgs, "jython", actualRun);
             }else{
                 cmdArgs.add("org.python.util.jython");
             }
@@ -608,7 +613,7 @@ public class PythonRunnerConfig {
                 addIronPythonDebugVmArgs(cmdArgs);
             }
             
-            addDebugArgs(cmdArgs, "python");
+            addDebugArgs(cmdArgs, "python", actualRun);
             
             if(isCoverage()){
                 cmdArgs.add(getCoverageScript());
@@ -622,14 +627,17 @@ public class PythonRunnerConfig {
             }
     
         }
-        addUnittestArgs(cmdArgs);
+        
+        if (isUnittest()) {
+            cmdArgs.add(getRunFilesScript());
+        }
         
         for(IPath p:resource){
             cmdArgs.add(p.toOSString());
         }
         
         String runArguments[] = null;
-        if (makeVariableSubstitution && arguments != null) {
+        if (actualRun && arguments != null) {
             String expanded = getStringSubstitution(PythonNature.getPythonNature(project)).performStringSubstitution(arguments);
             runArguments = parseStringIntoList(expanded);
         }
@@ -637,6 +645,9 @@ public class PythonRunnerConfig {
         for (int i=0; runArguments != null && i<runArguments.length; i++){
             cmdArgs.add(runArguments[i]);
         }
+        
+        //Last thing (first the files and last the special parameters the user passed -- i.e.: nose parameters) 
+        addUnittestArgs(cmdArgs, actualRun);
         
         String[] retVal = new String[cmdArgs.size()];
         cmdArgs.toArray(retVal);
@@ -654,23 +665,61 @@ public class PythonRunnerConfig {
 
     /**
      * Adds a set of arguments used to wrap executed file with unittest runner.
+     * @param actualRun in an actual run we'll start the xml-rpc server.
      */
-    private void addUnittestArgs(List<String> cmdArgs) throws CoreException {
-        if (isUnittest() && useUnittestWrapper) {
-            cmdArgs.add(getRunFilesScript());
-            cmdArgs.add("--verbosity");
-            cmdArgs.add(PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_VERBOSITY));
+    private void addUnittestArgs(List<String> cmdArgs, boolean actualRun) throws CoreException {
+        if (isUnittest()) {
 
-            String filter = PydevPrefs.getPreferences().getString(PyunitPrefsPage.PYUNIT_TEST_FILTER);
-            if (filter.length() > 0) {
-                cmdArgs.add("--filter");
-                cmdArgs.add(filter);
+            //The tests are either written to a configuration file or passed as a parameter. 
+            String configurationFile = this.configuration.getAttribute(Constants.ATTR_UNITTEST_CONFIGURATION_FILE, "");
+            if(configurationFile.length() > 0){
+                cmdArgs.add("--config_file");
+                if(actualRun){
+                    //We should write the contents to a temporary file (because it may be too long, so, always write
+                    //to a file and read from it later on).
+                    File tempFile = PydevPlugin.getDefault().getTempFile("custom_pydev_unittest_launch_");
+                    try {
+                        OutputStream fileOutputStream = new FileOutputStream(tempFile);
+                        try {
+                            try {
+                                fileOutputStream.write(configurationFile.getBytes());
+                            } catch (IOException e) {
+                                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error writing to: "+tempFile, e));
+                            }
+                        } finally {
+                            fileOutputStream.close();
+                        }
+                    } catch (Exception e) {
+                        if(e instanceof CoreException){
+                            throw (CoreException)e;
+                        }
+                        throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Error writing to: "+tempFile, e));
+                    }
+                    cmdArgs.add(tempFile.toString());
+                }else{
+                    cmdArgs.add(configurationFile);
+                }
+            }else{
+                String tests = this.configuration.getAttribute(Constants.ATTR_UNITTEST_TESTS, "");
+                if(tests.length() > 0){
+                    cmdArgs.add("--tests");
+                    cmdArgs.add(tests);
+                }
             }
             
-            String tests = this.configuration.getAttribute(Constants.ATTR_UNITTEST_TESTS, "");
-            if(tests.length() > 0){
-                cmdArgs.add("--tests");
-                cmdArgs.add(tests);
+            if(PyUnitPrefsPage2.getUsePyUnitView()){
+                //If we want to use the PyUnitView, we need to get the port used so that the python side can connect.
+                cmdArgs.add("--port");
+                if(actualRun){
+                    cmdArgs.add(String.valueOf(getPyUnitServer().getPort()));
+                }else{
+                    cmdArgs.add("0");
+                }
+            }
+            
+            //Last thing: nose parameters or parameters the user configured.
+            for(String s:parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters())){
+                cmdArgs.add(s);
             }
         }
     }
@@ -678,7 +727,7 @@ public class PythonRunnerConfig {
     /**
      * Adds a set of arguments needed for debugging.
      */
-    private void addDebugArgs(List<String> cmdArgs, String vmType) throws CoreException {
+    private void addDebugArgs(List<String> cmdArgs, String vmType, boolean actualRun) throws CoreException {
         if (isDebug) {
             cmdArgs.add(getDebugScript());
             cmdArgs.add("--vm_type");
@@ -686,10 +735,14 @@ public class PythonRunnerConfig {
             cmdArgs.add("--client");
             cmdArgs.add("localhost");
             cmdArgs.add("--port");
-            try {
-                cmdArgs.add(Integer.toString(getListenConnector().getLocalPort()));
-            } catch (IOException e) {
-                throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Unable to get port", e));
+            if(actualRun){
+                try {
+                    cmdArgs.add(Integer.toString(getDebuggerListenConnector().getLocalPort()));
+                } catch (IOException e) {
+                    throw new CoreException(PydevPlugin.makeStatus(IStatus.ERROR, "Unable to get port", e));
+                }
+            }else{
+                cmdArgs.add("0");
             }
             cmdArgs.add("--file");
         }
@@ -746,12 +799,29 @@ public class PythonRunnerConfig {
         }
         return PydevPlugin.getPythonInterpreterManager();
     }
+    
+    
+    public PyUnitServer getPyUnitServer() {
+        return this.pyUnitServer;
+    }
 
-    public synchronized ListenConnector getListenConnector() throws IOException {
+    public synchronized ListenConnector getDebuggerListenConnector() throws IOException {
         if(this.listenConnector == null){
             this.listenConnector = new ListenConnector(this.acceptTimeout);
         }
         return this.listenConnector;
+    }
+    
+    public ILaunchConfiguration getLaunchConfiguration(){
+        return this.configuration;
+    }
+
+    public PyUnitServer createPyUnitServer(PythonRunnerConfig config, ILaunch launch) throws IOException{
+        if(this.pyUnitServer != null){
+            throw new AssertionError("PyUnitServer already created!");
+        }
+        this.pyUnitServer = new PyUnitServer(config, launch);
+        return this.pyUnitServer;
     }
 
 }

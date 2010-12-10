@@ -10,7 +10,6 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.preferences.IPydevPreferencesProvider;
@@ -117,6 +116,10 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevP
 
 	public TextAttribute getConsolePromptTextAttribute() {
 		return getFromTheme("console.prompt.py");
+	}
+	
+	public TextAttribute getHyperlinkTextAttribute() {
+	    return getFromTheme("hyperlink.py");
 	}
 
 	public RGB getConsoleBackgroundRGB() {

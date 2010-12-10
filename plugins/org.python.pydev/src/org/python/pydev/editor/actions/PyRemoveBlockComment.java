@@ -35,6 +35,10 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
      */
     public void run(IAction action) {
         try {
+        	if(!canModifyEditor()){
+        		return;
+        	}
+
             // Select from text editor
             PySelection ps = new PySelection(getTextEditor());
 

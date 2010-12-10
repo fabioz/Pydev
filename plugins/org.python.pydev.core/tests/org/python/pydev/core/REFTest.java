@@ -1,5 +1,8 @@
 package org.python.pydev.core;
 
+import java.io.File;
+import java.util.HashSet;
+
 import junit.framework.TestCase;
 
 public class REFTest extends TestCase {
@@ -35,5 +38,38 @@ public class REFTest extends TestCase {
                     Math.abs(expected[i-1] - REF.log(i, 1.5)) < 0.01);
         }
 
+    }
+    
+    public void testGetTempFile() throws Exception {
+        REF.clearTempFilesAt(new File("."), "ref_test_case");
+        File parentDir = new File(".");
+        try {
+            assertEquals("ref_test_case0", writeAt(parentDir).getName());
+            assertEquals("ref_test_case1", writeAt(parentDir).getName());
+            assertEquals("ref_test_case2", writeAt(parentDir).getName());
+        } finally{
+            try {
+                HashSet<String> expected = new HashSet<String>();
+                expected.add("ref_test_case0");
+                expected.add("ref_test_case1");
+                expected.add("ref_test_case2");
+                assertEquals(expected, REF.getFilesStartingWith(parentDir, "ref_test_case"));
+                
+                assertEquals("ref_test_case3", REF.getTempFileAt(parentDir, "ref_test_case").getName());
+                assertEquals("ref_test_case4", REF.getTempFileAt(parentDir, "ref_test_case").getName());
+                REF.clearTempFilesAt(parentDir, "ref_test_case");
+                assertEquals("ref_test_case0", REF.getTempFileAt(parentDir, "ref_test_case").getName());
+                
+            } finally {
+                REF.clearTempFilesAt(parentDir, "ref_test_case");
+            }
+        }
+        
+    }
+
+    public File writeAt(File parentDir) {
+        File tempFileAt = REF.getTempFileAt(parentDir, "ref_test_case");
+        REF.writeStrToFile("foo", tempFileAt);
+        return tempFileAt;
     }
 }

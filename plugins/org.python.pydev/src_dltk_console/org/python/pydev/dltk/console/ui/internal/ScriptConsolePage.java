@@ -10,31 +10,22 @@
 package org.python.pydev.dltk.console.ui.internal;
 
 import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsolePage;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.console.actions.TextViewerAction;
-import org.eclipse.ui.internal.console.ConsoleMessages;
-import org.eclipse.ui.internal.console.IConsoleHelpContextIds;
 import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.internal.actions.CloseScriptConsoleAction;
 import org.python.pydev.dltk.console.ui.internal.actions.SaveConsoleSessionAction;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.ui.UIConstants;
 
 public class ScriptConsolePage extends TextConsolePage implements IScriptConsoleContentHandler {
 

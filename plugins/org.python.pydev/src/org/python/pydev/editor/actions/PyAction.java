@@ -19,6 +19,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.ui.texteditor.ITextEditorExtension;
+import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
@@ -107,6 +109,28 @@ public abstract class PyAction extends Action implements IEditorActionDelegate {
         }
     }
     
+    
+    /**
+     * @return true if the contents of the editor may be changed. Clients MUST call this before actually
+     * modifying the editor.
+     */
+	protected boolean canModifyEditor() {
+		ITextEditor editor = getTextEditor();
+		
+		if (editor instanceof ITextEditorExtension2) {
+			return ((ITextEditorExtension2) editor).isEditorInputModifiable();
+			
+		} else if (editor instanceof ITextEditorExtension) {
+			return !((ITextEditorExtension) editor).isEditorInputReadOnly();
+			
+		} else if (editor != null) {
+			return editor.isEditable();
+			
+		} 
+
+		//If we don't have the editor, let's just say it's ok (working on document).
+		return true;
+	}
 
     /**
      * Helper for setting caret

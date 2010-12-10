@@ -21,6 +21,10 @@ public class PyRename extends PyRefactorAction {
      *     renameByCoordinates(filename, line, column, newname)
      */
     protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
+    	if(!canModifyEditor()){
+    		return "";
+    	}
+
         String res = "";
         res = AbstractPyRefactoring.getPyRefactoring().rename(getRefactoringRequest(monitor));
         return res;

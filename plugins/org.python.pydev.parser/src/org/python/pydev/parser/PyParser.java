@@ -159,7 +159,7 @@ public class PyParser implements IPyParser {
     /**
      * Should only be called for testing. Does not register as a thread.
      */
-    PyParser(IGrammarVersionProvider grammarVersionProvider) {
+    public PyParser(IGrammarVersionProvider grammarVersionProvider) {
         if(grammarVersionProvider == null){
             grammarVersionProvider = new IGrammarVersionProvider(){
                 public int getGrammarVersion() {
