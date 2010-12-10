@@ -59,8 +59,8 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
                  "Test Runner", 
                  new String[][] {
                      {"Pydev test runner", Integer.toString(TEST_RUNNER_PYDEV)},
-                     {"Py.test runner", Integer.toString(TEST_RUNNER_PY_TEST)},
                      {"Nose test runner", Integer.toString(TEST_RUNNER_NOSE)},
+                     {"Py.test runner", Integer.toString(TEST_RUNNER_PY_TEST)},
                  },
                  p
          );
