@@ -1,0 +1,170 @@
+from pydevd_constants import *
+from Queue import Queue
+import threading
+from pydev_imports import xmlrpclib
+import traceback
+import time
+
+
+
+#=======================================================================================================================
+# ParallelNotification
+#=======================================================================================================================
+class ParallelNotification(object):
+    
+    def __init__(self, method, args, kwargs):
+        self.method = method
+        self.args = args
+        self.kwargs = kwargs
+
+    def ToTuple(self):
+        return self.method, self.args, self.kwargs
+    
+        
+#=======================================================================================================================
+# KillServer
+#=======================================================================================================================
+class KillServer(object):
+    pass
+
+
+
+#=======================================================================================================================
+# ServerComm
+#=======================================================================================================================
+class ServerComm(threading.Thread):
+    
+
+    
+    def __init__(self, job_id, server):
+        self.notifications_queue = Queue()
+        threading.Thread.__init__(self)
+        self.setDaemon(False) #Wait for all the notifications to be passed before exiting!
+        assert job_id is not None
+        assert port is not None
+        self.job_id = job_id
+        
+        from pydev_imports import xmlrpclib
+        self.finished = False
+        self.server = server
+        
+    
+    def run(self):
+        while True:
+            kill_found = False
+            commands = []
+            command = self.notifications_queue.get(block=True)
+            if isinstance(command, KillServer):
+                kill_found = True
+            else:
+                assert isinstance(command, ParallelNotification)
+                commands.append(command.ToTuple())
+                
+            try:
+                while True:
+                    command = self.notifications_queue.get(block=False) #No block to create a batch.
+                    if isinstance(command, KillServer):
+                        kill_found = True
+                    else:
+                        assert isinstance(command, ParallelNotification)
+                        commands.append(command.ToTuple())
+            except:
+                pass #That's OK, we're getting it until it becomes empty so that we notify multiple at once.
+
+
+            if commands:
+                try:
+                    #Batch notification.
+                    self.server.notifyCommands(self.job_id, commands)
+                except:
+                    traceback.print_exc()
+            
+            if kill_found:
+                self.finished = True
+                return
+
+
+
+#=======================================================================================================================
+# ServerWithJob
+#=======================================================================================================================
+class ServerFacade(object):
+    
+    
+    def __init__(self, notifications_queue):
+        self.notifications_queue = notifications_queue
+    
+    
+    def notifyTestsCollected(self, *args, **kwargs):
+        pass #This notification won't be passed
+    
+    
+    def notifyTestRunFinished(self, *args, **kwargs):
+        pass #This notification won't be passed
+        
+        
+    def notifyStartTest(self, *args, **kwargs):
+        self.notifications_queue.put_nowait(ParallelNotification('notifyStartTest', args, kwargs))
+        
+        
+    def notifyTest(self, *args, **kwargs):
+        self.notifications_queue.put_nowait(ParallelNotification('notifyTest', args, kwargs))
+        
+
+
+#=======================================================================================================================
+# run_client
+#=======================================================================================================================
+def run_client(job_id, port, verbosity):
+    job_id = int(job_id)
+    
+    import pydev_localhost
+    server = xmlrpclib.Server('http://%s:%s' % (pydev_localhost.get_localhost(), port))
+
+    
+    server_comm = ServerComm(job_id, server)
+    server_comm.start()
+    
+    try:
+        server_facade = ServerFacade(server_comm.notifications_queue)
+        import pydev_runfiles
+        import pydev_runfiles_xml_rpc
+        pydev_runfiles_xml_rpc.SetServer(server_facade)
+        
+        tests_to_run = [1]
+        while tests_to_run:
+            #Investigate: is it dangerous to use the same xmlrpclib server from different threads?
+            #It seems it should be, as it creates a new connection for each request...
+            tests_to_run = server.GetTestsToRun(job_id)
+            
+            if not tests_to_run:
+                break
+            
+            files_to_tests = {}
+            for test in tests_to_run:
+                filename_and_test = test.split('|')
+                if len(filename_and_test) == 2:
+                    files_to_tests.setdefault(filename_and_test[0], []).append(filename_and_test[1])
+    
+            configuration = pydev_runfiles.Configuration('', verbosity, None, None, None, files_to_tests, 1, None)
+            test_runner = pydev_runfiles.PydevTestRunner(configuration)
+            sys.stdout.flush()
+            test_runner.run_tests()
+        
+    except:
+        traceback.print_exc()
+    server_comm.notifications_queue.put_nowait(KillServer())
+    
+
+
+#=======================================================================================================================
+# main
+#=======================================================================================================================
+if __name__ == '__main__':
+    job_id, port, verbosity = sys.argv[1:]
+    job_id = int(job_id)
+    port = int(port)
+    verbosity = int(verbosity)
+    run_client(job_id, port, verbosity)
+    
+    

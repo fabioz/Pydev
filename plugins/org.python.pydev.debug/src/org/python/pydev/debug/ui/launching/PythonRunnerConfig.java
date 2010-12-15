@@ -39,6 +39,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.net.LocalHost;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
@@ -733,7 +734,7 @@ public class PythonRunnerConfig {
             cmdArgs.add("--vm_type");
             cmdArgs.add(vmType);
             cmdArgs.add("--client");
-            cmdArgs.add("localhost");
+            cmdArgs.add(LocalHost.getLocalHost());
             cmdArgs.add("--port");
             if(actualRun){
                 try {

@@ -999,10 +999,10 @@ def SetTraceForParents(frame, dispatch_func):
         frame = frame.f_back
     del frame
 
-def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=True):
+def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=True):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
     
-    @param host: the user may specify another host, if the debug server is not in the same machine
+    @param host: the user may specify another host, if the debug server is not in the same machine (default is the local host)
     @param stdoutToServer: when this is true, the stdout is passed to the debug server
     @param stderrToServer: when this is true, the stderr is passed to the debug server
         so that they are printed in its console and not in this process console.
@@ -1011,6 +1011,9 @@ def settrace(host='localhost', stdoutToServer=False, stderrToServer=False, port=
     @param suspend: whether a breakpoint should be emulated as soon as this function is called. 
     @param trace_only_current_thread: determines if only the current thread will be traced or all future threads will also have the tracing enabled.
     '''
+    if host is None:
+        import pydev_localhost
+        host = pydev_localhost.get_localhost()
     
     global connected
     global bufferStdOutToServer

@@ -309,7 +309,7 @@ class InteractiveInterpreter:
             self.showtraceback()
         else:
             if softspace(sys.stdout, 0):
-                print
+                sys.stdout.write('\n')
 
     def showsyntaxerror(self, filename=None):
         """Display the syntax error that just occurred.

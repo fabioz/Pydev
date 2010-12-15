@@ -39,7 +39,7 @@ class PydevPlugin:
         @param cond: fail, error, ok
         '''
         time_str = '%.2f' % (delta,)
-        pydev_runfiles_xml_rpc.NotifyTest(cond, captured_output, error_contents, filename, test, time_str)
+        pydev_runfiles_xml_rpc.notifyTest(cond, captured_output, error_contents, filename, test, time_str)
         
         
     def __pytest_pycollect_makeitem(self, collector, name, obj):
@@ -108,13 +108,18 @@ class PydevPlugin:
         #test is run.
         
         try:
-            pydev_runfiles_xml_rpc.NotifyTestsCollected(len(session.session.items))
+            pydev_runfiles_xml_rpc.notifyTestsCollected(len(session.session.items))
             
             if session.config.option.collectonly:
                 return True
             
             for item in session.session.items:
+                
+                filename = item.fspath.strpath
+                test = item.location[2]
                 start = time.time()
+                
+                pydev_runfiles_xml_rpc.notifyStartTest(filename, test)
                 
                 #Don't use this hook because we need the actual reports.
                 #item.config.hook.pytest_runtest_protocol(item=item)
@@ -124,8 +129,6 @@ class PydevPlugin:
                 captured_output = ''
                 error_contents = ''
                 
-                filename = item.fspath.strpath
-                test = item.location[2]
                 
                 status = 'ok'
                 for r in reports:
@@ -162,6 +165,6 @@ class PydevPlugin:
                 if session.shouldstop:
                     raise session.Interrupted(session.shouldstop)
         finally:
-            pydev_runfiles_xml_rpc.NotifyTestRunFinished()
+            pydev_runfiles_xml_rpc.notifyTestRunFinished()
         return True
             

@@ -14,13 +14,7 @@ except NameError: # version < 2.3 -- didn't have the True/False builtins
     setattr(__builtin__, 'True', 1) #Python 3.0 does not accept __builtin__.True = 1 in its syntax
     setattr(__builtin__, 'False', 0)
 
-try:
-    try:
-        import xmlrpclib
-    except ImportError:
-        import xmlrpc.client as xmlrpclib
-except ImportError:
-    import _pydev_xmlrpclib as xmlrpclib
+from pydev_imports import xmlrpclib
 
 #=======================================================================================================================
 # StdIn
@@ -324,5 +318,6 @@ def StartServer(host, port, client_port):
 #=======================================================================================================================
 if __name__ == '__main__':
     port, client_port = sys.argv[1:3]
-    StartServer('localhost', int(port), int(client_port))
+    import pydev_localhost
+    StartServer(pydev_localhost.get_localhost(), int(port), int(client_port))
     

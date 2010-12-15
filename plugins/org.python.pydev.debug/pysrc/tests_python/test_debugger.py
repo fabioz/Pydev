@@ -611,13 +611,15 @@ class Test(unittest.TestCase):
         writerThread = writerThreadClass()
         writerThread.start()
         
+        import pydev_localhost
+        localhost = pydev_localhost.get_localhost()
         if run_as_python:
             args = [
                 'python',
                 PYDEVD_FILE,
                 '--DEBUG_RECORD_SOCKET_READS',
                 '--client',
-                'localhost',
+                localhost,
                 '--port',
                 str(port),
                 '--file',
@@ -634,7 +636,7 @@ class Test(unittest.TestCase):
                 PYDEVD_FILE,
                 '--DEBUG_RECORD_SOCKET_READS',
                 '--client',
-                'localhost',
+                localhost,
                 '--port',
                 str(port),
                 '--file',

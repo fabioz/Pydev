@@ -3,19 +3,8 @@ import pydev_runfiles_xml_rpc
 import time
 import pydevd_io
 import traceback
+from pydevd_constants import * #@UnusedWildImport
 
-try:
-    enumerate
-except NameError:
-    #Jython 2.1 does not have it
-    def enumerate(lst):
-        ret = []
-        i = 0
-        for a in lst:
-            ret.append((i, a))
-            i += 1
-        return ret
-    
     
 #=======================================================================================================================
 # PydevTextTestRunner
@@ -40,6 +29,16 @@ class PydevTestResult(_PythonTextTestResult):
         self.start_time = time.time()
         self._current_errors_stack = []
         self._current_failures_stack = []
+        
+        try:
+            test_name = test.__class__.__name__+"."+test._testMethodName
+        except AttributeError:
+            #Support for jython 2.1 (__testMethodName is pseudo-private in the test case)
+            test_name = test.__class__.__name__+"."+test._TestCase__testMethodName
+            
+        pydev_runfiles_xml_rpc.notifyStartTest(
+            test.__pydev_pyfile__, test_name)
+
 
 
     def stopTest(self, test):
@@ -60,16 +59,12 @@ class PydevTestResult(_PythonTextTestResult):
         
         diff_time = '%.2f' % (end_time - self.start_time)
         if not self._current_errors_stack and not self._current_failures_stack:
-            pydev_runfiles_xml_rpc.NotifyTest(
+            pydev_runfiles_xml_rpc.notifyTest(
                 'ok', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
         else:
             error_contents = []
             for test, s in self._current_errors_stack+self._current_failures_stack:
                 if type(s) == type((1,)): #If it's a tuple (for jython 2.1)
-                    try:
-                        from StringIO import StringIO
-                    except:
-                        from io import StringIO
                     sio = StringIO()
                     traceback.print_exception(s[0], s[1], s[2], file=sio)
                     s = sio.getvalue()
@@ -79,15 +74,15 @@ class PydevTestResult(_PythonTextTestResult):
             error_contents = sep.join(error_contents)
             
             if self._current_errors_stack and not self._current_failures_stack:
-                pydev_runfiles_xml_rpc.NotifyTest(
+                pydev_runfiles_xml_rpc.notifyTest(
                     'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
                 
             elif self._current_failures_stack and not self._current_errors_stack:
-                pydev_runfiles_xml_rpc.NotifyTest(
+                pydev_runfiles_xml_rpc.notifyTest(
                     'fail', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
             
             else: #Ok, we got both, errors and failures. Let's mark it as an error in the end.
-                pydev_runfiles_xml_rpc.NotifyTest(
+                pydev_runfiles_xml_rpc.notifyTest(
                     'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
                 
 

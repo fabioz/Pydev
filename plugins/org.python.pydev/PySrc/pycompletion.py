@@ -35,7 +35,7 @@ def GetImports(module_name):
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-  mod_name = sys.argv[1]
+    mod_name = sys.argv[1]
 
-  print GetImports(mod_name)
+    print(GetImports(mod_name))
            

@@ -1,7 +1,3 @@
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 import threading
 import unittest
 import sys
@@ -11,23 +7,8 @@ sys.argv[0] = os.path.dirname(sys.argv[0])
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
 import pydevconsole
+from pydev_imports import xmlrpclib, SimpleXMLRPCServer
 
-try:
-    try:
-        from SimpleXMLRPCServer import SimpleXMLRPCServer
-    except ImportError:
-        from xmlrpc.server import SimpleXMLRPCServer
-except ImportError:
-    from _pydev_SimpleXMLRPCServer import SimpleXMLRPCServer
-    
-try:
-    try:
-        import xmlrpclib
-    except ImportError:
-        import xmlrpc.client as xmlrpclib
-except ImportError:
-    import _pydev_xmlrpclib as xmlrpclib
-    
 try:
     raw_input
     raw_input_name = 'raw_input'
@@ -55,7 +36,8 @@ class Test(unittest.TestCase):
         import time
         time.sleep(.3) #let's give it some time to start the threads
         
-        interpreter = pydevconsole.InterpreterInterface('localhost', client_port)
+        import pydev_localhost
+        interpreter = pydevconsole.InterpreterInterface(pydev_localhost.get_localhost(), client_port)
         interpreter.addExec('class Foo:')
         interpreter.addExec('   CONSTANT=1')
         interpreter.addExec('')
@@ -126,7 +108,8 @@ class Test(unittest.TestCase):
                 
                 handle_request_input = HandleRequestInput()
                 
-                client_server = SimpleXMLRPCServer(('localhost', self.client_port), logRequests=False)
+                import pydev_localhost
+                client_server = SimpleXMLRPCServer((pydev_localhost.get_localhost(), self.client_port), logRequests=False)
                 client_server.register_function(handle_request_input.RequestInput)
                 client_server.serve_forever()
                 
@@ -146,7 +129,8 @@ class Test(unittest.TestCase):
                 self.server_port = server_port
                 
             def run(self):
-                pydevconsole.StartServer('localhost', self.server_port, self.client_port)
+                import pydev_localhost
+                pydevconsole.StartServer(pydev_localhost.get_localhost(), self.server_port, self.client_port)
         server_thread = ServerThread(client_port, server_port)
         server_thread.setDaemon(True)
         server_thread.start()
@@ -156,7 +140,8 @@ class Test(unittest.TestCase):
         import time
         time.sleep(.3) #let's give it some time to start the threads
         
-        server = xmlrpclib.Server('http://localhost:%s' % server_port)
+        import pydev_localhost
+        server = xmlrpclib.Server('http://%s:%s' % (pydev_localhost.get_localhost(), server_port))
         server.addExec('class Foo:')
         server.addExec('    pass')
         server.addExec('')

@@ -32,11 +32,18 @@ class PydevPlugin(Plugin):
         except:
             time_str = '?'
             
-        pydev_runfiles_xml_rpc.NotifyTest(cond, captured_output, error_contents, address[0], address[1], time_str)
+        pydev_runfiles_xml_rpc.notifyTest(cond, captured_output, error_contents, address[0], address[1], time_str)
         
         
     def startTest(self, test):
         test._pydev_start_time = time.time()
+        if hasattr(test, 'address'):
+            address = test.address()
+            file, test = address[0], address[2]
+        else:
+            #multiprocess
+            file, test = test
+        pydev_runfiles_xml_rpc.notifyStartTest(file, test)
 
     
     def getIoFromError(self, err):

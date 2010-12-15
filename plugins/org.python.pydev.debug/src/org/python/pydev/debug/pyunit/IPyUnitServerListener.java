@@ -10,5 +10,7 @@ public interface IPyUnitServerListener {
 
     void notifyFinished();
 
+    void notifyStartTest(String location, String test);
+
 
 }

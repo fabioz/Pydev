@@ -84,6 +84,31 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
         updateJob.schedule(TIMEOUT);
     }
     
+    
+    public void notifyStartTest(
+            final String location,
+            final String test 
+    ) {
+        synchronized (notifications) {
+            notifications.add(new ICallback0<Object>() {
+                
+                public Object call() {
+                    PyUnitTestStarted result = new PyUnitTestStarted(
+                            testRun, location, test);
+                    testRun.addStartTest(result);
+                    synchronized (lockView) {
+                        if(view != null){
+                            view.notifyTestStarted(result);
+                        }
+                    }
+                    return null;
+                }
+            });
+        }
+        updateJob.schedule(TIMEOUT);
+    }
+    
+    
     public void notifyFinished() {
         synchronized (notifications) {
             if(!finishedNotified){

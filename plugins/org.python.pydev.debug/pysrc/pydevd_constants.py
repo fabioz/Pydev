@@ -61,6 +61,39 @@ except:
         DictContains = dict.__contains__
     except:
         DictContains = dict.has_key
+        
+        
+try:
+    xrange
+except:
+    #Python 3k does not have it
+    xrange = range
+        
+try:
+    object
+except NameError:
+    class object:
+        pass
+
+try:
+    enumerate
+except:
+    def enumerate(lst):
+        ret = []
+        i=0
+        for element in lst:
+            ret.append((i, element))
+            i+=1
+        return ret
+
+#=======================================================================================================================
+# StringIO
+#=======================================================================================================================
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
+
 
 #=======================================================================================================================
 # NextId

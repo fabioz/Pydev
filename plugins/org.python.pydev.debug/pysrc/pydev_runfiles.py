@@ -1,205 +1,36 @@
 import fnmatch
 import os.path
 import re
-import sys
 import unittest
 import pydev_runfiles_unittest
-
-
-
-
-try:
-    __setFalse = False
-except:
-    import __builtin__
-    setattr(__builtin__, 'True', 1)
-    setattr(__builtin__, 'False', 0)
-
-
+from pydevd_constants import * #@UnusedWildImport
 
 
 #=======================================================================================================================
-# Jython?
+# Configuration
 #=======================================================================================================================
-try:
-    import org.python.core.PyDictionary #@UnresolvedImport @UnusedImport -- just to check if it could be valid
-    def DictContains(d, key):
-        return d.has_key(key)
-except:
-    try:
-        #Py3k does not have has_key anymore, and older versions don't have __contains__
-        DictContains = dict.__contains__
-    except:
-        DictContains = dict.has_key
-
-try:
-    xrange
-except:
-    #Python 3k does not have it
-    xrange = range
-
-try:
-    enumerate
-except:
-    def enumerate(lst):
-        ret = []
-        i=0
-        for element in lst:
-            ret.append((i, element))
-            i+=1
-        return ret
-    
-
-
-#=======================================================================================================================
-# getopt code copied since gnu_getopt is not available on jython 2.1
-#=======================================================================================================================
-class GetoptError(Exception):
-    opt = ''
-    msg = ''
-    def __init__(self, msg, opt=''):
-        self.msg = msg
-        self.opt = opt
-        Exception.__init__(self, msg, opt)
-
-    def __str__(self):
-        return self.msg
-
-
-def gnu_getopt(args, shortopts, longopts=[]):
-    """getopt(args, options[, long_options]) -> opts, args
-
-    This function works like getopt(), except that GNU style scanning
-    mode is used by default. This means that option and non-option
-    arguments may be intermixed. The getopt() function stops
-    processing options as soon as a non-option argument is
-    encountered.
-
-    If the first character of the option string is `+', or if the
-    environment variable POSIXLY_CORRECT is set, then option
-    processing stops as soon as a non-option argument is encountered.
-    """
-
-    opts = []
-    prog_args = []
-    if isinstance(longopts, ''.__class__):
-        longopts = [longopts]
-    else:
-        longopts = list(longopts)
-
-    # Allow options after non-option arguments?
-    if shortopts.startswith('+'):
-        shortopts = shortopts[1:]
-        all_options_first = True
-    elif os.environ.get("POSIXLY_CORRECT"):
-        all_options_first = True
-    else:
-        all_options_first = False
-
-    while args:
-        if args[0] == '--':
-            prog_args += args[1:]
-            break
-
-        if args[0][:2] == '--':
-            opts, args = do_longs(opts, args[0][2:], longopts, args[1:])
-        elif args[0][:1] == '-':
-            opts, args = do_shorts(opts, args[0][1:], shortopts, args[1:])
-        else:
-            if all_options_first:
-                prog_args += args
-                break
-            else:
-                prog_args.append(args[0])
-                args = args[1:]
-
-    return opts, prog_args
-
-def do_longs(opts, opt, longopts, args):
-    try:
-        i = opt.index('=')
-    except ValueError:
-        optarg = None
-    else:
-        opt, optarg = opt[:i], opt[i + 1:]
-
-    has_arg, opt = long_has_args(opt, longopts)
-    if has_arg:
-        if optarg is None:
-            if not args:
-                raise GetoptError('option --%s requires argument' % opt, opt)
-            optarg, args = args[0], args[1:]
-    elif optarg:
-        raise GetoptError('option --%s must not have an argument' % opt, opt)
-    opts.append(('--' + opt, optarg or ''))
-    return opts, args
-
-# Return:
-#   has_arg?
-#   full option name
-def long_has_args(opt, longopts):
-    possibilities = [o for o in longopts if o.startswith(opt)]
-    if not possibilities:
-        raise GetoptError('option --%s not recognized' % opt, opt)
-    # Is there an exact match?
-    if opt in possibilities:
-        return False, opt
-    elif opt + '=' in possibilities:
-        return True, opt
-    # No exact match, so better be unique.
-    if len(possibilities) > 1:
-        # XXX since possibilities contains all valid continuations, might be
-        # nice to work them into the error msg
-        raise GetoptError('option --%s not a unique prefix' % opt, opt)
-    assert len(possibilities) == 1
-    unique_match = possibilities[0]
-    has_arg = unique_match.endswith('=')
-    if has_arg:
-        unique_match = unique_match[:-1]
-    return has_arg, unique_match
-
-def do_shorts(opts, optstring, shortopts, args):
-    while optstring != '':
-        opt, optstring = optstring[0], optstring[1:]
-        if short_has_arg(opt, shortopts):
-            if optstring == '':
-                if not args:
-                    raise GetoptError('option -%s requires argument' % opt,
-                                      opt)
-                optstring, args = args[0], args[1:]
-            optarg, optstring = optstring, ''
-        else:
-            optarg = ''
-        opts.append(('-' + opt, optarg))
-    return opts, args
-
-def short_has_arg(opt, shortopts):
-    for i in range(len(shortopts)):
-        if opt == shortopts[i] != ':':
-            return shortopts.startswith(':', i + 1)
-    raise GetoptError('option -%s not recognized' % opt, opt)
-
-
-#=======================================================================================================================
-# End getopt code
-#=======================================================================================================================
-
-
-
-
-
-
-
-
 class Configuration:
     
-    def __init__(self, files_or_dirs='', verbosity=2, test_filter=None, tests=None, port=None, config_file_contents=None):
+    def __init__(
+        self, 
+        files_or_dirs='', 
+        verbosity=2, 
+        test_filter=None, 
+        tests=None, 
+        port=None, 
+        files_to_tests=None, 
+        jobs=1,
+        split_jobs='tests',
+        ):
         self.files_or_dirs = files_or_dirs
         self.verbosity = verbosity
         self.test_filter = test_filter
         self.tests = tests
         self.port = port
-        self.config_file_contents = config_file_contents
+        self.files_to_tests = files_to_tests
+        self.jobs = jobs
+        self.split_jobs = split_jobs
+        
 
 #=======================================================================================================================
 # parse_cmdline
@@ -208,6 +39,12 @@ def parse_cmdline(argv=None):
     """ parses command line and returns test directories, verbosity, test filter and test suites
         usage: 
             runfiles.py  -v|--verbosity <level>  -f|--filter <regex>  -t|--tests <Test.test1,Test2>  dirs|files
+            
+        Multiprocessing options:
+        jobs=number (with the number of jobs to be used to run the tests)
+        split_jobs='module'|'tests' 
+            if == module, a given job will always receive all the tests from a module
+            if == tests, the tests will be split independently of their originating module (default)
     """
     if argv is None:
         argv = sys.argv
@@ -216,15 +53,28 @@ def parse_cmdline(argv=None):
     test_filter = None
     tests = None
     port = None
-    config_file_contents = None
+    jobs = 1
+    split_jobs = 'tests'
+    files_to_tests = {}
 
-    optlist, dirs = gnu_getopt(argv[1:], "v:f:t:p:c:", ["verbosity=", "filter=", "tests=", "port=", "config_file="])
+    from _pydev_getopt import gnu_getopt
+    optlist, dirs = gnu_getopt(
+        argv[1:], "v:f:t:p:c:j:s", ["verbosity=", "filter=", "tests=", "port=", "config_file=", "jobs=", "split_jobs="])
+    
     for opt, value in optlist:
         if opt in ("-v", "--verbosity"):
             verbosity = value
 
         elif opt in ("-p", "--port"):
             port = int(value)
+
+        elif opt in ("-j", "--jobs"):
+            jobs = int(value)
+            
+        elif opt in ("-s", "--split_jobs"):
+            split_jobs = value
+            if split_jobs not in ('module', 'tests'):
+                raise AssertionError('Expected split to be either "module" or "tests". Was :%s' % (split_jobs,))
             
         elif opt in ("-f", "--filter"):
             test_filter = value.split(',')
@@ -240,6 +90,20 @@ def parse_cmdline(argv=None):
                     config_file_contents = f.read()
                 finally:
                     f.close()
+                    
+                if config_file_contents:
+                    config_file_contents = config_file_contents.strip()
+                    
+                if config_file_contents:
+                    for line in config_file_contents.splitlines():
+                        file_and_test = line.split('|')
+                        if len(file_and_test) == 2:
+                            file, test = file_and_test
+                            if DictContains(files_to_tests, file):
+                                files_to_tests[file].append(test)
+                            else:
+                                files_to_tests[file] = [test]  
+                    
             else:
                 sys.stderr.write('Could not find config file: %s\n' % (config_file,))
 
@@ -254,15 +118,8 @@ def parse_cmdline(argv=None):
         else:
             ret_dirs.append(d)
 
-    return Configuration(ret_dirs, int(verbosity), test_filter, tests, port, config_file_contents)
+    return Configuration(ret_dirs, int(verbosity), test_filter, tests, port, files_to_tests, jobs, split_jobs)
 
-
-try:
-    object
-except NameError:
-    #Support for jython
-    class object:
-        pass
             
      
 #=======================================================================================================================
@@ -283,26 +140,19 @@ class PydevTestRunner(object):
         'files_or_dirs', #Files or directories received in the command line
         'test_filter', #The filter used to collect the tests
         'tests',  #Strings with the tests to be run
+        
+        'jobs', #Integer with the number of jobs that should be used to run the test cases
+        'split_jobs', #String with 'tests' or 'module' (how should the jobs be split)
     ]
 
     def __init__(self, configuration):
-        config_file_contents = configuration.config_file_contents
-        if config_file_contents:
-            config_file_contents = config_file_contents.strip()
-            
         self.verbosity = configuration.verbosity
         
-        if config_file_contents:
-            files_to_tests = {}
-            for line in config_file_contents.splitlines():
-                file_and_test = line.split('|')
-                if len(file_and_test) == 2:
-                    file, test = file_and_test
-                    if DictContains(files_to_tests, file):
-                        files_to_tests[file].append(test)
-                    else:
-                        files_to_tests[file] = [test]  
-                    
+        self.jobs = configuration.jobs
+        self.split_jobs = configuration.split_jobs
+        
+        files_to_tests = configuration.files_to_tests
+        if files_to_tests:
             self.files_to_tests = files_to_tests
             self.files_or_dirs = files_to_tests.keys()
             self.test_filter = None
@@ -310,9 +160,9 @@ class PydevTestRunner(object):
         else:
             self.files_to_tests = {}
             self.files_or_dirs = configuration.files_or_dirs
-            self.__adjust_path()
             self.test_filter = self.__setup_test_filter(configuration.test_filter)
             self.tests = configuration.tests
+        self.__adjust_path()
 
 
     def __adjust_path(self):
@@ -420,7 +270,7 @@ class PydevTestRunner(object):
             return None
 
     def find_modules_from_files(self, pyfiles):
-        """ returns a lisst of modules given a list of files """
+        """ returns a list of modules given a list of files """
         #let's make sure that the paths we want are in the pythonpath...
         imports = [(s, self.__importify(s)) for s in pyfiles]
 
@@ -448,7 +298,7 @@ class PydevTestRunner(object):
                     print_exception = i == len(choices) - 1
                     mod = self.__get_module_from_str(import_str, print_exception, pyfile)
                     if mod is not None:
-                        ret.append((pyfile, mod))
+                        ret.append((pyfile, mod, import_str))
                         break
 
 
@@ -485,8 +335,31 @@ class PydevTestRunner(object):
             #sorted() is not available in jython 2.1
             testFnNames.sort()
             return testFnNames
+        
+        
+    def _decorate_test_suite(self, suite, pyfile, module_name):
+        if isinstance(suite, unittest.TestSuite):
+            add = False
+            suite.__pydev_pyfile__ = pyfile
+            suite.__pydev_module_name__ = module_name
+            
+            for t in suite._tests:
+                t.__pydev_pyfile__ = pyfile
+                t.__pydev_module_name__ = module_name
+                if self._decorate_test_suite(t, pyfile, module_name):
+                    add = True
+                    
+            return add
+                    
+        elif isinstance(suite, unittest.TestCase):
+            return True
+        
+        else:
+            return False
+                
 
-    def find_tests_from_modules(self, file_and_modules):
+
+    def find_tests_from_modules(self, file_and_modules_and_module_name):
         """ returns the unittests given a list of modules """
         #Use our own suite!
         unittest.TestLoader.suiteClass = pydev_runfiles_unittest.PydevTestSuite
@@ -494,7 +367,7 @@ class PydevTestRunner(object):
         
         ret = []
         if self.files_to_tests:
-            for pyfile, m in file_and_modules:
+            for pyfile, m, module_name in file_and_modules_and_module_name:
                 accepted_classes = {}
                 accepted_methods = {}
                 tests = self.files_to_tests[pyfile]
@@ -504,11 +377,8 @@ class PydevTestRunner(object):
                 loader.getTestCaseNames = self.GetTestCaseNames(accepted_classes, accepted_methods)
                 
                 suite = loader.loadTestsFromModule(m)
-                for test in suite._tests:
-                    test.__pydev_pyfile__ = pyfile
-                    for test in test._tests:
-                        test.__pydev_pyfile__ = pyfile
-                ret.append(suite)
+                if self._decorate_test_suite(suite, pyfile, module_name):
+                    ret.append(suite)
             return ret
         
         
@@ -527,13 +397,10 @@ class PydevTestRunner(object):
             loader.getTestCaseNames = self.GetTestCaseNames(accepted_classes, accepted_methods)
 
 
-        for pyfile, m in file_and_modules:
+        for pyfile, m, module_name in file_and_modules_and_module_name:
             suite = loader.loadTestsFromModule(m)
-            for test in suite._tests:
-                test.__pydev_pyfile__ = pyfile
-                for test in test._tests:
-                    test.__pydev_pyfile__ = pyfile
-            ret.append(suite)
+            if self._decorate_test_suite(suite, pyfile, module_name):
+                ret.append(suite)
 
         return ret
 
@@ -545,6 +412,7 @@ class PydevTestRunner(object):
         for test_obj in test_objs:
 
             if isinstance(test_obj, unittest.TestSuite):
+                
                 if test_obj._tests:
                     test_obj._tests = self.filter_tests(test_obj._tests)
                     if test_obj._tests:
@@ -583,8 +451,6 @@ class PydevTestRunner(object):
         return 0
 
 
-
-
     def __match(self, filter_list, name):
         """ returns whether a test name matches the test filter """
         if filter_list is None:
@@ -604,9 +470,10 @@ class PydevTestRunner(object):
         else:
             sys.stdout.write('done.\n')
         sys.stdout.write("Importing test modules ... ")
-        file_and_modules = self.find_modules_from_files(files)
+        file_and_modules_and_module_name = self.find_modules_from_files(files)
         sys.stdout.write("done.\n")
-        all_tests = self.find_tests_from_modules(file_and_modules)
+        
+        all_tests = self.find_tests_from_modules(file_and_modules_and_module_name)
         if self.test_filter or self.tests:
 
             if self.test_filter:
@@ -616,15 +483,25 @@ class PydevTestRunner(object):
                 sys.stdout.write('Tests to run: %s\n' % (self.tests,))
 
             all_tests = self.filter_tests(all_tests)
-
-        sys.stdout.write('\n')
-        runner = pydev_runfiles_unittest.PydevTextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
+            
         test_suite = unittest.TestSuite(all_tests)
         import pydev_runfiles_xml_rpc
-        pydev_runfiles_xml_rpc.NotifyTestsCollected(test_suite.countTestCases())
-        runner.run(test_suite)
-        pydev_runfiles_xml_rpc.NotifyTestRunFinished()
+        pydev_runfiles_xml_rpc.notifyTestsCollected(test_suite.countTestCases())
+        
+        if self.jobs > 1:
+            sys.stdout.write('Running tests in parallel with: %s jobs.\n' %(self.jobs,))
+            import pydev_runfiles_parallel
+            pydev_runfiles_parallel.ExecuteTestsInParallel(all_tests, self.jobs, self.split_jobs, self.verbosity)
+            
+        else:
+            runner = pydev_runfiles_unittest.PydevTextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
+            sys.stdout.write('\n')
+            runner.run(test_suite)
+        pydev_runfiles_xml_rpc.notifyTestRunFinished()
 
 
+#=======================================================================================================================
+# main
+#=======================================================================================================================
 def main(configuration):
     PydevTestRunner(configuration).run_tests()

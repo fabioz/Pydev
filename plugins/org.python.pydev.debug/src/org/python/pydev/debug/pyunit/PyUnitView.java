@@ -2,6 +2,7 @@ package org.python.pydev.debug.pyunit;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -79,16 +81,18 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * - Use theme colors -- OK
  * - Auto-show on test run should be an option. -- OK
  * - Check: if it's created after a test suite started running, the results should be properly shown. -- OK
+ * - Allow the user to select test runner (Initially at least default and nose. Step 2: py.test) -- OK
+ * - Don't show results in the unittest view (only show in the console): in this situation, don't even start the server or use xml-rpc. -- OK
  * 
  * 
  * Must be done before initial release:
- * - Allow the user to select test runner (Initially at least default and nose. Step 2: py.test)
- * - Don't show results in the unittest view (only show in the console): in this situation, don't even start the server or use xml-rpc.
- *
+ * - Pydev default test runner distributed
+ * - Show current test(s) being run (handle parallel execution)
+ * - Show total time to run tests
  * 
  * Nice to have:
  * - Select some tests and make a new run with them.
- * - Show current test(s) being run (handle parallel execution)
+ * - Rerun tests on file changes 
  * - Hide or show output pane 
  * - If a string was different, show an improved diff (as JDT)
  * - Save column order (tree.setColumnOrder(order))
@@ -151,6 +155,7 @@ public class PyUnitView extends ViewPartWithOrientation{
     private StyledText testOutputText;
     private CounterPanel fCounterPanel;
     private PyUnitProgressBar fProgressBar;
+    private Label fStatus;
     private Composite fCounterComposite;
     private IPropertyChangeListener prefListener;
     
@@ -258,12 +263,17 @@ public class PyUnitView extends ViewPartWithOrientation{
         fCounterComposite.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 
         fCounterPanel = new CounterPanel(fCounterComposite);
-        fCounterPanel.setLayoutData(
-            new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+        fCounterPanel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+        
         fProgressBar = new PyUnitProgressBar(fCounterComposite);
-        fProgressBar.setLayoutData(
-                new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+        fProgressBar.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 
+        fStatus = new Label(fCounterComposite, 0);
+        GridData statusLayoutData = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+        statusLayoutData.grabExcessHorizontalSpace = true;
+        fStatus.setLayoutData(statusLayoutData);
+        fStatus.setText("Status");
+        
         sash = new SashForm(parent, SWT.HORIZONTAL);
         GridData layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
@@ -537,6 +547,17 @@ public class PyUnitView extends ViewPartWithOrientation{
         notifyTest(result, true);
     }
     
+    /*default*/ void notifyTestStarted(PyUnitTestStarted result) {
+        if(this.disposed){
+            return;
+        }
+        
+        if(result.getTestRun() != currentRun){
+            return;
+        }
+
+        asyncUpdateCountersAndBar();
+    }
 
     /**
      * Used to update the number of tests available. 
@@ -636,7 +657,8 @@ public class PyUnitView extends ViewPartWithOrientation{
                 int totalAsInt;
                 if(currentRun.getFinished()){
                     totalAsInt = numberOfRuns;
-                    totalNumberOfRuns = Integer.toString(totalAsInt);
+                    //Leave the number of runs what was set before!
+//                    totalNumberOfRuns = Integer.toString(totalAsInt);
                 }else{
                     totalAsInt = Integer.parseInt(totalNumberOfRuns);
                 }
@@ -653,13 +675,40 @@ public class PyUnitView extends ViewPartWithOrientation{
             fCounterPanel.setRunValue(numberOfRuns, totalNumberOfRuns);
             fCounterPanel.setErrorValue(numberOfErrors);
             fCounterPanel.setFailureValue(numberOfFailures);
+            
+            Collection<PyUnitTestStarted> testsRunning = currentRun.getTestsRunning();
+            FastStringBuffer bufStatus = new FastStringBuffer("Current: ", 200);
+            FastStringBuffer bufTooltip = new FastStringBuffer("Current: ", 200);
+            
+            int i=0;
+            for (PyUnitTestStarted pyUnitTestStarted : testsRunning) {
+                if(i > 0){
+                    bufTooltip.append('\n');
+                }
+                bufTooltip.append(pyUnitTestStarted.test);
+                bufTooltip.append("  ");
+                bufTooltip.append('(');
+                bufTooltip.append(pyUnitTestStarted.location);
+                bufTooltip.append(')');
+                
+                if(i > 0){
+                    bufStatus.append(", ");
+                }
+                bufStatus.append(pyUnitTestStarted.test);
+                i++;
+            }
+            this.fStatus.setText(bufStatus.toString());
+            this.fStatus.setToolTipText(bufTooltip.toString());
         }else{
+            this.fStatus.setText("");
+            this.fStatus.setToolTipText("");
             fCounterPanel.setRunValue(0, "0");
             fCounterPanel.setErrorValue(0);
             fCounterPanel.setFailureValue(0);
             
             setShowBarWithError(false, false, false);
         }
+        
     }
     
 
@@ -887,6 +936,8 @@ public class PyUnitView extends ViewPartWithOrientation{
         onControlCreated.call(text);
         text.addMouseListener(this.activateLinkmouseListener);
     }
+
+
 
 
 }

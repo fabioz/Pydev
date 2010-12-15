@@ -27,12 +27,12 @@ if __name__ == '__main__':
     import pydevd_constants
     from pydevd_file_utils import _NormFile
     
-    DEBUG = 1
+    DEBUG = 0
     if DEBUG:
-        print 'Received parameters', sys.argv
-        print 'Params for pydev', pydev_params
+        sys.stdout.write('Received parameters: %s\n' % (sys.argv,))
+        sys.stdout.write('Params for pydev: %s\n' % (pydev_params,))
         if found_other_test_framework_param:
-            print 'Params for test framework:', found_other_test_framework_param, other_test_framework_params
+            sys.stdout.write('Params for test framework: %s, %s\n' % (found_other_test_framework_param, other_test_framework_params))
         
     try:
         configuration = pydev_runfiles.parse_cmdline([sys.argv[0]] + pydev_params)
@@ -82,23 +82,11 @@ if __name__ == '__main__':
         #handle and pass as what the test framework expects.
 
         py_test_accept_filter = {}
-        config_file_contents = configuration.config_file_contents
-        if config_file_contents:
-            config_file_contents = config_file_contents.strip()
+        files_to_tests = configuration.files_to_tests
             
-        if config_file_contents:
+        if files_to_tests:
             #Handling through the file contents (file where each line is a test)
             files_or_dirs = []
-            files_to_tests = {}
-            for line in config_file_contents.splitlines():
-                file_and_test = line.split('|')
-                if len(file_and_test) == 2:
-                    file, test = file_and_test
-                    if pydevd_constants.DictContains(files_to_tests, file):
-                        files_to_tests[file].append(test)
-                    else:
-                        files_to_tests[file] = [test]  
-                        
             for file, tests in files_to_tests.items():
                 if test_framework == NOSE_FRAMEWORK:
                     for test in tests:
@@ -141,7 +129,7 @@ if __name__ == '__main__':
             #processes_option = ['--processes=2']
             argv.insert(0, sys.argv[0])
             if DEBUG:
-                print 'Final test framework args:', argv[1:]
+                sys.stdout.write('Final test framework args: %s\n' % (argv[1:],))
                 
             from pydev_runfiles_nose import PYDEV_NOSE_PLUGIN_SINGLETON
             argv.append('--with-pydevplugin')
@@ -149,7 +137,7 @@ if __name__ == '__main__':
 
         elif test_framework == PY_TEST_FRAMEWORK:
             if DEBUG:
-                print 'Final test framework args:', argv
+                sys.stdout.write('Final test framework args: %s\n' % (argv,))
                 
             from pydev_runfiles_pytest import PydevPlugin
             pydev_plugin = PydevPlugin(py_test_accept_filter)

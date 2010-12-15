@@ -79,8 +79,9 @@ def dbg(s, prior):
 #        f = open('c:/temp/test.txt', 'a')
 #        print_ >> f, s
 #        f.close()
-        
-HOST = '127.0.0.1'               # Symbolic name meaning the local host
+   
+import pydev_localhost
+HOST = pydev_localhost.get_localhost() # Symbolic name meaning the local host
 
 MSG_KILL_SERVER = '@@KILL_SERVER_END@@'
 MSG_COMPLETIONS = '@@COMPLETIONS'

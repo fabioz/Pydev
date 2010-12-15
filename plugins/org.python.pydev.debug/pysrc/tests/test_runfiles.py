@@ -39,14 +39,14 @@ sys.path.remove(desired_runfiles_path)
 
 class RunfilesTest(unittest.TestCase):
     
-    def _setup_scenario(self, path, t_filter=None, tests=None, config_file_contents=None):
+    def _setup_scenario(self, path, t_filter=None, tests=None, files_to_tests=None):
         self.MyTestRunner = pydev_runfiles.PydevTestRunner(
             pydev_runfiles.Configuration(
                 files_or_dirs=path,
                 test_filter=t_filter,
                 verbosity=1,
                 tests=tests,
-                config_file_contents=config_file_contents,
+                files_to_tests=files_to_tests,
             )
         )
         self.files = self.MyTestRunner.find_import_files()
@@ -261,6 +261,9 @@ class RunfilesTest(unittest.TestCase):
                 self.notifications.append(('notifyTestsCollected', number_of_tests))
             
             
+            def notifyStartTest(self, file, test):
+                pass
+                
             def notifyTest(self, cond, captured_output, error_contents, file, test, time):
                 if error_contents:
                     error_contents = error_contents.splitlines()[-1].strip()
@@ -274,13 +277,13 @@ class RunfilesTest(unittest.TestCase):
         simple_test = os.path.join(self.file_dir[0], 'simple_test.py')
         simple_test2 = os.path.join(self.file_dir[0], 'simple2_test.py')
         
-        config_file_contents = ''
-        config_file_contents += simple_test +'|SampleTest.test_xxxxxx1\n'
-        config_file_contents += simple_test +'|SampleTest.test_xxxxxx2\n'
-        config_file_contents += simple_test +'|SampleTest.test_non_unique_name\n'
-        config_file_contents += simple_test2 +'|YetAnotherSampleTest.test_abc\n'
+        files_to_tests = {}
+        files_to_tests.setdefault(simple_test , []).append('SampleTest.test_xxxxxx1'        )
+        files_to_tests.setdefault(simple_test , []).append('SampleTest.test_xxxxxx2'        )
+        files_to_tests.setdefault(simple_test , []).append('SampleTest.test_non_unique_name')
+        files_to_tests.setdefault(simple_test2, []).append('YetAnotherSampleTest.test_abc'  )
         
-        self._setup_scenario(None, config_file_contents=config_file_contents)
+        self._setup_scenario(None, files_to_tests=files_to_tests)
         self.MyTestRunner.verbosity = 2
         
         buf = pydevd_io.StartRedirect(keep_original_redirection=False)

@@ -79,6 +79,18 @@ public class PyUnitServer implements IPyUnitServer  {
                         }
                     }
                     
+                }else if("notifyStartTest".equals(method)){
+                    if(parameterCount != 2){
+                        PydevPlugin.log("Error. Expected 2 parameters in notifyStartTest. Received: "+parameterCount);
+                    }else{
+                        String location = request.getParameter(0).toString();
+                        String test = request.getParameter(1).toString();
+                        for(IPyUnitServerListener listener:listeners){
+                            listener.notifyStartTest(location, test);
+                        }
+                    }
+                    
+                    
                 }else if("notifyTestsCollected".equals(method)){
                     if(parameterCount != 1){
                         PydevPlugin.log("Error. Expected 1 parameters in notifyTestsCollected. Received: "+parameterCount);

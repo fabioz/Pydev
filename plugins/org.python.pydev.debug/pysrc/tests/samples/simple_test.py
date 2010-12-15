@@ -17,7 +17,7 @@ class SampleTest(unittest.TestCase):
     def test_xxxxxx4(self):
         pass
     def test_non_unique_name(self):
-        print 'non unique name ran'
+        print('non unique name ran')
 
 
 class AnotherSampleTest(unittest.TestCase):

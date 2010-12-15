@@ -1,13 +1,19 @@
 package org.python.pydev.debug.pyunit;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class PyUnitTestRun {
 
     private final ArrayList<PyUnitTestResult> results;
+    private final Map<Tuple<String, String>, PyUnitTestStarted> testsRunning;
+    
     public final String name;
 
     private static int currentRun = 0;
@@ -26,8 +32,13 @@ public class PyUnitTestRun {
         }
         this.pyUnitLaunch = server;
         this.results = new ArrayList<PyUnitTestResult>();
+        this.testsRunning = new LinkedHashMap<Tuple<String,String>, PyUnitTestStarted>();
     }
 
+    public Collection<PyUnitTestStarted> getTestsRunning() {
+        return testsRunning.values();
+    }
+    
     public void setTotalNumberOfRuns(String totalNumberOfRuns) {
         this.totalNumberOfRuns = totalNumberOfRuns;
     }
@@ -45,8 +56,17 @@ public class PyUnitTestRun {
         }else{
             PydevPlugin.log("Unexpected status: "+result.status);
         }
+        Tuple<String, String> key = new Tuple<String, String>(result.location, result.test);
+        this.testsRunning.remove(key);//when a result is added, it should be removed from the tests running.
         results.add(result);
     }
+
+    
+    public void addStartTest(PyUnitTestStarted result) {
+        Tuple<String, String> key = new Tuple<String, String>(result.location, result.test);
+        this.testsRunning.put(key, result);
+    }
+    
 
     /**
      * @return the same instance that's used internally to back up the results (use with care outside of this api
@@ -125,5 +145,6 @@ public class PyUnitTestRun {
     public synchronized String getNextTestIndex() {
         return Integer.toString(++nextIndex);
     }
+
 
 }
