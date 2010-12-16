@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.codecompletion.PyCompletionProposal;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Proposal for making an assign to a variable or to a field when some method call is found in the current line.
@@ -44,7 +45,9 @@ public class AssistAssignCompletionProposal extends PyCompletionProposal{
             int lineOfOffset = document.getLineOfOffset(fReplacementOffset);
             document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
             
-            
+            if(PydevPlugin.getDefault() == null){
+                return; //in tests
+            }
             int lineOffset = document.getLineOffset(lineOfOffset);
             int lineLength = document.getLineLength(lineOfOffset);
             String lineDelimiter = document.getLineDelimiter(lineOfOffset);
