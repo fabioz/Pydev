@@ -3,6 +3,7 @@ import Queue
 from pydevd_constants import * #@UnusedWildImport
 import pydev_runfiles_xml_rpc
 import time
+import os
 
 #=======================================================================================================================
 # FlattenTestSuite
@@ -94,13 +95,13 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity):
         client_alive = False
         for client in clients:
             #Wait for all the clients to exit.
-            if client.return_code is None:
+            if not client.finished:
                 client_alive = True
                 time.sleep(.2)
                 break
     
     for provider in providers:
-        provider.server.shutdown()
+        provider.shutdown()
     
     
     
@@ -176,9 +177,19 @@ class CommunicationThread(threading.Thread):
         pydev_runfiles_xml_rpc.notifyTest(*args, **kwargs)
         return True
     
+    def shutdown(self):
+        if hasattr(self.server, 'shutdown'):
+            self.server.shutdown()
+        else:
+            self._shutdown = True
     
     def run(self):
-        self.server.serve_forever()
+        if hasattr(self.server, 'shutdown'):
+            self.server.serve_forever()
+        else:
+            self._shutdown = False
+            while not self._shutdown:
+                self.server.handle_request()
         
     
     
@@ -194,7 +205,6 @@ class ClientThread(threading.Thread):
         self.job_id = job_id
         self.verbosity = verbosity
         self.finished = False
-        self.return_code = None
 
 
     def _reader_thread(self, pipe, target):
@@ -204,7 +214,6 @@ class ClientThread(threading.Thread):
         
     def run(self):
         try:
-            import subprocess
             import pydev_runfiles_parallel_client
             args = [
                 sys.executable, 
@@ -224,9 +233,10 @@ class ClientThread(threading.Thread):
                 stderr_thread.setDaemon(True)
                 stderr_thread.start()
             else:
+                import subprocess
                 proc = subprocess.Popen(args, env=os.environ, shell=False)
+                proc.wait()
 
-            self.return_code = proc.wait()
         finally:
             self.finished = True
 

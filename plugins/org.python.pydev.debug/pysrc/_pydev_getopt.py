@@ -31,7 +31,7 @@ def gnu_getopt(args, shortopts, longopts=[]):
 
     opts = []
     prog_args = []
-    if isinstance(longopts, ''.__class__):
+    if type('') == type(longopts):
         longopts = [longopts]
     else:
         longopts = list(longopts)

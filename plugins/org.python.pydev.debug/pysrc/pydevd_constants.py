@@ -60,7 +60,11 @@ except:
         #Py3k does not have has_key anymore, and older versions don't have __contains__
         DictContains = dict.__contains__
     except:
-        DictContains = dict.has_key
+        try:
+            DictContains = dict.has_key
+        except NameError:
+            def DictContains(d, key):
+                return d.has_key(key)
         
         
 try:

@@ -157,7 +157,7 @@ except ImportError:
 
 try:
     _bool_is_builtin = False.__class__.__name__ == "bool"
-except NameError:
+except (NameError, AttributeError):
     _bool_is_builtin = 0
 
 def _decode(data, encoding, is8bit=re.compile("[\x80-\xff]").search):

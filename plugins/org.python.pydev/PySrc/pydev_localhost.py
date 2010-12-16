@@ -9,16 +9,21 @@ def get_localhost():
     Using the IP directly solves the problem.
     '''
     #TODO: Needs better investigation!
-
+    
     global _cache
     if _cache is None:
-        import socket
-        for addr_info in socket.getaddrinfo("localhost", 80, 0, 0, socket.SOL_TCP):
-            config = addr_info[4]
-            if config[0] == '127.0.0.1':
-                _cache = '127.0.0.1'
-                return _cache
-        _cache = 'localhost'
+        try:
+            import socket
+            for addr_info in socket.getaddrinfo("localhost", 80, 0, 0, socket.SOL_TCP):
+                config = addr_info[4]
+                if config[0] == '127.0.0.1':
+                    _cache = '127.0.0.1'
+                    return _cache
+        except:
+            #Ok, some versions of Python don't have getaddrinfo or SOL_TCP... Just consider it 127.0.0.1 in this case.
+            _cache = '127.0.0.1'
+        else:
+            _cache = 'localhost'
 
     return _cache
     
