@@ -1,5 +1,5 @@
 from pydev_imports import xmlrpclib
-import pydevd_constants
+from pydevd_constants import *
 import traceback
 import threading
 try:
