@@ -7,7 +7,7 @@ sys.argv[0] = os.path.dirname(sys.argv[0])
 sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
 import pydevconsole
-from pydev_imports import xmlrpclib, SimpleXMLRPCServer
+from pydev_imports import xmlrpclib, SimpleXMLRPCServer, StringIO
 
 try:
     raw_input

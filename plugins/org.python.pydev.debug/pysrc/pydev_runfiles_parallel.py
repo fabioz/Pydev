@@ -1,5 +1,8 @@
 import unittest
-import Queue
+try:
+    import Queue
+except:
+    import queue as Queue
 from pydevd_constants import * #@UnusedWildImport
 import pydev_runfiles_xml_rpc
 import time
@@ -45,6 +48,10 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity):
         
         for key, tests in module_to_tests.items():
             queue_elements.append(tests)
+            
+        if len(queue_elements) < jobs:
+            #Don't create jobs we will never use.
+            jobs = len(queue_elements)
     
     elif split == 'tests':
         for test in tests:
@@ -52,6 +59,10 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity):
             FlattenTestSuite(test, lst)
             for test in lst:
                 queue_elements.append([test])
+                
+        if len(queue_elements) < jobs:
+            #Don't create jobs we will never use.
+            jobs = len(queue_elements)
     
     else:
         raise AssertionError('Do not know how to handle: %s' % (split,))
@@ -215,6 +226,14 @@ class ClientThread(threading.Thread):
     def run(self):
         try:
             import pydev_runfiles_parallel_client
+            #TODO: Support Jython:
+            #
+            #For jython, instead of using sys.executable, we should use:
+            #r'D:\bin\jdk_1_5_09\bin\java.exe',
+            #'-classpath',
+            #'D:/bin/jython-2.2.1/jython.jar',
+            #'org.python.util.jython',
+                
             args = [
                 sys.executable, 
                 pydev_runfiles_parallel_client.__file__, 
@@ -222,6 +241,7 @@ class ClientThread(threading.Thread):
                 str(self.port), 
                 str(self.verbosity), 
             ]
+            import subprocess
             if False:
                 proc = subprocess.Popen(args, env=os.environ, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 
@@ -233,7 +253,6 @@ class ClientThread(threading.Thread):
                 stderr_thread.setDaemon(True)
                 stderr_thread.start()
             else:
-                import subprocess
                 proc = subprocess.Popen(args, env=os.environ, shell=False)
                 proc.wait()
 

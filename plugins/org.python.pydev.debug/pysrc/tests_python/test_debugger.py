@@ -23,6 +23,8 @@ def NormFile(filename):
     return os.path.normcase(rPath(filename))
 
 PYDEVD_FILE = NormFile('../pydevd.py')
+import sys
+sys.path.append(os.path.dirname(PYDEVD_FILE))
 
 SHOW_WRITES_AND_READS = False
 SHOW_RESULT_STR = False

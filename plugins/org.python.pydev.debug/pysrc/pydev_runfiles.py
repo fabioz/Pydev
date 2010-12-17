@@ -154,7 +154,7 @@ class PydevTestRunner(object):
         files_to_tests = configuration.files_to_tests
         if files_to_tests:
             self.files_to_tests = files_to_tests
-            self.files_or_dirs = files_to_tests.keys()
+            self.files_or_dirs = list(files_to_tests.keys())
             self.test_filter = None
             self.tests = None
         else:

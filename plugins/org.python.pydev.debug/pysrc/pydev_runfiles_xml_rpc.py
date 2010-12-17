@@ -1,6 +1,11 @@
 from pydev_imports import xmlrpclib
 import pydevd_constants
 import traceback
+import threading
+try:
+    from Queue import Queue
+except:
+    from queue import Queue
 
 
 
@@ -21,14 +26,123 @@ def SetServer(server):
     _ServerHolder.SERVER = server
 
 
+
+#=======================================================================================================================
+# ParallelNotification
+#=======================================================================================================================
+class ParallelNotification(object):
+    
+    def __init__(self, method, args):
+        self.method = method
+        self.args = args
+
+    def ToTuple(self):
+        return self.method, self.args
+    
+        
+        
+#=======================================================================================================================
+# KillServer
+#=======================================================================================================================
+class KillServer(object):
+    pass
+
+
+#=======================================================================================================================
+# ServerFacade
+#=======================================================================================================================
+class ServerFacade(object):
+    
+    
+    def __init__(self, notifications_queue):
+        self.notifications_queue = notifications_queue
+    
+    
+    def notifyTestsCollected(self, *args):
+        self.notifications_queue.put_nowait(ParallelNotification('notifyTestsCollected', args))
+    
+    def notifyConnected(self, *args):
+        self.notifications_queue.put_nowait(ParallelNotification('notifyConnected', args))
+    
+    
+    def notifyTestRunFinished(self, *args):
+        self.notifications_queue.put_nowait(ParallelNotification('notifyTestRunFinished', args))
+        self.notifications_queue.put_nowait(KillServer())
+        
+        
+    def notifyStartTest(self, *args):
+        self.notifications_queue.put_nowait(ParallelNotification('notifyStartTest', args))
+        
+        
+    def notifyTest(self, *args):
+        self.notifications_queue.put_nowait(ParallelNotification('notifyTest', args))
+
+
+
+
+
+#=======================================================================================================================
+# ServerComm
+#=======================================================================================================================
+class ServerComm(threading.Thread):
+    
+
+    
+    def __init__(self, notifications_queue, port):
+        threading.Thread.__init__(self)
+        self.setDaemon(False) #Wait for all the notifications to be passed before exiting!
+        self.finished = False
+        self.notifications_queue = notifications_queue
+        
+        import pydev_localhost
+        self.server = xmlrpclib.Server('http://%s:%s' % (pydev_localhost.get_localhost(), port))
+        
+    
+    def run(self):
+        while True:
+            kill_found = False
+            commands = []
+            command = self.notifications_queue.get(block=True)
+            if isinstance(command, KillServer):
+                kill_found = True
+            else:
+                assert isinstance(command, ParallelNotification)
+                commands.append(command.ToTuple())
+                
+            try:
+                while True:
+                    command = self.notifications_queue.get(block=False) #No block to create a batch.
+                    if isinstance(command, KillServer):
+                        kill_found = True
+                    else:
+                        assert isinstance(command, ParallelNotification)
+                        commands.append(command.ToTuple())
+            except:
+                pass #That's OK, we're getting it until it becomes empty so that we notify multiple at once.
+
+
+            if commands:
+                try:
+                    self.server.notifyCommands(commands)
+                except:
+                    traceback.print_exc()
+            
+            if kill_found:
+                self.finished = True
+                return
+
+
+
 #=======================================================================================================================
 # InitializeServer
 #=======================================================================================================================
 def InitializeServer(port):
     if _ServerHolder.SERVER is None:
         if port is not None:
-            import pydev_localhost
-            _ServerHolder.SERVER = xmlrpclib.Server('http://%s:%s' % (pydev_localhost.get_localhost(), port))
+            notifications_queue = Queue()
+            _ServerHolder.SERVER = ServerFacade(notifications_queue)
+            _ServerHolder.SERVER_COMM = ServerComm(notifications_queue, port)
+            _ServerHolder.SERVER_COMM.start()
         else:
             #Create a null server, so that we keep the interface even without any connection.
             _ServerHolder.SERVER = pydevd_constants.Null()

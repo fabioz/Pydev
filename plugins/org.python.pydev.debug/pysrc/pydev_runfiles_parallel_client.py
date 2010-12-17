@@ -1,5 +1,8 @@
 from pydevd_constants import *
-from Queue import Queue
+try:
+    from Queue import Queue
+except:
+    from queue import Queue
 import threading
 from pydev_imports import xmlrpclib
 import traceback
@@ -75,7 +78,11 @@ class ServerComm(threading.Thread):
             if commands:
                 try:
                     #Batch notification.
-                    self.server.notifyCommands(self.job_id, commands)
+                    self.server.lock.acquire()
+                    try:
+                        self.server.notifyCommands(self.job_id, commands)
+                    finally:
+                        self.server.lock.release()
                 except:
                     traceback.print_exc()
             
@@ -86,7 +93,7 @@ class ServerComm(threading.Thread):
 
 
 #=======================================================================================================================
-# ServerWithJob
+# ServerFacade
 #=======================================================================================================================
 class ServerFacade(object):
     
@@ -120,6 +127,7 @@ def run_client(job_id, port, verbosity):
     
     import pydev_localhost
     server = xmlrpclib.Server('http://%s:%s' % (pydev_localhost.get_localhost(), port))
+    server.lock = threading.Lock()
 
     
     server_comm = ServerComm(job_id, server)
@@ -135,7 +143,11 @@ def run_client(job_id, port, verbosity):
         while tests_to_run:
             #Investigate: is it dangerous to use the same xmlrpclib server from different threads?
             #It seems it should be, as it creates a new connection for each request...
-            tests_to_run = server.GetTestsToRun(job_id)
+            server.lock.acquire()
+            try:
+                tests_to_run = server.GetTestsToRun(job_id)
+            finally:
+                server.lock.release()
             
             if not tests_to_run:
                 break

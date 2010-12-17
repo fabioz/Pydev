@@ -2,6 +2,7 @@ package org.python.pydev.debug.pyunit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -52,6 +53,36 @@ public class PyUnitServer implements IPyUnitServer  {
      * Listeners interested in knowing what happens in the python process should be registered here.
      */
     protected List<IPyUnitServerListener> listeners = new ArrayList<IPyUnitServerListener>();
+    
+    private abstract static class Dispatch{
+
+        private final int expectedParameters;
+
+        Dispatch(int expectedParameters){
+            this.expectedParameters = expectedParameters;
+        }
+        
+        protected abstract void dispatch(IRequest request);
+        
+        public void handle(IRequest request){
+            int parameterCount = request.getParameterCount();
+            if(parameterCount != this.expectedParameters){
+                PydevPlugin.log("Error. Expected "+this.expectedParameters+" parameters in notifyTest. Received: "+parameterCount);
+            }else{
+                this.dispatch(request);
+            }
+        }
+        
+    }
+    private static interface IRequest{
+
+        public String getMethodName();
+
+        public int getParameterCount();
+
+        public Object getParameter(int i);
+        
+    }
 
     /**
      * This is where the handling of xml-rpc methods from the servers is handled and properly translated for listeners.
@@ -59,59 +90,34 @@ public class PyUnitServer implements IPyUnitServer  {
     private XmlRpcHandler handler = new XmlRpcHandler() {
         
 
-        public Object execute(XmlRpcRequest request) throws XmlRpcException {
+        public Object execute(final XmlRpcRequest request) throws XmlRpcException {
+            return execute(new IRequest() {
+                
+                public int getParameterCount() {
+                    return request.getParameterCount();
+                }
+                public Object getParameter(int i) {
+                    return request.getParameter(i);
+                }
+                public String getMethodName() {
+                    return request.getMethodName();
+                }
+            });
+        }
+        
+        public Object execute(IRequest request) throws XmlRpcException {
             try{
                 String method = request.getMethodName();
-                int parameterCount = request.getParameterCount();
-                if("notifyTest".equals(method)){
-                    if(parameterCount != 6){
-                        PydevPlugin.log("Error. Expected 6 parameters in notifyTest. Received: "+parameterCount);
-                    }else{
-                        String status = request.getParameter(0).toString();
-                        String capturedOutput = request.getParameter(1).toString();
-                        String errorContents = request.getParameter(2).toString();
-                        String location = request.getParameter(3).toString();
-                        String test = request.getParameter(4).toString();
-                        String time = request.getParameter(5).toString();
-                        
-                        for(IPyUnitServerListener listener:listeners){
-                            listener.notifyTest(status, location, test, capturedOutput, errorContents, time);
-                        }
-                    }
-                    
-                }else if("notifyStartTest".equals(method)){
-                    if(parameterCount != 2){
-                        PydevPlugin.log("Error. Expected 2 parameters in notifyStartTest. Received: "+parameterCount);
-                    }else{
-                        String location = request.getParameter(0).toString();
-                        String test = request.getParameter(1).toString();
-                        for(IPyUnitServerListener listener:listeners){
-                            listener.notifyStartTest(location, test);
-                        }
-                    }
-                    
-                    
-                }else if("notifyTestsCollected".equals(method)){
-                    if(parameterCount != 1){
-                        PydevPlugin.log("Error. Expected 1 parameters in notifyTestsCollected. Received: "+parameterCount);
-                    }else{
-                        String totalTestsCount = request.getParameter(0).toString();
-                        for(IPyUnitServerListener listener:listeners){
-                            listener.notifyTestsCollected(totalTestsCount);
-                        }
-                    }
-                    
-                }else if("notifyConnected".equals(method)){
-                    //ignore this one
-                    
-                }else if("notifyTestRunFinished".equals(method)){
-                    for(IPyUnitServerListener listener:listeners){
-                        listener.notifyFinished();
-                    }
-                    
+
+                
+                Dispatch actual = dispatch.get(method);
+                if(actual != null){
+                    actual.handle(request);
                 }else{
                     Log.log("Unhandled notification: "+method);
                 }
+                
+
             }catch(Throwable e){
                 //Never return any error here (we don't want to stop running the tests because of some error here).
                 PydevPlugin.log(e);
@@ -120,7 +126,118 @@ public class PyUnitServer implements IPyUnitServer  {
         }
         
     };
+
+    private final HashMap<String, Dispatch> dispatch = new HashMap<String, Dispatch>();
     
+    private void initializeDispatches(){
+        dispatch.put("notifyTest", new Dispatch(6) {
+
+            public void dispatch(IRequest request) {
+                String status = request.getParameter(0).toString();
+                String capturedOutput = request.getParameter(1).toString();
+                String errorContents = request.getParameter(2).toString();
+                String location = request.getParameter(3).toString();
+                String test = request.getParameter(4).toString();
+                String time = request.getParameter(5).toString();
+                
+                for(IPyUnitServerListener listener:listeners){
+                    listener.notifyTest(status, location, test, capturedOutput, errorContents, time);
+                }
+            }}
+        );
+        dispatch.put("notifyStartTest", new Dispatch(2) {
+
+            public void dispatch(IRequest request) {
+                String location = request.getParameter(0).toString();
+                String test = request.getParameter(1).toString();
+                for(IPyUnitServerListener listener:listeners){
+                    listener.notifyStartTest(location, test);
+                }
+                
+            }}
+        );
+        dispatch.put("notifyTestsCollected", new Dispatch(1) {
+
+            public void dispatch(IRequest request) {
+                String totalTestsCount = request.getParameter(0).toString();
+                for(IPyUnitServerListener listener:listeners){
+                    listener.notifyTestsCollected(totalTestsCount);
+                }
+            }                        
+        });
+        dispatch.put("notifyConnected", new Dispatch(0) {
+
+            public void dispatch(IRequest request) {
+                // Ignore this one
+            }
+        });
+        dispatch.put("notifyTestRunFinished", new Dispatch(0) {
+
+            public void dispatch(IRequest request) {
+                for(IPyUnitServerListener listener:listeners){
+                    listener.notifyFinished();
+                }
+        }});
+        dispatch.put("notifyCommands", new Dispatch(1) { //the list of commands as a parameter
+
+            public void dispatch(IRequest request) {
+                Object requestParam = request.getParameter(0);
+                if(!(requestParam instanceof Object[])){
+                    if(requestParam == null){
+                        PydevPlugin.log("Expected Object[]. Found: null");
+                    }else{
+                        PydevPlugin.log("Expected Object[]. Found: "+requestParam.getClass());
+                    }
+                    return;
+                }
+                
+                Object[] parameters = (Object[]) requestParam;
+                
+                for(int i=0;i<parameters.length;i++){
+                    Object param = parameters[i];
+                    if(!(param instanceof Object[])){
+                        if(param == null){
+                            PydevPlugin.log("Expected Object[]. Found: null");
+                        }else{
+                            PydevPlugin.log("Expected Object[]. Found: "+param.getClass());
+                        }
+                        return;
+                    }
+                    
+                    final Object[] methodAndParams = (Object[]) param;
+                    if(methodAndParams.length != 2){
+                        PydevPlugin.log("Expected Object[] of len == 2. Found len: "+methodAndParams.length);
+                        continue;
+                    }
+                    if(!(methodAndParams[1] instanceof Object[])){
+                        PydevPlugin.log("Expected methodAndParams[1] to be Object[]. Found: "+methodAndParams[1].getClass());
+                        continue;
+                    }
+                    
+                    final String methodName = methodAndParams[0].toString();
+                    final Object[] params = (Object[]) methodAndParams[1];
+                    
+                    Dispatch d = dispatch.get(methodName);
+                    if(d != null){
+                        d.handle(new IRequest() {
+                            
+                            public int getParameterCount() {
+                                return params.length;
+                            }
+                            
+                            public Object getParameter(int i) {
+                                return params[i];
+                            }
+                            
+                            public String getMethodName() {
+                                return methodName;
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
     
     /**
      * When the launch is removed or terminated, we'll promptly dispose of the server.
@@ -165,6 +282,7 @@ public class PyUnitServer implements IPyUnitServer  {
      * @throws IOException
      */
     public PyUnitServer(PythonRunnerConfig config, ILaunch launch) throws IOException{
+        initializeDispatches();
         port = SocketUtil.findUnusedLocalPorts(1)[0];
         SocketUtil.checkValidPort(port);
         this.webServer = new WebServer(port);
