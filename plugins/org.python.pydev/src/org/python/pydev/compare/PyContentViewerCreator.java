@@ -18,14 +18,16 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 public class PyContentViewerCreator implements IViewerCreator {
 
 	public Viewer createViewer(Composite parent, CompareConfiguration mp) {
-		return new PyMergeViewer(parent, SWT.NULL, updatePreferenceStore(mp));
+		return new PyMergeViewer(parent, SWT.NULL, createNewCompareConfiguration(mp));
 	}
 
 	/**
 	 * Creates a new configuration with the pydev preference store so that the colors appear correctly when using
 	 * Aptana themes.
+	 * 
+	 * Also copies the available data from the original compare configuration to the new coniguration.
 	 */
-    private CompareConfiguration updatePreferenceStore(CompareConfiguration mp) {
+    private CompareConfiguration createNewCompareConfiguration(CompareConfiguration mp) {
         List<IPreferenceStore> stores = PydevPrefs.getDefaultStores(false);
         IPreferenceStore prefs = mp.getPreferenceStore();
         if(prefs != null){
@@ -33,6 +35,23 @@ public class PyContentViewerCreator implements IViewerCreator {
             //is restricted, so, we go to the preferences of the previously created compare configuration.
             stores.add(prefs);
         }
-        return new CompareConfiguration(new ChainedPreferenceStore(stores.toArray(new IPreferenceStore[stores.size()])));
+        
+        
+        CompareConfiguration cc = new CompareConfiguration(new ChainedPreferenceStore(stores.toArray(new IPreferenceStore[stores.size()])));
+        cc.setAncestorImage(mp.getAncestorImage(null));
+        cc.setAncestorLabel(mp.getAncestorLabel(null));
+        
+        cc.setLeftImage(mp.getLeftImage(null));
+        cc.setLeftLabel(mp.getLeftLabel(null));
+        cc.setLeftEditable(mp.isLeftEditable());
+        
+        cc.setRightImage(mp.getRightImage(null));
+        cc.setRightLabel(mp.getRightLabel(null));
+        cc.setRightEditable(mp.isRightEditable());
+        
+        cc.setContainer(mp.getContainer());
+        
+        
+        return cc;       
     }
 }
