@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -34,6 +35,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -282,7 +285,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         layoutData.verticalAlignment = GridData.FILL;
         sash.setLayoutData(layoutData);
                 
-        tree = new Tree(sash, SWT.FULL_SELECTION|SWT.SINGLE);
+        tree = new Tree(sash, SWT.FULL_SELECTION|SWT.MULTI);
         tooltip.install(tree);
         tree.setHeaderVisible(true);
         
@@ -302,6 +305,25 @@ public class PyUnitView extends ViewPartWithOrientation{
         tree.addMouseListener(new DoubleClickTreeItemMouseListener());
         tree.addKeyListener(new EnterProssedTreeItemKeyListener());
         tree.addSelectionListener(new SelectResultSelectionListener());
+        
+        Menu menu = new Menu (tree.getShell(), SWT.POP_UP);
+        MenuItem runItem = new MenuItem (menu, SWT.PUSH);
+        runItem.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                relaunchSelectedTests(ILaunchManager.RUN_MODE);
+            }
+        });
+        runItem.setText ("Run"); 
+        
+        MenuItem debugItem = new MenuItem (menu, SWT.PUSH);
+        debugItem.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                relaunchSelectedTests(ILaunchManager.DEBUG_MODE);
+            }
+        });
+        debugItem.setText ("Debug"); 
+        tree.setMenu(menu);
+
         
         if(PydevPlugin.getDefault() != null){
             colorAndStyleCache= new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
@@ -811,6 +833,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         }
     }
 
+    
 
     /**
      * Makes the test double clicked in the tree active in the editor.
@@ -845,6 +868,31 @@ public class PyUnitView extends ViewPartWithOrientation{
             result.open();
         }
     }
+
+
+    /**
+     * Relaunches the currently selected tests.
+     */
+    public void relaunchSelectedTests(String mode) {
+        TreeItem[] selection = tree.getSelection();
+        List<PyUnitTestResult> resultsToRelaunch = new ArrayList<PyUnitTestResult>();
+        PyUnitTestRun testRun = null;
+        for(TreeItem item : selection){
+            PyUnitTestResult result = (PyUnitTestResult) item.getData(PY_UNIT_TEST_RESULT);
+            if(testRun == null){
+                testRun = result.getTestRun();
+            }else{
+                if(result.getTestRun() != testRun){
+                    continue; //all must be part of the same test run -- this shouldn't really happen.
+                }
+            }
+            resultsToRelaunch.add(result);
+        }
+        if(resultsToRelaunch.size() > 0 && testRun != null){
+            testRun.relaunch(resultsToRelaunch, mode);
+        }
+    }
+    
     
     /**
      * @return the current test run.
@@ -936,6 +984,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         onControlCreated.call(text);
         text.addMouseListener(this.activateLinkmouseListener);
     }
+
 
 
 

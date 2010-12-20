@@ -60,7 +60,10 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
                         relaunched1 = true;
                     }
                     
-                    public void relaunchTestResults(ArrayList<PyUnitTestResult> arrayList) {
+                    public void relaunchTestResults(List<PyUnitTestResult> arrayList) {
+                    }
+
+                    public void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode) {
                     }
                     
                 };
@@ -81,11 +84,14 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
                         terminated2 = true;
                     }
                     
-                    public void relaunchTestResults(ArrayList<PyUnitTestResult> arrayList) {
-                    }
-                    
                     public void relaunch() {
                         relaunched2 = true;
+                    }
+
+                    public void relaunchTestResults(List<PyUnitTestResult> arrayList) {
+                    }
+
+                    public void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode) {
                     }
                 };
             }

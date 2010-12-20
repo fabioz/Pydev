@@ -1,6 +1,6 @@
 package org.python.pydev.debug.pyunit;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface IPyUnitLaunch {
 
@@ -8,6 +8,8 @@ public interface IPyUnitLaunch {
 
     void relaunch();
 
-    void relaunchTestResults(ArrayList<PyUnitTestResult> arrayList);
+    void relaunchTestResults(List<PyUnitTestResult> arrayList);
+    
+    void relaunchTestResults(List<PyUnitTestResult> arrayList, String mode);
 
 }

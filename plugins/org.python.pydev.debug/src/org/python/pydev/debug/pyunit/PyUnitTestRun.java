@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.debug.core.ILaunchManager;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -142,9 +143,21 @@ public class PyUnitTestRun {
         }
     }
 
+    /**
+     * @param mode ILaunchManager.DEBUG_MODE or ILaunchManager.RUN_MODE
+     */
+    public void relaunch(List<PyUnitTestResult> resultsToRelaunch, String mode) {
+        IPyUnitLaunch s = this.pyUnitLaunch;
+        if(s != null){
+            s.relaunchTestResults(resultsToRelaunch, mode);
+        }
+    }
+
+    
     public synchronized String getNextTestIndex() {
         return Integer.toString(++nextIndex);
     }
+
 
 
 }

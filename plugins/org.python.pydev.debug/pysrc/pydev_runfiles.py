@@ -488,12 +488,17 @@ class PydevTestRunner(object):
         import pydev_runfiles_xml_rpc
         pydev_runfiles_xml_rpc.notifyTestsCollected(test_suite.countTestCases())
         
+        executed_in_parallel = False
         if self.jobs > 1:
-            sys.stdout.write('Running tests in parallel with: %s jobs.\n' %(self.jobs,))
             import pydev_runfiles_parallel
-            pydev_runfiles_parallel.ExecuteTestsInParallel(all_tests, self.jobs, self.split_jobs, self.verbosity)
             
-        else:
+            #What may happen is that the number of jobs needed is lower than the number of jobs requested
+            #(e.g.: 2 jobs were requested for running 1 test) -- in which case ExecuteTestsInParallel will
+            #return False and won't run any tests.
+            executed_in_parallel = pydev_runfiles_parallel.ExecuteTestsInParallel(
+                all_tests, self.jobs, self.split_jobs, self.verbosity)
+            
+        if not executed_in_parallel:
             runner = pydev_runfiles_unittest.PydevTextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
             sys.stdout.write('\n')
             runner.run(test_suite)

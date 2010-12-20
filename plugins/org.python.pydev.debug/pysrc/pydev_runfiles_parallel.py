@@ -30,7 +30,21 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity):
         
     @param split: str
         Either 'module' or the number of tests that should be run in each batch
+        
+    @return: bool
+        Returns True if the tests were actually executed in parallel. If the tests were not executed because only 1
+        should be used (e.g.: 2 jobs were requested for running 1 test), False will be returned and no tests will be
+        run.
+        
+        It may also return False if in debug mode (in which case, multi-processes are not accepted) 
     '''
+    try:
+        from pydevd_comm import GetGlobalDebugger
+        if GetGlobalDebugger() is not None:
+            return False
+    except:
+        pass #Ignore any error here.
+    
     #This queue will receive the tests to be run. Each entry in a queue is a list with the tests to be run together When
     #split == 'tests', each list will have a single element, when split == 'module', each list will have all the tests
     #from a given module.
@@ -80,7 +94,11 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity):
         
         tests_queue.append(test_queue_elements)
         
-    
+    if jobs < 2:
+        return False
+        
+    sys.stdout.write('Running tests in parallel with: %s jobs.\n' %(jobs,))
+
     
     queue = Queue.Queue()
     for item in tests_queue:
@@ -113,6 +131,8 @@ def ExecuteTestsInParallel(tests, jobs, split, verbosity):
     
     for provider in providers:
         provider.shutdown()
+        
+    return True
     
     
     
