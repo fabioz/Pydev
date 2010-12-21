@@ -202,20 +202,20 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
         }
         
         if(this.pythonPathHelper == null){
-            throw new IOException("Pythonpath helper not properly restored");
+            throw new IOException("Pythonpath helper not properly restored. "+this.getClass().getName());
         }
         
         if(this.pythonPathHelper.getPythonpath() == null){
-            throw new IOException("Pythonpath helper pythonpath not properly restored");
+            throw new IOException("Pythonpath helper pythonpath not properly restored. "+this.getClass().getName());
         }
         
         if(this.pythonPathHelper.getPythonpath().size() == 0){
-            throw new IOException("Pythonpath helper pythonpath restored with no contents");
+            throw new IOException("Pythonpath helper pythonpath restored with no contents. "+this.getClass().getName());
         }
         
         if(set.size() < 15){ //if we have to few modules, that may indicate a problem... 
                              //if the project is really small, this will be fast, otherwise, it'll fix the problem.
-            throw new IOException("Only "+set.size()+" modules restored in I/O.");
+            throw new IOException("Only "+set.size()+" modules restored in I/O. "+this.getClass().getName());
         }
     }
 
