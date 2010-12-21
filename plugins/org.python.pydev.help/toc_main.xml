@@ -1,24 +1,4 @@
 <toc label="PyDev User Guide" topic="html/index.html">
 	
 	<topic label="References" href="html/links.html"/>
-<!--
-	<topic label="Features" href="pydev.sf.net/_features.contents.htm">
-		<topic label="Preferences" href="pydev.sf.net/_editor.contents.htm"/>
-		<topic label="Code Completion" href="pydev.sf.net/_codecompletion.contents.htm"/>
-		<topic label="Code Coverage" href="pydev.sf.net/_codecoverage.contents.htm"/>
-		<topic label="Content Assist" href="pydev.sf.net/_contentassist.contents.htm"/>
-		<topic label="Refactoring" href="pydev.sf.net/_refactoring.contents.htm"/>
-		<topic label="Running python file" href="pydev.sf.net/_run.contents.htm"/>
-		<topic label="TODO Tasks" href="pydev.sf.net/_tasks.contents.htm"/>
-		<topic label="PyLint" href="pydev.sf.net/_pylint.contents.htm"/>
-	</topic>
-	
-	<topic label="Debugger" href="pydev.sf.net/_debug.contents.htm">
-		<topic label="Preferences" href="pydev.sf.net/_debug_prefs.contents.htm"/>
-	</topic>
-
-	<topic label="Roadmap" href="pydev.sf.net/_roadmap.contents.htm"/>
-	<topic label="Credits" href="pydev.sf.net/_credits.contents.htm"/>
-	<topic label="FAQ" href="pydev.sf.net/_faq.contents.htm"/>
-	-->
 </toc>
