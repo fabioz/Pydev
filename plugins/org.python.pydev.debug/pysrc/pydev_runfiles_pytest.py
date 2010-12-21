@@ -31,6 +31,7 @@ class PydevPlugin:
         self.py_test_accept_filter = py_test_accept_filter
         self._original_pytest_collect_makeitem = pytest_unittest.pytest_pycollect_makeitem
         pytest_unittest.pytest_pycollect_makeitem = self.__pytest_pycollect_makeitem
+        self._using_xdist = False
     
     def reportCond(self, cond, filename, test, captured_output, error_contents, delta):
         '''
@@ -98,7 +99,19 @@ class PydevPlugin:
         code.ReprFileLocation.toterminal = code.ReprFileLocation._original_toterminal #@UndefinedVariable
 
 
+    def pytest_cmdline_main(self, config):
+        if hasattr(config.option, 'numprocesses'):
+            if config.option.numprocesses:
+                self._using_xdist = True
+                pydev_runfiles_xml_rpc.notifyTestRunFinished('Unable to show results (py.test xdist plugin not compatible with PyUnit view)')
+
+
     def pytest_runtestloop(self, session):
+        if self._using_xdist:
+            #Yes, we don't have the hooks we'd need to show the results in the pyunit view...
+            #Maybe the plugin maintainer may be able to provide these additional hooks?
+            return None
+        
         #This mock will make all file representations to be printed as Pydev expects, 
         #so that hyperlinks are properly created in errors. Note that we don't unmock it!
         self._MockFileRepresentation()

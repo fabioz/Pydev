@@ -1,5 +1,5 @@
 
-if __name__ == '__main__':
+def main():
     import sys
     
     #Separate the nose params and the pydev params.
@@ -148,3 +148,13 @@ if __name__ == '__main__':
             raise AssertionError('Cannot handle test framework: %s at this point.' % (test_framework,))
         
         
+if __name__ == '__main__':
+    try:
+        main()
+    finally:
+        try:
+            #The server is not a daemon thread, so, we have to ask for it to be killed!
+            import pydev_runfiles_xml_rpc
+            pydev_runfiles_xml_rpc.forceServerKill()
+        except:
+            pass #Ignore any errors here

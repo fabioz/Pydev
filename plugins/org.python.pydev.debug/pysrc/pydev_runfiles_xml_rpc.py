@@ -67,7 +67,6 @@ class ServerFacade(object):
     
     def notifyTestRunFinished(self, *args):
         self.notifications_queue.put_nowait(ParallelNotification('notifyTestRunFinished', args))
-        self.notifications_queue.put_nowait(KillServer())
         
         
     def notifyStartTest(self, *args):
@@ -146,6 +145,7 @@ def InitializeServer(port):
         else:
             #Create a null server, so that we keep the interface even without any connection.
             _ServerHolder.SERVER = pydevd_constants.Null()
+            _ServerHolder.SERVER_COMM = pydevd_constants.Null()
         
     try:
         _ServerHolder.SERVER.notifyConnected()
@@ -218,3 +218,8 @@ def notifyTestRunFinished(total_time):
         traceback.print_exc()
     
     
+#=======================================================================================================================
+# forceServerKill
+#=======================================================================================================================
+def forceServerKill():
+    _ServerHolder.SERVER_COMM.notifications_queue.put_nowait(KillServer())
