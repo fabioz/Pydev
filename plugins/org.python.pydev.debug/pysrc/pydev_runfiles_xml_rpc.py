@@ -210,9 +210,10 @@ def notifyTest(cond, captured_output, error_contents, file, test, time):
 #=======================================================================================================================
 # notifyTestRunFinished
 #=======================================================================================================================
-def notifyTestRunFinished():
+def notifyTestRunFinished(total_time):
+    assert total_time is not None
     try:
-        _ServerHolder.SERVER.notifyTestRunFinished()
+        _ServerHolder.SERVER.notifyTestRunFinished(total_time)
     except:
         traceback.print_exc()
     

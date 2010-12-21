@@ -86,15 +86,13 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * - Check: if it's created after a test suite started running, the results should be properly shown. -- OK
  * - Allow the user to select test runner (Initially at least default and nose. Step 2: py.test) -- OK
  * - Don't show results in the unittest view (only show in the console): in this situation, don't even start the server or use xml-rpc. -- OK
+ * - Pydev default test runner distributed -- OK
+ * - Show current test(s) being run (handle parallel execution) -- OK
+ * - Select some tests and make a new run with them. -- OK
+ * - Show total time to run tests. -- OK
  * 
- * 
- * Must be done before initial release:
- * - Pydev default test runner distributed
- * - Show current test(s) being run (handle parallel execution)
- * - Show total time to run tests
  * 
  * Nice to have:
- * - Select some tests and make a new run with them.
  * - Rerun tests on file changes 
  * - Hide or show output pane 
  * - If a string was different, show an improved diff (as JDT)
@@ -698,29 +696,35 @@ public class PyUnitView extends ViewPartWithOrientation{
             fCounterPanel.setErrorValue(numberOfErrors);
             fCounterPanel.setFailureValue(numberOfFailures);
             
-            Collection<PyUnitTestStarted> testsRunning = currentRun.getTestsRunning();
-            FastStringBuffer bufStatus = new FastStringBuffer("Current: ", 200);
-            FastStringBuffer bufTooltip = new FastStringBuffer("Current: ", 200);
-            
-            int i=0;
-            for (PyUnitTestStarted pyUnitTestStarted : testsRunning) {
-                if(i > 0){
-                    bufTooltip.append('\n');
-                }
-                bufTooltip.append(pyUnitTestStarted.test);
-                bufTooltip.append("  ");
-                bufTooltip.append('(');
-                bufTooltip.append(pyUnitTestStarted.location);
-                bufTooltip.append(')');
+            String totalTime = currentRun.getTotalTime();
+            if(totalTime == null){
+                Collection<PyUnitTestStarted> testsRunning = currentRun.getTestsRunning();
+                FastStringBuffer bufStatus = new FastStringBuffer("Current: ", 200);
+                FastStringBuffer bufTooltip = new FastStringBuffer("Current: ", 200);
                 
-                if(i > 0){
-                    bufStatus.append(", ");
+                int i=0;
+                for (PyUnitTestStarted pyUnitTestStarted : testsRunning) {
+                    if(i > 0){
+                        bufTooltip.append('\n');
+                    }
+                    bufTooltip.append(pyUnitTestStarted.test);
+                    bufTooltip.append("  ");
+                    bufTooltip.append('(');
+                    bufTooltip.append(pyUnitTestStarted.location);
+                    bufTooltip.append(')');
+                    
+                    if(i > 0){
+                        bufStatus.append(", ");
+                    }
+                    bufStatus.append(pyUnitTestStarted.test);
+                    i++;
                 }
-                bufStatus.append(pyUnitTestStarted.test);
-                i++;
+                this.fStatus.setText(bufStatus.toString());
+                this.fStatus.setToolTipText(bufTooltip.toString());
+            }else{
+                this.fStatus.setText(totalTime);
+                this.fStatus.setToolTipText(totalTime);
             }
-            this.fStatus.setText(bufStatus.toString());
-            this.fStatus.setToolTipText(bufTooltip.toString());
         }else{
             this.fStatus.setText("");
             this.fStatus.setToolTipText("");

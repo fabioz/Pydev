@@ -233,7 +233,7 @@ public class PyUnitViewTestTestWorkbench extends AbstractWorkbenchTestCase{
 
 
     private void notifyFinished() {
-        pyUnitViewServerListener.notifyFinished();
+        pyUnitViewServerListener.notifyFinished(null);
         goToManual(50); //should be enough for it to execute
     }
     

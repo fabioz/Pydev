@@ -269,7 +269,7 @@ class RunfilesTest(unittest.TestCase):
                     error_contents = error_contents.splitlines()[-1].strip()
                 self.notifications.append(('notifyTest', cond, captured_output.strip(), error_contents, file, test))
                 
-            def notifyTestRunFinished(self):
+            def notifyTestRunFinished(self, total_time):
                 self.notifications.append(('notifyTestRunFinished',))
             
         server = Server(notifications)

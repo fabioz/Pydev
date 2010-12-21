@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.debug.core.ILaunchManager;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -25,6 +24,7 @@ public class PyUnitTestRun {
     private boolean finished;
     private IPyUnitLaunch pyUnitLaunch;
     private int nextIndex = 0;
+    private String totalTime; //null while not set.
     
     public PyUnitTestRun(IPyUnitLaunch server) {
         synchronized (lock) {
@@ -156,6 +156,14 @@ public class PyUnitTestRun {
     
     public synchronized String getNextTestIndex() {
         return Integer.toString(++nextIndex);
+    }
+
+    public void setTotalTime(String totalTime) {
+        this.totalTime = totalTime;
+    }
+
+    public String getTotalTime() {
+        return this.totalTime;
     }
 
 

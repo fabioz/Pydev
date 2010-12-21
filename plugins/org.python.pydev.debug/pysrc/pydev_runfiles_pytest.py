@@ -107,6 +107,7 @@ class PydevPlugin:
         #but getting the times we need, reporting the number of tests found and notifying as each
         #test is run.
         
+        start_total = time.time()
         try:
             pydev_runfiles_xml_rpc.notifyTestsCollected(len(session.session.items))
             
@@ -165,6 +166,6 @@ class PydevPlugin:
                 if session.shouldstop:
                     raise session.Interrupted(session.shouldstop)
         finally:
-            pydev_runfiles_xml_rpc.notifyTestRunFinished()
+            pydev_runfiles_xml_rpc.notifyTestRunFinished('Finished in: %.2f secs.' % (time.time() - start_total,))
         return True
             

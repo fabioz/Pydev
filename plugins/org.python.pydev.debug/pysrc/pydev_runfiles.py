@@ -4,6 +4,7 @@ import re
 import unittest
 import pydev_runfiles_unittest
 from pydevd_constants import * #@UnusedWildImport
+import time
 
 
 #=======================================================================================================================
@@ -489,6 +490,7 @@ class PydevTestRunner(object):
         pydev_runfiles_xml_rpc.notifyTestsCollected(test_suite.countTestCases())
         
         executed_in_parallel = False
+        start_time = time.time()
         if self.jobs > 1:
             import pydev_runfiles_parallel
             
@@ -502,7 +504,9 @@ class PydevTestRunner(object):
             runner = pydev_runfiles_unittest.PydevTextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
             sys.stdout.write('\n')
             runner.run(test_suite)
-        pydev_runfiles_xml_rpc.notifyTestRunFinished()
+            
+        total_time = 'Finished in: %.2f secs.' % (time.time() - start_time,)
+        pydev_runfiles_xml_rpc.notifyTestRunFinished(total_time)
 
 
 #=======================================================================================================================

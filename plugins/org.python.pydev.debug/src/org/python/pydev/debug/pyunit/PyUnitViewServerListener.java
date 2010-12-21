@@ -109,7 +109,7 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     }
     
     
-    public void notifyFinished() {
+    public void notifyFinished(final String totalTime) {
         synchronized (notifications) {
             if(!finishedNotified){
                 finishedNotified = true;
@@ -117,6 +117,9 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
                     
                     public Object call() {
                         testRun.setFinished(true);
+                        if(totalTime != null){
+                            testRun.setTotalTime(totalTime);
+                        }
                         synchronized (lockView) {
                             if(view != null){
                                 view.notifyFinished(testRun);
@@ -131,7 +134,7 @@ final class PyUnitViewServerListener implements IPyUnitServerListener {
     }
 
     public void notifyDispose() {
-        notifyFinished();
+        notifyFinished(null);
     }
 
     public void setView(PyUnitView view) {

@@ -171,13 +171,15 @@ public class PyUnitServer implements IPyUnitServer  {
                 // Ignore this one
             }
         });
-        dispatch.put("notifyTestRunFinished", new Dispatch(0) {
+        dispatch.put("notifyTestRunFinished", new Dispatch(1) {
 
             public void dispatch(IRequest request) {
                 for(IPyUnitServerListener listener:listeners){
-                    listener.notifyFinished();
+                    Object seconds = request.getParameter(0);
+                    listener.notifyFinished(seconds.toString());
                 }
-        }});
+            }
+        });
         dispatch.put("notifyCommands", new Dispatch(1) { //the list of commands as a parameter
 
             public void dispatch(IRequest request) {

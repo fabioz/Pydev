@@ -8,7 +8,7 @@ public interface IPyUnitServerListener {
 
     void notifyDispose();
 
-    void notifyFinished();
+    void notifyFinished(String totalTimeInSecs);
 
     void notifyStartTest(String location, String test);
 
