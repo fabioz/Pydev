@@ -352,7 +352,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             ISystemModulesManager systemModulesManager = (ISystemModulesManager) PydevPlugin.readFromWorkspaceMetadata(info.getExeAsFileSystemValidPath());
                             info.setModulesManager(systemModulesManager);
                         } catch (Exception e) {
-                            //PydevPlugin.logInfo(e); -- don't log it, that should be 'standard' (something changed in the way we store it).
+                            PydevPlugin.logInfo(e);
                             
                             //if it does not work it (probably) means that the internal storage format changed among versions,
                             //so, we have to recreate that info.
@@ -367,7 +367,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                                         dialog.run(false, false, new IRunnableWithProgress(){
 
                                             public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                                                monitor.beginTask("Updating the interpreter info (internal storage format changed).", 100);
+                                                monitor.beginTask("Updating the interpreter info (internal format changed or corrupted).", 100);
                                                 //ok, maybe its file-format changed... let's re-create it then.
                                                 info.restorePythonpath(monitor);
                                                 //after restoring it, let's save it.

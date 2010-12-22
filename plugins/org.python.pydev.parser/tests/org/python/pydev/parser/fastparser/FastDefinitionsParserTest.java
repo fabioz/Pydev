@@ -12,6 +12,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 public class FastDefinitionsParserTest extends TestCase {
 
@@ -28,8 +29,8 @@ public class FastDefinitionsParserTest extends TestCase {
         try {
             FastDefinitionsParserTest test = new FastDefinitionsParserTest();
             test.setUp();
-            test.testGlobalAttributes6();
-            test.NotestGlobalAttributesWX();
+            test.testDefinitionsParser12();
+//            test.NotestGlobalAttributesWX();
             
             
             //only loading files
@@ -45,7 +46,7 @@ public class FastDefinitionsParserTest extends TestCase {
             //java5: time elapsed: 6.89
             
 //            Timer timer = new Timer();
-//            test.parseFilesInDir(new File("D:/bin/Python251/Lib/site-packages/wx-2.8-msw-unicode"), true);
+//            test.parseFilesInDir(new File("D:/bin/python265/Lib"), true);
 //            test.parseFilesInDir(new File("D:/bin/Python251/Lib/"), false);
 //            timer.printDiff();
             
@@ -66,23 +67,34 @@ public class FastDefinitionsParserTest extends TestCase {
      */
     private void parseFilesInDir(File file, boolean recursive) {
         assertTrue("Directory "+file+" does not exist", file.exists());
-        assertTrue(file.isDirectory());
+        if(!file.isDirectory()){
+            parseFile(file);
+            return;
+        }
         
         File[] files = file.listFiles();
         for (int i = 0; i < files.length; i++) {
             File f = files[i];
             if(f.getAbsolutePath().toLowerCase().endsWith(".py")){
-                String fileContents = REF.getFileContents(f);
-                try{
-                    FastDefinitionsParser.parse(fileContents);
-                }catch(Exception e){
-                    System.out.println("Error parsing:"+f);
-//                    e.printStackTrace();
-                }
+                parseFile(f);
                 
             }else if(recursive && f.isDirectory()){
                 parseFilesInDir(f, recursive);
             }
+        }
+    }
+
+    private void parseFile(File f) {
+        String fileContents = REF.getFileContents(f);
+        try{
+//            PyParser parser = new PyParser((IGrammarVersionProvider)null);
+//            parser.setDocument(new Document(fileContents), false, null);
+//            parser.reparseDocument();
+            
+            FastDefinitionsParser.parse(fileContents);
+        }catch(Exception e){
+            System.out.println("Error parsing:"+f);
+            e.printStackTrace();
         }
     }
     
@@ -757,6 +769,259 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals(9, defM1.beginColumn);
         assertEquals(3, defM1.beginLine);
         
+    }
+    
+    
+    public void testDefinitionsParser12() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                "    #d\n"+
+                "    'string'\n"+
+                "def mGlobal(self):pass\n"
+        );
+
+        FunctionDef defGlobal = (FunctionDef)m.body[1];
+        assertEquals("mGlobal", ((NameTok)(defGlobal).name).id);
+        assertEquals(1, defGlobal.beginColumn);
+        assertEquals(4, defGlobal.beginLine);
+        
+    }
+    
+    
+    public void testDefinitionsParserLines() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                "    def ra(\n" +
+                "\n" +
+                "\n" +
+                "    )\n" +
+                "    def m2(self):pass\n"+
+                "        #def m3(self):pass\n"+
+                "        'string'\n"
+        );
+        assertEquals(1, m.body.length);
+        ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+        assertEquals("Bar", ((NameTok)classDefBar.name).id);
+        
+        FunctionDef defRa = (FunctionDef)classDefBar.body[0];
+        assertEquals("ra", ((NameTok)(defRa).name).id);
+        assertEquals(5, defRa.beginColumn);
+        assertEquals(2, defRa.beginLine);
+        
+        FunctionDef defM2 = (FunctionDef)classDefBar.body[1];
+        assertEquals("m2", ((NameTok)(defM2).name).id);
+        assertEquals(5, defM2.beginColumn);
+        assertEquals(6, defM2.beginLine);
+        
+    }
+    
+    public void testDefinitionsParserLines2() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                "    def ra(\n" +
+                "\n" +
+                "\n" +
+                "    )\n" +
+                "    '''some\n" +
+                "multi\n" +
+                "line\n" +
+                "string\n" +
+                "    '''\n" +
+                "    def m2(self):pass\n"+
+                "        #def m3(self):pass\n"+
+                "        'string'\n"
+        );
+        assertEquals(1, m.body.length);
+        ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+        assertEquals("Bar", ((NameTok)classDefBar.name).id);
+        
+        FunctionDef defRa = (FunctionDef)classDefBar.body[0];
+        assertEquals("ra", ((NameTok)(defRa).name).id);
+        assertEquals(5, defRa.beginColumn);
+        assertEquals(2, defRa.beginLine);
+        
+        FunctionDef defM2 = (FunctionDef)classDefBar.body[1];
+        assertEquals("m2", ((NameTok)(defM2).name).id);
+        assertEquals(5, defM2.beginColumn);
+        assertEquals(11, defM2.beginLine);
+    }
+    
+    public void testDefinitionsParserLines3() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                "    def ra(\n" +
+                "\n" +
+                "\n" +
+                "    )\n" +
+                "    a = 10\n" +
+                "    a = 10\n" +
+                "    a = #comment 10\r\n" +
+                "    '''some\n" +
+                "multi\n" +
+                "line\n" +
+                "string\n" +
+                "    '''\n" +
+                "    def m2(self):pass\n"+
+                "        #def m3(self):pass\n"+
+                "        'string'\n"
+        );
+        assertEquals(1, m.body.length);
+        ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+        assertEquals("Bar", ((NameTok)classDefBar.name).id);
+        
+        FunctionDef defRa = (FunctionDef)classDefBar.body[0];
+        assertEquals("ra", ((NameTok)(defRa).name).id);
+        assertEquals(5, defRa.beginColumn);
+        assertEquals(2, defRa.beginLine);
+        
+        //2 assigns
+        FunctionDef defM2 = (FunctionDef)classDefBar.body[4];
+        assertEquals("m2", ((NameTok)(defM2).name).id);
+        assertEquals(5, defM2.beginColumn);
+        assertEquals(14, defM2.beginLine);
+    }
+    
+    
+    public void testDefinitionsParserLines4() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                "    def ra(\n" +
+                "\n" +
+                "\n" +
+                "    )\n" +
+                "    a = (\n" +
+                "        a = 10\n" +
+                "    )\n" +
+                "    def m2(self):pass\n"+
+                "        #def m3(self):pass\n"+
+                "        'string'\n"
+        );
+        assertEquals(1, m.body.length);
+        ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+        assertEquals("Bar", ((NameTok)classDefBar.name).id);
+        
+        FunctionDef defM2 = (FunctionDef)classDefBar.body[2];
+        assertEquals("m2", ((NameTok)(defM2).name).id);
+        assertEquals(5, defM2.beginColumn);
+        assertEquals(9, defM2.beginLine);
+    }
+    
+    public void testDefinitionsParserLines5() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                "    def m2(self):self.a=10\n"
+        );
+        assertEquals(1, m.body.length);
+        ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+        assertEquals("Bar", ((NameTok)classDefBar.name).id);
+        
+        FunctionDef defM2 = (FunctionDef)classDefBar.body[0];
+        assertEquals("m2", ((NameTok)(defM2).name).id);
+        assertEquals(5, defM2.beginColumn);
+        assertEquals(2, defM2.beginLine);
+        
+        Assign a = (Assign) defM2.body[0];
+        assertEquals("self.a", NodeUtils.getFullRepresentationString(a.targets[0]));
+        assertEquals(18, a.beginColumn);
+        assertEquals(2, a.beginLine);
+    }
+    
+    public void testDefinitionsParserLines6() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                "    def m2(\n" +
+                "        self,\n" +
+                "        a):self.a=10\n"
+        );
+        assertEquals(1, m.body.length);
+        ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+        assertEquals("Bar", ((NameTok)classDefBar.name).id);
+        
+        FunctionDef defM2 = (FunctionDef)classDefBar.body[0];
+        assertEquals("m2", ((NameTok)(defM2).name).id);
+        assertEquals(5, defM2.beginColumn);
+        assertEquals(2, defM2.beginLine);
+        
+        Assign a = (Assign) defM2.body[0];
+        assertEquals("self.a", NodeUtils.getFullRepresentationString(a.targets[0]));
+        assertEquals(12, a.beginColumn);
+        assertEquals(4, a.beginLine);
+    }
+    
+    public void testDefinitionsParserLines7() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "class Bar(object):\n" +
+                "    def m2 ( \n" +
+                "        self,\n" +
+                "        a ) : self.a=10\n"
+        );
+        assertEquals(1, m.body.length);
+        ClassDef classDefBar = (ClassDef)m.body[0];
+        assertEquals(1, classDefBar.beginColumn);
+        assertEquals(1, classDefBar.beginLine);
+        assertEquals("Bar", ((NameTok)classDefBar.name).id);
+        
+        FunctionDef defM2 = (FunctionDef)classDefBar.body[0];
+        assertEquals("m2", ((NameTok)(defM2).name).id);
+        assertEquals(5, defM2.beginColumn);
+        assertEquals(2, defM2.beginLine);
+        
+        Assign a = (Assign) defM2.body[0];
+        assertEquals("self.a", NodeUtils.getFullRepresentationString(a.targets[0]));
+        assertEquals(15, a.beginColumn);
+        assertEquals(4, a.beginLine);
+    }
+    
+    public void testDefinitionsParserLines8() {
+        Module m = (Module) FastDefinitionsParser.parse(
+                "\r\n" +
+                "#=\r\n" +
+                "#=\r\n" +
+                "#=\r\n" +
+                "class Test(unittest.TestCase):\r\n" +
+                "\r\n" +
+                "    def MockMethod(self, *args):\r\n" +
+                "        return 3\r\n" +
+                "\r\n" +
+                "    def testMockHandler(self):\r\n" +
+                "        c = _MyClass()\r\n" +
+                "\r\n" +
+                "        mock = installMocks(_MyClass, Method=self.MockMethod)\r\n" +
+                "        try:\r\n" +
+                "            self.assertEqual(c.Method(5), 3)\r\n" +
+                "        finally:\r\n" +
+                "            mock.uninstall()\r\n" +
+                "\r\n" +
+                "        self.assertEqual(c.Method(5), 10)\r\n" +
+                ""
+        );
+        assertEquals(1, m.body.length);
+        ClassDef classDef = (ClassDef)m.body[0];
+        assertEquals(1, classDef.beginColumn);
+        assertEquals(5, classDef.beginLine);
+        assertEquals("Test", ((NameTok)classDef.name).id);
+        
+        FunctionDef def = (FunctionDef)classDef.body[0];
+        assertEquals("MockMethod", ((NameTok)(def).name).id);
+        assertEquals(5, def.beginColumn);
+        assertEquals(7, def.beginLine);
+        
+        def = (FunctionDef)classDef.body[1];
+        assertEquals("testMockHandler", ((NameTok)(def).name).id);
+        assertEquals(5, def.beginColumn);
+        assertEquals(10, def.beginLine);
     }
     
     

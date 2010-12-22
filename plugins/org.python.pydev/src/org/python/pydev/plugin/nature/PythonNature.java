@@ -546,7 +546,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     astManager.setProject(getProject(), this, true); // this is the project related to it, restore the deltas (we may have some crash)
 
                     //just a little validation so that we restore the needed info if we did not get the modules
-                    if (astManager.getModulesManager().getOnlyDirectModules().length < 5) {
+                    if (astManager.getModulesManager().getOnlyDirectModules().length < 15) {
                         astManager = null;
                     }
 
@@ -1204,6 +1204,11 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         return new Tuple<List<ProjectConfigError>, IInterpreterInfo>(lst, info);
     }
 
+    
+    @Override
+    public String toString() {
+        return "PythonNature: "+this.project;
+    }
 }
 
 

@@ -6,6 +6,9 @@ package org.python.pydev.debug.ui.launching;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -60,7 +63,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
         ILaunchConfiguration config = new JythonLaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE,
                 PythonRunnerConfig.RUN_JYTHON);
-        String[] argv = runnerConfig.getCommandLine(true);
+        String[] argv = runnerConfig.getCommandLine(false);
         assertFalse(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
         assertTrue(arrayContains(argv, mod1.getLocation().toOSString()));
     }
@@ -68,7 +71,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
     public void testPythonUnittestCommandLine() throws Exception {
         ILaunchConfiguration config = new UnitTestLaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_UNITTEST);
-        String[] argv = runnerConfig.getCommandLine(true);
+        String[] argv = runnerConfig.getCommandLine(false);
         assertTrue(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
         assertTrue(arrayContains(argv, mod1.getLocation().toOSString())); 
     }
@@ -87,7 +90,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST=FOO"));
             assertTrue(arrayContains(runnerConfig.envp, "MY_CUSTOM_VAR_FOR_TEST2=FOO2"));
             
-            String[] argv = runnerConfig.getCommandLine(true); 
+            String[] argv = runnerConfig.getCommandLine(false); 
             assertFalse(arrayContains(argv, PythonRunnerConfig.getRunFilesScript()));
             assertTrue(arrayContains(argv, mod1.getLocation().toOSString()));
             
@@ -95,7 +98,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
             assertEquals(manager.getDefaultInterpreter(), nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
-            argv = runnerConfig.getCommandLine(true); 
+            argv = runnerConfig.getCommandLine(false); 
             assertEquals(manager.getDefaultInterpreter(), argv[0]);
             
             IInterpreterManager interpreterManager = nature.getRelatedInterpreterManager();
@@ -106,7 +109,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, "c:\\interpreter\\py25.exe");
             assertEquals("c:\\interpreter\\py25.exe", nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
-            argv = runnerConfig.getCommandLine(true); 
+            argv = runnerConfig.getCommandLine(false); 
             assertEquals("c:\\interpreter\\py25.exe", argv[0]);
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
 
@@ -137,6 +140,12 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
         ILaunchConfiguration config = new LaunchShortcut().createDefaultLaunchConfiguration(new IResource[] { mod1 });
         PythonRunnerConfig runnerConfig = new PythonRunnerConfig(config, ILaunchManager.RUN_MODE, PythonRunnerConfig.RUN_REGULAR);
         return runnerConfig;
+    }
+    
+    public static Test suite() {
+        TestSuite suite = new TestSuite(PythonRunnerConfigTestWorkbench.class.getName());
+        suite.addTestSuite(PythonRunnerConfigTestWorkbench.class); 
+        return suite;
     }
 
 }

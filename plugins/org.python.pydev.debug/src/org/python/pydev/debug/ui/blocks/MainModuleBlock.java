@@ -10,7 +10,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -199,7 +198,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
             StringSubstitution stringSubstitution = getStringSubstitution(root);
             try {
                 path = stringSubstitution.performStringSubstitution(path, false);
-                IFile[] files = root.findFilesForLocation(new Path(path));
+                IFile[] files = root.findFilesForLocationURI(new File(path).toURI());
                 if (files.length > 0) {
                     file = files[0];
                 }

@@ -276,7 +276,7 @@
       <page
       		name="Pyunit"
             category="org.python.pydev.prefs"
-            class="org.python.pydev.pyunit.preferences.PyunitPrefsPage"
+            class="org.python.pydev.pyunit.preferences.PyUnitPrefsPage2"
             id="org.python.pydev.prefs.pyunitPage"/>
       <page
             name="Code Style"

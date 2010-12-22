@@ -259,8 +259,8 @@ public class SimpleRunner {
                 projectName = project.getName();
             }
             throw new RuntimeException("The project "+projectName+" does not have the pythonpath configured, \n" +
-                    "please configure it correcly (please check the pydev faq at \n" +
-                    "http://pydev.sf.net/faq.html for better information on how to do it).");
+                    "please configure it correcly (please check the pydev getting started guide at \n" +
+                    "http://pydev.org/manual_101_root.html for better information on how to do it).");
         }
         paths = pythonPathNature.getCompleteProjectPythonPath(interpreter, manager);
     

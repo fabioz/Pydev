@@ -2,12 +2,12 @@ package org.python.pydev.editor.correctionassist.docstrings;
 
 import java.util.StringTokenizer;
 
-import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -60,7 +60,7 @@ public class DocstringsPrefPage extends FieldEditorPreferencePage implements
             return "'";//testing...
             
         }
-        Preferences preferences = PydevPrefs.getPreferences();
+        IPreferenceStore preferences = PydevPrefs.getPreferences();
         return preferences.getString(P_DOCSTRINGCHARACTER);
     }
 

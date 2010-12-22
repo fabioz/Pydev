@@ -5,7 +5,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
@@ -113,12 +114,12 @@ public class CodeFoldingSetterTest extends TestCase {
         }
     }
 
-    private Preferences preferences;
+    private IPreferenceStore preferences;
     
     public void setUp() throws Exception{
         super.setUp();
         DEBUG = false;
-        preferences = new Preferences();//PydevPlugin.getDefault().getPluginPreferences();
+        preferences = new PreferenceStore();//PydevPlugin.getDefault().getPluginPreferences();
         CodeFoldingSetter.setPreferences(preferences);
         setAllOptions(false);
     }

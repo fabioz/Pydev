@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.parser.IPyParser;
 
@@ -42,7 +42,7 @@ public class PyParserManager {
     public static final String USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE = "USE_PYDEV_ONLY_ON_DOC_SAVE";
     public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = "PYDEV_ELAPSE_BEFORE_ANALYSIS";
     
-    private Preferences prefs;
+    private IPreferenceStore prefs;
     private int millisBeforeAnalysis;
     private boolean useOnlyOnSave;
     
@@ -58,7 +58,7 @@ public class PyParserManager {
     // ---------------------------------------------------------------------------------------------- singleton stuff...
     private static PyParserManager pyParserManager;
 
-    public static synchronized PyParserManager getPyParserManager(Preferences prefs){
+    public static synchronized PyParserManager getPyParserManager(IPreferenceStore prefs){
         if(pyParserManager == null){
             pyParserManager = new PyParserManager(prefs);
         }
@@ -75,7 +75,7 @@ public class PyParserManager {
      * 
      * @param prefs the prefs to get to the parser
      */
-    private PyParserManager(Preferences prefs) {
+    private PyParserManager(IPreferenceStore prefs) {
         Assert.isNotNull(prefs); //in this constructor the prefs may never be null!
         
         this.prefs = prefs;
@@ -83,7 +83,7 @@ public class PyParserManager {
         this.useOnlyOnSave = prefs.getBoolean(USE_PYDEV_ANALYSIS_ONLY_ON_DOC_SAVE);
         
         //singleton: private constructor
-        IPropertyChangeListener prefListener = new Preferences.IPropertyChangeListener() {
+        IPropertyChangeListener prefListener = new IPropertyChangeListener() {
             
             public void propertyChange(PropertyChangeEvent event) {
                 String property = event.getProperty();

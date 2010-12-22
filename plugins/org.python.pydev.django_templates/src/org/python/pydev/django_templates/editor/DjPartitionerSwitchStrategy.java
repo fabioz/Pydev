@@ -26,7 +26,7 @@ public class DjPartitionerSwitchStrategy extends PartitionerSwitchStrategy {
      * 
      */
     private DjPartitionerSwitchStrategy() {
-        super(DJANGO_TEMPLATES_PAIRS, new String[0][0]);
+        super(DJANGO_TEMPLATES_PAIRS);
     }
 
     public static DjPartitionerSwitchStrategy getDefault() {

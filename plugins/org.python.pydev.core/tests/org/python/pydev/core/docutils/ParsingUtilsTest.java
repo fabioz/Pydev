@@ -16,7 +16,7 @@ public class ParsingUtilsTest extends TestCase {
         try {
             ParsingUtilsTest test = new ParsingUtilsTest();
             test.setUp();
-            test.testGetFlattenedLine2();
+            test.testGetFlattenedLine();
             test.tearDown();
             junit.textui.TestRunner.run(ParsingUtilsTest.class);
         } catch (Throwable e) {
@@ -166,28 +166,105 @@ public class ParsingUtilsTest extends TestCase {
         ")\n";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
-        assertEquals(8, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals(6, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals('c', str.charAt(6));
         assertEquals("line ", buf.toString());
         
         parsing.getFullFlattenedLine(1, buf.clear());
         assertEquals("ine ", buf.toString());
         
-        assertEquals(25, parsing.getFullFlattenedLine(8, buf.clear()));
+        assertEquals(23, parsing.getFullFlattenedLine(8, buf.clear()));
+        assertEquals('0', str.charAt(23));
         assertEquals("start =10 30", buf.toString());
         
-        assertEquals(41, parsing.getFullFlattenedLine(25, buf.clear()));
+        assertEquals(39, parsing.getFullFlattenedLine(25, buf.clear()));
         assertEquals("call", buf.toString());
+        assertEquals(')', str.charAt(39));
     }
     
     public void testGetFlattenedLine2() throws Exception {
         String str = "" +
         "line = '''\n" +
-        "bla bla bla''' = xxx\n" +
+        "bla bla bla''' = xxy\n" +
         "what";
         ParsingUtils parsing = ParsingUtils.create(str);
         FastStringBuffer buf = new FastStringBuffer();
-        assertEquals(32, parsing.getFullFlattenedLine(0, buf.clear()));
-        assertEquals("line =  = xxx", buf.toString());
+        assertEquals(30, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals('y', str.charAt(30));
+        assertEquals("line =  = xxy", buf.toString());
+    }
+    
+    public void testGetFlattenedLine3() throws Exception {
+        String str = "" +
+        "a = c(\r\n" +
+        "a)\r\n" +
+        "b = 20\r\n";
+        ParsingUtils parsing = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        assertEquals(9, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals("a = c", buf.toString());
+        assertEquals(')', str.charAt(9));
+    }
+    
+    public void testGetFlattenedLine4() throws Exception {
+        String str = "" +
+        "a = c(\r" +
+        "a)\r" +
+        "b = 20\r";
+        ParsingUtils parsing = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        assertEquals(8, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals("a = c", buf.toString());
+        assertEquals(')', str.charAt(8));
+    }
+    
+    public void testGetFlattenedLine5() throws Exception {
+        String str = "" +
+        "a = c(\n" +
+        "a)\n" + //char 8 == )
+        "b = 20\n";
+        ParsingUtils parsing = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        assertEquals(')', str.charAt(8));
+        assertEquals(8, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals("a = c", buf.toString());
+    }
+    
+    public void testGetFlattenedLine6() throws Exception {
+        String str = "" +
+        "a = '''" +
+        "a)\n" +
+        "'''\n" +
+        "b = 10";
+        ParsingUtils parsing = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        assertEquals(12, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals("a = ", buf.toString());
+        assertEquals('\'', str.charAt(12));
+    }
+    
+    public void testGetFlattenedLine7() throws Exception {
+        String str = "" +
+        "a = '''" +
+        "a)\n" +
+        "'''";
+        ParsingUtils parsing = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        assertEquals(12, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals("a = ", buf.toString());
+        assertEquals('\'', str.charAt(12));
+    }
+    
+    public void testGetFlattenedLine8() throws Exception {
+        String str = "" +
+        "a = '''" +
+        "a)\n" +
+        "'''\\";
+        ParsingUtils parsing = ParsingUtils.create(str);
+        FastStringBuffer buf = new FastStringBuffer();
+        assertEquals(13, parsing.getFullFlattenedLine(0, buf.clear()));
+        assertEquals("a = ", buf.toString());
+        assertEquals('\\', str.charAt(13));
     }
     
     public void testIterator2() throws Exception {

@@ -31,6 +31,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.net.LocalHost;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
@@ -473,7 +474,7 @@ public abstract class AbstractShell {
                     dbg("connecting attept..."+attempts,1);
                     try {
                         if (socketToWrite == null || socketToWrite.isConnected() == false) {
-                            socketToWrite = new Socket("127.0.0.1", pWrite); //we should write in this port
+                            socketToWrite = new Socket(LocalHost.getLocalHost(), pWrite); //we should write in this port
                         }
 
                         if (socketToWrite != null || socketToWrite.isConnected()) {

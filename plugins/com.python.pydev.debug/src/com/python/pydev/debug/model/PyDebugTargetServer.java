@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.debug.model.AbstractDebugTarget;
@@ -21,9 +22,16 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
         this.debugger = debugger;
         this.threads = new PyThread[0];
         this.launch = launch;
-        if( launch!=null ) {
-            launch.addDebugTarget( this );
-        }        
+        
+        if(launch != null) {
+            for (IDebugTarget target : launch.getDebugTargets()) {
+                if (target instanceof PyDebugTargetServer && target.isTerminated()) {
+                    launch.removeDebugTarget(target);
+                }
+            }
+            launch.addDebugTarget(this);
+        }
+        
         debugger.addTarget(this);
         IBreakpointManager breakpointManager= DebugPlugin.getDefault().getBreakpointManager();
         breakpointManager.addBreakpointListener(this);

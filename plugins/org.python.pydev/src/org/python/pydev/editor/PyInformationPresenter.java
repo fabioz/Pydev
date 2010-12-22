@@ -5,21 +5,20 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
 
-import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Display;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.core.tooltips.presenter.AbstractInformationPresenter;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 
@@ -28,7 +27,7 @@ import org.python.pydev.editor.model.ItemPointer;
  * 
  * @author Fabio
  */
-public class PyInformationPresenter implements DefaultInformationControl.IInformationPresenter, DefaultInformationControl.IInformationPresenterExtension {
+public class PyInformationPresenter extends AbstractInformationPresenter {
 
     public static class PyStyleRange extends StyleRange{
         public PyStyleRange() {
@@ -45,7 +44,6 @@ public class PyInformationPresenter implements DefaultInformationControl.IInform
         public String tagReplaced;
     }
     
-    public static final String LINE_DELIM = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
     private int fCounter;
     private boolean fEnforceUpperLineLimit;
@@ -72,29 +70,6 @@ public class PyInformationPresenter implements DefaultInformationControl.IInform
         return new StringReader(str);
     }
 
-    /**
-     * The line delimiters must match the platform for the bolds to be correct, so, in this function we remove
-     * the ones existing and add the ones dependent on the platform
-     */
-    private String correctLineDelimiters(String str) {
-        FastStringBuffer buf = new FastStringBuffer();
-        for(String s:StringUtils.splitInLines(str)){
-            
-            boolean found = false;
-            while(s.endsWith("\r") || s.endsWith("\n")){
-                found = true;
-                s = s.substring(0, s.length()-1);
-            }
-            buf.append(s);
-            if(found){
-                buf.append(LINE_DELIM);
-            }
-        }
-        str = buf.toString();
-        return str;
-    }
-
-    
 
     /**
      * Changes the @xxx bbb: things for bold
@@ -234,24 +209,13 @@ public class PyInformationPresenter implements DefaultInformationControl.IInform
     }
 
     /*
-     * @see IHoverInformationPresenter#updatePresentation(Display display, String, TextPresentation, int, int)
-     */
-    public String updatePresentation(Display display, String hoverInfo, TextPresentation presentation, int maxWidth, int maxHeight) {
-        return updatePresentation((Drawable)display, hoverInfo, presentation, maxWidth, maxHeight);
-    }
-
-    /*
      * @see IHoverInformationPresenterExtension#updatePresentation(Drawable drawable, String, TextPresentation, int, int)
      * @since 3.2
      */
     public String updatePresentation(Drawable drawable, String hoverInfo, TextPresentation presentation, int maxWidth, int maxHeight) {
         if(drawable instanceof StyledText){
             final StyledText styledText = (StyledText) drawable;
-            styledText.addMouseListener(new MouseListener() {
-                
-                public void mouseUp(MouseEvent e) {
-                    
-                }
+            styledText.addMouseListener(new MouseAdapter() {
                 
                 public void mouseDown(MouseEvent e) {
                     int offset = styledText.getOffsetAtLocation(new Point(e.x, e.y));
@@ -267,10 +231,6 @@ public class PyInformationPresenter implements DefaultInformationControl.IInform
                             }
                         }
                     }
-                }
-                
-                public void mouseDoubleClick(MouseEvent e) {
-                    
                 }
             });
         }

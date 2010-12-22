@@ -24,23 +24,31 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.ListComp;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.Suite;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.While;
+import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
@@ -885,6 +893,97 @@ public class NodeUtils {
             last.value = new Name(lastPart, Name.Load, false);
         }
         return first;
+    }
+
+
+    /**
+     * @return the body of the passed node (if it doesn't have a body, an empty array is returned).
+     */
+    public static stmtType[] getBody(SimpleNode node) {
+        if(node instanceof Module){
+            Module module = (Module) node;
+            return module.body;
+        }
+        
+        if(node instanceof ClassDef){
+            ClassDef module = (ClassDef) node;
+            return module.body;
+        }
+        
+        if(node instanceof FunctionDef){
+            FunctionDef module = (FunctionDef) node;
+            return module.body;
+        }
+        
+        if(node instanceof excepthandlerType){
+            excepthandlerType module = (excepthandlerType) node;
+            return module.body;
+        }
+        if(node instanceof For){
+            For module = (For) node;
+            return module.body;
+        }
+        if(node instanceof If){
+            If module = (If) node;
+            return module.body;
+        }
+        if(node instanceof Suite){
+            Suite module = (Suite) node;
+            return module.body;
+        }
+        if(node instanceof suiteType){
+            suiteType module = (suiteType) node;
+            return module.body;
+        }
+        if(node instanceof TryExcept){
+            TryExcept module = (TryExcept) node;
+            return module.body;
+        }
+        if(node instanceof TryFinally){
+            TryFinally module = (TryFinally) node;
+            return module.body;
+        }
+        if(node instanceof While){
+            While module = (While) node;
+            return module.body;
+        }
+        if(node instanceof With){
+            With module = (With) node;
+            return module.body.body;
+        }
+        return new stmtType[0];
+    }
+
+
+    /**
+     * @param node This is the node where we should start looking (usually the Module)
+     * @param path This is the path for which we want an item in the given node. 
+     *        E.g.: If we want to find a method testFoo in a class TestCase, we'de pass TestCase.testFoo as the path.
+     *  
+     */
+    public static SimpleNode getNodeFromPath(SimpleNode node, String path) {
+        SimpleNode leafTestNode = null;
+
+        SimpleNode last = node;
+        for(String s:StringUtils.dotSplit(path)){
+            
+            stmtType found = null;
+            for(stmtType n:NodeUtils.getBody(last)){
+                if(s.equals(NodeUtils.getRepresentationString(n))){
+                    found = n;
+                    last = n;
+                    break;
+                }
+            }
+            
+            if(found == null){
+                leafTestNode = null;
+                break;
+            }else{
+                leafTestNode = found;
+            }
+        }
+        return leafTestNode;
     }
 
 }

@@ -49,7 +49,7 @@ public class AssistAssignTest extends TestCase {
         try{
             AssistAssignTest test = new AssistAssignTest();
             test.setUp();
-            test.testSimple12();
+            test.testCodingStd2();
             test.tearDown();
             junit.textui.TestRunner.run(AssistAssignTest.class);
         }catch(Exception e){
@@ -166,8 +166,24 @@ public class AssistAssignTest extends TestCase {
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
         assertEquals(2, props.size());
-        assertContains("Assign to local (new_method)", props);
-        assertContains("Assign to field (self._new_method)", props);
+        ICompletionProposal prop0 = assertContains("Assign to local (new_method)", props);
+        ICompletionProposal prop1 = assertContains("Assign to field (self._new_method)", props);
+        
+        prop0.apply(doc);
+        
+        String expected = ""+
+        "from testAssist import assist\n" +
+        "new_method = assist._NewMethod(a = 1, b = 2)";
+        
+        assertEquals(expected, doc.get());
+        
+        doc = new Document(d);
+        prop1.apply(doc);
+        
+        expected = ""+
+        "from testAssist import assist\n" +
+        "self._new_method = assist._NewMethod(a = 1, b = 2)";
+        assertEquals(expected, doc.get());
     }
     
     public void testSimple4() throws BadLocationException {
@@ -316,7 +332,7 @@ public class AssistAssignTest extends TestCase {
     }
     
     
-    private void assertContains(String string, List<ICompletionProposal> props) {
+    private ICompletionProposal assertContains(String string, List<ICompletionProposal> props) {
         StringBuffer buffer = new StringBuffer("Available: \n");
         
         for (ICompletionProposal proposal : props) {
@@ -324,11 +340,12 @@ public class AssistAssignTest extends TestCase {
                 System.out.println(proposal.getDisplayString());
             }
             if(proposal.getDisplayString().equals(string)){
-                return;
+                return proposal;
             }
             buffer.append(proposal.getDisplayString());
             buffer.append("\n");
         }
         fail(string+" not found. "+buffer);
+        return null;
     }
 }

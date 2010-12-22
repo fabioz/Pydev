@@ -60,7 +60,44 @@ except:
         #Py3k does not have has_key anymore, and older versions don't have __contains__
         DictContains = dict.__contains__
     except:
-        DictContains = dict.has_key
+        try:
+            DictContains = dict.has_key
+        except NameError:
+            def DictContains(d, key):
+                return d.has_key(key)
+        
+        
+try:
+    xrange
+except:
+    #Python 3k does not have it
+    xrange = range
+        
+try:
+    object
+except NameError:
+    class object:
+        pass
+
+try:
+    enumerate
+except:
+    def enumerate(lst):
+        ret = []
+        i=0
+        for element in lst:
+            ret.append((i, element))
+            i+=1
+        return ret
+
+#=======================================================================================================================
+# StringIO
+#=======================================================================================================================
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
+
 
 #=======================================================================================================================
 # NextId

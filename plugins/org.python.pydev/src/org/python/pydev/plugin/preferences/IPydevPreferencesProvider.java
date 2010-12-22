@@ -37,6 +37,8 @@ public interface IPydevPreferencesProvider {
 	TextAttribute getConsoleInputTextAttribute();
 
 	TextAttribute getConsolePromptTextAttribute();
+	
+	TextAttribute getHyperlinkTextAttribute();
 
 	RGB getConsoleBackgroundRGB();
 

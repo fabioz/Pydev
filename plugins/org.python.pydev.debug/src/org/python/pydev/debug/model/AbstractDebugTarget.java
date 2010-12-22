@@ -38,7 +38,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.IConsoleInputListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.debug.core.PydevDebugPrefs;
+import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
@@ -373,7 +373,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         }
 
         // Hide Pydevd threads if requested
-        if (PydevDebugPrefs.getPreferences().getBoolean(PydevDebugPrefs.HIDE_PYDEVD_THREADS)) {
+        if (PydevDebugPlugin.getDefault().getPreferenceStore().getBoolean(PydevDebugPreferencesInitializer.HIDE_PYDEVD_THREADS)) {
             int removeThisMany = 0;
             
             for (int i=0; i< newThreads.length; i++){

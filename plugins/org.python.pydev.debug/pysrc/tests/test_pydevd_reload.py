@@ -51,7 +51,7 @@ class Test(unittest.TestCase):
     def setUp(self, nused=None):
         global tempdir, save_path
         tempdir = tempfile.mktemp()
-        print tempdir
+        print(tempdir)
         os.makedirs(tempdir)
         save_path = list(sys.path)
         sys.path.append(tempdir)

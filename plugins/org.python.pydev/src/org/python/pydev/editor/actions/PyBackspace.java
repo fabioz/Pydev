@@ -137,6 +137,10 @@ public class PyBackspace extends PyAction {
                 return;
             }
         }
+    	if(!canModifyEditor()){
+    		return;
+    	}
+
         PySelection ps = new PySelection(getTextEditor());
         perform(ps);
     }
@@ -377,7 +381,7 @@ public class PyBackspace extends PyAction {
         return new VerifyKeyListener(){
             
             public void verifyKey(VerifyEvent event) {
-                if((event.doit && event.character == SWT.BS && event.stateMask == 0)){ //isBackspace
+                if((event.doit && event.character == SWT.BS && event.stateMask == 0 && viewer != null && viewer.isEditable())){ //isBackspace
                     boolean blockSelection = false;
                     try{
                         blockSelection = viewer.getTextWidget().getBlockSelection();

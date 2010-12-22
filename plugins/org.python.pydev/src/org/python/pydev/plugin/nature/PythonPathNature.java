@@ -96,6 +96,7 @@ public class PythonPathNature implements IPythonPathNature {
     }
     
 
+    private boolean waited = false;
     /**
      * Returns a list of paths with the complete pythonpath for this nature.
      * 
@@ -104,6 +105,20 @@ public class PythonPathNature implements IPythonPathNature {
      */
     public List<String> getCompleteProjectPythonPath(IInterpreterInfo interpreter, IInterpreterManager manager) {
         IModulesManager projectModulesManager = getProjectModulesManager();
+        if(projectModulesManager == null){
+            if(!waited){
+                waited = true;
+                for(int i=0;i<10 && projectModulesManager == null;i++){
+                    //We may get into a race condition, so, try to see if we can get it.
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        //OK
+                    }
+                    projectModulesManager = getProjectModulesManager();
+                }
+            }
+        }
         if(projectModulesManager == null){
             return null;
         }

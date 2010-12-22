@@ -17,7 +17,7 @@ import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.pyunit.preferences.PyunitPrefsPage;
+import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
@@ -135,8 +135,9 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putBoolean(PyCodeFormatterPage.USE_SPACE_FOR_PARENTESIS, PyCodeFormatterPage.DEFAULT_USE_SPACE_FOR_PARENTESIS);
 
         //initialize pyunit prefs
-        node.putInt(PyunitPrefsPage.PYUNIT_VERBOSITY, PyunitPrefsPage.DEFAULT_PYUNIT_VERBOSITY);
-        node.put(PyunitPrefsPage.PYUNIT_TEST_FILTER, PyunitPrefsPage.DEFAULT_PYUNIT_TEST_FILTER);
+        node.putInt(PyUnitPrefsPage2.TEST_RUNNER, PyUnitPrefsPage2.DEFAULT_TEST_RUNNER);
+        node.putBoolean(PyUnitPrefsPage2.USE_PYUNIT_VIEW, PyUnitPrefsPage2.DEFAULT_USE_PYUNIT_VIEW);
+        node.put(PyUnitPrefsPage2.TEST_RUNNER_DEFAULT_PARAMETERS, PyUnitPrefsPage2.DEFAULT_TEST_RUNNER_DEFAULT_PARAMETERS);
         
         // Docstrings
         node.put(DocstringsPrefPage.P_DOCSTRINGCHARACTER, DocstringsPrefPage.DEFAULT_P_DOCSTRINGCHARACTER);

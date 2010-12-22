@@ -652,6 +652,11 @@
 
 
 
+<!-- preferences -->
+  <extension point="org.eclipse.core.runtime.preferences">
+     <initializer class="org.python.pydev.debug.core.PydevDebugPreferencesInitializer"/>
+  </extension>
+  
 <!-- console stuff -->
   <extension point="org.eclipse.ui.console.consoleFactories">
     <consoleFactory
@@ -706,5 +711,15 @@
          <enablement></enablement>
       </consolePageParticipant>
    </extension>
+   
+<!-- view: pyunit view-->
+<extension point="org.eclipse.ui.views">
+   <view
+        class="org.python.pydev.debug.pyunit.PyUnitView"
+        icon="icons/pyunit.png"
+        category="org.python.pydev"
+        name="PyUnit"
+        id="org.python.pydev.debug.pyunit.pyUnitView"/>
+</extension>
 </plugin>
 

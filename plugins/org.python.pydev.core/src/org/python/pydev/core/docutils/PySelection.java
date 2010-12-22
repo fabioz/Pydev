@@ -689,7 +689,11 @@ public class PySelection {
      */
     public String getCursorLineContents() {
         try {
-            int start = getStartLine().getOffset();
+            IRegion startLine = getStartLine();
+            if(startLine == null){
+                return "";
+            }
+            int start = startLine.getOffset();
             int end = getEndLine().getOffset() + getEndLine().getLength();
             return this.doc.get(start, end-start);
         } catch (BadLocationException e) {

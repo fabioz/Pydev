@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -241,7 +241,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         CodeFoldingVisitor visitor = CodeFoldingVisitor.create(ast);
         //(re) insert annotations.
         List<Class> elementList = new ArrayList<Class>();
-        Preferences prefs = getPreferences();
+        IPreferenceStore prefs = getPreferences();
         
         if(prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS)){
             elementList.add(Import.class);
@@ -441,7 +441,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         return foldingEntry;
     }
 
-    public static Preferences getPreferences() {
+    public static IPreferenceStore getPreferences() {
         if(testingPrefs == null){
             return PydevPrefs.getPreferences();
         }else{
@@ -452,13 +452,13 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener {
         }
     }
     
-    private static Preferences testingPrefs;
+    private static IPreferenceStore testingPrefs;
     
     /**
      * Used for tests
      * @return
      */
-    public static void setPreferences(Preferences prefs) {
+    public static void setPreferences(IPreferenceStore prefs) {
         CodeFoldingSetter.testingPrefs = prefs;
     }
     

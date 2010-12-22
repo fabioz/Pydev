@@ -20,13 +20,13 @@ class Test(unittest.TestCase):
             
             try:
                 sys.stdout = pydevd_io.IOBuf()
-                print 'foo'
-                print 'bar'
+                print('foo')
+                print('bar')
                 
                 self.assertEquals('foo\nbar\n', sys.stdout.getvalue()) #@UndefinedVariable
                 
-                print 'ww'
-                print 'xx'
+                print('ww')
+                print('xx')
                 self.assertEquals('ww\nxx\n', sys.stdout.getvalue()) #@UndefinedVariable
             finally:
                 sys.stdout = original

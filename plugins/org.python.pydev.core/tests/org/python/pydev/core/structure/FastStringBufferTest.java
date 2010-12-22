@@ -116,6 +116,17 @@ public class FastStringBufferTest extends TestCase{
         assertFalse(buf.endsWith('a'));
     }
     
+    public void testCountNewLines() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(0);
+        assertEquals(0, buf.countNewLines());
+        buf.append('\r');
+        assertEquals(1, buf.countNewLines());
+        buf.append('\n');
+        assertEquals(1, buf.countNewLines());
+        buf.append('\n');
+        assertEquals(2, buf.countNewLines());
+    }
+    
     
 //    public void testFastString() throws Exception {
 //        

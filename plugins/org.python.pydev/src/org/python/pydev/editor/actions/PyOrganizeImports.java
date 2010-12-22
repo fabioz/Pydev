@@ -47,6 +47,10 @@ public class PyOrganizeImports extends PyAction{
     public void run(IAction action) {
         try 
         {
+        	if(!canModifyEditor()){
+        		return;
+        	}
+
             PyEdit pyEdit = getPyEdit();
             
             PySelection ps = new PySelection(pyEdit);

@@ -132,7 +132,7 @@ public class AssistAssign implements IAssistProps {
         if(loc.startsWith("_")){
             loc = loc.substring(1);
         }
-        l.add(new AssistAssignCompletionProposal(loc, firstCharAbsolutePosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
+        l.add(new AssistAssignCompletionProposal(loc + " = ", firstCharAbsolutePosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
                 "Assign to local ("+loc+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer));
         
         l.add(new AssistAssignCompletionProposal("self." + callName + " = ", firstCharAbsolutePosition, 0, 5, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS),
@@ -212,7 +212,7 @@ public class AssistAssign implements IAssistProps {
 		if(string == null){
 			string = PyAction.getLineWithoutComments(ps);
 		}
-		return string;
+		return string.trim();
 	}
     
 	
@@ -240,8 +240,7 @@ public class AssistAssign implements IAssistProps {
      * @return the token which should be used to make the assign.
      */ 
     private String getTokToAssign(PySelection ps) {
-    	String string = getStringToAnalyze(ps);
-    	string = string.trim();
+    	String string = getStringToAnalyze(ps); //it's already trimmed!
     	
         String beforeParentesisTok = getBeforeParentesisTok(string);
         if(beforeParentesisTok.length() > 0){
