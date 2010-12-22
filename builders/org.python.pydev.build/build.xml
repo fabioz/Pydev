@@ -168,7 +168,7 @@
         <!-- Copy the features and plugins over into a dropins folder. Installing makes it so that non-linux plugins/features won't be there! -->
         <mkdir dir="${baseLocation}/dropins/eclipse" />
         <copy todir="${baseLocation}/dropins/eclipse">
-            <fileset dir="${red-core.p2.repo}" defaultexcludes="true">
+            <fileset dir="${studio3.p2.repo}" defaultexcludes="true">
                 <include name="features/*" />
                 <include name="plugins/*" />
             </fileset>
