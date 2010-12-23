@@ -5,6 +5,8 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 
 public abstract class ViewPartWithOrientation extends ViewPart {
 
@@ -13,6 +15,13 @@ public abstract class ViewPartWithOrientation extends ViewPart {
     
     protected int VIEW_ORIENTATION_HORIZONTAL = 0;
     protected int VIEW_ORIENTATION_VERTICAL = 1;
+    
+    @SuppressWarnings("rawtypes")
+    public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
+    
+    @SuppressWarnings("rawtypes")
+    public final ICallbackWithListeners onDispose = new CallbackWithListeners();
+    
 
     public void createPartControl(Composite parent) {
         fParent= parent;
