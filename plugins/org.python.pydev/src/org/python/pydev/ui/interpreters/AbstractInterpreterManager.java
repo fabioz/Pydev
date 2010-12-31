@@ -40,6 +40,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
@@ -352,7 +353,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                             ISystemModulesManager systemModulesManager = (ISystemModulesManager) PydevPlugin.readFromWorkspaceMetadata(info.getExeAsFileSystemValidPath());
                             info.setModulesManager(systemModulesManager);
                         } catch (Exception e) {
-                            PydevPlugin.logInfo(e);
+                            PydevPlugin.logInfo(new RuntimeException("Restoring info for: "+info.getExecutableOrJar(), e));
                             
                             //if it does not work it (probably) means that the internal storage format changed among versions,
                             //so, we have to recreate that info.
@@ -381,7 +382,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                                 }
                                 
                             });
-                            System.out.println("Finished restoring information for: "+info.executableOrJar);
+                            System.out.println("Finished restoring information for: "+info.executableOrJar+" at: "+info.getExeAsFileSystemValidPath());
                         }
                     }
                     
@@ -433,7 +434,17 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     public void saveInterpretersInfoModulesManager() {
         for(InterpreterInfo info : this.exeToInfo.values()){
-            PydevPlugin.writeToWorkspaceMetadata(info.getModulesManager(), info.getExeAsFileSystemValidPath());
+            ISystemModulesManager modulesManager = info.getModulesManager();
+            Object pythonPathHelper = modulesManager.getPythonPathHelper();
+            if(!(pythonPathHelper instanceof PythonPathHelper)){
+                continue;
+            }
+            PythonPathHelper pathHelper = (PythonPathHelper) pythonPathHelper;
+            List<String> pythonpath = pathHelper.getPythonpath();
+            if(pythonpath == null || pythonpath.size() == 0){
+                continue;
+            }
+            PydevPlugin.writeToWorkspaceMetadata(modulesManager, info.getExeAsFileSystemValidPath());
         }
     }
 
