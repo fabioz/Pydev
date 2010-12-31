@@ -26,9 +26,18 @@ except:
 if IS_PYTHON_3K:
     #Python 3 has a bug (http://bugs.python.org/issue4705) in which -u doesn't properly make output/input unbuffered
     #so, we need to enable that ourselves here.
-    sys.stdout._line_buffering = True
-    sys.stderr._line_buffering = True
-    sys.stdin._line_buffering = True
+    try:
+        sys.stdout._line_buffering = True
+    except:
+        pass
+    try:
+        sys.stderr._line_buffering = True
+    except:
+        pass
+    try:
+        sys.stdin._line_buffering = True
+    except:
+        pass
     
     
     
