@@ -126,9 +126,6 @@ public class PyUnitView extends ViewPartWithOrientation{
     
     public static int MAX_RUNS_TO_KEEP = 15;
     
-    public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
-    public final ICallbackWithListeners onDispose = new CallbackWithListeners();
-    
     private static final Object lockServerListeners = new Object();
     private static final List<PyUnitViewServerListener> serverListeners = new ArrayList<PyUnitViewServerListener>();
     

@@ -1,5 +1,6 @@
 package org.python.pydev.red_core;
 
+import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.debug.pyunit.PyUnitView;
 import org.python.pydev.navigator.ui.PydevPackageExplorer;
 import org.python.pydev.outline.PyOutlinePage;
@@ -21,6 +22,12 @@ public class AddRedCoreThemeToView implements IViewCreatedObserver{
     			PyUnitView castView = (PyUnitView) view;
     			castView.onControlCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
     			castView.onDispose.registerListener(onViewCreatedListener.onDispose);
+    			
+    		}else if(view instanceof PyCodeCoverageView){
+    		    AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
+    		    PyCodeCoverageView castView = (PyCodeCoverageView) view;
+    		    castView.onControlCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
+    		    castView.onDispose.registerListener(onViewCreatedListener.onDispose);
     			
     		}else if(view instanceof PyOutlinePage){
     		    AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();

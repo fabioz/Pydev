@@ -3,6 +3,7 @@ package org.python.pydev.debug.codecoverage;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -36,8 +37,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
@@ -46,6 +48,7 @@ import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
+import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.utils.ProgressAction;
 import org.python.pydev.utils.ProgressOperation;
 
@@ -60,7 +63,7 @@ import org.python.pydev.utils.ProgressOperation;
  * <p>
  */
 
-public class PyCodeCoverageView extends ViewPart {
+public class PyCodeCoverageView extends ViewPartWithOrientation {
     //layout stuff
     private Composite leftComposite;
 
@@ -108,7 +111,7 @@ public class PyCodeCoverageView extends ViewPart {
      */
     private File lastChosenFile;
 
-    private SashForm s;
+    private SashForm sash;
 
     //Actions ------------------------------
     /**
@@ -286,18 +289,42 @@ public class PyCodeCoverageView extends ViewPart {
      * The constructor.
      */
     public PyCodeCoverageView() {
+        @SuppressWarnings("unchecked")
+        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
+                ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
+        for (IViewCreatedObserver iViewCreatedObserver : participants) {
+            iViewCreatedObserver.notifyViewCreated(this);
+        }
     }
 
     public void refresh() {
         viewer.refresh();
         getSite().getPage().bringToTop(this);
     }
+    
+    @Override
+    protected void setNewOrientation(int orientation) {
+        if(sash != null && !sash.isDisposed() && fParent != null && !fParent.isDisposed()){
+            GridLayout layout= (GridLayout) fParent.getLayout();
+            if(orientation == VIEW_ORIENTATION_HORIZONTAL){
+                sash.setOrientation(SWT.HORIZONTAL);
+                layout.numColumns = 2;
+                
+            }else{
+                sash.setOrientation(SWT.VERTICAL);
+                layout.numColumns = 1;
+            }
+            fParent.layout();
+        }
+    }
+
 
     /**
      * This is a callback that will allow us to create the viewer and initialize it.
      */
     public void createPartControl(Composite parent) {
-
+        super.createPartControl(parent);
+        
         GridLayout layout = new GridLayout();
         layout.numColumns = 2;
         layout.verticalSpacing = 2;
@@ -305,15 +332,15 @@ public class PyCodeCoverageView extends ViewPart {
         layout.marginHeight = 2;
         parent.setLayout(layout);
 
-        s = new SashForm(parent, SWT.HORIZONTAL);
+        sash = new SashForm(parent, SWT.HORIZONTAL);
         GridData layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
         layoutData.verticalAlignment = GridData.FILL;
-        s.setLayoutData(layoutData);
+        sash.setLayoutData(layoutData);
 
-        parent = s;
+        parent = sash;
 
         leftComposite = new Composite(parent, SWT.MULTI);
         layout = new GridLayout();
@@ -335,6 +362,7 @@ public class PyCodeCoverageView extends ViewPart {
         } catch (Exception e) {
             //ok, might mot be available.
         }
+        onControlCreated.call(text);
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
@@ -350,6 +378,7 @@ public class PyCodeCoverageView extends ViewPart {
         //end choose button
 
         viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+        onControlCreated.call(viewer);
         viewer.setContentProvider(new FileTreePyFilesProvider());
         viewer.setLabelProvider(new FileTreeLabelProvider());
         viewer.addFilter(new AllowValidPathsFilter());
