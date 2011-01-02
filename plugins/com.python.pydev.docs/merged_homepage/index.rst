@@ -20,6 +20,7 @@ Pydev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _Tokens browser: manual_adv_open_decl_quick.html
 .. _Interactive console: manual_adv_interactive_console.html
 .. _Syntax highlighting: manual_adv_editor_prefs.html
+.. _Unittest integration: manual_adv_pyunit.html
 
 
 It comes with many goodies such as:
@@ -36,9 +37,39 @@ It comes with many goodies such as:
  * `Remote debugger`_
  * `Tokens browser`_
  * `Interactive console`_
+ * `Unittest integration`_
  * **and many others**:
 
 For more details on the provided features, check the `Features Matrix`_.
+
+Release 1.6.4
+==============
+
+ * Improved `Unittest integration`_:
+ 
+     * Created a PyUnit view (with a red/green bar) which can be used to see the results of tests and relaunching them
+     * The default test runner now allows parallel execution (distributing tests by module or individually)
+     * The nose and py.test test runners are also supported now
+
+ * Major Bug Fixed: existing interpreters could be corrupted when adding a new one
+
+ * Fixed AttributeError on console startup in Python 3.0
+ 
+ * Added theming and automatic sash orientation to the pydev code coverage view
+ 
+ * Patch by frigo7: When creating a new remote debugger target, the terminated ones are removed
+ 
+ * Patch by frigo7: compare editor properly showing the revision information and fixed broken shortcuts (e.g.: ctrl+z)
+ 
+ * Read-only files no longer editable in pydev actions
+ 
+ * Fixed issue of remaining \\r on python 3.0 on input()
+ 
+ * The pydev parser is now properly dealing with bom (utf-8)
+ 
+ * Assign to local: if method starts with '_', the leading '_' is not added to the local
+
+
 
 Release 1.6.3
 ==============
@@ -74,62 +105,6 @@ Release 1.6.3
     * Fixed issue where quotes could end up in the execfile when they should not be there
     * Fixed issue where shift right did not work properly because the indent prefixes were not properly set when the tab preference changed
     
-
-
-Release 1.6.2
-==============
-
-* Pydev is now also distributed with Aptana Studio 3, so it can be gotten in a version that doesn't require installing it as 
-  a separate plugin. Get it at: http://aptana.com/products/studio3/download 
-
-* **Django templates editor** (requires Aptana Studio 3)
-
-    * Supports HTML files with HTML, CSS and Javascript
-    * Supports CSS files
-    * Outline page
-    * Code-completion for Django templates based on templates (window > preferences > pydev > django templates editor > templates)
-    * Code-completion for HTML, CSS and Javascript 
-    * Syntax highlighting based on the templates with the 'Django tags' context
-    * Colors based on the Aptana themes
-    
-* **Python 2.7 grammar** supported
-
-* Fixed indexing issue on contents getting getting stale in the cache
-
-* Fixed issue where the partitioning became wrong when entering a multiline string
-
-* Colors in the compare editor are now correct when using the Aptana themes
-
-* Extract method refactoring now works with "import" and "from ... import" inside a method
-
-* Source folders now appear before other folders
-
-* Fixed False positive on code analysis when using the property decorator
-
-
-Release 1.6.1
-==============
-
-* **Debugger**
-
-    * **Critical Fix: issue that prevented the debugger from working with Python 3 solved**
-    * Improving socket connection handling
-
-* **Launching**
-
-    * Restart last launch and terminate all launches actions created
-        * Restart last: **Ctrl+Shift+F9** (in pydev editor)
-        * Terminate all: **Ctrl+Alt+F9** (in pydev editor)
-        * Buttons were also added to pydev consoles 
-    
-* **Utilities**
-
-    * **2to3**: Right-clicking a folder or file will show an option in the Pydev menu to convert from python 2 to python 3 (note that lib2to3 must available in the python installation).
-    * Defining execfile in a Python 3 interactive console so that Ctrl+Alt+Enter works.
-    * Fixed issue in the code style preferences page (switched value shown).
-    * com.ziclix.python.sql added to the forced builtins in a Jython install by default.
-    * Improved some icons when on a dark theme (patch from Kenneth Belitzky)
-
 
     
 What happened to Pydev Extensions?
