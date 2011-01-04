@@ -547,6 +547,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         }
         forcedLibs.add("sys"); //jython bug: sys is not added
         forcedLibs.add("email"); //email has some lazy imports that pydev cannot handle through the source
+        forcedLibs.add("hashlib"); //depending on the Python version, hashlib cannot find md5, so, let's always leave it there.
         
 
         int interpreterType = getInterpreterType();
