@@ -164,6 +164,12 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String FUNC_NAME_COLOR = "FUNC_NAME_COLOR";
     public static final RGB DEFAULT_FUNC_NAME_COLOR = new RGB(0, 0, 0);
     
+    public static final String PARENS_COLOR = "PARENS_COLOR";
+    public static final RGB DEFAULT_PARENS_COLOR = new RGB(0, 0, 0);
+    
+    public static final String OPERATORS_COLOR = "OPERATORS_COLOR";
+    public static final RGB DEFAULT_OPERATORS_COLOR = new RGB(0, 0, 0);
+    
     //see initializeDefaultColors for selection defaults
     public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
     public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
@@ -199,7 +205,11 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
     public static final String FUNC_NAME_STYLE = "FUNC_NAME_STYLE";
     public static final int DEFAULT_FUNC_NAME_STYLE = SWT.BOLD;
 
+    public static final String PARENS_STYLE = "PARENS_STYLE";
+    public static final int DEFAULT_PARENS_STYLE = SWT.NORMAL;
     
+    public static final String OPERATORS_STYLE = "OPERATORS_STYLE";
+    public static final int DEFAULT_OPERATORS_STYLE = SWT.NORMAL;
     /**
      * Defaults
      */
@@ -215,6 +225,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         {"Backquotes", BACKQUOTES_COLOR, null},
         {"Class Name", CLASS_NAME_COLOR, null},
         {"Function Name", FUNC_NAME_COLOR, null},
+        {"(), [], {}", PARENS_COLOR, null},
+        {"Operators (+,-,*,...)", OPERATORS_COLOR, null},
     };
     
     protected final String[][] fAppearanceFontListModel= new String[][] {
@@ -229,6 +241,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         {"Backquotes", BACKQUOTES_STYLE, null},
         {"Class Name", CLASS_NAME_STYLE, null},
         {"Function Name", FUNC_NAME_STYLE, null},
+        {"(), [], {}", PARENS_STYLE, null},
+        {"Operators (+,-,*,...)", OPERATORS_STYLE, null},
     };
     
     protected OverlayPreferenceStore fOverlayStore;
@@ -336,6 +350,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BACKQUOTES_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CLASS_NAME_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, FUNC_NAME_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PARENS_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, OPERATORS_COLOR));
         
         //font style
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CODE_STYLE));
@@ -348,6 +364,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, BACKQUOTES_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CLASS_NAME_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, FUNC_NAME_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PARENS_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, OPERATORS_STYLE));
         
         OverlayPreferenceStore.OverlayKey[] keys= new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
         overlayKeys.toArray(keys);

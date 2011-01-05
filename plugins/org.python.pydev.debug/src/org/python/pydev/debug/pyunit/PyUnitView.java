@@ -48,8 +48,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
@@ -113,7 +111,6 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * 
  * Based on org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it's really not meant to be reused)
  */
-@SuppressWarnings("rawtypes")
 public class PyUnitView extends ViewPartWithOrientation{
     
     public static final String PY_UNIT_TEST_RESULT = "RESULT";

@@ -42,5 +42,9 @@ public interface IPydevPreferencesProvider {
 
 	RGB getConsoleBackgroundRGB();
 
+    TextAttribute getParensTextAttribute();
+
+    TextAttribute getOperatorsTextAttribute();
+
 
 }

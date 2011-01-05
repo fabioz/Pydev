@@ -47,8 +47,12 @@ public class PyCodeScanner extends RuleBasedScanner {
     private IToken numberToken   ; 
     private IToken classNameToken; 
     private IToken funcNameToken ;
+    private IToken parensToken; 
+    private IToken operatorsToken;
 
-    private String[] keywords; 
+    private String[] keywords;
+
+
     
     
     
@@ -183,6 +187,10 @@ public class PyCodeScanner extends RuleBasedScanner {
         
         funcNameToken  = new Token( colorCache.getFuncNameTextAttribute() );
         
+        parensToken  = new Token( colorCache.getParensTextAttribute() );
+        
+        operatorsToken  = new Token( colorCache.getOperatorsTextAttribute() );
+        
         setDefaultReturnToken(defaultToken);
         List<IRule> rules = new ArrayList<IRule>();
         
@@ -196,7 +204,8 @@ public class PyCodeScanner extends RuleBasedScanner {
         Map<String,IToken> defaults = new HashMap<String, IToken>();
         defaults.put("self", selfToken);
         
-        PyWordRule wordRule = new PyWordRule(new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken);
+        PyWordRule wordRule = new PyWordRule(
+                new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken, parensToken, operatorsToken);
         for (String keyword : keywords) {
             IToken token = defaults.get(keyword);
             if(token == null){
@@ -204,6 +213,7 @@ public class PyCodeScanner extends RuleBasedScanner {
             }
             wordRule.addWord( keyword, token);
         }
+        
         rules.add(wordRule);
 
         

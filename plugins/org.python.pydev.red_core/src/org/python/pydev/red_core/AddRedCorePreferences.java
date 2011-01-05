@@ -96,6 +96,16 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevP
 		
 		return getFromTheme("support.type.py");
 	}
+	
+    public TextAttribute getParensTextAttribute() {
+        return getFromTheme("source.parens.py");
+    }
+
+    public TextAttribute getOperatorsTextAttribute() {
+        return getFromTheme("source.operators.py");
+    }
+
+
 
 	public TextAttribute getStringTextAttribute() {
 		
@@ -149,21 +159,15 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevP
         });
         colorsAndFontsLinkFieldEditor.getLinkControl(appearanceComposite);
         
-        LabelFieldEditor labelFieldEditor = new LabelFieldEditor("UNUSED", "Scopes used in Aptana Themes:\n" +
-                "Code:          source\n" +
-                "Keywords:      keyword\n" +
-                "Self:          keyword.other.self\n" +
-                "Decorators:    storage.type.annotation\n" +
-                "Numbers:       constant.numeric\n" +
-                "Class name:    entity.name.class\n" +
-                "Function name: entity.name.function\n" +
-                "Comments:      comment\n" +
-                "Backquotes:    support.type\n" +
-                "Strings:       string\n" +
-                "Stderr:        console.error\n" +
-                "Stdout:        console.output\n" +
-                "Input:         console.input\n" +
-                "Prompt:        console.prompt\n" +
+        LabelFieldEditor labelFieldEditor = new LabelFieldEditor("UNUSED", "Scopes used in Aptana Themes:\n\n" +
+                "Code:          source                   " +  "Backquotes: support.type\n" +
+                "Keywords:      keyword                  " +  "{}, [], (): source.parens\n" +
+                "Self:          keyword.other.self       " +  "Comments:   comment\n" +
+                "Decorators:    storage.type.annotation  " +  "Strings:    string\n" +
+                "Numbers:       constant.numeric         " +  "Stderr:     console.error\n" +
+                "Class name:    entity.name.class        " +  "Stdout:     console.output\n" +
+                "Function name: entity.name.function     " +  "Input:      console.input\n" +
+                "Operators:     source.operators         " +  "Prompt:     console.prompt\n" +
                 "", appearanceComposite);
         Label labelControl = labelFieldEditor.getLabelControl(appearanceComposite);
         try {
@@ -177,6 +181,5 @@ public class AddRedCorePreferences implements IPydevPreferencesProvider, IPydevP
         return true;
         
     }
-
 
 }

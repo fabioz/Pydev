@@ -45,6 +45,10 @@ public class PyWordRule implements IRule {
     private IToken classNameToken;
 
     private IToken funcNameToken;
+    
+    private IToken parensToken;
+    
+    private IToken operatorsToken;
 
    
     /**
@@ -60,7 +64,8 @@ public class PyWordRule implements IRule {
      *
      * @see #addWord(String, IToken)
      */
-    public PyWordRule(IWordDetector detector, IToken defaultToken, IToken classNameToken, IToken funcNameToken) {
+    public PyWordRule(
+            IWordDetector detector, IToken defaultToken, IToken classNameToken, IToken funcNameToken, IToken parensToken, IToken operatorsToken) {
 
         Assert.isNotNull(detector);
         Assert.isNotNull(defaultToken);
@@ -69,6 +74,8 @@ public class PyWordRule implements IRule {
         fDefaultToken= defaultToken;
         this.classNameToken = classNameToken;
         this.funcNameToken = funcNameToken;
+        this.parensToken = parensToken;
+        this.operatorsToken = operatorsToken;
     }
 
     /**
@@ -101,6 +108,41 @@ public class PyWordRule implements IRule {
     private String lastFound="";
     public IToken evaluate(ICharacterScanner scanner) {
         int c= scanner.read();
+        
+        IToken found = null;
+        switch(c){
+            case '(':
+            case ')':
+            case '[':
+            case ']':
+            case '{':
+            case '}':
+                found = this.parensToken;
+                break;
+                
+            case '<':
+            case '>':
+            case '=':
+            case '+':
+            case '-':
+            case '/':
+            case '*':
+            case '!':
+            case '&':
+            case '|':
+            case '%':
+            case '~':
+            case '^':
+            case ',':
+                found = this.operatorsToken;
+                break;
+        }
+        
+        if(found != null){
+            lastFound = "";
+            return found;
+        }
+        
         if (fDetector.isWordStart((char) c)) {
             if (fColumn == UNDEFINED || (fColumn == scanner.getColumn() - 1)) {
 
