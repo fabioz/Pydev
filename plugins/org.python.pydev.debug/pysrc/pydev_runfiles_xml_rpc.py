@@ -144,8 +144,8 @@ def InitializeServer(port):
             _ServerHolder.SERVER_COMM.start()
         else:
             #Create a null server, so that we keep the interface even without any connection.
-            _ServerHolder.SERVER = pydevd_constants.Null()
-            _ServerHolder.SERVER_COMM = pydevd_constants.Null()
+            _ServerHolder.SERVER = Null()
+            _ServerHolder.SERVER_COMM = Null()
         
     try:
         _ServerHolder.SERVER.notifyConnected()
