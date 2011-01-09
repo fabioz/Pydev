@@ -21,6 +21,7 @@ only get files starting with 'pytemplate', so, it's also worth checking
 http://pydev.org/manual_articles_scripting.html
 '''
 
+import time
 import template_helper
 
 if False:
@@ -96,6 +97,23 @@ def GetLParenIfPy3(context):
 template_helper.AddTemplateVariable(py_context_type, 'lparen_if_py3', 'Adds a ( if python 3.', GetLParenIfPy3)    
 
 
+#===============================================================================
+# ISO-8601 Dates
+#===============================================================================
+def GetISODate(context):
+    return time.strftime("%Y-%m-%d")
+
+template_helper.AddTemplateVariable(py_context_type, 'isodate', 'ISO-8601 Ymd date', GetISODate)
+
+def GetISODateString1(context):
+    return time.strftime("%Y-%m-%d %H:%M")
+
+template_helper.AddTemplateVariable(py_context_type, 'isodatestr', 'ISO-8601 Ymd HM date', GetISODateString1)
+
+def GetISODateString2(context):
+    return time.strftime("%Y-%m-%d %H:%M:%S")
+
+template_helper.AddTemplateVariable(py_context_type, 'isodatestr2', 'ISO-8601 Ymd HMS date', GetISODateString2)
 
 
 #===================================================================================================
