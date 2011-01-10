@@ -79,9 +79,9 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
     }
 
     protected Control createAppearancePage(Composite parent) {
-        Composite appearanceComposite= new Composite(parent, SWT.NONE );
+        Composite appearanceComposite= new Composite(parent, SWT.NONE);
         GridLayout layout= new GridLayout(); 
-        layout.numColumns= 2;
+        layout.numColumns= 1;
         appearanceComposite.setLayout(layout);
 
         
@@ -175,10 +175,10 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         Composite editorComposite= new Composite(appearanceComposite, SWT.NONE);
         layout= new GridLayout();
         layout.numColumns= 2;
-        layout.marginHeight= 0;
+        layout.marginHeight= 2;
         layout.marginWidth= 0;
         editorComposite.setLayout(layout);
-        gd= new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.FILL_VERTICAL);
+        gd= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
         gd.horizontalSpan= 2;
         editorComposite.setLayoutData(gd);        
 
