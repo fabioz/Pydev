@@ -13,6 +13,9 @@ import java.util.Map;
 
 import org.eclipse.jface.resource.CompositeImageDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -206,8 +209,17 @@ public class ImageCache {
 		    	Display display = Display.getCurrent();
 				image = new Image(display, get(key), SWT.IMAGE_COPY);
 				imageHash.put(cacheKey, image); //put it there (even though it'll still be changed).
+	            
+				int base = 10;
+				String fontName = "Courier New";
 				
-				int base=10;
+				if (Platform.getOS().equals(Constants.OS_MACOSX)) {
+	                // see org.python.pydev.ui.actions.resources.Py2To3#confirmRun()
+	                // for an explanation why a different font and size is neccesary on OS X
+				    fontName = "Monaco";
+				    base = 12; 
+				}
+				
 		        GC gc = new GC(image);
 		        
 //		        Color color = new Color(display, 0, 0, 0);
@@ -223,7 +235,18 @@ public class ImageCache {
 		        
 		        Color colorBackground = new Color(display, 255, 255, 255);
 		        Color colorForeground = new Color(display, 0, 83, 41);
-		        Font font = new Font(display, new FontData("Courier New", base-1, SWT.BOLD));
+		        
+                FontData labelFontData;
+                
+                // get TextFont from preferences
+                FontData[] textFontData = JFaceResources.getTextFont().getFontData();
+                if (textFontData.length == 1) {
+                	labelFontData = textFontData[0];
+                } else {
+                	labelFontData = new FontData(fontName, base-1, SWT.BOLD);                    	
+                }
+                
+		        Font font = new Font(display, labelFontData);
 		        
 		        try {
 					gc.setForeground(colorForeground); 

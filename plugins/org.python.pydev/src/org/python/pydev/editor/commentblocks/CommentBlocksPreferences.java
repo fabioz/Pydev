@@ -1,5 +1,7 @@
 package org.python.pydev.editor.commentblocks;
 
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -81,7 +83,17 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
     
     private void setLabelFont(Composite composite, Label label) {
         try {
-            FontData labelFontData = new FontData("Courier New", 10, SWT.BOLD);
+            int fontHeight;
+            String fontName = "Courier New";
+            if (Platform.getOS().equals(Constants.OS_MACOSX)) {
+                // see org.python.pydev.ui.actions.resources.Py2To3#confirmRun()
+                // for an explanation why a different font and size is neccesary on OS X
+                fontName = "Monaco";
+                fontHeight = 9;
+            } else {
+                fontHeight = 10;
+            }
+            FontData labelFontData = new FontData(fontName, fontHeight , SWT.BOLD);
             label.setFont(new Font(composite.getDisplay(), labelFontData));
         } catch (Throwable e) {
             //ignore

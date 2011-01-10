@@ -10,6 +10,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
@@ -119,10 +121,38 @@ public class Py2To3 extends PyResourceAction implements IObjectActionDelegate{
                 null){
             int averageCharWidth;
             int height;
+            protected boolean isResizable() {
+                return true;
+            }
             protected Control createDialogArea(Composite parent) {
-                
                 try {
-                    FontData labelFontData = new FontData("Courier New", 8, SWT.NONE);
+                    int fheight;
+                    String fontName;
+                    if (Platform.getOS().equals(Constants.OS_MACOSX)) {
+                        // on OS X we need a different font because 
+                        // under Mac SWT the bitmap font rasterizer 
+                        // doesn't take hinting into account and thus 
+                        // makes small fonts rendered as bitmaps unreadable
+                        // see http://aptanastudio.tenderapp.com/discussions/problems/2052-some-dialogs-have-unreadable-small-font-size
+                        fontName = "Courier";
+                        fheight = 11;
+                    } else {
+                        fontName = "Courier New";
+                        fheight = 8;
+                    }
+                    
+                    //FontData labelFontData;
+                    //
+                    //// get Dialog Font from preferences
+                    //FontData[] textFontData = JFaceResources.getDialogFont().getFontData();
+                    //if (textFontData.length == 1) {
+                    //	labelFontData = textFontData[0];
+                    //} else {
+                    //	labelFontData = new FontData(fontName, fheight , SWT.NONE);                    	
+                    //}
+                    
+                    FontData labelFontData = new FontData(fontName, fheight , SWT.NONE);
+                    
                     Display display = parent.getDisplay();
                     Font font = new Font(display, labelFontData);
                     parent.setFont(font);

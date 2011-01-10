@@ -38,6 +38,8 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
 import org.python.pydev.editor.PyEdit;
@@ -358,7 +360,18 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
         text = new Text(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
         try {
-            text.setFont(new Font(null, "Courier new", 10, 0));
+            int fheight = 10;
+            String fontName;
+            if (Platform.getOS().equals(Constants.OS_MACOSX)) {
+                // see org.python.pydev.ui.actions.resources.Py2To3#confirmRun()
+                // for an explanation why a different font and size is neccesary on OS X
+                fontName = "Monaco";
+                fheight = 9;
+            } else {
+                fontName = "Courier new";
+                fheight = 10;
+            }
+            text.setFont(new Font(null, fontName, fheight, 0));
         } catch (Exception e) {
             //ok, might mot be available.
         }
