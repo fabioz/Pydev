@@ -2,15 +2,18 @@ Introduction
 ------------
 
 Pydev is a plugin for Eclipse based IDEs, enabling you to do Python programming the proper way.  
-In the humble opinion of the author of this document, it is simply _the_ best IDE for Python development.  
-And thanks to Java and Eclipse it's cross-platform and encompasses a feature-rich base.
+In the humble opinion of the author of this document, it is _the_ best IDE for Python development.  
 
-You can find out all about it by visiting the official [homepage](http://pydev.org). 
+Best of all: **it's free**!  
+
+And thanks to Java and Eclipse it is cross-platform and contains a slew of rich additional features.
+
+You can find out all about it, by visiting the official [homepage](http://pydev.org). 
 
 Changes
 -------
 
-I've put up a page for documenting any changes from this fork in the [wiki](http://github.com/andreberg/Pydev/wiki/Changelog).
+I'll try to keep up with documenting any and all changes from this fork in the [wiki](http://github.com/andreberg/Pydev/wiki/Changelog).
 
 
 Building
@@ -40,17 +43,21 @@ If you want to sign the deployed plugins you will need to have a proper keystore
 For this fork you will then need to set three environment variables, at least temporarily, to hold your `KEYSTORE` location (e.g. `$HOME/.keystore`), your `STOREPASS` and your `KEYPASS`.   
 It is recommended that you unset these variables once the build is complete.
 
-_Tip: On *nix (incl. OS X) you can pass the variables in front of invoking the `ant` executable from a shell._
+_Tip: on *nix (incl. OS X) you can pass the variables in front of invoking the `ant` executable from a shell._
 
 Installing
 ----------
 
 If you want to install the plugin from this fork, please go to the [downloads page](http://github.com/andreberg/Pydev/downloads) and download the latest version, usually a file called `pydev-latest.zip` ([direct link](http://github.com/andreberg/Pydev/downloads/pydev-latest.zip)).
 
-The zip contains a compressed update site.  
+The zip contains a compressed update site which you can use to perform an offline install.
 
-Unzip it and add the directory it produces as local software site in Eclipse/Aptana's preferences (under `Install/Update` → `Available Software Sites`)
+To do that, unzip the downloaded archive and add the directory it produces as local software site in Eclipse/Aptana's preferences (under `Install/Update` → `Available Software Sites`)
 Once the local software site is in place, you can install Pydev from it via the normal route through the `Help` menu.
+
+If, for whatever reason, you want to install from an online update site, use the following URL:
+
+`http://www.bergmedia.de/remote/github/Pydev/install/pydev_deploy`
 
 
 Attribution
