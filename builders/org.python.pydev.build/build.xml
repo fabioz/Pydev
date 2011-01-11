@@ -50,22 +50,96 @@
 	<condition property="is.windows" value="true">
 		<os family="windows" />
 	</condition>
-	<!-- Set is.windows property IF the OS is from the Windows family -->
-	<condition property="is.local_build" value="true">
-		<istrue value="${local_build}"/>
-	</condition>
-	
+	<!-- Set is.local_build property IF local_build property was set -->
+   <condition property="is.local_build" value="true">
+      <istrue value="${local_build}"/>
+   </condition>
+   <!-- Set do.signJars IF signJars property was set -->
+   <condition property="do.signJars" value="true">
+      <istrue value="${signJars}"/>
+   </condition>
+		
     <taskdef resource="net/sf/antcontrib/antcontrib.properties">
         <classpath>
             <pathelement location="ant-contrib/ant-contrib.jar" />
         </classpath>
     </taskdef>
+    
+    <!-- Set builddir-equals-sourceroot IF sourceRoot equals buildDirectory. 
+         This is needed so we don't delete the "plugins" and "features" directories 
+         during 'clean' when building directly inside the source root. 
+    -->
+    <target name="check.sourceroot.equals.builddir" description="Checks if the sourceRoot equals the buildDirectory" depends="check.sourceroot.equals.builddir.true,check.sourceroot.equals.builddir.false" />
+    
+    <target name="check.sourceroot.equals.builddir.check">
+        <condition property="builddir-equals-sourceroot" value="true">
+            <equals arg1="${sourceRoot}" arg2="${buildDirectory}" />
+        </condition>
+    </target>
+    
+    <target name="check.sourceroot.equals.builddir.true" depends="check.sourceroot.equals.builddir.check" if="builddir-equals-sourceroot">
+        <echo message="buildDirectory equals sourceRoot"></echo>
+        <!-- <fail message="Forced quit: this will fail..." /> -->
+    </target>
 
+    <target name="check.sourceroot.equals.builddir.false" depends="check.sourceroot.equals.builddir.check" unless="builddir-equals-sourceroot">
+        <echo message="buildDirectory doesn't equal sourceRoot"></echo>
+        <!-- <fail message="Forced quit: this will fail..." /> -->
+    </target>
+    
+ 	<!-- ================================= 
+            target: make build dir              
+           ================================= -->
+  	<target name="make.build.dir" description="Creates the build dir if it doesn't exist" depends="check.build.dir" unless="build.dir.exists">
+  	   <echo message="Creating build directory..." />
+  	   <mkdir dir="${buildDirectory}" />
+  	</target>
+
+    <target name="check.build.dir" description="Checks if the build dir exists">
+       <echo message="Checking if build directory exists..." />
+       <available file="${buildDirectory}" property="build.dir.exists" />
+    </target>
+
+  	<!-- ================================= 
+             target: copy plugins dir (if neccessary)              
+            ================================= -->
+   	<target name="copy.plugins" description="Copies the plugins dir to the build dir if it doesn't exist at that location" depends="check.plugins.dir" unless="plugins.dir.exists">
+   	   <echo message="Copying plugins over to build directory..." />
+   	   <copy todir="${buildDirectory}">
+             <fileset dir="${sourceRoot}" defaultexcludes="true">
+                 <include name="plugins/**" />
+             </fileset>
+         </copy>
+         
+   	</target>
+
+     <target name="check.plugins.dir" description="Checks if the plugins dir exists inside the build dir">
+        <!-- <echo message="Checking if plugins dir needs to be copied over to build directory..." /> -->
+        <available file="${buildDirectory}/plugins" property="plugins.dir.exists" />
+     </target>
+
+    	<!-- ================================= 
+               target: copy features dir (if neccessary)              
+              ================================= -->
+     	<target name="copy.features" description="Copies the features dir to the build dir if it doesn't exist at that location" depends="check.features.dir" unless="features.dir.exists">
+     	   <echo message="Copying features over to build directory..." />
+     	   <copy todir="${buildDirectory}">
+               <fileset dir="${sourceRoot}" defaultexcludes="true">
+                   <include name="features/**" />
+               </fileset>
+           </copy>
+
+     	</target>
+
+       <target name="check.features.dir" description="Checks if the features dir exists inside the build dir">
+          <!-- <echo message="Checking if features dir needs to be copied over to build directory..." /> -->
+          <available file="${buildDirectory}/features" property="features.dir.exists" />
+       </target>
 
 	<!-- ================================= 
           target: build              
          ================================= -->
-	<target name="doit" description="Builds the PyDev feature" depends="generate.build.properties,get.revision,generate.base">
+	<target name="doit" description="Builds the PyDev feature" depends="check.sourceroot.equals.builddir,make.build.dir,copy.plugins,copy.features,generate.build.properties,get.revision,generate.base">
 		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
 			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
 		</java>
@@ -121,6 +195,18 @@
         <delete dir="${baseLocation}" />
         <delete dir="${buildDirectory}/features/org.eclipse.pde.build.container.feature" failonerror="false" />
         <delete dir="${p2.repo.dir}" failonerror="false" />
+        
+        <antcall target="clean.delete.plugins.features" />
+        <antcall target="clean.do.git.checkout" />
+    </target>
+    
+    <target name="clean.delete.plugins.features" description="Deletes the plugins and features dir" unless="builddir-equals-sourceroot">
+        <echo message="Deleting plugins and features in build directory..." />
+        <delete dir="${buildDirectory}/plugins" failonerror="true" />
+        <delete dir="${buildDirectory}/features" failonerror="true" />
+    </target>
+    
+    <target name="clean.do.git.checkout" description="Does a git checkout -f (after clean) unless is.local_build"  unless="is.local_build">
         <!-- Do an git checkout of the build directory -->
         <exec executable="/bin/bash" dir="${buildDirectory}">
             <arg value="-c" />

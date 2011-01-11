@@ -351,20 +351,34 @@
         <antcall target="publish" />
     </target>
 	
-    
-    <target name="signJars" if="is.local_build">
+    <!-- ===================================================================== -->
+    <!-- JAR Signing. Dependent on do.signJars && is.local_build are true -->
+    <!-- ===================================================================== -->   
+    <target name="signJars" depends="signJars.check" if="signJars.run">
         <echo message="Signing plugins and features at: ${p2.repo.dir}" />
         <signjar 
-            alias="aptana" keystore="${KEYSTORE}"
-            storepass="${STOREPASS}"
+            alias="${sign.alias}" 
+            keystore="${env.KEYSTORE}"
+            storepass="${env.STOREPASS}"
+            keypass="${env.KEYPASS}"
             preservelastmodified="true">
           <path>
             <fileset dir="${p2.repo.dir}/plugins" includes="**/*.jar" />
             <fileset dir="${p2.repo.dir}/features" includes="**/*.jar" />
           </path>
         </signjar>
-	</target>
-
+	 </target>
+	
+	 <target name="signJars.check" description="checks if we are doing a local build and if signJars is true">
+	    <echo message="Checking if local_build and signJars are true..." />
+	    <condition property="signJars.run">
+	       <and>
+             <isset property="signJars" />
+             <isset property="local_build" />
+	       </and>
+	    </condition>
+	 </target>
+	
     <target name="updateSite">
         <copy file="${builder}/site.xml" tofile="${p2.repo.dir}/site.xml" />
         <replace token="{version.full}" value="${version.full}" file="${p2.repo.dir}/site.xml" />
