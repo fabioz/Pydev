@@ -61,3 +61,16 @@ plugins/org.kacprzak.eclipse.django.editor.plugin/
 plugins/org.python.pydev.django_templates/bin
 etc/
 plugins/org.python.pydev/tests/pysrc/extendable/bootstrap_dll/umath.pyd
+
+# Mac OS X stuff
+
+Desktop DF
+Desktop DB
+.Spotlight-V100
+.DS_Store
+.Trashes
+.com.apple.timemachine.supported
+.fseventsd
+.syncinfo
+.TemporaryItems
+._.*
