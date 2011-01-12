@@ -113,7 +113,12 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
         }
     }
     
+    
+    public static boolean TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE = DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE;
     public static boolean useLocalsAndAttrsCamelCase() {
+        if(PydevPlugin.getDefault() == null){
+            return TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE;
+        }
         return PydevPrefs.getPreferences().getBoolean(USE_LOCALS_AND_ATTRS_CAMELCASE);
     }
 

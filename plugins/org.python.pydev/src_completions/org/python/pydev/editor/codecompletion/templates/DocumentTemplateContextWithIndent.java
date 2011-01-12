@@ -14,6 +14,7 @@ import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 public class DocumentTemplateContextWithIndent extends DocumentTemplateContext{
@@ -130,12 +131,17 @@ public class DocumentTemplateContextWithIndent extends DocumentTemplateContext{
             template = createNewTemplate(template, buffer.toString());
         }
         
-        TemplateTranslator translator= new TemplateTranslator();
-        TemplateBuffer templateBuffer= translator.translate(template);
+        try {
+            TemplateTranslator translator= new TemplateTranslator();
+            TemplateBuffer templateBuffer= translator.translate(template);
 
-        getContextType().resolve(templateBuffer, this);
+            getContextType().resolve(templateBuffer, this);
 
-        return templateBuffer;
+            return templateBuffer;
+        } catch (Exception e) {
+            Log.log(e);
+            throw new RuntimeException(e);
+        }
     }
 
     

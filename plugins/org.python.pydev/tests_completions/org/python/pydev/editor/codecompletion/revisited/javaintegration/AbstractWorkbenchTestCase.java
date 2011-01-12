@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
 
 import junit.framework.TestCase;
 
@@ -38,6 +39,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
@@ -183,6 +186,29 @@ public class AbstractWorkbenchTestCase extends TestCase{
 
     
 
+    protected void waitForModulesManagerSetup() {
+        final IModulesManager modulesManager = PythonNature.getPythonNature(mod1).getAstManager().getModulesManager();
+        goToIdleLoopUntilCondition(
+                
+                new ICallback<Boolean, Object>(){
+                    public Boolean call(Object arg) {
+                        SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager.getAllDirectModulesStartingWith("pack1");
+                        Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
+                        HashSet<ModulesKey> expected = new HashSet<ModulesKey>();
+                        expected.add(new ModulesKey("pack1.__init__", null));
+                        expected.add(new ModulesKey("pack1.pack2.__init__", null));
+                        expected.add(new ModulesKey("pack1.pack2.mod1", null));
+                        return expected.equals(keySet);
+                    }}, 
+                
+                new ICallback<String, Object>(){
+                    public String call(Object arg) {
+                        SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager.getAllDirectModulesStartingWith("pack1");
+                        Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
+                        return "Found: "+keySet;
+                    }});
+    }
+
     /**
      * Prints the display strings for the passed proposals.
      */
@@ -198,19 +224,19 @@ public class AbstractWorkbenchTestCase extends TestCase{
     
     protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, 
             final ICallback<String, Object> errorMessageCallback, boolean failIfNotSatisfied ) {
-        goToIdleLoopUntilCondition(callback, 10000L, errorMessageCallback, failIfNotSatisfied);
+        goToIdleLoopUntilCondition(callback, 15000L, errorMessageCallback, failIfNotSatisfied);
     }
     
     protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback, 
             final ICallback<String, Object> errorMessageCallback ) {
-        goToIdleLoopUntilCondition(callback, 10000L, errorMessageCallback, true);
+        goToIdleLoopUntilCondition(callback, 15000L, errorMessageCallback, true);
     }
     
     /**
      * @see #goToIdleLoopUntilCondition(ICallback, long)
      */
     protected void goToIdleLoopUntilCondition(final ICallback<Boolean, Object> callback) {
-        goToIdleLoopUntilCondition(callback, 10000L, null, true);//default with 10 secs (more than enough for any action to be executed)
+        goToIdleLoopUntilCondition(callback, 15000L, null, true);//default with 10 secs (more than enough for any action to be executed)
     }
 
     /**
@@ -232,10 +258,12 @@ public class AbstractWorkbenchTestCase extends TestCase{
         }
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
         while (!shell.isDisposed()) {
-            display.readAndDispatch();
+            if (!display.readAndDispatch()){
+                display.sleep();
+            }
             synchronized(this){
                 try {
-                    this.wait(50);
+                    this.wait(25);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -520,6 +548,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
         IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
         if(project.exists()){
             project.delete(true, monitor);
+            goToManual(200);
         }
         project.create(monitor);
         project.open(monitor);
@@ -531,6 +560,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
      * Requests proposals in the last location of the given editor.
      */
     protected ICompletionProposal[] requestProposals(String mod1Contents, PyEdit editor) {
+        editor.setSelection(mod1Contents.length(), 0);
         IContentAssistant contentAssistant = editor.getEditConfiguration().getContentAssistant(editor.getPySourceViewer());
         SimpleAssistProcessor processor = (SimpleAssistProcessor) contentAssistant.getContentAssistProcessor(IDocument.DEFAULT_CONTENT_TYPE);
         processor.doCycle(); //we want to show the default completions in this case (not the simple ones)

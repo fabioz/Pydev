@@ -33,6 +33,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
@@ -634,6 +635,9 @@ public class NodeUtils {
         return null;
     }
 
+    public static String getNameFromNameTok(NameTokType tok){
+        return ((NameTok)tok).id;
+    }
     public static String getNameFromNameTok(NameTok tok){
         return tok.id;
     }

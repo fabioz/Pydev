@@ -90,6 +90,17 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor{
     }
     
     
+    public static PyDocumentTemplateContext createContext(final TemplateContextType contextType, final ITextViewer viewer, final IRegion region) {
+        if (contextType != null) {
+            IDocument document= viewer.getDocument();
+            PySelection selection = new PySelection(document, viewer.getTextWidget().getSelection().x);
+            String indent = selection.getIndentationFromLine();
+            return createContext(contextType, viewer, region, indent);
+        }
+        return null;
+    }
+    
+    
     /**
      * Creates a concrete template context for the given region in the document. This involves finding out which
      * context type is valid at the given location, and then creating a context of this type. The default implementation
@@ -100,15 +111,10 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor{
      * @param region the region into <code>document</code> for which the context is created
      * @return a template context that can handle template insertion at the given location, or <code>null</code>
      */
-    public static PyDocumentTemplateContext createContext(final TemplateContextType contextType, final ITextViewer viewer, final IRegion region) {
+    public static PyDocumentTemplateContext createContext(final TemplateContextType contextType, final ITextViewer viewer, final IRegion region, String indent) {
         if (contextType != null) {
             IDocument document= viewer.getDocument();
-            String indent = "";
-            PySelection selection = new PySelection(document, viewer.getTextWidget().getSelection().x);
-            indent = selection.getIndentationFromLine();
-            
             final String indentTo = indent;
-            
             return new PyDocumentTemplateContext(contextType, document, region.getOffset(), region.getLength(), indentTo, viewer);
         }
         return null;

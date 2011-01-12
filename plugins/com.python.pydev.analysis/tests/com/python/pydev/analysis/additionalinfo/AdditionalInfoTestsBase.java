@@ -34,8 +34,8 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 
 import com.python.pydev.analysis.AnalysisTestsBase;
+import com.python.pydev.analysis.MarkerStub;
 import com.python.pydev.analysis.builder.AnalysisRunner;
-import com.python.pydev.analysis.ctrl_1.MarkerStub;
 
 public class AdditionalInfoTestsBase extends AnalysisTestsBase {
 

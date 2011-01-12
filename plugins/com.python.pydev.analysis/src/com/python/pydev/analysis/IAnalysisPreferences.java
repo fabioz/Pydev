@@ -19,6 +19,7 @@ public interface IAnalysisPreferences {
     public static final int TYPE_UNUSED_PARAMETER           = 10;
     public static final int TYPE_NO_EFFECT_STMT             = 11;
     public static final int TYPE_INDENTATION_PROBLEM        = 12;
+    public static final int TYPE_UNDEFINED_VARIABLE_IN_SELF = 13; //Generated on demand by the tdd actions
     
     
     public static final String MSG_TO_IGNORE_TYPE_UNUSED_IMPORT              = "@UnusedImport";

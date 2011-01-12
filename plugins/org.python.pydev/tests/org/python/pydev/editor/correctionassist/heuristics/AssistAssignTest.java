@@ -331,6 +331,39 @@ public class AssistAssignTest extends TestCase {
         assertContains("Assign to local (call_me)", props);
     }
     
+    public void test12a() throws BadLocationException {
+        assist = new AssistAssign(new NonCamelCodingStd());
+        
+        String d = ""+
+        "My20Provider()";
+        
+        Document doc = new Document(d);
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (my_20_provider)", props);
+    }
+    
+    
+    public void test13() throws BadLocationException {
+        assist = new AssistAssign(new NonCamelCodingStd());
+        
+        String d = ""+
+        "_GetMyFoo()";
+        
+        Document doc = new Document(d);
+        PySelection ps = new PySelection(doc, new TextSelection(doc, d.length(), 0));
+        String sel = PyAction.getLineWithoutComments(ps);
+        
+        assertEquals(true, assist.isValid(ps, sel, null, d.length()));
+        List<ICompletionProposal> props = assist.getProps(ps, null, null, null, null, d.length());
+        assertEquals(2, props.size());
+        assertContains("Assign to local (my_foo)", props);
+    }
+    
     
     private ICompletionProposal assertContains(String string, List<ICompletionProposal> props) {
         StringBuffer buffer = new StringBuffer("Available: \n");

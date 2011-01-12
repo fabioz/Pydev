@@ -19,6 +19,7 @@ import org.python.pydev.plugin.nature.SaveFileWithoutNatureTestWorkbench;
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
 import com.python.pydev.codecompletion.JavaIntegrationPydevComTestWorkbench;
 import com.python.pydev.debug.remote.client_api.PydevRemoteDebuggerServerTestWorkbench;
+import com.python.pydev.refactoring.tdd.TddTestWorkbench;
 
 public class AllWorkbenchTests {
 
@@ -34,6 +35,7 @@ public class AllWorkbenchTests {
         
         suite.addTestSuite(AnalysisRequestsTestWorkbench.class); 
         suite.addTestSuite(PyEditTitleTestWorkbench.class); 
+        suite.addTestSuite(TddTestWorkbench.class); 
 
         
         suite.addTestSuite(JythonCompletionWithBuiltinsTestWorkbench.class);

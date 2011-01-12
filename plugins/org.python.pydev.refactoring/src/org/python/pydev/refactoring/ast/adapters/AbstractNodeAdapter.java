@@ -8,7 +8,9 @@
 
 package org.python.pydev.refactoring.ast.adapters;
 
+import org.python.pydev.core.REF;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.position.IndentVisitor;
@@ -79,6 +81,32 @@ public abstract class AbstractNodeAdapter<T extends SimpleNode> implements IASTN
      */
     public int getNodeFirstLine() {
         return getASTNode().beginLine;
+    }
+    
+
+    /**
+     * Note that the line returned is 1-based.
+     * 
+     * @param beforeLine: 1-based too.
+     */
+    public int getLastNodeFirstLineBefore(int beforeLine) {
+        SimpleNode astNode = getASTNode();
+        int last = astNode.beginLine;
+        
+        stmtType[] body = (stmtType[]) REF.getAttrObj(astNode, "body");
+        if(body != null){
+            for (int i = 0; i < body.length; i++) {
+                SimpleNode node = body[i];
+                if (!nodeHelper.isImport(node) && !nodeHelper.isStr(node)) {
+                    int curr = node.beginLine;
+                    if(curr > beforeLine){
+                        return last;
+                    }
+                    last = curr;
+                }
+            }
+        }
+        return last;
     }
 
     /*

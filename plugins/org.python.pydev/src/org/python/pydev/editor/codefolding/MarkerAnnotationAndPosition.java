@@ -1,7 +1,7 @@
 package org.python.pydev.editor.codefolding;
 
 import org.eclipse.jface.text.Position;
-import org.eclipse.ui.texteditor.MarkerAnnotation;
+import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
 
 
 /**
@@ -9,10 +9,10 @@ import org.eclipse.ui.texteditor.MarkerAnnotation;
  */
 public class MarkerAnnotationAndPosition{
 
-    public final MarkerAnnotation markerAnnotation;
+    public final SimpleMarkerAnnotation markerAnnotation;
     public final Position position;
 
-    public MarkerAnnotationAndPosition(MarkerAnnotation markerAnnotation, Position position) {
+    public MarkerAnnotationAndPosition(SimpleMarkerAnnotation markerAnnotation, Position position) {
         this.markerAnnotation = markerAnnotation;
         this.position = position;
     }

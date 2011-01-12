@@ -1,0 +1,10 @@
+This package contains the actions related to code-generation of tdd programming, such as 
+creating a new class if it does not exist or a new method (as the eclipse jdt-based refactorings)
+
+Things that must be done:
+
+- Create class
+- Create method in class
+- Create method in module
+- Create module (or package)
+- Create parameter (refactoring)

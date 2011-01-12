@@ -25,6 +25,7 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
@@ -52,33 +53,8 @@ public class RefactoringInfo {
     private File realFile;
 
     public RefactoringInfo(PyEdit edit) throws MisconfigurationException {
-        IEditorInput input = edit.getEditorInput();
-        IPythonNature localNature = edit.getPythonNature();
-        
-        if(input instanceof IFileEditorInput){
-        	IFileEditorInput editorInput = (IFileEditorInput) input;
-        	this.sourceFile = editorInput.getFile();
-        	this.realFile = sourceFile != null ? sourceFile.getLocation().toFile() : null;
-        }else{
-        	this.realFile = edit.getEditorFile();
-        }
-        
-        if(localNature == null){
-        	Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(this.realFile);
-        	if(infoForFile != null && infoForFile.o1 != null){
-        		localNature = infoForFile.o1;
-        	}
-        }
-        this.nature = localNature;
-
-        this.doc = edit.getDocument();
-        ITextSelection selection = (ITextSelection) edit.getSelectionProvider().getSelection();
-
-        this.project = edit.getProject();
-        versionProvider = this.nature;
-        initInfo(selection);
-
-    }
+        this(edit, (ITextSelection) edit.getSelectionProvider().getSelection());
+    };
 
     public RefactoringInfo(IDocument document, ITextSelection selection, IGrammarVersionProvider versionProvider) {
         this.sourceFile = null;
@@ -86,6 +62,33 @@ public class RefactoringInfo {
         this.versionProvider = versionProvider;
         this.doc = document;
 
+        initInfo(selection);
+    }
+
+    public RefactoringInfo(PyEdit edit, ITextSelection selection) throws MisconfigurationException {
+        IEditorInput input = edit.getEditorInput();
+        IPythonNature localNature = edit.getPythonNature();
+        
+        if(input instanceof IFileEditorInput){
+            IFileEditorInput editorInput = (IFileEditorInput) input;
+            this.sourceFile = editorInput.getFile();
+            this.realFile = sourceFile != null ? sourceFile.getLocation().toFile() : null;
+        }else{
+            this.realFile = edit.getEditorFile();
+        }
+        
+        if(localNature == null){
+            Tuple<SystemPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(this.realFile);
+            if(infoForFile != null && infoForFile.o1 != null){
+                localNature = infoForFile.o1;
+            }
+        }
+        this.nature = localNature;
+
+        this.doc = edit.getDocument();
+
+        this.project = edit.getProject();
+        versionProvider = this.nature;
         initInfo(selection);
     }
 
@@ -260,6 +263,10 @@ public class RefactoringInfo {
 
     public AdapterPrefs getAdapterPrefs() {
         return new AdapterPrefs(getNewLineDelim(), versionProvider);
+    }
+
+    public PySelection getPySelection() {
+        return new PySelection(doc, userSelection);
     }
 
 //    public Workspace getWorkspace() {

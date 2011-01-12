@@ -1,7 +1,7 @@
 /*
  * Created on 24/09/2005
  */
-package com.python.pydev.analysis.ctrl_1;
+package com.python.pydev.analysis;
 
 import java.util.Map;
 

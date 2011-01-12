@@ -5,9 +5,9 @@ package org.python.pydev.core.docutils;
 
 import java.util.Arrays;
 
-import org.python.pydev.core.Tuple;
-
 import junit.framework.TestCase;
+
+import org.python.pydev.core.Tuple;
 
 public class StringUtilsTest extends TestCase {
 
@@ -224,7 +224,7 @@ public class StringUtilsTest extends TestCase {
         assertEquals("a", StringUtils.asStyleLowercaseUnderscores("A"));
         assertEquals("aa", StringUtils.asStyleLowercaseUnderscores("AA"));
         assertEquals("aab", StringUtils.asStyleLowercaseUnderscores("AAb"));
-        assertEquals("-*&()1", StringUtils.asStyleLowercaseUnderscores("-*&()1"));
+        assertEquals("-*&()_1", StringUtils.asStyleLowercaseUnderscores("-*&()1"));
         assertEquals("my_constant", StringUtils.asStyleLowercaseUnderscores("MY_CONSTANT"));
         
         
@@ -255,5 +255,29 @@ public class StringUtilsTest extends TestCase {
 		assertEquals("    a=10\n    #comment\n    b=30", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("a=10\n#comment\nb=30", "    ", true));
 		assertEquals("    a=10\n    \n    b=30", StringUtils.removeWhitespaceColumnsToLeftAndApplyIndent("    a=10\n\n    b=30", "    ", true));
 	}
+    
+
+    public void testIsPythonIdentifier() throws Exception {
+        assertFalse(StringUtils.isPythonIdentifier(""));
+        assertFalse(StringUtils.isPythonIdentifier("1aa"));
+        assertFalse(StringUtils.isPythonIdentifier("a!1"));
+        assertFalse(StringUtils.isPythonIdentifier("a1'"));
+        
+        assertTrue(StringUtils.isPythonIdentifier("a"));
+        assertTrue(StringUtils.isPythonIdentifier("a1"));
+        assertTrue(StringUtils.isPythonIdentifier("a1Ру"));
+    }
+    
+    public void testGetFirstWithUpper() throws Exception {
+        assertEquals("", StringUtils.getWithFirstUpper(""));
+        assertEquals("A", StringUtils.getWithFirstUpper("a"));
+        assertEquals("Aa", StringUtils.getWithFirstUpper("aa"));
+    }
+    
+    public void testIndentTo() throws Exception {
+        assertEquals("", StringUtils.indentTo("", ""));
+        assertEquals("  aa\n  bb", StringUtils.indentTo("aa\nbb", "  "));
+        assertEquals(" a", StringUtils.indentTo("a", " "));
+    }
 }
 

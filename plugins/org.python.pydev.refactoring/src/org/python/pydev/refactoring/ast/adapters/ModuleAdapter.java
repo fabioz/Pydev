@@ -620,19 +620,21 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         return selection;
     }
 
+    /**
+     * Note that the line returned is 1-based.
+     */
     @Override
     public int getNodeFirstLine() {
-        int i = 0;
-
-        while(i < getASTNode().body.length){
-            SimpleNode node = this.getASTNode().body[i];
-            if(!nodeHelper.isImport(node)){
+        Module astNode = getASTNode();
+        for (int i = 0; i < astNode.body.length; i++) {
+            SimpleNode node = astNode.body[i];
+            if (!nodeHelper.isImport(node) && !nodeHelper.isStr(node)) {
                 return node.beginLine;
             }
-            i += 1;
         }
         return 1;
     }
+    
 
     public boolean isImport(String name) {
         for(String module:getRegularImportedModules().keySet()){

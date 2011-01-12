@@ -16,6 +16,7 @@ public interface IPyCompletionProposal {
     int PRIORITY_LOCALS_1 = 0;
     int PRIORITY_LOCALS_2 = 1;
     
+    int PRIORITY_CREATE = 5;
     int PRIORITY_DEFAULT = 10;
     int PRIORITY_GLOBALS = 50;
     int PRIORITY_PACKAGES = 100;

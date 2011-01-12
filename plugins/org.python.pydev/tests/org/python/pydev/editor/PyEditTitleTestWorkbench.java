@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 
@@ -51,13 +52,22 @@ public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase{
         PyEdit editor2 = null;
 		try {
             editor = (PyEdit) PyOpenEditor.doOpenEditor(myFile);
-            assertEquals("my_file.py", editor.getPartName());
+            String partName = editor.getPartName();
+            assertEquals("my_file", partName);
             editor2 = (PyEdit) PyOpenEditor.doOpenEditor(file2);
-            assertEquals("my_file.py (pydev_title_project)", editor.getPartName());
-            assertEquals("my_file.py (folder)", editor2.getPartName());
+            final PyEdit editor2final = editor2;
+            //We may wait until 10 seconds for the condition to happen (we must not keep the ui-thread
+            //otherwise it won't work).
+            goToManual(10000, new ICallback<Boolean, Object>() {
+                
+                public Boolean call(Object arg) {
+                    return "my_file (pydev_title_project)".equals(editor.getPartName()) && 
+                    "my_file (folder)".equals(editor2final.getPartName());
+                }
+            });
         } finally {
             if(editor2 != null){
-                editor2.close(true);
+                editor2.close(false);
             }
             editor = null;
         }

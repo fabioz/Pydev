@@ -6,6 +6,7 @@
 package org.python.pydev.editor.actions;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -32,7 +33,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testGetBeforeAndAfterMatchingChars();
+            test.testGetParametersAfter();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -598,4 +599,70 @@ public class PySelectionTest extends TestCase {
 		ps.setSelection(3, 3);
 		assertEquals(new Tuple<String, String>("", ""), ps.getBeforeAndAfterMatchingChars('\''));
 	}
+    
+    public void testGetLineOfOffset() throws Exception {
+        Document doc = new Document();
+        PySelection ps = new PySelection(doc);
+        assertEquals(0, ps.getLineOfOffset(-10));
+        assertEquals(0, ps.getLineOfOffset(0));
+        assertEquals(0, ps.getLineOfOffset(10));
+        
+        doc.set("aaa");
+        assertEquals(0, ps.getLineOfOffset(-10));
+        assertEquals(0, ps.getLineOfOffset(0));
+        assertEquals(0, ps.getLineOfOffset(10));
+        
+        doc.set("aaa\nbbb");
+        assertEquals(0, ps.getLineOfOffset(-10));
+        assertEquals(0, ps.getLineOfOffset(0));
+        assertEquals(1, ps.getLineOfOffset(10));
+    }
+    
+    public void testGetEndOfDocumentOffset() throws Exception {
+        Document doc = new Document();
+        PySelection ps = new PySelection(doc);
+        assertEquals(0, ps.getEndOfDocummentOffset());
+        doc.set("   ");
+        assertEquals(2, ps.getEndOfDocummentOffset());
+    }
+    
+    public void testGetParametersAfter() throws Exception {
+        Document doc = new Document();
+        PySelection ps = new PySelection(doc);
+        assertEquals(0, ps.getParametersAfterCall(10).size());
+        
+        doc.set("MyCall(aa, bb, 10, )");
+        List<String> params = ps.getParametersAfterCall(6);
+        assertEquals(3, params.size());
+        assertEquals("10", params.get(2));
+        
+        doc.set("MyCall('a,a', (bb, 10), {a:10}, [ouo,ueo])");
+        params = ps.getParametersAfterCall(6);
+        assertEquals(4, params.size());
+        assertEquals("'a,a'", params.get(0));
+        assertEquals("(bb, 10)", params.get(1));
+        assertEquals("{a:10}", params.get(2));
+        assertEquals("[ouo,ueo]", params.get(3));
+        
+        doc.set("MyCall(another(call, 1, 'thn', foo))");
+        params = ps.getParametersAfterCall(6);
+        assertEquals(1, params.size());
+        assertEquals("another(call, 1, 'thn', foo)", params.get(0));
+    }
+    
+    public void testGetContentsAfterSelf() throws Exception {
+        HashSet<String> set = new HashSet<String>();
+        set.add("foo");
+        assertEquals(set, PySelection.getSelfAttributeAccesses("self.foo"));
+        
+        set = new HashSet<String>();
+        set.add("bar");
+        assertEquals(set, PySelection.getSelfAttributeAccesses(
+                "self.foo(ueontehuo), self.bar[ueos:suneoh], self., self.[ueo]"));
+    }
+    
+    public void testGetClassNameInLine() throws Exception {
+        assertEquals("Foo", PySelection.getClassNameInLine("class Foo(obje"));
+        assertEquals("Foo", PySelection.getClassNameInLine("class Foo.uesonth(obje"));
+    }
 }
