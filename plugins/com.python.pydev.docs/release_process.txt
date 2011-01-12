@@ -1,6 +1,6 @@
 --------- For nightly ---------
 Update the versions on org.python.pydev.build/build_local.properties
-Execute the build command
+Execute the build command at com.python.pydev.docs/build_cmd.txt
 Remove zips from W:\git_deploy_dir\Pydev (they shouldn't be uploaded) 
 w:
 cd W:\git_deploy_dir\Pydev
@@ -13,12 +13,6 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 		Update homepage
 			- index.rst
 			- history_pydev.contents.html if needed
-			
-		Provide the KEYSTORE (sure an official would be better, but this will have to suffice for now).
-			d:\bin\jdk_1_5_09\bin\keytool -genkey -dname "CN=Aptana Pydev, OU=Pydev, O=Aptana, L=San Mateo, ST=CA, C=US" -keystore W:\git_deploy_dir\pydevkeystore -alias aptana -validity 3650
-			d:\bin\jdk_1_5_09\bin\keytool -selfcert -alias aptana -keystore W:\git_deploy_dir\pydevkeystore -validity 3650
-			d:\bin\jdk_1_5_09\bin\jarsigner -keystore W:\git_deploy_dir\pydevkeystore -storepass PASSUSED JAR_TO_SIGN aptana
-		
 
 		Update the versions on org.python.pydev.build/build_local.properties
 		Commit everything
@@ -26,40 +20,9 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 		Execute the build_cmd.txt in cmd.exe
 		- Note, the Aptana Red Core plugins must be available in the 'vanilla eclipse' so that pydev compiles properly (org.python.pydev.red_core)
 
-Choose the branch:
-set BRANCH=master
 
-set BRANCH=development
-
-mkdir W:\git_build_dir
-mkdir W:\git_deploy_dir
-set path=%path%;D:\bin\eclipse_36_final_clean\plugins\org.apache.ant_1.7.1.v20100518-1145\bin
-set path=d:\bin\python265;%path%
-set path=D:\bin\FastCopy199r4;%path%
-set path=D:\bin\jdk1_6_20\bin;%path%
-set path=%path%;"d:\git\bin"
-set JAVA_HOME=D:\bin\jdk_1_5_09
-w:
-cd W:\git_build_dir
-git clone D:\workspaces\pydev
-@echo git clone git://github.com/aptana/Pydev.git
-cd Pydev
-git clean -f -d builders
-git clean -f -d features
-git clean -f -d I.PyDev
-git clean -f -d plugins
-git clean -f -d repo
-del *.* /Y
-git checkout -f
-git checkout %BRANCH%
-git pull origin %BRANCH%
-cd builders\org.python.pydev.build
-set GIT_EXECUTABLE="d:\bin\git\bin\git.exe"
-set KEYSTORE=W:\git_deploy_dir\pydevkeystore
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.1.0.v20100507
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.6.0.v20100603
-ant -DbuildDirectory=W:\git_build_dir\Pydev -Dbaseos=win32 -Dbasews=win32 -Dgit.executable=%GIT_EXECUTABLE% -Dbasearch=x86 -Ddeploy.dir=w:\git_deploy_dir\Pydev -DcleanAfter=false -Dvanilla.eclipse=D:\bin\eclipse_36_final_clean -DSTOREPASS=%STOREPASS% -DKEYSTORE=%KEYSTORE% -Dlocal_build=true -Dlauncher.plugin=%LAUNCHER_PLUGIN% -Dbuilder.plugin=%BUILDER_PLUGIN%
-
+        Run the build command at com.python.pydev.docs/build_cmd.txt
+        
 
 		Copy features and plugins folders from W:\git_deploy_dir\Pydev to W:\git_update_site_dir\updates
 

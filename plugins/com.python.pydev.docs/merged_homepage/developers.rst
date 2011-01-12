@@ -21,17 +21,20 @@ Repository
 
 .. _https://github.com/aptana/Pydev: https://github.com/aptana/Pydev
 
-Get the code with Git from https://github.com/aptana/Pydev (or you may browse it to get a zip with the contents)
+Get the code with Git from https://github.com/aptana/Pydev (ideally, fork it at github, create your own branch at the forked repository and send a pull request later on with your changes).
 
 And later go to: **File > Import > Existing projects into workspace** and point it to the root of the repository you just downloaded.
+
+Note that currently Pydev has a project (org.python.pydev.red_core) which has a dependency on Aptana Studio 3, so, if you plan on doing a local build, you'll need to get Aptana Studio 3 installed as a plugin in your SDK, now if you don't need to do a local build (i.e.: just do your local changes and run Eclipse with your changes from within the SDK and contribute that as a patch later on), you can just close this project so that it doesn't get compiled.
 
 
 Configuring the environment after getting the code
 ---------------------------------------------------
 
+Important: Before doing any changes to the code it's important to note that you should create a new branch for doing code changes.
+See: http://book.git-scm.com/3_basic_branching_and_merging.html and also http://nvie.com/git-model for details on creating and using branches.
 
-
-After you do that, you'll probably note that the tests did **not compile successfully**. This is because there are some settings
+After getting the code, you'll probably note that the tests did **not compile successfully**. This is because there are some settings
 that will depend on your installation, and this settings are stored in a class that holds that info (which you'll have to create).
  
 There is a 'template' for that file at: 
@@ -41,9 +44,8 @@ There is a 'template' for that file at:
 not compile, it may mean that: 
 
  * There is something missing in that TestDependent.java file because it is not synched with all the dependencies (if so, just add the needed variable to it)
- * The head does not compile in the svn -- if you believe that is the case, send an e-mail to the pydev-code list at sourceforge to know what's happening.
-
-
+ * The head does not compile in git -- if you believe that is the case, send an e-mail to the pydev-code list at sourceforge to know what's happening.
+ 
 
 .. _`jython scripting in pydev`: manual_articles_scripting.html
 .. _`Pydev Grammar`: developers_grammar.html
@@ -92,66 +94,7 @@ Provided that the steps were followed, Pydev should have the following structure
 	        ... (other plugins)
 
 
-Now, on to the build: start a shell and make sure ant is in your **PATH** and the **JAVA_HOME** 
-is properly set.
-
-In windows (update paths accordingly): 
-
-
-**set PATH=%PATH%;W:\\eclipse_350_clean\\plugins\\org.apache.ant_1.7.0.v200803061910\\bin**
-
-**set JAVA_HOME=D:\\bin\\jdk_1_5_09**
-
-
-For the other instructions, we'll supose that pydev was downloaded to c:/pydev and the structure we have is:
- 
-	c:/pydev/builders
-	
-	c:/pydev/features
-	
-	c:/pydev/plugins
-
-Go to the folder:
-
-	c:/pydev/builders/org.python.pydev.build
-
-And type the following command (customizing the variables as explained below)
-
-**ant -DbuildDirectory=c:/pydev -Dbaseos=win32 -Dbasews=win32 -Dbasearch=x86 -Ddeploy.dir=c:/pydev/pydev_deploy -DcleanAfter=false -Dvanilla.eclipse=W:/eclipse_350_clean**
-
-
-	**-DbuildDirectory=c:/pydev**       
-		
-		The folder that has /builders, /features and /plugins
-	
-	**-Dbaseos=win32**        
-		
-		The platform (e.g.: linux, macosx, solaris, etc) 
-	
-	**-Dbasews=win32**        
-	
-		The windows system (e.g.: gtk, motif, carbon)
-	
-	**-Dbasearch=x86**        
-		
-		The architechure (e.g.: ppc, sparc)
-	
-	**-Ddeploy.dir=c:/pydev/pydev_deploy**        
-		
-		Directory where the update site and zips will be added.
-	
-	**-DcleanAfter=false**        
-	
-		Whether it should clean things up after doing the build (reverts the sources to the svn version and deletes eclipse)
-	
-	**-Dvanilla.eclipse=W:/eclipse_350_clean**      
-	
-		A location of a clean eclipse folder to be copied to do the build
-
-And that's it, if everything went OK, you should have created an update site at the deploy dir specified (and the zip distribution
-should be there too).
-
-
+Now, on to the build: start a shell and follow the instructions at /plugins/org.python.pydev.build/build_cmd.txt (read the end of the file for details on customizing it properly)
 
 
 
