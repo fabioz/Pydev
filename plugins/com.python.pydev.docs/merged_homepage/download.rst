@@ -3,8 +3,10 @@ Download (Current release: **LAST_VERSION_TAG**)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-First time users are advised to read the `Getting started guide`_
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Important
+~~~~~~~~~~~
+First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure Pydev
+
 
 Requirements
 ~~~~~~~~~~~~~

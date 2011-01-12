@@ -20,10 +20,45 @@
 <li><a class="reference external" href="manual_adv_remote_debugger.html">Remote debugger</a></li>
 <li><a class="reference external" href="manual_adv_open_decl_quick.html">Tokens browser</a></li>
 <li><a class="reference external" href="manual_adv_interactive_console.html">Interactive console</a></li>
+<li><a class="reference external" href="manual_adv_pyunit.html">Unittest integration</a></li>
 <li><strong>and many others</strong>:</li>
 </ul>
 </blockquote>
 <p>For more details on the provided features, check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
+</div>
+<div class="section" id="release-1-6-4">
+<h1>Release 1.6.4</h1>
+<blockquote>
+<ul>
+<li><p class="first">Improved <a class="reference external" href="manual_adv_pyunit.html">Unittest integration</a>:</p>
+<blockquote>
+<ul class="simple">
+<li>Created a PyUnit view (with a red/green bar) which can be used to see the results of tests and relaunching them</li>
+<li>The default test runner now allows parallel execution (distributing tests by module or individually)</li>
+<li>The nose and py.test test runners are also supported now</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Major Bug Fixed: existing interpreters could be corrupted when adding a new one</p>
+</li>
+<li><p class="first">Fixed AttributeError on console startup in Python 3.0</p>
+</li>
+<li><p class="first">Added theming and automatic sash orientation to the pydev code coverage view</p>
+</li>
+<li><p class="first">Patch by frigo7: When creating a new remote debugger target, the terminated ones are removed</p>
+</li>
+<li><p class="first">Patch by frigo7: compare editor properly showing the revision information and fixed broken shortcuts (e.g.: ctrl+z)</p>
+</li>
+<li><p class="first">Read-only files no longer editable in pydev actions</p>
+</li>
+<li><p class="first">Fixed issue of remaining \r on python 3.0 on input()</p>
+</li>
+<li><p class="first">The pydev parser is now properly dealing with bom (utf-8)</p>
+</li>
+<li><p class="first">Assign to local: if method starts with '_', the leading '_' is not added to the local</p>
+</li>
+</ul>
+</blockquote>
 </div>
 <div class="section" id="release-1-6-3">
 <h1>Release 1.6.3</h1>
@@ -75,81 +110,6 @@
 </ul>
 </dd>
 </dl>
-</li>
-</ul>
-</div>
-<div class="section" id="release-1-6-2">
-<h1>Release 1.6.2</h1>
-<ul>
-<li><p class="first">Pydev is now also distributed with Aptana Studio 3, so it can be gotten in a version that doesn't require installing it as
-a separate plugin. Get it at: <a class="reference external" href="http://aptana.com/products/studio3/download">http://aptana.com/products/studio3/download</a></p>
-</li>
-<li><p class="first"><strong>Django templates editor</strong> (requires Aptana Studio 3)</p>
-<blockquote>
-<ul class="simple">
-<li>Supports HTML files with HTML, CSS and Javascript</li>
-<li>Supports CSS files</li>
-<li>Outline page</li>
-<li>Code-completion for Django templates based on templates (window &gt; preferences &gt; pydev &gt; django templates editor &gt; templates)</li>
-<li>Code-completion for HTML, CSS and Javascript</li>
-<li>Syntax highlighting based on the templates with the 'Django tags' context</li>
-<li>Colors based on the Aptana themes</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Python 2.7 grammar</strong> supported</p>
-</li>
-<li><p class="first">Fixed indexing issue on contents getting getting stale in the cache</p>
-</li>
-<li><p class="first">Fixed issue where the partitioning became wrong when entering a multiline string</p>
-</li>
-<li><p class="first">Colors in the compare editor are now correct when using the Aptana themes</p>
-</li>
-<li><p class="first">Extract method refactoring now works with &quot;import&quot; and &quot;from ... import&quot; inside a method</p>
-</li>
-<li><p class="first">Source folders now appear before other folders</p>
-</li>
-<li><p class="first">Fixed False positive on code analysis when using the property decorator</p>
-</li>
-</ul>
-</div>
-<div class="section" id="release-1-6-1">
-<h1>Release 1.6.1</h1>
-<ul>
-<li><p class="first"><strong>Debugger</strong></p>
-<blockquote>
-<ul class="simple">
-<li><strong>Critical Fix: issue that prevented the debugger from working with Python 3 solved</strong></li>
-<li>Improving socket connection handling</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Launching</strong></p>
-<blockquote>
-<ul>
-<li><dl class="first docutils">
-<dt>Restart last launch and terminate all launches actions created</dt>
-<dd><ul class="first last simple">
-<li>Restart last: <strong>Ctrl+Shift+F9</strong> (in pydev editor)</li>
-<li>Terminate all: <strong>Ctrl+Alt+F9</strong> (in pydev editor)</li>
-<li>Buttons were also added to pydev consoles</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Utilities</strong></p>
-<blockquote>
-<ul class="simple">
-<li><strong>2to3</strong>: Right-clicking a folder or file will show an option in the Pydev menu to convert from python 2 to python 3 (note that lib2to3 must available in the python installation).</li>
-<li>Defining execfile in a Python 3 interactive console so that Ctrl+Alt+Enter works.</li>
-<li>Fixed issue in the code style preferences page (switched value shown).</li>
-<li>com.ziclix.python.sql added to the forced builtins in a Jython install by default.</li>
-<li>Improved some icons when on a dark theme (patch from Kenneth Belitzky)</li>
-</ul>
-</blockquote>
 </li>
 </ul>
 </div>
