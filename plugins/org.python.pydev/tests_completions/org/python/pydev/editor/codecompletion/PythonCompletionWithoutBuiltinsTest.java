@@ -52,7 +52,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testGetActTok();
+            test.testNoImportOnLine();
             test.tearDown();
             System.out.println("Finished");
 
@@ -1416,6 +1416,15 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "A.objects.";
         
         requestCompl(s, -1, new String[] {"existingMethod()"});
+    }
+    
+    
+    public void testNoImportOnLine() throws Exception {
+        String s = 
+            "from testAssist import assist\n" +
+            "import_export = assist.";
+        
+        requestCompl(s, -1, new String[] {"ExistingClass"});
     }
     
     

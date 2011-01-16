@@ -178,6 +178,21 @@ public class PySelection {
         boolean isFuture = fromIndex != -1 && futureIndex != -1 && futureIndex == fromIndex+1;
         return isFuture;
     }
+    
+    
+    /**
+     * @param trimmedLine a line that's already trimmed!
+     * @return true if it seems the current line is an import line (i.e.: starts with 'import' or 'from')
+     */
+    public static boolean isImportLine(String trimmedLine) {
+        List<String> split = StringUtils.split(trimmedLine, ' ', '\t');
+        if(split.size() == 0){ //nothing to see her
+            return false;
+        }
+        String pos0 = split.get(0);
+        return pos0.equals("import") || pos0.equals("from");
+    }
+
 
     /**
      * @param isFutureImport if true, that means that the location found must match a from __future__ import (which
@@ -2055,6 +2070,8 @@ public class PySelection {
         
         return set;
     }
+
+
 
 
 

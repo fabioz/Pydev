@@ -138,7 +138,7 @@ public class ImportsSelection {
             String line = ParsingUtils.removeComments(iterator.next());
             String trimmedLine = line.trim();
             
-            if (trimmedLine.startsWith("from") || trimmedLine.startsWith("import")) {
+            if (PySelection.isImportLine(trimmedLine)) {
                 if(expectContinue){
                     boolean correct = false;
                     
