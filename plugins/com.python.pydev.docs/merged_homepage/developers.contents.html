@@ -24,9 +24,15 @@
 To do this, go to <strong>window &gt; preferences &gt; Java &gt; compiler</strong> and change that setting from <strong>1.4 to 5.0</strong>.</p>
 <div class="section" id="repository">
 <h2><a class="toc-backref" href="#id2">Repository</a></h2>
-<p>Get the code with Git from <a class="reference external" href="https://github.com/aptana/Pydev">https://github.com/aptana/Pydev</a> (ideally, fork it at github, create your own branch at the forked repository and send a pull request later on with your changes).</p>
-<p>And later go to: <strong>File &gt; Import &gt; Existing projects into workspace</strong> and point it to the root of the repository you just downloaded.</p>
-<p>Note that currently Pydev has a project (org.python.pydev.red_core) which has a dependency on Aptana Studio 3, so, if you plan on doing a local build, you'll need to get Aptana Studio 3 installed as a plugin in your SDK, now if you don't need to do a local build (i.e.: just do your local changes and run Eclipse with your changes from within the SDK and contribute that as a patch later on), you can just close this project so that it doesn't get compiled.</p>
+<p>Get the code with Git from <a class="reference external" href="https://github.com/aptana/Pydev">https://github.com/aptana/Pydev</a> (ideally, fork it at github, create your own branch at the
+forked repository -- usually based in the development branch -- and later send a pull request on github so that
+the code can be merged back). Later, if you want to provide some other feature/bugfix, a new branch should be created again.</p>
+<p>Then, in Eclipse, go to: <strong>File &gt; Import &gt; Existing projects into workspace</strong> and point it to the root of the repository you just downloaded.</p>
+<p>Note that currently Pydev has a project (org.python.pydev.red_core) which has a dependency on Aptana Studio 3, so, if
+you plan on doing a local build, you'll need to get Aptana Studio 3 installed as a plugin in the SDK used for the build
+(i.e.: not necessarily in the SDK you use for developing), now if you don't need to do a local build
+(i.e.: just do your local changes and run Eclipse with your changes from within the SDK and contribute that
+as a patch later on), you can just close this project so that it doesn't get compiled.</p>
 </div>
 </div>
 <div class="section" id="configuring-the-environment-after-getting-the-code">

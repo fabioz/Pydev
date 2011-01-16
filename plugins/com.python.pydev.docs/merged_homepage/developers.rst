@@ -21,11 +21,17 @@ Repository
 
 .. _https://github.com/aptana/Pydev: https://github.com/aptana/Pydev
 
-Get the code with Git from https://github.com/aptana/Pydev (ideally, fork it at github, create your own branch at the forked repository and send a pull request later on with your changes).
+Get the code with Git from https://github.com/aptana/Pydev (ideally, fork it at github, create your own branch at the 
+forked repository -- usually based in the development branch -- and later send a pull request on github so that 
+the code can be merged back). Later, if you want to provide some other feature/bugfix, a new branch should be created again.
 
-And later go to: **File > Import > Existing projects into workspace** and point it to the root of the repository you just downloaded.
+Then, in Eclipse, go to: **File > Import > Existing projects into workspace** and point it to the root of the repository you just downloaded.
 
-Note that currently Pydev has a project (org.python.pydev.red_core) which has a dependency on Aptana Studio 3, so, if you plan on doing a local build, you'll need to get Aptana Studio 3 installed as a plugin in your SDK, now if you don't need to do a local build (i.e.: just do your local changes and run Eclipse with your changes from within the SDK and contribute that as a patch later on), you can just close this project so that it doesn't get compiled.
+Note that currently Pydev has a project (org.python.pydev.red_core) which has a dependency on Aptana Studio 3, so, if 
+you plan on doing a local build, you'll need to get Aptana Studio 3 installed as a plugin in the SDK used for the build 
+(i.e.: not necessarily in the SDK you use for developing), now if you don't need to do a local build 
+(i.e.: just do your local changes and run Eclipse with your changes from within the SDK and contribute that 
+as a patch later on), you can just close this project so that it doesn't get compiled.
 
 
 Configuring the environment after getting the code

@@ -13,6 +13,7 @@ set ECLIPSE_CLEAN=D:\bin\eclipse_36_final_clean
 set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.1.0.v20100507
 set BUILDER_PLUGIN=org.eclipse.pde.build_3.6.0.v20100603
 set KEYSTORE=%DEPLOY_DIR%\pydevkeystore
+set KEYSTORE_ALIAS=aptana
 
 set BASEOS=win32
 set BASEWS=win32
@@ -52,7 +53,11 @@ ant -DbuildDirectory=%BUILD_DIR%\Pydev -Dgit.executable=%GIT_EXECUTABLE% -Ddeplo
 
 
 
-Notes on customizing parameters:
+Notes on customizing parameters / making the build:
+If signing is needed, then the keystore needs to be created before (see commands below)
+and also a variable named STOREPASS must be set with the same password used when the keystore is created
+i.e.: set STOREPASS=my store pass
+
 BRANCH: the branch to be used to do the build (e.g.: master/development/etc) -- it's recommended that you create your own branch from a base branch in pydev and use it
 
 BASE_LOCAL_PYDEV_GIT: The directory where you checked out Pydev from git (the folder containing the 'plugins, features, builders, .git')
@@ -66,6 +71,8 @@ KEYSTORE: A keystore needs to be created and available at %DEPLOY_DIR%\pydevkeys
     %JAVA_HOME%\bin\keytool -genkey -dname "CN=Company Pydev, OU=Pydev, O=Company, L=Location, ST=State, C=Country" -keystore %DEPLOY_DIR%\pydevkeystore -alias pydev -validity 3650
     %JAVA_HOME%\bin\keytool -selfcert -alias pydev -keystore %DEPLOY_DIR%\pydevkeystore -validity 3650
     %JAVA_HOME%\bin\jarsigner -keystore %DEPLOY_DIR%\pydevkeystore -storepass PASSUSED JAR_TO_SIGN pydev
+    
+KEYSTORE_ALIAS: The alias used during the keystore creation
 
 JAVA_HOME: Where is your java located? (The directory containing 'bin, jre, COPYRIGHT, LICENSE') 
 
