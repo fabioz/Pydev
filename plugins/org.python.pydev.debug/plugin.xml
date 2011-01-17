@@ -760,8 +760,8 @@
            class="org.python.pydev.debug.ui.actions.RetargetSetNextAction"
            definitionId="org.python.pydev.debug.setnext"
            helpContextId="run_to_line_action_context"
-           disabledIcon="icons/runtoline_co.gif"
-           icon="icons/runtoline_co.gif"
+           disabledIcon="icons/setnext_co_dis.gif"
+           icon="icons/setnext_co.gif"
            label="Set Next Statement"
            menubarPath="org.eclipse.ui.run/emptyStepGroup"
            toolbarPath="org.eclipse.debug.ui.DebugView/stepReturnGroup">
