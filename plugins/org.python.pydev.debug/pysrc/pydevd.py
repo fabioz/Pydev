@@ -479,7 +479,7 @@ class PyDB:
                     thread_id, line, func_name = text.split('\t', 2)
                     t = PydevdFindThreadById(thread_id)
                     if t:
-                        t.additionalInfo.pydev_step_cmd = CMD_RUN_TO_LINE
+                        t.additionalInfo.pydev_step_cmd = cmd_id
                         t.additionalInfo.pydev_next_line = int(line)
                         t.additionalInfo.pydev_func_name = func_name
                         t.additionalInfo.pydev_state = STATE_RUN
@@ -882,7 +882,7 @@ class PyDB:
         if m.__file__.startswith(sys.path[0]):
             #print >> sys.stderr, 'Deleting: ', sys.path[0]
             del sys.path[0]
-        
+
         #now, the local directory has to be added to the pythonpath
         #sys.path.insert(0, os.getcwd())
         #Changed: it's not the local directory, but the directory of the file launched
@@ -1143,5 +1143,6 @@ if __name__ == '__main__':
     debugger.connect(setup['client'], setup['port'])
     
     connected = True #Mark that we're connected when started from inside eclipse.
+    
     debugger.run(setup['file'], None, None)
     
