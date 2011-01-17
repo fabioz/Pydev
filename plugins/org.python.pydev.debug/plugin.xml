@@ -721,8 +721,8 @@
         locationURI="menu:org.eclipse.ui.run?after=stepReturnGroup">
          <command
            commandId="org.python.pydev.debug.setnext"
-           disabledIcon="icons/runtoline_co.gif"
-           icon="icons/runtoline_co.gif"
+           disabledIcon="icons/setnext_co_dis.gif"
+           icon="icons/setnext_co.gif"
            mnemonic="O"
            style="push"
            id="org.python.pydev.debug.menu.run.setnext">
@@ -732,8 +732,8 @@
   		locationURI="toolbar:org.eclipse.debug.ui.DebugView?after=emptyStepGroup">
   		<command
            commandId="org.python.pydev.debug.setnext"
-           disabledIcon="icons/runtoline_co.gif"
-           icon="icons/runtoline_co.gif"
+           disabledIcon="icons/setnext_co_dis.gif"
+           icon="icons/setnext_co.gif"
            id="org.python.pydev.debug.toolbar.view.setnext">
          </command>
       </menuContribution>
