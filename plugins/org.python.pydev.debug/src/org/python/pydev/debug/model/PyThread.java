@@ -17,6 +17,7 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.RunToLineCommand;
+import org.python.pydev.debug.model.remote.SetNextCommand;
 import org.python.pydev.debug.model.remote.StepCommand;
 import org.python.pydev.debug.model.remote.ThreadRunCommand;
 import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
@@ -164,6 +165,10 @@ public class PyThread extends PlatformObject implements IThread {
         target.postCommand(new RunToLineCommand(target, AbstractDebuggerCommand.CMD_RUN_TO_LINE, id, line, funcName));
     }
 
+    public void setNextStatement(int line, String funcName){
+        isStepping = true;
+        target.postCommand(new SetNextCommand(target, AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT, id, line, funcName));
+    }
 
     public IStackFrame[] getStackFrames() throws DebugException {
         if(isSuspended && stack != null){

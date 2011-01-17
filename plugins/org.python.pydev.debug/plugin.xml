@@ -706,5 +706,72 @@
          <enablement></enablement>
       </consolePageParticipant>
    </extension>
+
+ <!--Extension Points for SetNext Statement-->
+    <extension 
+		point="org.eclipse.ui.commands">
+ 		<command 
+        	id="org.python.pydev.debug.setnext" 
+        	name="Set Next Statement"> 
+		</command>
+ 	</extension>
+    <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+        locationURI="menu:org.eclipse.ui.run?after=stepReturnGroup">
+         <command
+           commandId="org.python.pydev.debug.setnext"
+           disabledIcon="icons/runtoline_co.gif"
+           icon="icons/runtoline_co.gif"
+           mnemonic="O"
+           style="push"
+           id="org.python.pydev.debug.menu.run.setnext">
+         </command>
+      </menuContribution>
+      <menuContribution
+  		locationURI="toolbar:org.eclipse.debug.ui.DebugView?after=emptyStepGroup">
+  		<command
+           commandId="org.python.pydev.debug.setnext"
+           disabledIcon="icons/runtoline_co.gif"
+           icon="icons/runtoline_co.gif"
+           id="org.python.pydev.debug.toolbar.view.setnext">
+         </command>
+      </menuContribution>
+      <menuContribution
+        locationURI="popup:org.python.pydev.debug.PyEditPopupActions?after=additions">
+     	<command
+           commandId="org.python.pydev.debug.setnext"
+           label="Set Next Statement">
+     	</command>
+      </menuContribution>
+    </extension>
+   <extension point="org.eclipse.ui.bindings">
+   <key
+        sequence="M1+M3+R"
+        commandId="org.python.pydev.debug.setnext"
+        schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+   </extension>
+   <extension point="org.eclipse.ui.actionSets">
+	<actionSet
+		id="org.eclipse.debug.ui.debugActionSet"
+		label="Debug">
+		<action
+           id="org.eclipse.debug.ui.actions.SetNextStatement"
+           class="org.python.pydev.debug.ui.actions.RetargetSetNextAction"
+           definitionId="org.python.pydev.debug.setnext"
+           helpContextId="run_to_line_action_context"
+           disabledIcon="icons/runtoline_co.gif"
+           icon="icons/runtoline_co.gif"
+           label="Set Next Statement"
+           menubarPath="org.eclipse.ui.run/emptyStepGroup"
+           toolbarPath="org.eclipse.debug.ui.DebugView/stepReturnGroup">
+     	</action>	
+	</actionSet>
+   	</extension>
+   	    <extension point="org.eclipse.core.runtime.adapters">
+         <factory class="org.python.pydev.debug.ui.PyEditSetNextAdapterFactory" adaptableType="org.python.pydev.editor.PyEdit">
+			<adapter type="org.python.pydev.debug.ui.actions.ISetNextTarget"/>
+         </factory>
+    </extension> 
 </plugin>
 

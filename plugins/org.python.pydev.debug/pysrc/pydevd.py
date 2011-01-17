@@ -11,6 +11,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_REMOVE_BREAK, \
                          CMD_RUN, \
                          CMD_SET_BREAK, \
+                         CMD_SET_NEXT_STATEMENT,\
                          CMD_STEP_INTO, \
                          CMD_STEP_OVER, \
                          CMD_STEP_RETURN, \
@@ -473,12 +474,12 @@ class PyDB:
                         t.additionalInfo.pydev_step_cmd = cmd_id
                         t.additionalInfo.pydev_state = STATE_RUN
                         
-                elif cmd_id == CMD_RUN_TO_LINE:
+                elif cmd_id == CMD_RUN_TO_LINE or cmd_id == CMD_SET_NEXT_STATEMENT:
                     #we received some command to make a single step
                     thread_id, line, func_name = text.split('\t', 2)
                     t = PydevdFindThreadById(thread_id)
                     if t:
-                        t.additionalInfo.pydev_step_cmd = cmd_id
+                        t.additionalInfo.pydev_step_cmd = CMD_RUN_TO_LINE
                         t.additionalInfo.pydev_next_line = int(line)
                         t.additionalInfo.pydev_func_name = func_name
                         t.additionalInfo.pydev_state = STATE_RUN
