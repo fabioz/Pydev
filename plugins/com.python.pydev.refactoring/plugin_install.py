@@ -11,7 +11,7 @@ class Action:
         
 
 ACTIONS_AND_BINDING = [
-    Action('com.python.pydev.refactoring.tdd.PyCreateClass', 'Ctrl+Enter C', 'CreateClass'),
-    Action('com.python.pydev.refactoring.tdd.PyCreateMethod', 'Ctrl+Enter M', 'CreateMethod'),
+    Action('com.python.pydev.refactoring.tdd.PyCreateClass', 'Alt+Shift+S C', 'CreateClass'),
+    Action('com.python.pydev.refactoring.tdd.PyCreateMethod', 'Alt+Shift+S M', 'CreateMethod'),
     Action('org.python.pydev.refactoring.ui.actions.ExtractMethodAction', ('M2+M3+M', 'M3+M2+T E'), 'ExtractMethod'),
 ]

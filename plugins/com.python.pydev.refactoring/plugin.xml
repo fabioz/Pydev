@@ -147,14 +147,14 @@
 
       <key
             commandId="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
-            sequence="Ctrl+Enter C"
+            sequence="Alt+Shift+S C"
             contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
 
 
       <key
             commandId="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
-            sequence="Ctrl+Enter M"
+            sequence="Alt+Shift+S M"
             contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
 

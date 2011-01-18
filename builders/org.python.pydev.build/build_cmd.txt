@@ -7,7 +7,7 @@ set BRANCH=development
 set BASE_LOCAL_PYDEV_GIT=D:\workspaces\pydev
 set BUILD_DIR=W:\git_build_dir
 set DEPLOY_DIR=W:\git_deploy_dir
-set JAVA_HOME=D:\bin\jdk_1_5_09
+set JAVA_HOME=D:\bin\jdk1_5_0_09
 set GIT_EXECUTABLE="d:\bin\git\bin\git.exe"
 set ECLIPSE_CLEAN=D:\bin\eclipse_36_final_clean
 set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.1.0.v20100507
@@ -19,10 +19,11 @@ set BASEOS=win32
 set BASEWS=win32
 set BASEARCH=x86
 
+set PATH=
 set PATH=d:\bin\python265;%PATH%
 set PATH=D:\bin\FastCopy199r4;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
-set PATH="d:\git\bin";%PATH%
+set PATH=d:\bin\git\bin;%PATH%
 set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.7.1.v20100518-1145\bin;%PATH%
 
 
@@ -46,7 +47,7 @@ call git pull origin %BRANCH%
 @echo If copied/pasted into cmd.exe, it will break here
 
 cd builders\org.python.pydev.build
-ant -DbuildDirectory=%BUILD_DIR%\Pydev -Dgit.executable=%GIT_EXECUTABLE% -Ddeploy.dir=%DEPLOY_DIR%\Pydev -DcleanAfter=false -Dvanilla.eclipse=%ECLIPSE_CLEAN% -DSTOREPASS=%STOREPASS% -DKEYSTORE=%KEYSTORE% -Dlocal_build=true -Dlauncher.plugin=%LAUNCHER_PLUGIN% -Dbuilder.plugin=%BUILDER_PLUGIN% -Dbaseos=%BASEOS% -Dbasews=%BASEWS% -Dbasearch=%BASEARCH% 
+ant -DbuildDirectory=%BUILD_DIR%\Pydev -Dgit.executable=%GIT_EXECUTABLE% -Ddeploy.dir=%DEPLOY_DIR%\Pydev -DcleanAfter=false -Dvanilla.eclipse=%ECLIPSE_CLEAN% -DSTOREPASS=%STOREPASS% -DKEYSTORE=%KEYSTORE% -Dlocal_build=true -Dlauncher.plugin=%LAUNCHER_PLUGIN% -Dbuilder.plugin=%BUILDER_PLUGIN% -Dbaseos=%BASEOS% -Dbasews=%BASEWS% -Dbasearch=%BASEARCH% -DKEYSTORE_ALIAS=%KEYSTORE_ALIAS% 
 
 
 

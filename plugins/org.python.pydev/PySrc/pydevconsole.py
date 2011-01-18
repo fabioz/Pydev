@@ -17,22 +17,13 @@ except NameError: # version < 2.3 -- didn't have the True/False builtins
 from pydev_imports import xmlrpclib
 
 #=======================================================================================================================
-# StdIn
+# BaseStdIn
 #=======================================================================================================================
-class StdIn:
-    '''
-        Object to be added to stdin (to emulate it as non-blocking while the next line arrives)
-    '''
+class BaseStdIn:
     
-    def __init__(self, interpreter, host, client_port):
-        self.interpreter = interpreter
-        self.client_port = client_port
-        self.host = host
-    
-    def readline(self, *args, **kwargs): #@UnusedVariable
-        #Ok, callback into the client to see get the new input
-        server = xmlrpclib.Server('http://%s:%s' % (self.host, self.client_port))
-        return server.RequestInput()
+    def readline(self, *args, **kwargs):
+        sys.stderr.write('Cannot readline out of the console evaluation\n')
+        return '\n'
     
     def isatty(self):    
         return False #not really a file
@@ -43,9 +34,33 @@ class StdIn:
     def flush(self, *args, **kwargs):
         pass #not available StdIn (but it can be expected to be in the stream interface)
        
-    #in the interactive interpreter, a read and a readline are the same.
-    read = readline
-        
+    def read(self, *args, **kwargs):
+        #in the interactive interpreter, a read and a readline are the same.
+        return self.readline()
+    
+sys.stdin = BaseStdIn()
+    
+#=======================================================================================================================
+# StdIn
+#=======================================================================================================================
+class StdIn(BaseStdIn):
+    '''
+        Object to be added to stdin (to emulate it as non-blocking while the next line arrives)
+    '''
+    
+    def __init__(self, interpreter, host, client_port):
+        self.interpreter = interpreter
+        self.client_port = client_port
+        self.host = host
+    
+    def readline(self, *args, **kwargs):
+        #Ok, callback into the client to see get the new input
+        server = xmlrpclib.Server('http://%s:%s' % (self.host, self.client_port))
+        requested_input = server.RequestInput()
+        if not requested_input:
+            return '\n' #Yes, a readline must return something (otherwise we can get an EOFError on the input() call).
+        return requested_input
+
 
         
 try:
@@ -124,6 +139,7 @@ class InterpreterInterface:
         self.host = host
         self.namespace = globals()
         self.interpreter = InteractiveConsole(self.namespace)
+        self._input_error_printed = False
 
 
         
@@ -152,7 +168,18 @@ class InterpreterInterface:
             try:
                 if help is not None:
                     #This will enable the help() function to work.
-                    help.input = sys.stdin 
+                    try:
+                        try:
+                            help.input = sys.stdin 
+                        except AttributeError:
+                            help._input = sys.stdin 
+                    except:
+                        help = None
+                        if not self._input_error_printed:
+                            self._input_error_printed = True
+                            sys.stderr.write('\nError when trying to update pydoc.help.input\n')
+                            sys.stderr.write('(help() may not work -- please report this as a bug in the pydev bugtracker).\n\n')
+                            import traceback;traceback.print_exc()
                 
                 try:
                     command = Command(self.interpreter, line)
@@ -160,7 +187,13 @@ class InterpreterInterface:
                     more = command.more
                 finally:
                     if help is not None:
-                        help.input = original_in
+                        try:
+                            try:
+                                help.input = original_in
+                            except AttributeError:
+                                help._input = original_in
+                        except:
+                            pass
                         
             finally:
                 sys.stdin = original_in
