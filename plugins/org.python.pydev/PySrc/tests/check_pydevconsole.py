@@ -1,5 +1,9 @@
 import sys
-sys.path.insert(0, r'W:\pydev\plugins\org.python.pydev\PySrc')
+import os
+
+#Put pydevconsole in the path.
+sys.argv[0] = os.path.dirname(sys.argv[0]) 
+sys.path.insert(1, os.path.join(os.path.dirname(sys.argv[0])))
 
 print('Running tests with:', sys.executable)
 print('PYTHONPATH:')
@@ -7,7 +11,6 @@ print('\n'.join(sorted(sys.path)))
 
 import threading
 import unittest
-import os
 
 import pydevconsole
 from pydev_imports import xmlrpclib, SimpleXMLRPCServer
