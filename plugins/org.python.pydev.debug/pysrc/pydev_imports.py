@@ -20,3 +20,7 @@ try:
     execfile=execfile #Not in Py3k
 except NameError:
     from _pydev_execfile import execfile
+try:
+    import Queue
+except:
+    import queue as Queue
