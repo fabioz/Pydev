@@ -1018,6 +1018,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         
         //varargs
         if(completeArgs.vararg != null){
+            if(lastNode == null){
+                lastNode = completeArgs.vararg;
+            }
             if(foundBefore){
                 doc.addRequire(",", lastNode);
             }
@@ -1070,6 +1073,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         
         //keyword arguments
         if(completeArgs.kwarg != null){
+            if(lastNode == null){
+                lastNode = completeArgs.kwarg;
+            }
             if(foundBefore){
                 doc.addRequire(",", lastNode);
             }

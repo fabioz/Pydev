@@ -58,7 +58,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testNoImportOnLine();
+            test.testNPEOnCompletion();
             test.tearDown();
             System.out.println("Finished");
 
@@ -1395,6 +1395,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	requestCompl(s, -1, new String[] {"method1()"});
     }
 
+    public void testNPEOnCompletion() throws Exception {
+        String s = 
+            "def Foo(**kwargs):\n" +
+            "    pass\n" +
+            "\n" +
+            "Foo(ah";
+        
+        requestCompl(s, -1, new String[] {});
+    }
+    
     
     public void testVarargsAndKwargsFound() throws Exception {
         String s = 

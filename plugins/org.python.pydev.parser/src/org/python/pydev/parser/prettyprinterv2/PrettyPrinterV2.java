@@ -120,7 +120,8 @@ public class PrettyPrinterV2 {
         try{
             visitor.visitNode(ast);
         }catch(Exception e){
-            throw new RuntimeException(e);
+            Log.log(e);
+            return "";
         }
         
         writerEraserV2 = new WriterEraserV2();
