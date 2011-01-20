@@ -1,7 +1,12 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * @author: atotic, Scott Schlesier
  * Created: March 5, 2005
- * License: Common Public License v1.0
  */
 package org.python.pydev.editor;
 

@@ -45,5 +45,4 @@ Export-Package: org.python.pydev.debug.codecoverage,
  org.python.pydev.debug.ui.actions,
  org.python.pydev.debug.ui.blocks,
  org.python.pydev.debug.ui.launching,
- org.python.pydev.debug.ui.propertypages,
- org.python.pydev.debug.unittest
+ org.python.pydev.debug.ui.propertypages
