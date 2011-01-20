@@ -463,7 +463,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             if (stopReason_i == AbstractDebuggerCommand.CMD_STEP_OVER ||
                 stopReason_i == AbstractDebuggerCommand.CMD_STEP_INTO ||
                 stopReason_i == AbstractDebuggerCommand.CMD_STEP_RETURN ||
-                stopReason_i == AbstractDebuggerCommand.CMD_RUN_TO_LINE){
+                stopReason_i == AbstractDebuggerCommand.CMD_RUN_TO_LINE ||
+                stopReason_i == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT){
                 reason = DebugEvent.STEP_END;
                 
             }else if (stopReason_i == AbstractDebuggerCommand.CMD_THREAD_SUSPEND){
@@ -521,6 +522,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                 else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO)
                     resumeReason = DebugEvent.STEP_INTO;
                 else if (raw_reason == AbstractDebuggerCommand.CMD_RUN_TO_LINE)
+                    resumeReason = DebugEvent.UNSPECIFIED;
+                else if (raw_reason == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT)
                     resumeReason = DebugEvent.UNSPECIFIED;
                 else if (raw_reason == AbstractDebuggerCommand.CMD_THREAD_RUN)
                     resumeReason = DebugEvent.CLIENT_REQUEST;

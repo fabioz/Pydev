@@ -778,16 +778,16 @@ public class NodeUtils {
 	}
 	
 	/**
-	 * Identify the context for both source and target line 
+	 * Identifies the context for both source and target line 
 	 * 
 	 * @param ASTEntry ast
-	 * @param int sourceLine
-	 * @param int targetLine
+	 * @param int sourceLine: the line at which debugger is stopped currently (starts at 1) 
+	 * @param int targetLine: the line at which we need to set next (starts at 0)
 	 * @return
 	 */
 	public static boolean isValidContextForSetNext(SimpleNode ast,
 			int sourceLine, int targetLine) {
-		String sourceFunctionName = NodeUtils.getContextName(sourceLine, ast);
+		String sourceFunctionName = NodeUtils.getContextName((sourceLine - 1), ast);
 		String targetFunctionName = NodeUtils.getContextName(targetLine, ast);
 		if (compareMethodName(sourceFunctionName, targetFunctionName)) {
 
@@ -828,23 +828,27 @@ public class NodeUtils {
 	}
 	
 	/**
-	 * Compare name of two methods.
-	 * return true if either both methods are same or global context
-	 *  
+	 * Compare name of two methods. return true if either both methods are same
+	 * or global context
+	 * 
 	 * @param sourceMethodName
 	 * @param targetMethodName
-	 * @return 
+	 * @return
 	 */
-	public static boolean compareMethodName(String sourceMethodName, String targetMethodName){
-		if((sourceMethodName == null && targetMethodName == null) || sourceMethodName.equals(targetMethodName))
+	public static boolean compareMethodName(String sourceMethodName,
+			String targetMethodName) {
+		if ((sourceMethodName == null && targetMethodName == null))
+			return true;
+		if ((sourceMethodName != null)
+				&& sourceMethodName.equals(targetMethodName))
 			return true;
 		return false;
 	}
 	
 	/**
-	 * Identify the for/while/try..except/try..finally and with for a provided line number.
+	 * Identifies the for/while/try..except/try..finally and with for a provided line number.
 	 * 
-	 * @param lineNumber
+	 * @param lineNumber the line we want to get the loop context (starts at 1)
 	 * @param ast
 	 * @return
 	 */
@@ -852,7 +856,6 @@ public class NodeUtils {
 		ASTEntry loopContext = null;
 		if (ast != null) {
 			int highestBeginLine = 0;
-			// ASTEntry loopContext = null;
 			ArrayList<ASTEntry> contextBlockList = new ArrayList<ASTEntry>();
 			EasyASTIteratorWithLoop visitor = EasyASTIteratorWithLoop
 					.create(ast);
@@ -932,7 +935,6 @@ public class NodeUtils {
         return false;
     }
 
-
     /**
      * @return true if the given name is a valid python name.
      */
@@ -947,7 +949,6 @@ public class NodeUtils {
         
         return true;
     }
-
 
     /**
      * Creates an attribute from the passed string

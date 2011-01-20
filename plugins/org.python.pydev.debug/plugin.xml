@@ -712,7 +712,8 @@
 		point="org.eclipse.ui.commands">
  		<command 
         	id="org.python.pydev.debug.setnext" 
-        	name="Set Next Statement"> 
+        	name="Set Next Statement"
+        	categoryId="org.python.pydev.ui.category.run"> 
 		</command>
  	</extension>
     <extension
@@ -762,9 +763,7 @@
            helpContextId="run_to_line_action_context"
            disabledIcon="icons/setnext_co_dis.gif"
            icon="icons/setnext_co.gif"
-           label="Set Next Statement"
-           menubarPath="org.eclipse.ui.run/emptyStepGroup"
-           toolbarPath="org.eclipse.debug.ui.DebugView/stepReturnGroup">
+           label="Set Next Statement">
      	</action>	
 	</actionSet>
    	</extension>
