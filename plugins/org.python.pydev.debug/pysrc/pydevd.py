@@ -828,7 +828,9 @@ class PyDB:
         
         except Exception:
             #Log it
-            traceback.print_exc()
+            if traceback is not None:
+                #This can actually happen during the interpreter shutdown in Python 2.7
+                traceback.print_exc()
             return None
             
     if USE_PSYCO_OPTIMIZATION:
