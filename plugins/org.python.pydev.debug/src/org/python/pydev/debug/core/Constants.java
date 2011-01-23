@@ -59,5 +59,8 @@ public interface Constants {
     static final String ATTR_UNITTEST_TESTS = PLUGIN_ID + ".ATTR_UNITTEST_TESTS";
     static final String PYDEV_CONFIG_RUN = "PYDEV_CONFIG_RUN";
     
+    //Constants for pydev debug, break on exception
+	public static String FILE_PATH = ".metadata/.plugins/org.python.pydev";
+	public static String FILE_NAME = "python_exceptions.xml";
     
 }

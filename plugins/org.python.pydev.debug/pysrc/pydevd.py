@@ -6,6 +6,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_EXEC_EXPRESSION, \
                          CMD_GET_COMPLETIONS, \
                          CMD_GET_FRAME, \
+                         CMD_GET_PY_EXCEPTION, \
                          CMD_GET_VARIABLE, \
                          CMD_LIST_THREADS, \
                          CMD_REMOVE_BREAK, \
@@ -643,7 +644,13 @@ class PyDB:
                     int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression,
                         cmd_id == CMD_EXEC_EXPRESSION)
                     self.postInternalCommand(int_cmd, thread_id)
-                        
+
+                elif cmd_id == CMD_GET_PY_EXCEPTION:
+                    # Recieves a Workspace path  
+                    sys.stderr.write("CMD_GET_PY_EXCEPTION text:%s"%(str(text)))
+                    sys.stderr.write("CMD_GET_PY_EXCEPTION seq:%s"%(str(seq))) 
+                    handled_exceptions = eval(text)
+                    #set_pm_excepthook()
                         
                 else:
                     #I have no idea what this is all about

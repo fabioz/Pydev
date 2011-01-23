@@ -7,15 +7,20 @@ package org.python.pydev.debug.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -340,5 +345,160 @@ public class XMLUtils {
         }
         
     }
+    
+    /**
+     * Creates a List<PyException>, Parse XML like below format:
+     *  
+     *  <?xml version="1.0" encoding="UTF-8"?>
+     *  <class>
+     *  	<name>Exception</name>
+     *  	<selected>2</selected>
+     *  	<subclass>
+     *  		<class>
+     *  			<name>StandardError</name>
+     *  			<selected>1</selected>
+     *  			<subclass>
+     *  				<class>
+     *  					<name>TypeError</name>
+     *  					<selected>1</selected>
+     *  				</class>
+     *  			</subclass>
+     *  		</class>
+     *  	</subclass>
+     *  </class>
+     *  
+     * @author hussain.bohra
+     */
+	static class ExceptionXMLInfo extends DefaultHandler {
+		public List<PyException> pyExceptionList;
+		public PyException currentPyException;
+		public PyException parentException;
+		public String attrValue;
 
+		public ExceptionXMLInfo() {
+			pyExceptionList = new ArrayList<PyException>();
+			parentException = null;
+		}
+
+		/**
+		 * Creates new PyException Object on encountering <class> tag and
+		 * appends into parent class subclasses list. Change Parent to last
+		 * encountered class on encountering <subclass> tag and set parent
+		 * object as currentPyException.
+		 * 
+		 */
+		@Override
+		public void startElement(String uri, String localName, String qName,
+				Attributes attributes) throws SAXException {
+			if (qName.equalsIgnoreCase("CLASS")) {
+				currentPyException = new PyException();
+				currentPyException.setParent(parentException);
+				if (parentException == null) {
+					pyExceptionList.add(currentPyException);
+				} else {
+					parentException.getSubClassList().add(currentPyException);
+				}
+			} else if (qName.equalsIgnoreCase("SUBCLASS")) {
+				parentException = currentPyException;
+			}
+		}
+
+		@Override
+		public void characters(char[] ch, int start, int length)
+				throws SAXException {
+			attrValue = new String(ch, start, length);
+		}
+
+		/**
+		 * Set name and selected value on PyException object on encountering
+		 * </name> and </selected> tag. Update parentException to
+		 * parentExceptionClass.parentExceptionClass on encountering
+		 * </subclasses> tag
+		 */
+		@Override
+		public void endElement(String uri, String localName, String qName)
+				throws SAXException {
+			if (qName.equalsIgnoreCase("NAME")) {
+				currentPyException.setName(attrValue);
+			} else if (qName.equalsIgnoreCase("SELECTED")) {
+				currentPyException.setSelected(Integer.parseInt(attrValue));
+			} else if (qName.equalsIgnoreCase("SUBCLASS")) {
+				parentException = parentException.getParent();
+			}
+		}
+	}
+
+	/**
+	 * Get an object of SAXParser and creates new ExceptionXMLInfo object. Call
+	 * parser with an object of ExceptionXMLInfo
+	 * 
+	 * @param fileName
+	 * @return
+	 * @throws CoreException
+	 */
+	public static String getPyException(String fileName) throws CoreException {
+		String exceptionStr = "";
+		StringBuilder exceptionBuilder = new StringBuilder("(");
+		try {
+			SAXParser parser = getSAXParser();
+			ExceptionXMLInfo info = new ExceptionXMLInfo();
+			parser.parse(fileName, info);
+			List<PyException> pyExceptionList = info.pyExceptionList;
+			exceptionBuilder = makeExceptionString(pyExceptionList,
+					exceptionBuilder);
+			exceptionBuilder.append(")");
+			exceptionStr = exceptionBuilder.toString();
+		} catch (CoreException e) {
+			throw e;
+		} catch (SAXException e) {
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+					"Unexpected XML error", e));
+		} catch (IOException e) {
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+					"Unexpected XML error", e));
+		}
+		return exceptionStr;
+	}
+
+	private static StringBuilder makeExceptionString(
+			List<PyException> pyExceptionList, StringBuilder exceptionBuilder) {
+
+		Iterator<PyException> pyExceptionIterator = pyExceptionList.iterator();
+		while (pyExceptionIterator.hasNext()) {
+			PyException pyException = pyExceptionIterator.next();
+			if (pyException.getSelected() == 1) {
+				exceptionBuilder.append("'" + pyException.getName() + "',");
+			}
+			List<PyException> pyExceptionSubclass = pyException
+					.getSubClassList();
+			if (!pyExceptionSubclass.isEmpty()) {
+				makeExceptionString(pyExceptionSubclass, exceptionBuilder);
+			}
+		}
+		return exceptionBuilder;
+	}
+	
+	public static void createXMLFile(String filePath, String fileName)
+			throws CoreException {
+		String file = filePath + "/" + fileName;
+		XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+		XMLStreamWriter streamWriter = null;
+		try {
+			streamWriter = outputFactory.createXMLStreamWriter(new FileWriter(
+					file));
+			streamWriter.writeStartDocument("1.0");
+			streamWriter.writeStartElement("class");
+			streamWriter.writeEndElement();
+			streamWriter.writeEndDocument();
+			streamWriter.flush();
+			streamWriter.close();
+		} catch (XMLStreamException e) {
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+					"Unexpected XML SAX error", e));
+		} catch (IOException e) {
+			throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,
+					"Unexpected XML SAX error", e));
+		}
+
+	}
 }
