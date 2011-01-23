@@ -704,7 +704,7 @@ class PyDB:
                 frame.f_trace = self.trace_dispatch
             SetTraceForParents(frame, self.trace_dispatch)
             
-        elif info.pydev_step_cmd == CMD_RUN_TO_LINE:
+        elif info.pydev_step_cmd == CMD_RUN_TO_LINE or info.pydev_step_cmd == CMD_SET_NEXT_STATEMENT :
             if frame.f_trace is None:
                 frame.f_trace = self.trace_dispatch
             SetTraceForParents(frame, self.trace_dispatch)

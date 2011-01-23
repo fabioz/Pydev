@@ -34,6 +34,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.commentType;
@@ -787,14 +788,13 @@ public class NodeUtils {
 	 */
 	public static boolean isValidContextForSetNext(SimpleNode ast,
 			int sourceLine, int targetLine) {
-		String sourceFunctionName = NodeUtils.getContextName((sourceLine - 1), ast);
+		String sourceFunctionName = NodeUtils.getContextName((sourceLine - 1),
+				ast);
 		String targetFunctionName = NodeUtils.getContextName(targetLine, ast);
 		if (compareMethodName(sourceFunctionName, targetFunctionName)) {
-
 			ASTEntry sourceAST = NodeUtils.getLoopContextName(sourceLine, ast);
 			ASTEntry targetAST = NodeUtils.getLoopContextName(targetLine + 1,
 					ast);
-			;
 
 			if (targetAST == null) {
 				return true; // Target line is not inside some loop
@@ -804,6 +804,17 @@ public class NodeUtils {
 								// loop
 			}
 			if (sourceAST != null && targetAST != null) {
+				if (sourceAST.equals(targetAST)
+						&& (sourceAST.node instanceof TryExcept && targetAST.node instanceof TryExcept)) {
+					excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
+					for (excepthandlerType exceptionHandler : exceptionHandlers) {
+						if (targetLine + 1 == exceptionHandler.beginLine) {
+							// On assigning debug pointer on an except statement
+							// debugger breaks in line to frame in pydevd_frame
+							return false;
+						}
+					}
+				}
 				// Both Source and Target is inside some loop
 				if (sourceAST.equals(targetAST)) {
 					return true;

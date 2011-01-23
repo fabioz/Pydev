@@ -164,6 +164,7 @@ public class NodeUtilsTest extends PyParserTestBase {
         
         // Source And Target are in Same Method
         assertTrue(NodeUtils.isValidContextForSetNext(ast, 3, 4));
+        assertTrue(NodeUtils.isValidContextForSetNext(ast, 10, 8));
         // Source And Target are in Different Method
         assertFalse(NodeUtils.isValidContextForSetNext(ast, 4, 16));
         // Source And Target are in Same Method. Target is inside For/While/Try..Except/Try..Finally
