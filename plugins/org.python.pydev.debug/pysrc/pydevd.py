@@ -160,7 +160,7 @@ def set_pm_excepthook(handle_exceptions=None):
     '''
     Should be called to register the excepthook to be used.
     
-    It's only useful for uncaucht exceptions. I.e.: exceptions that go up to the excepthook.
+    It's only useful for uncaught exceptions. I.e.: exceptions that go up to the excepthook.
     
     Can receive a parameter to stop only on some exceptions.
     
@@ -185,6 +185,38 @@ def set_pm_excepthook(handle_exceptions=None):
     _handle_exceptions = handle_exceptions
     sys.excepthook = excepthook
     
+#=======================================================================================================================
+# create_exceptions
+#=======================================================================================================================
+def create_exceptions(exceptionStr):
+    '''
+    Converts the exceptionStr to tuples of exceptionType
+    Receive a parameter as a "('exception1', 'exception2',)"
+    E.g.:
+        create_exceptions("['exception1', 'exception2',]")
+
+    In case of NameError, Loading necessary modules dynamically
+    '''
+    handle_exceptions = []
+    exceptionList = eval(exceptionStr)
+    for exceptionType in exceptionList:
+        try:
+            handle_exceptions.append(eval(exceptionType))
+        except NameError:
+            if exceptionType.find('.') > 0:
+                # handling exceptions only like exceptionClazz.exceptionModule
+                exceptionClazzName, exceptionModuleName = exceptionType.split('.')
+                exceptionClazz = __import__(exceptionClazzName)
+                exceptionModule = getattr(exceptionClazz, exceptionModuleName)
+                handle_exceptions.append(exceptionModule)
+        except:
+            continue
+
+
+    if handle_exceptions:
+        sys.stderr.write("Exceptions to hook : %s"%(str(handle_exceptions)))
+        set_pm_excepthook(tuple(handle_exceptions))
+
 
 try:
     import thread
@@ -646,11 +678,9 @@ class PyDB:
                     self.postInternalCommand(int_cmd, thread_id)
 
                 elif cmd_id == CMD_GET_PY_EXCEPTION:
-                    # Recieves a Workspace path  
-                    sys.stderr.write("CMD_GET_PY_EXCEPTION text:%s"%(str(text)))
-                    sys.stderr.write("CMD_GET_PY_EXCEPTION seq:%s"%(str(seq))) 
-                    handled_exceptions = eval(text)
-                    #set_pm_excepthook()
+                    # Command which receives set of exceptions on which user wants to break the debugger
+                    # text is: ['TypeError','ImportError','zipimport.ZipImportError',]
+                    create_exceptions(text)
                         
                 else:
                     #I have no idea what this is all about

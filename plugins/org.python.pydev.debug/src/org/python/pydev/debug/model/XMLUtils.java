@@ -438,7 +438,7 @@ public class XMLUtils {
 	 */
 	public static String getPyException(String fileName) throws CoreException {
 		String exceptionStr = "";
-		StringBuilder exceptionBuilder = new StringBuilder("(");
+		StringBuilder exceptionBuilder = new StringBuilder("[");
 		try {
 			SAXParser parser = getSAXParser();
 			ExceptionXMLInfo info = new ExceptionXMLInfo();
@@ -446,7 +446,7 @@ public class XMLUtils {
 			List<PyException> pyExceptionList = info.pyExceptionList;
 			exceptionBuilder = makeExceptionString(pyExceptionList,
 					exceptionBuilder);
-			exceptionBuilder.append(")");
+			exceptionBuilder.append("]");
 			exceptionStr = exceptionBuilder.toString();
 		} catch (CoreException e) {
 			throw e;
