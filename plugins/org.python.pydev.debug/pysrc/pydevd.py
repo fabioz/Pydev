@@ -972,6 +972,7 @@ def SetTraceForParents(frame, dispatch_func):
         frame = frame.f_back
     del frame
 
+
 def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=True):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
     
@@ -984,6 +985,17 @@ def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, s
     @param suspend: whether a breakpoint should be emulated as soon as this function is called. 
     @param trace_only_current_thread: determines if only the current thread will be traced or all future threads will also have the tracing enabled.
     '''
+    _set_trace_lock.acquire()
+    try:
+        _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_only_current_thread)
+    finally:
+        _set_trace_lock.release()
+    
+
+    
+_set_trace_lock = threading.Lock()
+
+def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_only_current_thread):
     if host is None:
         import pydev_localhost
         host = pydev_localhost.get_localhost()
