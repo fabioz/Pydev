@@ -1,0 +1,87 @@
+/*
+* Create a file TestDependent.java with the contents in this file and substitute the
+* values as needed...
+*/
+package org.python.pydev.core;
+
+public class TestDependent {
+
+    //NOTE: this should be gotten from some variable to point to the python lib (less system dependence, but still, some).
+    
+    //NOTE 2: the following paths assume a MacPython install and symlinks in /usr/local/bin for both Python 2 and Python 3
+    // (there's an option during the MacPython install to create these symlinks)
+    // You can download MacPython from www.python.org directly (there should be DMGs for 32-bit Python (targeted at 10.3)
+    // and 64-bit Python (targeted at 10.5+))
+        
+    public static String PYTHON_EXE="/usr/local/bin/python";
+    public static final String PYTHON_LIB="/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/";
+    public static final String PYTHON_LIB_DYNLOAD="/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-dynload/";
+    public static final String PYTHON_SITE_PACKAGES="/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/";
+    public static final String PYTHON_WXPYTHON_PACKAGES="/usr/local/lib/wxPython-2.9.1.1/lib/python2.7/site-packages";
+    public static final String PYTHON_NUMARRAY_PACKAGES=null;
+    public static final String PYTHON_NUMPY_PACKAGES=PYTHON_SITE_PACKAGES;
+    public static final String PYTHON_DJANGO_PACKAGES="/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/django";
+    public static final String PYTHON_MX_PACKAGES = null;
+    public static final String PYTHON_PIL_PACKAGES = "/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/PIL/";
+    public static final String PYTHON_TEST_PACKAGES = TestDependent.PYTHON_LIB+"test/";
+    
+    //python 3.0
+    public static String PYTHON_30_EXE="/usr/local/bin/python3/";
+    public static final String PYTHON_30_LIB="/Library/Frameworks/Python.framework/Versions/3.1/lib/python3.1/";
+    
+    public static String GetCompletePythonLib(boolean addSitePackages) {
+        if(!addSitePackages){
+            return PYTHON_LIB+"|"+PYTHON_LIB_DYNLOAD;
+        }else{
+            return PYTHON_LIB+"|"+PYTHON_LIB_DYNLOAD+"|"+PYTHON_SITE_PACKAGES;
+        }
+    }
+
+    //NOTE: this should set to the tests pysrc location, so that it can be added to the pythonpath.
+    public static final String TEST_PYDEV_BASE_LOC = "/Users/andre/Documents/Eclipse/Workspaces/Plugins/Pydev/plugins";
+    public static final String TEST_PYSRC_LOC=TEST_PYDEV_BASE_LOC+"org.python.pydev/tests/pysrc/";
+    public static final String TEST_PYSRC_NAVIGATOR_LOC=TEST_PYDEV_BASE_LOC+"org.python.pydev/tests_navigator/pysrc/";
+    public static final String TEST_PYSRC_LOC2 = TEST_PYDEV_BASE_LOC+"org.python.pydev/tests/pysrc2/";
+    public static final String TEST_PYDEV_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev/";
+    public static final String TEST_PYDEV_DEBUG_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.debug/";
+    public static final String TEST_PYDEV_JYTHON_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.jython/";
+    public static final String TEST_PYDEV_PARSER_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.parser/";
+    public static final String TEST_PYDEV_REFACTORING_PLUGIN_LOC = TEST_PYDEV_BASE_LOC+"org.python.pydev.refactoring/";
+    public static final String TEST_COM_REFACTORING_PYSRC_LOC = TEST_PYDEV_BASE_LOC+"com.python.pydev.refactoring/tests/pysrcrefactoring/";
+    
+    
+    //java info
+    
+    // Uncomment the following entries to use Apple's JDK 1.6 that comes by default with Snow Leopard 10.6.4:
+    
+    public static final String JAVA_LOCATION="/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home/bin/java";
+    public static final String JAVA_RT_JAR_LOCATION= "/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/classes.jar";
+    
+    // However, if you need a src.jar, download "Java for Mac OS X Developer Preview 10M3308+9M3308" (or later) from http://connect.apple.com
+    // (developer account needed), install it, and uncomment the following two lines:
+    
+    //public static final String JAVA_LOCATION = "/Library/Java/JavaVirtualMachines/1.6.0_22-b04-314.jdk/Contents/Home/bin/java";
+    //public static final String JAVA_RT_JAR_LOCATION = "/Library/Java/JavaVirtualMachines/1.6.0_22-b04-314.jdk/Contents/Classes/classes.jar";
+    
+    //Jython
+    public static final String JYTHON_JAR_LOCATION="/usr/local/jython2.5.1/jython.jar";
+    public static final String JYTHON_LIB_LOCATION="/usr/local/jython2.5.1/Lib/";
+    public static final String JYTHON_ANT_JAR_LOCATION="/Applications/eclipse/plugins/org.apache.ant_1.7.1.v20100518-1145/lib/ant.jar";
+    public static final String JYTHON_JUNIT_JAR_LOCATION="/Applications/eclipse/plugins/org.junit_3.8.2.v3_8_2_v20100427-1100/junit.jar";
+    
+    //Iron Python
+    public static String IRONPYTHON_EXE = null;
+    public static String IRONPYTHON_LIB = null;
+    
+    //we cannot test what we don't have...
+    public static final boolean HAS_QT_INSTALLED = false;
+    public static final boolean HAS_GLU_INSTALLED = false;
+    public static final boolean HAS_SWT_ON_PATH = false;
+    public static final boolean HAS_NUMARRAY_INSTALLED = false;
+    public static final boolean HAS_MX_DATETIME = false;
+    
+    public static final boolean HAS_CYGWIN = false;
+    public static final String CYGWIN_CYGPATH_LOCATION = null;
+    public static final String CYGWIN_UNIX_CYGPATH_LOCATION = null;
+    public static final String GOOGLE_APP_ENGINE_LOCATION = null;
+}

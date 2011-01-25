@@ -828,7 +828,9 @@ class PyDB:
         
         except Exception:
             #Log it
-            traceback.print_exc()
+            if traceback is not None:
+                #This can actually happen during the interpreter shutdown in Python 2.7
+                traceback.print_exc()
             return None
             
     if USE_PSYCO_OPTIMIZATION:
@@ -912,37 +914,8 @@ class PyDB:
             
         PyDBCommandThread(debugger).start()
 
-        if not IS_PY3K:
-            execfile(file, globals, locals) #execute the script
-        else:
-            stream = open(file)
-            try:
-                encoding = None
-                #Get encoding!
-                for i in range(2):
-                    line = stream.readline() #Should not raise an exception even if there are no more contents
-                    #Must be a comment line
-                    if line.strip().startswith('#'):
-                        #Don't import re if there's no chance that there's an encoding in the line
-                        if 'coding' in line:
-                            import re
-                            p = re.search(r"coding[:=]\s*([-\w.]+)", line)
-                            if p:
-                                encoding = p.group(1)
-                                break
-            finally:
-                stream.close()
-        
-            if encoding:
-                stream = open(file, encoding=encoding)
-            else:
-                stream = open(file)
-            try:
-                contents = stream.read()
-            finally:
-                stream.close()
-                
-            exec(compile(contents+"\n", file, 'exec'), globals, locals) #execute the script
+        from pydev_imports import execfile
+        execfile(file, globals, locals) #execute the script
 
 
 def processCommandLine(argv):
@@ -999,6 +972,7 @@ def SetTraceForParents(frame, dispatch_func):
         frame = frame.f_back
     del frame
 
+
 def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, suspend=True, trace_only_current_thread=True):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
     
@@ -1011,6 +985,17 @@ def settrace(host=None, stdoutToServer=False, stderrToServer=False, port=5678, s
     @param suspend: whether a breakpoint should be emulated as soon as this function is called. 
     @param trace_only_current_thread: determines if only the current thread will be traced or all future threads will also have the tracing enabled.
     '''
+    _set_trace_lock.acquire()
+    try:
+        _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_only_current_thread)
+    finally:
+        _set_trace_lock.release()
+    
+
+    
+_set_trace_lock = threading.Lock()
+
+def _locked_settrace(host, stdoutToServer, stderrToServer, port, suspend, trace_only_current_thread):
     if host is None:
         import pydev_localhost
         host = pydev_localhost.get_localhost()

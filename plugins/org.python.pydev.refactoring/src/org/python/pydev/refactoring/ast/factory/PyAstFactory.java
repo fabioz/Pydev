@@ -7,12 +7,17 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Pass;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.NodeHelper;
@@ -30,7 +35,32 @@ public class PyAstFactory {
         return functionDef;
     }
     
+    public ClassDef createClassDef(String name) {
+        exprType[] bases = null;
+        stmtType[] body = null;
+        decoratorsType[] decs = null;
+        keywordType[] keywords = null;
+        exprType starargs = null;
+        exprType kwargs = null;
+        
+        ClassDef def = new ClassDef(new NameTok(name, NameTok.ClassName), bases, body, decs, keywords, starargs, kwargs);
+        return def;
+        
+    }
+    
+    public void setBaseClasses(ClassDef classDef, String ... baseClasses){
+        ArrayList<exprType> bases = new ArrayList<exprType>();
+        for(String s: baseClasses){
+            Name n = createName(s);
+            bases.add(n);
+        }
+        classDef.bases = bases.toArray(new exprType[bases.size()]);
+    }
 
+    public Name createName(String s) {
+        Name name = new Name(s, Name.Load, false);
+        return name;
+    }
 
     public FunctionDef createSetterFunctionDef(String accessorName, String attributeName) {
         NameTok functionName = new NameTok(accessorName, NameTok.FunctionName);
@@ -96,6 +126,14 @@ public class PyAstFactory {
     }
 
     public void setBody(FunctionDef functionDef, Object ... body) {
+        functionDef.body = createStmtArray(body);
+    }
+    
+    public void setBody(ClassDef def, Object ... body) {
+        def.body = createStmtArray(body);
+    }
+
+    private stmtType[] createStmtArray(Object... body) {
         ArrayList<stmtType> newBody = new ArrayList<stmtType>();
         
         for(Object o:body){
@@ -107,9 +145,18 @@ public class PyAstFactory {
                 throw new RuntimeException("Unhandled: "+o);
             }
         }
-        
-        functionDef.body = newBody.toArray(new stmtType[newBody.size()]);
+        stmtType[] bodyArray = newBody.toArray(new stmtType[newBody.size()]);
+        return bodyArray;
     }
+
+    public Str createString(String string) {
+        return new Str(string, Str.TripleSingle, false, false, false);
+    }
+
+    public Pass createPass() {
+        return new Pass();
+    }
+
 
 
 }

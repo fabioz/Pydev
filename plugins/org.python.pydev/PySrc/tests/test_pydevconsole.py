@@ -31,7 +31,7 @@ class Test(unittest.TestCase):
         #print_ ret.getvalue() -- use to see test output
 
     def testConsoleRequests(self):
-        client_port = 7992
+        client_port, _server_port = self.getFreeAddresses()
         client_thread = self.startClientThread(client_port) #@UnusedVariable
         import time
         time.sleep(.3) #let's give it some time to start the threads
@@ -92,7 +92,8 @@ class Test(unittest.TestCase):
                      desc.find('S.join(iterable) -> string') >= 0 or 
                      desc == "<builtin method 'join'>"  or 
                      desc == "<built-in method join of str object>" or
-                     desc.find('str join(str self, list sequence)') >= 0,
+                     desc.find('str join(str self, list sequence)') >= 0 or
+                     desc.find('S.join(iterable) -> str') >= 0,
                      "Could not recognize: %s" % (desc,))
 
     
@@ -119,9 +120,22 @@ class Test(unittest.TestCase):
         return client_thread
 
         
+    def getFreeAddresses(self):
+        import socket
+        s = socket.socket()
+        s.bind(('',0))
+        port0 = s.getsockname()[1]
+        
+        s1 = socket.socket()
+        s1.bind(('',0))
+        port1 = s1.getsockname()[1]
+        s.close()
+        s1.close()
+        return port0, port1
+        
+        
     def testServer(self):
-        client_port = 7991
-        server_port = 7988
+        client_port, server_port = self.getFreeAddresses()
         class ServerThread(threading.Thread):
             def __init__(self, client_port, server_port):
                 threading.Thread.__init__(self)

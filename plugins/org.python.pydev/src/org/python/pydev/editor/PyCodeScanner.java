@@ -1,7 +1,12 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * @author: atotic, Scott Schlesier
  * Created: March 5, 2005
- * License: Common Public License v1.0
  */
 package org.python.pydev.editor;
 
@@ -47,8 +52,12 @@ public class PyCodeScanner extends RuleBasedScanner {
     private IToken numberToken   ; 
     private IToken classNameToken; 
     private IToken funcNameToken ;
+    private IToken parensToken; 
+    private IToken operatorsToken;
 
-    private String[] keywords; 
+    private String[] keywords;
+
+
     
     
     
@@ -183,6 +192,10 @@ public class PyCodeScanner extends RuleBasedScanner {
         
         funcNameToken  = new Token( colorCache.getFuncNameTextAttribute() );
         
+        parensToken  = new Token( colorCache.getParensTextAttribute() );
+        
+        operatorsToken  = new Token( colorCache.getOperatorsTextAttribute() );
+        
         setDefaultReturnToken(defaultToken);
         List<IRule> rules = new ArrayList<IRule>();
         
@@ -196,7 +209,8 @@ public class PyCodeScanner extends RuleBasedScanner {
         Map<String,IToken> defaults = new HashMap<String, IToken>();
         defaults.put("self", selfToken);
         
-        PyWordRule wordRule = new PyWordRule(new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken);
+        PyWordRule wordRule = new PyWordRule(
+                new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken, parensToken, operatorsToken);
         for (String keyword : keywords) {
             IToken token = defaults.get(keyword);
             if(token == null){
@@ -204,6 +218,7 @@ public class PyCodeScanner extends RuleBasedScanner {
             }
             wordRule.addWord( keyword, token);
         }
+        
         rules.add(wordRule);
 
         

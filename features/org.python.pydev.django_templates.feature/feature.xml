@@ -7,7 +7,7 @@ build matches when doing a replace (so, the version of the xml has some extra sp
       id="org.python.pydev.django_templates.feature"
       label="PyDev Django Templates Editor"
       version="0.9.7.1"
-      provider-name="Aptana, Inc."
+      provider-name="Aptana"
       plugin="org.python.pydev.django_templates">
 
    <description>
@@ -15,7 +15,7 @@ build matches when doing a replace (so, the version of the xml has some extra sp
    </description>
 
    <copyright>
-      © Aptana, Inc.
+      © Appcelerator, Inc.
    </copyright>
 
    <license url="http://www.opensource.org/licenses/eclipse-1.0.php">

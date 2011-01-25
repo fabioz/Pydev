@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * Created on Apr 12, 2005
  *
@@ -107,7 +113,6 @@ public class AssistAssign implements IAssistProps {
         //                     self.|result| = 1+1
 
         String callName = getTokToAssign(ps);
-        callName = changeToLowerUppercaseConstant(callName);
 
         if(callName.length() > 0){
             //all that just to change first char to lower case.
@@ -134,17 +139,11 @@ public class AssistAssign implements IAssistProps {
         }
         l.add(new AssistAssignCompletionProposal(loc + " = ", firstCharAbsolutePosition, 0, 0, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL),
                 "Assign to local ("+loc+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer));
+
         
         l.add(new AssistAssignCompletionProposal("self." + callName + " = ", firstCharAbsolutePosition, 0, 5, getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS),
                 "Assign to field (self."+callName+")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer));
         return l;
-    }
-
-    private String changeToLowerUppercaseConstant(String callName) {
-        if(StringUtils.isAllUpper(callName)){
-            return callName.toLowerCase();
-        }
-        return callName;
     }
 
     private String changeToCodingStd(String callName) {
@@ -241,26 +240,67 @@ public class AssistAssign implements IAssistProps {
      */ 
     private String getTokToAssign(PySelection ps) {
     	String string = getStringToAnalyze(ps); //it's already trimmed!
+    	String tokToAssign = getTokToAssign(string);
+    	if(tokToAssign == null || tokToAssign.length() == 0){
+    	    return "result";
+    	}
+        return tokToAssign;
+    }
+
+    private String changeToLowerUppercaseConstant(String callName) {
+        if(StringUtils.isAllUpper(callName)){
+            return callName.toLowerCase();
+        }
+        return callName;
+    }
+
+    
+    public String getTokToAssign(String string) {
+        string = string.trim();
     	
+        String callName = "";
+        
         String beforeParentesisTok = getBeforeParentesisTok(string);
         if(beforeParentesisTok.length() > 0){
-            return beforeParentesisTok;
-        }
-        //otherwise, try to find . (ignore code after #)
-        String callName = "";
-    
-        int i;
-        if ((i = string.lastIndexOf(".")) != -1) {
-            callName = "";
-    
-            for (int j = i+1; j < string.length() && PyAction.stillInTok(string, j); j++) {
-                callName += string.charAt(j);
+            callName = beforeParentesisTok;
+        }else{
+            //otherwise, try to find . (ignore code after #)
+            int i;
+            if ((i = string.lastIndexOf(".")) != -1) {
+                callName = "";
+        
+                for (int j = i+1; j < string.length() && PyAction.stillInTok(string, j); j++) {
+                    callName += string.charAt(j);
+                }
+            }
+            if(callName.length() == 0){
+                if(StringUtils.isPythonIdentifier(string)){
+                    callName = string;
+                }
             }
         }
-        if(callName.length() == 0){
-            if(StringUtils.isSingleWord(string)){
-                return string;
+        callName = changeToLowerUppercaseConstant(callName);
+        
+        if(callName.length() > 0){
+            //all that just to change first char to lower case.
+            if (callName.toLowerCase().startsWith("get") && callName.length() > 3){
+                callName = callName.substring(3);
+                
+            }else if (callName.toLowerCase().startsWith("_get") && callName.length() > 4){
+                callName = callName.substring(4);
             }
+            
+            callName = changeToCodingStd(callName);
+            
+            for(int i=0;i<callName.length();i++){
+                char c = callName.charAt(i);
+                if(c != '_'){
+                    callName = PyAction.lowerChar(callName, i);
+                    break;
+                }
+            }
+        }else{
+            callName = null;
         }
         return callName;
     }

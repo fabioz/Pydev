@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package com.python.pydev.runalltests2;
 
 import junit.framework.Test;
@@ -19,6 +25,7 @@ import org.python.pydev.plugin.nature.SaveFileWithoutNatureTestWorkbench;
 import com.python.pydev.analysis.AnalysisRequestsTestWorkbench;
 import com.python.pydev.codecompletion.JavaIntegrationPydevComTestWorkbench;
 import com.python.pydev.debug.remote.client_api.PydevRemoteDebuggerServerTestWorkbench;
+import com.python.pydev.refactoring.tdd.TddTestWorkbench;
 
 public class AllWorkbenchTests {
 
@@ -34,6 +41,7 @@ public class AllWorkbenchTests {
         
         suite.addTestSuite(AnalysisRequestsTestWorkbench.class); 
         suite.addTestSuite(PyEditTitleTestWorkbench.class); 
+        suite.addTestSuite(TddTestWorkbench.class); 
 
         
         suite.addTestSuite(JythonCompletionWithBuiltinsTestWorkbench.class);

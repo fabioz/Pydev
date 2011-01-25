@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * Created on Mar 8, 2005
  *
@@ -52,7 +58,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testGetActTok();
+            test.testNPEOnCompletion();
             test.tearDown();
             System.out.println("Finished");
 
@@ -1389,6 +1395,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	requestCompl(s, -1, new String[] {"method1()"});
     }
 
+    public void testNPEOnCompletion() throws Exception {
+        String s = 
+            "def Foo(**kwargs):\n" +
+            "    pass\n" +
+            "\n" +
+            "Foo(ah";
+        
+        requestCompl(s, -1, new String[] {});
+    }
+    
     
     public void testVarargsAndKwargsFound() throws Exception {
         String s = 
@@ -1416,6 +1432,15 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             "A.objects.";
         
         requestCompl(s, -1, new String[] {"existingMethod()"});
+    }
+    
+    
+    public void testNoImportOnLine() throws Exception {
+        String s = 
+            "from testAssist import assist\n" +
+            "import_export = assist.";
+        
+        requestCompl(s, -1, new String[] {"ExistingClass"});
     }
     
     

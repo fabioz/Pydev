@@ -1,16 +1,23 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * @author: ptoofani
  * @author Fabio Zadrozny
  * Created: June 2004
- * License: Common Public License v1.0
  */
 
 package org.python.pydev.core.docutils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -54,6 +61,10 @@ public class PySelection {
 
     public static final String[] CLASS_AND_FUNC_TOKENS = new String[]{
         "def"     ,
+        "class"   ,
+    };
+    
+    public static final String[] CLASS_TOKEN = new String[]{
         "class"   ,
     };
     
@@ -172,6 +183,21 @@ public class PySelection {
         boolean isFuture = fromIndex != -1 && futureIndex != -1 && futureIndex == fromIndex+1;
         return isFuture;
     }
+    
+    
+    /**
+     * @param trimmedLine a line that's already trimmed!
+     * @return true if it seems the current line is an import line (i.e.: starts with 'import' or 'from')
+     */
+    public static boolean isImportLine(String trimmedLine) {
+        List<String> split = StringUtils.split(trimmedLine, ' ', '\t');
+        if(split.size() == 0){ //nothing to see her
+            return false;
+        }
+        String pos0 = split.get(0);
+        return pos0.equals("import") || pos0.equals("from");
+    }
+
 
     /**
      * @param isFutureImport if true, that means that the location found must match a from __future__ import (which
@@ -439,6 +465,13 @@ public class PySelection {
         try {
             return doc.getLineOfOffset(offset);
         } catch (BadLocationException e) {
+            if(offset > doc.getLength()-1){
+                int numberOfLines = doc.getNumberOfLines();
+                if(numberOfLines == 0){
+                    return 0;
+                }
+                return numberOfLines-1;
+            }
             return 0;
         }
     }
@@ -694,7 +727,11 @@ public class PySelection {
                 return "";
             }
             int start = startLine.getOffset();
-            int end = getEndLine().getOffset() + getEndLine().getLength();
+            IRegion endLine = getEndLine();
+            if(endLine == null){
+                return "";
+            }
+            int end = endLine.getOffset() + endLine.getLength();
             return this.doc.get(start, end-start);
         } catch (BadLocationException e) {
             Log.log(e);
@@ -923,7 +960,7 @@ public class PySelection {
         int lineOffset = getStartLineOffset();
         int i = lineOffset + openParIndex;
 
-        return getInsideParentesisToks(addSelf, i);
+        return getInsideParentesisToks(addSelf, i, false);
     }
     
    /**
@@ -931,38 +968,87 @@ public class PySelection {
     * 
     * @param addSelf: this defines whether tokens named self should be added if it is found.
     * 
+    * @param isCall: if it's a call, when we have in the parenthesis something as Call(a, (b,c)), it'll return
+    * in the list as items:
+    * 
+    * a
+    * (b,c)
+    * 
+    * Otherwise (in a definition), it'll return
+    * 
+    * a
+    * b
+    * c
+    * 
     * @return a Tuple so that the first param is the list and 
     * the second the offset of the end of the parenthesis it may return null if no starting parenthesis was found at the current line
     */
-    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int offset) {
+    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int offset, boolean isCall) {
         List<String> l = new ArrayList<String>();
         String docContents = doc.get();
         int j;
+        ParsingUtils parsingUtils = ParsingUtils.create(docContents);
         try{
-            j = ParsingUtils.create(docContents).eatPar(offset, null);
-        }catch(SyntaxErrorException e){
-            throw new RuntimeException(e);
-        }
-        String insideParentesisTok = docContents.substring(offset + 1, j);
-
-        StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
-        while (tokenizer.hasMoreTokens()) {
-            String tok = tokenizer.nextToken();
-            String trimmed = tok.split("=")[0].trim();
-            trimmed = trimmed.replaceAll("\\(", "");
-            trimmed = trimmed.replaceAll("\\)", "");
-            if (!addSelf && trimmed.equals("self")) {
-                // don't add self...
-            } else if(trimmed.length() > 0){
-                int colonPos;
-                if((colonPos = trimmed.indexOf(':')) != -1){
-                    trimmed = trimmed.substring(0, colonPos);
-                    trimmed = trimmed.trim();
+            j = parsingUtils.eatPar(offset, null);
+            String insideParentesisTok = docContents.substring(offset + 1, j);
+            ParsingUtils insideParensParsingUtils = ParsingUtils.create(insideParentesisTok);
+    
+            if(isCall){
+                int len = insideParentesisTok.length();
+                FastStringBuffer buf = new FastStringBuffer(len);
+                
+                for(int i=0;i<len;i++){
+                    char c = insideParentesisTok.charAt(i);
+                    if(c == ','){
+                        String trim = buf.toString().trim();
+                        if(trim.length() > 0){
+                            l.add(trim);
+                        }
+                        buf.clear();
+                    }else{
+                        if(c == '\'' || c == '"'){
+                            j = insideParensParsingUtils.eatLiterals(null, i);
+                            buf.append(insideParentesisTok.substring(i, j+1));
+                            i = j;
+                        }else if(c == '{' || c == '(' || c == '['){
+                            j = insideParensParsingUtils.eatPar(i, null, c);
+                            buf.append(insideParentesisTok.substring(i, j+1));
+                            i = j;
+                        }else{
+                            buf.append(c);
+                        }
+                    }
                 }
-                if(trimmed.length() > 0){
-                    l.add(trimmed);
+                String trim = buf.toString().trim();
+                if(trim.length() > 0){
+                    l.add(trim);
+                }
+                
+                
+            }else{
+                StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
+                while (tokenizer.hasMoreTokens()) {
+                    String tok = tokenizer.nextToken();
+                    String trimmed = tok.split("=")[0].trim();
+                    trimmed = trimmed.replaceAll("\\(", "");
+                    trimmed = trimmed.replaceAll("\\)", "");
+                    if (!addSelf && trimmed.equals("self")) {
+                        // don't add self...
+                    } else if(trimmed.length() > 0){
+                        int colonPos;
+                        if((colonPos = trimmed.indexOf(':')) != -1){
+                            trimmed = trimmed.substring(0, colonPos);
+                            trimmed = trimmed.trim();
+                        }
+                        if(trimmed.length() > 0){
+                            l.add(trimmed);
+                        }
+                    }
                 }
             }
+        }catch(SyntaxErrorException e){
+            throw new RuntimeException(e);
+
         }
         return new Tuple<List<String>, Integer>(l, j);
     }
@@ -1860,7 +1946,7 @@ public class PySelection {
         String line = this.getLine().trim();
         return ClassPattern.matcher(line).matches();
     }
-
+    
 
     
     //spaces* 'def' space+ identifier space* ( (space|char|.|,|=|*|(|)|'|")* ):
@@ -1926,6 +2012,71 @@ public class PySelection {
     public IRegion getRegion() {
         return new Region(this.textSelection.getOffset(), this.textSelection.getLength());
     }
+
+
+    public int getEndOfDocummentOffset() {
+        int length = this.doc.getLength();
+        if(length == 0){
+            return 0;
+        }
+        return length-1;
+    }
+
+
+    /**
+     * @param currentOffset the current offset should be at the '(' or at a space before it (if we are at any other
+     * char, this method will always return an empty list).
+     */
+    public List<String> getParametersAfterCall(int currentOffset) {
+        try {
+            currentOffset -= 1;
+            char c;
+            do{
+                currentOffset += 1;
+                c = doc.getChar(currentOffset);
+            }while(Character.isWhitespace(c));
+            
+            if(c == '('){
+                Tuple<List<String>, Integer> insideParentesisToks = getInsideParentesisToks(true, currentOffset, true);
+                return insideParentesisToks.o1;
+            }
+            
+        } catch (Exception e) {
+            //ignore any problem getting parameters here
+        }
+
+        return new ArrayList<String>();
+    }
+
+    
+    private static final Pattern SelfAccessPattern = Pattern.compile(".*self\\.(\\w+)");
+    private static final Pattern ClassNamePattern = Pattern.compile("\\s*class\\s+(\\w+)");
+    
+    public static String getClassNameInLine(String line) {
+        Matcher matcher = ClassNamePattern.matcher(line);
+        if(matcher.find()){
+            if(matcher.groupCount() == 1){
+                return matcher.group(1);
+            }
+        }
+        return null;
+    }
+
+
+    public static HashSet<String> getSelfAttributeAccesses(String lineContents) {
+        HashSet<String> set = new HashSet<String>();
+        Matcher matcher = SelfAccessPattern.matcher(lineContents);
+        while(matcher.find()){
+            if(matcher.groupCount() == 1){
+                String group = matcher.group(1);
+                set.add(group);
+            }
+        }
+        
+        return set;
+    }
+
+
 
 
 

@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * Created on 20/08/2005
  */
@@ -73,6 +79,8 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.put(PydevEditorPrefs.BACKQUOTES_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR));
         node.put(PydevEditorPrefs.CLASS_NAME_COLOR, StringConverter.asString(PydevEditorPrefs.DEFAULT_CLASS_NAME_COLOR));
         node.put(PydevEditorPrefs.FUNC_NAME_COLOR,  StringConverter.asString(PydevEditorPrefs.DEFAULT_FUNC_NAME_COLOR));
+        node.put(PydevEditorPrefs.PARENS_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_PARENS_COLOR));
+        node.put(PydevEditorPrefs.OPERATORS_COLOR,StringConverter.asString(PydevEditorPrefs.DEFAULT_OPERATORS_COLOR));
         //for selection colors see initializeDefaultColors()
         
         //font style
@@ -86,6 +94,8 @@ public class PydevPrefsInitializer  extends AbstractPreferenceInitializer{
         node.putInt(PydevEditorPrefs.BACKQUOTES_STYLE, PydevEditorPrefs.DEFAULT_BACKQUOTES_STYLE);
         node.putInt(PydevEditorPrefs.CLASS_NAME_STYLE, PydevEditorPrefs.DEFAULT_CLASS_NAME_STYLE);
         node.putInt(PydevEditorPrefs.FUNC_NAME_STYLE, PydevEditorPrefs.DEFAULT_FUNC_NAME_STYLE);
+        node.putInt(PydevEditorPrefs.PARENS_STYLE, PydevEditorPrefs.DEFAULT_PARENS_STYLE);
+        node.putInt(PydevEditorPrefs.OPERATORS_STYLE, PydevEditorPrefs.DEFAULT_OPERATORS_STYLE);
         
         //no UI
         node.putInt(PydevEditorPrefs.CONNECT_TIMEOUT, PydevEditorPrefs.DEFAULT_CONNECT_TIMEOUT);

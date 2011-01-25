@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * Created on 03/09/2005
  */
@@ -248,14 +254,6 @@ public class StringUtils {
 
     }
 
-    public static boolean isSingleWord(String string) {
-        for (char c : string.toCharArray()) {
-            if (!Character.isJavaIdentifierStart(c)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     public static String replaceAll(String string, String replace, String with) {
         FastStringBuffer ret = new FastStringBuffer(string, 16);
@@ -676,22 +674,37 @@ public class StringUtils {
         return message.replaceAll("\r","").replaceAll("\n","");
     }
 
+    private static final int STATE_LOWER = 0;
+    private static final int STATE_UPPER = 1;
+    private static final int STATE_NUMBER = 2;
+    
     public static String asStyleLowercaseUnderscores(String string) {
         FastStringBuffer buf = new FastStringBuffer(string.length()*2);
         char[] charArray = string.toCharArray();
-        boolean lastUpper = false;
+        
+        int lastState = 0;
         for(char c:charArray){
             if(Character.isUpperCase(c)){
-                if(!lastUpper){
+                if(lastState != STATE_UPPER){
                     if(buf.length() > 0 && buf.lastChar() != '_'){
                         buf.append('_');
                     }
                 }
                 buf.append(Character.toLowerCase(c));
-                lastUpper = true;
+                lastState = STATE_UPPER;
+                
+            }else if(Character.isDigit(c)){
+                if(lastState != STATE_NUMBER){
+                    if(buf.length() > 0 && buf.lastChar() != '_'){
+                        buf.append('_');
+                    }
+                }
+                
+                buf.append(c);
+                lastState = STATE_NUMBER;
             }else{
                 buf.append(c);
-                lastUpper = false;
+                lastState = STATE_LOWER;
             }
         }
         return buf.toString();
@@ -897,6 +910,66 @@ public class StringUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * //Python 3.0 can use unicode identifiers. So, the letter construct deals with that...
+     *  TOKEN : * Python identifiers *
+     *  {
+     *      < NAME: <LETTER> ( <LETTER> | <DIGIT>)* >
+     *  |
+     *      < #LETTER: 
+     *      [
+     *         "a"-"z",
+     *         "A"-"Z",
+     *         "_",
+     *         "\u0080"-"\uffff" //Anything more than 128 is considered valid (unicode range)
+     *      
+     *      ] 
+     *  >
+     *  }
+     * @param param
+     * @return
+     */
+    public static boolean isPythonIdentifier(String param) {
+        if(param.length() == 0){
+            return false;
+        }
+        char c = param.charAt(0);
+        if(!Character.isLetter(c) && c != '_' && c <= 128){
+            return false;
+        }
+        for(int i=1;i<param.length();i++){
+            c = param.charAt(i);
+            if((!Character.isLetter(c) && !Character.isDigit(c) && c != '_') && (c <= 128)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static String getWithFirstUpper(String creationStr) {
+        if(creationStr.length() == 0){
+            return creationStr;
+        }
+        char upperCase = Character.toUpperCase(creationStr.charAt(0));
+        return upperCase+creationStr.substring(1);
+        
+    }
+
+    public static String indentTo(String source, String indent) {
+        if(indent == null || indent.length() == 0){
+            return source;
+        }
+        List<String> splitInLines = splitInLines(source);
+        FastStringBuffer buf = new FastStringBuffer(source.length() + (splitInLines.size()* indent.length())+2);
+        
+        for(int i=0;i<splitInLines.size();i++){
+            String line = splitInLines.get(i);
+            buf.append(indent);
+            buf.append(line);
+        }
+        return buf.toString();
     }
 
 
