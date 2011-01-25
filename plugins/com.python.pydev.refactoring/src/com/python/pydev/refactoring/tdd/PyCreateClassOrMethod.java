@@ -20,8 +20,8 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyAction;
@@ -30,12 +30,10 @@ import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProc
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeforeCurrentOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.EndOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
@@ -186,9 +184,41 @@ public abstract class PyCreateClassOrMethod extends PyCreateAction{
         int offset;
         switch (locationStrategy) {
             case LOCATION_STRATEGY_BEFORE_CURRENT:
-                offset = pySelection.getLineOffset((
-                        moduleAdapter.getLastNodeFirstLineBefore(pySelection.getCursorLine()+1)-1));
+                int lastNodeFirstLineBefore = moduleAdapter.getLastNodeFirstLineBefore(pySelection.getCursorLine()+1);
+                lastNodeFirstLineBefore = lastNodeFirstLineBefore-1; // From AST line to doc line
                 
+                int line = lastNodeFirstLineBefore;
+                if(line > 0){
+                    try {
+                        String trimmed = pySelection.getLine(line).trim();
+                        if(trimmed.startsWith("class") || trimmed.startsWith("def")){
+                            //if we'll add to a class or def line, let's see if there are comments just above it 
+                            //(in this case, we'll go backwards in the file until the block comment ends)
+                            //i.e.:
+                            //#======================
+                            //# Existing
+                            //#======================
+                            //class Existing(object): <-- currently at this line
+                            //    passMyClass()
+                            int curr = line;
+                            while(curr >= 0){
+                                line = curr;
+                                if(curr -1 < 0){
+                                    break;
+                                }
+                                if(!pySelection.getLine(curr-1).trim().startsWith("#")){
+                                    break;
+                                }
+                                
+                                curr--;
+                            }
+                        }
+                    } catch (Exception e) {
+                        PydevPlugin.log(e);
+                    }
+                }
+                
+                offset = pySelection.getLineOffset(line);
                 break;
                 
             case LOCATION_STRATEGY_END:

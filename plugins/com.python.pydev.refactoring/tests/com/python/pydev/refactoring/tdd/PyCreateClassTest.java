@@ -23,7 +23,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         try {
             PyCreateClassTest test = new PyCreateClassTest();
             test.setUp();
-            test.testPyCreateClassWithParameters();
+            test.testPyCreateClassInSameModule6();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyCreateClassTest.class);
@@ -55,6 +55,120 @@ public class PyCreateClassTest extends TestCaseUtils {
         		"\n" +
         		"MyClass()" +
         		"", document.get());
+    }
+    
+    public void testPyCreateClassInSameModule4() throws Exception {
+        PyCreateClass pyCreateClass = new PyCreateClass();
+        
+        String source = "" +
+        		"#=============\n" +
+        		"#Comment\n" +
+        		"#=============\n" +
+        		"class Existing(object):\n" +
+        		"    pass\n" +
+        		"\n" +
+        		"MyClass()\n";
+        IDocument document = new Document(source);
+        ITextSelection selection = new TextSelection(document, document.getLength()-5, 0);
+        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        });
+        
+        pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
+        
+        assertContentsEqual("" +
+                "#=============\n" +
+                "#Comment\n" +
+                "#=============\n" +
+                "class Existing(object):\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "class MyClass(${object}):\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "MyClass()\n" +
+                "", document.get());
+    }
+    
+    public void testPyCreateClassInSameModule5() throws Exception {
+        PyCreateClass pyCreateClass = new PyCreateClass();
+        
+        String source = "" +
+        "a = 10\n" +
+        "#=============\n" +
+        "#Comment\n" +
+        "#=============\n" +
+        "class Existing(object):\n" +
+        "    pass\n" +
+        "\n" +
+        "MyClass()";
+        IDocument document = new Document(source);
+        ITextSelection selection = new TextSelection(document, document.getLength()-5, 0);
+        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        });
+        
+        pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
+        
+        assertContentsEqual("" +
+                "a = 10\n" +
+                "#=============\n" +
+                "#Comment\n" +
+                "#=============\n" +
+                "class Existing(object):\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "class MyClass(${object}):\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "MyClass()" +
+                "", document.get());
+    }
+    
+    public void testPyCreateClassInSameModule6() throws Exception {
+        PyCreateClass pyCreateClass = new PyCreateClass();
+        
+        String source = "" +
+        "a = 10\n" +
+        "#=============\n" +
+        "#Comment\n" +
+        "#=============\n" +
+        "class Existing(object):\n" +
+        "    MyClass()";
+        IDocument document = new Document(source);
+        ITextSelection selection = new TextSelection(document, document.getLength()-5, 0);
+        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        });
+        
+        pyCreateClass.execute(info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
+        
+        assertContentsEqual("" +
+                "a = 10\n" +
+                "\n" +
+                "class MyClass(${object}):\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "#=============\n" +
+                "#Comment\n" +
+                "#=============\n" +
+                "class Existing(object):\n" +
+                "    MyClass()" +
+                "", document.get());
     }
     
     
