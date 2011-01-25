@@ -302,6 +302,7 @@
                path="edit">
             <separator name="pepticRefactoringGroup"/>
             <separator name="pepticSourceGroup"/>
+            <separator name="tddGroup"/>
          </menu>
          <action
                class="com.python.pydev.refactoring.actions.PyRename"
@@ -350,12 +351,12 @@
                definitionId="%s"
                id="%s"
                label="%%peptic.%sLabel"
-               menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticRefactoringGroup"
+               menubarPath="org.python.pydev.refactoring.refactoringMenu/%s"
                style="push"/>
          '''
          
          for action in plugin_install.ACTIONS_AND_BINDING:
-             cog.outl(template % (action.class_, action.id, action.id, action.desc))
+             cog.outl(template % (action.class_, action.id, action.id, action.desc, action.group))
          ]]]-->
 
          <action
@@ -363,7 +364,7 @@
                definitionId="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
                id="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
                label="%peptic.CreateClassLabel"
-               menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticRefactoringGroup"
+               menubarPath="org.python.pydev.refactoring.refactoringMenu/tddGroup"
                style="push"/>
 
 
@@ -372,7 +373,7 @@
                definitionId="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
                id="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
                label="%peptic.CreateMethodLabel"
-               menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticRefactoringGroup"
+               menubarPath="org.python.pydev.refactoring.refactoringMenu/tddGroup"
                style="push"/>
 
 
@@ -431,6 +432,7 @@
                path="Refactoring">
             <separator name="pepticRefactoringGroup"/>
             <separator name="pepticSourceGroup"/>
+            <separator name="tddGroup"/>
          </menu>
          <action
                class="com.python.pydev.refactoring.actions.PyRename"
@@ -474,12 +476,12 @@
                definitionId="%s"
                id="%s"
                label="%%peptic.%sLabel"
-               menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup">
+               menubarPath="org.python.pydev.editor.refactoring/%s">
          </action>
          '''
          
          for action in plugin_install.ACTIONS_AND_BINDING:
-             cog.outl(template % (action.class_, action.id, action.id, action.desc))
+             cog.outl(template % (action.class_, action.id, action.id, action.desc, action.group))
          ]]]-->
 
          <action
@@ -487,7 +489,7 @@
                definitionId="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
                id="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
                label="%peptic.CreateClassLabel"
-               menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup">
+               menubarPath="org.python.pydev.editor.refactoring/tddGroup">
          </action>
 
 
@@ -496,7 +498,7 @@
                definitionId="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
                id="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
                label="%peptic.CreateMethodLabel"
-               menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup">
+               menubarPath="org.python.pydev.editor.refactoring/tddGroup">
          </action>
 
 
