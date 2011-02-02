@@ -56,6 +56,7 @@ public class AddRedCoreThemeImpl {
 		edit.onDispose.registerListener(new ICallbackListener() {
 			
 			public Object call(Object obj) {
+			    themeableEditorFindBarExtension.dispose();
 				themeableEditorColorsExtension.dispose();
 				return null;
 			}
