@@ -135,6 +135,56 @@ public class NodeUtilsTest extends PyParserTestBase {
         assertEquals("Simple.m1", NodeUtils.getContextName(4, ast));
     }
 
+    
+    public void testIsValidContextForSetNext(){
+        SimpleNode ast = parseLegalDocStr("" +
+        		"class Simple(object): \n" +
+        		"	def m1(self): \n" +
+        		"		a = 10 \n" + 
+        		"		i = 20 \n" +
+        		"		for i in range(3):  \n" +
+        		"			print 'here in for'  \n" +
+        		"			for j in range(3):  \n" +
+        		"				print 'here in nested for'  \n" +
+        		"		x = 1  \n" +
+        		"		print 'm1 Ends Here' \n" +
+        		" \n" +
+        		"	def m2(self): \n" +
+        		"	 	print 'method m2 started' \n" +
+        		"		i = 0  \n" +
+        		"		try:  \n" +
+        		"			print 'inside try'  \n" +
+        		"			while i < 5:  \n" +
+        		"				i += 1  \n" +
+        		"		except:  \n" +
+        		"			print 'inside exception'  \n" +
+        		"		a = 30 \n" +
+        		"		i = 40 \n" +
+        		"		print 'here' \n" +
+        		" \n" +
+        		"firstName = 'Hussain'  \n" +
+        		"lastName = 'Bohra'  \n" +
+        		"print '%s, %s in Global Context'%(lastName, firstName)  \n" +
+        		"if __name__ == '__main__': \n" +
+        		"	Simple().m1() \n");
+        
+        // Source And Target are in Same Method
+        assertTrue(NodeUtils.isValidContextForSetNext(ast, 3, 4));
+        assertTrue(NodeUtils.isValidContextForSetNext(ast, 10, 8));
+        // Source And Target are in Different Method
+        assertFalse(NodeUtils.isValidContextForSetNext(ast, 4, 16));
+        // Source And Target are in Same Method. Target is inside For/While/Try..Except/Try..Finally
+        assertFalse(NodeUtils.isValidContextForSetNext(ast, 4, 7));
+        assertFalse(NodeUtils.isValidContextForSetNext(ast, 13, 18));
+        assertFalse(NodeUtils.isValidContextForSetNext(ast, 15, 17));
+        // Source And Target are in Same Method. Source is inside For/While/Try..Except/Try..Finally
+        assertTrue(NodeUtils.isValidContextForSetNext(ast, 7, 4));
+        assertTrue(NodeUtils.isValidContextForSetNext(ast, 18, 13));
+        assertTrue(NodeUtils.isValidContextForSetNext(ast, 17, 15));
+        // Source And Target are in Global Context
+        assertTrue(NodeUtils.isValidContextForSetNext(ast, 25, 26));
+    }
+    
     private void checkEndLine(SimpleNode ast1, int endLine) {
         EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(ast1);
         

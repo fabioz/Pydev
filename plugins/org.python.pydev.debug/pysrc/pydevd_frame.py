@@ -121,7 +121,7 @@ class PyDBFrame:
                 
                 stop = event == 'return' and info.pydev_step_stop is frame
             
-            elif info.pydev_step_cmd == CMD_RUN_TO_LINE:
+            elif info.pydev_step_cmd == CMD_RUN_TO_LINE or info.pydev_step_cmd == CMD_SET_NEXT_STATEMENT:
                 stop = False
                 if event == 'line':
                     #Yes, we can only act on line events (weird hum?)
