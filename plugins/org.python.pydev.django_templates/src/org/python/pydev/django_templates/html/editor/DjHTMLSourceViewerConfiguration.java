@@ -105,7 +105,7 @@ public class DjHTMLSourceViewerConfiguration extends CompositeSourceViewerConfig
         if(DjSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
             return new DjContentAssistProcessor(contentType, null);
         }
-        AbstractThemeableEditor editor = getAbstractThemeableEditor();
+        AbstractThemeableEditor editor = getEditor();
         IContentAssistProcessor htmlContentAssistProcessor = HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
         if(HTMLSourceConfiguration.DEFAULT.equals(contentType)){
             return new DjContentAssistProcessor(contentType, htmlContentAssistProcessor);
