@@ -59,8 +59,9 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\make_release.py to create zips
 		** Copy zips from W:\git_deploy_dir\pydev_zips to sourceforge:
  
  
-Create folder W:\git_deploy_dir\pydev_zips to: https://sourceforge.net/project/admin/explorer.php?group_id=85796
-sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/Pydev 1.6.3 and add zip
+Submit feature and sources .zip in folder W:\git_deploy_dir\pydev_zips to: 
+sftp: frs.sourceforge.net /home/pfs/project/p/py/pydev/pydev/Pydev 1.6.5 and add zip
+
 Check if the main download button points to the proper place (not to the sources) -- choose file > file info > set default and give better name.
 
 
@@ -76,7 +77,7 @@ d:\bin\Python265\python.exe W:\git_deploy_dir\pydev_uploader.py -s W:\git_deploy
 com.python.pydev.docs\merged_homepage\final to 173.45.225.54 (synchronization set in workspace at D:\workspaces\temp)
 
 
-		** Tag repository: git tag pydev_1_6_4 -a&git push --tags
+		** Tag repository: git tag pydev_1_6_5 -a&git push --tags
 		
 		** Add news in forum (same as e-mail)
 		
