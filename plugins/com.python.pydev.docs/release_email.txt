@@ -29,6 +29,9 @@ Fabio Zadrozny
 ------------------------------------------------------
 Software Developer
 
+Appcelerator
+http://appcelerator.com/
+
 Aptana
 http://aptana.com/
 
