@@ -46,7 +46,7 @@ For more details on the provided features, check the `Features Matrix`_.
 Release 1.6.5
 ==============
 
- * Syntax hightlighting now has options to have {}, [] and () as well as operators in different colors
+ * Syntax highlighting now has options to have {}, [] and () as well as operators in different colors
 
  * Code generation for classes and methods:
  
