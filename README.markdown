@@ -64,7 +64,7 @@ Attribution
 -----------
 
 Pydev was created by Fabio Zadrozny.  
-It is now hosted by [Aptana, Inc](http://www.aptana.org).
+It is now owned by [Appcelerator, Inc](http://www.appcelerator.com).
 
 License
 -------
