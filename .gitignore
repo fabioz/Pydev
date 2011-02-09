@@ -63,6 +63,7 @@ etc/
 plugins/org.python.pydev/tests/pysrc/extendable/bootstrap_dll/umath.pyd
 plugins/com.python.pydev.runalltests/Configuration*
 external-sources
+builders/org.python.pydev.build/build.properties
 
 # Mac OS X stuff
 
