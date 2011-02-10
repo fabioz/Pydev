@@ -506,7 +506,7 @@
          </action>
          <action
                definitionId="org.python.pydev.editor.actions.pyShowBrowser"
-               label="Show Class Browser"
+               label="Show Global Tokens Browser"
                class="org.python.pydev.editor.actions.PyShowBrowser"
                menubarPath="org.python.pydev.editor.actions.sourceMenu/addGroup"
                id="org.python.pydev.editor.actions.navigation.pyShowBrowser">
@@ -707,8 +707,8 @@
       </command>
 <!-- command: Show browser-->
       <command
-            name="Python Show Class Browser"
-            description="Show Class Browser"
+            name="Python Show Global Tokens Browser"
+            description="Show Global Tokens Browser"
             categoryId="org.python.pydev.ui.category.source"
             id="org.python.pydev.editor.actions.pyShowBrowser">
       </command>
