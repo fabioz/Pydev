@@ -8,68 +8,70 @@
      cwilliams                                                                
      ====================================================================== -->
 <project name="PyDev" default="build">
-	<description>
+    <description>
             Builds the PyDev feature
     </description>
-	
-	
-	
-	<macrodef name = "git">
-	    <attribute name = "command" />
-	    <attribute name = "dir" default = "" />
-	    <element name = "args" optional = "true" />
-	    <sequential>
-	        <echo message = "git @{command}" />
-	        <exec executable = "${git.executable}" dir = "@{dir}">
-	            <arg value = "@{command}" />
-	            <args/>
-	        </exec>
-	    </sequential>
-	</macrodef>
 
-	<macrodef name = "git-clone-pull">
-	    <attribute name = "repository" />
-	    <attribute name = "dest" />
-	    <sequential>
-	        <git command = "clone">
-	            <args>
-	                <arg value = "@{repository}" />
-	                <arg value = "@{dest}" />
-	            </args>
-	        </git>
-	        <git command = "pull" dir = "@{dest}" />
-	    </sequential>
-	</macrodef>
-	
-	
-	
 
-	<property environment="env" />
-	<property file="build_local.properties" />
-	<!-- Set is.windows property IF the OS is from the Windows family -->
-	<condition property="is.windows" value="true">
-		<os family="windows" />
-	</condition>
-	<!-- Set is.local_build property IF local_build property was set -->
-   <condition property="is.local_build" value="true">
-      <istrue value="${local_build}"/>
-   </condition>
-   <!-- Set do.signJars IF signJars property was set -->
-   <condition property="do.signJars" value="true">
-      <istrue value="${signJars}"/>
-   </condition>
-		
+
+    <macrodef name = "git">
+        <attribute name = "command" />
+        <attribute name = "dir" default = "" />
+        <element name = "args" optional = "true" />
+        <sequential>
+            <echo message = "git @{command}" />
+            <exec executable = "${git.executable}" dir = "@{dir}">
+                <arg value = "@{command}" />
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <macrodef name = "git-clone-pull">
+        <attribute name = "repository" />
+        <attribute name = "dest" />
+        <sequential>
+            <git command = "clone">
+                <args>
+                    <arg value = "@{repository}" />
+                    <arg value = "@{dest}" />
+                </args>
+            </git>
+            <git command = "pull" dir = "@{dest}" />
+        </sequential>
+    </macrodef>
+
+
+
+
+    <property environment="env" />
+    <property file="build_local.properties" />
+
+    <!-- Set is.windows property IF the OS is from the Windows family -->
+    <condition property="is.windows" value="true">
+        <os family="windows" />
+    </condition>
+
+    <!-- Set is.local_build property IF local_build property was set -->
+    <condition property="is.local_build" value="true">
+       <istrue value="${local_build}"/>
+    </condition>
+
+    <!-- Set do.signJars IF signJars property was set -->
+    <condition property="do.signJars" value="true">
+        <istrue value="${signJars}"/>
+    </condition>
+
     <taskdef resource="net/sf/antcontrib/antcontrib.properties">
         <classpath>
             <pathelement location="ant-contrib/ant-contrib.jar" />
         </classpath>
     </taskdef>
     
-    <!-- Set builddir-equals-sourceroot IF sourceRoot equals buildDirectory. 
+    <!-- Set builddir-equals-sourceroot IF sourceRoot equals buildDirectory.
          This is needed so we don't delete the "plugins" and "features" directories 
-         during 'clean' when building directly inside the source root. 
-    -->
-    <target name="check.sourceroot.equals.builddir" description="Checks if the sourceRoot equals the buildDirectory" depends="check.sourceroot.equals.builddir.true,check.sourceroot.equals.builddir.false" />
+         during 'clean' when building directly inside the source root. -->
+    <target name="check.sourceroot.equals.builddir" depends="check.sourceroot.equals.builddir.true,check.sourceroot.equals.builddir.false" />
     
     <target name="check.sourceroot.equals.builddir.check">
         <condition property="builddir-equals-sourceroot" value="true">
@@ -87,66 +89,92 @@
         <!-- <fail message="Forced quit: this will fail..." /> -->
     </target>
     
- 	<!-- ================================= 
-            target: make build dir              
-           ================================= -->
-  	<target name="make.build.dir" description="Creates the build dir if it doesn't exist" depends="check.build.dir" unless="build.dir.exists">
-  	   <echo message="Creating build directory..." />
-  	   <mkdir dir="${buildDirectory}" />
-  	</target>
-
-    <target name="check.build.dir" description="Checks if the build dir exists">
-       <echo message="Checking if build directory exists..." />
-       <available file="${buildDirectory}" property="build.dir.exists" />
+    <!-- =================================
+          target: make.build.dir
+         ================================= -->
+    <target name="make.build.dir" description="Creates the build dir if it doesn't exist" depends="check.build.dir" unless="build.dir.exists">
+        <echo message="Creating build directory..." />
+        <mkdir dir="${buildDirectory}" />
     </target>
 
-  	<!-- ================================= 
-             target: copy plugins dir (if neccessary)              
-            ================================= -->
-   	<target name="copy.plugins" description="Copies the plugins dir to the build dir if it doesn't exist at that location" depends="check.plugins.dir" unless="plugins.dir.exists">
-   	   <echo message="Copying plugins over to build directory..." />
-   	   <copy todir="${buildDirectory}">
-             <fileset dir="${sourceRoot}" defaultexcludes="true">
-                 <include name="plugins/**" />
-             </fileset>
-         </copy>
-         
-   	</target>
+    <!-- - - - - - - - - - - - - - - - - -
+          target: check.build.dir
+         - - - - - - - - - - - - - - - - - -->
+    <target name="check.build.dir">
+        <echo message="Checking if build directory exists..." />
+        <available file="${buildDirectory}" property="build.dir.exists" />
+    </target>
 
-     <target name="check.plugins.dir" description="Checks if the plugins dir exists inside the build dir">
+    <!-- =================================
+          target: copy.plugins
+         ================================= -->
+    <target name="copy.plugins" description="Copies the plugins dir to the build dir if it doesn't exist at that location" depends="check.plugins.dir" unless="plugins.dir.exists">
+        <echo message="Copying plugins over to build directory..." />
+        <antcall target="copy.plugins.nix" />
+        <antcall target="copy.plugins.windows" />
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - -
+          target: copy.plugins.nix
+         - - - - - - - - - - - - - - - - - -->
+    <target name="copy.plugins.nix" unless="is.windows">
+        <!-- Copy over the original base eclipse to a new location.
+            Have to use exec cp to retain permissions on *nix, Mac -->
+        <exec executable="cp">
+            <arg line="-R ${sourceRoot}/plugins/ ${buildDirectory}/plugins/" />
+        </exec>
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - -
+          target: copy.plugins.windows
+         - - - - - - - - - - - - - - - - - -->
+    <target name="copy.plugins.windows" if="is.windows">
+        <copy todir="${buildDirectory}">
+              <fileset dir="${sourceRoot}" defaultexcludes="true">
+                  <include name="plugins/**" />
+              </fileset>
+        </copy>
+    </target>
+
+    <!-- =================================
+          target: check.plugins.dir
+         ================================= -->
+    <target name="check.plugins.dir" description="Checks if the plugins dir exists inside the build dir">
         <!-- <echo message="Checking if plugins dir needs to be copied over to build directory..." /> -->
         <available file="${buildDirectory}/plugins" property="plugins.dir.exists" />
      </target>
 
-    	<!-- ================================= 
-               target: copy features dir (if neccessary)              
-              ================================= -->
-     	<target name="copy.features" description="Copies the features dir to the build dir if it doesn't exist at that location" depends="check.features.dir" unless="features.dir.exists">
-     	   <echo message="Copying features over to build directory..." />
-     	   <copy todir="${buildDirectory}">
-               <fileset dir="${sourceRoot}" defaultexcludes="true">
-                   <include name="features/**" />
-               </fileset>
-           </copy>
-
-     	</target>
-
-       <target name="check.features.dir" description="Checks if the features dir exists inside the build dir">
-          <!-- <echo message="Checking if features dir needs to be copied over to build directory..." /> -->
-          <available file="${buildDirectory}/features" property="features.dir.exists" />
-       </target>
-
-	<!-- ================================= 
-          target: build              
+    <!-- =================================
+          target: copy.features
          ================================= -->
-	<target name="doit" description="Builds the PyDev feature" depends="check.sourceroot.equals.builddir,make.build.dir,copy.plugins,copy.features,generate.build.properties,get.revision,generate.base">
-		<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
-			<arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
-		</java>
-		<antcall target="categorize" />
-	</target>
-	
-	<!-- ================================= 
+    <target name="copy.features" description="Copies the features dir to the build dir if it doesn't exist at that location" depends="check.features.dir" unless="features.dir.exists">
+       <echo message="Copying features over to build directory..." />
+       <copy todir="${buildDirectory}">
+           <fileset dir="${sourceRoot}" defaultexcludes="true">
+               <include name="features/**" />
+           </fileset>
+       </copy>
+    </target>
+
+    <!-- ================================= 
+          target: copy.features
+         ================================= -->
+    <target name="check.features.dir" description="Checks if the features dir exists inside the build dir">
+       <!-- <echo message="Checking if features dir needs to be copied over to build directory..." /> -->
+       <available file="${buildDirectory}/features" property="features.dir.exists" />
+    </target>
+
+    <!-- ================================= 
+          target: doit              
+         ================================= -->
+    <target name="doit" description="Builds the PyDev feature" depends="check.sourceroot.equals.builddir,make.build.dir,copy.plugins,copy.features,generate.build.properties,get.revision,generate.base">
+        <java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
+            <arg line="-application org.eclipse.ant.core.antRunner -buildfile ${baseLocation}/plugins/${builder.plugin}/scripts/build.xml -Dbuilder=${basedir} -Dbuild.revision=${build.revision} -nosplash" />
+        </java>
+        <antcall target="categorize" />
+    </target>
+    
+    <!-- ================================= 
           target: categorize              
           
           Note: in http://wiki.eclipse.org/Equinox_p2_Metadata_Generator
@@ -154,28 +182,28 @@
           revisiting that site to update the command line - again).
          ================================= -->
     <target name="categorize" description="categorize the update site">
-    	<java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
-    		<!-- regenerates the content.jar with proper categories -->
+        <java jar="${baseLocation}/plugins/${launcher.plugin}.jar" fork="true" failonerror="yes">
+            <!-- regenerates the content.jar with proper categories -->
             <arg line="-application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator -nosplash -consoleLog -updateSite ${deploy.dir} -site file:${deploy.dir}/site.xml -metadataRepository file:${deploy.dir} -metadataRepositoryName &quot;Pydev Update Site&quot; -artifactRepository file:${deploy.dir} -artifactRepositoryName &quot;Pydev Artifacts&quot; -publishArtifacts -publishArtifactRepository -compress -reusePack200Files -noDefaultIUs -vmargs -Xmx256m" />
-    	</java>
+        </java>
     </target>
 
-	<!-- ================================= 
+    <!-- ================================= 
           target: generate.build.properties              
          ================================= -->
-	<target name="generate.build.properties" description="Takes in properties from build_local.properties and the command line overrides and generates a combined build.properties to use for the build">
-		<echoproperties destfile="build.properties">
-			<propertyset negate="true">
-				<propertyref prefix="java." />
-				<propertyref prefix="ant." />
-				<propertyref prefix="awt." />
-				<propertyref prefix="user." />
-				<propertyref prefix="sun." />
-			</propertyset>
-		</echoproperties>
-	</target>
-	
-	
+    <target name="generate.build.properties" description="Takes in properties from build_local.properties and the command line overrides and generates a combined build.properties to use for the build">
+        <echoproperties destfile="build.properties">
+            <propertyset negate="true">
+                <propertyref prefix="java." />
+                <propertyref prefix="ant." />
+                <propertyref prefix="awt." />
+                <propertyref prefix="user." />
+                <propertyref prefix="sun." />
+            </propertyset>
+        </echoproperties>
+    </target>
+
+
     <!-- - - - - - - - - - - - - - - - - - 
           target: clean
          - - - - - - - - - - - - - - - - - -->
@@ -215,33 +243,33 @@
     </target>
     
 
-	<!-- - - - - - - - - - - - - - - - - - 
+    <!-- - - - - - - - - - - - - - - - - - 
           target: clean.after                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="build" depends="doit" if="${cleanAfter}">
-		<antcall target="clean" />
-	</target>
+    <target name="build" depends="doit" if="${cleanAfter}">
+        <antcall target="clean" />
+    </target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
+    <!-- - - - - - - - - - - - - - - - - - 
           target: get.revision                      
          - - - - - - - - - - - - - - - - - -->
     <target name="get.revision" unless="build.revision">
-	   	<echo message="Retrieving Git timestamp for latest revision" level="info" />
-	    	<exec executable="${git.executable}" dir="${basedir}" outputproperty="git.revision.max">
-		    	<arg value="log" />
-		    	<arg value="--max-count=1" />
-		    	<arg value="--pretty=format:'%ct'" />
-	    	</exec>
-	    	<exec executable="python" dir="${basedir}" outputproperty="python.timestamp">
-		    	<arg value="-c" />
-		    	<arg value="import time;t=time.gmtime(float(${git.revision.max}));print '\'%d%02d%02d%02d\'' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour)" />
-	    	</exec>
-    	<property name="build.revision" value="${python.timestamp}" />
+        <echo message="Retrieving Git timestamp for latest revision" level="info" />
+            <exec executable="${git.executable}" dir="${basedir}" outputproperty="git.revision.max">
+                <arg value="log" />
+                <arg value="--max-count=1" />
+                <arg value="--pretty=format:'%ct'" />
+            </exec>
+            <exec executable="python" dir="${basedir}" outputproperty="python.timestamp">
+                <arg value="-c" />
+                <arg value="import time;t=time.gmtime(float(${git.revision.max}));print '\'%d%02d%02d%02d\'' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour)" />
+            </exec>
+        <property name="build.revision" value="${python.timestamp}" />
         <echo message="Git ct : ${git.revision.max} - Target: ${basedir}" level="info" />
         <echo message="Date ct: ${build.revision} - Target: ${basedir}" level="info" />
     </target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
+    <!-- - - - - - - - - - - - - - - - - -
           target: generate.base                      
          - - - - - - - - - - - - - - - - - -->
     <target name="generate.base" depends="copy.base.windows,copy.base" unless="is.local_build">
@@ -303,37 +331,37 @@
         </for>
     </target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
+    <!-- - - - - - - - - - - - - - - - - -
           target: copy.base                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="copy.base" unless="is.windows">
-		<!-- Copy over the original base eclipse to a new location.
-			Have to use exec cp to retain permissions on *nix, Mac -->
-		<exec executable="cp">
-			<arg line="-R ${vanilla.eclipse} ${baseLocation}" />
-		</exec>
-	</target>
+    <target name="copy.base" unless="is.windows">
+        <!-- Copy over the original base eclipse to a new location.
+            Have to use exec cp to retain permissions on *nix, Mac -->
+        <exec executable="cp">
+            <arg line="-nR ${vanilla.eclipse}/ ${baseLocation}" />
+        </exec>
+    </target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
+    <!-- - - - - - - - - - - - - - - - - -
           target: copy.base.windows with default ant                   
          - - - - - - - - - - - - - - - - - -->
-	<!--
-	<target name="copy.base.windows" if="is.windows">
-		<copy todir="${baseLocation}">
-			<fileset dir="${vanilla.eclipse}" includes="**/*" defaultexcludes="false" />
-		</copy>
-	</target>
-	-->
-	
-	<!-- - - - - - - - - - - - - - - - - - 
+    <!--
+    <target name="copy.base.windows" if="is.windows">
+        <copy todir="${baseLocation}">
+            <fileset dir="${vanilla.eclipse}" includes="**/*" defaultexcludes="false" />
+        </copy>
+    </target>
+    -->
+
+    <!-- - - - - - - - - - - - - - - - - -
           target: copy.base.windows with fast copy (note that fastcopy must be available for it to work).
           If this doesn't properly work, the command above should be used.
          - - - - - - - - - - - - - - - - - -->
-	<target name="copy.base.windows" if="is.windows">
-		<exec executable="FastCopy">
-			<arg line="/to=${baseLocation} /cmd=sync /auto_close ${vanilla.eclipse}" />
-		</exec>
-	</target>
+    <target name="copy.base.windows" if="is.windows">
+        <exec executable="FastCopy">
+            <arg line="/to=${baseLocation} /cmd=sync /auto_close ${vanilla.eclipse}" />
+        </exec>
+    </target>
 
     <target name="create-artifact-symlink">
         <exec executable="unlink">
