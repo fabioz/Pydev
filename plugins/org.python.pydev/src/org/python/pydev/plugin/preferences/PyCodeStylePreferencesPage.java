@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.plugin.preferences;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -113,7 +119,12 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
         }
     }
     
+    
+    public static boolean TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE = DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE;
     public static boolean useLocalsAndAttrsCamelCase() {
+        if(PydevPlugin.getDefault() == null){
+            return TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE;
+        }
         return PydevPrefs.getPreferences().getBoolean(USE_LOCALS_AND_ATTRS_CAMELCASE);
     }
 

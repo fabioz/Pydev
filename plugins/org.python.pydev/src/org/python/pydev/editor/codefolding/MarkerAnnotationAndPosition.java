@@ -1,7 +1,13 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.editor.codefolding;
 
 import org.eclipse.jface.text.Position;
-import org.eclipse.ui.texteditor.MarkerAnnotation;
+import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
 
 
 /**
@@ -9,10 +15,10 @@ import org.eclipse.ui.texteditor.MarkerAnnotation;
  */
 public class MarkerAnnotationAndPosition{
 
-    public final MarkerAnnotation markerAnnotation;
+    public final SimpleMarkerAnnotation markerAnnotation;
     public final Position position;
 
-    public MarkerAnnotationAndPosition(MarkerAnnotation markerAnnotation, Position position) {
+    public MarkerAnnotationAndPosition(SimpleMarkerAnnotation markerAnnotation, Position position) {
         this.markerAnnotation = markerAnnotation;
         this.position = position;
     }

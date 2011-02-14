@@ -10,6 +10,16 @@ Pydev already comes preinstalled in `Aptana Studio 3`_, so, this step can be ski
 Pydev cannot be installed or update separately, as it must always be updated as a whole). 
 
 
+Before starting the install
+============================
+
+The first thing to choose before the install is a folder where you have permissions to write (otherwise, 
+remember to install Eclipse running as an Administrator and remember to run as an Administrator whenever 
+any plugin needs to be updated).
+
+Also, it seems Eclipse 3.6.0 has some issues installing in shared locations (in any OS). An example of such a location would 
+be the Program Files directory on Windows (see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=322929), so, 
+please use at least 3.6.1 if planning to install Eclipse/Pydev on a shared location.
 
 
 Installing with the update site 

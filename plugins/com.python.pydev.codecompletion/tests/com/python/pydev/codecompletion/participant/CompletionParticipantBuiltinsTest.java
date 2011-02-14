@@ -1,5 +1,4 @@
 /*
- * License: Common Public License v1.0
  * Created on 25/08/2005
  * 
  * @author Fabio Zadrozny

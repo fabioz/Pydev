@@ -24,4 +24,4 @@ Export-Package: org.python.pydev.customizations,
  org.python.pydev.customizations.app_engine.util,
  org.python.pydev.customizations.app_engine.wizards,
  org.python.pydev.customizations.common
-Bundle-Vendor: Aptana, Inc.
+Bundle-Vendor: Aptana

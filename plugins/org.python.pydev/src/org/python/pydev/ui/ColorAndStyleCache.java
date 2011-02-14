@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.ui;
 
 import java.util.List;
@@ -20,7 +26,7 @@ public class ColorAndStyleCache extends ColorCache{
         if(property.equals(PydevEditorPrefs.CODE_COLOR) || property.equals(PydevEditorPrefs.DECORATOR_COLOR) || property.equals(PydevEditorPrefs.NUMBER_COLOR)
         || property.equals(PydevEditorPrefs.KEYWORD_COLOR) || property.equals(PydevEditorPrefs.SELF_COLOR) || property.equals(PydevEditorPrefs.COMMENT_COLOR) 
         || property.equals(PydevEditorPrefs.STRING_COLOR) || property.equals(PydevEditorPrefs.CLASS_NAME_COLOR) || property.equals(PydevEditorPrefs.FUNC_NAME_COLOR)
-        || property.equals(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR)
+        || property.equals(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR) || property.equals(PydevEditorPrefs.DEFAULT_PARENS_COLOR)  || property.equals(PydevEditorPrefs.DEFAULT_OPERATORS_COLOR)
         || property.endsWith("_STYLE")){
             return true;
         }
@@ -54,7 +60,7 @@ public class ColorAndStyleCache extends ColorCache{
                 PydevEditorPrefs.%s_COLOR), null, preferences.getInt(PydevEditorPrefs.%s_STYLE));
     }'''
     
-    for s in ('self', 'code', 'decorator', 'number', 'class_name', 'func_name', 'comment', 'backquotes', 'string', 'keyword'):
+    for s in ('self', 'code', 'decorator', 'number', 'class_name', 'func_name', 'comment', 'backquotes', 'string', 'keyword', 'parens', 'operators'):
         
         cog.outl(template % (s.title().replace('_', ''), s.title().replace('_', ''), s.upper(), s.upper()))
 
@@ -188,6 +194,32 @@ public class ColorAndStyleCache extends ColorCache{
         }
         return new TextAttribute(getNamedColor(
                 PydevEditorPrefs.KEYWORD_COLOR), null, preferences.getInt(PydevEditorPrefs.KEYWORD_STYLE));
+    }
+
+    @SuppressWarnings("unchecked")
+    public TextAttribute getParensTextAttribute() {
+        List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+            TextAttribute textAttribute = iPydevPreferencesProvider.getParensTextAttribute();
+            if(textAttribute != null){
+                return textAttribute;
+            }
+        }
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.PARENS_COLOR), null, preferences.getInt(PydevEditorPrefs.PARENS_STYLE));
+    }
+
+    @SuppressWarnings("unchecked")
+    public TextAttribute getOperatorsTextAttribute() {
+        List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
+        for (IPydevPreferencesProvider iPydevPreferencesProvider : participants) {
+            TextAttribute textAttribute = iPydevPreferencesProvider.getOperatorsTextAttribute();
+            if(textAttribute != null){
+                return textAttribute;
+            }
+        }
+        return new TextAttribute(getNamedColor(
+                PydevEditorPrefs.OPERATORS_COLOR), null, preferences.getInt(PydevEditorPrefs.OPERATORS_STYLE));
     }
     //[[[end]]]
 

@@ -1,7 +1,12 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * Author: atotic
  * Created on Mar 23, 2004
- * License: Common Public License v1.0
  */
 package org.python.pydev.debug.model.remote;
 
@@ -53,6 +58,7 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_RUN_TO_LINE = 118;
     static public final int CMD_RELOAD_CODE = 119;
     static public final int CMD_GET_COMPLETIONS = 120;
+    static public final int CMD_SET_NEXT_STATEMENT = 121;
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;

@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * Created on Feb 11, 2006
  */
@@ -5,10 +11,13 @@ package org.python.pydev.parser.prettyprinter;
 
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 
 public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
@@ -18,7 +27,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testPrintOnlyArgs2();
+            test.testNPEError3();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -78,6 +87,63 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
                 return true;
             }
         });
+    }
+    
+    
+    public void testNPEError() throws Throwable {
+        final String s = "" +
+        "def Foo(*args):\n"+
+        "    pass\n"+
+        "";
+        
+        IGrammarVersionProvider p = new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        };
+        Module node = (Module) parseLegalDocStr(s);
+        FunctionDef funcDef = (FunctionDef) node.body[0];
+        String result = PrettyPrinterV2.printArguments(p, funcDef.args);
+        assertEquals("*args", result);
+    }
+    
+    public void testNPEError2() throws Throwable {
+        final String s = "" +
+        "def Foo(*, a):\n"+
+        "    pass\n"+
+        "";
+        
+        IGrammarVersionProvider p = new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+            }
+        };
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        Module node = (Module) parseLegalDocStr(s);
+        FunctionDef funcDef = (FunctionDef) node.body[0];
+        String result = PrettyPrinterV2.printArguments(p, funcDef.args);
+        assertEquals("*, a", result);
+    }
+    
+    public void testNPEError3() throws Throwable {
+        final String s = "" +
+        "def Foo(**a):\n"+
+        "    pass\n"+
+        "";
+        
+        IGrammarVersionProvider p = new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+            }
+        };
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        Module node = (Module) parseLegalDocStr(s);
+        FunctionDef funcDef = (FunctionDef) node.body[0];
+        String result = PrettyPrinterV2.printArguments(p, funcDef.args);
+        assertEquals("**a", result);
     }
     
     

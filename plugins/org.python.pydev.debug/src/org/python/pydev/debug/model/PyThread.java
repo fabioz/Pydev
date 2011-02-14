@@ -1,7 +1,12 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * Author: atotic
  * Created on Apr 21, 2004
- * License: Common Public License v1.0
  */
 package org.python.pydev.debug.model;
 
@@ -17,6 +22,7 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.RunToLineCommand;
+import org.python.pydev.debug.model.remote.SetNextCommand;
 import org.python.pydev.debug.model.remote.StepCommand;
 import org.python.pydev.debug.model.remote.ThreadRunCommand;
 import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
@@ -164,6 +170,10 @@ public class PyThread extends PlatformObject implements IThread {
         target.postCommand(new RunToLineCommand(target, AbstractDebuggerCommand.CMD_RUN_TO_LINE, id, line, funcName));
     }
 
+    public void setNextStatement(int line, String funcName){
+        isStepping = true;
+        target.postCommand(new SetNextCommand(target, AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT, id, line, funcName));
+    }
 
     public IStackFrame[] getStackFrames() throws DebugException {
         if(isSuspended && stack != null){

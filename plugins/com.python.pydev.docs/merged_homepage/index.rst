@@ -42,6 +42,36 @@ It comes with many goodies such as:
 
 For more details on the provided features, check the `Features Matrix`_.
 
+
+Release 1.6.5
+==============
+
+ * Syntax highlighting now has options to have {}, [] and () as well as operators in different colors
+
+ * Code generation for classes and methods:
+ 
+     Note that this is an initial implementation of the idea, aimed as those that use a TDD (Test Driven Development) approach,
+     so, one can create the test first and generate the classes/methods later on from using shortcuts or quick-fixes (which is 
+     something that those using JDT -- Java Development Tools -- in Eclipse should be already familiar with). This feature 
+     should be already usable on a number of situations but it's still far from being 100% complete.
+ 
+     * Alt+Shift+S C can be used to create a class for the currently selected token
+     * Alt+Shift+S M can be used to create a method for the currently selected token
+     * Ctrl+1 has as a quick fix for creating a class or method
+
+ * Debugger
+     * When discovering encoding on Python 3.x, the file is opened as binary
+     * Remote debugger (pydevd.settrace()) properly synchronized
+     * Fixed debugger issue on interpreter shutdown on Python 2.7
+
+ * Bug fixes:    
+     * Fixed issue when doing code-completion on a line that started with some token that started with 'import'. e.g.: import_foo = a
+     * Fixed import when running unittest with coverage
+     * Fixed extract local (could extract to wrong location)    
+     * Fixed NPE when requesting print of arguments in the context-information tooltips
+     * Fixed AttributeError with pydevconsole on Python 3.x
+
+
 Release 1.6.4
 ==============
 

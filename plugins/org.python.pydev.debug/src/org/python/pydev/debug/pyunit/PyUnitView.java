@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.debug.pyunit;
 
 import java.io.File;
@@ -48,8 +54,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.callbacks.CallbackWithListeners;
-import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.tooltips.presenter.ToolTipPresenterHandler;
@@ -113,7 +117,6 @@ import org.python.pydev.ui.IViewCreatedObserver;
  * 
  * Based on org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart (but it's really not meant to be reused)
  */
-@SuppressWarnings("rawtypes")
 public class PyUnitView extends ViewPartWithOrientation{
     
     public static final String PY_UNIT_TEST_RESULT = "RESULT";

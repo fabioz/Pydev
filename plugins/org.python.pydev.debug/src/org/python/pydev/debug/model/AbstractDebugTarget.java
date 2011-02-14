@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.debug.model;
 
 import java.util.List;
@@ -463,7 +469,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             if (stopReason_i == AbstractDebuggerCommand.CMD_STEP_OVER ||
                 stopReason_i == AbstractDebuggerCommand.CMD_STEP_INTO ||
                 stopReason_i == AbstractDebuggerCommand.CMD_STEP_RETURN ||
-                stopReason_i == AbstractDebuggerCommand.CMD_RUN_TO_LINE){
+                stopReason_i == AbstractDebuggerCommand.CMD_RUN_TO_LINE ||
+                stopReason_i == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT){
                 reason = DebugEvent.STEP_END;
                 
             }else if (stopReason_i == AbstractDebuggerCommand.CMD_THREAD_SUSPEND){
@@ -521,6 +528,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                 else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO)
                     resumeReason = DebugEvent.STEP_INTO;
                 else if (raw_reason == AbstractDebuggerCommand.CMD_RUN_TO_LINE)
+                    resumeReason = DebugEvent.UNSPECIFIED;
+                else if (raw_reason == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT)
                     resumeReason = DebugEvent.UNSPECIFIED;
                 else if (raw_reason == AbstractDebuggerCommand.CMD_THREAD_RUN)
                     resumeReason = DebugEvent.CLIENT_REQUEST;

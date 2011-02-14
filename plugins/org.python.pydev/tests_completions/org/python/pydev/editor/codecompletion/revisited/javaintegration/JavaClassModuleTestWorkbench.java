@@ -1,16 +1,14 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.editor.codecompletion.revisited.javaintegration;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.python.pydev.core.IModulesManager;
-import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * Test that needs to run in the workbench to request a code-completion together with the java integration.
@@ -27,26 +25,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
         try{
 
             //We have to wait a bit until the info is setup for the tests to work...
-            final IModulesManager modulesManager = PythonNature.getPythonNature(mod1).getAstManager().getModulesManager();
-            goToIdleLoopUntilCondition(
-                    
-                    new ICallback<Boolean, Object>(){
-                        public Boolean call(Object arg) {
-                            SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager.getAllDirectModulesStartingWith("pack1");
-                            Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
-                            HashSet<ModulesKey> expected = new HashSet<ModulesKey>();
-                            expected.add(new ModulesKey("pack1.__init__", null));
-                            expected.add(new ModulesKey("pack1.pack2.__init__", null));
-                            expected.add(new ModulesKey("pack1.pack2.mod1", null));
-                            return expected.equals(keySet);
-                        }}, 
-                    
-                    new ICallback<String, Object>(){
-                        public String call(Object arg) {
-                            SortedMap<ModulesKey, ModulesKey> allDirectModulesStartingWith = modulesManager.getAllDirectModulesStartingWith("pack1");
-                            Set<ModulesKey> keySet = allDirectModulesStartingWith.keySet();
-                            return "Found: "+keySet;
-                        }});
+            waitForModulesManagerSetup();
                             
 
             //case 1: try it with the rt.jar classes
@@ -86,6 +65,7 @@ public class JavaClassModuleTestWorkbench extends AbstractWorkbenchTestCase {
             throw e;
         }
     }
+
     
     
     /**

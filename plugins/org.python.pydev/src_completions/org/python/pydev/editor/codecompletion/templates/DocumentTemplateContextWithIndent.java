@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 package org.python.pydev.editor.codecompletion.templates;
 
 import java.util.List;
@@ -14,6 +20,7 @@ import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 public class DocumentTemplateContextWithIndent extends DocumentTemplateContext{
@@ -130,12 +137,17 @@ public class DocumentTemplateContextWithIndent extends DocumentTemplateContext{
             template = createNewTemplate(template, buffer.toString());
         }
         
-        TemplateTranslator translator= new TemplateTranslator();
-        TemplateBuffer templateBuffer= translator.translate(template);
+        try {
+            TemplateTranslator translator= new TemplateTranslator();
+            TemplateBuffer templateBuffer= translator.translate(template);
 
-        getContextType().resolve(templateBuffer, this);
+            getContextType().resolve(templateBuffer, this);
 
-        return templateBuffer;
+            return templateBuffer;
+        } catch (Exception e) {
+            Log.log(e);
+            throw new RuntimeException(e);
+        }
     }
 
     

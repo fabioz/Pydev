@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
 /*
  * Created on Sep 23, 2004
  *
@@ -159,6 +165,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
 
         for (IAssistProps assist : assists) {
+            ps = edit.createPySelection();
             try {
                 if (assist.isValid(ps, sel, editor, offset)) {
                     try {

@@ -9,25 +9,25 @@ folders are the paths that are added to your PYTHONPATH).</p>
 <p>You can add a new source folder in the menu: <strong>File &gt; new &gt; other &gt; pydev &gt; source folder</strong>.</p>
 <p><strong>NOTE:</strong> You may use pydev without configuring that, for quick scripts, but some features such as code analysis may not
 work at all (but you will still have syntax highlighting and the default editor actions).</p>
-<div align="center" class="align-center"><img alt="images/new_source_folder.png" class="snap align-center" src="images/new_source_folder.png" /></div>
+<img alt="images/new_source_folder.png" class="snap align-center" src="images/new_source_folder.png" />
 <p>When you add a source folder to an existing project, it will 'automatically' add the Pydev information to it (in Eclipse terms, it will add
 its nature to it).</p>
 <p>You may see which Python information your project has by going to the Pydev Package Explorer, rigth-clicking
 the project you want info on and selecting 'properties' (or pressing Alt+Enter with the project selected):</p>
-<div align="center" class="align-center"><img alt="images/navigator_rigth_click.png" class="snap align-center" src="images/navigator_rigth_click.png" /></div>
+<img alt="images/navigator_rigth_click.png" class="snap align-center" src="images/navigator_rigth_click.png" />
 <p>The project properties allow you to see the <strong>source folders</strong> and the <strong>external source folders</strong> that will be added to
 your <strong>PYTHONPATH</strong>.</p>
 <p>The external source folders are useful if you have some external library or compiled extension that is used
 solely for one project, so that you don't have to add it to the system PYTHONPATH, however, the information on such folders works as
 the system information works, it is gathered once and then 'set in stone', so, if you will change it, it is recommended that you
 create a project for it and make a project reference to that project.</p>
-<div align="center" class="align-center"><img alt="images/project_properties.png" class="snap align-center" src="images/project_properties.png" /></div>
+<img alt="images/project_properties.png" class="snap align-center" src="images/project_properties.png" />
 <p>The <strong>force restore internal info</strong> may be useful if you had an external library that changed and just want to update its information, or
 you believe that for some reason pydev did not succeed in synchronizing with the latest code-changes you did.</p>
 <p>The <strong>String Substitution Variables</strong> can be used in conjunction with the <strong>source folders</strong>, <strong>external
 source folders</strong> and <strong>run configurations</strong>. From the example below, if a reference ${GOOGLE_APP_ENGINE}/lib was present
 in the external source folders, it'd be resolved to D:\bin\google_app_engine122/lib.</p>
-<div align="center" class="align-center"><img alt="images/project_properties_substitution.png" class="snap align-center" src="images/project_properties_substitution.png" /></div>
+<img alt="images/project_properties_substitution.png" class="snap align-center" src="images/project_properties_substitution.png" />
 <p>Also, you may change your project type as you wish. E.g.: You can set an existing python project as a jython project in
 the screen below.</p>
 <p>Note that here you can also set a different grammar version (you can have configured an interpreter that uses grammar
@@ -35,14 +35,14 @@ the screen below.</p>
 an older grammar, which is useful on cases where you have to keep backward compatibility).</p>
 <p>The selection of the interpreter will define which interpreter will be used to create the default run configurations and
 the shells for code-completion purposes (to gather the forced builtins).</p>
-<div align="center" class="align-center"><img alt="images/project_type.png" class="snap align-center" src="images/project_type.png" /></div>
+<img alt="images/project_type.png" class="snap align-center" src="images/project_type.png" />
 <p>To reference another project, just go to the 'project references' page.</p>
 <p>The referenced projects are the projects whose source folders are added to the PYTHONPATH for the
 referrer project.</p>
 <p>This is very important so that code completion and run configurations work correctly.</p>
 <p>Note that it'll get the configurations recursively, so, if a project A depends on B, which in turn depends on C, you
 just have to add a reference from A to B (and C will already be automatically referenced)</p>
-<div align="center" class="align-center"><img alt="images/project_refs.png" class="snap align-center" src="images/project_refs.png" /></div>
+<img alt="images/project_refs.png" class="snap align-center" src="images/project_refs.png" />
 <div class="section" id="project-reference-for-jython-users">
 <h1>Project reference for Jython users</h1>
 <p>Jython projects may reference Java (JDT) projects. To create that reference, it's not enough to just add the reference

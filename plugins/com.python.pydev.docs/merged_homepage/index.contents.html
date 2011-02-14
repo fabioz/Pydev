@@ -26,6 +26,50 @@
 </blockquote>
 <p>For more details on the provided features, check the <a class="reference external" href="manual_adv_features.html">Features Matrix</a>.</p>
 </div>
+<div class="section" id="release-1-6-5">
+<h1>Release 1.6.5</h1>
+<blockquote>
+<ul>
+<li><p class="first">Syntax hightlighting now has options to have {}, [] and () as well as operators in different colors</p>
+</li>
+<li><p class="first">Code generation for classes and methods:</p>
+<blockquote>
+<p>Note that this is an initial implementation of the idea, aimed as those that use a TDD (Test Driven Development) approach,
+so, one can create the test first and generate the classes/methods later on from using shortcuts or quick-fixes (which is
+something that those using JDT -- Java Development Tools -- in Eclipse should be already familiar with). This feature
+should be already usable on a number of situations but it's still far from being 100% complete.</p>
+<ul class="simple">
+<li>Alt+Shift+S C can be used to create a class for the currently selected token</li>
+<li>Alt+Shift+S M can be used to create a method for the currently selected token</li>
+<li>Ctrl+1 has as a quick fix for creating a class or method</li>
+</ul>
+</blockquote>
+</li>
+<li><dl class="first docutils">
+<dt>Debugger</dt>
+<dd><ul class="first last simple">
+<li>When discovering encoding on Python 3.x, the file is opened as binary</li>
+<li>Remote debugger (pydevd.settrace) properly synchronized</li>
+<li>Fixed debugger issue on interpreter shutdown on Python 2.7</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Bug fixes:</dt>
+<dd><ul class="first last simple">
+<li>Fixed issue when doing code-completion on a line that started with some token that started with 'import'. e.g.: import_foo = a</li>
+<li>Fixed import when running unittest with coverage</li>
+<li>Fixed extract local (could extract to wrong location)</li>
+<li>Fixed NPE when requesting print of arguments in the context-information tooltips</li>
+<li>Fixed AttributeError with pydevconsole on Python 3.x</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</blockquote>
+</div>
 <div class="section" id="release-1-6-4">
 <h1>Release 1.6.4</h1>
 <blockquote>
