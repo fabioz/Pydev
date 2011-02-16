@@ -914,8 +914,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         IEditorInput editorInput = this.getEditorInput();
         IFile file = (IFile) editorInput.getAdapter(IFile.class);
         if (file != null) {
-            IPath path = file.getLocation().makeAbsolute();
-            f = path.toFile();
+            IPath location = file.getLocation();
+            if(location != null){
+                IPath path = location.makeAbsolute();
+                f = path.toFile();
+            }
         
         }else if (editorInput instanceof PydevFileEditorInput) {
             PydevFileEditorInput pyEditorInput = (PydevFileEditorInput) editorInput;

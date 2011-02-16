@@ -444,8 +444,12 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
 //                lambda.getSpecialsBefore().add("lambda ");
 //            }
             return lambda;
-        case JJTELLIPSES:
+        case JJTELLIPSIS:
             return new Ellipsis();
+            
+        case JJTELLIPSIS_AS_NAME:
+            return new Name("...", Name.Load, true);
+
         case JJTSLICE:
             SimpleNode[] arr = new SimpleNode[arity];
             for (int i = arity-1; i >= 0; i--) {
