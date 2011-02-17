@@ -12,6 +12,9 @@
             icon="icons/python_file.gif"
             id="org.python.pydev.editor.PythonEditor"
             name="Python Editor">
+         <contentTypeBinding
+               contentTypeId="org.python.pydev.pythonfile">
+         </contentTypeBinding>
       </editor>
    </extension>
 <!-- Initialize our preferences -->
@@ -38,23 +41,17 @@
             class="org.python.pydev.editor.PyDocumentSetupParticipant"
             extensions="py,pyw"/>
    </extension>
+
 <!-- Python file content type (so that it is regarded as text) -->
-  <extension point="org.eclipse.core.runtime.contentTypes">
-      <content-type
-            file-extensions="py,pyw"
-            name="Python File"
-            id="pythonfile"
-            base-type="org.eclipse.core.runtime.text"/>
-   </extension>
-   
-   <!-- new way of handling the content type -->
   <extension point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             file-extensions="py,pyw"
             name="Python File"
             id="org.python.pydev.pythonfile"
+            file-names="SConstruct"
             base-type="org.eclipse.core.runtime.text"/>
    </extension>
+   
    
 
 <!-- Python nature -->
