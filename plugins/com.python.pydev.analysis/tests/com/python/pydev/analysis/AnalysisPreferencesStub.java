@@ -27,6 +27,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     public int severityForUnusedParameter;
     public int severityForNoEffectStmt;
     public int severityForIndentationProblem;
+    public int severityForInvalidModuleName;
     
     public AnalysisPreferencesStub(){
         severityForUnusedImport = IMarker.SEVERITY_WARNING;
@@ -41,44 +42,46 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
         severityForUnusedParameter = IMarker.SEVERITY_WARNING;
         severityForNoEffectStmt = IMarker.SEVERITY_WARNING;
         severityForIndentationProblem = IMarker.SEVERITY_WARNING;
+        severityForInvalidModuleName = IMarker.SEVERITY_WARNING;
     }
     
     public int getSeverityForType(int type) {
-        if (type == TYPE_UNUSED_IMPORT){
-            return severityForUnusedImport;
-        }
-        if (type == TYPE_UNUSED_VARIABLE){
-            return severityForUnusedVariable;
-        }
-        if (type == TYPE_UNDEFINED_VARIABLE){
-            return severityForUndefinedVariable;
-        }
-        if (type == TYPE_DUPLICATED_SIGNATURE){
-            return severityForDuplicatedSignature;
-        }
-        if (type == TYPE_REIMPORT){
-            return severityForReimport;
-        }
-        if (type == TYPE_UNRESOLVED_IMPORT){
-            return severityForUnresolvedImport;
-        }
-        if (type == TYPE_NO_SELF){
-            return severityForNoSelf;
-        }
-        if (type == TYPE_UNUSED_WILD_IMPORT){
-            return severityForUnusedWildImport;
-        }
-        if (type == TYPE_UNDEFINED_IMPORT_VARIABLE){
-            return severityForUndefinedImportVariable;
-        }
-        if (type == TYPE_UNUSED_PARAMETER){
-            return severityForUnusedParameter;
-        }
-        if (type == TYPE_NO_EFFECT_STMT){
-            return severityForNoEffectStmt;
-        }
-        if (type == TYPE_INDENTATION_PROBLEM){
-            return severityForIndentationProblem;
+        switch (type) {
+            case TYPE_UNUSED_IMPORT:
+                return severityForUnusedImport;
+            
+            case TYPE_UNUSED_VARIABLE:
+                return severityForUnusedVariable;
+            
+            case TYPE_UNDEFINED_VARIABLE:
+                return severityForUndefinedVariable;
+            
+            case TYPE_DUPLICATED_SIGNATURE:
+                return severityForDuplicatedSignature;
+            
+            case TYPE_REIMPORT:
+                return severityForReimport;
+            
+            case TYPE_UNRESOLVED_IMPORT:
+                return severityForUnresolvedImport;
+            
+            case TYPE_NO_SELF:
+                return severityForNoSelf;
+            
+            case TYPE_UNUSED_WILD_IMPORT:
+                return severityForUnusedWildImport;
+            
+            case TYPE_UNDEFINED_IMPORT_VARIABLE:
+                return severityForUndefinedImportVariable;
+            
+            case TYPE_UNUSED_PARAMETER:
+                return severityForUnusedParameter;
+            
+            case TYPE_NO_EFFECT_STMT:
+                return severityForNoEffectStmt;
+            
+            case TYPE_INDENTATION_PROBLEM:
+                return severityForIndentationProblem;
         }
         throw new RuntimeException("unable to get severity for type "+type);
     }
