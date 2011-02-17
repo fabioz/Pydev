@@ -701,7 +701,11 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		
 		String name = segments[segments.length-1];
 		if(!PyTitlePreferencesPage.getTitleShowExtension()){
+		    String initial = name;
 			name = FullRepIterable.getFirstPart(name);
+			if(name.length() == 0){
+			    name = initial;
+			}
 		}
 		if(modulePart.length() > 0){
 			return new Tuple<String, Boolean>(name+" ("+modulePart+")", startAt == 0);
