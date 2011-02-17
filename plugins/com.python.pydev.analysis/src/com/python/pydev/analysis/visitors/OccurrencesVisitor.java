@@ -254,6 +254,10 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor{
      * @param token
      */
     protected void onAddUndefinedMessage(IToken token, Found foundAs) {
+        if("...".equals(token.getRepresentation())){
+            return; //Ellipsis -- when found in the grammar, it's added as a name, which we can safely ignore at this point.
+        }
+
         //global scope, so, even if it is defined later, this is an error...
         messagesManager.addUndefinedMessage(token);
     }
