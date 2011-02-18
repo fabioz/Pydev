@@ -465,6 +465,22 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 		}
 		PySelection ps = new PySelection(document, new TextSelection(document, command.offset, command.length));
 		if(command.length > 1){
+		    if(command.text.length() == 1){
+    		    String selectedText = ps.getSelectedText();
+                if(selectedText.indexOf('\r') != -1 || selectedText.indexOf('\n') != -1){
+                    //we have a new line
+                    FastStringBuffer buf = new FastStringBuffer(selectedText.length()+10);
+                    buf.appendN(command.text, 3);
+                    buf.append(selectedText);
+                    buf.appendN(command.text, 3);
+                    command.text = buf.toString();
+                }else{
+                    command.text += selectedText + command.text;
+                }
+                command.shiftsCaret = false;
+                command.caretOffset = command.offset+command.text.length();
+                return;
+		    }
 			try {
 				//We have more contents selected. Delete it so that we can properly use the heuristics.
 				ps.deleteSelection();
