@@ -232,12 +232,14 @@ public class PyGoToDefinition extends PyRefactorAction {
             						IModulesManager modulesManager = astManager.getModulesManager();
             						if(modulesManager != null){
             							File editorFile = edit.getEditorFile();
-            							String resolveModule = pythonNature.resolveModule(editorFile);
-            							if(resolveModule != null){
-            								pushed.add(new Tuple<IModulesManager, String>(modulesManager, resolveModule));
-            								modulesManager.pushTemporaryModule(
-            										resolveModule, 
-            										new SourceModule(resolveModule, editorFile, edit.getAST(), null));
+            							if(editorFile != null){
+                							String resolveModule = pythonNature.resolveModule(editorFile);
+                							if(resolveModule != null){
+                								pushed.add(new Tuple<IModulesManager, String>(modulesManager, resolveModule));
+                								modulesManager.pushTemporaryModule(
+                										resolveModule, 
+                										new SourceModule(resolveModule, editorFile, edit.getAST(), null));
+                							}
             							}
             						}
             					}

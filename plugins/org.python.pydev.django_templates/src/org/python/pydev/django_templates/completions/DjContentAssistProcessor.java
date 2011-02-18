@@ -268,4 +268,8 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
         }
     }
 
+    public boolean triggerAdditionalAutoActivation(char c, int keyCode, IDocument document, int offset) {
+        return false;
+    }
+
 }

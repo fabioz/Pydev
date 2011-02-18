@@ -37,7 +37,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzerTest analyzer2 = new OccurrencesAnalyzerTest();
             analyzer2.setUp();
-            analyzer2.testSetComprehension();
+            analyzer2.testElipsis();
             analyzer2.tearDown();
             System.out.println("finished");
             
@@ -2845,6 +2845,24 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
             printMessages(msgs, 2);
             assertContainsMsg("Unused variable: jj", msgs);
             assertContainsMsg("Undefined variable: jj", msgs);
+        }finally{
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+    
+    public void testElipsis() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try{
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_0;
+            doc = new Document(
+                    "class Bar:\n" +
+                    "    ...\n" +
+                    ""
+            );
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+            
+            printMessages(msgs, 0);
         }finally{
             GRAMMAR_TO_USE_FOR_PARSING = initial;
         }

@@ -50,7 +50,6 @@ import org.python.pydev.core.parser.IParserObserver;
 import org.python.pydev.core.parser.IParserObserver2;
 import org.python.pydev.core.parser.IParserObserver3;
 import org.python.pydev.core.parser.IPyParser;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.grammar24.PythonGrammar24;
 import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.grammar26.PythonGrammar26;

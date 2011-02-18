@@ -165,6 +165,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
 
         for (IAssistProps assist : assists) {
+            ps = edit.createPySelection();
             try {
                 if (assist.isValid(ps, sel, editor, offset)) {
                     try {

@@ -1,0 +1,34 @@
+/**
+ * Copyright (c) 2005-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Eclipse Public License (EPL).
+ * Please see the license.txt included with this distribution for details.
+ * Any modifications to this file must keep this entire header intact.
+ */
+package org.python.pydev.debug.ui;
+
+import org.eclipse.core.runtime.IAdapterFactory;
+import org.eclipse.debug.ui.actions.IRunToLineTarget;
+import org.python.pydev.debug.model.PySetNextTarget;
+import org.python.pydev.debug.ui.actions.ISetNextTarget;
+import org.python.pydev.editor.PyEdit;
+
+/**
+ * @author Hussain Bohra
+ */
+public class PyEditSetNextAdapterFactory implements IAdapterFactory {
+
+	private static PySetNextTarget pySetNextTarget = new PySetNextTarget();
+
+	public Object getAdapter(Object adaptableObject, Class adapterType) {
+        if(adaptableObject instanceof PyEdit && adapterType == ISetNextTarget.class){
+            return pySetNextTarget;
+            
+        }
+        return null;	
+    }
+
+	public Class[] getAdapterList() {
+		return new Class[]{IRunToLineTarget.class};
+	}
+
+}

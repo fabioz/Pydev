@@ -23,6 +23,8 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.ide.IDE;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.model.Location;
@@ -32,6 +34,7 @@ import org.python.pydev.navigator.elements.PythonNode;
 import org.python.pydev.outline.ParsedItem;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * This action will try to open a given file or node in the pydev editor (if a file or node is selected).
@@ -53,7 +56,8 @@ public class PyOpenPythonFileAction extends Action {
     protected final ISelectionProvider provider;
 
     public PyOpenPythonFileAction(IWorkbenchPage page, ISelectionProvider selectionProvider) {
-        this.setText("Open With Pydev");
+        this.setText("Open With Pydev (Python)");
+        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.PY_FILE_ICON));
         this.provider = selectionProvider;
     }
 
@@ -124,6 +128,8 @@ public class PyOpenPythonFileAction extends Action {
      */
     protected void openFiles(List<IFile> filesSelected) {
         for (IFile f : filesSelected) {
+            //If a file is opened here, set it as having the Pydev editor as the default editor.
+            IDE.setDefaultEditor(f, PyEdit.EDITOR_ID);
             new PyOpenAction().run(new ItemPointer(f));
         }
     }
@@ -188,7 +194,16 @@ public class PyOpenPythonFileAction extends Action {
      */
     public boolean isEnabledForSelectionWithoutContainers() {
         fillSelections();
-        if(filesSelected.size() > 0 || nodesSelected.size() > 0 
+        if(filesSelected.size() > 0){
+            for(IFile f:filesSelected){
+                String name = f.getName();
+                if(name.indexOf('.') == -1){
+                    //Always add this menu if there's some file that doesn't have an extension.
+                    return true;
+                }
+            }
+        }
+        if(nodesSelected.size() > 0 
         		|| pythonPathFilesSelected.size() > 0 || pythonPathZipFilesSelected.size() > 0){
             return true;
         }

@@ -1968,9 +1968,13 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(0, doc.length(),  "'");
         Document document = new Document(doc);
         strategy.customizeDocumentCommand(document, docCmd);
-        expected = "''";
-        assertEquals("", document.get());
-        assertEquals(expected, docCmd.text);
+        assertEquals("''ueuouo''", docCmd.text);
+        
+        doc = "ueuo\nuo";
+        docCmd = new DocCmd(0, doc.length(),  "\"");
+        document = new Document(doc);
+        strategy.customizeDocumentCommand(document, docCmd);
+        assertEquals("\"\"\"ueuo\nuo\"\"\"", docCmd.text);
     }
 
     
@@ -2074,9 +2078,9 @@ public class PyAutoIndentStrategyTest extends TestCase {
     public void testEncoding() throws Exception {
     	strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
     	String doc = "";
-    	DocCmd docCmd = new DocCmd(0, 0, "\t(u'€', 'EUR')");
+    	DocCmd docCmd = new DocCmd(0, 0, "\t(u'ï¿½', 'EUR')");
     	strategy.customizeDocumentCommand(new Document(doc), docCmd);
-    	String expected = "    (u'€', 'EUR')";
+    	String expected = "    (u'ï¿½', 'EUR')";
     	assertEquals(expected, docCmd.text);
 	}
     

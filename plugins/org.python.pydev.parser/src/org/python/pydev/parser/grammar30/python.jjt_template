@@ -858,6 +858,7 @@ void atom() #void: {Object spStr;Object spStr2;}
 |   (<FALSE>)#False
 |   (<TRUE>)#True
 |   (<NONE>)#None
+|   (<DOT> <DOT> <DOT>)#Ellipsis_as_name
 |   Name() 
 |   Number()
 |   String() (String() #strjoin(2))*
@@ -880,7 +881,7 @@ void subscriptlist() #void: {}
 //subscript: '.' '.' '.' | test | [test] ':' [test] [sliceop]
 void subscript() #void: {}
 {
-    <DOT> <DOT> <DOT> #Ellipses
+    <DOT> <DOT> <DOT> #Ellipsis
 |   (test() (slice())?) #Slice
 |   slice() #Slice(>0)
 }

@@ -360,7 +360,7 @@ public final class TreeBuilder27 extends AbstractTreeBuilder implements ITreeBui
 //                lambda.getSpecialsBefore().add("lambda ");
 //            }
             return lambda;
-        case JJTELLIPSES:
+        case JJTELLIPSIS:
             return new Ellipsis();
         case JJTSLICE:
             SimpleNode[] arr = new SimpleNode[arity];

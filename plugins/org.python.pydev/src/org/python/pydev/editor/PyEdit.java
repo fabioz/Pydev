@@ -15,6 +15,7 @@ import java.util.ListResourceBundle;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -25,6 +26,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -74,6 +76,8 @@ import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.python.pydev.builder.PydevMarkerUtils;
+import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -82,6 +86,7 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
+import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
@@ -104,6 +109,7 @@ import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -157,7 +163,6 @@ import org.python.pydev.ui.UIConstants;
  * @see <a href="http://dev.eclipse.org/newslists/news.eclipse.tools/msg61594.html">This eclipse article was an inspiration </a>
  *  
  */
-@SuppressWarnings("deprecation")
 public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersionProvider, IPySyntaxHighlightingAndCodeCompletionEditor {
 
     static{
@@ -221,7 +226,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     /**
      * Those are the ones that register at runtime (not through extensions points).
      */
-    private volatile List<IPyEditListener> registeredEditListeners = new ArrayList<IPyEditListener>();
+    private volatile Collection<IPyEditListener> registeredEditListeners = new OrderedSet<IPyEditListener>();
 
     /**
      * This is the scripting engine that is binded to this interpreter.
@@ -691,7 +696,56 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 		    }
 		};
     }
+    
+    
+    
+    //Deal with notifying the user that the opened file is invalid -----------------------------------------------------
+    
+    private static final String INVALID_MODULE_MARKER_TYPE = "org.python.pydev.invalidpythonfilemarker"; 
+    
+    private void checkAddInvalidModuleNameMarker(IDocument doc, IFile file) {
+        try {
+            String name = file.getName();
+            int i = name.lastIndexOf('.');
+            if(i > 0){
+                String modName = name.substring(0, i);
+                if(!PythonPathHelper.isValidModuleLastPart(modName)){
+                    addInvalidModuleMarker(doc, file, "Invalid name for Python module: "+modName+ " (it'll not be analyzed)");
+                    return;
+                    
+                }else if(!PythonPathHelper.isValidSourceFile(name)){
+                    addInvalidModuleMarker(doc, file, "Module: "+modName+" does not have a valid Python extension (it'll not be analyzed).");
+                    return;
+                }
+            }
+            //if it still hasn't returned, remove any existing marker (i.e.: rename operation)
+            removeInvalidModuleMarkers(file);
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+    }
+    
+    private void removeInvalidModuleMarkers(IFile file) {
+        try {
+            if(file.exists()){
+                file.deleteMarkers(INVALID_MODULE_MARKER_TYPE, true, IResource.DEPTH_ZERO);
+            }
+        } catch (Exception e) {
+            PydevPlugin.log(e);
+        }
+    }
+    
+    private void addInvalidModuleMarker(IDocument doc, IFile fileAdapter, String msg) {
+        MarkerInfo markerInfo = new PydevMarkerUtils.MarkerInfo(doc, msg, 
+                INVALID_MODULE_MARKER_TYPE, IMarker.SEVERITY_WARNING, 
+                false, true, 0, 0, 0, 0, null);
+        ArrayList<MarkerInfo> lst = new ArrayList<MarkerInfo>();
+        lst.add(markerInfo);
+        PydevMarkerUtils.replaceMarkers(lst, fileAdapter, INVALID_MODULE_MARKER_TYPE, false, new NullProgressMonitor());
+    }
 
+    
+    
     /**
      * When we have the editor input re-set, we have to change the parser and the partition scanner to
      * the new document. This happens in 3 cases:
@@ -707,6 +761,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     @Override
     protected void doSetInput(IEditorInput input) throws CoreException {
+        
     	//Having a new input is treated as opening a new editor for the ping.
     	if(!Platform.inDevelopmentMode() || ILogPing.FORCE_SEND_WHEN_IN_DEV_MODE){
 	    	ILogPing logPing = PydevPlugin.getAsyncLogPing();
@@ -714,16 +769,35 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     	}
     	
         IEditorInput oldInput = this.getEditorInput();
+        
+        //Remove markers from the old
+        if(oldInput != null){
+            IFile oldFile = (IFile) oldInput.getAdapter(IFile.class);
+            if(oldFile != null){
+                removeInvalidModuleMarkers(oldFile);
+            }
+        }
+        
         super.doSetInput(input);
         try{
             IDocument document = getDocument(input);
-            //see if we have to change the encoding of the file on load
-            fixEncoding(input, document);
-    
-            PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).attachParserTo(this);
-            if(document != null){
-                PyPartitionScanner.checkPartitionScanner(document);
+            if(input != null){
+                IFile newFile = (IFile) input.getAdapter(IFile.class);
+                if(newFile != null){
+                    //Add invalid module name markers to the new.
+                    checkAddInvalidModuleNameMarker(document, newFile);
+                }
+                
+                //see if we have to change the encoding of the file on load
+                fixEncoding(input, document);
+                
+                PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).attachParserTo(this);
+                if(document != null){
+                    PyPartitionScanner.checkPartitionScanner(document);
+                }
             }
+            
+    
             notifier.notifyInputChanged(oldInput, input);
             notifier.notifyOnSetDocument(document);
         }catch (Throwable e) {
@@ -914,8 +988,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         IEditorInput editorInput = this.getEditorInput();
         IFile file = (IFile) editorInput.getAdapter(IFile.class);
         if (file != null) {
-            IPath path = file.getLocation().makeAbsolute();
-            f = path.toFile();
+            IPath location = file.getLocation();
+            if(location != null){
+                IPath path = location.makeAbsolute();
+                f = path.toFile();
+            }
         
         }else if (editorInput instanceof PydevFileEditorInput) {
             PydevFileEditorInput pyEditorInput = (PydevFileEditorInput) editorInput;
@@ -943,27 +1020,38 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     // cleanup
     public void dispose() {
-        this.disposed = true;
-        try{
-        	this.onDispose.call(null);
-        	
-            notifier.notifyOnDispose();
-    
-            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
-            PyParserManager.getPyParserManager(null).notifyEditorDisposed(this);
-            
-            colorCache.dispose();
-            pyEditScripting = null;
-            cache.clear();
-            cache = null;
-            
-            if(this.resourceManager != null){
-                this.resourceManager.dispose();
-                this.resourceManager = null;
+        if(!this.disposed){
+            this.disposed = true;
+            try {
+                IFile iFile = this.getIFile();
+                if(iFile != null){
+                    removeInvalidModuleMarkers(iFile);
+                }
+            } catch (Throwable e1) {
+                PydevPlugin.log(e1);
             }
             
-        }catch (Throwable e) {
-            PydevPlugin.log(e);
+            try{
+            	this.onDispose.call(null);
+            	
+                notifier.notifyOnDispose();
+        
+                PydevPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
+                PyParserManager.getPyParserManager(null).notifyEditorDisposed(this);
+                
+                colorCache.dispose();
+                pyEditScripting = null;
+                cache.clear();
+                cache = null;
+                
+                if(this.resourceManager != null){
+                    this.resourceManager.dispose();
+                    this.resourceManager = null;
+                }
+                
+            }catch (Throwable e) {
+                PydevPlugin.log(e);
+            }
         }
         super.dispose();
         

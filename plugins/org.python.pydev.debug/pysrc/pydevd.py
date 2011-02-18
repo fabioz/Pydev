@@ -11,6 +11,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_REMOVE_BREAK, \
                          CMD_RUN, \
                          CMD_SET_BREAK, \
+                         CMD_SET_NEXT_STATEMENT,\
                          CMD_STEP_INTO, \
                          CMD_STEP_OVER, \
                          CMD_STEP_RETURN, \
@@ -473,7 +474,7 @@ class PyDB:
                         t.additionalInfo.pydev_step_cmd = cmd_id
                         t.additionalInfo.pydev_state = STATE_RUN
                         
-                elif cmd_id == CMD_RUN_TO_LINE:
+                elif cmd_id == CMD_RUN_TO_LINE or cmd_id == CMD_SET_NEXT_STATEMENT:
                     #we received some command to make a single step
                     thread_id, line, func_name = text.split('\t', 2)
                     t = PydevdFindThreadById(thread_id)
@@ -703,7 +704,7 @@ class PyDB:
                 frame.f_trace = self.trace_dispatch
             SetTraceForParents(frame, self.trace_dispatch)
             
-        elif info.pydev_step_cmd == CMD_RUN_TO_LINE:
+        elif info.pydev_step_cmd == CMD_RUN_TO_LINE or info.pydev_step_cmd == CMD_SET_NEXT_STATEMENT :
             if frame.f_trace is None:
                 frame.f_trace = self.trace_dispatch
             SetTraceForParents(frame, self.trace_dispatch)
@@ -883,7 +884,7 @@ class PyDB:
         if m.__file__.startswith(sys.path[0]):
             #print >> sys.stderr, 'Deleting: ', sys.path[0]
             del sys.path[0]
-        
+
         #now, the local directory has to be added to the pythonpath
         #sys.path.insert(0, os.getcwd())
         #Changed: it's not the local directory, but the directory of the file launched
@@ -1130,5 +1131,6 @@ if __name__ == '__main__':
     debugger.connect(setup['client'], setup['port'])
     
     connected = True #Mark that we're connected when started from inside eclipse.
+    
     debugger.run(setup['file'], None, None)
     

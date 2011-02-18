@@ -2,13 +2,10 @@
 package org.python.pydev.parser.grammar24;
 
 import java.util.List;
-
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.IGrammar;
 import org.python.pydev.parser.grammarcommon.AbstractPythonGrammar;
-import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 import org.python.pydev.parser.grammarcommon.IJJTPythonGrammarState;
-import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.jython.CharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -20,6 +17,8 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
+import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
+import org.python.pydev.parser.grammarcommon.EmptySuiteException;
 
 
 
@@ -4418,7 +4417,7 @@ else
     case DOT:
       jj_consume_token(DOT);
       jj_consume_token(DOT);
-                  SimpleNode jjtn001 = jjtree.builder.openNode( JJTELLIPSES);
+                  SimpleNode jjtn001 = jjtree.builder.openNode( JJTELLIPSIS);
                   boolean jjtc001 = true;
                   jjtree.openNodeScope(jjtn001);
                   jjtreeOpenNodeScope(jjtn001);

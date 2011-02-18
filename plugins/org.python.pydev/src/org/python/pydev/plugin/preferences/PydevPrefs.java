@@ -9,7 +9,6 @@ package org.python.pydev.plugin.preferences;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;

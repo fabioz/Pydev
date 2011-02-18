@@ -59,6 +59,7 @@ import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
+import org.python.pydev.parser.visitors.scope.EasyASTIteratorWithLoop;
 
 public class NodeUtils {
 
@@ -769,25 +770,147 @@ public class NodeUtils {
             }
             
             if(last != null){
-    
-                StringBuffer buffer = new StringBuffer();
-                boolean first = true;
-                while (last != null){
-                    String name = last.getName();
-                    buffer.insert(0, name);
-                    last = last.parent;
-                    if(!first){
-                        buffer.insert(name.length(),".");
-                    }
-                    first = false;
-                }
-                return buffer.toString();
+            	return getFullMethodName(last);
             }
         }
         return null;
     }
 
-    
+    /**
+     * @param ASTEntry last
+     * @return classdef.method_name
+     */
+	public static String getFullMethodName(ASTEntry last) {
+		StringBuffer buffer = new StringBuffer();
+		boolean first = true;
+		while (last != null) {
+			String name = last.getName();
+			buffer.insert(0, name);
+			last = last.parent;
+			if (!first) {
+				buffer.insert(name.length(), ".");
+			}
+			first = false;
+		}
+		return buffer.toString();
+	}
+	
+	/**
+	 * Identifies the context for both source and target line 
+	 * 
+	 * @param ASTEntry ast
+	 * @param int sourceLine: the line at which debugger is stopped currently (starts at 1) 
+	 * @param int targetLine: the line at which we need to set next (starts at 0)
+	 * @return
+	 */
+	public static boolean isValidContextForSetNext(SimpleNode ast,
+			int sourceLine, int targetLine) {
+		String sourceFunctionName = NodeUtils.getContextName((sourceLine - 1),
+				ast);
+		String targetFunctionName = NodeUtils.getContextName(targetLine, ast);
+		if (compareMethodName(sourceFunctionName, targetFunctionName)) {
+			ASTEntry sourceAST = NodeUtils.getLoopContextName(sourceLine, ast);
+			ASTEntry targetAST = NodeUtils.getLoopContextName(targetLine + 1,
+					ast);
+
+			if (targetAST == null) {
+				return true; // Target line is not inside some loop
+			}
+			if (sourceAST == null && targetAST != null) {
+				return false; // Source is outside loop and target is inside
+								// loop
+			}
+			if (sourceAST != null && targetAST != null) {
+				if (sourceAST.equals(targetAST)
+						&& (sourceAST.node instanceof TryExcept && targetAST.node instanceof TryExcept)) {
+					excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
+					for (excepthandlerType exceptionHandler : exceptionHandlers) {
+						if (targetLine + 1 == exceptionHandler.beginLine) {
+							// On assigning debug pointer on an except statement
+							// debugger breaks in line to frame in pydevd_frame
+							return false;
+						}
+					}
+				}
+				// Both Source and Target is inside some loop
+				if (sourceAST.equals(targetAST)) {
+					return true;
+				} else {
+					ASTEntry last = sourceAST;
+					boolean retVal = false;
+					while (last != null) {
+						ASTEntry parentAST = last.parent;
+						if (parentAST != null && parentAST.equals(targetAST)) {
+							retVal = true;
+							break;
+						}
+						last = parentAST;
+					}
+					return retVal;
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Compare name of two methods. return true if either both methods are same
+	 * or global context
+	 * 
+	 * @param sourceMethodName
+	 * @param targetMethodName
+	 * @return
+	 */
+	public static boolean compareMethodName(String sourceMethodName,
+			String targetMethodName) {
+		if ((sourceMethodName == null && targetMethodName == null))
+			return true;
+		if ((sourceMethodName != null)
+				&& sourceMethodName.equals(targetMethodName))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * Identifies the for/while/try..except/try..finally and with for a provided line number.
+	 * 
+	 * @param lineNumber the line we want to get the loop context (starts at 1)
+	 * @param ast
+	 * @return
+	 */
+	public static ASTEntry getLoopContextName(int lineNumber, SimpleNode ast) {
+		ASTEntry loopContext = null;
+		if (ast != null) {
+			int highestBeginLine = 0;
+			ArrayList<ASTEntry> contextBlockList = new ArrayList<ASTEntry>();
+			EasyASTIteratorWithLoop visitor = EasyASTIteratorWithLoop
+					.create(ast);
+			Iterator<ASTEntry> blockIterator = visitor
+					.getIterators();
+			while (blockIterator.hasNext()) {
+				ASTEntry entry = blockIterator.next();
+				if ((entry.node.beginLine) < lineNumber
+						&& entry.endLine >= lineNumber) {
+					contextBlockList.add(entry);
+					if (entry.node.beginLine > highestBeginLine) {
+						highestBeginLine = entry.node.beginLine;
+					}
+				}
+			}
+			Iterator<ASTEntry> contextBlockListIterator = contextBlockList
+					.iterator();
+			while (contextBlockListIterator.hasNext()) {
+				ASTEntry astEntry = contextBlockListIterator.next();
+				if (astEntry.node.beginLine == highestBeginLine) {
+					loopContext = astEntry;
+				}
+			}
+		}
+		return loopContext;
+	}
+
     protected static final String[] strTypes = new String[]{
         "'''",
         "\"\"\"",
@@ -840,7 +963,6 @@ public class NodeUtils {
         return false;
     }
 
-
     /**
      * @return true if the given name is a valid python name.
      */
@@ -855,7 +977,6 @@ public class NodeUtils {
         
         return true;
     }
-
 
     /**
      * Creates an attribute from the passed string
