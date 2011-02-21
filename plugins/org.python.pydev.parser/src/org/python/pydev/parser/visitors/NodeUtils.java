@@ -24,6 +24,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
@@ -36,6 +37,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
@@ -779,11 +781,14 @@ public class NodeUtils {
 	}
 	
 	/**
-	 * Identifies the context for both source and target line 
+	 * Identifies the context for both source and target line
 	 * 
-	 * @param ASTEntry ast
-	 * @param int sourceLine: the line at which debugger is stopped currently (starts at 1) 
-	 * @param int targetLine: the line at which we need to set next (starts at 0)
+	 * @param ASTEntry
+	 *            ast
+	 * @param int sourceLine: the line at which debugger is stopped currently
+	 *        (starts at 1)
+	 * @param int targetLine: the line at which we need to set next (starts at
+	 *        0)
 	 * @return
 	 */
 	public static boolean isValidContextForSetNext(SimpleNode ast,
@@ -799,25 +804,19 @@ public class NodeUtils {
 			if (targetAST == null) {
 				return true; // Target line is not inside some loop
 			}
+			if (isValidElseBlock(sourceAST, targetAST, sourceLine, targetLine)) {
+				return true; // Debug pointer can be set inside else block of
+								// for..else/while..else
+			}
 			if (sourceAST == null && targetAST != null) {
 				return false; // Source is outside loop and target is inside
 								// loop
 			}
 			if (sourceAST != null && targetAST != null) {
-				if (sourceAST.equals(targetAST)
-						&& (sourceAST.node instanceof TryExcept && targetAST.node instanceof TryExcept)) {
-					excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
-					for (excepthandlerType exceptionHandler : exceptionHandlers) {
-						if (targetLine + 1 == exceptionHandler.beginLine) {
-							// On assigning debug pointer on an except statement
-							// debugger breaks in line to frame in pydevd_frame
-							return false;
-						}
-					}
-				}
 				// Both Source and Target is inside some loop
 				if (sourceAST.equals(targetAST)) {
-					return true;
+					return isValidInterLoopContext(sourceLine, targetLine,
+							sourceAST, targetAST);
 				} else {
 					ASTEntry last = sourceAST;
 					boolean retVal = false;
@@ -837,7 +836,7 @@ public class NodeUtils {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Compare name of two methods. return true if either both methods are same
 	 * or global context
@@ -855,11 +854,13 @@ public class NodeUtils {
 			return true;
 		return false;
 	}
-	
+
 	/**
-	 * Identifies the for/while/try..except/try..finally and with for a provided line number.
+	 * Identifies the for/while/try..except/try..finally and with for a provided
+	 * line number.
 	 * 
-	 * @param lineNumber the line we want to get the loop context (starts at 1)
+	 * @param lineNumber
+	 *            the line we want to get the loop context (starts at 1)
 	 * @param ast
 	 * @return
 	 */
@@ -870,8 +871,7 @@ public class NodeUtils {
 			ArrayList<ASTEntry> contextBlockList = new ArrayList<ASTEntry>();
 			EasyASTIteratorWithLoop visitor = EasyASTIteratorWithLoop
 					.create(ast);
-			Iterator<ASTEntry> blockIterator = visitor
-					.getIterators();
+			Iterator<ASTEntry> blockIterator = visitor.getIterators();
 			while (blockIterator.hasNext()) {
 				ASTEntry entry = blockIterator.next();
 				if ((entry.node.beginLine) < lineNumber
@@ -893,6 +893,195 @@ public class NodeUtils {
 		}
 		return loopContext;
 	}
+
+	/**
+	 * Set Next into else block of for..else/while..else is also allowed even if
+	 * current pointer is outside for..else/while..else but current pointer
+	 * context should be immediate parent of target for..else/while..else
+	 * 
+	 * @param sourceAST
+	 * @param targetAST
+	 * @param sourceLine
+	 *            : the line at which debugger is stopped currently (starts at
+	 *            1)
+	 * @param targetLine
+	 *            : the line at which we need to set next (starts at 0)
+	 * @return
+	 */
+	public static boolean isValidElseBlock(ASTEntry sourceAST,
+			ASTEntry targetAST, int sourceLine, int targetLine) {
+		boolean retval = false;
+		if (targetAST.node instanceof For || targetAST.node instanceof While) {
+			int targetElseBeginLine = getElseBeginLine(targetAST);
+			if (targetElseBeginLine > 0 && targetLine + 1 > targetElseBeginLine) {
+				if ((targetAST.parent == null || targetAST.parent.node instanceof FunctionDef)
+						&& sourceAST == null) {
+					retval = true;
+				} else if (targetAST.parent != null
+						&& targetAST.parent.equals(sourceAST)) {
+					int sourceElseBeginLine = getElseBeginLine(sourceAST);
+					if (sourceLine > sourceElseBeginLine) {
+						retval = false;
+					} else {
+						retval = true;
+					}
+				}
+			}
+		}
+		return retval;
+	}
+
+	/**
+	 * Identifies the begin line of else block for for..else/while..else and
+	 * first exception begin line for try..except..else block
+	 * 
+	 * @param astEntry
+	 * @return
+	 */
+	public static int getElseBeginLine(ASTEntry astEntry) {
+		int beginLine = 0;
+		if (astEntry.node instanceof TryExcept
+				&& ((TryExcept) astEntry.node).handlers.length > 0) {
+			beginLine = ((TryExcept) astEntry.node).handlers[0].beginLine;
+		} else if (astEntry.node instanceof For
+				&& ((For) astEntry.node).orelse != null) {
+			beginLine = ((For) astEntry.node).orelse.beginLine;
+		} else if (astEntry.node instanceof While
+				&& ((While) astEntry.node).orelse != null) {
+			beginLine = ((While) astEntry.node).orelse.beginLine;
+		}
+		return beginLine;
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param sourceLine
+	 * @param targetLine
+	 * @param sourceAST
+	 * @param targetAST
+	 * @return
+	 */
+	public static boolean isValidInterLoopContext(int sourceLine,
+			int targetLine, ASTEntry sourceAST, ASTEntry targetAST) {
+		boolean retval = true;
+		if (sourceAST.node instanceof TryExcept
+				&& targetAST.node instanceof TryExcept
+				&& (!isValidTryExceptContext(sourceAST, targetAST, sourceLine,
+						targetLine))) {
+			retval = false;
+		} else if (sourceAST.node instanceof For
+				&& targetAST.node instanceof For
+				&& (!isValidForContext(sourceAST, targetAST, sourceLine,
+						targetLine))) {
+			retval = false;
+		} else if (sourceAST.node instanceof While
+				&& targetAST.node instanceof While
+				&& (!isValidWhileContext(sourceAST, targetAST, sourceLine,
+						targetLine))) {
+			retval = false;
+		}
+		return retval;
+	}
+
+	/**
+	 * Identifies the valid set next target inside Try..except..else block
+	 * 
+	 * @param sourceAST
+	 * @param targetAST
+	 * @param sourceLine
+	 *            : the line at which debugger is stopped currently (starts at
+	 *            1)
+	 * @param targetLine
+	 *            : the line at which we need to set next (starts at 0)
+	 * @return
+	 */
+	public static boolean isValidTryExceptContext(ASTEntry sourceAST,
+			ASTEntry targetAST, int sourceLine, int targetLine) {
+
+		excepthandlerType[] exceptionHandlers = ((TryExcept) sourceAST.node).handlers;
+		if (((TryExcept) sourceAST.node).specialsAfter != null) {
+			// Pointer can't be set on comment(s) in try block
+			List<Object> specialList = ((TryExcept) sourceAST.node).specialsAfter;
+			for (Object obj : specialList) {
+				if (obj instanceof commentType
+						&& targetLine + 1 == ((commentType) obj).beginLine) {
+					return false;
+				}
+			}
+		}
+		for (int i = 0; i < exceptionHandlers.length; i++) {
+			excepthandlerType exceptionHandler = exceptionHandlers[i];
+			// Pointer can't be set on except... statement(s)
+			if (targetLine + 1 == exceptionHandler.beginLine) {
+				return false;
+			}
+		}
+
+		// Pointer can't be moved inside try block from except or else block
+		if (exceptionHandlers.length > 0) {
+			int exceptionBeginLine = exceptionHandlers[0].beginLine;
+			if (targetLine + 1 > ((TryExcept) sourceAST.node).beginLine
+					&& targetLine + 1 < exceptionBeginLine
+					&& sourceLine >= exceptionBeginLine) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Identifies the valid set next target inside while..else block
+	 * 
+	 * @param sourceAST
+	 * @param targetAST
+	 * @param sourceLine
+	 *            : the line at which debugger is stopped currently (starts at
+	 *            1)
+	 * @param targetLine
+	 *            : the line at which we need to set next (starts at 0)
+	 * @return
+	 */
+	public static boolean isValidWhileContext(ASTEntry sourceAST,
+			ASTEntry targetAST, int sourceLine, int targetLine) {
+		// Pointer can't be moved inside while block from else block
+		if (((While) sourceAST.node).orelse != null) {
+			int elseBeginLine = ((While) sourceAST.node).orelse.beginLine;
+			if (targetLine + 1 > ((While) sourceAST.node).beginLine
+					&& targetLine + 1 < elseBeginLine
+					&& sourceLine >= elseBeginLine) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Identifies the valid set next target inside for..else block
+	 * 
+	 * @param sourceAST
+	 * @param targetAST
+	 * @param sourceLine
+	 *            : the line at which debugger is stopped currently (starts at
+	 *            1)
+	 * @param targetLine
+	 *            : the line at which we need to set next (starts at 0)
+	 * @return
+	 */
+	public static boolean isValidForContext(ASTEntry sourceAST,
+			ASTEntry targetAST, int sourceLine, int targetLine) {
+		// Pointer can't be moved inside for block from else block
+		if (((For) sourceAST.node).orelse != null) {
+			int elseBeginLine = ((For) sourceAST.node).orelse.beginLine;
+			if (targetLine + 1 > ((For) sourceAST.node).beginLine
+					&& targetLine + 1 < elseBeginLine
+					&& sourceLine >= elseBeginLine) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 
     protected static final String[] strTypes = new String[]{
         "'''",
