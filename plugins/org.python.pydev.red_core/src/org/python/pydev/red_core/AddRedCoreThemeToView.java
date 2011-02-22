@@ -15,8 +15,9 @@ import org.python.pydev.ui.IViewCreatedObserver;
 public class AddRedCoreThemeToView implements IViewCreatedObserver{
 
 
-	public void notifyViewCreated(Object view) {
-	    if(AddRedCoreThemeAvailable.isRedCoreAvailable()){
+	@SuppressWarnings("unchecked")
+    public void notifyViewCreated(Object view) {
+	    if(AddRedCoreThemeAvailable.isRedCoreAvailableForTheming()){
     		if(view instanceof PydevPackageExplorer){
     			AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
     			PydevPackageExplorer castView = (PydevPackageExplorer) view;

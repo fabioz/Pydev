@@ -34,5 +34,10 @@
     </viewerContentBinding>
 </extension>
 
+<extension point="org.eclipse.core.runtime.preferences">
+    <initializer class="org.python.pydev.red_core.preferences.PydevRedCorePreferencesInitializer"/>
+</extension>
+
+
 
 </plugin>

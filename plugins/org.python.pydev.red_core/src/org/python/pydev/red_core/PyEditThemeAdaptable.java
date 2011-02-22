@@ -30,6 +30,7 @@ public class PyEditThemeAdaptable implements IAdaptable, IThemeableEditor{
 	}
 
 	
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if(ITextEditor.class == adapter){
 			return edit.get();
