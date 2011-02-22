@@ -63,6 +63,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateNewModule4();
+        
         checkCreateFieldAtClass5();
         
         checkCreateConstant();
@@ -366,6 +368,49 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             }
             PyEdit.onPyEditCreated.unregisterListener(listener);
             mod2.delete(true, null);
+        }
+    }
+    
+    private void checkCreateNewModule4() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        IFile mod3 = initFile.getParent().getFile(new Path("module_new3.py"));
+        final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>(); 
+        ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
+            
+            public Object call(PyEdit obj) {
+                pyEditCreated.add(obj);
+                return null;
+            }
+        };
+        PyEdit.onPyEditCreated.registerListener(listener);
+        
+        try {
+            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
+            mod1Contents = "" +
+            "from pack1.pack2 import module_new3";
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            int offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            
+            assertTrue(!mod3.exists());
+            findCompletion(props, "Create module_new3 module").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertTrue(mod3.exists());
+            
+            assertEquals(1, pyEditCreated.size());
+            
+        } finally {
+            for(PyEdit edit:pyEditCreated){
+                edit.close(false);
+            }
+            PyEdit.onPyEditCreated.unregisterListener(listener);
+            mod3.delete(true, null);
         }
     }
     
