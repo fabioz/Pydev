@@ -272,4 +272,25 @@ public class DjContentAssistProcessor implements IContentAssistProcessor, ICommo
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#isValidAutoActivationLocation(char, int, org.eclipse.jface.text.IDocument, int)
+     */
+    public boolean isValidAutoActivationLocation(char c, int keyCode, IDocument document, int offset) {
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#isValidIdentifier(char, int)
+     */
+    public boolean isValidIdentifier(char c, int keyCode) {
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see com.aptana.editor.common.contentassist.ICommonContentAssistProcessor#isValidActivationCharacter(char, int)
+     */
+    public boolean isValidActivationCharacter(char c, int keyCode) {
+        return false;
+    }
+
 }
