@@ -61,20 +61,21 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
-        checkCreateClass();
-
-        checkCreateClassWithParams();
+//        checkCreateClass();
+//
+//        checkCreateClassWithParams();
+//        
+//        checkCreateClassAtOtherModule();
+//        
+//        checkCreateMethod();
+//        
+//        checkCreateMethodAtOtherModule();
+//        
+//        checkCreateBoundMethod();
+//        
+//        checkCreateMethodAtOtherModule2();
         
-        checkCreateClassAtOtherModule();
-        
-        checkCreateMethod();
-        
-        checkCreateMethodAtOtherModule();
-        
-        checkCreateBoundMethod();
-        
-        checkCreateMethodAtOtherModule2();
-        
+        checkCreateMethodAtOtherModule4();
     }
 
     
@@ -164,6 +165,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             mod2.delete(true, null);
         }
     }
+    
     protected void checkCreateMethodAtOtherModule2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
@@ -198,6 +200,42 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "    def Foo(cls, param1, param2):\n" +
                     "        pass\n" +
                     "    \n" +
+                    "    \n" +
+                    "", editor2.getDocument().get());
+            
+        } finally {
+            editor2.close(false);
+            mod2.delete(true, null);
+        }
+    }
+    
+    
+    protected void checkCreateMethodAtOtherModule4() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        IFile mod2 = initFile.getParent().getFile(new Path("other_module4.py"));
+        String str ="";
+        mod2.create(new ByteArrayInputStream(str.getBytes()), true, null);
+        PyEdit editor2 = (PyEdit) PyOpenEditor.doOpenEditor(mod2);
+        try {
+            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
+            mod1Contents = "" +
+            "from other_module4 import Foo";
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            int offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            
+            goToManual();
+            findCompletion(props, "Create Foo class in other_module4.py").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "class Foo(object):\n" +
+                    "    pass\n" +
                     "    \n" +
                     "", editor2.getDocument().get());
             

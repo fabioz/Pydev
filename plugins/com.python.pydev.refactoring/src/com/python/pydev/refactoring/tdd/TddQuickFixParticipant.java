@@ -19,10 +19,15 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
+import org.python.pydev.core.docutils.ImportHandle;
+import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
+import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
@@ -30,6 +35,8 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
+import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
@@ -38,6 +45,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 import com.python.pydev.analysis.IAnalysisPreferences;
 import com.python.pydev.analysis.builder.AnalysisRunner;
@@ -47,6 +55,17 @@ import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
  * This participant will add a suggestion to create class/methods/attributes when an undefined variable error is found.
  */
 public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
+    
+    private Image imageClass;
+    private Image imageMethod;
+    
+    public TddQuickFixParticipant() {
+        ImageCache imageCache = PydevPlugin.getImageCache();
+        if(imageCache != null){ //making tests
+            imageClass = imageCache.get(UIConstants.CLASS_ICON);
+            imageMethod = imageCache.get(UIConstants.METHOD_ICON);
+        }
+    }
 
     public void addProps(
             MarkerAnnotationAndPosition markerAnnotation, 
@@ -77,11 +96,6 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
         List<String> parametersAfterCall = ps.getParametersAfterCall(end);
         
         
-        Image image = null;
-        ImageCache imageCache = PydevPlugin.getImageCache();
-        if(imageCache != null){ //making tests
-            image = imageCache.get(UIConstants.CLASS_ICON);
-        }
         switch(id){
         case IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE_IN_SELF:
             PyCreateMethod pyCreateMethod = new PyCreateMethod();
@@ -95,48 +109,14 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
             if(classNameInLine != null && classNameInLine.length() > 0){
                 pyCreateMethod.setCreateInClass(classNameInLine);
                 
-                TddRefactorCompletion tddRefactorCompletion = new TddRefactorCompletion(
-                        markerContents, 
-                        image, "Create "+markerContents+" method at "+classNameInLine, 
-                        null, 
-                        null, 
-                        IPyCompletionProposal.PRIORITY_CREATE, 
-                        edit,
-                        PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
-                        parametersAfterCall,
-                        pyCreateMethod,
-                        ps
-                );
-                props.add(tddRefactorCompletion);
+                addCreateMethodOption(ps, edit, props, markerContents, parametersAfterCall, pyCreateMethod, classNameInLine);
             }
             break;
         case IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE:
             
-            props.add(new TddRefactorCompletion(
-                    markerContents, 
-                    image, "Create "+markerContents+" class", 
-                    null, 
-                    null, 
-                    IPyCompletionProposal.PRIORITY_CREATE, 
-                    edit,
-                    PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
-                    parametersAfterCall,
-                    new PyCreateClass(),
-                    ps
-            ));
+            addCreateClassOption(ps, edit, props, markerContents, parametersAfterCall);
             
-            props.add(new TddRefactorCompletion(
-                    markerContents, 
-                    image, "Create "+markerContents+" method", 
-                    null, 
-                    null, 
-                    IPyCompletionProposal.PRIORITY_CREATE, 
-                    edit,
-                    PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
-                    parametersAfterCall,
-                    new PyCreateMethod(),
-                    ps
-            ));
+            addCreateMethodOption(ps, edit, props, markerContents, parametersAfterCall);
             break;
             
             
@@ -150,7 +130,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
             String[] activationTokenAndQual = ps.getActivationTokenAndQual(true);
             
             if(activationTokenAndQual[0].endsWith(".")){
-                ArrayList<IDefinition> selected = findDefinitions(nature, edit, start, doc);
+                ArrayList<IDefinition> selected = findDefinitions(nature, edit, start-2, doc);
                 
                 for (IDefinition iDefinition : selected) {
                     
@@ -162,33 +142,9 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                             //if we have no ast in the definition, it means the module itself was found (global scope)
                             
                             //Add option to create class at the given module!
-                            props.add(new TddRefactorCompletionInModule(
-                                    markerContents, 
-                                    image, 
-                                    "Create "+markerContents+" class at "+file.getName(), 
-                                    null, 
-                                    "Create "+markerContents+" class at "+file, 
-                                    IPyCompletionProposal.PRIORITY_CREATE, 
-                                    edit,
-                                    file,
-                                    parametersAfterCall,
-                                    new PyCreateClass(),
-                                    ps
-                            ));
+                            addCreateClassOption(ps, edit, props, markerContents, parametersAfterCall, file);
                             
-                            props.add(new TddRefactorCompletionInModule(
-                                    markerContents, 
-                                    image, 
-                                    "Create "+markerContents+" method at "+file.getName(), 
-                                    null, 
-                                    "Create "+markerContents+" method at "+file, 
-                                    IPyCompletionProposal.PRIORITY_CREATE, 
-                                    edit,
-                                    file,
-                                    parametersAfterCall,
-                                    new PyCreateMethod(),
-                                    ps
-                            ));
+                            addCreateMethodOption(ps, edit, props, markerContents, parametersAfterCall, file);
                         }else if(definition.ast instanceof ClassDef){
                             ClassDef classDef = (ClassDef) definition.ast;
                             //Ok, we should create a field or method in this case (accessing a classmethod or staticmethod)
@@ -196,26 +152,231 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                             String className = NodeUtils.getNameFromNameTok(classDef.name);
                             pyCreateMethod.setCreateInClass(className);
                             pyCreateMethod.setCreateAs(PyCreateMethod.CLASSMETHOD);
-                            props.add(new TddRefactorCompletionInModule(
-                                    markerContents, 
-                                    image, 
-                                    "Create "+markerContents+" classmethod at "+className+" in "+file.getName(), 
-                                    null, 
-                                    "Create "+markerContents+" classmethod at class: "+className+" in "+file, 
-                                    IPyCompletionProposal.PRIORITY_CREATE, 
-                                    edit,
-                                    file,
-                                    parametersAfterCall,
-                                    pyCreateMethod,
-                                    ps
-                            ));
+                            addCreateClassmethodOption(ps, edit, props, markerContents, parametersAfterCall, pyCreateMethod, file,
+                                    className);
                         }
                     }
                 }
             }
             break;
+            
+            case IAnalysisPreferences.TYPE_UNRESOLVED_IMPORT:
+                //This case is the following: from other_module4 import Foo
+                //with 'Foo' being undefined.
+                //So, we have to suggest creating a Foo class/method in other_module4
+                PyImportsHandling importsHandling = new PyImportsHandling(ps.getDoc());
+                int offsetLine = ps.getLineOfOffset(start);
+                String selectedText = ps.getSelectedText();
+                
+                Tuple<IModule, String> found = null;
+                String foundFromImportStr = null;
+                boolean isImportFrom = false;
+                OUT:
+                for(ImportHandle handle:importsHandling){
+                    if(handle.startFoundLine == offsetLine || handle.endFoundLine == offsetLine || 
+                            (handle.startFoundLine < offsetLine && handle.endFoundLine > offsetLine)){
+                        List<ImportHandleInfo> importInfo = handle.getImportInfo();
+                        for (ImportHandleInfo importHandleInfo : importInfo) {
+                            String fromImportStr = importHandleInfo.getFromImportStr();
+                            List<String> importedStr = importHandleInfo.getImportedStr();
+                            for (String imported : importedStr) {
+                                if(selectedText.equals(imported)){
+                                    if(fromImportStr != null){
+                                        foundFromImportStr = fromImportStr+"."+imported;
+                                        isImportFrom = true; 
+                                    }else{
+                                        //if fromImportStr == null, it's not a from xxx import yyy (i.e.: simple import)
+                                        foundFromImportStr = imported;
+                                    }
+                                    try {
+                                        String currentModule = nature.resolveModule(edit.getEditorFile());
+                                        ICompletionState state = CompletionStateFactory.getEmptyCompletionState(
+                                                nature, new CompletionCache());
+                                        
+                                        found = nature.getAstManager().findModule(
+                                                foundFromImportStr, currentModule, state);
+                                    } catch (Exception e) {
+                                        PydevPlugin.log(e);
+                                    }
+                                    break OUT;
+                                }
+                            }
+                        }
+                        break OUT;
+                    }
+                }
+                
+                
+                boolean addOptionToCreateClassOrMethod = isImportFrom;
+                
+                if(found != null && found.o1 != null){
+                    //Ok, we found a module, now, it may be that we still have to create some intermediary modules
+                    //or just create a class or method at the end.
+                    if(found.o1 instanceof SourceModule){
+                        
+                        //if all was found, there's nothing left to create.
+                        if(found.o2 != null && found.o2.length() > 0){
+                            SourceModule sourceModule = (SourceModule) found.o1;
+                            File file = sourceModule.getFile();
+                            
+                            if(found.o2.indexOf('.') != -1){
+                                System.out.println("Case 1:"+found);
+                                //We have to create some intermediary structure.
+                                if(!addOptionToCreateClassOrMethod){
+                                    
+                                }else{
+                                    //Ok, the leaf may be a class or method.
+                                    
+                                }
+                                
+                            }else{
+                                System.out.println("Case 2:"+found);
+                                //Ok, it's all there, we just have to create the leaf.
+                                if(!addOptionToCreateClassOrMethod){
+                                    //Cannot create class or method from the info (only the module structure).
+                                    if(file.isDirectory()){
+                                        addCreateModuleOption(ps, edit, props, markerContents, 
+                                                new File(file, found.o2+FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
+                                        
+                                    }else if(sourceModule.getName().endsWith(".__init__")){
+                                        addCreateModuleOption(ps, edit, props, markerContents, 
+                                                new File(file.getParent(), found.o2+FileTypesPreferencesPage.getDefaultDottedPythonExtension()));
+                                    }
+                                }else{
+                                    //Ok, the leaf may be a class or method.
+                                    addCreateClassOption(ps, edit, props, markerContents, parametersAfterCall, file);
+                                    addCreateMethodOption(ps, edit, props, markerContents, parametersAfterCall, file);
+                                }
+                            }
+                        }
+                    }
+                    
+                }else if(foundFromImportStr != null){
+                    //We couldn't find anything there, so, we have to create the modules structure as needed and
+                    //maybe create a class or module at the end (but only if it's an import from).
+                    System.out.println("Case 3:"+foundFromImportStr);
+                }
+            break;
+
         }
         
+    }
+
+    protected void addCreateClassmethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
+            List<String> parametersAfterCall, PyCreateMethod pyCreateMethod, File file, String className) {
+        props.add(new TddRefactorCompletionInModule(
+                markerContents, 
+                imageMethod, 
+                "Create "+markerContents+" classmethod at "+className+" in "+file.getName(), 
+                null, 
+                "Create "+markerContents+" classmethod at class: "+className+" in "+file, 
+                IPyCompletionProposal.PRIORITY_CREATE, 
+                edit,
+                file,
+                parametersAfterCall,
+                pyCreateMethod,
+                ps
+        ));
+    }
+
+    protected void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
+            List<String> parametersAfterCall, File file) {
+        props.add(new TddRefactorCompletionInModule(
+                markerContents, 
+                imageMethod, 
+                "Create "+markerContents+" method at "+file.getName(), 
+                null, 
+                "Create "+markerContents+" method at "+file, 
+                IPyCompletionProposal.PRIORITY_CREATE, 
+                edit,
+                file,
+                parametersAfterCall,
+                new PyCreateMethod(),
+                ps
+        ));
+    }
+
+    protected void addCreateClassOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
+            List<String> parametersAfterCall, File file) {
+        props.add(new TddRefactorCompletionInModule(
+                markerContents, 
+                imageClass, 
+                "Create "+markerContents+" class at "+file.getName(), 
+                null, 
+                "Create "+markerContents+" class at "+file, 
+                IPyCompletionProposal.PRIORITY_CREATE, 
+                edit,
+                file,
+                parametersAfterCall,
+                new PyCreateClass(),
+                ps
+        ));
+    }
+    
+    protected void addCreateModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
+            File file) {
+        props.add(new TddRefactorCompletionInInexistentModule(
+                markerContents, 
+                imageClass, 
+                "Create "+markerContents+" module", 
+                null, 
+                "Create "+markerContents+" module ("+file+")", 
+                IPyCompletionProposal.PRIORITY_CREATE, 
+                edit,
+                file,
+                new ArrayList<String>(),
+                new PyCreateModule(),
+                ps
+        ));
+    }
+
+    protected void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
+            List<String> parametersAfterCall, PyCreateMethod pyCreateMethod, String classNameInLine) {
+        TddRefactorCompletion tddRefactorCompletion = new TddRefactorCompletion(
+                markerContents, 
+                imageMethod, "Create "+markerContents+" method at "+classNameInLine, 
+                null, 
+                null, 
+                IPyCompletionProposal.PRIORITY_CREATE, 
+                edit,
+                PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
+                parametersAfterCall,
+                pyCreateMethod,
+                ps
+        );
+        props.add(tddRefactorCompletion);
+    }
+
+    protected void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
+            List<String> parametersAfterCall) {
+        props.add(new TddRefactorCompletion(
+                markerContents, 
+                imageMethod, "Create "+markerContents+" method", 
+                null, 
+                null, 
+                IPyCompletionProposal.PRIORITY_CREATE, 
+                edit,
+                PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
+                parametersAfterCall,
+                new PyCreateMethod(),
+                ps
+        ));
+    }
+
+    protected void addCreateClassOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
+            List<String> parametersAfterCall) {
+        props.add(new TddRefactorCompletion(
+                markerContents, 
+                imageClass, "Create "+markerContents+" class", 
+                null, 
+                null, 
+                IPyCompletionProposal.PRIORITY_CREATE, 
+                edit,
+                PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
+                parametersAfterCall,
+                new PyCreateClass(),
+                ps
+        ));
     }
 
     protected ArrayList<IDefinition> findDefinitions(IPythonNature nature, PyEdit edit, int start, IDocument doc) {
@@ -224,7 +385,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
         
         RefactoringRequest request = new RefactoringRequest(
                 edit.getEditorFile(), 
-                new PySelection(doc, new TextSelection(doc, start-2, 0)), 
+                new PySelection(doc, new TextSelection(doc, start, 0)), 
                 new NullProgressMonitor(), 
                 nature, 
                 edit);
