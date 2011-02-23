@@ -18,9 +18,10 @@ import com.aptana.theme.ThemePlugin;
 /**
  * Used to create the callbacks that will add the theming to the pydev views.
  */
+@SuppressWarnings("rawtypes")
 public class AddRedCoreThemeToViewCallbacks {
 
-	public final ICallbackListener onDispose;
+    public final ICallbackListener onDispose;
 	public final ICallbackListener onTreeViewCreated;
 	
 	private class Container{
@@ -37,7 +38,7 @@ public class AddRedCoreThemeToViewCallbacks {
 	
 	private Container container;
 	
-	public AddRedCoreThemeToViewCallbacks() {
+    public AddRedCoreThemeToViewCallbacks() {
 		onDispose = new ICallbackListener() {
 			
 			public Object call(Object obj) {
