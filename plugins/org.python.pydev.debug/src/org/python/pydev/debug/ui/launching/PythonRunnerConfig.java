@@ -642,18 +642,23 @@ public class PythonRunnerConfig {
             cmdArgs.add(p.toOSString());
         }
         
-        String runArguments[] = null;
-        if (actualRun && arguments != null) {
-            String expanded = getStringSubstitution(PythonNature.getPythonNature(project)).performStringSubstitution(arguments);
-            runArguments = parseStringIntoList(expanded);
-        }
-
-        for (int i=0; runArguments != null && i<runArguments.length; i++){
-            cmdArgs.add(runArguments[i]);
-        }
+        if(!isUnittest()){
+            //The program arguments are not used when running a unittest (excluded from the tab group in favor
+            //of a way to overriding the default unittest arguments).
+            String runArguments[] = null;
+            if (actualRun && arguments != null) {
+                String expanded = getStringSubstitution(PythonNature.getPythonNature(project)).performStringSubstitution(arguments);
+                runArguments = parseStringIntoList(expanded);
+            }
+    
+            for (int i=0; runArguments != null && i<runArguments.length; i++){
+                cmdArgs.add(runArguments[i]);
+            }
         
-        //Last thing (first the files and last the special parameters the user passed -- i.e.: nose parameters) 
-        addUnittestArgs(cmdArgs, actualRun);
+        }else{
+            //Last thing (first the files and last the special parameters the user passed -- i.e.: nose parameters) 
+            addUnittestArgs(cmdArgs, actualRun);
+        }
         
         String[] retVal = new String[cmdArgs.size()];
         cmdArgs.toArray(retVal);
@@ -724,7 +729,7 @@ public class PythonRunnerConfig {
             }
             
             //Last thing: nose parameters or parameters the user configured.
-            for(String s:parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters())){
+            for(String s:parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration))){
                 cmdArgs.add(s);
             }
         }

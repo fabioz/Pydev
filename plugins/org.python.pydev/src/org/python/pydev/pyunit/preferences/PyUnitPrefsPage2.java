@@ -6,6 +6,8 @@
  */
 package org.python.pydev.pyunit.preferences;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -26,6 +28,12 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
     public static final int TEST_RUNNER_NOSE = 1;
     public static final int TEST_RUNNER_PY_TEST = 2;
     
+    public static final String[][] ENTRY_NAMES_AND_VALUES = new String[][] {
+                         {"Pydev test runner", Integer.toString(TEST_RUNNER_PYDEV)},
+                         {"Nose test runner", Integer.toString(TEST_RUNNER_NOSE)},
+                         {"Py.test runner", Integer.toString(TEST_RUNNER_PY_TEST)},
+                     };
+    
     public static final String TEST_RUNNER = "PYDEV_TEST_RUNNER";
     public static final int DEFAULT_TEST_RUNNER = TEST_RUNNER_PYDEV;
     
@@ -34,6 +42,13 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
     
     public static final String USE_PYUNIT_VIEW = "PYDEV_USE_PYUNIT_VIEW";
     public static final boolean DEFAULT_USE_PYUNIT_VIEW = true;
+    
+    
+    public static final String LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE = "LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE";
+    public static final String LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER = "LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER";
+    public static final String LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS = "LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS";
+    
+    
     
 
     /**
@@ -63,11 +78,7 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         return new ComboFieldEditor(
                  TEST_RUNNER, 
                  "Test Runner", 
-                 new String[][] {
-                     {"Pydev test runner", Integer.toString(TEST_RUNNER_PYDEV)},
-                     {"Nose test runner", Integer.toString(TEST_RUNNER_NOSE)},
-                     {"Py.test runner", Integer.toString(TEST_RUNNER_PY_TEST)},
-                 },
+                 ENTRY_NAMES_AND_VALUES,
                  p
          );
     }
@@ -79,10 +90,28 @@ public class PyUnitPrefsPage2 extends FieldEditorPreferencePage implements IWork
         // Initialize the preference page
     }
 
-    public static String getTestRunnerParameters() {
+    public static String getTestRunnerParameters(ILaunchConfiguration config) {
+        boolean override = false;
+        try {
+            override = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, false);
+        } catch (CoreException e) {
+            PydevPlugin.log(e);
+        }
         IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
         int testRunner = prefs.getInt(TEST_RUNNER);
         String ret = prefs.getString(TEST_RUNNER_DEFAULT_PARAMETERS);
+        if(override){
+            try {
+                testRunner = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_TEST_RUNNER, testRunner);
+            } catch (CoreException e) {
+                PydevPlugin.log(e);
+            }
+            try {
+                ret = config.getAttribute(LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS, ret);
+            } catch (CoreException e) {
+                PydevPlugin.log(e);
+            }
+        }
         
         switch(testRunner){
             case TEST_RUNNER_NOSE:

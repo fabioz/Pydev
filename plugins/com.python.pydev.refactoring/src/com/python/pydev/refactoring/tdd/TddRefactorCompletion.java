@@ -60,11 +60,18 @@ public final class TddRefactorCompletion extends PyCompletionProposal implements
     
     @Override
     public Point getSelection(IDocument document) {
-        return getExecuted().getSelection(document);
+        TemplateProposal executed2 = getExecuted();
+        if(executed2 != null){
+            return executed2.getSelection(document);
+        }
+        return null;
     }
 
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
-        getExecuted().apply(viewer, trigger, stateMask, 0);
+        TemplateProposal executed2 = getExecuted();
+        if(executed2 != null){
+            executed2.apply(viewer, trigger, stateMask, 0);
+        }
     }
     
     private TemplateProposal getExecuted() {

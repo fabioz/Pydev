@@ -357,11 +357,22 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         return disposed;
     }
     
+    /**
+     * Anyone may register to know when PyEdits are created.
+     */
+    public static final ICallbackWithListeners<PyEdit> onPyEditCreated = new CallbackWithListeners<PyEdit>();
+    
     // ---------------------------- end listeners stuff
+    
     
     @SuppressWarnings("unchecked")
     public PyEdit() {
         super();
+        try {
+            onPyEditCreated.call(this);
+        } catch (Throwable e) {
+            PydevPlugin.log(e);
+        }
         try{
             //initialize the 'save' listeners of PyEdit
             if (editListeners == null){

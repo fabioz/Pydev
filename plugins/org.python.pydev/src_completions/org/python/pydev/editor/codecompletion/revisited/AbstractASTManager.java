@@ -43,13 +43,16 @@ import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public abstract class AbstractASTManager implements ICodeCompletionASTManager, Serializable {
@@ -1195,12 +1198,23 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
     }
 
     
+    public Tuple<IModule, String> findModule(String moduleToFind, String currentModule, ICompletionState state) throws CompletionRecursionException {
+        NameTok name = new NameTok(moduleToFind, NameTok.ImportModule);
+        Import impTok = new Import(new aliasType[]{new aliasType(name, null)});
+        
+        List<IToken> tokens = new ArrayList<IToken>();
+        List<IToken> imp = AbstractVisitor.makeImportToken(impTok, tokens, currentModule, true);
+        IToken importedModule = imp.get(imp.size()-1); //get the last one (it's the one with the 'longest' representation).
+        return this.findOnImportedMods(importedModule, "", state, "", currentModule);
+    }
+    
+    
     /**
      * Checks if some module can be resolved and returns the module it is resolved to (and to which token).
      * @throws CompletionRecursionException 
      * 
      */
-    protected Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, ICompletionState state, 
+    public Tuple<IModule, String> findOnImportedMods(IToken importedModule, String tok, ICompletionState state, 
             String activationToken, String currentModuleName) throws CompletionRecursionException {
         
         
@@ -1399,7 +1413,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */
-    protected Tuple<IModule, String> findModuleFromPath(String rep, IPythonNature nature, boolean dontSearchInit, String currentModuleName){
+    public Tuple<IModule, String> findModuleFromPath(String rep, IPythonNature nature, boolean dontSearchInit, String currentModuleName){
         String tok = "";
         boolean lookingForRelative = currentModuleName != null;
         IModule mod = getModule(rep, nature, dontSearchInit, lookingForRelative);

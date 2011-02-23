@@ -38,14 +38,26 @@ import org.python.pydev.debug.ui.blocks.WorkingDirectoryBlock;
 public class ArgumentsTab extends AbstractLaunchConfigurationTab {
 
     // Widget blocks
-    private WorkingDirectoryBlock workingDirectoryBlock;
-    private VMArgumentsBlock      vmArgumentsBlock;
-    private ProgramArgumentsBlock programArgumentsBlock;
+    private AbstractLaunchConfigurationTab workingDirectoryBlock;
+    private AbstractLaunchConfigurationTab vmArgumentsBlock;
+    private AbstractLaunchConfigurationTab programArgumentsBlock;
 
     public ArgumentsTab(MainModuleTab mainModuleTab) {
-        programArgumentsBlock = new ProgramArgumentsBlock();
-        vmArgumentsBlock      = new VMArgumentsBlock();
-        workingDirectoryBlock = new WorkingDirectoryBlock(mainModuleTab);
+        programArgumentsBlock = createProgramArgumentsBlock(mainModuleTab);
+        vmArgumentsBlock      = createVmArgumentsBlock(mainModuleTab);
+        workingDirectoryBlock = createWorkingDirectoryBlock(mainModuleTab);
+    }
+
+    protected AbstractLaunchConfigurationTab createWorkingDirectoryBlock(MainModuleTab mainModuleTab) {
+        return new WorkingDirectoryBlock(mainModuleTab);
+    }
+
+    protected AbstractLaunchConfigurationTab createVmArgumentsBlock(MainModuleTab mainModuleTab) {
+        return new VMArgumentsBlock();
+    }
+
+    protected AbstractLaunchConfigurationTab createProgramArgumentsBlock(MainModuleTab mainModuleTab) {
+        return new ProgramArgumentsBlock();
     }
 
     /* (non-Javadoc)

@@ -7,6 +7,7 @@
 package com.python.pydev.refactoring.tdd;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
@@ -25,6 +26,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.parser.IParserObserver;
@@ -75,6 +77,17 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         
         checkCreateMethodAtOtherModule2();
         
+        checkCreateMethodAtOtherModule4();
+        
+        checkCreateNewModule();
+        
+        checkCreateNewModule2();
+        
+        checkCreateNewModuleWithClass();
+        
+        checkCreateNewModule3();
+        
+        checkCreateNewModuleWithClass2();
     }
 
     
@@ -164,6 +177,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             mod2.delete(true, null);
         }
     }
+    
     protected void checkCreateMethodAtOtherModule2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
@@ -203,6 +217,265 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             
         } finally {
             editor2.close(false);
+            mod2.delete(true, null);
+        }
+    }
+    
+    
+    protected void checkCreateMethodAtOtherModule4() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        IFile mod2 = initFile.getParent().getFile(new Path("other_module4.py"));
+        String str ="";
+        mod2.create(new ByteArrayInputStream(str.getBytes()), true, null);
+        PyEdit editor2 = (PyEdit) PyOpenEditor.doOpenEditor(mod2);
+        try {
+            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
+            mod1Contents = "" +
+            "from pack1.pack2.other_module4 import Foo";
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            int offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            
+            findCompletion(props, "Create Foo class at other_module4.py").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "class Foo(object):\n" +
+                    "    pass\n" +
+                    "\n" +
+                    "\n" +
+                    "", editor2.getDocument().get());
+            
+        } finally {
+            editor2.close(false);
+            mod2.delete(true, null);
+        }
+    }
+    
+    
+    protected void checkCreateNewModule() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        IFile mod2 = initFile.getParent().getFile(new Path("module_new.py"));
+        final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>(); 
+        ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
+            
+            public Object call(PyEdit obj) {
+                pyEditCreated.add(obj);
+                return null;
+            }
+        };
+        PyEdit.onPyEditCreated.registerListener(listener);
+        
+        try {
+            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
+            mod1Contents = "" +
+            "import pack1.pack2.module_new";
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            int offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            
+            assertTrue(!mod2.exists());
+            findCompletion(props, "Create pack1.pack2.module_new module").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertTrue(mod2.exists());
+            
+            assertEquals(1, pyEditCreated.size());
+            
+        } finally {
+            for(PyEdit edit:pyEditCreated){
+                edit.close(false);
+            }
+            PyEdit.onPyEditCreated.unregisterListener(listener);
+            mod2.delete(true, null);
+        }
+    }
+    
+    protected void checkCreateNewModule2() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        IFile mod2 = initFile.getParent().getFile(new Path("pack2a/module_new.py"));
+        final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>(); 
+        ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
+            
+            public Object call(PyEdit obj) {
+                pyEditCreated.add(obj);
+                return null;
+            }
+        };
+        PyEdit.onPyEditCreated.registerListener(listener);
+        
+        try {
+            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
+            mod1Contents = "" +
+            "import pack1.pack2.pack2a.module_new";
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            int offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            
+            assertTrue(!mod2.exists());
+            findCompletion(props, "Create pack1.pack2.pack2a.module_new module").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertTrue(mod2.exists());
+            
+            assertEquals(1, pyEditCreated.size());
+            
+        } finally {
+            for(PyEdit edit:pyEditCreated){
+                edit.close(false);
+            }
+            PyEdit.onPyEditCreated.unregisterListener(listener);
+            mod2.delete(true, null);
+        }
+    }
+    
+    protected void checkCreateNewModule3() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        IFile mod2 = initFile.getParent().getParent().getParent().getFile(new Path("newpack/module_new.py"));
+        final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>(); 
+        ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
+            
+            public Object call(PyEdit obj) {
+                pyEditCreated.add(obj);
+                return null;
+            }
+        };
+        PyEdit.onPyEditCreated.registerListener(listener);
+        
+        try {
+            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
+            mod1Contents = "" +
+            "import newpack.module_new";
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            int offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            
+            assertTrue(!mod2.exists());
+            findCompletion(props, "Create newpack.module_new module").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertTrue(mod2.exists());
+            
+            assertEquals(1, pyEditCreated.size());
+            
+        } finally {
+            for(PyEdit edit:pyEditCreated){
+                edit.close(false);
+            }
+            PyEdit.onPyEditCreated.unregisterListener(listener);
+            mod2.delete(true, null);
+        }
+    }
+    
+    protected void checkCreateNewModuleWithClass2() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        IFile mod2 = initFile.getParent().getParent().getParent().getFile(new Path("newpack2/module_new.py"));
+        final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>(); 
+        ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
+            
+            public Object call(PyEdit obj) {
+                pyEditCreated.add(obj);
+                return null;
+            }
+        };
+        PyEdit.onPyEditCreated.registerListener(listener);
+        
+        try {
+            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
+            mod1Contents = "" +
+            "from newpack2.module_new import Foo";
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            int offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            
+            assertTrue(!mod2.exists());
+            findCompletion(props, "Create Foo class at new module newpack2.module_new").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertTrue("Expected: "+mod2+" to exist.", mod2.exists());
+            
+            assertEquals(1, pyEditCreated.size());
+            
+        } finally {
+            for(PyEdit edit:pyEditCreated){
+                edit.close(false);
+            }
+            PyEdit.onPyEditCreated.unregisterListener(listener);
+            mod2.delete(true, null);
+        }
+    }
+    
+    protected void checkCreateNewModuleWithClass() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        IFile mod2 = initFile.getParent().getFolder(new Path("pack3")).getFile(new Path("module_new2.py"));
+        final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>(); 
+        ICallbackListener<PyEdit> listener = new ICallbackListener<PyEdit>() {
+            
+            public Object call(PyEdit obj) {
+                pyEditCreated.add(obj);
+                return null;
+            }
+        };
+        PyEdit.onPyEditCreated.registerListener(listener);
+        
+        try {
+            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
+            mod1Contents = "" +
+            "from pack1.pack2.pack3.module_new2 import Foo";
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            int offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            
+            assertTrue(!mod2.exists());
+            findCompletion(props, "Create Foo class at new module pack1.pack2.pack3.module_new2").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertTrue(mod2.exists());
+            
+            assertEquals(1, pyEditCreated.size());
+            
+            assertContentsEqual("" +
+                    "class Foo(object):\n" +
+                    "    pass\n" +
+                    "\n" +
+                    "\n" +
+                    "", pyEditCreated.get(0).getDocument().get());
+
+        } finally {
+            for(PyEdit edit:pyEditCreated){
+                edit.close(false);
+            }
+            PyEdit.onPyEditCreated.unregisterListener(listener);
             mod2.delete(true, null);
         }
     }
@@ -320,6 +593,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         if(waitForError){
             goToIdleLoopUntilCondition(getHasBothErrorMarkersCondition(editor.getIFile()));
         }
+        goToManual(500);
     }
     
 

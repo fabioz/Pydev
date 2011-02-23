@@ -61,9 +61,9 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
     private IStructuredSelection selection;
     private Text textSourceFolder;
     private Button btBrowseSourceFolder;
-    private Text textPackage;
+    protected Text textPackage;
     private Button btBrowsePackage;
-    private Text textName;
+    protected Text textName;
     private String initialTextName = "";
     /**
      * It is not null only when the source folder was correctly validated
@@ -179,19 +179,24 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
      * Subclasses should override to decide whether a package must be selected to complete the dialog.
      * @return true if a package should be selected and false if it shouldn't
      */
-    protected abstract boolean shouldCreatePackageSelect() ;
+    protected abstract boolean shouldCreatePackageSelect();
+    
+    /**
+     * By default only creates the templates box if a package must be selected.
+     */
+    protected boolean shouldCreateTemplates(){
+        return shouldCreatePackageSelect();
+    }
 
     
     /**
      * @param topLevel
      */
-    private void createNameSelect(Composite topLevel, boolean setFocus) {
-        Label label;
-        label = new Label(topLevel, SWT.NONE);
-        label.setText("Name");
+    protected void createNameSelect(Composite topLevel, boolean setFocus) {
+        createNameLabel(topLevel);
         textName = new Text(topLevel, SWT.BORDER);
         textName.addKeyListener(this);
-        setLayout(label, textName, null);
+        setLayout(null, textName, null);
         if(initialTextName != null){
             textName.setText(initialTextName);
         }
@@ -201,12 +206,12 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         }
         
         
-        //just create an empty to complete it
-        label = new Label(topLevel, SWT.NONE);
+        //just create an empty to complete the line (that needs 3 items in the layout)
+        Label label = new Label(topLevel, SWT.NONE);
         label.setText("");
         
         
-        if(shouldCreatePackageSelect()){
+        if(shouldCreateTemplates()){
             final TemplateStore templateStore = TemplateHelper.getTemplateStore();
             if(templateStore != null){
                 TemplatePersistenceData[] templateData = templateStore.getTemplateData(false);
@@ -258,6 +263,15 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
                 }
             }
         }
+    }
+    
+    protected Label createNameLabel(Composite topLevel) {
+        Label label = new Label(topLevel, SWT.NONE);
+        label.setText("Name");
+        GridData data = new GridData();
+        data.grabExcessHorizontalSpace = false;
+        label.setLayoutData(data);
+        return label;
     }
     
     
@@ -551,9 +565,11 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
     private void setLayout(Label label, Control text, Control bt) {
         GridData data;
         
-        data = new GridData();
-        data.grabExcessHorizontalSpace = false;
-        label.setLayoutData(data);
+        if(label != null){
+            data = new GridData();
+            data.grabExcessHorizontalSpace = false;
+            label.setLayoutData(data);
+        }
         
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.grabExcessHorizontalSpace = true;
@@ -580,7 +596,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         validatePage();
     }
 
-    private void validatePage() {
+    protected void validatePage() {
         try {
             if (textProject != null) {
                 if(checkError(checkValidProject(textProject.getText()))){
@@ -603,6 +619,9 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
                     return;
                 }
             }
+            if(checkAdditionalErrors()){
+                return;
+            }
             setErrorMessage(null);
             setMessage(getDescription());
             setPageComplete(true);
@@ -611,6 +630,14 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             setErrorMessage("Error while validating page:"+e.getMessage());
             setPageComplete(false);
         }
+    }
+    
+    /**
+     * Subclasses may override to do additional error-checking.
+     * @return
+     */
+    protected boolean checkAdditionalErrors() {
+        return false;
     }
     
     private String checkValidProject(String text) {
@@ -627,7 +654,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         return null;
     }
     
-    private boolean checkError(String error) {
+    protected boolean checkError(String error) {
         if (error != null) {
             setErrorMessage(error);
             setPageComplete(false);
@@ -639,6 +666,16 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
 
     private String checkValidName(String text) {
         validatedName = null;
+        String error = checkNameText(text);
+        if(error != null){
+            return error;
+        }
+        validatedName = text;
+        return null;
+    }
+    
+    
+    protected String checkNameText(String text) {
         if(text == null || text.trim().length() == 0 ){
             return "The name must be filled.";
         }
@@ -675,11 +712,10 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         if(text.endsWith(".")){
             return "The name may not end with a dot";
         }
-        validatedName = text;
         return null;
     }
 
-    private String checkValidPackage(String text) {
+    protected String checkValidPackage(String text) {
         validatedPackage = null;
         //there is a chance that the package is the default project, so, the validation below may not be valid.
         //if(text == null || text.trim().length() == 0 ){
