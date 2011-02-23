@@ -347,6 +347,24 @@ public class PySourceLocatorBase {
     
     
     /**
+     * @param containers the containers that should be filtered
+     * @return a new array of IContainer with only the containers that actually exist.
+     */
+    public IContainer[] filterNonExistentContainers(IContainer[] containers){
+        if (containers == null)
+            return null;
+        
+        int length= containers.length;
+        ArrayList<IContainer> existentFiles= new ArrayList<IContainer>(length);
+        for (int i= 0; i < length; i++) {
+            if (containers[i].exists())
+                existentFiles.add(containers[i]);
+        }
+        return (IContainer[])existentFiles.toArray(new IContainer[existentFiles.size()]);
+    }
+    
+    
+    /**
      * Ask the user to select one file of the given list of files (if some is available)
      * 
      * @param files the files available for selection.

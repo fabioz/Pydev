@@ -47,12 +47,16 @@ public class AssistImport implements IAssistProps {
         
         int lineToMoveImport = ps.getLineAvailableForImport(isFuture);
         
-        int offset = ps.getDoc().getLineOffset(lineToMoveImport);
-        
-        
-        if(i >= 0){
-            l.add(new FixCompletionProposal(sel+delimiter, offset, 0, ps.getStartLine().getOffset(), imageCache.get(UIConstants.ASSIST_MOVE_IMPORT),
-                    "Move import to global scope", null, null, ps.getStartLineIndex()+1));
+        try {
+            int offset = ps.getDoc().getLineOffset(lineToMoveImport);
+            
+            
+            if(i >= 0){
+                l.add(new FixCompletionProposal(sel+delimiter, offset, 0, ps.getStartLine().getOffset(), imageCache.get(UIConstants.ASSIST_MOVE_IMPORT),
+                        "Move import to global scope", null, null, ps.getStartLineIndex()+1));
+            }
+        } catch (BadLocationException e) {
+            //Ignore
         }
         return l;
     }
