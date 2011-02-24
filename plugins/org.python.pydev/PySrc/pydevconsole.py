@@ -22,7 +22,9 @@ from pydev_imports import xmlrpclib
 class BaseStdIn:
     
     def readline(self, *args, **kwargs):
-        sys.stderr.write('Cannot readline out of the console evaluation\n')
+        #sys.stderr.write('Cannot readline out of the console evaluation\n') -- don't show anything
+        #This could happen if the user had done input('enter number).<-- upon entering this, that message would appear,
+        #which is not something we want.
         return '\n'
     
     def isatty(self):    
