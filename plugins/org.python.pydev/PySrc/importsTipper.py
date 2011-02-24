@@ -149,6 +149,8 @@ def GenerateImportsTipForModule(obj_to_complete, dirComps=None, getattr=getattr,
         dirComps = dir(obj_to_complete)
         if hasattr(obj_to_complete, '__dict__'):
             dirComps.append('__dict__')
+        if hasattr(obj_to_complete, '__class__'):
+            dirComps.append('__class__')
         
     getCompleteInfo = True
     
