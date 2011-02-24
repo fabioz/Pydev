@@ -465,7 +465,7 @@ public class StringUtils {
         }
         if(c != toSplit){
             if(last == 0 && len > 0){
-                ret.add(string); //it is equal to the original (no dots)
+                ret.add(string); //it is equal to the original (no char to split)
                 
             }else if(last < len){
                 ret.add(string.substring(last, len));

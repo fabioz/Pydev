@@ -74,7 +74,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
      * @return the listing with valid module files considering that root is a root path in the pythonpath.
      * May return null if the passed file does not exist or is not a directory (e.g.: zip file)
      */
-    public PyFileListing getModulesBelow(File root, IProgressMonitor monitor) {
+    public static PyFileListing getModulesBelow(File root, IProgressMonitor monitor) {
         if (!root.exists()) {
             return null;
         }
@@ -392,7 +392,7 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
      * @param root this is the folder we're checking
      * @return true if it is a folder with an __init__ python file
      */
-    protected boolean isFileOrFolderWithInit(File root) {
+    protected static boolean isFileOrFolderWithInit(File root) {
         //check for an __init__ in a dir (we do not check if it is a file, becase if it is, it should return null)
         String[] items = root.list(new FilenameFilter() {
 
