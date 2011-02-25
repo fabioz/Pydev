@@ -78,4 +78,21 @@ public class REFTest extends TestCase {
         REF.writeStrToFile("foo", tempFileAt);
         return tempFileAt;
     }
+    
+    public void testDeleteDirectoryTree() throws Exception {
+        File currentDir = new File(".");
+        File start_dir = new File(currentDir, "test_start_dir");
+        assertTrue(!start_dir.exists());
+        try {
+            File dir2 = new File(currentDir, "test_start_dir/dir1/dir2");
+            File file1 = new File(currentDir, "test_start_dir/dir1/dir2/file1.txt");
+            dir2.mkdirs();
+            REF.writeStrToFile("something", file1);
+            
+            assertTrue(dir2.exists());
+        } finally {
+            REF.deleteDirectoryTree(start_dir);
+        }
+        assertTrue(!start_dir.exists());
+    }
 }

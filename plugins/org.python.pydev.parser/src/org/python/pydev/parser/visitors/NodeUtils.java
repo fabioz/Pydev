@@ -47,6 +47,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.aliasType;
@@ -1115,6 +1116,79 @@ public class NodeUtils {
             }
         }
         return leafTestNode;
+    }
+
+
+    /**
+     * Finds the statement that contains the given node.
+     * 
+     * @param source: this is the ast that contains the body with multiple statements.
+     * @param ast: This is the ast for which we want the statement.
+     */
+    public static stmtType findStmtForNode(SimpleNode source, final SimpleNode ast) {
+        VisitorBase v = new VisitorBase() {
+            
+            private stmtType lastStmtFound;
+            
+            @Override
+            protected Object unhandled_node(SimpleNode node) throws Exception {
+                if(node instanceof stmtType){
+                    lastStmtFound = (stmtType) node;
+                }
+                if(node.beginColumn == ast.beginColumn && node.beginLine == ast.beginLine && node.getClass() == ast.getClass() && node.toString().equals(ast.toString())){
+                    throw new StopVisitingException(lastStmtFound);
+                }
+                return null;
+            }
+            
+            @Override
+            public void traverse(SimpleNode node) throws Exception {
+                node.traverse(this);
+            }
+        };
+        stmtType[] body = getBody(source);
+        
+        stmtType last = null;
+        for (stmtType stmtType : body) {
+            if(stmtType.beginLine > ast.beginLine){
+                //already passed the possible statement, check the last one (which is the last statement that 
+                //has a beginLine <= ast.beginLine) and return even if we didn't find it, as we already passed the
+                //target line.
+                if(last != null){
+                    return checkNode(v, last);
+                }
+            }
+            if(stmtType.beginLine == ast.beginLine){
+                //If we have a case in the same line, we must also check it. Don't mark it as last in this case as we've
+                //already checked it.
+                stmtType n = checkNode(v, stmtType);
+                if(n != null){
+                    return n;
+                }
+            }else{
+                last = stmtType;
+            }
+        }
+        return null;
+    }
+
+
+    private static stmtType checkNode(VisitorBase v, stmtType last) {
+        try {
+            last.accept(v);
+        }catch(StopVisitingException e){
+            if(e.lastStmtFound != null){
+                //it could be that we found a statement inside this statement.
+                return e.lastStmtFound;
+            }else{
+                //Ok, there were no more statements there, so, just go on with the last we received.
+                return last;
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        //Not found!
+        return null;
     }
 
 }

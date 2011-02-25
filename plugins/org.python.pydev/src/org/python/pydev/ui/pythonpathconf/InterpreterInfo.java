@@ -30,16 +30,8 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.ISystemModulesManager;
@@ -54,9 +46,7 @@ import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.ui.UIConstants;
 
 
 public class InterpreterInfo implements IInterpreterInfo{
@@ -321,8 +311,8 @@ public class InterpreterInfo implements IInterpreterInfo{
         
         
         
-        final ArrayList<String> l = new ArrayList<String>();
-        final ArrayList<String> toAsk = new ArrayList<String>();
+        List<String> selection = new ArrayList<String>();
+        List<String> toAsk = new ArrayList<String>();
         for (int i = 1; i < exeAndLibs1.length; i++) { //start at 1 (0 is exe)
             String trimmed = exeAndLibs1[i].trim();
             if(trimmed.length() > 0){
@@ -338,86 +328,24 @@ public class InterpreterInfo implements IInterpreterInfo{
                     trimmed = trimmed.substring(0, trimmed.length()-8);
                     if(askUserInOutPath){
                         toAsk.add(trimmed);
-                        l.add(trimmed);
+                        selection.add(trimmed);
                     }else{
-                        l.add(trimmed);
+                        selection.add(trimmed);
                     }
                 }else{
-                    l.add(trimmed);
+                    selection.add(trimmed);
                 }
             }
         }
 
-        final Boolean[] result = new Boolean[]{true}; //true == OK, false == CANCELLED
+        boolean result = true;//true == OK, false == CANCELLED
         if(ProjectModulesManager.IN_TESTS){
             if(InterpreterInfo.configurePathsCallback != null){
-                InterpreterInfo.configurePathsCallback.call(new Tuple<List<String>, List<String>>(toAsk, l));
+                InterpreterInfo.configurePathsCallback.call(new Tuple<List<String>, List<String>>(toAsk, selection));
             }
         }else{
             if(toAsk.size() > 0){
-                Runnable runnable = new Runnable(){
-    
-                    public void run() {
-                        ListSelectionDialog dialog = new ListSelectionDialog(Display.getDefault().getActiveShell(), toAsk, 
-                                new IStructuredContentProvider(){
-    
-                                    @SuppressWarnings("unchecked")
-                                    public Object[] getElements(Object inputElement) {
-                                        List<String> elements = (List<String>) inputElement;
-                                        return elements.toArray(new String[0]);
-                                    }
-    
-                                    public void dispose() {
-                                    }
-    
-                                    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-                                    }},
-                                    
-                                    
-                                    new ILabelProvider(){
-    
-                                    public Image getImage(Object element) {
-                                        return PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM);
-                                    }
-    
-                                    public String getText(Object element) {
-                                        return element.toString();
-                                    }
-    
-                                    public void addListener(ILabelProviderListener listener) {
-                                    }
-    
-                                    public void dispose() {
-                                    }
-    
-                                    public boolean isLabelProperty(Object element, String property) {
-                                        return true;
-                                    }
-    
-                                    public void removeListener(ILabelProviderListener listener) {
-                                    }}, 
-                                    
-                                "Select the folders to be added to the SYSTEM pythonpath!\n" +
-                                "\n" +
-                                "IMPORTANT: The folders for your PROJECTS should NOT be added here, but in your project configuration.\n\n" +
-                                "Check:http://pydev.org/manual_101_interpreter.html for more details.");
-                        dialog.setInitialSelections(l.toArray(new String[0]));
-                        int i = dialog.open();
-                        if(i == Window.OK){
-                            result[0] = true;
-                            Object[] result = dialog.getResult();
-                            l.clear();
-                            for (Object string : result) {
-                                l.add((String) string);
-                            }
-                        }else{
-                            result[0] = false;
-                            
-                        }
-                        
-                    }
-                    
-                };
+                PythonSelectionLibrariesDialog runnable = new PythonSelectionLibrariesDialog(selection, toAsk);
                 try{
                     RunInUiThread.sync(runnable);
                 }catch(NoClassDefFoundError e){
@@ -425,13 +353,16 @@ public class InterpreterInfo implements IInterpreterInfo{
                     //this means that we're running unit-tests, so, we don't have to do anything about it
                     //as 'l' is already ok.
                 }
+                result = runnable.getOkResult(); 
+                if(result == false){
+                    //Canceled by the user
+                    return null;
+                }
+                selection = runnable.getSelection();
             }
         }
 
-        if(result[0] == false){
-            //Canceled by the user
-            return null;
-        }
+        
         
         ArrayList<String> l1 = new ArrayList<String>();
         if(libsSplit.o2.length() > 1){
@@ -451,7 +382,7 @@ public class InterpreterInfo implements IInterpreterInfo{
         if(stringSubstitutionVarsSplit.o2.length() > 1){
         	p4 = PropertiesHelper.createPropertiesFromString(stringSubstitutionVarsSplit.o2);
         }
-		InterpreterInfo info = new InterpreterInfo(version, executable, l, l1, l2, l3, p4);
+		InterpreterInfo info = new InterpreterInfo(version, executable, selection, l1, l2, l3, p4);
 		if(predefCompsPath.o2.length() > 1){
 			List<String> split = StringUtils.split(predefCompsPath.o2, '|');
 			for(String s:split){

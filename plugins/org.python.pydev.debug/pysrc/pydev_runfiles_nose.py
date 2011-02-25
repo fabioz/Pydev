@@ -36,12 +36,25 @@ class PydevPlugin(Plugin):
         #
         #and we must pass: location, test
         #    E.g.: ['D:\\src\\mod1\\hello.py', 'TestCase.testMet1']
-        if hasattr(test, 'address'):
-            address = test.address()
-            address = address[0], address[2]
-        else:
-            #multiprocess
-            address = test
+        try:
+            if hasattr(test, 'address'):
+                address = test.address()
+                address = address[0], address[2]
+            else:
+                #multiprocess
+                try:
+                    address = test[0], test[1]
+                except TypeError:
+                    #It may be an error at setup, in which case it's not really a test, but a Context object.
+                    f = test.context.__file__
+                    if f.endswith('.pyc'):
+                        f = f[:-1]
+                    address = f, '?'
+        except:
+            sys.stderr.write("Pydev: Internal pydev error getting test address. Please report at the pydev bug tracker\n")
+            import traceback;traceback.print_exc()
+            sys.stderr.write("\n\n\n")
+            address = '?', '?'
 
         error_contents = self.getIoFromError(error)
         try:
@@ -119,9 +132,9 @@ PYDEV_NOSE_PLUGIN_SINGLETON = PydevPlugin()
 
 
 original = MultiProcessTestRunner.consolidate
- #======================================================================================================================
- # NewConsolidate
- #======================================================================================================================
+#=======================================================================================================================
+# NewConsolidate
+#=======================================================================================================================
 def NewConsolidate(self, result, batch_result):
     '''
     Used so that it can work with the multiprocess plugin. 

@@ -254,6 +254,9 @@ public class PySelection {
         ParsingUtils parsingUtils = ParsingUtils.create(document);
         for (int line = startingAtLine; line < lines; line++) {
             String str = getLine(line);
+            if(str.trim().startsWith("__version__")){
+                continue;
+            }
             if (str.startsWith("#")) {
                 continue;
             }else{

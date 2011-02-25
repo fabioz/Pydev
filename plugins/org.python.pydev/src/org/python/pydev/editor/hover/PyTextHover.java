@@ -44,6 +44,7 @@ import org.python.pydev.core.docutils.StringEscapeUtils;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyInformationPresenter;
@@ -58,7 +59,10 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
@@ -180,6 +184,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
     /**
      * Fills the buffer with the text for docstrings of the selected element.
      */
+    @SuppressWarnings("unchecked")
     private void getDocstringHover(IRegion hoverRegion, PySourceViewer s, PySelection ps) {
         //Now, aside from the marker, let's check if there's some definition we should show the user about.
         CompletionCache completionCache = new CompletionCache();
@@ -211,8 +216,23 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                 
                 SimpleNode astToPrint = null;
                 if(def.ast != null){
+                    astToPrint = def.ast;
+                    if((astToPrint instanceof Name || astToPrint instanceof NameTok) && def.scope != null){
+                        //There's no real point in just printing the name, let's see if we're able to actually find
+                        //the scope where it's in and print that scope.
+                        FastStack<SimpleNode> scopeStack = def.scope.getScopeStack();
+                        if(scopeStack != null && scopeStack.size() > 0){
+                            SimpleNode peek = scopeStack.peek();
+                            if(peek != null){
+                                stmtType stmt = NodeUtils.findStmtForNode(peek, astToPrint);
+                                if(stmt != null){
+                                    astToPrint = stmt;
+                                }
+                            }
+                        }
+                    }
                     try{
-                        astToPrint = def.ast.createCopy();
+                        astToPrint = astToPrint.createCopy();
                         MakeAstValidForPrettyPrintingVisitor.makeValid(astToPrint);
                     }catch(Exception e){
                         PydevPlugin.log(e);

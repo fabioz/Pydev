@@ -1159,5 +1159,36 @@ public class REF {
             }
         }
     }
+    
+    
+    /**
+     * Yes, this will delete everything under a directory. Use with care!
+     */
+    public static void deleteDirectoryTree(File directory) throws IOException {
+        File[] files = directory.listFiles();
+
+        for (int i = 0; i < files.length; ++i) {
+            File f = files[i];
+
+            if (f.isDirectory()){
+                deleteDirectoryTree(f);
+            }else{
+                deleteFile(f);
+            }
+        }
+
+        if (!directory.delete()) {
+            throw new IOException("Delete operation failed when deleting: "+directory);
+        }
+    }
+
+    public static void deleteFile(File file) throws IOException {
+        if (!file.exists())
+            throw new FileNotFoundException(file.getAbsolutePath());
+
+        if (!file.delete()) {
+            throw new IOException("Delete operation failed when deleting: "+file);
+        }
+    }
 }
 

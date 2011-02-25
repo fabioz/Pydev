@@ -39,7 +39,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testGetParametersAfter();
+            test.testImportLine11();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -255,6 +255,17 @@ public class PySelectionTest extends TestCase {
         Document document = new Document(strDoc);
         PySelection selection = new PySelection(document);
         assertEquals(3, selection.getLineAvailableForImport(false));
+    }
+    
+    public void testImportLine11() {
+        String strDoc = "" +
+        "__version__ = '$Revision: 86849 $'\n" +
+        "def m1():\n"+
+        "    testca\n"+
+        "\n";
+        Document document = new Document(strDoc);
+        PySelection selection = new PySelection(document);
+        assertEquals(1, selection.getLineAvailableForImport(false));
     }
     
     
