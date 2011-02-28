@@ -11,7 +11,9 @@
  */
 package com.python.pydev.analysis.ctrl_1;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -32,10 +34,13 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
 public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
 
     private Image annotationImage;
+    
+    private Set<Integer> handled = new HashSet<Integer>();
 
     public IgnoreErrorParticipant() {
         ImageCache analysisImageCache = PydevPlugin.getImageCache();
         annotationImage = analysisImageCache.get(UIConstants.ASSIST_ANNOTATION);
+        
     }
 
     /** 
@@ -53,6 +58,10 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
             List<ICompletionProposal> props
             ) throws BadLocationException, CoreException {
         Integer id = (Integer) marker.markerAnnotation.getMarker().getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
+        if(handled.contains(id)){
+            return;
+        }
+        handled.add(id);
         String messageToIgnore = analysisPreferences.getRequiredMessageToIgnore(id);
         
         if(line.indexOf(messageToIgnore) != -1){
