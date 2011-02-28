@@ -27,6 +27,7 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.IPatternMatchListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
 import org.python.pydev.dltk.console.ScriptConsolePrompt;
 import org.python.pydev.dltk.console.ui.IConsoleStyleProvider;
@@ -204,6 +205,11 @@ public class PydevConsole extends ScriptConsole  {
         	str+=additionalInitialComands;
         }
         return str;
+    }
+    
+    @Override
+    public boolean getFocusOnStart() {
+        return InteractiveConsolePrefs.getFocusConsoleOnStartup();
     }
     
     /**

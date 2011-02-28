@@ -171,7 +171,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                 //This case is the following: from other_module4 import Foo
                 //with 'Foo' being undefined.
                 //So, we have to suggest creating a Foo class/method in other_module4
-                PyImportsHandling importsHandling = new PyImportsHandling(ps.getDoc());
+                PyImportsHandling importsHandling = new PyImportsHandling(ps.getDoc(), false);
                 int offsetLine = ps.getLineOfOffset(start);
                 String selectedText = ps.getSelectedText();
                 
