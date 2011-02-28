@@ -265,4 +265,9 @@ public abstract class ScriptConsole extends TextConsole implements ICommandHandl
 	public IInterpreterInfo getInterpreterInfo() {
 		return this.interpreter.getInterpreterInfo();
 	}
+
+    /**
+     * @return
+     */
+    public abstract boolean getFocusOnStart();
 }

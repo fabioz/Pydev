@@ -50,6 +50,7 @@ import org.python.pydev.dltk.console.ui.ScriptConsole;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleBackspaceAction;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWord;
 import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
+import org.python.pydev.dltk.console.ui.internal.actions.IInteractiveConsoleConstants;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.plugin.KeyBindingHelper;
 import org.python.pydev.plugin.PydevPlugin;
@@ -167,6 +168,8 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      */
     volatile int inHistoryRequests = 0;
     volatile boolean changedAfterLastHistoryRequest=false;
+
+    private final boolean focusOnStart;
 
     /**
      * This is the text widget that's used to edit the console. It has some treatments to handle
@@ -497,8 +500,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
      * @param contentHandler
      */
     public ScriptConsoleViewer(Composite parent, ScriptConsole console,
-            final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider, String initialCommands) {
+            final IScriptConsoleContentHandler contentHandler, IConsoleStyleProvider styleProvider, String initialCommands, boolean focusOnStart) {
         super(parent, console);
+        this.focusOnStart = focusOnStart;
 
         this.console = console;
         this.getTextWidget().setBackground(console.getPydevConsoleBackground());
@@ -636,6 +640,9 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
         
         if(isMainViewer){
             clear(true);
+        }
+        if(focusOnStart){
+            this.getTextWidget().setFocus();
         }
     }
     

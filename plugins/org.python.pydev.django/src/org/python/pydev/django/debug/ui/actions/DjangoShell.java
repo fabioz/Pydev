@@ -10,18 +10,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.debug.core.Launch;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.Tuple4;
 import org.python.pydev.debug.newconsole.PydevConsoleFactory;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
 import org.python.pydev.debug.newconsole.env.IProcessFactory;
+import org.python.pydev.debug.newconsole.env.IProcessFactory.PydevConsoleLaunchInfo;
 import org.python.pydev.django.launching.DjangoConstants;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
@@ -98,7 +96,7 @@ public class DjangoShell extends DjangoAction {
     		
     		List<IPythonNature> natures = Collections.singletonList((IPythonNature)nature);
     		PydevConsoleFactory consoleFactory = new PydevConsoleFactory();
-    		Tuple4<Launch, Process, Integer, IInterpreterInfo> launchAndProcess =
+    		PydevConsoleLaunchInfo launchInfo =
     			new IProcessFactory().createLaunch(
     					nature.getRelatedInterpreterManager(),
     					nature.getProjectInterpreter(), 
@@ -110,9 +108,7 @@ public class DjangoShell extends DjangoAction {
     					natures);
     		
     		PydevConsoleInterpreter interpreter = 
-    			PydevConsoleFactory.createPydevInterpreter(
-					launchAndProcess.o1, launchAndProcess.o2,
-					launchAndProcess.o3, launchAndProcess.o4, natures);
+    			PydevConsoleFactory.createPydevInterpreter(launchInfo, natures);
     		
     		String importStr = "";//"from " + selectedProject.getName() + " import settings;";
 			importStr = "import "+settingsModule+" as settings;";

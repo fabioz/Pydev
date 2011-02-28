@@ -27,7 +27,6 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.Tuple4;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.editor.PyEdit;
@@ -43,6 +42,26 @@ import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
  * This class is used to create the given IProcess and get the console that is attached to that process. 
  */
 public class IProcessFactory {
+    
+    public static final class PydevConsoleLaunchInfo{
+        public final Launch launch;
+        public final Process process;
+        public final int clientPort;
+        public final IInterpreterInfo interpreter;
+
+        /**
+         * @param launch
+         * @param process
+         * @param clientPort
+         * @param interpreter
+         */
+        public PydevConsoleLaunchInfo(Launch launch, Process process, int clientPort, IInterpreterInfo interpreter) {
+            this.launch = launch;
+            this.process = process;
+            this.clientPort = clientPort;
+            this.interpreter = interpreter;
+        }
+    }
 
     private List<IPythonNature> naturesUsed;
 
@@ -73,7 +92,7 @@ public class IProcessFactory {
      * @throws UserCanceledException
      * @throws Exception
      */
-    public Tuple4<Launch, Process, Integer, IInterpreterInfo> createInteractiveLaunch() throws UserCanceledException, Exception {
+    public PydevConsoleLaunchInfo createInteractiveLaunch() throws UserCanceledException, Exception {
 	
 		IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		IWorkbenchPage activePage = workbenchWindow.getActivePage();
@@ -143,7 +162,7 @@ public class IProcessFactory {
 		return null;
     }
     
-    public Tuple4<Launch, Process, Integer, IInterpreterInfo> createLaunch(
+    public PydevConsoleLaunchInfo createLaunch(
     		IInterpreterManager interpreterManager, IInterpreterInfo interpreter, 
     		Collection<String> pythonpath, IPythonNature nature, List<IPythonNature> naturesUsed) throws Exception {
     	Process process = null;
@@ -201,7 +220,7 @@ public class IProcessFactory {
         
         launch.addProcess(spawnedInterpreterProcess);
         
-        return new Tuple4<Launch, Process, Integer, IInterpreterInfo>(launch, process, clientPort, interpreter);
+        return new PydevConsoleLaunchInfo(launch, process, clientPort, interpreter);
     }
 
     
