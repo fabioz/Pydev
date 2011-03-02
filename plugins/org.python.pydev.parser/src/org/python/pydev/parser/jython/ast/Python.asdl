@@ -12,7 +12,7 @@ module Python
 	    | Expression(expr body)
 
 	    -- not really an actual node but useful in Jython's typesystem.
-	    | Suite(stmt* body)
+	    -- | Suite(stmt* body) Removed (it's now a 'real' node we can visit).
 
 	NameTok = NameTok(identifier id, name_context ctx)
 
@@ -20,7 +20,7 @@ module Python
 
 	-- the body is an array of statements (this is not used for all constructs because initially the suite was 'inlined'
 	-- in the constructs, but some information was lost in this way).
-	suite = (stmt* body)
+	suite = Suite(stmt* body)
 
 	--with item because the With() construct may have multiple items in the same construct in python 3.1
 	WithItem = WithItem(expr context_expr, expr? optional_vars)

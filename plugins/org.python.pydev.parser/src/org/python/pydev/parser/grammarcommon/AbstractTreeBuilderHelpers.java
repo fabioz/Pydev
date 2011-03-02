@@ -161,9 +161,9 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         return ids;
     }
 
-    protected final suiteType popSuiteAndSuiteType() {
+    protected final Suite popSuiteAndSuiteType() {
         Suite s = (Suite) stack.popNode();
-        suiteType orelseSuite = (suiteType) stack.popNode();
+        Suite orelseSuite = (Suite) stack.popNode();
         orelseSuite.body = s.body;
         addSpecialsAndClearOriginal(s, orelseSuite);
         return orelseSuite;
