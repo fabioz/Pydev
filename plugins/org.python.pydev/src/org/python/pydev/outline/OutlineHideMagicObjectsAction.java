@@ -30,7 +30,7 @@ public class OutlineHideMagicObjectsAction extends AbstractOutlineFilterAction {
     private static final String PREF_HIDE_MAGICOBJECTS = "org.python.pydev.OUTLINE_HIDE_MAGICOBJECTS";
 
     public OutlineHideMagicObjectsAction(PyOutlinePage page, ImageCache imageCache) {
-        super("Hide Magic Objects", page, imageCache, PREF_HIDE_MAGICOBJECTS, UIConstants.MAGIC_OBJECT_ICON);
+        super("Hide tokens matching '__*__'", page, imageCache, PREF_HIDE_MAGICOBJECTS, UIConstants.MAGIC_OBJECT_ICON);
     }
 
     /**
