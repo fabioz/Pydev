@@ -66,7 +66,7 @@ public interface IIndentPrefs {
     
     /**
      * Get whether or not to auto-skip braces insertion  
-     * @return iff auto-skip braces is ENABLED
+     * @return if auto-skip braces is ENABLED
      */
     public boolean getAutoBraces();
     

@@ -1968,13 +1968,19 @@ public class PyAutoIndentStrategyTest extends TestCase {
         docCmd = new DocCmd(0, doc.length(),  "'");
         Document document = new Document(doc);
         strategy.customizeDocumentCommand(document, docCmd);
-        assertEquals("''ueuouo''", docCmd.text);
+        assertEquals("''", docCmd.text);
         
         doc = "ueuo\nuo";
         docCmd = new DocCmd(0, doc.length(),  "\"");
         document = new Document(doc);
         strategy.customizeDocumentCommand(document, docCmd);
-        assertEquals("\"\"\"ueuo\nuo\"\"\"", docCmd.text);
+        assertEquals("\"\"", docCmd.text);
+        
+        doc = "a";
+        docCmd = new DocCmd(0, doc.length(),  "\"");
+        document = new Document(doc);
+        strategy.customizeDocumentCommand(document, docCmd);
+        assertEquals("\"\"", docCmd.text);
     }
 
     
