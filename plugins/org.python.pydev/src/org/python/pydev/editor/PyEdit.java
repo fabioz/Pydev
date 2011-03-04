@@ -100,6 +100,7 @@ import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.actions.PyPeerLinker;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyMoveLineDownAction;
@@ -417,6 +418,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         textWidget.addMouseListener(cursorListener);
         textWidget.addKeyListener(cursorListener);
         
+        viewer.appendVerifyKeyListener(PyPeerLinker.createVerifyKeyListener(viewer));
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, this));
         VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, this.getSite(), false);
         if(createVerifyKeyListener != null){

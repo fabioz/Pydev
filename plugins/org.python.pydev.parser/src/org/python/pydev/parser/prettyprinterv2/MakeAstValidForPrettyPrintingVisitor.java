@@ -57,6 +57,7 @@ import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.StrJoin;
 import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
@@ -397,6 +398,17 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         fixAfterNode(node);
         return null;
     }
+    
+    
+    @Override
+    public Object visitSuite(Suite node) throws Exception {
+        fixNode(node);
+        for(SimpleNode n:node.body){
+            n.accept(this);
+        }
+        fixAfterNode(node);
+        return null;
+    }
 
     @Override
     public Object visitWith(With node) throws Exception {
@@ -497,7 +509,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         if(orelse != null){
             fixNode(orelse);
-            for(stmtType st:orelse.body){
+            for(stmtType st:((Suite)orelse).body){
                 st.accept(this);
             }
             fixAfterNode(orelse);
@@ -1118,9 +1130,10 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
             fixAfterNode(orelse);
         }
         
-        if(node.orelse != null && node.orelse.body != null && node.orelse.body.length > 0){
-            if(node.orelse.body.length == 1 && node.orelse.body[0] instanceof If){
-                If if1 = (If) node.orelse.body[0];
+        if(node.orelse != null && ((Suite)node.orelse).body != null && ((Suite)node.orelse).body.length > 0){
+            stmtType[] body = ((Suite)node.orelse).body;
+            if(body.length == 1 && body[0] instanceof If){
+                If if1 = (If) body[0];
                 if(if1.test == null){
                     visitOrElsePart(node.orelse, "else");
                 }else{

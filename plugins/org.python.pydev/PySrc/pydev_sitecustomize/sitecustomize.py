@@ -117,6 +117,11 @@ if not IS_PYTHON_3K: #For Python 3.0, the PYTHONIOENCODING should already treat 
 #----------------------------------------------------------------------------------------------------------------------- 
 #now that we've finished the needed pydev sitecustomize, let's run the default one (if available)
 
+#Ok, some weirdness going on in Python 3k: when removing this module from the sys.module to import the 'real'
+#sitecustomize, all the variables in this scope become None (as if it was garbage-collected), so, the the reference
+#below is now being kept to create a cyclic reference so that it neven dies)
+__pydev_sitecustomize_module__ = sys.modules.get('sitecustomize') #A ref to this module
+
 
 #remove the pydev site customize (and the pythonpath for it)
 paths_removed = []
@@ -141,6 +146,7 @@ else:
     #Now, execute the default sitecustomize
     try:
         import sitecustomize #@UnusedImport
+        sitecustomize.__pydev_sitecustomize_module__=__pydev_sitecustomize_module__
     except ImportError:
         pass
     

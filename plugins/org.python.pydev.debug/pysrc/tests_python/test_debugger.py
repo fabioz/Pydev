@@ -5,6 +5,10 @@
     
     Note that it's a python script but it'll spawn a process to run as jython and as python.
 '''
+JYTHON_JAR_LOCATION = None
+JAVA_LOCATION = None
+
+
 import unittest 
 port = 13336
 
@@ -631,9 +635,9 @@ class Test(unittest.TestCase):
         else:
             #run as jython
             args = [
-                r'D:\bin\jdk_1_5_09\bin\java.exe',
+                JAVA_LOCATION,
                 '-classpath',
-                'D:/bin/jython-2.2.1/jython.jar',
+                JYTHON_JAR_LOCATION,
                 'org.python.util.jython',
                 PYDEVD_FILE,
                 '--DEBUG_RECORD_SOCKET_READS',
@@ -648,7 +652,7 @@ class Test(unittest.TestCase):
         if SHOW_OTHER_DEBUG_INFO:
             print 'executing', ' '.join(args)
             
-        process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=os.path.dirname(PYDEVD_FILE))
         class ProcessReadThread(threading.Thread):
             def run(self):
                 self.resultStr = None
@@ -775,16 +779,44 @@ class Test(unittest.TestCase):
     def testCase12a(self):
         self.CheckCase(WriterThreadCase12, False)
         
-        
 
+def GetLocationFromLine(line):
+    loc = line.split('=')[1].strip()
+    if loc.endswith(';'):
+        loc = loc[:-1]
+    if loc.endswith('"'):
+        loc = loc[:-1]
+    if loc.startswith('"'):
+        loc = loc[1:]
+    return loc
+    
 #=======================================================================================================================
 # Main        
 #=======================================================================================================================
 if __name__ == '__main__':
+    test_dependent = os.path.join('../../../', 'org.python.pydev.core', 'tests', 'org', 'python', 'pydev', 'core', 'TestDependent.java')
+    try:
+        f = open(test_dependent)
+        for line in f.readlines():
+            if 'JYTHON_JAR_LOCATION' in line:
+                JYTHON_JAR_LOCATION = GetLocationFromLine(line)
+                
+            if 'JAVA_LOCATION' in line:
+                JAVA_LOCATION = GetLocationFromLine(line)
+                
+        
+    finally:
+        f.close()
+        
+    assert JYTHON_JAR_LOCATION, 'JYTHON_JAR_LOCATION not found in %s' % (test_dependent,)
+    assert JAVA_LOCATION, 'JAVA_LOCATION not found in %s' % (test_dependent,)
+    assert os.path.exists(JYTHON_JAR_LOCATION), 'The location: %s is not valid' % (JYTHON_JAR_LOCATION,)
+    assert os.path.exists(JAVA_LOCATION), 'The location: %s is not valid' % (JAVA_LOCATION,)
+
     suite = unittest.makeSuite(Test)
     
 #    suite = unittest.TestSuite()
 #    suite.addTest(Test('testCase12'))
-#    suite.addTest(Test('testCase12a'))
+#    suite.addTest(Test('testCase10a'))
     unittest.TextTestRunner(verbosity=3).run(suite)
 

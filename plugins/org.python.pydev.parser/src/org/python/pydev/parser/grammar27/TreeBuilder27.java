@@ -59,7 +59,7 @@ public final class TreeBuilder27 extends AbstractTreeBuilder implements ITreeBui
     public final SimpleNode onCloseNode(SimpleNode n, int arity) throws Exception {
         exprType value;
         exprType[] exprs;
-        suiteType orelseSuite;
+        Suite orelseSuite;
         stmtType[] body;
         Suite suite;
 
@@ -102,9 +102,9 @@ public final class TreeBuilder27 extends AbstractTreeBuilder implements ITreeBui
             p = new Print(((exprType) stack.popNode()), exprs, nl);
             return p;
         case JJTBEGIN_FOR_ELSE_STMT:
-            return new suiteType(null);
+            return new Suite(null);
         case JJTBEGIN_ELSE_STMT:
-            return new suiteType(null);
+            return new Suite(null);
         case JJTBEGIN_WHILE_STMT:
             return new While(null, null, null);
         case JJTWHILE_STMT:
@@ -243,7 +243,7 @@ public final class TreeBuilder27 extends AbstractTreeBuilder implements ITreeBui
             }
             orelseSuite = null;
             if(stack.peekNode() instanceof suiteType){
-                orelseSuite = (suiteType) stack.popNode();
+                orelseSuite = (Suite) stack.popNode();
                 arity--;
             }
             
@@ -272,7 +272,7 @@ public final class TreeBuilder27 extends AbstractTreeBuilder implements ITreeBui
             }
         case JJTBEGIN_TRY_ELSE_STMT:
             //we do that just to get the specials
-            return new suiteType(null);
+            return new Suite(null);
         case JJTBEGIN_EXCEPT_CLAUSE:
             return new excepthandlerType(null,null,null);
         case JJTEXCEPT_CLAUSE:
@@ -291,7 +291,7 @@ public final class TreeBuilder27 extends AbstractTreeBuilder implements ITreeBui
             return handler;
         case JJTBEGIN_FINALLY_STMT:
             //we do that just to get the specials
-            return new suiteType(null);
+            return new Suite(null);
         case JJTTRYFINALLY_STMT:
             suiteType finalBody = popSuiteAndSuiteType();
             body = popSuite();

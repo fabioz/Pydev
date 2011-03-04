@@ -34,7 +34,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         try {
             IronpythonCompletionWithBuiltinsTest builtins = new IronpythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testCompleteImportBuiltin();
+            builtins.testSortParamsCorrect();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(IronpythonCompletionWithBuiltinsTest.class);
@@ -99,7 +99,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC+"tests/pysrc/simpledatetimeimport.py");
         assertTrue(file.exists());
         assertTrue(file.isFile());
-        requestCompl(file, s, s.length(), -1, new String[]{"today()", "now()", "utcnow()"});
+        requestCompl(file, s, s.length(), -1, new String[]{"today()", "utcnow()"});
 
         
         
@@ -126,7 +126,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         "                  keepGoing) \n";
 
         //If we improve the parser to get the error above, uncomment line below to check it...
-        requestCompl(s, s.indexOf('#'), 1, new String[]{"__getattribute__(object self, str name)"});
+        requestCompl(s, s.indexOf('#'), 1, new String[]{"__getattribute__(self, name: str)"});
 
 
         //check for builtins..1
@@ -156,7 +156,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
         requestCompl(s, s.length(), -1, new String[]{"RuntimeError", "list"});
         
         s = "__builtins__.list.";
-        requestCompl(s, s.length(), -1, new String[]{"sort(object cmp, object key, bool reverse)"});
+        requestCompl(s, s.length(), -1, new String[]{"sort(cmp: object, key: object, reverse: bool)"});
     }
     
     public void testBuiltinsInNamespace2() throws BadLocationException, IOException, Exception{
@@ -270,7 +270,8 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
             "    a = A()\n" +
             "    a.list1.";
         
-        requestCompl(s, -1, new String[] {"pop(int index)", "remove(object value)"});
+//        requestCompl(s, -1, new String[] {"pop(int index)", "remove(object value)"});
+        requestCompl(s, -1, new String[] {"pop(index: int)", "remove(value: object)"});
     }
     
     
@@ -290,11 +291,11 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
             "";
         
         //should keep the variables from the __builtins__ in this module
-        ICompletionProposal[] requestCompl = requestCompl(s, -1, new String[] {"sort(object cmp, object key, bool reverse)"});
+        ICompletionProposal[] requestCompl = requestCompl(s, -1, new String[] {"sort(cmp: object, key: object, reverse: bool)"});
         assertEquals(1, requestCompl.length);
         IDocument doc = new Document(s);
         requestCompl[0].apply(doc);
-        assertEquals("[].sort(cmp, key, reverse)", doc.get());
+        assertEquals("[].sort(object, object, bool)", doc.get());
     }
 
     

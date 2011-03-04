@@ -49,6 +49,7 @@ import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.actions.PyBackspace;
+import org.python.pydev.editor.actions.PyPeerLinker;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PydevPrefs;
@@ -135,6 +136,7 @@ public class PyMergeViewer extends TextMergeViewer {
     @Override
     protected SourceViewer createSourceViewer(Composite parent, int textOrientation) {
         final SourceViewer viewer = super.createSourceViewer(parent, textOrientation);
+        viewer.appendVerifyKeyListener(PyPeerLinker.createVerifyKeyListener(viewer));
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, null));
         IWorkbenchPart workbenchPart = getCompareConfiguration().getContainer().getWorkbenchPart();
         

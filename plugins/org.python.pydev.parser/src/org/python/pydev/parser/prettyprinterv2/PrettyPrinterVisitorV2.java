@@ -56,6 +56,7 @@ import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.StrJoin;
 import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
@@ -650,7 +651,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             doc.addRequire(":", orelse);
             doc.addRequireIndent(":", orelse);
             endStatementPart(orelse);
-            for(stmtType st:orelse.body){
+            for(stmtType st:((Suite)orelse).body){
                 st.accept(this);
             }
             dedent(linesAfterSuite);

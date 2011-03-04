@@ -456,122 +456,107 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         }
     }
 
+
     /**
      * Called right after a ' or "
      */
-	private void handleLiteral(IDocument document, DocumentCommand command, boolean isDefaultContext) {
-		if(!prefs.getAutoLiterals()){
-			return;
-		}
-		PySelection ps = new PySelection(document, new TextSelection(document, command.offset, command.length));
-		if(command.length > 1){
-		    if(command.text.length() == 1){
-    		    String selectedText = ps.getSelectedText();
-                if(selectedText.indexOf('\r') != -1 || selectedText.indexOf('\n') != -1){
-                    //we have a new line
-                    FastStringBuffer buf = new FastStringBuffer(selectedText.length()+10);
-                    buf.appendN(command.text, 3);
-                    buf.append(selectedText);
-                    buf.appendN(command.text, 3);
-                    command.text = buf.toString();
-                }else{
-                    command.text += selectedText + command.text;
-                }
-                command.shiftsCaret = false;
-                command.caretOffset = command.offset+command.text.length();
+    private void handleLiteral(IDocument document, DocumentCommand command, boolean isDefaultContext) {
+        if(!prefs.getAutoLiterals()){
+            return;
+        }
+        PySelection ps = new PySelection(document, new TextSelection(document, command.offset, command.length));
+        if(command.length > 0){
+            try {
+                //We have more contents selected. Delete it so that we can properly use the heuristics.
+                ps.deleteSelection();
+                command.length = 0;
+                ps.setSelection(command.offset, command.offset);
+            } catch (BadLocationException e) {
+            }
+        }
+        char literalChar = command.text.charAt(0);
+        
+        try {
+            char nextChar = ps.getCharAfterCurrentOffset();
+            if(Character.isJavaIdentifierPart(nextChar)){
+                //we're just before a word (don't try to do anything in this case)
+                //e.g. |var (| is cursor position)
                 return;
-		    }
-			try {
-				//We have more contents selected. Delete it so that we can properly use the heuristics.
-				ps.deleteSelection();
-				command.length = 0;
-				ps.setSelection(command.offset, command.offset);
-			} catch (BadLocationException e) {
-			}
-		}
-		char literalChar = command.text.charAt(0);
-		
-		try {
-			char nextChar = ps.getCharAfterCurrentOffset();
-			if(Character.isJavaIdentifierPart(nextChar)){
-				//we're just before a word (don't try to do anything in this case)
-				//e.g. |var (| is cursor position)
-				return;
-			}
-		} catch (BadLocationException e) {
-		}
-		
-		String cursorLineContents = ps.getCursorLineContents();
-		if(cursorLineContents.indexOf(literalChar) == -1){
-			if(!isDefaultContext){
-				//only add additional chars if on default context. 
-				return;
-			}
-			command.text += command.text;
-			command.shiftsCaret = false;
-			command.caretOffset = command.offset+1;
-			return;
-		}
-		
-		boolean balanced = isLiteralBalanced(cursorLineContents);
-		
-		Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(literalChar);
-		
-		int matchesBefore = beforeAndAfterMatchingChars.o1.length();
-		int matchesAfter = beforeAndAfterMatchingChars.o2.length();
-		
-		boolean hasMatchesBefore = matchesBefore != 0;
-		boolean hasMatchesAfter = matchesAfter != 0;
-		
-		if(!hasMatchesBefore && !hasMatchesAfter){
-			//if it's not balanced, this char would be the closing char.
-			if(balanced){
-				if(!isDefaultContext){
-					//only add additional chars if on default context. 
-					return;
-				}
-				command.text += command.text;
-				command.shiftsCaret = false;
-				command.caretOffset = command.offset+1;
-			}
-		}else{
-			//we're right after or before a " or '
-			
-			if(matchesAfter == 1){
-				//just walk the caret
-				command.text = "";
-				command.shiftsCaret = false;
-				command.caretOffset = command.offset+1;
-			}
-		}
-	}
+            }
+        } catch (BadLocationException e) {
+        }
+        
+        String cursorLineContents = ps.getCursorLineContents();
+        if(cursorLineContents.indexOf(literalChar) == -1){
+            if(!isDefaultContext){
+                //only add additional chars if on default context. 
+                return;
+            }
+            command.text += command.text;
+            command.shiftsCaret = false;
+            command.caretOffset = command.offset+1;
+            return;
+        }
+        
+        boolean balanced = isLiteralBalanced(cursorLineContents);
+        
+        Tuple<String, String> beforeAndAfterMatchingChars = ps.getBeforeAndAfterMatchingChars(literalChar);
+        
+        int matchesBefore = beforeAndAfterMatchingChars.o1.length();
+        int matchesAfter = beforeAndAfterMatchingChars.o2.length();
+        
+        boolean hasMatchesBefore = matchesBefore != 0;
+        boolean hasMatchesAfter = matchesAfter != 0;
+        
+        if(!hasMatchesBefore && !hasMatchesAfter){
+            //if it's not balanced, this char would be the closing char.
+            if(balanced){
+                if(!isDefaultContext){
+                    //only add additional chars if on default context. 
+                    return;
+                }
+                command.text += command.text;
+                command.shiftsCaret = false;
+                command.caretOffset = command.offset+1;
+            }
+        }else{
+            //we're right after or before a " or '
+            
+            if(matchesAfter == 1){
+                //just walk the caret
+                command.text = "";
+                command.shiftsCaret = false;
+                command.caretOffset = command.offset+1;
+            }
+        }
+    }
 
-	/**
-	 * @return true if the passed string has balanced ' and "
-	 */
-	private boolean isLiteralBalanced(String cursorLineContents) {
-		ParsingUtils parsingUtils = ParsingUtils.create(cursorLineContents, true);
-		
-		int offset = 0;
-		int end = cursorLineContents.length();
-		boolean balanced = true;
-		while (offset < end) {
-			char curr = cursorLineContents.charAt(offset++);
-			if(curr == '"' || curr == '\''){
-				int eaten;
-				try {
-					eaten = parsingUtils.eatLiterals(null, offset - 1)+1;
-				} catch (SyntaxErrorException e) {
-					balanced = false;
-					break;
-				}
-				if (eaten > offset) {
-					offset = eaten;
-				}	
-			}
-		}
-		return balanced;
-	}
+    /**
+     * @return true if the passed string has balanced ' and "
+     */
+    private boolean isLiteralBalanced(String cursorLineContents) {
+        ParsingUtils parsingUtils = ParsingUtils.create(cursorLineContents, true);
+        
+        int offset = 0;
+        int end = cursorLineContents.length();
+        boolean balanced = true;
+        while (offset < end) {
+            char curr = cursorLineContents.charAt(offset++);
+            if(curr == '"' || curr == '\''){
+                int eaten;
+                try {
+                    eaten = parsingUtils.eatLiterals(null, offset - 1)+1;
+                } catch (SyntaxErrorException e) {
+                    balanced = false;
+                    break;
+                }
+                if (eaten > offset) {
+                    offset = eaten;
+                }   
+            }
+        }
+        return balanced;
+    }
 
 	private void handleTab(IDocument document, DocumentCommand command) throws BadLocationException {
 		PySelection ps = new PySelection(document, command.offset);

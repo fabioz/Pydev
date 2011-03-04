@@ -199,6 +199,8 @@ class InterpreterInterface:
                         
             finally:
                 sys.stdin = original_in
+        except SystemExit:
+            raise
         except:
             import traceback;traceback.print_exc()
         

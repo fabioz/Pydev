@@ -1,4 +1,4 @@
-from pydevd_constants import *
+from pydevd_constants import * #@UnusedWildImport
 try:
     from Queue import Queue
 except:
@@ -47,7 +47,6 @@ class ServerComm(threading.Thread):
         assert port is not None
         self.job_id = job_id
         
-        from pydev_imports import xmlrpclib
         self.finished = False
         self.server = server
         

@@ -5,8 +5,8 @@ public interface VisitorIF {
     public Object visitModule(Module node) throws Exception;
     public Object visitInteractive(Interactive node) throws Exception;
     public Object visitExpression(Expression node) throws Exception;
-    public Object visitSuite(Suite node) throws Exception;
     public Object visitNameTok(NameTok node) throws Exception;
+    public Object visitSuite(Suite node) throws Exception;
     public Object visitWithItem(WithItem node) throws Exception;
     public Object visitFunctionDef(FunctionDef node) throws Exception;
     public Object visitClassDef(ClassDef node) throws Exception;

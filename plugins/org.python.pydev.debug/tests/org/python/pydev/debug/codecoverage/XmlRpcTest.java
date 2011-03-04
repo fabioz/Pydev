@@ -84,7 +84,7 @@ public class XmlRpcTest extends TestCase{
         try{
             XmlRpcTest xmlRpcTest = new XmlRpcTest();
             xmlRpcTest.setUp();
-            xmlRpcTest.testXmlRpcServerPython();
+            xmlRpcTest.testXmlRpcServerJython();
             xmlRpcTest.tearDown();
             junit.textui.TestRunner.run(XmlRpcTest.class);
         }catch(Throwable e){

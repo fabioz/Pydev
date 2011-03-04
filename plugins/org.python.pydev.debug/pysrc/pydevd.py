@@ -1,6 +1,6 @@
 #IMPORTANT: pydevd_constants must be the 1st thing defined because it'll keep a reference to the original sys._getframe
 from pydevd_constants import * #@UnusedWildImport
-
+import pydev_imports
 from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_EVALUATE_EXPRESSION, \
                          CMD_EXEC_EXPRESSION, \
@@ -915,8 +915,7 @@ class PyDB:
             
         PyDBCommandThread(debugger).start()
 
-        from pydev_imports import execfile
-        execfile(file, globals, locals) #execute the script
+        pydev_imports.execfile(file, globals, locals) #execute the script
 
 
 def processCommandLine(argv):

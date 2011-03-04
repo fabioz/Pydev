@@ -576,7 +576,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             test = (exprType) stack.popNode();
             arity--;
 
-            suiteType newOrElse = new suiteType(new stmtType[] { last });
+            suiteType newOrElse = new Suite(new stmtType[] { last });
             if (arity == 0) {
                 //last If found
                 last = (If) n;
@@ -734,7 +734,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         }
         
         
-        suiteType s = new suiteType(suite.body);
+        suiteType s = new Suite(suite.body);
         addSpecialsAndClearOriginal(suite, s);
         
         return new With(items, s);
