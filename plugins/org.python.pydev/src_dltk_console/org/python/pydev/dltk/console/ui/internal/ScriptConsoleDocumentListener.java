@@ -530,7 +530,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
             DocCmd docCmd = new DocCmd(currentOffset, 0, "(");
             docCmd.shiftsCaret = true;
             try{
-                strategy.customizeParenthesis(parenDoc, docCmd, true);
+                PyAutoIndentStrategy.customizeParenthesis(parenDoc, docCmd, true, strategy.getIndentPrefs());
             }catch(BadLocationException e){
                 PydevPlugin.log(e);
             }

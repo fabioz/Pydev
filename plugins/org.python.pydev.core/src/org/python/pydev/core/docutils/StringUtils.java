@@ -839,7 +839,18 @@ public class StringUtils {
 	    }
 	    
 	    throw new NoPeerAvailableException("Unable to find peer for :"+c);
+	}
+	
+	public static String getWithClosedPeer(char c){
+	    switch(c){
+	    case '{':return "{}";
+	    case '(':return "()";
+	    case '[':return "[]";
+	    case '\'':return "''";
+	    case '"':return "\"\"";
+	    }
 	    
+	    throw new NoPeerAvailableException("Unable to find peer for :"+c);
 	}
 
 	public static boolean isOpeningPeer(char lastChar) {
