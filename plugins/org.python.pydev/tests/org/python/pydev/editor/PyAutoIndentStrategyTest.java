@@ -1981,6 +1981,12 @@ public class PyAutoIndentStrategyTest extends TestCase {
         document = new Document(doc);
         strategy.customizeDocumentCommand(document, docCmd);
         assertEquals("\"\"", docCmd.text);
+        
+        doc = "')'  ";
+        docCmd = new DocCmd(0, doc.length(),  "'");
+        document = new Document(doc);
+        strategy.customizeDocumentCommand(document, docCmd);
+        assertEquals("''", docCmd.text);
     }
 
     
