@@ -95,6 +95,29 @@ public class UniversalRunner {
 	        		getCommandLine(cmd), workingDir, nature, monitor);
 
 		}
+		
+		/**
+		 * Runs the script and returns its output.
+		 * 
+		 * @return a tuple with stdout and stderr
+		 */
+		public Tuple<String, String> runScriptAndGetOutput(
+		        String script, String[] args, File workingDir,
+		        IProgressMonitor monitor) {
+		    
+		    if (args == null) {
+		        args = new String[0];
+		    }
+		    List<String> cmd = new ArrayList<String>();
+		    cmd.add(script);
+		    cmd.addAll(Arrays.asList(args));
+		    
+		    // We just hope this sets the right env. But looks like it ignores
+		    // the interpreter env variables (IInterpreterInfo#getEnvVariables)
+		    return new SimpleRunner().runAndGetOutput(
+		            getCommandLine(cmd), workingDir, nature, monitor);
+		    
+		}
 
 
 

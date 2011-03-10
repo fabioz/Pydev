@@ -19,6 +19,8 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -32,6 +34,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
@@ -39,7 +42,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
@@ -70,6 +75,9 @@ import org.python.pydev.utils.ProgressOperation;
  */
 
 public class PyCodeCoverageView extends ViewPartWithOrientation {
+    
+    public static String PY_COVERAGE_VIEW_ID = "org.python.pydev.views.PyCodeCoverageView";
+    
     //layout stuff
     private Composite leftComposite;
 
@@ -99,25 +107,27 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      */
     protected RefreshAction refreshAction = new RefreshAction();
 
-    //buttons
-    private Button clearButton;
-
-    private Button refreshButton;
-
     private Button chooseButton;
-
+    
     //write the results here
     private Text text;
 
-    //tree som that user can browse results.
+    //tree so that user can browse results.
     private TreeViewer viewer;
 
     /**
      *  
      */
-    private File lastChosenFile;
+    private static IContainer lastChosenDir;
+    
+    private static boolean allRunsDoCoverage = false;
+
 
     private SashForm sash;
+
+    private Button allRunsGoThroughCoverage;
+
+    private Label labelErrorFolderNotSelected;
 
     //Actions ------------------------------
     /**
@@ -126,11 +136,16 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      * @author Fabio Zadrozny
      */
     private final class RefreshAction extends ProgressAction {
+        
+        public RefreshAction(){
+            this.setText("Refresh coverage information");
+        }
+        
         public void run() {
             try {
-                PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenFile, this.monitor);
+                PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenDir, this.monitor);
 
-                viewer.setInput(lastChosenFile); //new files may have been added.
+                viewer.setInput(lastChosenDir.getLocation().toFile()); //new files may have been added.
                 text.setText("Refreshed info.");
             } catch (Exception e) {
                 PydevPlugin.log(e);
@@ -138,11 +153,30 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         }
     }
 
+    
+    /**
+     * @return
+     */
+    public static boolean getAllRunsDoCoverage() {
+        return allRunsDoCoverage && lastChosenDir != null && lastChosenDir.exists();
+    }
+    
+    public static IContainer getChosenDir() {
+        return lastChosenDir;
+    }
+
+    
+    
     /**
      * 
      * @author Fabio Zadrozny
      */
     private final class ClearAction extends ProgressAction {
+        
+        public ClearAction(){
+            this.setText("Clear coverage information");
+        }
+        
         public void run() {
 
             PyCoverage.getPyCoverage().clearInfo();
@@ -177,7 +211,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
             File realFile = new File(obj.toString());
             if (realFile.exists()) {
-                text.setText(PyCoverage.getPyCoverage().cache.getStatistics(realFile));
+                text.setText(PyCoverage.getPyCoverage().cache.getStatistics(lastChosenDir, realFile));
             }
         }
 
@@ -258,7 +292,9 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      */
     private final class ChooseAction extends ProgressAction {
         public void run() {
-            ContainerSelectionDialog dialog = new ContainerSelectionDialog(getSite().getShell(), null, false, "Test");
+            ContainerSelectionDialog dialog = new ContainerSelectionDialog(getSite().getShell(), null, false, 
+                    "Choose folder to be analyzed in the code-coverage");
+            dialog.showClosedProjects(false);
             if (dialog.open() != Window.OK) {
               return;
             }
@@ -268,18 +304,10 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
                     IPath p = (IPath) objects[0];
 
                     IWorkspace w = ResourcesPlugin.getWorkspace();
-                    IContainer folderFolLocation = (IContainer) w.getRoot().findMember(p);
-                    File file = null;
-                    if(folderFolLocation != null){
-                        IPath loc = folderFolLocation.getRawLocation();
-                        if(loc == null){
-                            loc = folderFolLocation.getLocation();
-                        }
-                        file = loc.toFile();
-                    }else{
-                        file = p.toFile().getAbsoluteFile();
-                    }
-                    lastChosenFile = file;
+                    IContainer folderForLocation = (IContainer) w.getRoot().findMember(p);
+                    lastChosenDir = folderForLocation;
+                    updateErrorMessages();
+                    
                     refreshAction.monitor = this.monitor;
                     refreshAction.run();
                 }
@@ -330,6 +358,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      */
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);
+        allRunsDoCoverage = false;
         
         GridLayout layout = new GridLayout();
         layout.numColumns = 2;
@@ -362,7 +391,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         leftComposite.setLayoutData(layoutData);
         leftComposite.setLayout(layout);
 
-        text = new Text(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+        text = new Text(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         try {
             text.setFont(new Font(null, "Courier new", 10, 0));
         } catch (Exception e) {
@@ -377,13 +406,28 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         text.setLayoutData(layoutData);
 
         parent = leftComposite;
+        
+        //all the runs from now on go through coverage?
+        allRunsGoThroughCoverage = new Button(parent, SWT.CHECK);
+        allRunsGoThroughCoverage.setText("Enable code coverage for new launches?");
+        allRunsGoThroughCoverage.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                allRunsDoCoverage = allRunsGoThroughCoverage.getSelection();
+                updateErrorMessages();
+            }
+        });
+        layoutData = new GridData();
+        layoutData.grabExcessHorizontalSpace = true;
+        layoutData.horizontalAlignment = GridData.FILL;
+        allRunsGoThroughCoverage.setLayoutData(layoutData);
+        //end all runs go through coverage
 
         //choose button
         chooseButton = new Button(parent, SWT.PUSH);
-        createButton(parent, chooseButton, "Choose dir!", chooseAction);
+        createButton(parent, chooseButton, "Choose folder to analyze", chooseAction);
         //end choose button
 
-        viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+        viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         onControlCreated.call(viewer);
         viewer.setContentProvider(new FileTreePyFilesProvider());
         viewer.setLabelProvider(new FileTreeLabelProvider());
@@ -397,18 +441,26 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         layoutData.horizontalAlignment = GridData.FILL;
         layoutData.verticalAlignment = GridData.FILL;
         viewer.getControl().setLayoutData(layoutData);
+        
+        IActionBars actionBars = getViewSite().getActionBars();
+        IToolBarManager toolbarManager = actionBars.getToolBarManager();
+        IMenuManager menuManager = actionBars.getMenuManager();
+        
+        menuManager.add(clearAction);
+        menuManager.add(refreshAction);
 
-        //clear results button
-        clearButton = new Button(parent, SWT.PUSH);
-        createButton(parent, clearButton, "Clear coverage information!", clearAction);
-        //end choose button
-
-        //refresh button
-        refreshButton = new Button(parent, SWT.PUSH);
-        createButton(parent, refreshButton, "Refresh coverage information!", refreshAction);
-        //end choose button
+//        //clear results button
+//        clearButton = new Button(parent, SWT.PUSH);
+//        createButton(parent, clearButton, "Clear coverage information", clearAction);
+//        //end choose button
+//
+//        //refresh button
+//        refreshButton = new Button(parent, SWT.PUSH);
+//        createButton(parent, refreshButton, "Refresh coverage information", refreshAction);
+//        //end choose button
 
         this.refresh();
+        updateErrorMessages();
 
     }
 
@@ -425,7 +477,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         button.addSelectionListener(new SelectionListener() {
 
             public void widgetSelected(SelectionEvent e) {
-                ProgressOperation.startAction(getSite().getShell(), action);
+                ProgressOperation.startAction(getSite().getShell(), action, true);
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {
@@ -464,6 +516,43 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      */
     public void setFocus() {
         viewer.getControl().setFocus();
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.ui.part.WorkbenchPart#dispose()
+     */
+    @Override
+    public void dispose() {
+        allRunsDoCoverage = false;
+        super.dispose();
+    }
+
+    private void updateErrorMessages() {
+        
+        boolean showError = false;
+        
+        if(allRunsDoCoverage){
+            if(lastChosenDir == null){
+                showError = true;
+            }
+        }
+        if(showError){
+            if(labelErrorFolderNotSelected == null){
+                labelErrorFolderNotSelected = new Label(leftComposite, SWT.NONE);
+                labelErrorFolderNotSelected.setForeground(PydevPlugin.getColorCache().getColor("RED"));
+                labelErrorFolderNotSelected.setText("Folder must be selected for launching with coverage.");
+                GridData layoutData = new GridData();
+                layoutData.grabExcessHorizontalSpace = true;
+                layoutData.horizontalAlignment = GridData.FILL;
+                labelErrorFolderNotSelected.setLayoutData(layoutData);
+           }
+        }else{
+            if(labelErrorFolderNotSelected != null){
+                this.labelErrorFolderNotSelected.dispose();
+                this.labelErrorFolderNotSelected = null;
+            }
+        }
+        this.leftComposite.layout();
     }
 
 }

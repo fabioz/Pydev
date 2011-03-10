@@ -46,6 +46,7 @@ import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.net.LocalHost;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.debug.codecoverage.PyCoverage;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -96,9 +97,9 @@ public class PythonRunnerConfig {
     private ListenConnector listenConnector;
     private PyUnitServer pyUnitServer;
 
-    public boolean isCoverage(){
-        return this.run.equals(RUN_COVERAGE);
-    }
+//    public boolean isCoverage(){
+//        return this.run.equals(RUN_COVERAGE);
+//    }
     
     public boolean isUnittest(){
         return this.run.equals(RUN_UNITTEST) || this.run.equals(RUN_JYTHON_UNITTEST) || this.run.equals(RUN_IRONPYTHON_UNITTEST);
@@ -543,7 +544,7 @@ public class PythonRunnerConfig {
      * @throws CoreException
      */
     public static String getCoverageScript() throws CoreException {
-        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("coverage.py"));
+        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydev_coverage.py"));
     }
 
     /** 
@@ -620,22 +621,23 @@ public class PythonRunnerConfig {
             }
             
             addDebugArgs(cmdArgs, "python", actualRun);
-            
-            if(isCoverage()){
-                cmdArgs.add(getCoverageScript());
-                String coverageFileLocation = PyCoverage.getCoverageFileLocation();
-                cmdArgs.add(coverageFileLocation);
-                cmdArgs.add("-x");
-                if (!isFile()){
-                    //run all testcases
-                    cmdArgs.add(getRunFilesScript());
-                }
-            }
-    
         }
         
+        
+        //Check if we should do code-coverage...
+        boolean coverageRun = PyCodeCoverageView.getAllRunsDoCoverage();
+
         if (isUnittest()) {
             cmdArgs.add(getRunFilesScript());
+        }else{
+            if(coverageRun){
+                //Separate support (unittest has the coverage support builtin).
+                cmdArgs.add(getCoverageScript());
+                cmdArgs.add(PyCoverage.getCoverageFileLocation().getAbsolutePath());
+                cmdArgs.add("run");
+                cmdArgs.add("--source");
+                cmdArgs.add(PyCodeCoverageView.getChosenDir().getLocation().toOSString());
+            }
         }
         
         for(IPath p:resource){

@@ -40,38 +40,64 @@ public class FileNode {
         return f.node.equals(node) && f.exec == exec && f.notExecuted.equals(notExecuted) && f.stmts == stmts; 
     }
     
+    @Override
+    public int hashCode() {
+        return node.hashCode()*3 + ((exec+1) * 7) + ((stmts+1)*5);
+    }
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return FileNode.toString(node.toString(), stmts, exec, notExecuted);
+        FastStringBuffer buf = new FastStringBuffer();
+        FileNode.appendToBuffer(buf, node.toString(), stmts, exec, notExecuted);
+        return buf.toString();
     }
     
-    public static String toString(String str, int stmts, int exec, String notExecuted) {
-        return new FastStringBuffer().
-            append(getName(str)).
-            append("   ").
-            append(getStmts(stmts)).
-            append("     ").
-            append(exec).
-            append("      ").
-            append(calcCover(stmts, exec)).
-            append("  ").
-            append(notExecuted).toString();
+    public FastStringBuffer appendToBuffer(FastStringBuffer buffer, String baseLocation) {
+        String name = node.toString();
+        if(name.toLowerCase().startsWith(baseLocation.toLowerCase())){
+            name = name.substring(baseLocation.length());
+        }
+        if(name.startsWith("/") || name.startsWith("\\")){
+            name = name.substring(1);
+        }
+        return appendToBuffer(buffer,name, stmts, exec, notExecuted);
     }
     
-    public static String getName(String str){
-        if(str.length() > 40){
-            str = str.substring(str.length()-37, str.length());
-            str = ".. "+str;
-        }
-        while (str.length() < 40){
-            str = " "+str;
-        }
-        return str;
+    /**
+     * @param buffer
+     * @return
+     */
+    public static FastStringBuffer appendToBuffer(FastStringBuffer buffer, String str, int stmts, int exec, String notExecuted) {
+        buffer.
+        append(getName(str)).
+        append("   ").
+        append(getStmts(stmts)).
+        append("     ").
+        append(getStmts(exec)).
+        append("      ").
+        append(calcCover(stmts, exec)).
+        append("  ").
+        append(notExecuted);
+        return buffer;
     }
 
-    public static String getStmts(int stmts){
+    
+    public static String getName(String str){
+        FastStringBuffer buffer = new FastStringBuffer(str, str.length() > 40?0:40-str.length());
+        
+        if(buffer.length() > 40){
+            buffer = buffer.delete(0, Math.abs(37-str.length()));
+            buffer.insert(0, ".. ");
+        }
+        if (buffer.length() < 40){
+            buffer.appendN(' ', 40-str.length());
+        }
+        return buffer.toString();
+    }
+
+    private static String getStmts(int stmts){
         FastStringBuffer str = new FastStringBuffer();
         str.append(stmts);
         while (str.length() < 4){
@@ -80,16 +106,13 @@ public class FileNode {
         return str.toString();
     }
 
-    public static String getExec(int exec){
-        return getStmts(exec);
-    }
 
     public static String calcCover(int stmts, int exec){
         double v = 0;
         if(stmts != 0){
             v = ((double)exec) / ((double)stmts) * 100.0;
         }
-        DecimalFormat format = new DecimalFormat("##.#");
+        DecimalFormat format = new DecimalFormat("###.#");
         String str = format.format(v);
         str += "%";
         while (str.length() < 5){
@@ -122,6 +145,7 @@ public class FileNode {
         
         return l.iterator();
     }
+
 
 }
 

@@ -61,6 +61,9 @@ public abstract class ColorCache {
         fNamedColorTable.clear();
     }
     
+    public Color getColor(String name) {
+        return getNamedColor(name);
+    }
     public Color getColor(RGB rgb) {
         Color color = (Color) fColorTable.get(rgb);
         if (color == null) {

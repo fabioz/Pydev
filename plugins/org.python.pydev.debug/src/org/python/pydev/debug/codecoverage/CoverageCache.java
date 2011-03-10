@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 
@@ -198,30 +199,35 @@ public class CoverageCache {
      *  TOTAL              20     15    75%
      * 
      */
-    public String getStatistics(Object node) {
+    public String getStatistics(IContainer baseDir, Object node) {
         
 
         FastStringBuffer buffer = new FastStringBuffer();
+        String baseLocation = baseDir != null?baseDir.getLocation().toOSString():"";
+        
         try {
             List<Object> list = getFiles(node);  //array of FileNode
             
             //40 chars for name.
-            buffer.append("Name                                    Stmts     Exec     Cover  Missing\n");
+            buffer.append("Name                                      Stmts     Exec     Cover  Missing\n");
             buffer.append("-----------------------------------------------------------------------------\n");
             
             int totalExecuted = 0;
             int totalStmts = 0;
             
             for (Object element:list) {
-                buffer.append(element.toString()).append("\n");
                 if(element instanceof FileNode){ //it may have been an error node...
-                    totalExecuted += ((FileNode)element).exec;
-                    totalStmts += ((FileNode)element).stmts;
+                    FileNode fileNode = (FileNode)element;
+                    fileNode.appendToBuffer(buffer, baseLocation).append("\n");
+                    totalExecuted += fileNode.exec;
+                    totalStmts += fileNode.stmts;
+                }else{
+                    buffer.append(element.toString()).append("\n");
                 }
             }
             
             buffer.append("-----------------------------------------------------------------------------\n");
-            buffer.append(FileNode.toString("TOTAL",totalStmts, totalExecuted, "")).append("\n");
+            FileNode.appendToBuffer(buffer, "TOTAL",totalStmts, totalExecuted, "").append("\n");
             
         } catch (NodeNotFoudException e) {
             buffer.append("File has no statistics.");
