@@ -18,6 +18,8 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -29,7 +31,9 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -47,9 +51,14 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
@@ -115,17 +124,21 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
     //tree so that user can browse results.
     private TreeViewer viewer;
 
+    public TreeViewer getTreeViewer() {
+        return viewer;
+    }
+    
     /**
      *  
      */
     private static IContainer lastChosenDir;
     
-    private static boolean allRunsDoCoverage = false;
+    /*default for tests*/ static boolean allRunsDoCoverage = false;
 
 
     private SashForm sash;
 
-    private Button allRunsGoThroughCoverage;
+    /*default for testing */ Button allRunsGoThroughCoverage;
 
     private Label labelErrorFolderNotSelected;
 
@@ -143,16 +156,31 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         
         public void run() {
             try {
-                PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenDir, this.monitor);
-
-                viewer.setInput(lastChosenDir.getLocation().toFile()); //new files may have been added.
-                text.setText("Refreshed info.");
+                executeRefreshAction(this.monitor);
             } catch (Exception e) {
                 PydevPlugin.log(e);
             }
         }
+
     }
 
+    
+    /*default for tests*/ void executeRefreshAction(IProgressMonitor monitor) {
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
+        PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenDir, monitor);
+        
+        File input = lastChosenDir.getLocation().toFile();
+        viewer.refresh();
+        ITreeContentProvider contentProvider = (ITreeContentProvider) viewer.getContentProvider();
+        Object[] children = contentProvider.getChildren(input);
+        if(children.length > 0){
+            viewer.setSelection(new StructuredSelection(children[0]));
+        }else{
+            onSelectedFileInTree(null);
+        }
+    }
     
     /**
      * @return
@@ -209,13 +237,23 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             if (obj == null)
                 return;
 
+            onSelectedFileInTree(obj);
+        }
+    }
+    
+    private void onSelectedFileInTree(Object obj) {
+        if(obj == null){
+            text.setText("");
+        }else{
             File realFile = new File(obj.toString());
             if (realFile.exists()) {
                 text.setText(PyCoverage.getPyCoverage().cache.getStatistics(lastChosenDir, realFile));
+            }else{
+                text.setText("Selection no longer exists in disk: "+obj.toString());
             }
         }
-
     }
+
 
     /**
      * 
@@ -305,17 +343,21 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
                     IWorkspace w = ResourcesPlugin.getWorkspace();
                     IContainer folderForLocation = (IContainer) w.getRoot().findMember(p);
-                    lastChosenDir = folderForLocation;
-                    updateErrorMessages();
-                    
-                    refreshAction.monitor = this.monitor;
-                    refreshAction.run();
+                    setSelectedContainer(folderForLocation, this.monitor);
                 }
             }
-
-
         }
     }
+    
+    
+    public void setSelectedContainer(IContainer container, IProgressMonitor monitor) {
+        lastChosenDir = container;
+        updateErrorMessages();
+        
+        viewer.setInput(container.getLocation().toFile());
+        executeRefreshAction(monitor);
+    }
+
 
     // Class -------------------------------------------------------------------
 
@@ -554,5 +596,42 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         }
         this.leftComposite.layout();
     }
+    
+    /**
+     * Gets the py code coverage view. May only be called in the UI thread. If the view is not visible, if createIfNotThere
+     * is true, it's made visible.
+     * 
+     * Note that it may return null if createIfNotThere == false and the view is not currently shown or if not in the
+     * UI thread.
+     */
+    public static PyCodeCoverageView getView(boolean createIfNotThere) {
+        IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        try {
+            if(workbenchWindow == null){
+                return null;
+            }
+            IWorkbenchPage page= workbenchWindow.getActivePage();
+            if(createIfNotThere){
+                return (PyCodeCoverageView) page.showView(PY_COVERAGE_VIEW_ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+            }else{
+                IViewReference viewReference = page.findViewReference(PY_COVERAGE_VIEW_ID);
+                if(viewReference != null){
+                    //if it's there, return it (but don't restore it if it's still not there).
+                    //when made visible, it'll handle things properly later on.
+                    return (PyCodeCoverageView) viewReference.getView(false);
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return null;
+    }
+
+    public String getCoverageText() {
+        return this.text.getText();
+    }
+
+
+    
 
 }

@@ -87,6 +87,30 @@ public class AbstractWorkbenchTestCase extends TestCase{
     protected static IFile initFile;
 
 
+    
+    protected static boolean interpretersConfigured = false;
+    protected static void configureInterpreters(){
+        if(!interpretersConfigured){
+            interpretersConfigured = true;
+            InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>(){
+                public Boolean call(Tuple<List<String>, List<String>> arg) {
+                    System.out.println("Check for:"+arg);
+                    return Boolean.TRUE;
+                }
+            };
+            PydevPlugin.setJythonInterpreterManager(new JythonInterpreterManager(PydevPlugin.getDefault().getPluginPreferences()));
+            PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManager(PydevPlugin.getDefault().getPluginPreferences()));
+            
+            
+            ProjectModulesManager.IN_TESTS = true;
+            
+            NullProgressMonitor monitor = new NullProgressMonitor();
+            
+            createJythonInterpreterManager(monitor);
+            createPythonInterpreterManager(monitor);
+        }
+    }
+    
     /**
      * Create a project with the structure:
      * 
@@ -113,20 +137,8 @@ public class AbstractWorkbenchTestCase extends TestCase{
 
         String mod1Contents = "import java.lang.Class\njava.lang.Class";
         if(editor == null){
-            InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>(){
-                public Boolean call(Tuple<List<String>, List<String>> arg) {
-                    return Boolean.TRUE;
-                }
-            };
-            PydevPlugin.setJythonInterpreterManager(new JythonInterpreterManager(PydevPlugin.getDefault().getPluginPreferences()));
-            PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManager(PydevPlugin.getDefault().getPluginPreferences()));
-            
-            
-            ProjectModulesManager.IN_TESTS = true;
+            configureInterpreters();
             NullProgressMonitor monitor = new NullProgressMonitor();
-            
-            createJythonInterpreterManager(monitor);
-            createPythonInterpreterManager(monitor);
             
             IProject project = createProject(monitor, "pydev_unit_test_project");
             IJavaProject javaProject = configureAsJavaProject(createProject(monitor, "java_unit_test_project"), monitor);
@@ -354,13 +366,21 @@ public class AbstractWorkbenchTestCase extends TestCase{
     
     
 
+    protected void setFileContents(IFile mod, String contents) throws CoreException {
+        NullProgressMonitor monitor = new NullProgressMonitor();
+        if(!mod.exists()){
+            mod.create(new ByteArrayInputStream(contents.getBytes()), true, monitor);
+        }else{
+            mod.setContents(new ByteArrayInputStream(contents.getBytes()), 0, monitor);
+            mod.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+        }
+    }
+    
     /**
      * Sets the contents of the mod1.py -- which has the PyEdit opened.
      */
     protected void setFileContents(String mod1Contents) throws CoreException {
-        NullProgressMonitor monitor = new NullProgressMonitor();
-        mod1.setContents(new ByteArrayInputStream(mod1Contents.getBytes()), 0, monitor);
-        mod1.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+        setFileContents(mod1, mod1Contents);
     }
 
 
@@ -477,19 +497,29 @@ public class AbstractWorkbenchTestCase extends TestCase{
         return createSourceFolder(monitor, project, true);
     }
 
+    protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project, boolean addNature) throws CoreException {
+        return createSourceFolder(monitor, project, addNature, true);
+    }
+    
     /**
      * Creates a source folder and configures the project to use it and the junit.jar
      * 
      * @param addNature if false, no nature will be initially added to the project (if true, the nature will be added)
      */
-    protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project, boolean addNature) throws CoreException {
+    protected IFolder createSourceFolder(IProgressMonitor monitor, IProject project, boolean addNature, boolean isJython) throws CoreException {
         IFolder sourceFolder = project.getFolder(new Path("src"));
         if(!sourceFolder.exists()){
             sourceFolder.create(true, true, monitor);
         }
         if(addNature){
-            PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, 
-                    "/pydev_unit_test_project/src|/pydev_unit_test_project/junit.jar|/pydev_unit_test_project/grinder.jar", null, null, null);
+            String name = project.getName();
+            if(isJython){
+                PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_2_1, 
+                        "/"+name+"/src|/"+name+"|/"+name+"/grinder.jar", null, null, null);
+            }else{
+                PythonNature.addNature(project, monitor, PythonNature.PYTHON_VERSION_2_6, 
+                        "/"+name+"/src", null, null, null);
+            }
         }
         return sourceFolder;
     }
@@ -498,7 +528,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
     /**
      * Creates the jython interpreter manager with the default jython jar location.
      */
-    protected void createJythonInterpreterManager(NullProgressMonitor monitor) {
+    protected static void createJythonInterpreterManager(NullProgressMonitor monitor) {
         IInterpreterManager iMan = PydevPlugin.getJythonInterpreterManager(true);
         IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.JYTHON_JAR_LOCATION, monitor);
         iMan.addInterpreterInfo(interpreterInfo);
@@ -510,7 +540,7 @@ public class AbstractWorkbenchTestCase extends TestCase{
     /**
      * Creates the python interpreter manager with the default jython jar location.
      */
-    protected void createPythonInterpreterManager(NullProgressMonitor monitor) {
+    protected static void createPythonInterpreterManager(NullProgressMonitor monitor) {
         IInterpreterManager iMan = PydevPlugin.getPythonInterpreterManager(true);
         IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.PYTHON_EXE, monitor);
         iMan.addInterpreterInfo(interpreterInfo);
