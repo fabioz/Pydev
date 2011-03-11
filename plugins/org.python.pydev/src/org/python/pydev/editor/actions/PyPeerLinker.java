@@ -26,10 +26,12 @@ import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.DocCmd;
+import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**
@@ -64,12 +66,14 @@ public class PyPeerLinker {
                 switch (event.character) {
                 case '\'':
                 case '\"':
-                    //for now only handle ' and "
+                case '[':
+                case '{':
+                case '(':
                     break;
                 default:
                     return;
                 }
-                if (event.stateMask == 0 && viewer != null && viewer.isEditable()) {
+                if (viewer != null && viewer.isEditable()) {
                     boolean blockSelection = false;
                     try {
                         blockSelection = viewer.getTextWidget().getBlockSelection();
@@ -103,8 +107,28 @@ public class PyPeerLinker {
         linkExitPos = -1;
         linkLen = 0;
 
-        if (!prefs.getAutoLiterals()) {
+        boolean literal=true;
+        switch (c) {
+        case '\'':
+        case '\"':
+            break;
+        case '[':
+        case '{':
+        case '(':
+            literal=false;
+            break;
+        default:
             return false;
+        }
+        
+        if(literal){
+            if (!prefs.getAutoLiterals()) {
+                return false;
+            }
+        }else{
+            if (!prefs.getAutoParentesis()) {
+                return false;
+            }
         }
 
         try {
@@ -116,8 +140,14 @@ public class PyPeerLinker {
                 return false;
             }
             DocCmd docCmd = new DocCmd(ps.getAbsoluteCursorOffset(), ps.getSelLength(), "" + c);
-            if (!handleLiteral(doc, docCmd, ps, isDefaultContext, prefs)) {
-                return false; //not handled
+            if(literal){
+                if (!handleLiteral(doc, docCmd, ps, isDefaultContext, prefs)) {
+                    return false; //not handled
+                }
+            }else{
+                if(!handleBrackets(ps, c, doc, docCmd, viewer)){
+                    return false; //not handled
+                }
             }
             if (linkOffset == -1 || linkExitPos == -1) {
                 return true; //it was handled (without the link)
@@ -161,10 +191,51 @@ public class PyPeerLinker {
         return true;
     }
 
+    private boolean handleBrackets(PySelection ps, final char c, IDocument doc, DocCmd docCmd, TextViewer viewer) throws BadLocationException {
+        if(c == '('){
+            
+            PyAutoIndentStrategy.handleParens(doc, docCmd, prefs);
+            
+            docCmd.doExecute(doc);
+            
+            //Note that this is done with knowledge on how the handleParens deals with the doc command (not meant as a
+            //general thing to apply a doc command).
+            if(docCmd.shiftsCaret){
+                //Regular stuff: just shift it and don't link
+                if(viewer != null){
+                    viewer.setSelectedRange(docCmd.offset+docCmd.text.length(), 0);
+                }
+            }else{
+                linkOffset = docCmd.caretOffset;
+                linkLen = 0;
+                linkExitPos = docCmd.offset + docCmd.text.length();
+            }
+            
+        }else{ //  [ or {
+            char peer = StringUtils.getPeer(c);
+            if (PyAutoIndentStrategy.shouldClose(ps, c, peer)) {
+                int offset = ps.getAbsoluteCursorOffset();
+                doc.replace(offset, ps.getSelLength(), StringUtils.getWithClosedPeer(c));
+                linkOffset = offset + 1;
+                linkLen = 0;
+                linkExitPos = linkOffset + linkLen + 1;
+            }else{
+                //No link, just add the char and set the new selected range (if possible)
+                docCmd.doExecute(doc);
+                if(viewer != null){
+                    viewer.setSelectedRange(docCmd.offset+docCmd.text.length(), 0);
+                }
+            }
+        }
+        
+        //Yes, in this situation, all cases are handled.
+        return true;
+    }
+
     /**
      * Called right after a ' or "
      * 
-     * @return false if we should leave the handlig to the auto-indent and true if it handled things properly here.
+     * @return false if we should leave the handling to the auto-indent and true if it handled things properly here.
      */
     private boolean handleLiteral(IDocument document, DocumentCommand command, PySelection ps, boolean isDefaultContext, IIndentPrefs prefs)
             throws BadLocationException {
