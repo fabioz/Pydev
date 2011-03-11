@@ -553,11 +553,33 @@ public class AbstractWorkbenchTestCase extends TestCase{
     protected IProject createProject(IProgressMonitor monitor, String projectName) throws CoreException {
         IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
         if(project.exists()){
-            project.delete(true, monitor);
-            goToManual(200);
+            project.refreshLocal(IResource.DEPTH_INFINITE, null);
+            try {
+                project.delete(true, monitor);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            goToManual(500);
         }
-        project.create(monitor);
-        project.open(monitor);
+        try {
+            project.create(monitor);
+            goToManual(100);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            project.open(monitor);
+        } catch (Exception e) {
+            e.printStackTrace();
+            if(!project.exists()){
+                try {
+                    project.create(monitor);
+                } catch (Exception j) {
+                    j.printStackTrace();
+                }
+                project.open(monitor);
+            }
+        }
         return project;
     }
 
