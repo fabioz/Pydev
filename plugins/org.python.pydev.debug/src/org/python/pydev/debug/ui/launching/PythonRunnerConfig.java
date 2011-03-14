@@ -48,10 +48,12 @@ import org.python.pydev.core.net.LocalHost;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.debug.codecoverage.PyCoverage;
+import org.python.pydev.debug.codecoverage.PyCoveragePreferences;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.pyunit.PyUnitServer;
+import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -625,7 +627,7 @@ public class PythonRunnerConfig {
         
         
         //Check if we should do code-coverage...
-        boolean coverageRun = PyCodeCoverageView.getAllRunsDoCoverage();
+        boolean coverageRun = PyCoveragePreferences.getAllRunsDoCoverage();
 
         if (isUnittest()) {
             cmdArgs.add(getRunFilesScript());
@@ -664,6 +666,11 @@ public class PythonRunnerConfig {
         
         String[] retVal = new String[cmdArgs.size()];
         cmdArgs.toArray(retVal);
+        
+        if(actualRun){
+            PythonRunnerCallbacks.onCreatedCommandLine.call(new CreatedCommandLineParams(retVal, coverageRun));
+        }
+
         return retVal;
     }
 

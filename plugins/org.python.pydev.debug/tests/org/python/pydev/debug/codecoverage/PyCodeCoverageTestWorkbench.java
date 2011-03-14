@@ -19,9 +19,17 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbench;
 import org.python.pydev.core.TestCaseUtils;
+import org.python.pydev.debug.ui.launching.LaunchShortcut;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
+import org.python.pydev.editorinput.PyOpenEditor;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase{
@@ -39,6 +47,7 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase{
     }
 
     private IFolder sourceFolder;
+    private IFile modCov;
     
     /* (non-Javadoc)
      * @see org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase#setUp()
@@ -52,7 +61,7 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase{
         IProject project = createProject(monitor, "coverage_test_project");
         sourceFolder = createSourceFolder(monitor, project, true, false);
         IFile initFile = createPackageStructure(sourceFolder, "pack_cov", monitor);
-        IFile modCov = initFile.getParent().getFile(new Path("mod_cov.py"));
+        modCov = initFile.getParent().getFile(new Path("mod_cov.py"));
         setFileContents(modCov, getModCovContents());
 
 
@@ -95,16 +104,16 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase{
         PyCodeCoverageView view = PyCodeCoverageView.getView(true);
         //At this point it should have no folder selected and the option to run things in coverage should be
         //set to false.
-        assertTrue(!PyCodeCoverageView.getAllRunsDoCoverage());
+        assertTrue(!PyCoveragePreferences.getAllRunsDoCoverage());
         assertTrue(PyCodeCoverageView.getChosenDir() == null);
         
         assertTrue(!view.allRunsGoThroughCoverage.getSelection());
-        assertTrue(!PyCodeCoverageView.allRunsDoCoverage);
+        assertTrue(!PyCoveragePreferences.getInternalAllRunsDoCoverage());
         view.allRunsGoThroughCoverage.setSelection(true);
         view.allRunsGoThroughCoverage.notifyListeners(SWT.Selection, new Event());
         
-        assertTrue(PyCodeCoverageView.allRunsDoCoverage);
-        assertTrue(!PyCodeCoverageView.getAllRunsDoCoverage());
+        assertTrue(PyCoveragePreferences.getInternalAllRunsDoCoverage());
+        assertTrue(!PyCoveragePreferences.getAllRunsDoCoverage());
 
         view.setSelectedContainer(sourceFolder, new NullProgressMonitor());
         TreeViewer treeViewer = view.getTreeViewer();
@@ -126,25 +135,48 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase{
         expandedElements = treeViewer.getExpandedElements();
         assertEquals(1, expandedElements.length);
         
-//        final IWorkbench workBench = PydevPlugin.getDefault().getWorkbench();
-//        Display display = workBench.getDisplay();
-//
-//
-//        // Make sure to run the UI thread.
-//        display.syncExec( new Runnable(){
-//            public void run(){
-//                JythonLaunchShortcut launchShortcut = new JythonLaunchShortcut();
-//                launchShortcut.launch(debugEditor, "debug");
-//            }
-//        });
+        assertTrue(PyCoveragePreferences.getAllRunsDoCoverage());
+        
+        final IWorkbench workBench = PydevPlugin.getDefault().getWorkbench();
+        Display display = workBench.getDisplay();
 
-        goToManual();
+
+        // Make sure to run the UI thread.
+        final PyEdit modCovEditor = (PyEdit) PyOpenEditor.doOpenEditor(modCov);
+        try {
+            display.syncExec( new Runnable(){
+                public void run(){
+                    LaunchShortcut launchShortcut = new LaunchShortcut();
+                    launchShortcut.launch(modCovEditor, "run");
+                }
+            });
+
+            //Should be enough time for the refresh to happen!
+            goToManual(1000);
+            
+            TestCaseUtils.assertContentsEqual(getModCovCoverageText(), view.getCoverageText());
+
+        } finally {
+            try {
+                modCovEditor.close(false);
+            } catch (Exception e) {
+                //ignore anything here
+            }
+        }
           
     }
 
-    /**
-     * @return
-     */
+    private String getModCovCoverageText() {
+        return "" +
+        "Name                                      Stmts     Exec     Cover  Missing\n" +
+        "-----------------------------------------------------------------------------\n" +
+        "pack_cov\\mod_cov.py                          17       14      82,4%  17-19\n" +
+        "pack_cov\\__init__.py                          0        0         0%  \n" +
+        "-----------------------------------------------------------------------------\n" +
+        "TOTAL                                        17       14      82,4%  \n" +
+        "";
+    }
+    
     private String getInitialCoverageText() {
         return "" +
         		"Name                                      Stmts     Exec     Cover  Missing\n" +

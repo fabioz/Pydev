@@ -94,7 +94,6 @@ public class AbstractWorkbenchTestCase extends TestCase{
             interpretersConfigured = true;
             InterpreterInfo.configurePathsCallback = new ICallback<Boolean, Tuple<List<String>, List<String>>>(){
                 public Boolean call(Tuple<List<String>, List<String>> arg) {
-                    System.out.println("Check for:"+arg);
                     return Boolean.TRUE;
                 }
             };

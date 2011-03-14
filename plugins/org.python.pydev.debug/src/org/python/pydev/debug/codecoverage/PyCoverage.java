@@ -337,12 +337,21 @@ public class PyCoverage {
      *  
      */
     public void clearInfo() {
+        cache.clear();
+        File dir = getCoverageDirLocation();
         try {
-            REF.clearTempFilesAt(getCoverageDirLocation(), ".coverage.");
+            //Clear the files we created when running the coverages.
+            REF.clearTempFilesAt(dir, ".coverage.");
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            Log.log(e);
         }
+        try {
+            //We also need to remove the file that consolidates all the info
+            new File(dir, ".coverage").delete();
+        } catch (Exception e) {
+            Log.log(e);
+        }
+
 
     }
 

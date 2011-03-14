@@ -58,8 +58,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.REF;
+import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
+import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
+import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.model.ItemPointer;
@@ -107,6 +112,11 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
     private ProgressAction chooseAction = new ChooseAction();
 
     /**
+     * Opens the coverage folder action
+     */
+    protected Action openCoverageFolderAction = new OpenCoverageFolderAction();
+    
+    /**
      * clear the results (and erase .coverage file)
      */
     protected ProgressAction clearAction = new ClearAction();
@@ -128,21 +138,38 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         return viewer;
     }
     
-    /**
-     *  
-     */
-    private static IContainer lastChosenDir;
-    
-    /*default for tests*/ static boolean allRunsDoCoverage = false;
-
 
     private SashForm sash;
 
     /*default for testing */ Button allRunsGoThroughCoverage;
+    /*default for testing */ Button clearCoverageInfoOnNextLaunch;
+    /*default for testing */ Button refreshCoverageInfoOnNextLaunch;
 
     private Label labelErrorFolderNotSelected;
 
     //Actions ------------------------------
+    /**
+     * In this action we have to go and refresh all the info based on the chosen dir.
+     * 
+     * @author Fabio Zadrozny
+     */
+    private final class OpenCoverageFolderAction extends Action {
+        
+        public OpenCoverageFolderAction(){
+            this.setText("Open folder with .coverage files.");
+        }
+        
+        public void run() {
+            try {
+                REF.openDirectory(PyCoverage.getCoverageDirLocation());
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
+        }
+        
+    }
+    
+    
     /**
      * In this action we have to go and refresh all the info based on the chosen dir.
      * 
@@ -165,13 +192,19 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
     }
 
     
+    /**
+     * Note that this method should never be directly called.
+     * 
+     * For a proper refresh do: 
+     *      ProgressOperation.startAction(getSite().getShell(), action, true);
+     */
     /*default for tests*/ void executeRefreshAction(IProgressMonitor monitor) {
         if(monitor == null){
             monitor = new NullProgressMonitor();
         }
-        PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenDir, monitor);
+        PyCoverage.getPyCoverage().refreshCoverageInfo(PyCoveragePreferences.getLastChosenDir(), monitor);
         
-        File input = lastChosenDir.getLocation().toFile();
+        File input = PyCoveragePreferences.getLastChosenDir().getLocation().toFile();
         viewer.refresh();
         ITreeContentProvider contentProvider = (ITreeContentProvider) viewer.getContentProvider();
         Object[] children = contentProvider.getChildren(input);
@@ -182,15 +215,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         }
     }
     
-    /**
-     * @return
-     */
-    public static boolean getAllRunsDoCoverage() {
-        return allRunsDoCoverage && lastChosenDir != null && lastChosenDir.exists();
-    }
-    
     public static IContainer getChosenDir() {
-        return lastChosenDir;
+        return PyCoveragePreferences.getLastChosenDir();
     }
 
     
@@ -247,7 +273,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         }else{
             File realFile = new File(obj.toString());
             if (realFile.exists()) {
-                text.setText(PyCoverage.getPyCoverage().cache.getStatistics(lastChosenDir, realFile));
+                text.setText(PyCoverage.getPyCoverage().cache.getStatistics(PyCoveragePreferences.getLastChosenDir(), realFile));
             }else{
                 text.setText("Selection no longer exists in disk: "+obj.toString());
             }
@@ -351,11 +377,11 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
     
     
     public void setSelectedContainer(IContainer container, IProgressMonitor monitor) {
-        lastChosenDir = container;
+        PyCoveragePreferences.setLastChosenDir(container);
         updateErrorMessages();
         
         viewer.setInput(container.getLocation().toFile());
-        executeRefreshAction(monitor);
+        ProgressOperation.startAction(getSite().getShell(), refreshAction, true);
     }
 
 
@@ -400,7 +426,6 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      */
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);
-        allRunsDoCoverage = false;
         
         GridLayout layout = new GridLayout();
         layout.numColumns = 2;
@@ -452,9 +477,10 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         //all the runs from now on go through coverage?
         allRunsGoThroughCoverage = new Button(parent, SWT.CHECK);
         allRunsGoThroughCoverage.setText("Enable code coverage for new launches?");
+        allRunsGoThroughCoverage.setSelection(PyCoveragePreferences.getInternalAllRunsDoCoverage());
         allRunsGoThroughCoverage.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                allRunsDoCoverage = allRunsGoThroughCoverage.getSelection();
+                PyCoveragePreferences.setInternalAllRunsDoCoverage(allRunsGoThroughCoverage.getSelection());
                 updateErrorMessages();
             }
         });
@@ -463,6 +489,87 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         layoutData.horizontalAlignment = GridData.FILL;
         allRunsGoThroughCoverage.setLayoutData(layoutData);
         //end all runs go through coverage
+        
+        
+        
+        //Clear the coverage info on each launch?
+        clearCoverageInfoOnNextLaunch = new Button(parent, SWT.CHECK);
+        clearCoverageInfoOnNextLaunch.setText("Clear coverage info on a new launch?");
+        clearCoverageInfoOnNextLaunch.setSelection(PyCoveragePreferences.getClearCoverageInfoOnNextLaunch());
+        clearCoverageInfoOnNextLaunch.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                PyCoveragePreferences.setClearCoverageInfoOnNextLaunch(clearCoverageInfoOnNextLaunch.getSelection());
+            }
+        });
+        PythonRunnerCallbacks.onCreatedCommandLine.registerListener(new ICallbackListener<PythonRunnerCallbacks.CreatedCommandLineParams>() {
+            public Object call(CreatedCommandLineParams arg) {
+                if(arg.coverageRun){
+                    if(PyCoveragePreferences.getClearCoverageInfoOnNextLaunch()){
+                        try {
+                            PyCoverage.getPyCoverage().clearInfo();
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    }
+                }
+                return null;
+            }
+        });
+        layoutData = new GridData();
+        layoutData.grabExcessHorizontalSpace = true;
+        layoutData.horizontalAlignment = GridData.FILL;
+        clearCoverageInfoOnNextLaunch.setLayoutData(layoutData);
+        //end all runs go through coverage
+        
+        
+        
+        //Refresh the coverage info on each launch?
+        refreshCoverageInfoOnNextLaunch = new Button(parent, SWT.CHECK);
+        refreshCoverageInfoOnNextLaunch.setText("Refresh on new launch?");
+        refreshCoverageInfoOnNextLaunch.setSelection(PyCoveragePreferences.getRefreshAfterNextLaunch());
+        refreshCoverageInfoOnNextLaunch.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                PyCoveragePreferences.setRefreshAfterNextLaunch(refreshCoverageInfoOnNextLaunch.getSelection());
+            }
+        });
+        PythonRunnerCallbacks.afterCreatedProcess.registerListener(new ICallbackListener<Process>() {
+
+            public Object call(final Process obj) {
+                new Thread(){
+                    @Override
+                    public void run() {
+                        boolean finished = false;
+                        while(!finished){
+                            try {
+                                obj.waitFor();
+                                finished = true;
+                            } catch (InterruptedException e) {
+                                //ignore
+                            }
+                        }
+                        //If it got here, the process was finished (so, check the setting on refresh and do it if 
+                        //needed).
+                        if(PyCoveragePreferences.getRefreshAfterNextLaunch()){
+                            RunInUiThread.async(new Runnable() {
+                                
+                                public void run() {
+                                    ProgressOperation.startAction(getSite().getShell(), refreshAction, true);
+                                }
+                            });
+                        }
+                    }
+                }.start();
+                return null;
+            }
+        });
+        layoutData = new GridData();
+        layoutData.grabExcessHorizontalSpace = true;
+        layoutData.horizontalAlignment = GridData.FILL;
+        refreshCoverageInfoOnNextLaunch.setLayoutData(layoutData);
+        //end all runs go through coverage
+        
+        
+        
 
         //choose button
         chooseButton = new Button(parent, SWT.PUSH);
@@ -490,16 +597,10 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         
         menuManager.add(clearAction);
         menuManager.add(refreshAction);
+        if(REF.getSupportsOpenDirectory()){
+            menuManager.add(openCoverageFolderAction);
+        }
 
-//        //clear results button
-//        clearButton = new Button(parent, SWT.PUSH);
-//        createButton(parent, clearButton, "Clear coverage information", clearAction);
-//        //end choose button
-//
-//        //refresh button
-//        refreshButton = new Button(parent, SWT.PUSH);
-//        createButton(parent, refreshButton, "Refresh coverage information", refreshAction);
-//        //end choose button
 
         this.refresh();
         updateErrorMessages();
@@ -565,7 +666,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      */
     @Override
     public void dispose() {
-        allRunsDoCoverage = false;
+        PyCoveragePreferences.setInternalAllRunsDoCoverage(false);
         super.dispose();
     }
 
@@ -573,8 +674,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         
         boolean showError = false;
         
-        if(allRunsDoCoverage){
-            if(lastChosenDir == null){
+        if(PyCoveragePreferences.getInternalAllRunsDoCoverage()){
+            if(PyCoveragePreferences.getLastChosenDir() == null){
                 showError = true;
             }
         }
