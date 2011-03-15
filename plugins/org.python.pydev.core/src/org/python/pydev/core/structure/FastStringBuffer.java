@@ -381,6 +381,15 @@ public final class FastStringBuffer{
         }
         return -1;
     }
+    
+    public int indexOf(char c, int fromOffset) {
+        for(int i=fromOffset;i<this.count;i++){
+            if(c == this.value[i]){
+                return i;
+            }
+        }
+        return -1;
+    }
 
     public char firstChar() {
         return this.value[0];

@@ -11,6 +11,7 @@
  */
 package org.python.pydev.debug.codecoverage;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 
@@ -37,14 +41,14 @@ import org.python.pydev.core.structure.FastStringBuffer;
  */
 public class CoverageCache {
 
-    public Map<Object, Object> folders = new HashMap<Object, Object>();
-    public Map<Object, Object> files = new HashMap<Object, Object>();
+    public Map<File, ICoverageNode> folders = new HashMap<File, ICoverageNode>();
+    public Map<File, ICoverageNode> files = new HashMap<File, ICoverageNode>();
     
     /**
      * 
      * @param node
      */
-    public void addFolder(Object node) {
+    public void addFolder(File node) {
         FolderNode c = new FolderNode();
         c.node = node;
         folders.put(node, c);
@@ -55,7 +59,7 @@ public class CoverageCache {
      * @param node
      * @param parent
      */
-    public void addFolder(Object node, Object parent) {
+    public void addFolder(File node, File parent) {
         FolderNode parentNode = (FolderNode) getFolder(parent);
         
         FolderNode newNode = new FolderNode();
@@ -68,11 +72,11 @@ public class CoverageCache {
         folders.put(node, newNode);
     }
 
-    public Object getFolder(Object obj){
-        return getIt(obj,folders);
+    public FolderNode getFolder(File obj){
+        return (FolderNode) getIt(obj,folders);
     }
     
-    public Object getFile(Object obj){
+    public ICoverageNode getFile(File obj){
         return getIt(obj,files);
     }
     
@@ -80,10 +84,10 @@ public class CoverageCache {
      * @param obj
      * @return
      */
-    private Object getIt(Object obj, Map<Object, Object> m) {
-        Object object = m.get(obj);
+    private ICoverageNode getIt(File obj, Map<File, ICoverageNode> m) {
+        ICoverageNode object = m.get(obj);
         if (object == null){
-            for (Iterator<Object> iter = m.keySet().iterator(); iter.hasNext();) {
+            for (Iterator<File> iter = m.keySet().iterator(); iter.hasNext();) {
                 Object element = iter.next();
                 if(element.equals(obj)){
                     return m.get(element);
@@ -101,7 +105,7 @@ public class CoverageCache {
      * @param exec
      * @param notExecuted
      */
-    public void addFile(Object node, Object parent, int stmts, int exec, String notExecuted) {
+    public void addFile(File node, File parent, int stmts, int exec, String notExecuted) {
         FolderNode folderNode = (FolderNode) getFolder(parent);
         
         if (folderNode == null){
@@ -126,7 +130,7 @@ public class CoverageCache {
      * @param exec
      * @param notExecuted
      */
-    public void addFile(Object node, Object parent, String desc) {
+    public void addFile(File node, File parent, String desc) {
         FolderNode folderNode = (FolderNode) getFolder(parent);
         
         if (folderNode == null){
@@ -141,21 +145,21 @@ public class CoverageCache {
         files.put(node, fileNode);
     }
 
-    public List<Object> getFiles(Object node) throws NodeNotFoudException{
+    public List<ICoverageNode> getFiles(File node) throws NodeNotFoudException{
         FolderNode folderNode = (FolderNode) getFolder(node);
         if (folderNode == null){
-            Object fileNode = getFile(node);
+            ICoverageNode fileNode = getFile(node);
             if (fileNode == null){
                 throw new NodeNotFoudException("The node has not been found: "+node.toString());
             }
-            ArrayList<Object> list = new ArrayList<Object>();
+            ArrayList<ICoverageNode> list = new ArrayList<ICoverageNode>();
             list.add(fileNode);
             return list;
         }
         
         
         //we have a folder node.
-        ArrayList<Object> list = new ArrayList<Object>();
+        ArrayList<ICoverageNode> list = new ArrayList<ICoverageNode>();
         recursivelyFillList(folderNode, list);
         return list;
     }
@@ -164,17 +168,28 @@ public class CoverageCache {
      * @param folderNode
      * @param list
      */
-    private void recursivelyFillList(FolderNode folderNode, ArrayList<Object> list) {
-        list.addAll(sortCollectionWithToString(folderNode.files.values()));
+    private void recursivelyFillList(FolderNode folderNode, ArrayList<ICoverageNode> list) {
+        list.addAll(sortCollectionWithCoverageLeafNodes(folderNode.files.values()));
         
         //get its sub folders
-        for (Iterator<Object> it = sortCollectionWithToString(folderNode.subFolders.values()).iterator(); it.hasNext();) {
+        for (Iterator<ICoverageNode> it = sortCollectionWithToString(folderNode.subFolders.values()).iterator(); it.hasNext();) {
             recursivelyFillList((FolderNode) it.next(), list);
         }
     }
+    
+    private List<ICoverageLeafNode> sortCollectionWithCoverageLeafNodes(Collection<ICoverageLeafNode> collection) {
+        List<ICoverageLeafNode> vals = new ArrayList<ICoverageLeafNode>(collection);
+        Collections.sort(vals, new Comparator<Object>(){
+            
+            public int compare(Object o1, Object o2) {
+                return o1.toString().compareTo(o2.toString());
+            }}
+        );
+        return vals;
+    }
 
-    private List<Object> sortCollectionWithToString(Collection<Object> collection) {
-        List<Object> vals = new ArrayList<Object>(collection);
+    private List<ICoverageNode> sortCollectionWithToString(Collection<ICoverageNode> collection) {
+        List<ICoverageNode> vals = new ArrayList<ICoverageNode>(collection);
         Collections.sort(vals, new Comparator<Object>(){
 
             public int compare(Object o1, Object o2) {
@@ -199,14 +214,14 @@ public class CoverageCache {
      *  TOTAL              20     15    75%
      * 
      */
-    public String getStatistics(IContainer baseDir, Object node) {
-        
+    public Tuple<String, List<StyleRange>> getStatistics(IContainer baseDir, File node) {
+        List<StyleRange> ranges = new ArrayList<StyleRange>();
 
         FastStringBuffer buffer = new FastStringBuffer();
         String baseLocation = baseDir != null?baseDir.getLocation().toOSString():"";
         
         try {
-            List<Object> list = getFiles(node);  //array of FileNode
+            List<ICoverageNode> list = getFiles(node);  //array of FileNode
             
             //40 chars for name.
             buffer.append("Name                                      Stmts     Exec     Cover  Missing\n");
@@ -215,10 +230,22 @@ public class CoverageCache {
             int totalExecuted = 0;
             int totalStmts = 0;
             
-            for (Object element:list) {
+            for (ICoverageNode element:list) {
                 if(element instanceof FileNode){ //it may have been an error node...
                     FileNode fileNode = (FileNode)element;
+                    int start = buffer.length();
                     fileNode.appendToBuffer(buffer, baseLocation).append("\n");
+                    int len = buffer.indexOf(' ', start) - start;
+                    StyleRange styleRange = new StyleRange(start, len, null, null);
+                    styleRange.underline = true;
+                    try{
+                        styleRange.underlineStyle = SWT.UNDERLINE_LINK;
+                    }catch(Throwable e){
+                        //Ignore (not available on earlier versions of eclipse)
+                    }
+                    ranges.add(styleRange);
+                    styleRange.data = element;
+
                     totalExecuted += fileNode.exec;
                     totalStmts += fileNode.stmts;
                 }else{
@@ -232,7 +259,7 @@ public class CoverageCache {
         } catch (NodeNotFoudException e) {
             buffer.append("File has no statistics.");
         }
-        return buffer.toString();
+        return new Tuple<String, List<StyleRange>>(buffer.toString(), ranges);
     }
 
     /**

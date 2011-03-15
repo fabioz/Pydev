@@ -5,6 +5,7 @@ import unittest
 import pydev_runfiles_unittest
 from pydevd_constants import * #@UnusedWildImport
 import time
+from pydev_runfiles_coverage import StartCoverageSupport
 
 
 #=======================================================================================================================
@@ -517,18 +518,6 @@ class PydevTestRunner(object):
         return 0
 
 
-    def get_coverage_files(self, number_of_files):
-        base_dir = self.configuration.coverage_output_dir
-        ret = []
-        i = 0
-        while len(ret) < number_of_files:
-            while True:
-                f = os.path.join(base_dir, '.coverage.%s' % i)
-                i += 1
-                if not os.path.exists(f):
-                    ret.append(f)
-                    break #Break only inner for.
-        return ret
 
     def run_tests(self):
         """ runs all tests """
@@ -541,44 +530,7 @@ class PydevTestRunner(object):
         sys.stdout.write("Importing test modules ... ")
         
         
-        
-        coverage_files = []
-        self.coverage = Null()
-        if self.configuration.coverage_output_dir or self.configuration.coverage_output_file:
-            try:
-                import coverage
-            except:
-                sys.stderr.write('Error: coverage module could not be imported\n')
-                sys.stderr.write('Please make sure that the coverage module (http://nedbatchelder.com/code/coverage/)\n')
-                sys.stderr.write('is properly installed in your interpreter: %s\n' % (sys.executable,))
-                
-                import traceback;traceback.print_exc()
-            else:
-                if self.configuration.coverage_output_dir:
-                    if not os.path.exists(self.configuration.coverage_output_dir):
-                        sys.stderr.write('Error: directory for coverage output (%s) does not exist.\n' % (self.configuration.coverage_output_dir,))
-                        
-                    elif not os.path.isdir(self.configuration.coverage_output_dir):
-                        sys.stderr.write('Error: expected (%s) to be a directory.\n' % (self.configuration.coverage_output_dir,))
-                        
-                    else:
-                        n = self.jobs
-                        if n <= 0:
-                            n += 1
-                        n += 1 #Add 1 more for the current process (which will do the initial import).
-                        coverage_files = self.get_coverage_files(n)
-                        os.environ['COVERAGE_FILE'] = coverage_files.pop(0)
-                        
-                        self.coverage = coverage.coverage(source=[self.configuration.coverage_include], include=['*'])
-                        self.coverage.start()
-                        
-                elif self.configuration.coverage_output_file:
-                    #Client of parallel run.
-                    os.environ['COVERAGE_FILE'] = self.configuration.coverage_output_file
-                    self.coverage = coverage.coverage(source=[self.configuration.coverage_include], include=['*'])
-                    self.coverage.start()
-        
-        
+        coverage_files, self.coverage = StartCoverageSupport(self.configuration)
         
         file_and_modules_and_module_name = self.find_modules_from_files(files)
         sys.stdout.write("done.\n")

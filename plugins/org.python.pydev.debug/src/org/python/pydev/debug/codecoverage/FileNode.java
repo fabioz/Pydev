@@ -11,6 +11,7 @@
  */
 package org.python.pydev.debug.codecoverage;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,9 +22,9 @@ import org.python.pydev.core.structure.FastStringBuffer;
 /**
  * @author Fabio Zadrozny
  */
-public class FileNode {
+public class FileNode implements ICoverageLeafNode{
     
-    public Object node;
+    public File node;
     public int stmts;
     public int exec;
     public String notExecuted;
@@ -62,7 +63,7 @@ public class FileNode {
         if(name.startsWith("/") || name.startsWith("\\")){
             name = name.substring(1);
         }
-        return appendToBuffer(buffer,name, stmts, exec, notExecuted);
+        return appendToBuffer(buffer, name, stmts, exec, notExecuted);
     }
     
     /**
@@ -89,7 +90,7 @@ public class FileNode {
         
         if(buffer.length() > 40){
             buffer = buffer.delete(0, Math.abs(37-str.length()));
-            buffer.insert(0, ".. ");
+            buffer.insert(0, "...");
         }
         if (buffer.length() < 40){
             buffer.appendN(' ', 40-str.length());

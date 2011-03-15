@@ -15,7 +15,7 @@ package org.python.pydev.debug.codecoverage;
 /**
  * @author Fabio Zadrozny
  */
-public class ErrorFileNode {
+public class ErrorFileNode implements ICoverageLeafNode{
     public Object node;
     public String desc;
     

@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -38,18 +39,23 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -59,6 +65,7 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
@@ -66,9 +73,7 @@ import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.model.Location;
+import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
@@ -129,7 +134,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
     private Button chooseButton;
     
     //write the results here
-    private Text text;
+    private StyledText text;
 
     //tree so that user can browse results.
     private TreeViewer viewer;
@@ -273,7 +278,10 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         }else{
             File realFile = new File(obj.toString());
             if (realFile.exists()) {
-                text.setText(PyCoverage.getPyCoverage().cache.getStatistics(PyCoveragePreferences.getLastChosenDir(), realFile));
+                IContainer lastChosenDir = PyCoveragePreferences.getLastChosenDir();
+                Tuple<String, List<StyleRange>> statistics = PyCoverage.getPyCoverage().cache.getStatistics(lastChosenDir, realFile);
+                text.setText(statistics.o1);
+                text.setStyleRanges(statistics.o2.toArray(new StyleRange[statistics.o2.size()]));
             }else{
                 text.setText("Selection no longer exists in disk: "+obj.toString());
             }
@@ -304,45 +312,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
                 File realFile = new File(obj.toString());
                 if (realFile.exists() && !realFile.isDirectory()) {
-                    ItemPointer p = new ItemPointer(realFile, new Location(-1, -1), null);
-                    PyOpenAction act = new PyOpenAction();
-                    act.run(p);
-
-                    if (act.editor instanceof PyEdit) {
-                        PyEdit e = (PyEdit) act.editor;
-                        IEditorInput input = e.getEditorInput();
-                        IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
-                        if (original == null)
-                            return;
-                        IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
-
-                        String type = IMarker.PROBLEM;
-                        original.deleteMarkers(type, false, 1);
-
-                        String message = "Not Executed";
-
-                        FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
-                        if(cache != null){
-                            for (Iterator<Object> it = cache.notExecutedIterator(); it.hasNext();) {
-                                Map<String, Object> map = new HashMap<String, Object>();
-                                int errorLine = ((Integer) it.next()).intValue() - 1;
-    
-                                IRegion region = document.getLineInformation(errorLine);
-                                int errorEnd = region.getOffset();
-                                int errorStart = region.getOffset() + region.getLength();
-    
-                                map.put(IMarker.MESSAGE, message);
-                                map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
-                                map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
-                                map.put(IMarker.CHAR_START, new Integer(errorStart));
-                                map.put(IMarker.CHAR_END, new Integer(errorEnd));
-                                map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
-                                map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
-    
-                                MarkerUtilities.createMarker(original, map, type);
-                            }
-                        }
-                    }
+                    openFileWithCoverageMarkers(realFile);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -458,12 +428,28 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         leftComposite.setLayoutData(layoutData);
         leftComposite.setLayout(layout);
 
-        text = new Text(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+        text = new StyledText(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         try {
             text.setFont(new Font(null, "Courier new", 10, 0));
         } catch (Exception e) {
             //ok, might mot be available.
         }
+        
+        text.addMouseListener(new MouseAdapter() {
+            
+            public void mouseDown(MouseEvent e) {
+                int offset = text.getOffsetAtLocation(new Point(e.x, e.y));
+                StyleRange r = text.getStyleRangeAtOffset(offset);
+                Object o = r.data;
+                if(o instanceof FileNode){
+                    FileNode fileNode = (FileNode) o;
+                    if(fileNode.node != null && fileNode.node.exists()){
+                        openFileWithCoverageMarkers(fileNode.node);
+                    }
+                }
+            }
+        });
+        
         onControlCreated.call(text);
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
@@ -730,6 +716,53 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
     public String getCoverageText() {
         return this.text.getText();
+    }
+
+    private void openFileWithCoverageMarkers(File realFile) {
+        IEditorPart editor = PyOpenEditor.doOpenEditor(realFile);
+        if (editor instanceof PyEdit) {
+            PyEdit e = (PyEdit) editor;
+            IEditorInput input = e.getEditorInput();
+            IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
+            if (original == null)
+                return;
+            IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
+
+            String type = IMarker.PROBLEM;
+            try {
+                original.deleteMarkers(type, false, 1);
+            } catch (CoreException e1) {
+                Log.log(e1);
+            }
+
+            String message = "Not Executed";
+
+            FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
+            if(cache != null){
+                for (Iterator<Object> it = cache.notExecutedIterator(); it.hasNext();) {
+                    try {
+                        Map<String, Object> map = new HashMap<String, Object>();
+                        int errorLine = ((Integer) it.next()).intValue() - 1;
+   
+                        IRegion region = document.getLineInformation(errorLine);
+                        int errorEnd = region.getOffset();
+                        int errorStart = region.getOffset() + region.getLength();
+   
+                        map.put(IMarker.MESSAGE, message);
+                        map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
+                        map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
+                        map.put(IMarker.CHAR_START, new Integer(errorStart));
+                        map.put(IMarker.CHAR_END, new Integer(errorEnd));
+                        map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
+                        map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
+   
+                        MarkerUtilities.createMarker(original, map, type);
+                    } catch (Exception e1) {
+                        Log.log(e1);
+                    }
+                }
+            }
+        }
     }
 
 
