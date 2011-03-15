@@ -21,7 +21,7 @@ public class StringUtilsTest extends TestCase {
         try {
             StringUtilsTest test = new StringUtilsTest();
             test.setUp();
-            test.testRemoveWhitespaceColumnsToLeftAndApplyIndent();
+            test.testSplitWithMax();
             test.tearDown();
             junit.textui.TestRunner.run(StringUtilsTest.class);
         } catch (Throwable e) {
@@ -107,6 +107,23 @@ public class StringUtilsTest extends TestCase {
         assertEquals(new Tuple<String, String>("aa", "bb.cc"), StringUtils.splitOnFirst("aa<TAG>bb.cc", "<TAG>"));
         assertEquals(new Tuple<String, String>("aa_bb_cc", ""), StringUtils.splitOnFirst("aa_bb_cc", "TAG"));
         
+    }
+    
+    public void testSplitWithMax() throws Exception{
+        String[] split = StringUtils.split("a b c", ' ', 1).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"a b c"}, split));
+        
+        split = StringUtils.split("a b c", ' ', 2).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"a", "b c"}, split));
+        
+        split = StringUtils.split("aaa  bb  ", ' ', 2).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb  "}, split));
+        
+        split = StringUtils.split("aaa  bb  ", ' ', 3).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa", "bb"}, split));
+        
+        split = StringUtils.split("aaa  bb  ", ' ', 1).toArray(new String[0]);
+        assertTrue(Arrays.equals(new String[]{"aaa  bb  "}, split));
     }
     
     public void testSplit() throws Exception{
@@ -271,7 +288,7 @@ public class StringUtilsTest extends TestCase {
         
         assertTrue(StringUtils.isPythonIdentifier("a"));
         assertTrue(StringUtils.isPythonIdentifier("a1"));
-        assertTrue(StringUtils.isPythonIdentifier("a1Àã"));
+        assertTrue(StringUtils.isPythonIdentifier("a1ï¿½ï¿½"));
     }
     
     public void testGetFirstWithUpper() throws Exception {

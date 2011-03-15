@@ -21,12 +21,12 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.python.pydev.core.TestCaseUtils;
+import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.plugin.PydevPlugin;
@@ -101,7 +101,7 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase{
 
     public void testPyCodeCoverageView() throws Exception {
         
-        PyCodeCoverageView view = PyCodeCoverageView.getView(true);
+        final PyCodeCoverageView view = PyCodeCoverageView.getView(true);
         //At this point it should have no folder selected and the option to run things in coverage should be
         //set to false.
         assertTrue(!PyCoveragePreferences.getAllRunsDoCoverage());
@@ -151,11 +151,18 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase{
                 }
             });
 
+            final String modCovCoverageText = StringUtils.replaceNewLines(getModCovCoverageText(), "\n");
             //Should be enough time for the refresh to happen!
-            goToManual(1000);
+            goToManual(10000, new ICallback<Boolean, Object>() {
+                
+                public Boolean call(Object arg) {
+                    return modCovCoverageText.equals(StringUtils.replaceNewLines(view.getCoverageText(), "\n"));
+                }
+            });
             
-            TestCaseUtils.assertContentsEqual(getModCovCoverageText(), view.getCoverageText());
+            TestCaseUtils.assertContentsEqual(modCovCoverageText, view.getCoverageText());
 
+            //goToManual();
         } finally {
             try {
                 modCovEditor.close(false);

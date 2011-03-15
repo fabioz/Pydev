@@ -28,15 +28,14 @@ def execute():
             #For all commands, the coverage file is configured in pydev, and passed as the first argument
             #in the command line, so, let's make sure this gets to the coverage module.            
             os.environ['COVERAGE_FILE'] = sys.argv[1]
-            print('Reporting to '+sys.argv[1])
             del sys.argv[1]
         
     try:
         import coverage
     except:
-        print('Error: coverage module could not be imported\n')
-        print('Please make sure that the coverage module (http://nedbatchelder.com/code/coverage/)\n')
-        print('is properly installed in your interpreter: %s\n' % (sys.executable,))
+        sys.stderr.write('Error: coverage module could not be imported\n')
+        sys.stderr.write('Please make sure that the coverage module (http://nedbatchelder.com/code/coverage/)\n')
+        sys.stderr.write('is properly installed in your interpreter: %s\n' % (sys.executable,))
         
         import traceback;traceback.print_exc()
         return

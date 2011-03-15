@@ -20,6 +20,7 @@ import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 
+import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.cache.Cache;
 import org.python.pydev.core.cache.LRUCache;
@@ -388,6 +389,48 @@ public class StringUtils {
         } catch (Exception e) {
         }
         return "";
+    }
+    
+    /**
+     * Splits the passed string based on the toSplit string.
+     */
+    public static List<String> split(final String string, final char toSplit, int maxPartsToSplit) {
+        Assert.isTrue(maxPartsToSplit > 0);
+        ArrayList<String> ret = new ArrayList<String>();
+        int len = string.length();
+        
+        int last = 0;
+        
+        char c = 0;
+        
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if(c == toSplit){
+                if(last != i){
+                    if(ret.size() == maxPartsToSplit-1){
+                        ret.add(string.substring(last, string.length()));
+                        return ret;
+                    }else{
+                        ret.add(string.substring(last, i));
+                    }
+                }
+                while(c == toSplit && i < len-1){
+                    i++;
+                    c = string.charAt(i);
+                }
+                last = i;
+            }
+        }
+        if(c != toSplit){
+            if(last == 0 && len > 0){
+                ret.add(string); //it is equal to the original (no char to split)
+                
+            }else if(last < len){
+                ret.add(string.substring(last, len));
+                
+            }
+        }
+        return ret;
     }
 
     /**

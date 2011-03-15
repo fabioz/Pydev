@@ -22,6 +22,9 @@ class Configuration:
         files_to_tests=None, 
         jobs=1,
         split_jobs='tests',
+        coverage_output_dir=None, 
+        coverage_include=None,
+        coverage_output_file=None, 
         ):
         self.files_or_dirs = files_or_dirs
         self.verbosity = verbosity
@@ -31,6 +34,10 @@ class Configuration:
         self.files_to_tests = files_to_tests
         self.jobs = jobs
         self.split_jobs = split_jobs
+        
+        self.coverage_output_dir = coverage_output_dir 
+        self.coverage_include = coverage_include
+        self.coverage_output_file = coverage_output_file
         
 
 #=======================================================================================================================
@@ -57,10 +64,24 @@ def parse_cmdline(argv=None):
     jobs = 1
     split_jobs = 'tests'
     files_to_tests = {}
+    coverage_output_dir = None
+    coverage_include = None
 
     from _pydev_getopt import gnu_getopt
     optlist, dirs = gnu_getopt(
-        argv[1:], "v:f:t:p:c:j:s", ["verbosity=", "filter=", "tests=", "port=", "config_file=", "jobs=", "split_jobs="])
+        argv[1:], "v:f:t:p:c:j:s:d:i", 
+        [
+            "verbosity=", 
+            "filter=", 
+            "tests=", 
+            "port=", 
+            "config_file=", 
+            "jobs=", 
+            "split_jobs=", 
+            "coverage_output_dir=", 
+            "coverage_include=", 
+        ]
+    )
     
     for opt, value in optlist:
         if opt in ("-v", "--verbosity"):
@@ -76,6 +97,12 @@ def parse_cmdline(argv=None):
             split_jobs = value
             if split_jobs not in ('module', 'tests'):
                 raise AssertionError('Expected split to be either "module" or "tests". Was :%s' % (split_jobs,))
+            
+        elif opt in ("-d", "--coverage_output_dir",):
+            coverage_output_dir = value.strip()
+            
+        elif opt in ("-i", "--coverage_include",):
+            coverage_include = value.strip()
             
         elif opt in ("-f", "--filter"):
             test_filter = value.split(',')
@@ -119,7 +146,18 @@ def parse_cmdline(argv=None):
         else:
             ret_dirs.append(d)
 
-    return Configuration(ret_dirs, int(verbosity), test_filter, tests, port, files_to_tests, jobs, split_jobs)
+    return Configuration(
+        ret_dirs, 
+        int(verbosity), 
+        test_filter, 
+        tests, 
+        port, 
+        files_to_tests, 
+        jobs, 
+        split_jobs, 
+        coverage_output_dir, 
+        coverage_include, 
+    )
 
             
      
@@ -144,6 +182,9 @@ class PydevTestRunner(object):
         
         'jobs', #Integer with the number of jobs that should be used to run the test cases
         'split_jobs', #String with 'tests' or 'module' (how should the jobs be split)
+        
+        'configuration',
+        'coverage',
     ]
 
     def __init__(self, configuration):
@@ -163,6 +204,8 @@ class PydevTestRunner(object):
             self.files_or_dirs = configuration.files_or_dirs
             self.test_filter = self.__setup_test_filter(configuration.test_filter)
             self.tests = configuration.tests
+            
+        self.configuration = configuration
         self.__adjust_path()
 
 
@@ -474,6 +517,19 @@ class PydevTestRunner(object):
         return 0
 
 
+    def get_coverage_files(self, number_of_files):
+        base_dir = self.configuration.coverage_output_dir
+        ret = []
+        i = 0
+        while len(ret) < number_of_files:
+            while True:
+                f = os.path.join(base_dir, '.coverage.%s' % i)
+                i += 1
+                if not os.path.exists(f):
+                    ret.append(f)
+                    break #Break only inner for.
+        return ret
+
     def run_tests(self):
         """ runs all tests """
         sys.stdout.write("Finding files... ")
@@ -483,6 +539,47 @@ class PydevTestRunner(object):
         else:
             sys.stdout.write('done.\n')
         sys.stdout.write("Importing test modules ... ")
+        
+        
+        
+        coverage_files = []
+        self.coverage = Null()
+        if self.configuration.coverage_output_dir or self.configuration.coverage_output_file:
+            try:
+                import coverage
+            except:
+                sys.stderr.write('Error: coverage module could not be imported\n')
+                sys.stderr.write('Please make sure that the coverage module (http://nedbatchelder.com/code/coverage/)\n')
+                sys.stderr.write('is properly installed in your interpreter: %s\n' % (sys.executable,))
+                
+                import traceback;traceback.print_exc()
+            else:
+                if self.configuration.coverage_output_dir:
+                    if not os.path.exists(self.configuration.coverage_output_dir):
+                        sys.stderr.write('Error: directory for coverage output (%s) does not exist.\n' % (self.configuration.coverage_output_dir,))
+                        
+                    elif not os.path.isdir(self.configuration.coverage_output_dir):
+                        sys.stderr.write('Error: expected (%s) to be a directory.\n' % (self.configuration.coverage_output_dir,))
+                        
+                    else:
+                        n = self.jobs
+                        if n <= 0:
+                            n += 1
+                        n += 1 #Add 1 more for the current process (which will do the initial import).
+                        coverage_files = self.get_coverage_files(n)
+                        os.environ['COVERAGE_FILE'] = coverage_files.pop(0)
+                        
+                        self.coverage = coverage.coverage(source=[self.configuration.coverage_include], include=['*'])
+                        self.coverage.start()
+                        
+                elif self.configuration.coverage_output_file:
+                    #Client of parallel run.
+                    os.environ['COVERAGE_FILE'] = self.configuration.coverage_output_file
+                    self.coverage = coverage.coverage(source=[self.configuration.coverage_include], include=['*'])
+                    self.coverage.start()
+        
+        
+        
         file_and_modules_and_module_name = self.find_modules_from_files(files)
         sys.stdout.write("done.\n")
         
@@ -510,13 +607,17 @@ class PydevTestRunner(object):
             #(e.g.: 2 jobs were requested for running 1 test) -- in which case ExecuteTestsInParallel will
             #return False and won't run any tests.
             executed_in_parallel = pydev_runfiles_parallel.ExecuteTestsInParallel(
-                all_tests, self.jobs, self.split_jobs, self.verbosity)
+                all_tests, self.jobs, self.split_jobs, self.verbosity, coverage_files, self.configuration.coverage_include)
             
         if not executed_in_parallel:
+            #If in coverage, we don't need to pass anything here (coverage is already enabled for this execution).
             runner = pydev_runfiles_unittest.PydevTextTestRunner(stream=sys.stdout, descriptions=1, verbosity=self.verbosity)
             sys.stdout.write('\n')
             runner.run(test_suite)
             
+        self.coverage.stop()
+        self.coverage.save()
+        
         total_time = 'Finished in: %.2f secs.' % (time.time() - start_time,)
         pydev_runfiles_xml_rpc.notifyTestRunFinished(total_time)
 

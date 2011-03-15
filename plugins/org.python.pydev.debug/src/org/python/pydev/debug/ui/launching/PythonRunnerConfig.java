@@ -661,7 +661,7 @@ public class PythonRunnerConfig {
         
         }else{
             //Last thing (first the files and last the special parameters the user passed -- i.e.: nose parameters) 
-            addUnittestArgs(cmdArgs, actualRun);
+            addUnittestArgs(cmdArgs, actualRun, coverageRun);
         }
         
         String[] retVal = new String[cmdArgs.size()];
@@ -686,8 +686,9 @@ public class PythonRunnerConfig {
     /**
      * Adds a set of arguments used to wrap executed file with unittest runner.
      * @param actualRun in an actual run we'll start the xml-rpc server.
+     * @param coverageRun whether we should add the flags to do a coverage run.
      */
-    private void addUnittestArgs(List<String> cmdArgs, boolean actualRun) throws CoreException {
+    private void addUnittestArgs(List<String> cmdArgs, boolean actualRun, boolean coverageRun) throws CoreException {
         if (isUnittest()) {
 
             //The tests are either written to a configuration file or passed as a parameter. 
@@ -736,6 +737,15 @@ public class PythonRunnerConfig {
                     cmdArgs.add("0");
                 }
             }
+            
+            if(coverageRun){
+                cmdArgs.add("--coverage_output_dir");
+                cmdArgs.add(PyCoverage.getCoverageDirLocation().getAbsolutePath());
+                
+                cmdArgs.add("--coverage_include");
+                cmdArgs.add(PyCodeCoverageView.getChosenDir().getLocation().toOSString());
+            }
+
             
             //Last thing: nose parameters or parameters the user configured.
             for(String s:parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration))){

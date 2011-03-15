@@ -231,11 +231,11 @@ public class PyCoverage {
      */
     private void analyzeReadLine(IProgressMonitor monitor, String str, FastStringBuffer tempBuf) {
         //The line we're interested in is something as 
-        //D:\workspaces\temp\test_workspace\pytesting1\src\mod1\a   10      3    70%   4-6
+        //D:\workspaces\temp\test_workspace\pytesting1\src\mod1\a   10      3    70%   4-6, 18, 19
         //with the last part (missing) optional.
         
         boolean added = false;
-        List<String> strings = StringUtils.split(str, ' ');
+        List<String> strings = StringUtils.split(str, ' ', 5);
         String[] dottedValidSourceFiles = FileTypesPreferencesPage.getDottedValidSourceFiles();
 
         File f = null;
@@ -244,7 +244,7 @@ public class PyCoverage {
 
             try {
                 if (!strings.get(1).equalsIgnoreCase("stmts") && !strings.get(0).equalsIgnoreCase("total")) {
-                    //information in the format: D:\workspaces\temp\test_workspace\pytesting1\src\mod1\a   10      3    70%   4-6
+                    //information in the format: D:\workspaces\temp\test_workspace\pytesting1\src\mod1\a   10      3    70%   4-6, 18
                     String fileStr = strings.get(0);
                     boolean found = false;
                     for(String ext:dottedValidSourceFiles){
