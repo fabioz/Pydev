@@ -149,17 +149,16 @@ public class PyCoverage {
                 files += "\r";
                 monitor.setTaskName("Writing to shell...");
 
-                ThreadStreamReader inputStream = new ThreadStreamReader(p.getInputStream());
+                //No need to synchronize as we'll waitFor() the process before getting the contents.
+                ThreadStreamReader inputStream = new ThreadStreamReader(p.getInputStream(), false);
                 inputStream.start();
-                ThreadStreamReader errorStream = new ThreadStreamReader(p.getErrorStream());
+                ThreadStreamReader errorStream = new ThreadStreamReader(p.getErrorStream(), false);
                 errorStream.start();
                 
                 monitor.worked(1);
                 OutputStream outputStream = p.getOutputStream();
                 outputStream.write(files.getBytes());
                 outputStream.close();
-                monitor.setTaskName("Getting coverage info...(please wait, this could take a while)");
-                monitor.worked(1);
                 
                 //We'll read something in the format below:
                 //Name                                                                      Stmts   Miss  Cover   Missing
@@ -173,6 +172,7 @@ public class PyCoverage {
                 //TOTAL                                                                        57     50    12% 
                 
                 monitor.setTaskName("Waiting for process to finish...");
+                monitor.worked(1);
                 
                 while(true){
                     try {
@@ -203,7 +203,8 @@ public class PyCoverage {
                     PydevPlugin.log(stdErr);
                 }
                 
-                monitor.setTaskName("Analyzing output");
+                monitor.setTaskName("Getting coverage info...(please wait, this could take a while)");
+                monitor.worked(1);
                 FastStringBuffer tempBuf = new FastStringBuffer();
                 for(String str:StringUtils.splitInLines(stdOut)){
                     analyzeReadLine(monitor, str.trim(), tempBuf);

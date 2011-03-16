@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListResourceBundle;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -87,6 +88,7 @@ import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
+import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editorinput.PyOpenEditor;
@@ -953,16 +955,9 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             if (original == null)
                 return;
             final IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
-            document.addDocumentListener(new IDocumentListener() {
-                
-                public void documentChanged(DocumentEvent event) {
-                    document.removeDocumentListener(this);
-                    PydevMarkerUtils.removeMarkers(original, PYDEV_COVERAGE_MARKER);
-                }
-                
-                public void documentAboutToBeChanged(DocumentEvent event) {
-                }
-            });
+            
+            //When creating it, it'll already start to listen for changes to remove the marker when needed.
+            new RemoveCoverageMarkersListener(document, e, original);
 
             String type = PYDEV_COVERAGE_MARKER;
             try {

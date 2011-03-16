@@ -302,7 +302,7 @@ public class PydevMarkerUtils {
         }
         try {
             resource.deleteMarkers(markerType, false, IResource.DEPTH_ZERO);
-        } catch (CoreException e) {
+        } catch (Exception e) {
             Log.log(e);
         }        
     }
