@@ -242,7 +242,8 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             starargs = null;
             kwargs = null;
             
-            for(int i=0;i<nodeArity;i++){
+            int loopTo = nodeArity;
+            for(int i=0;i<loopTo;i++){
                 SimpleNode node = stack.peekNode();
                 if(node instanceof keywordType){
                     stack.popNode();
@@ -264,7 +265,12 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                         this.addSpecialsAndClearOriginal(nkwargs, kwargs);
                         nodeArity--;
                     }
+                }else{
+                    break;
                 }
+            }
+            if(classDefKeywords.size() > 1){
+                Collections.reverse(classDefKeywords);
             }
             
             exprType[] bases = makeExprs(nodeArity);

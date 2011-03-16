@@ -25,7 +25,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.test25With4();
+            test.testPrintMultipleKwargsInClassDef();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -3022,6 +3022,18 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         FunctionDef funcDef = (FunctionDef) node.body[0];
         //yes, just making sure it's not supported.
         assertEquals("(a, b), c", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
+        
+    }
+    
+    
+    public void testPrintMultipleKwargsInClassDef() throws Throwable {
+        final String s = ""+
+        "class A(meta=B,foo=C):\n" +
+        "    pass\n" +
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s);
         
     }
     
