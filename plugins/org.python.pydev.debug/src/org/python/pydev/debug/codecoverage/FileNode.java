@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
@@ -26,7 +27,7 @@ public class FileNode implements ICoverageLeafNode{
     
     public File node;
     public int stmts;
-    public int exec;
+    public int miss;
     public String notExecuted;
     
     /* (non-Javadoc)
@@ -38,12 +39,12 @@ public class FileNode implements ICoverageLeafNode{
         }
         
         FileNode f = (FileNode) obj;
-        return f.node.equals(node) && f.exec == exec && f.notExecuted.equals(notExecuted) && f.stmts == stmts; 
+        return f.node.equals(node) && f.miss == miss && f.notExecuted.equals(notExecuted) && f.stmts == stmts; 
     }
     
     @Override
     public int hashCode() {
-        return node.hashCode()*3 + ((exec+1) * 7) + ((stmts+1)*5);
+        return node.hashCode()*3 + ((miss+1) * 7) + ((stmts+1)*5);
     }
     
     /* (non-Javadoc)
@@ -51,11 +52,11 @@ public class FileNode implements ICoverageLeafNode{
      */
     public String toString() {
         FastStringBuffer buf = new FastStringBuffer();
-        FileNode.appendToBuffer(buf, node.toString(), stmts, exec, notExecuted);
+        FileNode.appendToBuffer(buf, node.toString(), stmts, miss, notExecuted, PyCoveragePreferences.getNameNumberOfColumns());
         return buf.toString();
     }
     
-    public FastStringBuffer appendToBuffer(FastStringBuffer buffer, String baseLocation) {
+    public FastStringBuffer appendToBuffer(FastStringBuffer buffer, String baseLocation, int nameNumberOfColumns) {
         String name = node.toString();
         if(name.toLowerCase().startsWith(baseLocation.toLowerCase())){
             name = name.substring(baseLocation.length());
@@ -63,37 +64,40 @@ public class FileNode implements ICoverageLeafNode{
         if(name.startsWith("/") || name.startsWith("\\")){
             name = name.substring(1);
         }
-        return appendToBuffer(buffer, name, stmts, exec, notExecuted);
+        if(name.length() == 0){
+            name = node.getName();
+        }
+        return appendToBuffer(buffer, name, stmts, miss, notExecuted, nameNumberOfColumns);
     }
     
     /**
      * @param buffer
      * @return
      */
-    public static FastStringBuffer appendToBuffer(FastStringBuffer buffer, String str, int stmts, int exec, String notExecuted) {
+    public static FastStringBuffer appendToBuffer(FastStringBuffer buffer, String str, int stmts, int miss, String notExecuted, int nameNumberOfColumns) {
         buffer.
-        append(getName(str)).
+        append(getName(str, nameNumberOfColumns)).
         append("   ").
         append(getStmts(stmts)).
         append("     ").
-        append(getStmts(exec)).
+        append(getStmts(miss)).
         append("      ").
-        append(calcCover(stmts, exec)).
+        append(calcCover(stmts, miss)).
         append("  ").
         append(notExecuted);
         return buffer;
     }
 
     
-    public static String getName(String str){
-        FastStringBuffer buffer = new FastStringBuffer(str, str.length() > 40?0:40-str.length());
+    public static String getName(String str, int nameNumberOfColumns){
+        FastStringBuffer buffer = new FastStringBuffer(str, str.length() > nameNumberOfColumns?0:nameNumberOfColumns-str.length());
         
-        if(buffer.length() > 40){
-            buffer = buffer.delete(0, Math.abs(37-str.length()));
-            buffer.insert(0, "...");
+        if(buffer.length() > nameNumberOfColumns){
+            buffer = buffer.delete(0, Math.abs((nameNumberOfColumns-2)-str.length()));
+            buffer.insert(0, "..");
         }
-        if (buffer.length() < 40){
-            buffer.appendN(' ', 40-str.length());
+        if (buffer.length() < nameNumberOfColumns){
+            buffer.appendN(' ', nameNumberOfColumns-str.length());
         }
         return buffer.toString();
     }
@@ -108,10 +112,12 @@ public class FileNode implements ICoverageLeafNode{
     }
 
 
-    public static String calcCover(int stmts, int exec){
+    public static String calcCover(int stmts, int miss){
         double v = 0;
-        if(stmts != 0){
-            v = ((double)exec) / ((double)stmts) * 100.0;
+        if(stmts > 0 && miss > 0){
+            v = ((double)stmts-miss) / ((double)stmts) * 100.0;
+        }else{
+            return "   - ";
         }
         DecimalFormat format = new DecimalFormat("###.#");
         String str = format.format(v);
@@ -125,8 +131,8 @@ public class FileNode implements ICoverageLeafNode{
     /**
      * @return an iterator with the lines that were not executed
      */
-    public Iterator<Object> notExecutedIterator() {
-        List<Object> l = new ArrayList<Object>();
+    public Iterator<Tuple<Integer, Integer>> notExecutedIterator() {
+        List<Tuple<Integer, Integer>> l = new ArrayList<Tuple<Integer, Integer>>();
         
         String[] toks = notExecuted.replaceAll(" ", "").split(",");
         for (int i = 0; i < toks.length; i++) {
@@ -135,12 +141,11 @@ public class FileNode implements ICoverageLeafNode{
                 continue;
             }
             if(tok.indexOf("-") == -1){
-                l.add(new Integer(tok));
+                Integer startEnd = new Integer(tok);
+                l.add(new Tuple<Integer, Integer>(startEnd, startEnd));
             }else{
                 String[] begEnd = tok.split("-");
-                for (int j = Integer.parseInt(begEnd[0]) ; j <= Integer.parseInt(begEnd[1]); j++){
-                    l.add(new Integer(j));
-                }
+                l.add(new Tuple<Integer, Integer>(Integer.parseInt(begEnd[0]), Integer.parseInt(begEnd[1])));
             }
         }
         

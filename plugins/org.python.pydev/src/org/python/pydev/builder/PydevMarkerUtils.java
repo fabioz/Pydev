@@ -290,4 +290,20 @@ public class PydevMarkerUtils {
         replaceMarkers(lst, resource, markerType, true, monitor);
         
     }
+
+
+    /**
+     * @param original 
+     * @param pydevCoverageMarker
+     */
+    public static void removeMarkers(IResource resource, String markerType) {
+        if(resource == null){
+            return;
+        }
+        try {
+            resource.deleteMarkers(markerType, false, IResource.DEPTH_ZERO);
+        } catch (CoreException e) {
+            Log.log(e);
+        }        
+    }
 }

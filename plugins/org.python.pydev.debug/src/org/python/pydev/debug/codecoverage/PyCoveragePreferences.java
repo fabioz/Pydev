@@ -7,6 +7,8 @@
 package org.python.pydev.debug.codecoverage;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.python.pydev.debug.core.PydevDebugPlugin;
 
 /**
  * @author Fabio Zadrozny
@@ -17,6 +19,7 @@ public class PyCoveragePreferences {
     private static boolean clearCoverageInfoOnNextLaunch = true;
     private static boolean refreshAfterNextLaunch = true;
     private static IContainer lastChosenDir;
+    private static int DEFAULT_NUMBER_OF_COLUMNS_FOR_NAME = 40;
 
 
 
@@ -60,5 +63,26 @@ public class PyCoveragePreferences {
         return lastChosenDir;
     }
 
+    public static void setNameNumberOfColumns(int columns) {
+        IPreferenceStore preferenceStore = PydevDebugPlugin.getDefault().getPreferenceStore();
+        preferenceStore.setValue("PY_COVERAGE_NAME_COLUMNS_TO_USE", columns);
+    }
+
+    public static int getNameNumberOfColumns() {
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        if(plugin == null){
+            return DEFAULT_NUMBER_OF_COLUMNS_FOR_NAME;
+        }
+        IPreferenceStore preferenceStore = plugin.getPreferenceStore();
+        int i = preferenceStore.getInt("PY_COVERAGE_NAME_COLUMNS_TO_USE");
+        if(i <= 5){
+            return DEFAULT_NUMBER_OF_COLUMNS_FOR_NAME;
+        }
+        if(i > 256){
+            i = 256;
+        }
+        return i;
+    }
+    
 
 }

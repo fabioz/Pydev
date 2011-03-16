@@ -82,15 +82,15 @@ public class CoverageCacheTest extends TestCase {
 
         String statistics = cache.getStatistics(null, folder1).o1;
         String expected = "" +
-                "Name                                      Stmts     Exec     Cover  Missing\n" +
-                "-----------------------------------------------------------------------------\n" +
-                "b                                            20       10        50%  6-10\n" +
-                "c                                            22       10      45,5%  6-10\n" +
-                "d                                            24       10      41,7%  6-10\n" +
-                "e                                            26       10      38,5%  6-10\n" +
-                ".. ggggggggggggggggggggggggggggggggggggg     28       10      35,7%  6-10\n" +
-                "-----------------------------------------------------------------------------\n" +
-                "TOTAL                                       120       50      41,7%  \n" +
+                "Name                                      Stmts     Miss      Cover  Missing\n"+
+                "-----------------------------------------------------------------------------\n"+
+                "b                                            20       10        50%  6-10\n"+
+                "c                                            22       10      54,5%  6-10\n"+
+                "d                                            24       10      58,3%  6-10\n"+
+                "e                                            26       10      61,5%  6-10\n"+
+                "..gggggggggggggggggggggggggggggggggggggg     28       10      64,3%  6-10\n"+
+                "-----------------------------------------------------------------------------\n"+
+                "TOTAL                                       120       50      58,3%  \n"+
                 "";
         
         if(!expected.equals(statistics) && !expected.replace(',', '.').equals(statistics)){

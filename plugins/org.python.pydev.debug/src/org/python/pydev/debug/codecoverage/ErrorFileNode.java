@@ -35,7 +35,7 @@ public class ErrorFileNode implements ICoverageLeafNode{
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return FileNode.getName(node.toString()) + "   " +desc;
+        return FileNode.getName(node.toString(), PyCoveragePreferences.getNameNumberOfColumns()) + "   " +desc;
     }
     
     

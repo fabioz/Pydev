@@ -48,7 +48,7 @@ def StartCoverageSupport(configuration):
                     if n <= 0:
                         n += 1
                     n += 1 #Add 1 more for the current process (which will do the initial import).
-                    coverage_files = GetCoverageFiles(n)
+                    coverage_files = GetCoverageFiles(configuration, n)
                     os.environ['COVERAGE_FILE'] = coverage_files.pop(0)
                     
                     coverage_instance = coverage.coverage(source=[configuration.coverage_include], include=['*'])

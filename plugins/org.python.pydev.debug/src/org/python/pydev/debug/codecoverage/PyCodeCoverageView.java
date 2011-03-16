@@ -24,8 +24,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -41,6 +45,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -53,6 +63,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -62,7 +74,10 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -73,7 +88,9 @@ import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editorinput.PyOpenEditor;
+import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
@@ -125,11 +142,14 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
      * clear the results (and erase .coverage file)
      */
     protected ProgressAction clearAction = new ClearAction();
+    
+    protected Action selectColumnsAction = new SelectColumnsAction();
 
     /**
      * get the new results from the .coverage file
      */
     protected RefreshAction refreshAction = new RefreshAction();
+    
 
     private Button chooseButton;
     
@@ -245,6 +265,51 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             text.setText("Data cleared (NOT REFRESHED).");
         }
     }
+    
+    /**
+     * 
+     * @author Fabio Zadrozny
+     */
+    private final class SelectColumnsAction extends Action {
+        
+        public SelectColumnsAction(){
+            this.setText("Select the number of columns for the name.");
+        }
+        
+        public void run() {
+            InputDialog d = new InputDialog(
+                    PyAction.getShell(), 
+                    "Enter number of columns",
+                    "Enter the number of columns to be used for the name.", 
+                    ""+PyCoveragePreferences.getNameNumberOfColumns(), 
+                    new IInputValidator() {
+                        
+                        public String isValid(String newText) {
+                            if(newText.trim().length() == 0){
+                                return "Please enter a number > 5";
+                            }
+                            try {
+                                int i = Integer.parseInt(newText);
+                                if(i < 6){
+                                    return "Please enter a number > 5";
+                                }
+                                if(i > 256){
+                                    return "Please enter a number <= 256";
+                                }
+                            } catch (NumberFormatException e) {
+                                return "Please enter a number > 5";
+                            }
+                            return null;
+                        }
+                    });
+            int retCode = d.open();
+            if (retCode == InputDialog.OK) {
+                PyCoveragePreferences.setNameNumberOfColumns(Integer.parseInt(d.getValue()));
+                onSelectedFileInTree(lastSelectedFile);
+            }
+
+        }
+    }
 
     /**
      * 
@@ -272,14 +337,17 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         }
     }
     
+    private File lastSelectedFile;
     private void onSelectedFileInTree(Object obj) {
         if(obj == null){
             text.setText("");
         }else{
             File realFile = new File(obj.toString());
             if (realFile.exists()) {
-                IContainer lastChosenDir = PyCoveragePreferences.getLastChosenDir();
-                Tuple<String, List<StyleRange>> statistics = PyCoverage.getPyCoverage().cache.getStatistics(lastChosenDir, realFile);
+                lastSelectedFile = realFile;
+                Tuple<String, List<StyleRange>> statistics = PyCoverage.getPyCoverage().cache.getStatistics(
+                        realFile.toString(), realFile);
+                
                 text.setText(statistics.o1);
                 text.setStyleRanges(statistics.o2.toArray(new StyleRange[statistics.o2.size()]));
             }else{
@@ -339,14 +407,15 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
                     IWorkspace w = ResourcesPlugin.getWorkspace();
                     IContainer folderForLocation = (IContainer) w.getRoot().findMember(p);
-                    setSelectedContainer(folderForLocation, this.monitor);
+                    setSelectedContainer(folderForLocation);
                 }
             }
         }
     }
     
     
-    public void setSelectedContainer(IContainer container, IProgressMonitor monitor) {
+    public void setSelectedContainer(IContainer container) {
+        lastSelectedFile = null;
         PyCoveragePreferences.setLastChosenDir(container);
         updateErrorMessages();
         
@@ -416,7 +485,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
         leftComposite = new Composite(parent, SWT.MULTI);
         layout = new GridLayout();
-        layout.numColumns = 1;
+        layout.numColumns = 2;
         layout.verticalSpacing = 2;
         layout.marginWidth = 0;
         layout.marginHeight = 2;
@@ -440,6 +509,9 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             public void mouseDown(MouseEvent e) {
                 int offset = text.getOffsetAtLocation(new Point(e.x, e.y));
                 StyleRange r = text.getStyleRangeAtOffset(offset);
+                if(r == null){
+                    return;
+                }
                 Object o = r.data;
                 if(o instanceof FileNode){
                     FileNode fileNode = (FileNode) o;
@@ -473,6 +545,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
+        layoutData.horizontalSpan = 2;
         allRunsGoThroughCoverage.setLayoutData(layoutData);
         //end all runs go through coverage
         
@@ -480,7 +553,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         
         //Clear the coverage info on each launch?
         clearCoverageInfoOnNextLaunch = new Button(parent, SWT.CHECK);
-        clearCoverageInfoOnNextLaunch.setText("Clear coverage info on a new launch?");
+        clearCoverageInfoOnNextLaunch.setText("Auto clear on a new launch?");
         clearCoverageInfoOnNextLaunch.setSelection(PyCoveragePreferences.getClearCoverageInfoOnNextLaunch());
         clearCoverageInfoOnNextLaunch.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -505,13 +578,27 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
         clearCoverageInfoOnNextLaunch.setLayoutData(layoutData);
+        
+        Button button = new Button(parent, SWT.PUSH);
+        button.setText("Clear");
+        button.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                ProgressOperation.startAction(getSite().getShell(), clearAction, true);
+            }
+        });
+        layoutData = new GridData();
+        layoutData.grabExcessHorizontalSpace = false;
+        layoutData.widthHint = 50;
+        layoutData.horizontalAlignment = GridData.END;
+        button.setLayoutData(layoutData);
         //end all runs go through coverage
         
         
         
         //Refresh the coverage info on each launch?
         refreshCoverageInfoOnNextLaunch = new Button(parent, SWT.CHECK);
-        refreshCoverageInfoOnNextLaunch.setText("Refresh on new launch?");
+        refreshCoverageInfoOnNextLaunch.setText("Auto refresh on new launch?");
         refreshCoverageInfoOnNextLaunch.setSelection(PyCoveragePreferences.getRefreshAfterNextLaunch());
         refreshCoverageInfoOnNextLaunch.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
@@ -552,7 +639,21 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
         refreshCoverageInfoOnNextLaunch.setLayoutData(layoutData);
-        //end all runs go through coverage
+        
+        button = new Button(parent, SWT.PUSH);
+        button.setText("Refresh");
+        button.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                ProgressOperation.startAction(getSite().getShell(), refreshAction, true);
+            }
+        });
+        layoutData = new GridData();
+        layoutData.widthHint = 50;
+        layoutData.grabExcessHorizontalSpace = true;
+        layoutData.horizontalAlignment = GridData.END;
+        button.setLayoutData(layoutData);
+        //end refresh
         
         
         
@@ -562,7 +663,25 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         createButton(parent, chooseButton, "Choose folder to analyze", chooseAction);
         //end choose button
 
-        viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+        PatternFilter patternFilter = new PatternFilter();
+
+        FilteredTree filter;
+        try {
+            filter = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, patternFilter, true);
+        } catch (Throwable e1) {
+            //yes, the constructor above is only available from 3.5 onwards.
+            filter = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, patternFilter);
+        }
+        layoutData = new GridData();
+        layoutData.grabExcessHorizontalSpace = true;
+        layoutData.grabExcessVerticalSpace = true;
+        layoutData.horizontalAlignment = GridData.FILL;
+        layoutData.verticalAlignment = GridData.FILL;
+        layoutData.horizontalSpan = 2;
+        filter.setLayoutData(layoutData);
+        
+        
+        viewer = filter.getViewer();
         onControlCreated.call(viewer);
         viewer.setContentProvider(new FileTreePyFilesProvider());
         viewer.setLabelProvider(new FileTreeLabelProvider());
@@ -570,25 +689,96 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
         hookViewerActions();
 
-        layoutData = new GridData();
-        layoutData.grabExcessHorizontalSpace = true;
-        layoutData.grabExcessVerticalSpace = true;
-        layoutData.horizontalAlignment = GridData.FILL;
-        layoutData.verticalAlignment = GridData.FILL;
-        viewer.getControl().setLayoutData(layoutData);
+        Tree tree = (Tree) viewer.getControl();
         
+        TreeItem item = new TreeItem(tree, SWT.NONE);
+        item.setText("Altenatively, to select a folder, drag it to this area.");
+        
+        // Allow data to be copied or moved to the drop target
+        int operations = DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT;
+        DropTarget target = new DropTarget(tree, operations);
+
+        // Receive data in Text or File format
+        final FileTransfer fileTransfer = FileTransfer.getInstance();
+        Transfer[] types = new Transfer[] { fileTransfer };
+        target.setTransfer(types);
+
+        target.addDropListener(new DropTargetListener() {
+            public void dragEnter(DropTargetEvent event) {
+                if (event.detail == DND.DROP_DEFAULT) {
+                    if ((event.operations & DND.DROP_COPY) != 0) {
+                        event.detail = DND.DROP_COPY;
+                    } else {
+                        event.detail = DND.DROP_NONE;
+                    }
+                }
+                // will accept text but prefer to have files dropped
+                for (int i = 0; i < event.dataTypes.length; i++) {
+                    if (fileTransfer.isSupportedType(event.dataTypes[i])) {
+                        event.currentDataType = event.dataTypes[i];
+                        // files should only be copied
+                        if (event.detail != DND.DROP_COPY) {
+                            event.detail = DND.DROP_NONE;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            public void dragOver(DropTargetEvent event) {
+            }
+
+            public void dragOperationChanged(DropTargetEvent event) {
+                if (event.detail == DND.DROP_DEFAULT) {
+                    if ((event.operations & DND.DROP_COPY) != 0) {
+                        event.detail = DND.DROP_COPY;
+                    } else {
+                        event.detail = DND.DROP_NONE;
+                    }
+                }
+                // allow text to be moved but files should only be copied
+                if (fileTransfer.isSupportedType(event.currentDataType)) {
+                    if (event.detail != DND.DROP_COPY) {
+                        event.detail = DND.DROP_NONE;
+                    }
+                }
+            }
+
+            public void dragLeave(DropTargetEvent event) {
+            }
+
+            public void dropAccept(DropTargetEvent event) {
+            }
+
+            public void drop(DropTargetEvent event) {
+                if (fileTransfer.isSupportedType(event.currentDataType)) {
+                    String[] files = (String[]) event.data;
+                    if(files.length == 1){
+                        File file = new File(files[0]);
+                        if(file.isDirectory()){
+                            PySourceLocatorBase locator = new PySourceLocatorBase();
+                            IContainer container = locator.getWorkspaceContainer(file);
+                            if(container != null && container.exists()){
+                                setSelectedContainer(container);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
         IActionBars actionBars = getViewSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
         IMenuManager menuManager = actionBars.getMenuManager();
         
-        menuManager.add(clearAction);
-        menuManager.add(refreshAction);
+        menuManager.add(selectColumnsAction);
+        //menuManager.add(clearAction);
+        //menuManager.add(refreshAction);
         if(REF.getSupportsOpenDirectory()){
             menuManager.add(openCoverageFolderAction);
         }
 
 
-        this.refresh();
         updateErrorMessages();
 
     }
@@ -617,6 +807,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.horizontalAlignment = GridData.FILL;
+        layoutData.horizontalSpan = 2;
         button.setLayoutData(layoutData);
     }
 
@@ -653,6 +844,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
     @Override
     public void dispose() {
         PyCoveragePreferences.setInternalAllRunsDoCoverage(false);
+        PyCoveragePreferences.setLastChosenDir(null);
         super.dispose();
     }
 
@@ -718,17 +910,33 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         return this.text.getText();
     }
 
+    /**
+     * this is the type of the marker
+     */
+    public static final String PYDEV_COVERAGE_MARKER = "org.python.pydev.debug.pydev_coverage_marker";
+
+    
     private void openFileWithCoverageMarkers(File realFile) {
         IEditorPart editor = PyOpenEditor.doOpenEditor(realFile);
         if (editor instanceof PyEdit) {
             PyEdit e = (PyEdit) editor;
             IEditorInput input = e.getEditorInput();
-            IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
+            final IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
             if (original == null)
                 return;
-            IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
+            final IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
+            document.addDocumentListener(new IDocumentListener() {
+                
+                public void documentChanged(DocumentEvent event) {
+                    document.removeDocumentListener(this);
+                    PydevMarkerUtils.removeMarkers(original, PYDEV_COVERAGE_MARKER);
+                }
+                
+                public void documentAboutToBeChanged(DocumentEvent event) {
+                }
+            });
 
-            String type = IMarker.PROBLEM;
+            String type = PYDEV_COVERAGE_MARKER;
             try {
                 original.deleteMarkers(type, false, 1);
             } catch (CoreException e1) {
@@ -739,20 +947,21 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
             FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
             if(cache != null){
-                for (Iterator<Object> it = cache.notExecutedIterator(); it.hasNext();) {
+                for (Iterator<Tuple<Integer,Integer>> it = cache.notExecutedIterator(); it.hasNext();) {
                     try {
                         Map<String, Object> map = new HashMap<String, Object>();
-                        int errorLine = ((Integer) it.next()).intValue() - 1;
+                        Tuple<Integer,Integer> startEnd = it.next();
    
-                        IRegion region = document.getLineInformation(errorLine);
-                        int errorEnd = region.getOffset();
-                        int errorStart = region.getOffset() + region.getLength();
+                        IRegion region = document.getLineInformation(startEnd.o1-1);
+                        int errorStart = region.getOffset();
+                        
+                        region = document.getLineInformation(startEnd.o2-1);
+                        int errorEnd = region.getOffset() + region.getLength();
    
                         map.put(IMarker.MESSAGE, message);
                         map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
-                        map.put(IMarker.LINE_NUMBER, new Integer(errorLine));
-                        map.put(IMarker.CHAR_START, new Integer(errorStart));
-                        map.put(IMarker.CHAR_END, new Integer(errorEnd));
+                        map.put(IMarker.CHAR_START, errorStart);
+                        map.put(IMarker.CHAR_END, errorEnd);
                         map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
                         map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
    
@@ -769,3 +978,6 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
     
 
 }
+
+
+

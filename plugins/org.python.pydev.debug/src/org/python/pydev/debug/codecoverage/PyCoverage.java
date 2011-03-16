@@ -275,13 +275,12 @@ public class PyCoverage {
                     
                     int stmts = Integer.parseInt(strings.get(1));
                     int miss = Integer.parseInt(strings.get(2));
-                    int exec = stmts - miss;
                     if (nTokens == 4) {
-                        cache.addFile(f, f.getParentFile(), stmts, exec, "");
+                        cache.addFile(f, f.getParentFile(), stmts, miss, "");
                         added = true;
                     } else {
                         String missing = strings.get(4);
-                        cache.addFile(f, f.getParentFile(), stmts, exec, missing);
+                        cache.addFile(f, f.getParentFile(), stmts, miss, missing);
                         added = true;
                     }
                     String[] strs = f.toString().replaceAll("/", " ").replaceAll("\\\\", " ").split(" ");

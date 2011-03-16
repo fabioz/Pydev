@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.python.pydev.core.Tuple;
@@ -102,10 +101,10 @@ public class CoverageCache {
      * @param node
      * @param parent
      * @param stmts
-     * @param exec
+     * @param miss
      * @param notExecuted
      */
-    public void addFile(File node, File parent, int stmts, int exec, String notExecuted) {
+    public void addFile(File node, File parent, int stmts, int miss, String notExecuted) {
         FolderNode folderNode = (FolderNode) getFolder(parent);
         
         if (folderNode == null){
@@ -113,7 +112,7 @@ public class CoverageCache {
         }
         
         FileNode fileNode = new FileNode();
-        fileNode.exec = exec;
+        fileNode.miss = miss;
         fileNode.node = node;
         fileNode.notExecuted = notExecuted;
         fileNode.stmts = stmts;
@@ -127,7 +126,7 @@ public class CoverageCache {
      * @param node
      * @param parent
      * @param stmts
-     * @param exec
+     * @param miss
      * @param notExecuted
      */
     public void addFile(File node, File parent, String desc) {
@@ -206,7 +205,7 @@ public class CoverageCache {
      * @return an Object such that the positions contain:
      * 0 - string representing the data received, such as:
      * 
-     *  Name            Stmts   Exec  Cover   Missing
+     *  Name            Stmts   Miss  Cover   Missing
      *  ---------------------------------------------
      *  file_to_test        7      6    85%   8
      *  file_to_test2      13      9    69%   12-14, 17
@@ -214,27 +213,31 @@ public class CoverageCache {
      *  TOTAL              20     15    75%
      * 
      */
-    public Tuple<String, List<StyleRange>> getStatistics(IContainer baseDir, File node) {
+    public Tuple<String, List<StyleRange>> getStatistics(String baseLocation, File node) {
         List<StyleRange> ranges = new ArrayList<StyleRange>();
+        if(baseLocation == null){
+            baseLocation = "";
+        }
 
         FastStringBuffer buffer = new FastStringBuffer();
-        String baseLocation = baseDir != null?baseDir.getLocation().toOSString():"";
         
         try {
             List<ICoverageNode> list = getFiles(node);  //array of FileNode
             
             //40 chars for name.
-            buffer.append("Name                                      Stmts     Exec     Cover  Missing\n");
-            buffer.append("-----------------------------------------------------------------------------\n");
+            int nameNumberOfColumns = PyCoveragePreferences.getNameNumberOfColumns();
+            buffer.append("Name").appendN(' ', nameNumberOfColumns-4).append("  Stmts     Miss      Cover  Missing\n");
+            buffer.appendN('-', nameNumberOfColumns);
+            buffer.append("-------------------------------------\n");
             
-            int totalExecuted = 0;
+            int totalMiss = 0;
             int totalStmts = 0;
             
             for (ICoverageNode element:list) {
                 if(element instanceof FileNode){ //it may have been an error node...
                     FileNode fileNode = (FileNode)element;
                     int start = buffer.length();
-                    fileNode.appendToBuffer(buffer, baseLocation).append("\n");
+                    fileNode.appendToBuffer(buffer, baseLocation, nameNumberOfColumns).append("\n");
                     int len = buffer.indexOf(' ', start) - start;
                     StyleRange styleRange = new StyleRange(start, len, null, null);
                     styleRange.underline = true;
@@ -246,15 +249,16 @@ public class CoverageCache {
                     ranges.add(styleRange);
                     styleRange.data = element;
 
-                    totalExecuted += fileNode.exec;
+                    totalMiss += fileNode.miss;
                     totalStmts += fileNode.stmts;
                 }else{
                     buffer.append(element.toString()).append("\n");
                 }
             }
             
-            buffer.append("-----------------------------------------------------------------------------\n");
-            FileNode.appendToBuffer(buffer, "TOTAL",totalStmts, totalExecuted, "").append("\n");
+            buffer.appendN('-', nameNumberOfColumns);
+            buffer.append("-------------------------------------\n");
+            FileNode.appendToBuffer(buffer, "TOTAL",totalStmts, totalMiss, "", nameNumberOfColumns).append("\n");
             
         } catch (NodeNotFoudException e) {
             buffer.append("File has no statistics.");

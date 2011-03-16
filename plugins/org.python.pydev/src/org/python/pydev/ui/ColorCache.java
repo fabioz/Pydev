@@ -83,13 +83,16 @@ public abstract class ColorCache {
             if (colorCode.length() == 0) {
                 if (name.equals("RED")) {
                     color = getColor(new RGB(255, 0, 0));
-                }
-                else if (name.equals("BLACK")) {
-                    color = getColor(new RGB(0,0,0));
-                }
-                else {
+                    
+                } else if (name.equals("BLACK")) {
+                    color = getColor(new RGB(0, 0, 0));
+                    
+                } else if (name.equals("WHITE")) {
+                    color = getColor(new RGB(255, 255, 255));
+                    
+                } else {
                     PydevPlugin.log("Unknown color:" + name);
-                    color = getColor(new RGB(255,0,0));
+                    color = getColor(new RGB(255, 0, 0));
                 }
             }
             else {

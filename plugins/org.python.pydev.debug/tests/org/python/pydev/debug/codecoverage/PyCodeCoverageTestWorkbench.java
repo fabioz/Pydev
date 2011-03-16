@@ -115,7 +115,7 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase{
         assertTrue(PyCoveragePreferences.getInternalAllRunsDoCoverage());
         assertTrue(!PyCoveragePreferences.getAllRunsDoCoverage());
 
-        view.setSelectedContainer(sourceFolder, new NullProgressMonitor());
+        view.setSelectedContainer(sourceFolder);
         TreeViewer treeViewer = view.getTreeViewer();
         ITreeContentProvider cp = (ITreeContentProvider) treeViewer.getContentProvider();
         Object[] elements = cp.getElements(treeViewer.getInput());
@@ -175,23 +175,23 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase{
 
     private String getModCovCoverageText() {
         return "" +
-        "Name                                      Stmts     Exec     Cover  Missing\n" +
-        "-----------------------------------------------------------------------------\n" +
-        "pack_cov\\mod_cov.py                          17       14      82,4%  17-19\n" +
-        "pack_cov\\__init__.py                          0        0         0%  \n" +
-        "-----------------------------------------------------------------------------\n" +
-        "TOTAL                                        17       14      82,4%  \n" +
+        "Name                                      Stmts     Miss      Cover  Missing\n"+
+        "-----------------------------------------------------------------------------\n"+
+        "__init__.py                                   0        0         -   \n"+
+        "mod_cov.py                                   17        3      82,4%  17-19\n"+
+        "-----------------------------------------------------------------------------\n"+
+        "TOTAL                                        17        3      82,4%  \n"+
         "";
     }
     
     private String getInitialCoverageText() {
         return "" +
-        		"Name                                      Stmts     Exec     Cover  Missing\n" +
-        		"-----------------------------------------------------------------------------\n" +
-        		"pack_cov\\mod_cov.py                          17        0         0%  1-22\n" +
-        		"pack_cov\\__init__.py                          0        0         0%  \n" +
-        		"-----------------------------------------------------------------------------\n" +
-        		"TOTAL                                        17        0         0%  \n" +
+        		"Name                                      Stmts     Miss      Cover  Missing\n"+
+        		"-----------------------------------------------------------------------------\n"+
+        		"__init__.py                                   0        0         -   \n"+
+        		"mod_cov.py                                   17       17         0%  1-22\n"+
+        		"-----------------------------------------------------------------------------\n"+
+        		"TOTAL                                        17       17         0%  \n"+
         		"";
     }
 }
