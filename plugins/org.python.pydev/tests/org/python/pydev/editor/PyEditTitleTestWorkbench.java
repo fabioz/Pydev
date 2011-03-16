@@ -56,8 +56,10 @@ public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase{
         
         
         PyEdit editor2 = null;
+        PyEdit editor = null;
 		try {
             editor = (PyEdit) PyOpenEditor.doOpenEditor(myFile);
+            final PyEdit editorRef = editor;
             String partName = editor.getPartName();
             assertEquals("my_file", partName);
             editor2 = (PyEdit) PyOpenEditor.doOpenEditor(file2);
@@ -67,7 +69,7 @@ public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase{
             goToManual(10000, new ICallback<Boolean, Object>() {
                 
                 public Boolean call(Object arg) {
-                    return "my_file (pydev_title_project)".equals(editor.getPartName()) && 
+                    return "my_file (pydev_title_project)".equals(editorRef.getPartName()) && 
                     "my_file (folder)".equals(editor2final.getPartName());
                 }
             });
@@ -75,7 +77,9 @@ public class PyEditTitleTestWorkbench extends AbstractWorkbenchTestCase{
             if(editor2 != null){
                 editor2.close(false);
             }
-            editor = null;
+            if(editor != null){
+                editor.close(false);
+            }
         }
         
     }

@@ -33,6 +33,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
@@ -46,11 +47,15 @@ import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.net.LocalHost;
 import org.python.pydev.core.structure.FastStringBuffer;
+import org.python.pydev.core.uiutils.RunInUiThread;
+import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.debug.codecoverage.PyCoverage;
+import org.python.pydev.debug.codecoverage.PyCoveragePreferences;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.remote.ListenConnector;
 import org.python.pydev.debug.pyunit.PyUnitServer;
+import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -58,6 +63,7 @@ import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.runners.SimplePythonRunner;
 import org.python.pydev.runners.SimpleRunner;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -96,9 +102,9 @@ public class PythonRunnerConfig {
     private ListenConnector listenConnector;
     private PyUnitServer pyUnitServer;
 
-    public boolean isCoverage(){
-        return this.run.equals(RUN_COVERAGE);
-    }
+//    public boolean isCoverage(){
+//        return this.run.equals(RUN_COVERAGE);
+//    }
     
     public boolean isUnittest(){
         return this.run.equals(RUN_UNITTEST) || this.run.equals(RUN_JYTHON_UNITTEST) || this.run.equals(RUN_IRONPYTHON_UNITTEST);
@@ -543,7 +549,7 @@ public class PythonRunnerConfig {
      * @throws CoreException
      */
     public static String getCoverageScript() throws CoreException {
-        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("coverage.py"));
+        return REF.getFileAbsolutePath(PydevDebugPlugin.getScriptWithinPySrc("pydev_coverage.py"));
     }
 
     /** 
@@ -620,22 +626,42 @@ public class PythonRunnerConfig {
             }
             
             addDebugArgs(cmdArgs, "python", actualRun);
-            
-            if(isCoverage()){
-                cmdArgs.add(getCoverageScript());
-                String coverageFileLocation = PyCoverage.getCoverageFileLocation();
-                cmdArgs.add(coverageFileLocation);
-                cmdArgs.add("-x");
-                if (!isFile()){
-                    //run all testcases
-                    cmdArgs.add(getRunFilesScript());
-                }
-            }
-    
         }
         
+        
+        //Check if we should do code-coverage...
+        boolean coverageRun = PyCoveragePreferences.getAllRunsDoCoverage();
+        if(coverageRun && isDebug){
+            if(actualRun){
+                RunInUiThread.async(new Runnable(){
+    
+                    public void run() {
+                        PyDialogHelpers.openWarning(
+                                "Conflicting options: coverage with debug.",
+                                "Making a debug run with coverage enabled will not yield the expected results.\n\n" +
+                                "They'll conflict because both use the python tracing facility (i.e.: sys.settrace()).\n" +
+                                "\n" +
+                                "To debug a coverage run, do a regular run and use the remote debugger " +
+                                "(but note that the coverage will stop when it's enabled).\n" +
+                                "\n" +
+                                "Note: the run will be continued anyways."
+                        );
+                    }}
+                );
+            }
+        }
+
         if (isUnittest()) {
             cmdArgs.add(getRunFilesScript());
+        }else{
+            if(coverageRun){
+                //Separate support (unittest has the coverage support builtin).
+                cmdArgs.add(getCoverageScript());
+                cmdArgs.add(PyCoverage.getCoverageFileLocation().getAbsolutePath());
+                cmdArgs.add("run");
+                cmdArgs.add("--source");
+                cmdArgs.add(PyCodeCoverageView.getChosenDir().getLocation().toOSString());
+            }
         }
         
         for(IPath p:resource){
@@ -657,11 +683,16 @@ public class PythonRunnerConfig {
         
         }else{
             //Last thing (first the files and last the special parameters the user passed -- i.e.: nose parameters) 
-            addUnittestArgs(cmdArgs, actualRun);
+            addUnittestArgs(cmdArgs, actualRun, coverageRun);
         }
         
         String[] retVal = new String[cmdArgs.size()];
         cmdArgs.toArray(retVal);
+        
+        if(actualRun){
+            PythonRunnerCallbacks.onCreatedCommandLine.call(new CreatedCommandLineParams(retVal, coverageRun));
+        }
+
         return retVal;
     }
 
@@ -677,8 +708,9 @@ public class PythonRunnerConfig {
     /**
      * Adds a set of arguments used to wrap executed file with unittest runner.
      * @param actualRun in an actual run we'll start the xml-rpc server.
+     * @param coverageRun whether we should add the flags to do a coverage run.
      */
-    private void addUnittestArgs(List<String> cmdArgs, boolean actualRun) throws CoreException {
+    private void addUnittestArgs(List<String> cmdArgs, boolean actualRun, boolean coverageRun) throws CoreException {
         if (isUnittest()) {
 
             //The tests are either written to a configuration file or passed as a parameter. 
@@ -727,6 +759,60 @@ public class PythonRunnerConfig {
                     cmdArgs.add("0");
                 }
             }
+            
+            if(coverageRun){
+                cmdArgs.add("--coverage_output_dir");
+                cmdArgs.add(PyCoverage.getCoverageDirLocation().getAbsolutePath());
+                
+                cmdArgs.add("--coverage_include");
+                cmdArgs.add(PyCodeCoverageView.getChosenDir().getLocation().toOSString());
+
+                if(actualRun){
+                    IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
+                    int testRunner = prefs.getInt(PyUnitPrefsPage2.TEST_RUNNER);
+    
+                    switch(testRunner){
+                        case PyUnitPrefsPage2.TEST_RUNNER_NOSE:
+                            RunInUiThread.async(new Runnable(){
+                                
+                                public void run() {
+                                    PyDialogHelpers.openWarningWithIgnoreToggle(
+                                            "Notes for coverage with the nose test runner.",
+                                            
+                                            "Note1: When using the coverage with the nose test runner, " +
+                                            "please don't pass any specific parameter related to " +
+                                            "the run in the arguments, as that's already handled by PyDev " +
+                                            "(i.e.: don't use the builtin cover plugin from nose).\n" +
+                                            "\n" +
+                                            "Note2: It's currently not possible to use coverage with the multi-process " +
+                                            "plugin in nose.",
+                                            
+                                            "KEY_COVERAGE_WITH_NOSE_TEST_RUNNER"
+                                    );
+                                }}
+                            );
+
+                            break;
+                        case PyUnitPrefsPage2.TEST_RUNNER_PY_TEST:
+                            RunInUiThread.async(new Runnable(){
+                                
+                                public void run() {
+                                    PyDialogHelpers.openCritical(
+                                            "PyUnit coverage not compatible with the Py.test test runner.",
+                                            
+                                            "Currently the PyDev PyUnit integration is not able to provide coverage " +
+                                            "info using the py.test test runner (please enter a " +
+                                            "feature request if you'd like that added)\n" +
+                                            "\n" +
+                                            "Note: the run will be continued anyways (without gathering coverage info)."
+                                    );
+                                }}
+                            );
+                            break;
+                    }
+                }
+            }
+
             
             //Last thing: nose parameters or parameters the user configured.
             for(String s:parseStringIntoList(PyUnitPrefsPage2.getTestRunnerParameters(this.configuration))){

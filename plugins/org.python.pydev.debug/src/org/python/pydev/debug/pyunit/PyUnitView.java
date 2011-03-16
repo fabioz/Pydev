@@ -372,12 +372,15 @@ public class PyUnitView extends ViewPartWithOrientation{
         action.setChecked(this.showOnlyErrors);
         
         toolBar.add(new Separator());
-        toolBar.add(new RelaunchErrorsAction(this));
         toolBar.add(new RelaunchAction(this));
+        toolBar.add(new RelaunchErrorsAction(this));
         toolBar.add(new StopAction(this));
         
         toolBar.add(new Separator());
         toolBar.add(new HistoryAction(this));
+        PinHistoryAction pinHistory = new PinHistoryAction(this);
+        toolBar.add(pinHistory);
+        toolBar.add(new RestorePinHistoryAction(this, pinHistory));
         
     }
 

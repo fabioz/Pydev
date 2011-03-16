@@ -937,27 +937,56 @@ public class REF {
     public static boolean LOG_ENCODING_ERROR = true;
     
     /**
-     * Start null... filled on 1st request
+     * Start null... filled on 1st request.
+     * 
+     * Currently we only care for: windows, mac os or linux (if we need some other special support,
+     * this could be improved).
      */
-    public static Boolean isWinCache;
+    public static Integer platform;
+    public static int WINDOWS = 1;
+    public static int MACOS = 2;
+    public static int LINUX = 3;
 
     /**
      * @return whether we are in windows or not
      */
     public static boolean isWindowsPlatform() {
-        if(isWinCache == null){
+        discoverPlatform();
+        return platform == WINDOWS;
+    }
+    
+    /**
+     * @return whether we are in MacOs or not
+     */
+    public static boolean isMacOsPlatform() {
+        discoverPlatform();
+        return platform == MACOS;
+    }
+
+
+    private static void discoverPlatform() {
+        if(platform == null){
             try {
-                isWinCache = Platform.getOS().equals(Constants.OS_WIN32);
-            } catch (NullPointerException e) {
-                String env = System.getProperty("os.name");
-                if(env.toLowerCase().indexOf("win") != -1){
-                    isWinCache = true;
+                String os = Platform.getOS();
+                if(os.equals(Constants.OS_WIN32)){
+                    platform = WINDOWS;
+                }else if(os.equals(Constants.OS_MACOSX)){
+                    platform = MACOS;
                 }else{
-                    isWinCache = false;
+                    platform = LINUX;
+                }
+                
+            } catch (NullPointerException e) {
+                String env = System.getProperty("os.name").toLowerCase();
+                if(env.indexOf("win") != -1){
+                    platform = WINDOWS;
+                }else if (env.startsWith("mac os")){
+                    platform = MACOS;
+                }else{
+                    platform = LINUX;
                 }
             }
         }
-        return isWinCache;
     }
 
 
@@ -1189,6 +1218,79 @@ public class REF {
         if (!file.delete()) {
             throw new IOException("Delete operation failed when deleting: "+file);
         }
+    }
+
+
+    public static void openDirectory(File dir) {
+        //Note: on java 6 it seems we could use java.awt.Desktop.
+        String executable = getOpenDirectoryExecutable();
+        if(executable != null){
+            try {
+                if(executable.equals("kfmclient")){
+                    //Yes, KDE needs an exec after kfmclient.
+                    Runtime.getRuntime().exec(new String[]{executable, "exec", dir.toString()}, null, dir);
+                    
+                }else{
+                    Runtime.getRuntime().exec(new String[]{executable, dir.toString()}, null, dir);
+                }
+            } catch (Throwable e) {
+                Log.log(e);
+            }
+        }
+    }
+
+    private static String openDirExecutable = null;
+    private final static String OPEN_DIR_EXEC_NOT_AVAILABLE = "NOT_AVAILABLE";
+
+    private static String getOpenDirectoryExecutable() {
+        if(openDirExecutable == null){
+            if(REF.isWindowsPlatform()){
+                openDirExecutable = "explorer";
+                return openDirExecutable;
+                
+            }
+            
+            if(REF.isMacOsPlatform()){
+                openDirExecutable = "open";
+                return openDirExecutable;
+            }
+            
+            try {
+                String env = System.getenv("DESKTOP_LAUNCH");
+                if(env != null && env.trim().length() > 0){
+                    openDirExecutable = env;
+                    return openDirExecutable;
+                }
+            } catch (Throwable e) {
+                //ignore -- it seems not all java versions have System.getenv
+            }
+            
+            try {
+                Map<String, String> env = System.getenv();
+                if(env.containsKey("KDE_FULL_SESSION") || env.containsKey("KDE_MULTIHEAD")){
+                    openDirExecutable = "kfmclient";
+                    return openDirExecutable;
+                }
+                if(env.containsKey("GNOME_DESKTOP_SESSION_ID") || env.containsKey("GNOME_KEYRING_SOCKET")){
+                    openDirExecutable = "gnome-open";
+                    return openDirExecutable;
+                }
+            } catch (Throwable e) {
+                //ignore -- it seems not all java versions have System.getenv
+            }
+            
+            //If it hasn't returned until now, we don't know about it!
+            openDirExecutable = OPEN_DIR_EXEC_NOT_AVAILABLE;
+        }
+        //Yes, we can compare with identity since we know which string we've set.
+        if(openDirExecutable == OPEN_DIR_EXEC_NOT_AVAILABLE){
+            return null;
+        }
+        return openDirExecutable;
+    }
+
+    public static boolean getSupportsOpenDirectory() {
+        return getOpenDirectoryExecutable() != null;
     }
 }
 

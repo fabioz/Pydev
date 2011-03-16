@@ -121,7 +121,7 @@ class ServerFacade(object):
 #=======================================================================================================================
 # run_client
 #=======================================================================================================================
-def run_client(job_id, port, verbosity):
+def run_client(job_id, port, verbosity, coverage_output_file, coverage_include):
     job_id = int(job_id)
     
     import pydev_localhost
@@ -157,7 +157,18 @@ def run_client(job_id, port, verbosity):
                 if len(filename_and_test) == 2:
                     files_to_tests.setdefault(filename_and_test[0], []).append(filename_and_test[1])
     
-            configuration = pydev_runfiles.Configuration('', verbosity, None, None, None, files_to_tests, 1, None)
+            configuration = pydev_runfiles.Configuration(
+                '', 
+                verbosity, 
+                None, 
+                None, 
+                None, 
+                files_to_tests, 
+                1, 
+                None, 
+                coverage_output_file=coverage_output_file, 
+                coverage_include=coverage_include, 
+            )
             test_runner = pydev_runfiles.PydevTestRunner(configuration)
             sys.stdout.flush()
             test_runner.run_tests()
@@ -172,10 +183,19 @@ def run_client(job_id, port, verbosity):
 # main
 #=======================================================================================================================
 if __name__ == '__main__':
-    job_id, port, verbosity = sys.argv[1:]
+    if len(sys.argv) -1 == 3:
+        job_id, port, verbosity = sys.argv[1:]
+        coverage_output_file, coverage_include = None, None
+        
+    elif len(sys.argv) -1 == 5:
+        job_id, port, verbosity, coverage_output_file, coverage_include = sys.argv[1:]
+        
+    else:
+        raise AssertionError('Could not find out how to handle the parameters: '+sys.argv[1:])
+        
     job_id = int(job_id)
     port = int(port)
     verbosity = int(verbosity)
-    run_client(job_id, port, verbosity)
+    run_client(job_id, port, verbosity, coverage_output_file, coverage_include)
     
     
