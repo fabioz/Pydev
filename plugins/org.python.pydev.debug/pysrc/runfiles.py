@@ -131,7 +131,8 @@ def main():
             if DEBUG:
                 sys.stdout.write('Final test framework args: %s\n' % (argv[1:],))
                 
-            from pydev_runfiles_nose import PYDEV_NOSE_PLUGIN_SINGLETON
+            import pydev_runfiles_nose
+            PYDEV_NOSE_PLUGIN_SINGLETON = pydev_runfiles_nose.StartPydevNosePluginSingleton(configuration)
             argv.append('--with-pydevplugin')
             nose.run(argv=argv, addplugins=[PYDEV_NOSE_PLUGIN_SINGLETON])
 

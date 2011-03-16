@@ -227,9 +227,13 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         if(monitor == null){
             monitor = new NullProgressMonitor();
         }
-        PyCoverage.getPyCoverage().refreshCoverageInfo(PyCoveragePreferences.getLastChosenDir(), monitor);
+        IContainer lastChosenDir = PyCoveragePreferences.getLastChosenDir();
+        if(lastChosenDir == null){
+            return;
+        }
+        PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenDir, monitor);
         
-        File input = PyCoveragePreferences.getLastChosenDir().getLocation().toFile();
+        File input = lastChosenDir.getLocation().toFile();
         viewer.refresh();
         ITreeContentProvider contentProvider = (ITreeContentProvider) viewer.getContentProvider();
         Object[] children = contentProvider.getChildren(input);
@@ -419,7 +423,18 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         PyCoveragePreferences.setLastChosenDir(container);
         updateErrorMessages();
         
-        viewer.setInput(container.getLocation().toFile());
+        File input = container.getLocation().toFile();
+        viewer.setInput(input);
+
+        ITreeContentProvider contentProvider = (ITreeContentProvider) viewer.getContentProvider();
+        Object[] children = contentProvider.getChildren(input);
+        if(children.length > 0){
+            viewer.setSelection(new StructuredSelection(children[0]));
+        }else{
+            viewer.setSelection(new StructuredSelection());
+        }
+
+        
         ProgressOperation.startAction(getSite().getShell(), refreshAction, true);
     }
 
@@ -507,7 +522,12 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         text.addMouseListener(new MouseAdapter() {
             
             public void mouseDown(MouseEvent e) {
-                int offset = text.getOffsetAtLocation(new Point(e.x, e.y));
+                int offset;
+                try {
+                    offset = text.getOffsetAtLocation(new Point(e.x, e.y));
+                } catch (IllegalArgumentException e1) {
+                    return; //Yes, in this case we clicked out of the possible range (i.e.: if we had no contents).
+                }
                 StyleRange r = text.getStyleRangeAtOffset(offset);
                 if(r == null){
                     return;
@@ -694,6 +714,13 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         TreeItem item = new TreeItem(tree, SWT.NONE);
         item.setText("Altenatively, to select a folder, drag it to this area.");
         
+        item = new TreeItem(tree, SWT.NONE);
+        
+        item = new TreeItem(tree, SWT.NONE);
+        item.setText("Note: Only the sources under the folder selected");
+        item = new TreeItem(tree, SWT.NONE);
+        item.setText("will have coverage information collected.");
+        
         // Allow data to be copied or moved to the drop target
         int operations = DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT;
         DropTarget target = new DropTarget(tree, operations);
@@ -864,6 +891,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
                 labelErrorFolderNotSelected.setText("Folder must be selected for launching with coverage.");
                 GridData layoutData = new GridData();
                 layoutData.grabExcessHorizontalSpace = true;
+                layoutData.horizontalSpan = 2;
                 layoutData.horizontalAlignment = GridData.FILL;
                 labelErrorFolderNotSelected.setLayoutData(layoutData);
            }
