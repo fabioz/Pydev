@@ -11,6 +11,7 @@
  */
 package org.python.pydev.debug.codecoverage;
 
+import java.io.File;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -42,16 +43,16 @@ public class CoverageCacheTest extends TestCase {
     }
 
     public void testAddRoot() throws NodeNotFoudException{
-        String folder1 = "a";     //all files
-        String folder2 = "a.b";   //no files
-        String folder3 = "a.c";   //file3 and file4 + file5
-        String folder4 = "a.c.d"; //only file5
+        File folder1 = new File("a");     //all files
+        File folder2 = new File("a.b");   //no files
+        File folder3 = new File("a.c");   //file3 and file4 + file5
+        File folder4 = new File("a.c.d"); //only file5
 
-        String file1 = "b";
-        String file2 = "c";
-        String file3 = "d";
-        String file4 = "e";
-        String file5 = "fgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg";
+        File file1 = new File("b");
+        File file2 = new File("c");
+        File file3 = new File("d");
+        File file4 = new File("e");
+        File file5 = new File("fgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg");
 
         cache.addFolder(folder1);
         cache.addFolder(folder2, folder1);
@@ -64,32 +65,32 @@ public class CoverageCacheTest extends TestCase {
         cache.addFile(file4, folder3, 26,10, "6-10");
         cache.addFile(file5, folder4, 28,10, "6-10");
         
-        List<Object> folder1files = cache.getFiles(folder1);
+        List<ICoverageNode> folder1files = cache.getFiles(folder1);
         assertEquals(5, folder1files.size());
 
-        List<Object> folder2files = cache.getFiles(folder2);
+        List<ICoverageNode> folder2files = cache.getFiles(folder2);
         assertEquals(0, folder2files.size());
 
-        List<Object> folder3files = cache.getFiles(folder3);
+        List<ICoverageNode> folder3files = cache.getFiles(folder3);
         assertEquals(3, folder3files.size());
 
         
-        List<Object> folder4files = cache.getFiles(folder4);
+        List<ICoverageNode> folder4files = cache.getFiles(folder4);
         assertEquals(1, folder4files.size());
         assertEquals(folder4files, cache.getFiles(file5));
 
 
-        String statistics = cache.getStatistics(folder1);
+        String statistics = cache.getStatistics(null, folder1).o1;
         String expected = "" +
-                "Name                                    Stmts     Exec     Cover  Missing\n" +
-                "-----------------------------------------------------------------------------\n" +
-                "                                       b     20     10        50%  6-10\n" +
-                "                                       c     22     10      45,5%  6-10\n" +
-                "                                       d     24     10      41,7%  6-10\n" +
-                "                                       e     26     10      38,5%  6-10\n" +
-                ".. ggggggggggggggggggggggggggggggggggggg     28     10      35,7%  6-10\n" +
-                "-----------------------------------------------------------------------------\n" +
-                "                                   TOTAL    120     50      41,7%  \n" +
+                "Name                                      Stmts     Miss      Cover  Missing\n"+
+                "-----------------------------------------------------------------------------\n"+
+                "b                                            20       10        50%  6-10\n"+
+                "c                                            22       10      54,5%  6-10\n"+
+                "d                                            24       10      58,3%  6-10\n"+
+                "e                                            26       10      61,5%  6-10\n"+
+                "..gggggggggggggggggggggggggggggggggggggg     28       10      64,3%  6-10\n"+
+                "-----------------------------------------------------------------------------\n"+
+                "TOTAL                                       120       50      58,3%  \n"+
                 "";
         
         if(!expected.equals(statistics) && !expected.replace(',', '.').equals(statistics)){

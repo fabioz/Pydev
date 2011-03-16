@@ -123,13 +123,6 @@
         public="true">
 	</launchConfigurationType>
 	<launchConfigurationType
-        delegate="org.python.pydev.debug.ui.launching.CoverageLaunchConfigurationDelegate"
-        id="org.python.pydev.debug.coverageLaunchConfigurationType"
-        modes="run"
-        name="Python Coverage"
-        public="true">
-	</launchConfigurationType>
-	<launchConfigurationType
         delegate="org.python.pydev.debug.ui.launching.UnittestLaunchConfigurationDelegate"
         id="org.python.pydev.debug.unittestLaunchConfigurationType"
         modes="run, debug"
@@ -174,11 +167,6 @@
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
 	</launchConfigurationTypeImage>
 	<launchConfigurationTypeImage
-		icon="icons/python_coverage.png"
-		configTypeID="org.python.pydev.debug.coverageLaunchConfigurationType"
-		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
-	</launchConfigurationTypeImage>
-	<launchConfigurationTypeImage
 		icon="icons/python_unit.png"
 		configTypeID="org.python.pydev.debug.unittestLaunchConfigurationType"
 		id="org.python.pydev.debug.ui.launchConfigurationTypeImage">
@@ -218,11 +206,6 @@
 	<!--Python-->
 	<launchConfigurationTabGroup
 		type="org.python.pydev.debug.regularLaunchConfigurationType"
-		class="org.python.pydev.debug.ui.PythonTabGroup"
-		id="org.python.pydev.debug.ui.PythonTabGroup">
-	</launchConfigurationTabGroup>
-	<launchConfigurationTabGroup
-		type="org.python.pydev.debug.coverageLaunchConfigurationType"
 		class="org.python.pydev.debug.ui.PythonTabGroup"
 		id="org.python.pydev.debug.ui.PythonTabGroup">
 	</launchConfigurationTabGroup>
@@ -338,33 +321,6 @@
         <configurationType id="org.python.pydev.debug.jythonLaunchConfigurationType"/>
 	</shortcut>
 	<shortcut
-		label="Python Coverage"
-		icon="icons/python_coverage.png"
-		modes="run"
-		class="org.python.pydev.debug.ui.launching.CoverageLaunchShortcut"
-		id="org.python.pydev.debug.ui.launchShortcut.python.coverage">
-		<!--this adds it to run-as (taken from \eclipse\plugins\org.eclipse.jdt.junit_3.0.1) -->
-        <contextualLaunch>
-           <enablement>
-              <with variable="selection">
-           		 <iterate>
-           		    <and>
-	           		 	<or>
-	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.py"/>
-	               		    <test property="org.eclipse.debug.ui.matchesPattern" value="*.pyw"/>
-                            <adapt type="org.eclipse.core.resources.IContainer" />
-	               		</or>    
-               		    <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
-              		    <test property="org.python.pydev.debug.ui.interpreterType" value="python"/>
-               		</and>
-
-           		 </iterate>
-              </with>
-           </enablement>
-        </contextualLaunch>
-        <configurationType id="org.python.pydev.debug.coverageLaunchConfigurationType"/>
-	</shortcut>
-	<shortcut
 		label="Python unit-test"
 		icon="icons/python_unit.png"
 		modes="run, debug"
@@ -463,6 +419,15 @@
         id="org.python.pydev.debug.views.TestReportView"/>
    -->
 </extension>
+
+<extension
+   id="pydev_coverage_marker"
+   name="PyDev coverage marker"
+   point="org.eclipse.core.resources.markers">
+   <super type="org.eclipse.core.resources.problemmarker"/>
+   <persistent value="false"/>
+</extension>
+
 
 <!--- console line tracking -->
 <extension 

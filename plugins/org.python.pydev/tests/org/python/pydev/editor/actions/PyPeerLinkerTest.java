@@ -22,7 +22,7 @@ public class PyPeerLinkerTest extends TestCase {
         try {
             PyPeerLinkerTest test = new PyPeerLinkerTest();
             test.setUp();
-            test.testLiteral3();
+            test.testParens();
             test.tearDown();
             junit.textui.TestRunner.run(PyPeerLinkerTest.class);
         } catch (Throwable e) {
@@ -91,4 +91,49 @@ public class PyPeerLinkerTest extends TestCase {
         assertEquals(0, peerLinker.getLinkLen());
         assertEquals(7, peerLinker.getLinkExitPos());
     }
+    
+    public void testBrackets() throws Exception {
+        Document doc = new Document("");        
+        PySelection ps = new PySelection(doc, 0, 0);
+
+        peerLinker.perform(ps, '[', null);
+        assertEquals("[]", doc.get());
+        assertEquals(1, peerLinker.getLinkOffset());
+        assertEquals(0, peerLinker.getLinkLen());
+        assertEquals(2, peerLinker.getLinkExitPos());
+    }
+    
+    public void testParens() throws Exception {
+        Document doc = new Document("");        
+        PySelection ps = new PySelection(doc, 0, 0);
+        
+        peerLinker.perform(ps, '(', null);
+        assertEquals("()", doc.get());
+        assertEquals(1, peerLinker.getLinkOffset());
+        assertEquals(0, peerLinker.getLinkLen());
+        assertEquals(2, peerLinker.getLinkExitPos());
+    }
+    
+    public void testParens2() throws Exception {
+        Document doc = new Document(")");        
+        PySelection ps = new PySelection(doc, 0, 0);
+        
+        peerLinker.perform(ps, '(', null);
+        assertEquals("()", doc.get());
+        assertEquals(-1, peerLinker.getLinkOffset());
+        assertEquals(-1, peerLinker.getLinkExitPos());
+    }
+    
+    public void testParens3() throws Exception {
+        String initial = "class Foo:\n" +
+        "    def m1";
+        Document doc = new Document(initial);        
+        PySelection ps = new PySelection(doc, 1, 10);
+        
+        peerLinker.perform(ps, '(', null);
+        assertEquals(initial+"(self):", doc.get());
+        assertEquals(26, peerLinker.getLinkOffset());
+        assertEquals(28, peerLinker.getLinkExitPos());
+    }
+    
 }

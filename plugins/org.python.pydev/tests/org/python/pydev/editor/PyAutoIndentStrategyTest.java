@@ -351,7 +351,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd = new DocCmd(offset, 0, "\n");
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("\n        ", docCmd.text); 
-        assertEquals(0, docCmd.caretOffset); //don't change it 
+        assertEquals(-1, docCmd.caretOffset); //don't change it 
         
     }
     
@@ -1494,7 +1494,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = ")";
         assertEquals(expected, docCmd.text);
-        assertEquals(0, docCmd.caretOffset);
+        assertEquals(-1, docCmd.caretOffset);
         
         // test inputting ')' at the end of a document when it should replace a ')'
         doc = "class c:\n" +
@@ -1536,7 +1536,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = ")";
         assertEquals(expected, docCmd.text);
-        assertEquals(0, docCmd.caretOffset);
+        assertEquals(-1, docCmd.caretOffset);
         
         // check same stuff for brackets
         // check simple braces insertion not at end of document
@@ -1553,7 +1553,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         expected = "]";
         assertEquals(expected, docCmd.text);
-        assertEquals(0, docCmd.caretOffset);
+        assertEquals(-1, docCmd.caretOffset);
     }
     
     public void testParens() {

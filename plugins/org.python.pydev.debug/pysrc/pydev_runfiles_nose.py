@@ -3,18 +3,29 @@ from nose.plugins.base import Plugin
 import sys
 import pydev_runfiles_xml_rpc
 import time
+from pydev_runfiles_coverage import StartCoverageSupport
 
- #======================================================================================================================
- # PydevPlugin
- #======================================================================================================================
+#=======================================================================================================================
+# PydevPlugin
+#=======================================================================================================================
 class PydevPlugin(Plugin):
+    
+    def __init__(self, configuration):
+        self.configuration = configuration
+        Plugin.__init__(self)
+        
     
     def begin(self):
         #Called before any test is run (it's always called, with multiprocess or not)
         self.start_time = time.time()
+        self.coverage_files, self.coverage = StartCoverageSupport(self.configuration)
+    
     
     def finalize(self, result):
         #Called after all tests are run (it's always called, with multiprocess or not)
+        self.coverage.stop()
+        self.coverage.save()
+
         pydev_runfiles_xml_rpc.notifyTestRunFinished('Finished in: %.2f secs.' % (time.time() - self.start_time,))
     
     
@@ -125,8 +136,11 @@ class PydevPlugin(Plugin):
         )
         
         
-PYDEV_NOSE_PLUGIN_SINGLETON = PydevPlugin()
-
+PYDEV_NOSE_PLUGIN_SINGLETON = None
+def StartPydevNosePluginSingleton(configuration):
+    global PYDEV_NOSE_PLUGIN_SINGLETON
+    PYDEV_NOSE_PLUGIN_SINGLETON = PydevPlugin(configuration)
+    return PYDEV_NOSE_PLUGIN_SINGLETON
         
         
 

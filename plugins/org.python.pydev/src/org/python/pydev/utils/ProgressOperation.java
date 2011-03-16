@@ -56,9 +56,10 @@ public class ProgressOperation extends WorkspaceModifyOperation {
      * @param shell
      * 
      */
-    public static void startAction(Shell shell, ProgressAction action) {
+    public static void startAction(Shell shell, ProgressAction action, boolean cancelable) {
         ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(
                 shell);
+        monitorDialog.setCancelable(cancelable);
         monitorDialog.setBlockOnOpen(false);
         try {
             IRunnableWithProgress operation = new ProgressOperation(action);

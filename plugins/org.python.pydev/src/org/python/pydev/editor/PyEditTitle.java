@@ -748,7 +748,15 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		IPath path = null;
 		if(otherInput instanceof IPathEditorInput){
 			IPathEditorInput iPathEditorInput = (IPathEditorInput) otherInput;
-			path = iPathEditorInput.getPath();
+			try {
+                path = iPathEditorInput.getPath();
+            } catch (IllegalArgumentException e) {
+                //ignore: we may have the trace below inside the FileEditorInput.
+                //java.lang.IllegalArgumentException
+                //at org.eclipse.ui.part.FileEditorInput.getPath(FileEditorInput.java:208)
+                //at org.python.pydev.editor.PyEditTitle.getPathFromInput(PyEditTitle.java:751)
+
+            }
 		}
 		if(path == null){
 			if(otherInput instanceof IFileEditorInput){

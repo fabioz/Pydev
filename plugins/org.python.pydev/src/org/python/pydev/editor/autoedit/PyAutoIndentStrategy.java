@@ -274,7 +274,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @return
      */
     private boolean isNewLineText(IDocument document, int length, String text) {
-        return length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text) && text.length() < 3;
+        return length == 0 && text != null && AbstractIndentPrefs.endsWithNewline(document, text) && text.length() < 3; //could be \r\n
     }
 
     private String dedent(String text) {
@@ -287,7 +287,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         }
         return text;
     }
-    private Tuple<String, Integer> removeFirstIndent(String text) {
+    private static Tuple<String, Integer> removeFirstIndent(String text, IIndentPrefs prefs) {
         String indentationString = prefs.getIndentationString();
         if(text.startsWith(indentationString)){
             return new Tuple<String, Integer>(text.substring(indentationString.length()), indentationString.length());
@@ -304,17 +304,25 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             getIndentPrefs().convertToStd(document, command);
             return;
         }
+        char c;
+        if(command.text.length() == 1){
+            c = command.text.charAt(0);
+        }else{
+            c = '\0';
+        }
+
         
         String contentType = ParsingUtils.getContentType(document, command.offset);
         
-        if (command.text.equals("\"") || command.text.equals("'")) {
-        	handleLiteral(document, command, contentType.equals(ParsingUtils.PY_DEFAULT));
-        	return;
+        switch(c){
+            case '"':
+            case '\'':
+                handleLiteral(document, command, contentType.equals(ParsingUtils.PY_DEFAULT), c);
+                return;
         }
         
         // super idents newlines the same amount as the previous line
         final boolean isNewLine = isNewLineText(document, command.length, command.text);
-        
         
 
         if(!contentType.equals(ParsingUtils.PY_DEFAULT)){
@@ -335,114 +343,129 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         
 
         try {
-            
             if (isNewLine) {
                 customizeNewLine(document, command);
-                
-            }else if(command.text.equals("\t")){
+                getIndentPrefs().convertToStd(document, command);
+                return;
+            }
+            
+            if(c == '\0'){
+                //In some paste with more contents (c was not set), just convert tabs/spaces and go on...
+                getIndentPrefs().convertToStd(document, command);
+                return;
+            }
+            
+            if(c == '\t'){
                 handleTab(document, command);
+                getIndentPrefs().convertToStd(document, command);
+                return;
             }
             
             getIndentPrefs().convertToStd(document, command);
-
             
-            if (prefs.getAutoParentesis() && (command.text.equals("[") || command.text.equals("{")) ) {
-                PySelection ps = new PySelection(document, command.offset);
-                char c = command.text.charAt(0);
-                char peer = StringUtils.getPeer(c);
-                if (shouldClose(ps, c, peer)) {
-                    command.shiftsCaret = false;
-                    command.text = c+""+peer;
-                    command.caretOffset = command.offset+1;
-                }
-                
-            }else if (command.text.equals("(")) {
-                /*
-                 * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
-                 */
-                autoDedentElif(document, command);
-
-                customizeParenthesis(document, command, false);
-
-            }
-                
-            else if (command.text.equals(":")) {
-                /*
-                 * The following code will auto-replace colons in function
-                 * declaractions
-                 * e.g.,
-                 * def something(self):
-                 *                    ^ cursor before the end colon
-                 * 
-                 * Typing another colon (i.e, ':') at that position will not insert
-                 * another colon
-                 */
-                if(prefs.getAutoColon()){
-                    performColonReplacement(document, command);
-                }
-
-                /*
-                 * Now, let's also check if we are in an 'else:' or 'except:' or 'finally:' that must be dedented in the doc
-                 */
-                autoDedentAfterColon(document, command);
-            }
-
-            /*
-             * this is a space... so, if we are in 'from xxx ', we may auto-write
-             * the import 
-             */
-            else if (command.text.equals(" ")) {
-                if( prefs.getAutoWriteImport()){
-                    PySelection ps = new PySelection(document, command.offset);
-                    String completeLine = ps.getLineWithoutCommentsOrLiterals();
-                    String lineToCursor = ps.getLineContentsToCursor().trim();
-                    String lineContentsFromCursor = ps.getLineContentsFromCursor();
+            
+            switch (c){
+                case'[':
+                case'{':
+                    if(prefs.getAutoParentesis()){
+                        PySelection ps = new PySelection(document, command.offset);
+                        char peer = StringUtils.getPeer(c);
+                        if (shouldClose(ps, c, peer)) {
+                            command.shiftsCaret = false;
+                            command.text = c+""+peer;
+                            command.caretOffset = command.offset+1;
+                        }
+                    }
+                    return;
                     
-                    if( completeLine.indexOf(" import ") == -1 && 
-                        StringUtils.leftTrim(completeLine).startsWith("from ")&& 
-                       !completeLine.startsWith("import ")&& 
-                       !completeLine.endsWith(" import") &&
-                       !lineToCursor.endsWith(" import") &&
-                       !lineContentsFromCursor.startsWith("import")){
+                    
+                case '(':
+                    handleParens(document, command, prefs);
+                    return;
+                    
+                case ':':
+                    /*
+                     * The following code will auto-replace colons in function
+                     * declaractions
+                     * e.g.,
+                     * def something(self):
+                     *                    ^ cursor before the end colon
+                     * 
+                     * Typing another colon (i.e, ':') at that position will not insert
+                     * another colon
+                     */
+                    if(prefs.getAutoColon()){
+                        performColonReplacement(document, command);
+                    }
+                    
+                    /*
+                     * Now, let's also check if we are in an 'else:' or 'except:' or 'finally:' that must be dedented in the doc
+                     */
+                    autoDedentAfterColon(document, command, prefs);
+                    return;
+                    
+
+                case ' ':
+                    /*
+                     * this is a space... so, if we are in 'from xxx ', we may auto-write
+                     * the import 
+                     */
+                    if( prefs.getAutoWriteImport()){
+                        PySelection ps = new PySelection(document, command.offset);
+                        String completeLine = ps.getLineWithoutCommentsOrLiterals();
+                        String lineToCursor = ps.getLineContentsToCursor().trim();
+                        String lineContentsFromCursor = ps.getLineContentsFromCursor();
                         
-                        String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor, false).importsTipperStr;
-                        if(importsTipperStr.length() > 0){
-                            command.text = " import ";
+                        if( completeLine.indexOf(" import ") == -1 && 
+                                StringUtils.leftTrim(completeLine).startsWith("from ")&& 
+                                !completeLine.startsWith("import ")&& 
+                                !completeLine.endsWith(" import") &&
+                                !lineToCursor.endsWith(" import") &&
+                                !lineContentsFromCursor.startsWith("import")){
+                            
+                            String importsTipperStr = ImportsSelection.getImportsTipperStr(lineToCursor, false).importsTipperStr;
+                            if(importsTipperStr.length() > 0){
+                                command.text = " import ";
+                            }
                         }
                     }
-                }
-                
-                
-                /*
-                 * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
-                 */
-                autoDedentElif(document, command);
-            }
-            
-            /*
-             * If the command is some kind of parentheses or brace, and there's
-             * already a matching one, don't insert it. Just move the cursor to
-             * the next space.
-             */
-            else if (command.text.length() < 3 && prefs.getAutoBraces()) {
-                // you can only do the replacement if the next character already there is what the user is trying to input
-                
-                if (command.offset < document.getLength() && document.get(command.offset, 1).equals(command.text)) {
-                    // the following searches through each of the end braces and
-                    // sees if the command has one of them
-
-                    boolean found = false;
-                    for (int i = 1; i <= StringUtils.BRACKETS.length && !found; i += 2) {
-                        char c = StringUtils.BRACKETS[i];
-                        if (c == command.text.charAt(0)) {
-                            found = true;
-                            performPairReplacement(document, command);
+                    
+                    
+                    /*
+                     * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
+                     */
+                    autoDedentElif(document, command, getIndentPrefs());
+                    return;
+                    
+                case ')':
+                case ']':
+                case '}':
+                    /*
+                     * If the command is some kind of parentheses or brace, and there's
+                     * already a matching one, don't insert it. Just move the cursor to
+                     * the next space.
+                     */
+                    if(prefs.getAutoBraces()){
+                        // you can only do the replacement if the next character already there is what the user is trying to input
+                        
+                        if (command.offset < document.getLength() && document.get(command.offset, 1).equals(command.text)) {
+                            // the following searches through each of the end braces and
+                            // sees if the command has one of them
+                            
+                            boolean found = false;
+                            for (int i = 1; i <= StringUtils.BRACKETS.length && !found; i += 2) {
+                                char b = StringUtils.BRACKETS[i];
+                                if (b == c) {
+                                    found = true;
+                                    performPairReplacement(document, command);
+                                }
+                            }
                         }
                     }
-                }
+                    return;
+                    
             }
-            
-
+                
         }
         /*
          * If something goes wrong, you want to know about it, especially in a
@@ -456,11 +479,23 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         }
     }
 
+    /**
+     * Called right after a '('
+     */
+    public static void handleParens(IDocument document, DocumentCommand command, IIndentPrefs prefs) throws BadLocationException {
+        /*
+         * Now, let's also check if we are in an 'elif ' that must be dedented in the doc
+         */
+        autoDedentElif(document, command, prefs);
+
+        customizeParenthesis(document, command, false, prefs);
+    }
+
 
     /**
      * Called right after a ' or "
      */
-    private void handleLiteral(IDocument document, DocumentCommand command, boolean isDefaultContext) {
+    private void handleLiteral(IDocument document, DocumentCommand command, boolean isDefaultContext, char literalChar) {
         if(!prefs.getAutoLiterals()){
             return;
         }
@@ -474,7 +509,6 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             } catch (BadLocationException e) {
             }
         }
-        char literalChar = command.text.charAt(0);
         
         try {
             char nextChar = ps.getCharAfterCurrentOffset();
@@ -492,7 +526,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                 //only add additional chars if on default context. 
                 return;
             }
-            command.text += command.text;
+            command.text = StringUtils.getWithClosedPeer(literalChar);
             command.shiftsCaret = false;
             command.caretOffset = command.offset+1;
             return;
@@ -515,7 +549,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                     //only add additional chars if on default context. 
                     return;
                 }
-                command.text += command.text;
+                command.text = StringUtils.getWithClosedPeer(literalChar);
                 command.shiftsCaret = false;
                 command.caretOffset = command.offset+1;
             }
@@ -646,7 +680,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 		}
 	}
 
-    public void customizeParenthesis(IDocument document, DocumentCommand command, boolean considerOnlyCurrentLine) throws BadLocationException {
+    public static void customizeParenthesis(IDocument document, DocumentCommand command, boolean considerOnlyCurrentLine, IIndentPrefs prefs) throws BadLocationException {
         if(prefs.getAutoParentesis()){
             PySelection ps = new PySelection(document, command.offset);
             String line = ps.getLine();
@@ -735,7 +769,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                         command.text = "():";
                         command.caretOffset = command.offset + 1;
                     } else {
-                        throw new RuntimeException(getClass().toString() + ": customizeDocumentCommand()");
+                        throw new RuntimeException(PyAutoIndentStrategy.class.toString() + ": customizeDocumentCommand()");
                     }
                 } else {
                     command.text = "()";
@@ -787,8 +821,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
      * on subsequent things).
      */
-    public Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command, String tok, String[] tokens) throws BadLocationException {
-        if(getIndentPrefs().getAutoDedentElse()){
+    public static Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command, String tok, String[] tokens, IIndentPrefs prefs) throws BadLocationException {
+        if(prefs.getAutoDedentElse()){
             PySelection ps = new PySelection(document, command.offset);
             String lineContents = ps.getCursorLineContents();
             if(lineContents.trim().equals(tok)){
@@ -800,7 +834,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                     
                     String indent = prefs.getIndentationString();
                     if(lineIndent.length() == ifIndent.length()+indent.length()){
-                        Tuple<String,Integer> dedented = removeFirstIndent(lineContents);
+                        Tuple<String,Integer> dedented = removeFirstIndent(lineContents, prefs);
                         ps.replaceLineContentsToSelection(dedented.o1);
                         command.offset = command.offset - dedented.o2;
                         return dedented;
@@ -811,15 +845,15 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
         return null;
     }
     
-    public Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command) throws BadLocationException {
+    public static Tuple<String, Integer> autoDedentAfterColon(IDocument document, DocumentCommand command, IIndentPrefs prefs) throws BadLocationException {
         Tuple<String, Integer> ret = null;
-        if((ret = autoDedentAfterColon(document, command, "else", PySelection.TOKENS_BEFORE_ELSE)) != null){
+        if((ret = autoDedentAfterColon(document, command, "else", PySelection.TOKENS_BEFORE_ELSE, prefs)) != null){
             return ret;
         }
-        if((ret = autoDedentAfterColon(document, command, "except", PySelection.TOKENS_BEFORE_EXCEPT)) != null){
+        if((ret = autoDedentAfterColon(document, command, "except", PySelection.TOKENS_BEFORE_EXCEPT, prefs)) != null){
             return ret;
         }
-        if((ret = autoDedentAfterColon(document, command, "finally", PySelection.TOKENS_BEFORE_FINALLY)) != null){
+        if((ret = autoDedentAfterColon(document, command, "finally", PySelection.TOKENS_BEFORE_FINALLY, prefs)) != null){
             return ret;
         }
         return null;
@@ -830,8 +864,8 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @return the new indent and the number of chars it has been dedented (so, that has to be considered as a shift to the left
      * on subsequent things).
      */
-    public Tuple<String, Integer> autoDedentElif(IDocument document, DocumentCommand command) throws BadLocationException {
-        return autoDedentAfterColon(document, command, "elif", PySelection.TOKENS_BEFORE_ELSE);
+    public static Tuple<String, Integer> autoDedentElif(IDocument document, DocumentCommand command, IIndentPrefs prefs) throws BadLocationException {
+        return autoDedentAfterColon(document, command, "elif", PySelection.TOKENS_BEFORE_ELSE, prefs);
     }
     
 
@@ -986,7 +1020,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
     /**
      * @return true if we should close the opening pair (parameter c) and false if we shouldn't
      */
-    private boolean shouldClose(PySelection ps, char c, char peer) throws BadLocationException {
+    public static boolean shouldClose(PySelection ps, char c, char peer) throws BadLocationException {
     	PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
         String lineContentsFromCursor = ps.getLineContentsFromCursor();
 

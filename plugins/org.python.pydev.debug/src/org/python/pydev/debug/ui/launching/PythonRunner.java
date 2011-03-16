@@ -48,26 +48,6 @@ import org.python.pydev.runners.SimpleRunner;
  */
 public class PythonRunner {
 
-    /**
-     * @param p
-     * @param process
-     * @throws CoreException
-     */
-    private static void checkProcess(Process p, IProcess process) throws CoreException {
-        if (process == null) {
-            p.destroy();
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Could not register with debug plugin?", null));
-        }
-    }
-    /**
-     * @param p
-     * @throws CoreException
-     */
-    private static void checkProcess(Process p) throws CoreException {
-        if (p == null)
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,"Could not execute python process. Was it cancelled?", null));
-    }
-
     
     /**
      * Launches the configuration
@@ -122,7 +102,6 @@ public class PythonRunner {
         String[] cmdLine = config.getCommandLine(true);
 
         Process p = createProcess(launch, config.envp, cmdLine, config.workingDirectory);
-        checkProcess(p);
         HashMap<Object, Object> processAttributes = new HashMap<Object, Object>();
         processAttributes.put(IProcess.ATTR_CMDLINE, config.getCommandLineAsString());
         processAttributes.put(Constants.PYDEV_DEBUG_IPROCESS_ATTR, Constants.PYDEV_DEBUG_IPROCESS_ATTR_TRUE);
@@ -132,7 +111,6 @@ public class PythonRunner {
         IProcess process;
         try {
             process = registerWithDebugPluginForProcessType(config.getRunningName(), launch,p, processAttributes, config);
-            checkProcess(p, process);
             t.process = process;
         } finally {
             t.finishedInit = true;
@@ -182,7 +160,6 @@ public class PythonRunner {
         
         //it was dying before register, so, I made this faster to see if this fixes it
         Process p = createProcess(launch, envp, cmdLine, workingDirectory);    
-        checkProcess(p);
 
         IProcess process;
         String label = cmdLine[cmdLine.length-1];
@@ -193,7 +170,6 @@ public class PythonRunner {
             throw new RuntimeException("Interactive not supported here!");
         }
         process = registerWithDebugPluginForProcessType(label, launch, p, processAttributes, config);
-        checkProcess(p, process);
 
         // Registered the process with the debug plugin
         subMonitor.subTask("Done");
@@ -220,6 +196,10 @@ public class PythonRunner {
             envp = s;
         }        
         Process p = DebugPlugin.exec(cmdLine, workingDirectory, envp);
+        if (p == null){
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR,"Could not execute python process.", null));
+        }
+        PythonRunnerCallbacks.afterCreatedProcess.call(p);
         return p;
     }
 

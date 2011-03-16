@@ -49,6 +49,8 @@ import org.python.pydev.logging.ping.AsyncLogPing;
 import org.python.pydev.logging.ping.ILogPing;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.ui.ColorCache;
 import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
 import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
@@ -146,6 +148,8 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     
     
     private static PydevPlugin plugin; //The shared instance.
+
+    private ColorCache colorCache;
 
     private ResourceBundle resourceBundle; //Resource bundle.
 
@@ -644,6 +648,17 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             }}, 
             
             fileInputStream);
+    }
+    /**
+     * @return
+     */
+    public static ColorCache getColorCache() {
+        PydevPlugin plugin = getDefault();
+        if(plugin.colorCache == null){
+            plugin.colorCache = new ColorCache(PydevPrefs.getChainedPrefStore()) {
+            };
+        }
+        return plugin.colorCache;
     }
     
 

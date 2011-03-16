@@ -400,8 +400,9 @@ public class SimpleRunner {
 
             monitor.setTaskName("Reading output...");
             monitor.worked(5);
-            ThreadStreamReader std = new ThreadStreamReader(process.getInputStream());
-            ThreadStreamReader err = new ThreadStreamReader(process.getErrorStream());
+            //No need to synchronize as we'll waitFor() the process before getting the contents.
+            ThreadStreamReader std = new ThreadStreamReader(process.getInputStream(), false);
+            ThreadStreamReader err = new ThreadStreamReader(process.getErrorStream(), false);
 
             std.start();
             err.start();

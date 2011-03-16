@@ -72,7 +72,7 @@ public class PySourceLocatorBase {
         IFile[] files = getWorkspaceFiles(file);
         return selectWorkspaceFile(files);
     }
-
+    
     
     /**
      * @param file the file we want to get in the workspace
@@ -87,6 +87,27 @@ public class PySourceLocatorBase {
         }
         
         return files;
+    }
+    
+    
+
+    public IContainer getWorkspaceContainer(File file) {
+        IContainer[] containers = getWorkspaceContainers(file);
+        if(containers == null || containers.length < 1){
+            return null;
+        }
+        return containers[0];
+    }
+
+    public IContainer[] getWorkspaceContainers(File file) {
+        IWorkspace workspace= ResourcesPlugin.getWorkspace();
+        IContainer[] containers= workspace.getRoot().findContainersForLocationURI(file.toURI());
+        containers = filterNonExistentContainers(containers);
+        if (containers == null || containers.length == 0){
+            return null;
+        }
+        
+        return containers;
     }
     
     

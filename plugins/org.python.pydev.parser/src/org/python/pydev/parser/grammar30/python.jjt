@@ -1188,18 +1188,22 @@ void dictorsetmaker() #void: {}
     test()
     
     (
-        ( {this.findTokenAndAdd(":");}<COLON>     try{test()}catch(ParseException e){handleNoValInDict(e);
-    } 
-         
+        ( 
+            {this.findTokenAndAdd(":");}<COLON>     
+            try{
+                test()
+            }catch(ParseException e){
+                handleNoValInDict(e);
+            } 
             (
-                comp_for()|
-                (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test(){this.findTokenAndAdd(":");}<COLON> test())*
-                [{this.findTokenAndAdd(",");}<COMMA>]
+                comp_for()
+                |
+                (LOOKAHEAD(2) {this.findTokenAndAdd(",");}<COMMA> test(){this.findTokenAndAdd(":");}<COLON> test())*[{this.findTokenAndAdd(",");}<COMMA>]
             )
         )
         |
         (
-          (LOOKAHEAD(2) comp_for() | ({this.findTokenAndAdd(",");}<COMMA> test())*#set [{this.findTokenAndAdd(",");}<COMMA>] )
+          (LOOKAHEAD(2) comp_for() | ({this.findTokenAndAdd(",");}<COMMA> [test()])* #set)
         )
     )
 }

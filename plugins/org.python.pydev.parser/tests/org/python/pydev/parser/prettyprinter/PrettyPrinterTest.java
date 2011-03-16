@@ -25,7 +25,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.test25With4();
+            test.testNewSetEndingWithComma();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -3022,6 +3022,27 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         FunctionDef funcDef = (FunctionDef) node.body[0];
         //yes, just making sure it's not supported.
         assertEquals("(a, b), c", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
+        
+    }
+    
+    
+    public void testPrintMultipleKwargsInClassDef() throws Throwable {
+        final String s = ""+
+        "class A(meta=B,foo=C):\n" +
+        "    pass\n" +
+        "";
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s);
+        
+    }
+    
+    public void testNewSetEndingWithComma() throws Throwable {
+        String s = "s = {1,}\n";
+        String expected = "s = {1}\n"; //yes, when creating a copy we loose the specials (and end without the comma).
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s, s, expected);
         
     }
     
