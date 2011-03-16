@@ -33,7 +33,7 @@ public class PyParser30Test extends PyParserTestBase{
         try {
             PyParser30Test test = new PyParser30Test();
             test.setUp();
-            test.testKeywordArgumentsInClassDeclaration();
+            test.testNewSetConstructEndingWithComma();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyParser30Test.class);
@@ -607,5 +607,13 @@ public class PyParser30Test extends PyParserTestBase{
         Module node = (Module) parseLegalDocStr(s);
         ClassDef c = (ClassDef) node.body[0];
         assertEquals(2, c.keywords.length);
+    }
+    
+    public void testNewSetConstructEndingWithComma() {
+        String s = "" +
+        "s = { 1, }\n" +
+        "";
+        
+        parseLegalDocStr(s);
     }
 }

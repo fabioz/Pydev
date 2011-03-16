@@ -25,7 +25,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
             DEBUG = true;
             PrettyPrinterTest test = new PrettyPrinterTest();
             test.setUp();
-            test.testPrintMultipleKwargsInClassDef();
+            test.testNewSetEndingWithComma();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PrettyPrinterTest.class);
@@ -3034,6 +3034,15 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase{
         
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
         checkPrettyPrintEqual(s);
+        
+    }
+    
+    public void testNewSetEndingWithComma() throws Throwable {
+        String s = "s = {1,}\n";
+        String expected = "s = {1}\n"; //yes, when creating a copy we loose the specials (and end without the comma).
+        
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        checkPrettyPrintEqual(s, s, expected);
         
     }
     

@@ -352,18 +352,22 @@ void dictorsetmaker() #void: {}
     test()
     
     (
-        ( $COLON     try{test()}catch(ParseException e){handleNoValInDict(e);
-    } 
-         
+        ( 
+            $COLON     
+            try{
+                test()
+            }catch(ParseException e){
+                handleNoValInDict(e);
+            } 
             (
-                comp_for()|
-                (LOOKAHEAD(2) $COMMA test()$COLON test())*
-                [$COMMA]
+                comp_for()
+                |
+                (LOOKAHEAD(2) $COMMA test()$COLON test())*[$COMMA]
             )
         )
         |
         (
-          (LOOKAHEAD(2) comp_for() | ($COMMA test())*#set [$COMMA] )
+          (LOOKAHEAD(2) comp_for() | ($COMMA [test()])* #set)
         )
     )
 }
