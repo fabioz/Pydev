@@ -45,7 +45,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
  * @author Fabio Zadrozny
  * @author Parhaum Toofanian
  */
-public class PySelection {
+public final class PySelection {
     
     private IDocument doc;
     private ITextSelection textSelection;
@@ -1947,6 +1947,11 @@ public class PySelection {
 
     public boolean isInClassLine() {
         String line = this.getLine().trim();
+        return matchesClassLine(line);
+    }
+
+
+    public boolean matchesClassLine(String line) {
         return ClassPattern.matcher(line).matches();
     }
     

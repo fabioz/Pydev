@@ -157,7 +157,20 @@ public abstract class PyCreateClassOrMethod extends PyCreateAction{
                         offset = NodeUtils.getLineEnd(astNode);
                     }
                 }else{
-                    offset = pySelection.getLineOffset(scopeStart.iLineStartingScope);
+                    int iLineStartingScope = scopeStart.iLineStartingScope;
+                    String line = pySelection.getLine(iLineStartingScope);
+                    
+                    if(pySelection.matchesFunctionLine(line) || pySelection.matchesClassLine(line)){
+                        //check for decorators...
+                        if(iLineStartingScope > 0){
+                            int i = iLineStartingScope-1;
+                            while(pySelection.getLine(i).trim().startsWith("@")){
+                                iLineStartingScope = i;
+                                i--;
+                            }
+                        }
+                    }
+                    offset = pySelection.getLineOffset(iLineStartingScope);
                 }
                 
                 break;
