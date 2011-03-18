@@ -67,6 +67,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
         checkCreateClassWithParams();
         
+        checkCreateClassWithParams2();
+        
         checkCreateClassAtOtherModule();
         
         checkCreateMethod();
@@ -568,6 +570,27 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
 
+    
+    protected void checkCreateClassWithParams2() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        mod1Contents = "Foo(a=10, b=20)";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        quickFix = new TddCodeGenerationQuickFixParticipant();
+        ps = new PySelection(editor.getDocument(), 0);
+        assertTrue(quickFix.isValid(ps, "", editor, 0));
+        props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, 0);
+        try {
+            findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
+            assertContentsEqual("" + "class Foo(object):\n" + "    \n" + "    def __init__(self, a, b):\n"
+                    + "        pass\n" + "\n" + "\n" + "Foo(a=10, b=20)" + "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
 
     
     protected void checkCreateClassAtOtherModule() throws CoreException, BadLocationException, MisconfigurationException {

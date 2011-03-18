@@ -66,6 +66,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             }
         }
         
+
         return false;
     }
 

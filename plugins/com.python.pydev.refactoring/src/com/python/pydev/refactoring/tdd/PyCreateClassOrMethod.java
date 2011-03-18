@@ -255,13 +255,24 @@ public abstract class PyCreateClassOrMethod extends PyCreateAction{
             if(params.length() > 0){
                 params.append(", ");
             }
-            String tok;
-            if(StringUtils.isPythonIdentifier(param)){
-                tok = param;
-            }else{
-                tok = assistAssign.getTokToAssign(param);
-                if(tok == null || tok.length() == 0){
-                    tok = "param"+i;
+            String tok=null;
+            if(param.indexOf('=')!=-1){
+                List<String> split = StringUtils.split(param, '=');
+                if(split.size() > 0){
+                    String part0 = split.get(0).trim();
+                    if(StringUtils.isPythonIdentifier(part0)){
+                        tok = part0;
+                    }
+                }
+            }
+            if(tok == null){
+                if(StringUtils.isPythonIdentifier(param)){
+                    tok = param;
+                }else{
+                    tok = assistAssign.getTokToAssign(param);
+                    if(tok == null || tok.length() == 0){
+                        tok = "param"+i;
+                    }
                 }
             }
             boolean addTag = !(i == 0 && (tok.equals("cls") || tok.equals("self")));
