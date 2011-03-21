@@ -159,6 +159,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         assertContentsEqual("" +
                 "a = 10\n" +
                 "\n" +
+                "\n" +
                 "class MyClass(${object}):\n" +
                 "    '''${Docstring}'''${cursor}\n" +
                 "\n" +
@@ -252,7 +253,6 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "" +
                 "import foo\n" +
                 "\n" +
-                "\n" +
                 "class MyClass(${object}):\n" +
                 "    '''${Docstring}'''${cursor}\n" +
                 "\n" +
@@ -340,9 +340,9 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "    def m1(self):\n" +
                 "        MyClass()\n"+
                 "\n" +
+                "\n" +
                 "class MyClass(${object}):\n" +
                 "    '''${Docstring}'''${cursor}\n" +
-                "\n"+
                 "\n"+
                 "\n",
                 document.get());

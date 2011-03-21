@@ -43,9 +43,6 @@ public abstract class PyCreateClassOrMethod extends PyCreateAction{
 
     public abstract String getCreationStr();
 
-    /**
-     * When executed it'll create a proposal and apply it.
-     */
     public void execute(RefactoringInfo refactoringInfo, int locationStrategy) {
         try {
             String creationStr = this.getCreationStr();
@@ -80,7 +77,18 @@ public abstract class PyCreateClassOrMethod extends PyCreateAction{
             }else{
                 parametersAfterCall = pySelection.getParametersAfterCall(currToken.o2+actTok.length());
 
-            }
+            }   
+            
+            execute(refactoringInfo, actTok, parametersAfterCall, locationStrategy);
+        } catch (BadLocationException e) {
+            Log.log(e);
+        }
+    }
+    /**
+     * When executed it'll create a proposal and apply it.
+     */
+    /*default*/ void execute(RefactoringInfo refactoringInfo, String actTok, List<String> parametersAfterCall, int locationStrategy) {
+        try{
             ICompletionProposal proposal = createProposal(refactoringInfo, actTok, locationStrategy, parametersAfterCall);
             if(proposal instanceof ICompletionProposalExtension2){
                 ICompletionProposalExtension2 extension2 = (ICompletionProposalExtension2) proposal;
@@ -89,7 +97,7 @@ public abstract class PyCreateClassOrMethod extends PyCreateAction{
                 proposal.apply(refactoringInfo.getDocument());
             }
             
-        } catch (BadLocationException e) {
+        } catch (Exception e) {
             Log.log(e);
         }
     }
@@ -97,34 +105,46 @@ public abstract class PyCreateClassOrMethod extends PyCreateAction{
 
 
     protected ICompletionProposal createProposal(PySelection pySelection, String source, Tuple<Integer, String> offsetAndIndent) {
-        int lineOfOffset = pySelection.getLineOfOffset(offsetAndIndent.o1);
-        if(lineOfOffset > 0){
-            String line = pySelection.getLine(lineOfOffset);
-            if(line.trim().length() > 0){
-                source = "\n"+source;
-            }
-            if(lineOfOffset > 1){
-                line = pySelection.getLine(lineOfOffset-1);
+        int offset = offsetAndIndent.o1;
+        int checkLine = pySelection.getLineOfOffset(offset);
+        int lineOffset = pySelection.getLineOffset(checkLine);
+        
+        //Make sure we have 2 spaces from the last thing written.
+        if(lineOffset == offset){
+            //it'll be added to the start of the line, so, we have to analyze the previous line to know if we'll need
+            //to new lines at the start.
+            checkLine--;
+        }            
+        
+        if(checkLine >= 0){
+            //It'll be added to the current line, so, check the current line and the previous line to know about spaces. 
+            String line = pySelection.getLine(checkLine);
+            if(line.trim().length() >= 1){
+                source = "\n\n"+source;
+            }else if (checkLine > 1){
+                line = pySelection.getLine(checkLine-1);
                 if(line.trim().length() > 0){
                     source = "\n"+source;
                 }
             }
         }
         
+        
+        
         String indent=offsetAndIndent.o2;
         if(targetEditor != null){
             String creationStr = getCreationStr();
             PyDocumentTemplateContext context = PyTemplateCompletionProcessor.createContext(new PyContextType(), 
-                    targetEditor.getPySourceViewer(), new Region(offsetAndIndent.o1, 0), indent);
+                    targetEditor.getPySourceViewer(), new Region(offset, 0), indent);
             
             Template template = new Template("Create "+creationStr, "Create "+creationStr, "", source, true);
-            TemplateProposal templateProposal = new TemplateProposal(template, context, new Region(offsetAndIndent.o1, 0), null);
+            TemplateProposal templateProposal = new TemplateProposal(template, context, new Region(offset, 0), null);
             return templateProposal;
             
         }else{
             //This should only happen in tests.
             source = StringUtils.indentTo(source, indent);
-            return new CompletionProposal(source, offsetAndIndent.o1, 0, 0);
+            return new CompletionProposal(source, offset, 0, 0);
         }
     }
 

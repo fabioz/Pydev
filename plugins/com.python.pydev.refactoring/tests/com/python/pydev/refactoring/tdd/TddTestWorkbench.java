@@ -119,6 +119,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             assertContentsEqual("" +
                     "class Foo(object):\n" +
                     "\n"+
+                    "    \n"+
                     "    def bar(self):\n" +
                     "        pass\n" +
                     "    \n"+
@@ -218,6 +219,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "class Bar(object):\n" +
                     "    '''Docstring'''\n" +
                     "\n" +
+                    "    \n" +
                     "    @classmethod\n" +
                     "    def Foo(cls, param1, param2):\n" +
                     "        pass\n" +
@@ -437,6 +439,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "class NewClass(object):\n" +
                     "    '''Docstring'''\n" +
                     "\n" +
+                    "    \n" +
                     "    def __init__(self, param):\n" +
                     "        pass\n" +
                     "    \n" +
@@ -754,6 +757,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "class Foo:\n" +
                     "    'comment'\n" +
                     "\n" +
+                    "    \n" +
                     "    def __init__(self, a, b):\n" +
                     "        pass\n" +
                     "    \n" +

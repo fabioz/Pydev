@@ -6,6 +6,8 @@
  */
 package com.python.pydev.refactoring.tdd;
 
+import java.util.ArrayList;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
@@ -21,7 +23,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         try {
             PyCreateMethodTest test = new PyCreateMethodTest();
             test.setUp();
-            test.testPyCreateMethodInSelfWithDecorator();
+            test.testPyCreateMethodGlobal();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyCreateMethodTest.class);
@@ -78,6 +80,65 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "", document.get());
     }
     
+    public void testPyCreateMethodGlobal1() {
+        PyCreateMethod pyCreateMethod = new PyCreateMethod();
+        
+        String source = "a = MyMethod()";
+        IDocument document = new Document(source);
+        ITextSelection selection = new TextSelection(document, 5, 0);
+        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        });
+        
+        pyCreateMethod.execute(info, PyCreateAction.LOCATION_STRATEGY_END);
+        
+        assertContentsEqual("" +
+                "a = MyMethod()\n" +
+                "\n" +
+                "def MyMethod():\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "", document.get());
+    }
+    
+    
+    public void testPyCreateMethodInEmptyDoc() {
+        PyCreateMethod pyCreateMethod = new PyCreateMethod();
+        
+        String source = "";
+        IDocument document = new Document(source);
+        ITextSelection selection = new TextSelection(document, 5, 0);
+        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        });
+        
+        pyCreateMethod.execute(info, "MyMethod", new ArrayList<String>(), PyCreateAction.LOCATION_STRATEGY_END);
+        
+        assertContentsEqual("" +
+                "def MyMethod():\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "", document.get());
+        
+        document.set("");
+        pyCreateMethod.execute(info, "MyMethod2", new ArrayList<String>(), PyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        
+        assertContentsEqual("" +
+                "def MyMethod2():\n" +
+                "    ${pass}${cursor}\n" +
+                "\n" +
+                "\n" +
+                "", document.get());
+    }
+    
     public void testPyCreateMethodInClass() {
         PyCreateMethod pyCreateMethod = new PyCreateMethod();
         
@@ -103,6 +164,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "" +
                 "class A(object):\n" +
                 "    '''comment'''\n" +
+                "    \n" +
                 "    \n" +
                 "    @classmethod\n" +
                 "    def MyMethod(cls, ${a}, ${b}):\n" +
@@ -138,6 +200,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         
         String expected = "" +
         "class A(object):\n" +
+        "    \n" +
         "    \n" +
         "    def m2(self):\n" +
         "        ${pass}${cursor}\n" +

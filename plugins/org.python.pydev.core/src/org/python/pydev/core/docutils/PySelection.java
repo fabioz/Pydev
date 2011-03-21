@@ -2024,10 +2024,7 @@ public final class PySelection {
 
     public int getEndOfDocummentOffset() {
         int length = this.doc.getLength();
-        if(length == 0){
-            return 0;
-        }
-        return length-1;
+        return length;
     }
 
 

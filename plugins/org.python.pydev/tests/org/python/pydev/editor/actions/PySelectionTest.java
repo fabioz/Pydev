@@ -640,7 +640,7 @@ public class PySelectionTest extends TestCase {
         PySelection ps = new PySelection(doc);
         assertEquals(0, ps.getEndOfDocummentOffset());
         doc.set("   ");
-        assertEquals(2, ps.getEndOfDocummentOffset());
+        assertEquals(3, ps.getEndOfDocummentOffset());
     }
     
     public void testGetParametersAfter() throws Exception {
