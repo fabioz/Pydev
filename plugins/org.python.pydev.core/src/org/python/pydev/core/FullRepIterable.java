@@ -123,6 +123,11 @@ public class FullRepIterable implements Iterable<String>{
         }
     }
     
+    /**
+     * If 'aa' is passed, return String[]{'', 'aa'}
+     * If 'aa.bb' is passed, return String[]{'aa', 'bb'}
+     * If 'aa.bb.cc' is passed, return String[]{'aa.bb', 'cc'}
+     */
     public static String[] headAndTail(String fullRep){
         return headAndTail(fullRep, true);
     }

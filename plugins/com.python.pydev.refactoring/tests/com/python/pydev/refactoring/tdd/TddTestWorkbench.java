@@ -63,6 +63,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateMethodAtClass();
+        
         checkCreateClass();
 
         checkCreateClassWithParams();
@@ -614,6 +616,42 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "\n" +
                     "Foo" +
                     "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    protected void checkCreateMethodAtClass() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        		"print i\n" + //just to have error on reparse.
+        		"class Foo(object):\n" +
+        		"    'doc'\n" +
+        		"\n" +
+        		"foo = Foo()\n" +
+        		"foo.Met1()";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length()-1;
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create Met1 method at Foo (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            String expected = "" +
+            "print i\n" + 
+            "class Foo(object):\n" +
+            "    'doc'\n" +
+            "\n" +
+            "    \n" +
+            "    def Met1(self):\n" +
+            "        pass\n" +
+            "    \n" +
+            "    \n" +
+            "\n" +
+            "foo = Foo()\n" +
+            "foo.Met1()";
+            assertContentsEqual(expected, editor.getDocument().get());
         } finally {
             editor.doRevertToSaved();
         }
