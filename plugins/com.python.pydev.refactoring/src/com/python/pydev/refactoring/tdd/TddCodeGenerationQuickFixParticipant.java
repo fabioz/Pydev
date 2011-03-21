@@ -21,6 +21,7 @@ import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
@@ -37,7 +38,6 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
@@ -123,84 +123,21 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                 try {
                     String call = entry.getValue();
                     String callWithoutParens = entry.getKey();
-                    PySelection callPs = new PySelection(ps.getDoc(), ps.getLineOffset()+lineContents.indexOf(call)+callWithoutParens.length());
+                    PySelection callPs = new PySelection(
+                            ps.getDoc(), ps.getLineOffset()+lineContents.indexOf(call)+callWithoutParens.length());
                     
                     RefactoringRequest request = new RefactoringRequest(edit, callPs);
                     //Don't look in additional info.
                     request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
                     ItemPointer[] pointers = pyRefactoring.findDefinition(request);
                     if(pointers.length == 1){
-                        if(checkInitCreation(edit, isValid, callPs, pointers)){
+                        if(checkInitCreation(edit, callPs, pointers)){
                             isValid = true;
                         }
                         
                     }else if(pointers.length == 0){
-                        //Ok, no definition found for the full string, so, check if we have a dot there and check
-                        //if it could be a method in a local variable.
-                        String[] headAndTail = FullRepIterable.headAndTail(callWithoutParens);
-                        if(headAndTail[0].length() > 0){
-                            String methodToCreate = headAndTail[1];
-                            int absoluteCursorOffset = callPs.getAbsoluteCursorOffset();
-                            absoluteCursorOffset = absoluteCursorOffset - (1+methodToCreate.length()); //+1 for the dot removed too.
-                            callPs.setSelection(absoluteCursorOffset, absoluteCursorOffset);
-                            request = new RefactoringRequest(edit, callPs);
-                            //Don't look in additional info.
-                            request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
-                            pointers = pyRefactoring.findDefinition(request);
-                            if(pointers.length == 1){
-                                for (ItemPointer pointer : pointers) {
-                                    Definition definition = pointer.definition;
-                                    
-                                    if(definition instanceof AssignDefinition){
-                                        AssignDefinition assignDef = (AssignDefinition) definition;
-                                        
-                                        //if the value is currently None, it will be set later on
-                                        if(assignDef.value.equals("None")){
-                                            continue;
-                                        }
-                                        IPythonNature nature = edit.getPythonNature(); 
-                                        
-                                        //ok, go to the definition of whatever is set
-                                        IDefinition[] definitions2 = assignDef.module.findDefinition(
-                                                CompletionStateFactory.getEmptyCompletionState(assignDef.value, nature, new CompletionCache()), 
-                                                assignDef.line, assignDef.col, nature);
-                                        
-                                        if(definitions2.length == 1){
-                                            definition = (Definition) definitions2[0];
-                                        }
-                                    }
-
-                                    
-                                    if(definition != null && definition.ast instanceof ClassDef){
-                                        ClassDef d = (ClassDef) definition.ast;
-                                        
-                                        //Give the user a chance to create the method we didn't find.
-                                        PyCreateMethod pyCreateMethod = new PyCreateMethod();
-                                        pyCreateMethod.setCreateAs(PyCreateMethod.BOUND_METHOD);
-                                        String className = NodeUtils.getRepresentationString(d);
-                                        pyCreateMethod.setCreateInClass(className);
-                                        
-                                        List<String> parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
-                                        String displayString = "Create "+methodToCreate+" method at "+className+" ("+definition.module.getName()+")";
-                                        TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(
-                                                methodToCreate, 
-                                                tddQuickFixParticipant.imageMethod, 
-                                                displayString, 
-                                                null, 
-                                                displayString, 
-                                                IPyCompletionProposal.PRIORITY_CREATE, 
-                                                edit,
-                                                definition.module.getFile(),
-                                                parametersAfterCall,
-                                                pyCreateMethod,
-                                                callPs
-                                        );
-                                        completion.locationStrategy = PyCreateAction.LOCATION_STRATEGY_END;
-                                        propsComputedOnIsValid.add(completion);
-                                        return true;
-                                    }
-                                }
-                            }
+                        if(checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs)){
+                            isValid = true;
                         }
                     }
                 } catch (Exception e) {
@@ -214,7 +151,82 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     }
 
 
-    private boolean checkInitCreation(PyEdit edit, boolean isValid, PySelection callPs, ItemPointer[] pointers) {
+    private boolean checkMethodCreationAtClass(PyEdit edit, IPyRefactoring pyRefactoring, String callWithoutParens,
+            PySelection callPs) throws MisconfigurationException, Exception {
+        RefactoringRequest request;
+        ItemPointer[] pointers;
+        //Ok, no definition found for the full string, so, check if we have a dot there and check
+        //if it could be a method in a local variable.
+        String[] headAndTail = FullRepIterable.headAndTail(callWithoutParens);
+        if(headAndTail[0].length() > 0){
+            String methodToCreate = headAndTail[1];
+            int absoluteCursorOffset = callPs.getAbsoluteCursorOffset();
+            absoluteCursorOffset = absoluteCursorOffset - (1+methodToCreate.length()); //+1 for the dot removed too.
+            PySelection newSelection = new PySelection(callPs.getDoc(), absoluteCursorOffset);
+            request = new RefactoringRequest(edit, newSelection);
+            //Don't look in additional info.
+            request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+            pointers = pyRefactoring.findDefinition(request);
+            if(pointers.length == 1){
+                for (ItemPointer pointer : pointers) {
+                    Definition definition = pointer.definition;
+                    
+                    if(definition instanceof AssignDefinition){
+                        AssignDefinition assignDef = (AssignDefinition) definition;
+                        
+                        //if the value is currently None, it will be set later on
+                        if(assignDef.value.equals("None")){
+                            continue;
+                        }
+                        IPythonNature nature = edit.getPythonNature(); 
+                        
+                        //ok, go to the definition of whatever is set
+                        IDefinition[] definitions2 = assignDef.module.findDefinition(
+                                CompletionStateFactory.getEmptyCompletionState(assignDef.value, nature, new CompletionCache()), 
+                                assignDef.line, assignDef.col, nature);
+                        
+                        if(definitions2.length == 1){
+                            definition = (Definition) definitions2[0];
+                        }
+                    }
+
+                    
+                    if(definition != null && definition.ast instanceof ClassDef){
+                        ClassDef d = (ClassDef) definition.ast;
+                        
+                        //Give the user a chance to create the method we didn't find.
+                        PyCreateMethod pyCreateMethod = new PyCreateMethod();
+                        pyCreateMethod.setCreateAs(PyCreateMethod.BOUND_METHOD);
+                        String className = NodeUtils.getRepresentationString(d);
+                        pyCreateMethod.setCreateInClass(className);
+                        
+                        List<String> parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
+                        String displayString = "Create "+methodToCreate+" method at "+className+" ("+definition.module.getName()+")";
+                        TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(
+                                methodToCreate, 
+                                tddQuickFixParticipant.imageMethod, 
+                                displayString, 
+                                null, 
+                                displayString, 
+                                IPyCompletionProposal.PRIORITY_CREATE, 
+                                edit,
+                                definition.module.getFile(),
+                                parametersAfterCall,
+                                pyCreateMethod,
+                                newSelection
+                        );
+                        completion.locationStrategy = PyCreateAction.LOCATION_STRATEGY_END;
+                        propsComputedOnIsValid.add(completion);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    private boolean checkInitCreation(PyEdit edit, PySelection callPs, ItemPointer[] pointers) {
         for (ItemPointer pointer : pointers) {
             Definition definition = pointer.definition;
             if(definition != null && definition.ast instanceof ClassDef){
