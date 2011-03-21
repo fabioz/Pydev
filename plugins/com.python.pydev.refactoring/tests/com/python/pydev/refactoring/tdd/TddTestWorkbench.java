@@ -63,6 +63,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateFieldAtClass();
+        
         checkCreateMethodAtClass();
         
         checkCreateMethodAtClass2();
@@ -115,11 +117,12 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         
         TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
         IDocument doc = editor.getDocument();
-        PySelection ps = new PySelection(doc, doc.getLength()-"r()".length());
-        assertTrue(quickFix.isValid(ps, "", editor, doc.getLength()-"r()".length()));
-        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, 0);
+        int offset = doc.getLength()-"r()".length();
+        PySelection ps = new PySelection(doc, offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
         try {
-            findCompletion(props, "Create bar method at Foo").apply(editor.getISourceViewer(), '\n', 0, 0);
+            findCompletion(props, "Create bar method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
                     "\n"+
@@ -653,6 +656,42 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             "\n" +
             "foo = Foo()\n" +
             "foo.Met1()";
+            assertContentsEqual(expected, editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    protected void checkCreateFieldAtClass() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "print i\n" + //just to have error on reparse.
+        "class Foo(object):\n" +
+        "    'doc'\n" +
+        "\n" +
+        "foo = Foo()\n" +
+        "foo.new_field";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length()-1;
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create new_field field at Foo (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            String expected = "" +
+            "print i\n" + 
+            "class Foo(object):\n" +
+            "    'doc'\n" +
+            "\n" +
+            "    \n" +
+            "    def __init__(self):\n" +
+            "        self.new_field = None\n" +
+            "    \n" +
+            "    \n" +
+            "\n" +
+            "foo = Foo()\n" +
+            "foo.new_field()";
             assertContentsEqual(expected, editor.getDocument().get());
         } finally {
             editor.doRevertToSaved();

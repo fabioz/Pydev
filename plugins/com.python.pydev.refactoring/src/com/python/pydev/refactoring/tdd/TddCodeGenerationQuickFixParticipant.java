@@ -7,24 +7,21 @@
 package com.python.pydev.refactoring.tdd;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.docutils.PySelection.LineStartingScope;
+import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.IPyCompletionProposal;
@@ -32,7 +29,6 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -42,9 +38,6 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 
-import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.MarkerStub;
-import com.python.pydev.analysis.builder.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;
 import com.python.pydev.refactoring.refactorer.AstEntryRefactorerRequestConstants;
 
@@ -52,7 +45,6 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
 
 
     private TddQuickFixParticipant tddQuickFixParticipant;
-    private List<ICompletionProposal> propsComputedOnIsValid = new ArrayList<ICompletionProposal>();
     
     protected void fillParticipants() {
         tddQuickFixParticipant = new TddQuickFixParticipant();
@@ -62,104 +54,90 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         List<ICompletionProposal> ret = super.getProps(ps, imageCache, f, nature, edit, offset);
-        ret.addAll(propsComputedOnIsValid);
-        propsComputedOnIsValid.clear();
-        return ret;
-    }
-    
-    /**
-     * It is valid if any marker generated from the analysis is found
-     *  
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection, java.lang.String, org.python.pydev.editor.PyEdit, int)
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public boolean isValid(final PySelection ps, String sel, PyEdit edit, int offset) {
-        boolean isValid = super.isValid(ps, sel, edit, offset);
+        
         
         //Additional option: Generate markers for 'self.' accesses
         int lineOfOffset = ps.getLineOfOffset(offset);
         String lineContents = ps.getLine(lineOfOffset);
         
-        if(lineContents.indexOf("self.") != -1){
-            HashSet<String> selfAttributeAccesses = PySelection.getSelfAttributeAccesses(lineContents);
-            int lineOffset = ps.getLineOffset(lineOfOffset);
-            List<MarkerAnnotationAndPosition> localMarkersAtLine = new ArrayList<MarkerAnnotationAndPosition>();
-            for (String string : selfAttributeAccesses) {
-                Map attrs = new HashMap();
-                attrs.put(AnalysisRunner.PYDEV_ANALYSIS_TYPE, IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE_IN_SELF);
-                SimpleMarkerAnnotation markerAnnotation = new SimpleMarkerAnnotation(AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, new MarkerStub(attrs));
-                
-                int indexOf = lineContents.indexOf("self."+string);
-                if(indexOf >= 0){
-                    Position position = new Position(lineOffset+indexOf+5, string.length());
-                    localMarkersAtLine.add(new MarkerAnnotationAndPosition(markerAnnotation, position));
-                }
-            }
-            if(localMarkersAtLine.size() > 0){
-                if(this.markersAtLine == null){
-                    this.markersAtLine = localMarkersAtLine;
-                }else{
-                    this.markersAtLine.addAll(localMarkersAtLine);
-                }
-                isValid = true;
-            }
-        }
-        
-
         //Additional option: Generate methods for function calls
-        List<String> callsAtLine = ps.getFunctionCallsAtLine();
+        List<TddPossibleMatches> callsAtLine = ps.getTddPossibleMatchesAtLine();
         if (callsAtLine.size() > 0) {
             //Make sure we don't check the same thing twice.
-            Map<String, String> callsToCheck = new HashMap<String, String>();
-            for(String call:callsAtLine){
-                String s = call.substring(0, call.length()-1); // Remove the ending '('
-                s = StringUtils.rightTrim(s);
-                callsToCheck.put(s, call);
+            Map<String, TddPossibleMatches> callsToCheck = new HashMap<String, TddPossibleMatches>();
+            for(TddPossibleMatches call:callsAtLine){
+                String callString = call.initialPart+call.secondPart;
+                callsToCheck.put(callString, call);
             }
             
-            for(Map.Entry<String, String> entry:callsToCheck.entrySet()){
-                //we have at least something as SomeClass(a=2,c=3)
+            for(Map.Entry<String, TddPossibleMatches> entry:callsToCheck.entrySet()){
+                //we have at least something as SomeClass(a=2,c=3) or self.bar or self.foo.bar() or just foo.bar, etc.
                 IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
                 try {
-                    String call = entry.getValue();
+                    TddPossibleMatches possibleMatch = entry.getValue();
+                    String full = possibleMatch.full;
                     String callWithoutParens = entry.getKey();
+                    int indexOf = lineContents.indexOf(full);
+                    if(indexOf < 0){
+                        Log.log("Did not expect index < 0.");
+                        continue;
+                    }
                     PySelection callPs = new PySelection(
-                            ps.getDoc(), ps.getLineOffset()+lineContents.indexOf(call)+callWithoutParens.length());
+                            ps.getDoc(), ps.getLineOffset()+indexOf+callWithoutParens.length());
                     
                     RefactoringRequest request = new RefactoringRequest(edit, callPs);
                     //Don't look in additional info.
                     request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
                     ItemPointer[] pointers = pyRefactoring.findDefinition(request);
                     if(pointers.length == 1){
-                        if(checkInitCreation(edit, callPs, pointers)){
-                            isValid = true;
-                        }
+                        //Ok, we found whatever was there, so, we don't need to create anything (except maybe do
+                        //the __init__).
+                        checkInitCreation(edit, callPs, pointers, ret);
                         
                     }else if(pointers.length == 0){
-                        if(checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs)){
-                            isValid = true;
-                        }
+                        checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs, ret, lineContents);
                     }
                 } catch (Exception e) {
                     Log.log(e);
                 }
             }
-            
         }
 
-        return isValid;
+        return ret;
     }
 
 
     private boolean checkMethodCreationAtClass(PyEdit edit, IPyRefactoring pyRefactoring, String callWithoutParens,
-            PySelection callPs) throws MisconfigurationException, Exception {
+            PySelection callPs, List<ICompletionProposal> ret, String lineContents) throws MisconfigurationException, Exception {
         RefactoringRequest request;
         ItemPointer[] pointers;
         //Ok, no definition found for the full string, so, check if we have a dot there and check
         //if it could be a method in a local variable.
         String[] headAndTail = FullRepIterable.headAndTail(callWithoutParens);
         if(headAndTail[0].length() > 0){
+
             String methodToCreate = headAndTail[1];
+            if (headAndTail[0].equals("self")) {
+                //creating something in the current class -- note that if it was self.bar here, we'd treat it as regular
+                //(i.e.: no special support for self)
+                PyCreateMethod pyCreateMethod = new PyCreateMethod();
+                pyCreateMethod.setCreateAs(PyCreateMethod.BOUND_METHOD);
+
+                int firstCharPosition = PySelection.getFirstCharPosition(lineContents);
+                LineStartingScope scopeStart = callPs.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false, firstCharPosition);
+                String classNameInLine = null;
+                if (scopeStart != null) {
+                    String startingScopeLineContents = callPs.getLine(scopeStart.iLineStartingScope);
+                    classNameInLine = PySelection.getClassNameInLine(startingScopeLineContents);
+                    if (classNameInLine != null && classNameInLine.length() > 0) {
+                        pyCreateMethod.setCreateInClass(classNameInLine);
+
+                        addCreateMethodOption(callPs, edit, ret, methodToCreate, callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset()), pyCreateMethod, classNameInLine);
+                    }
+                }
+                return true;
+            }
+
             int absoluteCursorOffset = callPs.getAbsoluteCursorOffset();
             absoluteCursorOffset = absoluteCursorOffset - (1+methodToCreate.length()); //+1 for the dot removed too.
             PySelection newSelection = new PySelection(callPs.getDoc(), absoluteCursorOffset);
@@ -216,7 +194,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                                 newSelection
                         );
                         completion.locationStrategy = PyCreateAction.LOCATION_STRATEGY_END;
-                        propsComputedOnIsValid.add(completion);
+                        ret.add(completion);
                         return true;
                     }
                 }
@@ -224,9 +202,27 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         }
         return false;
     }
+    
+    private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
+            List<String> parametersAfterCall, PyCreateMethod pyCreateMethod, String classNameInLine) {
+        TddRefactorCompletion tddRefactorCompletion = new TddRefactorCompletion(
+                markerContents, 
+                tddQuickFixParticipant.imageMethod, 
+                "Create "+markerContents+" method at "+classNameInLine, 
+                null, 
+                null, 
+                IPyCompletionProposal.PRIORITY_CREATE, 
+                edit,
+                PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
+                parametersAfterCall,
+                pyCreateMethod,
+                ps
+        );
+        props.add(tddRefactorCompletion);
+    }
 
 
-    private boolean checkInitCreation(PyEdit edit, PySelection callPs, ItemPointer[] pointers) {
+    private boolean checkInitCreation(PyEdit edit, PySelection callPs, ItemPointer[] pointers, List<ICompletionProposal> ret) {
         for (ItemPointer pointer : pointers) {
             Definition definition = pointer.definition;
             if(definition != null && definition.ast instanceof ClassDef){
@@ -269,7 +265,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                             callPs
                     );
                     completion.locationStrategy = PyCreateAction.LOCATION_STRATEGY_FIRST_METHOD;
-                    propsComputedOnIsValid.add(completion);
+                    ret.add(completion);
                     return true;
                 }
             }

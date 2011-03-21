@@ -13,7 +13,6 @@
 package org.python.pydev.core.docutils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -30,9 +29,9 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
@@ -2054,7 +2053,6 @@ public final class PySelection {
     }
 
     
-    private static final Pattern SelfAccessPattern = Pattern.compile(".*self\\.(\\w+)");
     private static final Pattern ClassNamePattern = Pattern.compile("\\s*class\\s+(\\w+)");
     
     public static String getClassNameInLine(String line) {
@@ -2068,41 +2066,72 @@ public final class PySelection {
     }
 
 
-    public static HashSet<String> getSelfAttributeAccesses(String lineContents) {
-        HashSet<String> set = new HashSet<String>();
-        Matcher matcher = SelfAccessPattern.matcher(lineContents);
-        while(matcher.find()){
-            if(matcher.groupCount() == 1){
-                String group = matcher.group(1);
-                set.add(group);
-            }
+    public static final class TddPossibleMatches{
+        public final String full;
+        public final String initialPart;
+        public final String secondPart;
+        public final boolean isCall;
+
+        public TddPossibleMatches(String full, String initialPart, String secondPart, boolean isCall){
+            this.full = full;
+            this.initialPart = initialPart;
+            this.secondPart = secondPart;
+            this.isCall = isCall;
         }
         
-        return set;
+        @Override
+        public String toString() {
+            return this.full;
+        }
+        
     }
-
-
     
-    private static final Pattern FunctionCallPattern = Pattern.compile("(\\w+)((\\.\\w+)*)\\s*\\(");
-    public List<String> getFunctionCallsAtLine() {
-        return getFunctionCallsAtLine(this.getAbsoluteCursorOffset());
+    //0 = full
+    //1 = (\\.?)
+    //2 = (\\w+)
+    //3 = ((\\.\\w+)*)
+    //4 = \\s*
+    //5 = ((\\()?)
+    //
+    //i.e.:for a.b.MyCall(
+    //0 = a.b.MyCall(
+    //1 = null
+    //2 = a
+    //3 = .b.MyCall
+    //4 = null
+    //5 = (
+    private static final Pattern FunctionCallPattern = Pattern.compile("(\\.?)(\\w+)((\\.\\w+)*)\\s*((\\()?)");
+    public List<TddPossibleMatches> getTddPossibleMatchesAtLine() {
+        return getTddPossibleMatchesAtLine(this.getAbsoluteCursorOffset());
     }
+    private static final int TDD_PART_FULL = 0;
+    private static final int TDD_PART_DOT_INITIAL = 1;
+    private static final int TDD_PART_PART1 = 2;
+    private static final int TDD_PART_PART2 = 3;
+    private static final int TDD_PART_PARENS = 5;
     
     /**
-     * @return the function calls at the line from the passed offset. Note that the return is not only the name of the
-     * call, but the call until the first '(', so, if there's a line with "MyCall (a", it'd return "MyCall (".
-     * 
-     * Also, it returns a list with the multiple calls.
+     * @return a list 
      */
-    public List<String> getFunctionCallsAtLine(int offset) {
+    public List<TddPossibleMatches> getTddPossibleMatchesAtLine(int offset) {
         String line = getLine(getLineOfOffset(offset));
-        List<String> ret = new ArrayList<String>();
+        List<TddPossibleMatches> ret = new ArrayList<TddPossibleMatches>();
         if(matchesClassLine(line) || matchesFunctionLine(line)){
             return ret;//In a class or method definition, it should never match.
         }
         Matcher matcher = FunctionCallPattern.matcher(line);
         while(matcher.find()){
-            ret.add(matcher.group(0));
+            String dotInitial = matcher.group(TDD_PART_DOT_INITIAL);
+            if(dotInitial != null && dotInitial.length() > 0){
+                continue; //skip things as foo().bar() <-- the .bar() should be skipped
+            }
+            String secondPart = matcher.group(TDD_PART_PART2);
+            String parens = matcher.group(TDD_PART_PARENS);
+            boolean hasCall = parens != null && parens.length()>0;
+            if(secondPart.length() == 0 && !hasCall){
+                continue; //local var or number
+            }
+            ret.add(new TddPossibleMatches(matcher.group(TDD_PART_FULL), matcher.group(TDD_PART_PART1), secondPart, hasCall));
         }
         return ret;
         

@@ -12,7 +12,6 @@
 package org.python.pydev.editor.actions;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -23,8 +22,9 @@ import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
+import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
+import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -672,16 +672,6 @@ public class PySelectionTest extends TestCase {
         assertEquals("another(call, 1, 'thn', foo)", params.get(0));
     }
     
-    public void testGetContentsAfterSelf() throws Exception {
-        HashSet<String> set = new HashSet<String>();
-        set.add("foo");
-        assertEquals(set, PySelection.getSelfAttributeAccesses("self.foo"));
-        
-        set = new HashSet<String>();
-        set.add("bar");
-        assertEquals(set, PySelection.getSelfAttributeAccesses(
-                "self.foo(ueontehuo), self.bar[ueos:suneoh], self., self.[ueo]"));
-    }
     
     public void testGetClassNameInLine() throws Exception {
         assertEquals("Foo", PySelection.getClassNameInLine("class Foo(obje"));
@@ -691,39 +681,50 @@ public class PySelectionTest extends TestCase {
     public void testGetFunctionCalls() throws Exception {
         Document doc = new Document();
         PySelection ps = new PySelection(doc);
-        assertEquals(0, ps.getFunctionCallsAtLine().size());
+        assertEquals(0, ps.getTddPossibleMatchesAtLine().size());
         
         doc.set("MyCall(aa, bb, 10, )");
-        List<String> calls = ps.getFunctionCallsAtLine();
+        List<TddPossibleMatches> calls = ps.getTddPossibleMatchesAtLine();
         assertEquals(1, calls.size());
-        assertEquals("MyCall(", calls.get(0));
+        assertEquals("MyCall(", calls.get(0).toString());
         
         doc.set("foo.MyCall(aa, bb, 10, )");
-        calls = ps.getFunctionCallsAtLine();
+        calls = ps.getTddPossibleMatchesAtLine();
         assertEquals(1, calls.size());
-        assertEquals("foo.MyCall(", calls.get(0));
+        assertEquals("foo.MyCall(", calls.get(0).toString());
         
         doc.set("foo.MyCall1 (aa, bb, 10, )");
-        calls = ps.getFunctionCallsAtLine();
+        calls = ps.getTddPossibleMatchesAtLine();
         assertEquals(1, calls.size());
-        assertEquals("foo.MyCall1 (", calls.get(0));
+        assertEquals("foo.MyCall1 (", calls.get(0).toString());
         
         doc.set("call1(aa, bar.call2(), 10, )");
-        calls = ps.getFunctionCallsAtLine();
+        calls = ps.getTddPossibleMatchesAtLine();
         assertEquals(2, calls.size());
-        assertEquals("call1(", calls.get(0));
-        assertEquals("bar.call2(", calls.get(1));
+        assertEquals("call1(", calls.get(0).toString());
+        assertEquals("bar.call2(", calls.get(1).toString());
         
         doc.set("def m1(foo)");
-        calls = ps.getFunctionCallsAtLine();
+        calls = ps.getTddPossibleMatchesAtLine();
         assertEquals(0, calls.size());
         
         doc.set("class Bar(object):");
-        calls = ps.getFunctionCallsAtLine();
+        calls = ps.getTddPossibleMatchesAtLine();
         assertEquals(0, calls.size());
         
         doc.set("a = (1,3)");
-        calls = ps.getFunctionCallsAtLine();
+        calls = ps.getTddPossibleMatchesAtLine();
         assertEquals(0, calls.size());
+        
+        doc.set("self.a.b, my.call()");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(2, calls.size());
+        assertEquals("self.a.b", calls.get(0).toString());
+        assertEquals("my.call(", calls.get(1).toString());
+        
+        doc.set("self.call().call2()");
+        calls = ps.getTddPossibleMatchesAtLine();
+        assertEquals(1, calls.size());
+        assertEquals("self.call(", calls.get(0).toString());
     }
 }
