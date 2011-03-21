@@ -68,9 +68,9 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
     public TddQuickFixParticipant() {
         ImageCache imageCache = PydevPlugin.getImageCache();
         if(imageCache != null){ //making tests
-            imageClass = imageCache.get(UIConstants.CLASS_ICON);
-            imageMethod = imageCache.get(UIConstants.METHOD_ICON);
-            imageModule = imageCache.get(UIConstants.COMPLETION_PACKAGE_ICON);
+            imageClass = imageCache.get(UIConstants.CREATE_CLASS_ICON);
+            imageMethod = imageCache.get(UIConstants.CREATE_METHOD_ICON);
+            imageModule = imageCache.get(UIConstants.CREATE_MODULE_ICON);
         }
     }
 
@@ -397,7 +397,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
             String moduleName, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInInexistentModule(
                 markerContents, 
-                imageModule, 
+                imageClass, 
                 "Create "+markerContents+" class at new module "+moduleName, 
                 null, 
                 "Create "+markerContents+" class at new module "+file, 
@@ -414,7 +414,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
             String moduleName, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInInexistentModule(
                 markerContents, 
-                imageModule, 
+                imageMethod, 
                 "Create "+markerContents+" method at new module "+moduleName, 
                 null, 
                 "Create "+markerContents+" method at new module "+file, 
