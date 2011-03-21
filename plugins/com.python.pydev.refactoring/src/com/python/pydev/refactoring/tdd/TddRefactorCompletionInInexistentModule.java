@@ -22,32 +22,25 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.codecompletion.PyCompletionProposal;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editorinput.PySourceLocatorBase;
-import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
-
-import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
  * creating that proposal may be slower.
  */
-public final class TddRefactorCompletionInInexistentModule extends PyCompletionProposal implements ICompletionProposalExtension2 {
+public final class TddRefactorCompletionInInexistentModule extends AbstractTddRefactorCompletion {
     
     private File module;
-    private PyEdit edit;
     private List<String> parametersAfterCall;
     private PyCreateAction pyCreateAction;
     private PySelection ps;
@@ -56,9 +49,8 @@ public final class TddRefactorCompletionInInexistentModule extends PyCompletionP
             Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, 
             int priority, PyEdit edit, File module, List<String> parametersAfterCall, PyCreateAction pyCreateAction, PySelection ps) {
         
-        super(replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo, priority);
+        super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo, priority);
         this.module = module;
-        this.edit = edit;
         this.parametersAfterCall = parametersAfterCall;
         this.pyCreateAction = pyCreateAction;
         this.ps = ps;
@@ -151,11 +143,9 @@ public final class TddRefactorCompletionInInexistentModule extends PyCompletionP
 
         //As the change was done in another module, let's ask for a new code analysis for the current editor,
         //as the new contents should fix the marker which we used for the fix.
-        PyParser parser = edit.getParser();
-        parser.setDocument(edit.getDocument(), edit.getEditorInput());
-        parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+        forceReparseInBaseEditor();
     }
-    
+
 
     public void selected(ITextViewer viewer, boolean smartToggle) {
     }

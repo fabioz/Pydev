@@ -92,7 +92,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
     private void addFoundToImportsMap(Found found, Map<String, List<Tuple3<Found, Integer, ASTEntry>>> map) {
         ImportInfo info = found.importInfo;
         String modName = UNRESOLVED_MOD_NAME;
-        if(info.mod != null){
+        if(info != null && info.mod != null){
             modName = info.mod.getName();
         }
         List<Tuple3<Found, Integer, ASTEntry>> prev = map.get(modName);
@@ -228,7 +228,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports{
         if(found.o1.isImport()){
             //now, as it is an import, we have to check if there are more matching imports found
             String key = UNRESOLVED_MOD_NAME;
-            if(found.o1.importInfo.mod != null){
+            if(found.o1.importInfo != null && found.o1.importInfo.mod != null){
                 key = found.o1.importInfo.mod.getName();
             }
             List<Tuple3<Found, Integer, ASTEntry>> fromModule = importsFoundFromModuleName.get(key);

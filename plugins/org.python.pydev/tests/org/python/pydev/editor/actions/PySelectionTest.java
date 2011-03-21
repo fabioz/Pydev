@@ -39,7 +39,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testImportLine11();
+            test.testGetFunctionCalls();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -653,6 +653,11 @@ public class PySelectionTest extends TestCase {
         assertEquals(3, params.size());
         assertEquals("10", params.get(2));
         
+        doc.set("MyCall   \t(aa, bb, 10, )");
+        params = ps.getParametersAfterCall(6);
+        assertEquals(3, params.size());
+        assertEquals("10", params.get(2));
+        
         doc.set("MyCall('a,a', (bb, 10), {a:10}, [ouo,ueo])");
         params = ps.getParametersAfterCall(6);
         assertEquals(4, params.size());
@@ -681,5 +686,44 @@ public class PySelectionTest extends TestCase {
     public void testGetClassNameInLine() throws Exception {
         assertEquals("Foo", PySelection.getClassNameInLine("class Foo(obje"));
         assertEquals("Foo", PySelection.getClassNameInLine("class Foo.uesonth(obje"));
+    }
+    
+    public void testGetFunctionCalls() throws Exception {
+        Document doc = new Document();
+        PySelection ps = new PySelection(doc);
+        assertEquals(0, ps.getFunctionCallsAtLine().size());
+        
+        doc.set("MyCall(aa, bb, 10, )");
+        List<String> calls = ps.getFunctionCallsAtLine();
+        assertEquals(1, calls.size());
+        assertEquals("MyCall(", calls.get(0));
+        
+        doc.set("foo.MyCall(aa, bb, 10, )");
+        calls = ps.getFunctionCallsAtLine();
+        assertEquals(1, calls.size());
+        assertEquals("foo.MyCall(", calls.get(0));
+        
+        doc.set("foo.MyCall1 (aa, bb, 10, )");
+        calls = ps.getFunctionCallsAtLine();
+        assertEquals(1, calls.size());
+        assertEquals("foo.MyCall1 (", calls.get(0));
+        
+        doc.set("call1(aa, bar.call2(), 10, )");
+        calls = ps.getFunctionCallsAtLine();
+        assertEquals(2, calls.size());
+        assertEquals("call1(", calls.get(0));
+        assertEquals("bar.call2(", calls.get(1));
+        
+        doc.set("def m1(foo)");
+        calls = ps.getFunctionCallsAtLine();
+        assertEquals(0, calls.size());
+        
+        doc.set("class Bar(object):");
+        calls = ps.getFunctionCallsAtLine();
+        assertEquals(0, calls.size());
+        
+        doc.set("a = (1,3)");
+        calls = ps.getFunctionCallsAtLine();
+        assertEquals(0, calls.size());
     }
 }

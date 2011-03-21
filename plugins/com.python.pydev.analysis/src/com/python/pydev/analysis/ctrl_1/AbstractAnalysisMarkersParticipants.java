@@ -40,16 +40,17 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
 
     public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature, PyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
-        IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
-        String line = ps.getLine();
         
-        
-        for (MarkerAnnotationAndPosition marker : markersAtLine) {
-            for (IAnalysisMarkersParticipant participant : participants) {
-                try {
-                    participant.addProps(marker, analysisPreferences, line, ps, offset, nature, edit, props);
-                } catch (Exception e) {
-                    PydevPlugin.log("Error when getting proposals.", e);
+        if(markersAtLine != null){
+            IAnalysisPreferences analysisPreferences = AnalysisPreferences.getAnalysisPreferences();
+            String line = ps.getLine();
+            for (MarkerAnnotationAndPosition marker : markersAtLine) {
+                for (IAnalysisMarkersParticipant participant : participants) {
+                    try {
+                        participant.addProps(marker, analysisPreferences, line, ps, offset, nature, edit, props);
+                    } catch (Exception e) {
+                        PydevPlugin.log("Error when getting proposals.", e);
+                    }
                 }
             }
         }

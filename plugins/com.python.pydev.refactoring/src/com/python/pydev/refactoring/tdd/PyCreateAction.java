@@ -28,6 +28,7 @@ public abstract class PyCreateAction extends Action implements IEditorActionDele
     
     public static final int LOCATION_STRATEGY_BEFORE_CURRENT = 0; //before the current method (in the same level)
     public static final int LOCATION_STRATEGY_END = 1; //end of file or end of class
+    public static final int LOCATION_STRATEGY_FIRST_METHOD = 2; //In a class as the first method
 
     protected PyEdit targetEditor;
 

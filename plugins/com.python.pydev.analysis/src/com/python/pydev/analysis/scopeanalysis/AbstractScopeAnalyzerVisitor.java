@@ -1038,7 +1038,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
             //if it was an attribute (say xxx and initially it was xxx.foo, we will have to check if the token foo
             //really exists in xxx, if it was found as an import)
             try {
-                if (foundAs.isImport() && !rep.equals(foundAsStr) && foundAs.importInfo.wasResolved) {
+                if (foundAs.isImport() && !rep.equals(foundAsStr) && foundAs.importInfo != null && foundAs.importInfo.wasResolved) {
                     //the foundAsStr equals the module resolved in the Found tok
                     
                     IModule m = foundAs.importInfo.mod;
@@ -1082,7 +1082,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase{
                             break;
                         }
                     }
-                }else if(foundAs.isImport() && !foundAs.importInfo.wasResolved){
+                }else if(foundAs.isImport() && (foundAs.importInfo == null || !foundAs.importInfo.wasResolved)){
                     //import was not resolved
                     onFoundUnresolvedImportPart(token, rep, foundAs);
                 }

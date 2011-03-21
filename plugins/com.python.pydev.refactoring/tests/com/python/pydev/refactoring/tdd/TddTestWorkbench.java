@@ -69,6 +69,12 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         
         checkCreateClassWithParams2();
         
+        checkCreateClassInit();
+        
+        checkCreateClassInit2();
+        
+        checkCreateClassInit3();
+        
         checkCreateClassAtOtherModule();
         
         checkCreateMethod();
@@ -590,6 +596,99 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             editor.doRevertToSaved();
         }
     }
+    
+    
+    protected void checkCreateClassInit() throws CoreException, BadLocationException, MisconfigurationException {
+        baseCheckCreateClassInit("o(a=10, b=20".length());
+    }
+    
+    protected void checkCreateClassInit2() throws CoreException, BadLocationException, MisconfigurationException {
+        baseCheckCreateClassInit(0);
+    }
+
+
+    
+    private void checkCreateClassInit3() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        mod1Contents = "" +
+        "print i\n" + //this is just so that we have an error (which we'll wait in the reparse -- even though we won't use it).
+        "\n" +
+        "class Foo:\n" +
+        "    'comment'\n" +
+        "    def bar(self):\n" +
+        "        pass\n" +
+        "Foo(a=10, b=20)";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length();
+        ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create Foo __init__ (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "print i\n" +
+                    "\n" +
+                    "class Foo:\n" +
+                    "    'comment'\n" +
+                    "\n" +
+                    "    \n" +
+                    "    def __init__(self, a, b):\n" +
+                    "        pass\n" +
+                    "    \n" +
+                    "    \n" +
+                    "    def bar(self):\n" +
+                    "        pass\n" +
+                    "Foo(a=10, b=20)" +
+                    "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    
+
+    private void baseCheckCreateClassInit(int minusOffset) throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents;
+        TddCodeGenerationQuickFixParticipant quickFix;
+        PySelection ps;
+        List<ICompletionProposal> props;
+        mod1Contents = "" +
+        		"print i\n" + //this is just so that we have an error (which we'll wait in the reparse -- even though we won't use it).
+        		"\n" +
+        		"class Foo:\n" +
+        		"    'comment'\n" +
+        		"\n" +
+        		"Foo(a=10, b=20)";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length()-minusOffset;
+        ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create Foo __init__ (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "print i\n" +
+                    "\n" +
+                    "class Foo:\n" +
+                    "    'comment'\n" +
+                    "\n" +
+                    "    def __init__(self, a, b):\n" +
+                    "        pass\n" +
+                    "    \n" +
+                    "    \n" +
+                    "\n" +
+                    "Foo(a=10, b=20)" +
+            		"", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
     
 
     

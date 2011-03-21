@@ -30,6 +30,8 @@ public interface IAssistProps {
     /**
      * Gets the completion proposals related to the common assists
      * 
+     * @note This method is only called if isValid returned true (and isValid is ALWAYS called before it).
+     * 
      * @param ps this is the selection
      * @param imageCache this is a cache for images (from the pydev plugin)
      * @param f this is the file related to the editor

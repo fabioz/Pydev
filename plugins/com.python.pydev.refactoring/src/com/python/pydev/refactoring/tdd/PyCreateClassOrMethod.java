@@ -34,6 +34,7 @@ import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
+import org.python.pydev.refactoring.ast.adapters.offsetstrategy.BeginOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.EndOffset;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
@@ -177,6 +178,13 @@ public abstract class PyCreateClassOrMethod extends PyCreateAction{
                 
             case LOCATION_STRATEGY_END:
                 strategy = new EndOffset(
+                        targetClass, pySelection.getDoc(), moduleAdapter.getAdapterPrefs());
+                offset = strategy.getOffset();
+                
+                break;
+                
+            case LOCATION_STRATEGY_FIRST_METHOD:
+                strategy = new BeginOffset(
                         targetClass, pySelection.getDoc(), moduleAdapter.getAdapterPrefs());
                 offset = strategy.getOffset();
                 

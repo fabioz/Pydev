@@ -2085,6 +2085,31 @@ public final class PySelection {
     }
 
 
+    
+    private static final Pattern FunctionCallPattern = Pattern.compile("(\\w+)((\\.\\w+)*)\\s*\\(");
+    public List<String> getFunctionCallsAtLine() {
+        return getFunctionCallsAtLine(this.getAbsoluteCursorOffset());
+    }
+    
+    /**
+     * @return the function calls at the line from the passed offset. Note that the return is not only the name of the
+     * call, but the call until the first '(', so, if there's a line with "MyCall (a", it'd return "MyCall (".
+     * 
+     * Also, it returns a list with the multiple calls.
+     */
+    public List<String> getFunctionCallsAtLine(int offset) {
+        String line = getLine(getLineOfOffset(offset));
+        List<String> ret = new ArrayList<String>();
+        if(matchesClassLine(line) || matchesFunctionLine(line)){
+            return ret;//In a class or method definition, it should never match.
+        }
+        Matcher matcher = FunctionCallPattern.matcher(line);
+        while(matcher.find()){
+            ret.add(matcher.group(0));
+        }
+        return ret;
+        
+    }
 
 
 

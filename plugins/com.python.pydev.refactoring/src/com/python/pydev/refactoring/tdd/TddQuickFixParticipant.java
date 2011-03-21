@@ -61,9 +61,9 @@ import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
  */
 public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
     
-    private Image imageClass;
-    private Image imageMethod;
-    private Image imageModule;
+    /*default*/ Image imageClass;
+    /*default*/ Image imageMethod;
+    /*default*/ Image imageModule;
     
     public TddQuickFixParticipant() {
         ImageCache imageCache = PydevPlugin.getImageCache();
