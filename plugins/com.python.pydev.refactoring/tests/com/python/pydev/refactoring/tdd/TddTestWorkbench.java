@@ -63,7 +63,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
-//        checkCreateMethodAtClass();
+        checkCreateMethodAtClass();
         
         checkCreateMethodAtClass2();
         
