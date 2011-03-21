@@ -50,7 +50,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         
         assertContentsEqual("" +
         		"class MyClass(${object}):\n" +
-        		"    ${pass}${cursor}\n" +
+        		"    '''${Docstring}'''${cursor}\n" +
         		"\n" +
         		"\n" +
         		"MyClass()" +
@@ -88,7 +88,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "\n" +
                 "\n" +
                 "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "    '''${Docstring}'''${cursor}\n" +
                 "\n" +
                 "\n" +
                 "MyClass()\n" +
@@ -128,7 +128,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "\n" +
                 "\n" +
                 "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "    '''${Docstring}'''${cursor}\n" +
                 "\n" +
                 "\n" +
                 "MyClass()" +
@@ -160,7 +160,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "a = 10\n" +
                 "\n" +
                 "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "    '''${Docstring}'''${cursor}\n" +
                 "\n" +
                 "\n" +
                 "#=============\n" +
@@ -189,6 +189,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         
         assertContentsEqual("" +
                 "class MyClass(${object}):\n" +
+                "    '''${Docstring}'''\n" +
                 "    \n" +
                 "    def __init__(self, ${aa}, ${bb}, ${param2}):\n" +
                 "        ${pass}${cursor}\n" +
@@ -215,6 +216,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         
         assertContentsEqual("" +
                 "class MyClass(${object}):\n" +
+                "    '''${Docstring}'''\n" +
                 "    \n" +
                 "    def __init__(self, ${aa}, ${bb}, ${my_foo}):\n" +
                 "        ${pass}${cursor}\n" +
@@ -252,7 +254,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "\n" +
                 "\n" +
                 "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "    '''${Docstring}'''${cursor}\n" +
                 "\n" +
                 "\n" +
                 "class Bar(object):\n" +
@@ -294,7 +296,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "\n" +
                 "\n" +
                 "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "    '''${Docstring}'''${cursor}\n" +
                 "\n" +
                 "\n" +
                 "class Bar(object):\n" +
@@ -339,7 +341,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "        MyClass()\n"+
                 "\n" +
                 "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "    '''${Docstring}'''${cursor}\n" +
                 "\n"+
                 "\n"+
                 "\n",
@@ -364,7 +366,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         assertContentsEqual(
                 "" +
                 "class Foo(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "    '''${Docstring}'''${cursor}\n" +
                 "\n"+
                 "\n",
                 document.get());

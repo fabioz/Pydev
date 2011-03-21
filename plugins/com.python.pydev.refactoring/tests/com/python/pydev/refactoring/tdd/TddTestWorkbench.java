@@ -196,7 +196,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         IFile mod2 = initFile.getParent().getFile(new Path("other_module3.py"));
         String str ="" +
         "class Bar(object):\n" +
-        "    pass\n" +
+        "    '''Docstring'''\n" +
         "";
         mod2.create(new ByteArrayInputStream(str.getBytes()), true, null);
         PyEdit editor2 = (PyEdit) PyOpenEditor.doOpenEditor(mod2);
@@ -216,7 +216,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo classmethod at Bar in other_module3.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Bar(object):\n" +
-                    "    pass\n" +
+                    "    '''Docstring'''\n" +
                     "\n" +
                     "    @classmethod\n" +
                     "    def Foo(cls, param1, param2):\n" +
@@ -256,7 +256,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class at other_module4.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    pass\n" +
+                    "    '''Docstring'''\n" +
                     "\n" +
                     "\n" +
                     "", editor2.getDocument().get());
@@ -371,6 +371,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         PyEdit.onPyEditCreated.registerListener(listener);
         
         try {
+            //Create module
             goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
             mod1Contents = "" +
             "import newpack.module_new";
@@ -387,6 +388,65 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             assertTrue(mod2.exists());
             
             assertEquals(1, pyEditCreated.size());
+            
+            PyEdit editCreated = pyEditCreated.get(0);
+            
+            //Create class at module
+            mod1Contents = "" +
+            "from newpack import module_new\n" +
+            "module_new.NewClass";
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            goToManual(AnalysisRequestsTestWorkbench.TIME_FOR_ANALYSIS); //give it a bit more time...
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            findCompletion(props, "Create NewClass class at module_new.py").apply(editor.getISourceViewer(), '\n', 0, offset);
+
+            String contents = editCreated.getDocument().get();
+            assertContentsEqual("" +
+            		"class NewClass(object):\n" +
+            		"    '''Docstring'''\n" +
+            		"\n" +
+            		"\n" +
+            		"", contents);
+            editCreated.getSite().getPage().saveEditor(editCreated, false);
+            
+            //Create __init__ at class.
+            mod1Contents = "" +
+            "'''\n" +
+            "'''\n" +
+            "" +
+            "def bar():\n" +
+            "    from newpack import module_new\n" +
+            "    module_new.NewClass(param)"; //the 'undefined param' will be the error
+            setContentsAndWaitReparseAndError(mod1Contents);
+            
+            quickFix = new TddCodeGenerationQuickFixParticipant();
+            offset = mod1Contents.length();
+            ps = new PySelection(editor.getDocument(), offset);
+            assertTrue(quickFix.isValid(ps, "", editor, offset));
+            props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+            findCompletion(props, "Create NewClass __init__ (newpack.module_new)").apply(editor.getISourceViewer(), '\n', 0, offset);
+
+            contents = editCreated.getDocument().get();
+            assertContentsEqual("" +
+                    "class NewClass(object):\n" +
+                    "    '''Docstring'''\n" +
+                    "\n" +
+                    "    def __init__(self, param):\n" +
+                    "        pass\n" +
+                    "    \n" +
+                    "    \n" +
+                    "\n" +
+                    "\n" +
+                    "", contents);
+            
+            
+            
             
         } finally {
             for(PyEdit edit:pyEditCreated){
@@ -519,7 +579,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    pass\n" +
+                    "    '''Docstring'''\n" +
                     "\n" +
                     "\n" +
                     "", pyEditCreated.get(0).getDocument().get());
@@ -546,7 +606,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    pass\n" +
+                    "    '''Docstring'''\n" +
                     "\n" +
                     "\n" +
                     "Foo" +
@@ -569,8 +629,16 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, 0);
         try {
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
-            assertContentsEqual("" + "class Foo(object):\n" + "    \n" + "    def __init__(self, call_1, param1, param2, cc):\n"
-                    + "        pass\n" + "\n" + "\n" + "Foo(call1(ueo), 'aa,bb', 10, cc)" + "", editor.getDocument().get());
+            assertContentsEqual(
+                    "" + "class Foo(object):\n" + 
+                    "    '''Docstring'''\n" +
+                    "    \n" + 
+                    "    def __init__(self, call_1, param1, param2, cc):\n"+ 
+                    "        pass\n" + 
+                    "\n" + 
+                    "\n" + 
+                    "Foo(call1(ueo), 'aa,bb', 10, cc)" + 
+                    "", editor.getDocument().get());
         } finally {
             editor.doRevertToSaved();
         }
@@ -590,8 +658,17 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, 0);
         try {
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
-            assertContentsEqual("" + "class Foo(object):\n" + "    \n" + "    def __init__(self, a, b):\n"
-                    + "        pass\n" + "\n" + "\n" + "Foo(a=10, b=20)" + "", editor.getDocument().get());
+            assertContentsEqual(
+                    "" + 
+                    "class Foo(object):\n" + 
+                    "    '''Docstring'''\n" +
+                    "    \n" + 
+                    "    def __init__(self, a, b):\n"+ 
+                    "        pass\n" + 
+                    "\n" + 
+                    "\n" + 
+                    "Foo(a=10, b=20)" + 
+                    "", editor.getDocument().get());
         } finally {
             editor.doRevertToSaved();
         }
@@ -716,7 +793,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class at other_module.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    pass\n" +
+                    "    '''Docstring'''\n" +
                     "\n" +
                     "\n" +
                     "", editor2.getDocument().get());

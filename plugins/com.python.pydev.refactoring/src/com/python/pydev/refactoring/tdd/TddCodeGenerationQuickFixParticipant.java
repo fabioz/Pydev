@@ -90,7 +90,11 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                 }
             }
             if(localMarkersAtLine.size() > 0){
-                this.markersAtLine.addAll(localMarkersAtLine);
+                if(this.markersAtLine == null){
+                    this.markersAtLine = localMarkersAtLine;
+                }else{
+                    this.markersAtLine.addAll(localMarkersAtLine);
+                }
                 isValid = true;
             }
         }
