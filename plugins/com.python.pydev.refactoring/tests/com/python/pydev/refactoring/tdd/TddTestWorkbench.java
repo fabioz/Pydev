@@ -63,6 +63,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateFieldAtClass4();
+        
         checkCreateMethod2();
         
         checkCreateFieldAtClass3();
@@ -773,6 +775,44 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             "\n" +
             "foo = Foo()\n" +
             "foo.new_field";
+            assertContentsEqual(expected, editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    protected void checkCreateFieldAtClass4() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "print i\n" +
+        "class Foo(object):\n" +
+        "    def bar(self):\n" +
+        "        self.new_field\n" +
+        "    def __init__(self):\n" +
+        "        self.a = 10" +
+        "";
+        
+        String secondPart = "ld\n" +
+        "    def __init__(self):\n" +
+        "        self.a = 10" +
+        "";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length()-secondPart.length();
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create new_field field at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            String expected = "" +
+            "print i\n" +
+            "class Foo(object):\n" +
+            "    def bar(self):\n" +
+            "        self.new_field\n" +
+            "    def __init__(self):\n" +
+            "        self.a = 10\n" +
+            "        self.new_field = None" +
+            "";
             assertContentsEqual(expected, editor.getDocument().get());
         } finally {
             editor.doRevertToSaved();

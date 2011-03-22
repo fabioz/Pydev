@@ -445,7 +445,8 @@ public final class PySelection {
      */
     public static String getLine(IDocument doc, int i) {
         try {
-            return doc.get(doc.getLineInformation(i).getOffset(), doc.getLineInformation(i).getLength());
+            IRegion lineInformation = doc.getLineInformation(i);
+            return doc.get(lineInformation.getOffset(), lineInformation.getLength());
         } catch (Exception e) {
             return "";
         }

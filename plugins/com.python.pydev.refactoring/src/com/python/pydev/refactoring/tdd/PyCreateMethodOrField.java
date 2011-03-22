@@ -9,10 +9,13 @@ package com.python.pydev.refactoring.tdd;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -90,16 +93,30 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
                             }
                             
                             //Create the field as the last line in the __init__
-                            int nodeLastLine = firstInit.getNodeLastLine();
+                            int nodeLastLine = firstInit.getNodeLastLine()-1;
                             Tuple<Integer, String> offsetAndIndent;
                             int nodeBodyIndent = firstInit.getNodeBodyIndent();
                             String indent = new FastStringBuffer(nodeBodyIndent).appendN(' ', nodeBodyIndent).toString();
-                            int offset = pySelection.getLineOffset(nodeLastLine);
-                            offsetAndIndent = new Tuple<Integer, String>(offset, "");
-                            boolean isReplace = replacePassStatement!=null;
+                            String pattern;
+                            
+                            if(replacePassStatement==null){
+                                pattern = StringUtils.format("\nself.%s = ${None}", actTok);
+                                try {
+                                    IRegion region = pySelection.getDoc().getLineInformation(nodeLastLine);
+                                    int offset = region.getOffset()+region.getLength();
+                                    offsetAndIndent = new Tuple<Integer, String>(offset, indent);
+                                } catch (BadLocationException e) {
+                                    Log.log(e);
+                                    return null;
+                                }
+                                
+                            }else{
+                                pattern = StringUtils.format("self.%s = ${None}", actTok);
+                                offsetAndIndent = new Tuple<Integer, String>(-1, ""); //offset will be from the pass stmt
+                            }
                             return createProposal(
                                     pySelection, 
-                                    StringUtils.format("%sself.%s = ${None}%s", isReplace?"":indent, actTok, isReplace?"":"\n"), 
+                                    pattern, 
                                     offsetAndIndent, 
                                     false,
                                     replacePassStatement);
