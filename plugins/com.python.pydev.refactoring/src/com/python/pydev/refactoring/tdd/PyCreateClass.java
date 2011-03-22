@@ -20,7 +20,7 @@ import org.python.pydev.refactoring.core.base.RefactoringInfo;
 /**
  * This class should be used to generate code for creating a new class. 
  */
-public class PyCreateClass extends PyCreateClassOrMethod{
+public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField{
 
     private final static String baseClassStr = "" +
             "class %s(${object}):\n" +

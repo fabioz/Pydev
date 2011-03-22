@@ -369,7 +369,7 @@
 
 
          <action
-               class="com.python.pydev.refactoring.tdd.PyCreateMethod"
+               class="com.python.pydev.refactoring.tdd.PyCreateMethodOrField"
                definitionId="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
                id="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
                label="%peptic.CreateMethodLabel"
@@ -494,7 +494,7 @@
 
 
          <action
-               class="com.python.pydev.refactoring.tdd.PyCreateMethod"
+               class="com.python.pydev.refactoring.tdd.PyCreateMethodOrField"
                definitionId="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
                id="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
                label="%peptic.CreateMethodLabel"

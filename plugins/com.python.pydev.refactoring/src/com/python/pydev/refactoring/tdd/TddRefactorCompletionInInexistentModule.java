@@ -42,12 +42,12 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
     
     private File module;
     private List<String> parametersAfterCall;
-    private PyCreateAction pyCreateAction;
+    private AbstractPyCreateAction pyCreateAction;
     private PySelection ps;
 
     public TddRefactorCompletionInInexistentModule(String replacementString, 
             Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, 
-            int priority, PyEdit edit, File module, List<String> parametersAfterCall, PyCreateAction pyCreateAction, PySelection ps) {
+            int priority, PyEdit edit, File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
         
         super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo, priority);
         this.module = module;

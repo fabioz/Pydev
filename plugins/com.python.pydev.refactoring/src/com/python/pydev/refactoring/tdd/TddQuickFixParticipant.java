@@ -140,10 +140,10 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                         }else if(definition.ast instanceof ClassDef){
                             ClassDef classDef = (ClassDef) definition.ast;
                             //Ok, we should create a field or method in this case (accessing a classmethod or staticmethod)
-                            PyCreateMethod pyCreateMethod = new PyCreateMethod();
+                            PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
                             String className = NodeUtils.getNameFromNameTok(classDef.name);
                             pyCreateMethod.setCreateInClass(className);
-                            pyCreateMethod.setCreateAs(PyCreateMethod.CLASSMETHOD);
+                            pyCreateMethod.setCreateAs(PyCreateMethodOrField.CLASSMETHOD);
                             addCreateClassmethodOption(ps, edit, props, markerContents, parametersAfterCall, pyCreateMethod, file,
                                     className);
                         }
@@ -328,7 +328,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
     }
 
     private void addCreateClassmethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
-            List<String> parametersAfterCall, PyCreateMethod pyCreateMethod, File file, String className) {
+            List<String> parametersAfterCall, PyCreateMethodOrField pyCreateMethod, File file, String className) {
         props.add(new TddRefactorCompletionInModule(
                 markerContents, 
                 imageMethod, 
@@ -356,7 +356,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                 edit,
                 file,
                 parametersAfterCall,
-                new PyCreateMethod(),
+                new PyCreateMethodOrField(),
                 ps
         ));
     }
@@ -407,7 +407,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                 edit,
                 file,
                 new ArrayList<String>(),
-                new PyCreateMethod(),
+                new PyCreateMethodOrField(),
                 ps
         ));
     }
@@ -442,7 +442,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                 edit,
                 PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT,
                 parametersAfterCall,
-                new PyCreateMethod(),
+                new PyCreateMethodOrField(),
                 ps
         ));
     }

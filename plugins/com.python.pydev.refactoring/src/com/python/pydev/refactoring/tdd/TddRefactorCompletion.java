@@ -29,12 +29,12 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
     private TemplateProposal executed;
     private int locationStrategy;
     private List<String> parametersAfterCall;
-    private PyCreateAction pyCreateAction;
+    private AbstractPyCreateAction pyCreateAction;
     private PySelection ps;
 
     TddRefactorCompletion(String replacementString, 
             Image image, String displayString, IContextInformation contextInformation, String additionalProposalInfo, 
-            int priority, PyEdit edit, int locationStrategy, List<String> parametersAfterCall, PyCreateAction pyCreateAction, PySelection ps) {
+            int priority, PyEdit edit, int locationStrategy, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
         
         super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation,
                 additionalProposalInfo, priority);

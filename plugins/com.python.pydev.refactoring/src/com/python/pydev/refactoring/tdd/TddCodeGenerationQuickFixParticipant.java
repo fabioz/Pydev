@@ -20,6 +20,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.log.Log;
@@ -95,7 +96,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                         checkInitCreation(edit, callPs, pointers, ret);
                         
                     }else if(pointers.length == 0){
-                        checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs, ret, lineContents);
+                        checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs, ret, lineContents, possibleMatch);
                     }
                 } catch (Exception e) {
                     Log.log(e);
@@ -108,7 +109,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
 
 
     private boolean checkMethodCreationAtClass(PyEdit edit, IPyRefactoring pyRefactoring, String callWithoutParens,
-            PySelection callPs, List<ICompletionProposal> ret, String lineContents) throws MisconfigurationException, Exception {
+            PySelection callPs, List<ICompletionProposal> ret, String lineContents, TddPossibleMatches possibleMatch) throws MisconfigurationException, Exception {
         RefactoringRequest request;
         ItemPointer[] pointers;
         //Ok, no definition found for the full string, so, check if we have a dot there and check
@@ -120,19 +121,25 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             if (headAndTail[0].equals("self")) {
                 //creating something in the current class -- note that if it was self.bar here, we'd treat it as regular
                 //(i.e.: no special support for self)
-                PyCreateMethod pyCreateMethod = new PyCreateMethod();
-                pyCreateMethod.setCreateAs(PyCreateMethod.BOUND_METHOD);
-
                 int firstCharPosition = PySelection.getFirstCharPosition(lineContents);
                 LineStartingScope scopeStart = callPs.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false, firstCharPosition);
                 String classNameInLine = null;
                 if (scopeStart != null) {
+                    PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
+                    List<String> parametersAfterCall = null;
+                    if(possibleMatch.isCall){
+                        pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
+                        parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
+                    }else{
+                        pyCreateMethod.setCreateAs(PyCreateMethodOrField.FIELD);
+                    }
                     String startingScopeLineContents = callPs.getLine(scopeStart.iLineStartingScope);
                     classNameInLine = PySelection.getClassNameInLine(startingScopeLineContents);
                     if (classNameInLine != null && classNameInLine.length() > 0) {
                         pyCreateMethod.setCreateInClass(classNameInLine);
 
-                        addCreateMethodOption(callPs, edit, ret, methodToCreate, callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset()), pyCreateMethod, classNameInLine);
+                        addCreateMethodOption(
+                                callPs, edit, ret, methodToCreate, parametersAfterCall, pyCreateMethod, classNameInLine);
                     }
                 }
                 return true;
@@ -173,13 +180,19 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                         ClassDef d = (ClassDef) definition.ast;
                         
                         //Give the user a chance to create the method we didn't find.
-                        PyCreateMethod pyCreateMethod = new PyCreateMethod();
-                        pyCreateMethod.setCreateAs(PyCreateMethod.BOUND_METHOD);
+                        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
+                        List<String> parametersAfterCall = null;
+                        if(possibleMatch.isCall){
+                            pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
+                            parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
+                        }else{
+                            pyCreateMethod.setCreateAs(PyCreateMethodOrField.FIELD);
+                        }
                         String className = NodeUtils.getRepresentationString(d);
                         pyCreateMethod.setCreateInClass(className);
                         
-                        List<String> parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
-                        String displayString = "Create "+methodToCreate+" method at "+className+" ("+definition.module.getName()+")";
+                        String displayString = StringUtils.format("Create %s %s at %s (%s)", 
+                                methodToCreate, pyCreateMethod.getCreationStr(), className, definition.module.getName());
                         TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(
                                 methodToCreate, 
                                 tddQuickFixParticipant.imageMethod, 
@@ -193,7 +206,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                                 pyCreateMethod,
                                 newSelection
                         );
-                        completion.locationStrategy = PyCreateAction.LOCATION_STRATEGY_END;
+                        completion.locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_END;
                         ret.add(completion);
                         return true;
                     }
@@ -204,11 +217,12 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     }
     
     private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,
-            List<String> parametersAfterCall, PyCreateMethod pyCreateMethod, String classNameInLine) {
+            List<String> parametersAfterCall, PyCreateMethodOrField pyCreateMethod, String classNameInLine) {
+        String displayString = StringUtils.format("Create %s %s at %s", markerContents, pyCreateMethod.getCreationStr(), classNameInLine);
         TddRefactorCompletion tddRefactorCompletion = new TddRefactorCompletion(
                 markerContents, 
                 tddQuickFixParticipant.imageMethod, 
-                "Create "+markerContents+" method at "+classNameInLine, 
+                displayString, 
                 null, 
                 null, 
                 IPyCompletionProposal.PRIORITY_CREATE, 
@@ -227,30 +241,18 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             Definition definition = pointer.definition;
             if(definition != null && definition.ast instanceof ClassDef){
                 ClassDef d = (ClassDef) definition.ast;
-                EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(d);
+                ASTEntry initEntry = findInitInClass(d);
                 
-                boolean foundInit = false;
-                for(Iterator<ASTEntry> it = visitor.getMethodsIterator();it.hasNext();){
-                    ASTEntry next = it.next();
-                    if(next.node != null){
-                        String rep = NodeUtils.getRepresentationString(next.node);
-                        if("__init__".equals(rep)){
-                            foundInit = true;
-                            break;
-                        }
-                    }
-                }
-                
-                if(!foundInit){
+                if(initEntry == null){
                     //Give the user a chance to create the __init__.
-                    PyCreateMethod pyCreateMethod = new PyCreateMethod();
-                    pyCreateMethod.setCreateAs(PyCreateMethod.BOUND_METHOD);
+                    PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
+                    pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
                     String className = NodeUtils.getRepresentationString(d);
                     pyCreateMethod.setCreateInClass(className);
                     
                     
                     List<String> parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
-                    String displayString = "Create "+className+" __init__ ("+definition.module.getName()+")";
+                    String displayString = StringUtils.format("Create %s __init__ (%s)", className, definition.module.getName());
                     TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(
                             "__init__", 
                             tddQuickFixParticipant.imageMethod, 
@@ -264,13 +266,29 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                             pyCreateMethod,
                             callPs
                     );
-                    completion.locationStrategy = PyCreateAction.LOCATION_STRATEGY_FIRST_METHOD;
+                    completion.locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD;
                     ret.add(completion);
                     return true;
                 }
             }
         }
         return false;
+    }
+
+
+    public static ASTEntry findInitInClass(ClassDef d) {
+        EasyASTIteratorVisitor visitor = EasyASTIteratorVisitor.create(d);
+        
+        for(Iterator<ASTEntry> it = visitor.getMethodsIterator();it.hasNext();){
+            ASTEntry next = it.next();
+            if(next.node != null){
+                String rep = NodeUtils.getRepresentationString(next.node);
+                if("__init__".equals(rep)){
+                    return next;
+                }
+            }
+        }
+        return null;
     }
 
 

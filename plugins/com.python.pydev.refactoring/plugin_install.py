@@ -13,6 +13,6 @@ class Action:
 
 ACTIONS_AND_BINDING = [
     Action('com.python.pydev.refactoring.tdd.PyCreateClass', 'Alt+Shift+S C', 'CreateClass', 'tddGroup'),
-    Action('com.python.pydev.refactoring.tdd.PyCreateMethod', 'Alt+Shift+S M', 'CreateMethod', 'tddGroup'),
+    Action('com.python.pydev.refactoring.tdd.PyCreateMethodOrField', 'Alt+Shift+S M', 'CreateMethod', 'tddGroup'),
     Action('org.python.pydev.refactoring.ui.actions.ExtractMethodAction', ('M2+M3+M', 'M3+M2+T E'), 'ExtractMethod', 'pepticRefactoringGroup'),
 ]

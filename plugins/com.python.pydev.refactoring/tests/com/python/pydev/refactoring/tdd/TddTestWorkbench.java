@@ -63,6 +63,10 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateFieldAtClass3();
+        
+        checkCreateFieldAtClass2();
+        
         checkCreateFieldAtClass();
         
         checkCreateMethodAtClass();
@@ -667,7 +671,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         "print i\n" + //just to have error on reparse.
         "class Foo(object):\n" +
         "    'doc'\n" +
-        "\n" +
+        "    def existing(self):\n" +
+        "        pass\n" +
         "foo = Foo()\n" +
         "foo.new_field";
         setContentsAndWaitReparseAndError(mod1Contents);
@@ -689,9 +694,81 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             "        self.new_field = None\n" +
             "    \n" +
             "    \n" +
+            "    def existing(self):\n" +
+            "        pass\n" +
+            "foo = Foo()\n" +
+            "foo.new_field";
+            assertContentsEqual(expected, editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    
+    protected void checkCreateFieldAtClass3() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "print i\n" +
+        "class Foo(object):\n" +
+        "    'doc'\n" +
+        "    def __init__(self):\n" +
+        "        self.a = 10\n" +
+        "\n" +
+        "foo = Foo()\n" +
+        "foo.new_field";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length()-1;
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create new_field field at Foo (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            String expected = "" +
+            "print i\n" +
+            "class Foo(object):\n" +
+            "    'doc'\n" +
+            "    def __init__(self):\n" +
+            "        self.a = 10\n" +
+            "        self.new_field = None\n" +
             "\n" +
             "foo = Foo()\n" +
-            "foo.new_field()";
+            "foo.new_field";
+            assertContentsEqual(expected, editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    
+    protected void checkCreateFieldAtClass2() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "print i\n" +
+        "class Foo(object):\n" +
+        "    'doc'\n" +
+        "    def __init__(self):\n" +
+        "        pass\n" +
+        "\n" +
+        "foo = Foo()\n" +
+        "foo.new_field";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length()-1;
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create new_field field at Foo (pack1.pack2.mod1)").apply(editor.getISourceViewer(), '\n', 0, offset);
+            String expected = "" +
+            "print i\n" +
+            "class Foo(object):\n" +
+            "    'doc'\n" +
+            "    def __init__(self):\n" +
+            "        self.new_field = None\n" + //note we changed the pass for the field!
+            "\n" +
+            "foo = Foo()\n" +
+            "foo.new_field";
             assertContentsEqual(expected, editor.getDocument().get());
         } finally {
             editor.doRevertToSaved();

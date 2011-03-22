@@ -33,7 +33,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
     }
 
     public void testPyCreateMethodGlobal() {
-        PyCreateMethod pyCreateMethod = new PyCreateMethod();
+        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
         
         String source = "MyMethod()";
         IDocument document = new Document(source);
@@ -45,7 +45,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
             }
         });
 
-        pyCreateMethod.execute(info, PyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
         
         assertContentsEqual("" +
                 "def MyMethod():\n" +
@@ -57,7 +57,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
     }
     
     public void testPyCreateMethodGlobalParams() {
-        PyCreateMethod pyCreateMethod = new PyCreateMethod();
+        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
         
         String source = "MyMethod(a, b())";
         IDocument document = new Document(source);
@@ -69,7 +69,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
             }
         });
         
-        pyCreateMethod.execute(info, PyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
         
         assertContentsEqual("" +
                 "def MyMethod(${a}, ${b}):\n" +
@@ -81,7 +81,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
     }
     
     public void testPyCreateMethodGlobal1() {
-        PyCreateMethod pyCreateMethod = new PyCreateMethod();
+        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
         
         String source = "a = MyMethod()";
         IDocument document = new Document(source);
@@ -93,7 +93,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
             }
         });
         
-        pyCreateMethod.execute(info, PyCreateAction.LOCATION_STRATEGY_END);
+        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_END);
         
         assertContentsEqual("" +
                 "a = MyMethod()\n" +
@@ -107,7 +107,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
     
     
     public void testPyCreateMethodInEmptyDoc() {
-        PyCreateMethod pyCreateMethod = new PyCreateMethod();
+        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
         
         String source = "";
         IDocument document = new Document(source);
@@ -119,7 +119,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
             }
         });
         
-        pyCreateMethod.execute(info, "MyMethod", new ArrayList<String>(), PyCreateAction.LOCATION_STRATEGY_END);
+        pyCreateMethod.execute(info, "MyMethod", new ArrayList<String>(), AbstractPyCreateAction.LOCATION_STRATEGY_END);
         
         assertContentsEqual("" +
                 "def MyMethod():\n" +
@@ -129,7 +129,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "", document.get());
         
         document.set("");
-        pyCreateMethod.execute(info, "MyMethod2", new ArrayList<String>(), PyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        pyCreateMethod.execute(info, "MyMethod2", new ArrayList<String>(), AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
         
         assertContentsEqual("" +
                 "def MyMethod2():\n" +
@@ -140,7 +140,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
     }
     
     public void testPyCreateMethodInClass() {
-        PyCreateMethod pyCreateMethod = new PyCreateMethod();
+        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
         
         String source = "" +
         		"class A(object):\n" +
@@ -157,8 +157,8 @@ public class PyCreateMethodTest extends TestCaseUtils {
         });
         
         pyCreateMethod.setCreateInClass("A");
-        pyCreateMethod.setCreateAs(PyCreateMethod.CLASSMETHOD);
-        pyCreateMethod.execute(info, PyCreateAction.LOCATION_STRATEGY_END);
+        pyCreateMethod.setCreateAs(PyCreateMethodOrField.CLASSMETHOD);
+        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_END);
         
         assertContentsEqual("" +
                 "" +
@@ -178,7 +178,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
     
     
     public void testPyCreateMethodInSelfWithDecorator() {
-        PyCreateMethod pyCreateMethod = new PyCreateMethod();
+        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
         
         String source = "" +
         "class A(object):\n" +
@@ -195,8 +195,8 @@ public class PyCreateMethodTest extends TestCaseUtils {
         });
         
         pyCreateMethod.setCreateInClass("A");
-        pyCreateMethod.setCreateAs(PyCreateMethod.BOUND_METHOD);
-        pyCreateMethod.execute(info, PyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
+        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
         
         String expected = "" +
         "class A(object):\n" +
