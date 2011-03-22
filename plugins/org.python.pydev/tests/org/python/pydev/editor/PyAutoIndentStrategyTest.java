@@ -32,7 +32,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndentMatchingNextLineIfPreviousIsEmpty();
+            s.testIndentAfterStringEnd();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -2215,5 +2215,48 @@ public class PyAutoIndentStrategyTest extends TestCase {
     	String expected = "   ";
     	assertEquals(expected, docCmd.text);
     }
+    
+    public void testIndentAfterReturnWithContinuation() throws Exception {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "" +
+        "class Class:\n" +
+        "\n" +
+        "    def Method(self):\n" +
+        "        return \\";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n            ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentAfterReturnWithContinuation2() throws Exception {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "" +
+        "class Class:\n" +
+        "\n" +
+        "    def Method(self):\n" +
+        "        return (";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n                ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    
+    public void testIndentAfterStringEnd() throws Exception {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "" +
+        "class Class:\n" +
+        "\n" +
+        "    def Method(self):\n" +
+        "        a = '''\n" +
+        "some line\n" +
+        "end line'''";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n        ";
+        assertEquals(expected, docCmd.text);
+    }
+    
 
 }

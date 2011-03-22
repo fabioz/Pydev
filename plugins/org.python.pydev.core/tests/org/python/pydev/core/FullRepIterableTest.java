@@ -98,6 +98,10 @@ public class FullRepIterableTest extends TestCase {
         strings = FullRepIterable.headAndTail("aa");
         assertEquals("", strings[0]);
         assertEquals("aa", strings[1]);
+        
+        strings = FullRepIterable.headAndTail("");
+        assertEquals("", strings[0]);
+        assertEquals("", strings[1]);
     }
     
     public void testGetWithoutLastPart() throws Exception {

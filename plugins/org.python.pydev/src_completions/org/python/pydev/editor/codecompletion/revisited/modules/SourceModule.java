@@ -716,7 +716,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         List<IToken> localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         ICodeCompletionASTManager astManager = nature.getAstManager();
         for (IToken tok : localImportedModules) {
-            if(tok.getRepresentation().equals(rep)){
+            String importRep = tok.getRepresentation();
+            if(importRep.equals(rep) || rep.startsWith(importRep+".")){
                 Tuple3<IModule, String, IToken> o = astManager.findOnImportedMods(new IToken[]{tok}, state.getCopyWithActTok(rep), this.getName());
                 if(o != null && o.o1 instanceof SourceModule){
                     ICompletionState copy = state.getCopy();

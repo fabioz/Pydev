@@ -11,7 +11,7 @@ import java.util.List;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 
-public class NullPyCreateAction extends PyCreateAction {
+public class NullPyCreateAction extends AbstractPyCreateAction {
 
     @Override
     public void execute(RefactoringInfo refactoringInfo, int locationStrategyBeforeCurrent) {

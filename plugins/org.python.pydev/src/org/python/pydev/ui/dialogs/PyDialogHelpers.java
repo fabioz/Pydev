@@ -31,6 +31,11 @@ public class PyDialogHelpers {
                 shell, title, message);
     }
     
+    public static boolean openQuestion(String title, String message) {
+        Shell shell = PyAction.getShell();
+        return MessageDialog.openQuestion(shell, title, message);
+    }
+    
     public static int openWarningWithIgnoreToggle(
             String title, String message, String key) {
         Shell shell = PyAction.getShell();

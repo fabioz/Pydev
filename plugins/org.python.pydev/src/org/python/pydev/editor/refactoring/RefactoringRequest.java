@@ -95,6 +95,15 @@ public class RefactoringRequest extends DecoratableObject{
     public RefactoringRequest(File file, PySelection selection, PythonNature nature) {
         this(file, selection, null, nature, null); 
     }
+    
+    /**
+     * If the file is passed, we also set the document automatically
+     * @param file the file correspondent to this request
+     * @throws MisconfigurationException 
+     */
+    public RefactoringRequest(PyEdit pyEdit, PySelection ps) throws MisconfigurationException {
+        this(pyEdit.getEditorFile(), ps, null, pyEdit.getPythonNature(), pyEdit); 
+    }
 
     /**
      * Assigns parameters to attributes (tries to resolve the module name and create a SystemPythonNature if the 
