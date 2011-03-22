@@ -164,6 +164,10 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
         }else{
             offset = pySelection.getAbsoluteCursorOffset(replacePassStatement.beginLine-1, replacePassStatement.beginColumn-1);
             len = 4; //pass.len
+            
+            if(requireEmptyLines){
+                source = "\n\n"+source;
+            }
         }
         
         

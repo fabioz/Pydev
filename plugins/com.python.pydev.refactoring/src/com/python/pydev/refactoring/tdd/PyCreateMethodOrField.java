@@ -18,8 +18,10 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Pass;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -152,14 +154,24 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
 
         
         Tuple<Integer, String> offsetAndIndent;
+        Pass replacePassStatement = null;
         if(targetClass != null){
+            ClassDef astNode = targetClass.getASTNode();
+            if(astNode.body.length > 0){
+                 SimpleNode lastNode = astNode.body[astNode.body.length-1];
+                 if(lastNode instanceof Pass){
+                     //Remove the pass and add the statement!
+                     replacePassStatement = (Pass) lastNode;
+                 }
+            }
+
             offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter, targetClass);
             
         }else{
             offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter);
         }
         
-        return createProposal(pySelection, source, offsetAndIndent);
+        return createProposal(pySelection, source, offsetAndIndent, true, replacePassStatement);
     }
 
 

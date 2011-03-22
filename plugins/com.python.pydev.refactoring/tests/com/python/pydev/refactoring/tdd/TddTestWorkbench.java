@@ -249,7 +249,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         IFile mod2 = initFile.getParent().getFile(new Path("other_module3.py"));
         String str ="" +
         "class Bar(object):\n" +
-        "    '''Docstring'''\n" +
+        "    pass\n" +
         "";
         mod2.create(new ByteArrayInputStream(str.getBytes()), true, null);
         PyEdit editor2 = (PyEdit) PyOpenEditor.doOpenEditor(mod2);
@@ -269,14 +269,14 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo classmethod at Bar in other_module3.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Bar(object):\n" +
-                    "    '''Docstring'''\n" +
-                    "\n" +
+                    "    \n" +
                     "    \n" +
                     "    @classmethod\n" +
                     "    def Foo(cls, param1, param2):\n" +
                     "        pass\n" +
                     "    \n" +
                     "    \n" +
+                    "\n" +
                     "", editor2.getDocument().get());
             
         } finally {
@@ -310,7 +310,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class at other_module4.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    '''Docstring'''\n" +
+                    "    pass\n" +
                     "\n" +
                     "\n" +
                     "", editor2.getDocument().get());
@@ -463,7 +463,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             String contents = editCreated.getDocument().get();
             assertContentsEqual("" +
             		"class NewClass(object):\n" +
-            		"    '''Docstring'''\n" +
+            		"    pass\n" +
             		"\n" +
             		"\n" +
             		"", contents);
@@ -489,13 +489,13 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             contents = editCreated.getDocument().get();
             assertContentsEqual("" +
                     "class NewClass(object):\n" +
-                    "    '''Docstring'''\n" +
-                    "\n" +
+                    "    \n" +
                     "    \n" +
                     "    def __init__(self, param):\n" +
                     "        pass\n" +
                     "    \n" +
                     "    \n" +
+                    "\n" +
                     "\n" +
                     "\n" +
                     "", contents);
@@ -634,7 +634,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    '''Docstring'''\n" +
+                    "    pass\n" +
                     "\n" +
                     "\n" +
                     "", pyEditCreated.get(0).getDocument().get());
@@ -661,7 +661,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    '''Docstring'''\n" +
+                    "    pass\n" +
                     "\n" +
                     "\n" +
                     "Foo" +
@@ -906,7 +906,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
             assertContentsEqual(
                     "" + "class Foo(object):\n" + 
-                    "    '''Docstring'''\n" +
                     "    \n" + 
                     "    def __init__(self, call_1, param1, param2, cc):\n"+ 
                     "        pass\n" + 
@@ -936,7 +935,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             assertContentsEqual(
                     "" + 
                     "class Foo(object):\n" + 
-                    "    '''Docstring'''\n" +
                     "    \n" + 
                     "    def __init__(self, a, b):\n"+ 
                     "        pass\n" + 
@@ -1069,7 +1067,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class at other_module.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    '''Docstring'''\n" +
+                    "    pass\n" +
                     "\n" +
                     "\n" +
                     "", editor2.getDocument().get());

@@ -100,12 +100,12 @@ import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.actions.PyPeerLinker;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyFormatStd;
 import org.python.pydev.editor.actions.PyMoveLineDownAction;
 import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
+import org.python.pydev.editor.actions.PyPeerLinker;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
@@ -239,14 +239,14 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     private Object lock = new Object();
     
-    public final ICallbackWithListeners onCreatePartControl = new CallbackWithListeners();
-	public final ICallbackWithListeners onAfterCreatePartControl = new CallbackWithListeners();
-	public final ICallbackWithListeners onCreateActions = new CallbackWithListeners();
-	public final ICallbackWithListeners onGetAdapter = new CallbackWithListeners();
-	public final ICallbackWithListeners onInitializeLineNumberRulerColumn = new CallbackWithListeners();
-	public final ICallbackWithListeners onDispose = new CallbackWithListeners();
-	public final ICallbackWithListeners onHandlePreferenceStoreChanged = new CallbackWithListeners();
-	public final ICallbackWithListeners onCreateSourceViewer = new CallbackWithListeners();
+    public final ICallbackWithListeners<Composite> onCreatePartControl = new CallbackWithListeners<Composite>();
+	public final ICallbackWithListeners<ISourceViewer> onAfterCreatePartControl = new CallbackWithListeners<ISourceViewer>();
+    public final ICallbackWithListeners<PyEdit> onCreateActions = new CallbackWithListeners<PyEdit>();
+	public final ICallbackWithListeners<Class<?>> onGetAdapter = new CallbackWithListeners<Class<?>>();
+	public final ICallbackWithListeners<LineNumberRulerColumn> onInitializeLineNumberRulerColumn = new CallbackWithListeners<LineNumberRulerColumn>();
+	public final ICallbackWithListeners<?> onDispose = new CallbackWithListeners<Object>();
+	public final ICallbackWithListeners<PropertyChangeEvent> onHandlePreferenceStoreChanged = new CallbackWithListeners<PropertyChangeEvent>();
+	public final ICallbackWithListeners<PySourceViewer> onCreateSourceViewer = new CallbackWithListeners<PySourceViewer>();
 
 	
     public void addPyeditListener(IPyEditListener listener){
@@ -1296,17 +1296,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     public void parserChanged(ISimpleNode root, IAdaptable file, IDocument doc) {
         this.errorDescription = null; //the order is: parserChanged and only then parserError
-        int lastLine = doc.getNumberOfLines();
-        try {
-            doc.getLineInformation(lastLine - 1);
-            ast = (SimpleNode) root;
-            astModificationTimeStamp = ((IDocumentExtension4)doc).getModificationStamp();
-            fireModelChanged(ast);
-        } catch (BadLocationException e1) {
-            PydevPlugin.log(IStatus.WARNING, "Unexpected error getting document length. No model!", e1);
-        }
-        
+        ast = (SimpleNode) root;
+        astModificationTimeStamp = ((IDocumentExtension4)doc).getModificationStamp();
+        fireModelChanged(ast);
     }
+    
 
     /**
      * This event comes when parse ended in an error
@@ -1355,7 +1349,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     protected void fireModelChanged(SimpleNode root) {
         //create a copy, to avoid concurrent modifications
         for (IModelListener listener : new ArrayList<IModelListener>(modelListeners)) {
-            listener.modelChanged(root);
+            try {
+                listener.modelChanged(root);
+            } catch (Exception e) {
+                PydevPlugin.log(e);
+            }
         }
     }
     
