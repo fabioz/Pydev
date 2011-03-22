@@ -619,16 +619,20 @@ public final class PySelection {
         } 
     }
 
+    public String getLineContentsFromCursor() throws BadLocationException {
+        return getLineContentsFromCursor(getAbsoluteCursorOffset());
+    }
+    
     /**
      * @return the line where the cursor is (from the cursor position to the end of the line).
      * @throws BadLocationException
      */
-    public String getLineContentsFromCursor() throws BadLocationException {
-        int lineOfOffset = getDoc().getLineOfOffset(getAbsoluteCursorOffset());
-        IRegion lineInformation = getDoc().getLineInformation(lineOfOffset);
+    public String getLineContentsFromCursor(int offset) throws BadLocationException {
+        int lineOfOffset = doc.getLineOfOffset(offset);
+        IRegion lineInformation = doc.getLineInformation(lineOfOffset);
         
         
-        String lineToCursor = getDoc().get(getAbsoluteCursorOffset(),   lineInformation.getOffset() + lineInformation.getLength() - getAbsoluteCursorOffset());
+        String lineToCursor = doc.get(offset, lineInformation.getOffset() + lineInformation.getLength() - offset);
         return lineToCursor;
     }
 
@@ -667,9 +671,15 @@ public final class PySelection {
      * @throws BadLocationException
      */
     public String getLineContentsToCursor() throws BadLocationException {
-        int lineOfOffset = getDoc().getLineOfOffset(getAbsoluteCursorOffset());
-        IRegion lineInformation = getDoc().getLineInformation(lineOfOffset);
-        String lineToCursor = getDoc().get(lineInformation.getOffset(), getAbsoluteCursorOffset() - lineInformation.getOffset());
+        int offset = getAbsoluteCursorOffset();
+        return getLineContentsToCursor(offset);
+    }
+
+
+    public String getLineContentsToCursor(int offset) throws BadLocationException {
+        int lineOfOffset = doc.getLineOfOffset(offset);
+        IRegion lineInformation = doc.getLineInformation(lineOfOffset);
+        String lineToCursor = doc.get(lineInformation.getOffset(), offset - lineInformation.getOffset());
         return lineToCursor;
     }
 

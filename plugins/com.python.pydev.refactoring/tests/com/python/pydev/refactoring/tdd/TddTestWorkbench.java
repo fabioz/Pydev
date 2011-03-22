@@ -63,6 +63,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateMethod2();
+        
         checkCreateFieldAtClass3();
         
         checkCreateFieldAtClass2();
@@ -137,6 +139,43 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "    \n"+
                     "    def m1(self):\n" +
                     "        self.bar()"+
+                    "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    protected void checkCreateMethod2() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        		"print i\n" + //just to have an error
+        		"class Foo(object):\n" +
+        		"\n" +
+        		"\n" +
+        		"    def m1(self):\n" +
+        		"        self.m2()" +
+        		"" +
+        		"";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length();
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create m2 method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "print i\n" + //just to have an error
+                    "class Foo(object):\n" +
+                    "\n" +
+                    "\n" +
+                    "    def m2(self):\n" +
+                    "        pass\n" +
+                    "    \n" +
+                    "    \n" +
+                    "    def m1(self):\n" +
+                    "        self.m2()" +
+                    "" +
                     "", editor.getDocument().get());
         } finally {
             editor.doRevertToSaved();
