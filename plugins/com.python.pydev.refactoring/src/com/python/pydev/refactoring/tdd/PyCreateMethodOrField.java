@@ -18,10 +18,10 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -33,16 +33,20 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
     public static final int CLASSMETHOD = 1;
     public static final int STATICMETHOD = 2;
     public static final int FIELD = 3;
+    public static final int CONSTANT = 4;
     
     private String createInClass;
     private int createAs;
 
 
     public String getCreationStr(){
-        if(createAs != FIELD){
-            return "method";
+        if(createAs == FIELD){
+            return "field";
         }
-        return "field";
+        if(createAs == CONSTANT){
+            return "constant";
+        }
+        return "method";
     }
 
     
@@ -71,38 +75,45 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
                     case BOUND_METHOD:
                         parametersAfterCall = checkFirst(parametersAfterCall, "self");
                         break;
+                        
                     case CLASSMETHOD:
                         parametersAfterCall = checkFirst(parametersAfterCall, "cls");
                         decorators = "@classmethod\n";
                         break;
+                        
                     case STATICMETHOD:
                         decorators = "@staticmethod\n";
                         break;
+                        
+                    case CONSTANT:
+                        int nodeBodyIndent = targetClass.getNodeBodyIndent();
+                        String indent = makeIndentStr(nodeBodyIndent);
+                        Pass replacePassStatement = getLastPassFromNode(targetClass.getASTNode());
+                        
+                        String constant = StringUtils.format("\n%s = ${None}${cursor}\n", actTok);
+                        Tuple<Integer, String> offsetAndIndent;
+                        offsetAndIndent = getLocationOffset(
+                                AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD, pySelection, moduleAdapter, targetClass);
+                            
+                        
+                        return createProposal(pySelection, constant, offsetAndIndent, false, replacePassStatement);
+                        
                     case FIELD:
                         
                         parametersAfterCall = checkFirst(parametersAfterCall, "self");
                         FunctionDefAdapter firstInit = targetClass.getFirstInit();
                         if(firstInit != null){
                             FunctionDef astNode = firstInit.getASTNode();
-                            
-                            Pass replacePassStatement = null;
-                            if(astNode.body.length > 0){
-                                 SimpleNode lastNode = astNode.body[astNode.body.length-1];
-                                 if(lastNode instanceof Pass){
-                                     //Remove the pass and add the statement!
-                                     replacePassStatement = (Pass) lastNode;
-                                 }
-                            }
+                            replacePassStatement = getLastPassFromNode(astNode);
                             
                             //Create the field as the last line in the __init__
                             int nodeLastLine = firstInit.getNodeLastLine()-1;
-                            Tuple<Integer, String> offsetAndIndent;
-                            int nodeBodyIndent = firstInit.getNodeBodyIndent();
-                            String indent = new FastStringBuffer(nodeBodyIndent).appendN(' ', nodeBodyIndent).toString();
+                            nodeBodyIndent = firstInit.getNodeBodyIndent();
+                            indent = makeIndentStr(nodeBodyIndent);
                             String pattern;
                             
                             if(replacePassStatement==null){
-                                pattern = StringUtils.format("\nself.%s = ${None}", actTok);
+                                pattern = StringUtils.format("\nself.%s = ${None}${cursor}", actTok);
                                 try {
                                     IRegion region = pySelection.getDoc().getLineInformation(nodeLastLine);
                                     int offset = region.getOffset()+region.getLength();
@@ -113,7 +124,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
                                 }
                                 
                             }else{
-                                pattern = StringUtils.format("self.%s = ${None}", actTok);
+                                pattern = StringUtils.format("self.%s = ${None}${cursor}", actTok);
                                 offsetAndIndent = new Tuple<Integer, String>(-1, ""); //offset will be from the pass stmt
                             }
                             return createProposal(
@@ -125,7 +136,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
 
                         }else{
                             //Create the __init__ with the field declaration!
-                            body = StringUtils.format("self.%s = ${None}", actTok);
+                            body = StringUtils.format("self.%s = ${None}${cursor}", actTok);
                             actTok = "__init__";
                             locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD;
                         }
@@ -156,15 +167,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
         Tuple<Integer, String> offsetAndIndent;
         Pass replacePassStatement = null;
         if(targetClass != null){
-            ClassDef astNode = targetClass.getASTNode();
-            if(astNode.body.length > 0){
-                 SimpleNode lastNode = astNode.body[astNode.body.length-1];
-                 if(lastNode instanceof Pass){
-                     //Remove the pass and add the statement!
-                     replacePassStatement = (Pass) lastNode;
-                 }
-            }
-
+            replacePassStatement = getLastPassFromNode(targetClass.getASTNode());
             offsetAndIndent = getLocationOffset(locationStrategy, pySelection, moduleAdapter, targetClass);
             
         }else{
@@ -172,6 +175,25 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField{
         }
         
         return createProposal(pySelection, source, offsetAndIndent, true, replacePassStatement);
+    }
+
+
+    private Pass getLastPassFromNode(SimpleNode astNode) {
+        stmtType[] body = NodeUtils.getBody(astNode);
+        Pass replacePassStatement = null;
+        if(body.length > 0){
+             SimpleNode lastNode = body[body.length-1];
+             if(lastNode instanceof Pass){
+                 //Remove the pass and add the statement!
+                 replacePassStatement = (Pass) lastNode;
+             }
+        }
+        return replacePassStatement;
+    }
+
+
+    private String makeIndentStr(int nodeBodyIndent) {
+        return new FastStringBuffer(nodeBodyIndent).appendN(' ', nodeBodyIndent).toString();
     }
 
 
