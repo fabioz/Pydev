@@ -161,6 +161,15 @@ public final class PySelection {
     public PySelection(IDocument doc) {
         this(doc, 0);
     }
+    
+    /**
+     * Creates a selection based on another selection.
+     */
+    public PySelection(PySelection base) {
+        this(base.doc, base.getAbsoluteCursorOffset());
+    }
+
+
     /**
      * In event of partial selection, used to select the full lines involved. 
      */

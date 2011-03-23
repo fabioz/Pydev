@@ -96,7 +96,12 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
         int start = markerAnnotation.position.offset;
         int end = start+markerAnnotation.position.length;
         ps.setSelection(start, end);
-        String markerContents = ps.getSelectedText();
+        String markerContents;
+        try {
+            markerContents = ps.getSelectedText();
+        } catch (Exception e1) {
+            return; //Selection may be wrong.
+        }
         
         IDocument doc = ps.getDoc();
         List<String> parametersAfterCall = ps.getParametersAfterCall(end);
