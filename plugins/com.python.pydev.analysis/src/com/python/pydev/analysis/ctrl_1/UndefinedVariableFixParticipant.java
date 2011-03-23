@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.core.FullRepIterable;
@@ -207,6 +208,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         
         mods.add(tuple);
         
+        String tooltip = importDeclaration+"\n\nNote: Hold Ctrl on apply to do local import.";
         props.add(new CtxInsensitiveImportComplProposal(
                 "",
                 offset,
@@ -215,12 +217,21 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                 importImage,
                 displayImport,
                 null,
-                "",
+                tooltip,
                 IPyCompletionProposal.PRIORITY_LOCALS,
                 importDeclaration
                 ){
+            
+            @Override
+            public void selected(ITextViewer viewer, boolean smartToggle) {
+                //Overridden to do nothing (i.e.: don't leave yellow when ctrl is pressed).
+            }
+            
             @Override
             public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
+                if((stateMask & SWT.CTRL) != 0){
+                    this.setAddLocalImport(true);
+                }
                 super.apply(viewer, trigger, stateMask, offset);
                 if(forceReparseOnApply){
                     //and after applying it, let's request a reanalysis
@@ -234,6 +245,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
                     }
                 }
             }
+
         });
     }
     
