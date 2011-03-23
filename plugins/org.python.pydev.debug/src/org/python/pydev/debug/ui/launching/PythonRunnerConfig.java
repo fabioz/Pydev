@@ -45,6 +45,7 @@ import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringSubstitution;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.net.LocalHost;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.RunInUiThread;
@@ -430,23 +431,54 @@ public class PythonRunnerConfig {
             envp = interpreterLocation.updateEnv(envp, envMap.keySet());
         }
         
+        String settingsModule = null;
+        Map<String, String> variableSubstitution = null;
+        final String djangoSettingsKey = "DJANGO_SETTINGS_MODULE";
+        String djangoSettingsEnvEntry = null;
+        try {
+            variableSubstitution = pythonNature.getPythonPathNature().getVariableSubstitution();
+            settingsModule = variableSubstitution.get(djangoSettingsKey);
+            if(settingsModule != null){
+                if(settingsModule.trim().length() > 0){
+                    djangoSettingsEnvEntry = djangoSettingsKey+"="+settingsModule.trim();
+                }
+            }
+        } catch (Exception e1) {
+            Log.log(e1);
+        }
+        if(djangoSettingsEnvEntry == null){
+            //Default if not specified.
+            djangoSettingsEnvEntry = djangoSettingsKey+"="+project.getName()+".settings";
+        }
+
+
         
         //Now, set the pythonpathUsed according to what's in the environment.
         String p = "";
-        for(String s:envp){
+        for(int i=0;i<envp.length;i++){
+            String s = envp[i];
             Tuple<String, String> tup = StringUtils.splitOnFirst(s, '=');
+            String var = tup.o1;
             if(win32){
-                if(tup.o1.toUpperCase().equals("PYTHONPATH")){
-                    p = tup.o2;
-                    break;
-                }
-            }else{
-                //case must not be changed
-                if(tup.o1.equals("PYTHONPATH")){
-                    p = tup.o2;
-                    break;
+                //On windows it doesn't matter, always consider uppercase.
+                var = var.toUpperCase();
+            }
+            
+            if(var.equals("PYTHONPATH")){
+                p = tup.o2;
+                
+            }else if(var.equals(djangoSettingsKey)){
+                //Update it.
+                if(djangoSettingsEnvEntry != null){
+                    envp[i] = djangoSettingsEnvEntry;
+                    djangoSettingsEnvEntry = null;
                 }
             }
+        }
+        
+        //Still not added, let's do that now.
+        if(djangoSettingsEnvEntry != null){
+            envp = StringUtils.addString(envp, djangoSettingsEnvEntry);
         }
         this.pythonpathUsed = p;
     }
