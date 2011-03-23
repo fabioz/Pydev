@@ -164,6 +164,10 @@ class AssignToAttribsOfSelf(Action):
             and not self.getNewLineDelim().endswith(sLastChar)):
             oDocument.replace(iDocLength, 0, self.getNewLineDelim())
             
+        line = oSelection.getLine(iInsertAfterLine+1)
+        if line.strip() == 'pass':
+            oSelection.deleteLine(iInsertAfterLine+1)
+            
         # Assemble assignment lines and insert them into the document:
         sAssignments = self._assignmentLines(lsParams, sIndent)
         oSelection.addLine(sAssignments, iInsertAfterLine)
