@@ -38,7 +38,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
      *
      * @author Fabio
      */
-    private static class CharArrayParsingUtils extends ParsingUtils{
+    private static final class CharArrayParsingUtils extends ParsingUtils{
         private char[] cs;
         public CharArrayParsingUtils(char[] cs, boolean throwSyntaxError) {
             super(throwSyntaxError);
@@ -58,7 +58,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
      *
      * @author Fabio
      */
-    private static class FastStringBufferParsingUtils extends ParsingUtils{
+    private static final class FastStringBufferParsingUtils extends ParsingUtils{
         private FastStringBuffer cs;
         public FastStringBufferParsingUtils(FastStringBuffer cs, boolean throwSyntaxError) {
             super(throwSyntaxError);
@@ -77,7 +77,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
      *
      * @author Fabio
      */
-    private static class StringBufferParsingUtils extends ParsingUtils{
+    private static final class StringBufferParsingUtils extends ParsingUtils{
         private StringBuffer cs;
         public StringBufferParsingUtils(StringBuffer cs, boolean throwSyntaxError) {
             super(throwSyntaxError);
@@ -96,7 +96,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
      *
      * @author Fabio
      */
-    private static class StringParsingUtils extends ParsingUtils{
+    private static final class StringParsingUtils extends ParsingUtils{
         private String cs;
         public StringParsingUtils(String cs, boolean throwSyntaxError) {
             super(throwSyntaxError);
@@ -115,7 +115,7 @@ public abstract class ParsingUtils implements IPythonPartitions{
      *
      * @author Fabio
      */
-    private static class IDocumentParsingUtils extends ParsingUtils{
+    private static final class IDocumentParsingUtils extends ParsingUtils{
         private IDocument cs;
         public IDocumentParsingUtils(IDocument cs, boolean throwSyntaxError) {
             super(throwSyntaxError);
@@ -241,6 +241,25 @@ public abstract class ParsingUtils implements IPythonPartitions{
 
     
     
+    public int eatLiteralsBackwards(FastStringBuffer buf, int i) throws SyntaxErrorException{
+        //ok, current pos is ' or "
+        //check if we're starting a single or multiline comment...
+        char curr = charAt(i);
+        
+        if(curr != '"' && curr != '\''){
+            throw new RuntimeException("Wrong location to eat literals. Expecting ' or \" Found:"+curr);
+        }
+        
+        int j = getLiteralStart(i, curr);
+        
+        if(buf != null){
+            for (int k = j; k <= i; k++) {
+                buf.append(charAt(k));
+            }
+        }
+        return j;
+    }
+    
     /**
      * @param cs the char array we are parsing
      * @param buf used to add the literal contents (out)
@@ -266,6 +285,25 @@ public abstract class ParsingUtils implements IPythonPartitions{
         }
         return j;
         
+    }
+    
+    /**
+     * @param cs object whith len and charAt
+     * @param i index we are analyzing it
+     * @param curr current char
+     * @return the end of the multiline literal
+     * @throws SyntaxErrorException 
+     */
+    public int getLiteralStart(int i, char curr) throws SyntaxErrorException {
+        boolean multi = isMultiLiteralBackwards(i, curr);
+        
+        int j;
+        if(multi){
+            j = findPreviousMulti(i-3, curr);
+        }else{
+            j = findPreviousSingle(i-1, curr);
+        }
+        return j;
     }
 
     /**
@@ -415,6 +453,35 @@ public abstract class ParsingUtils implements IPythonPartitions{
         }
         return i;
     }
+    
+    
+    /**
+     * discover the position of the closing quote
+     * @throws SyntaxErrorException 
+     */
+    public int findPreviousSingle(int i, char curr) throws SyntaxErrorException {
+        while(i >= 0){
+            char c = charAt(i);
+            
+            
+            if(c == curr){
+                if(i > 0){
+                    if(charAt(i-1) == '\\'){
+                        //escaped
+                        i--;
+                        continue;
+                    }
+                }
+                return i;
+            }
+            
+            i--;
+        }
+        if(throwSyntaxError){
+            throw new SyntaxErrorException();
+        }
+        return i;
+    }
 
     /**
      * check the end of the multiline quote
@@ -425,9 +492,6 @@ public abstract class ParsingUtils implements IPythonPartitions{
         while(i+2 < len){
             char c = charAt(i);
             if (c == curr && charAt(i+1) == curr && charAt(i+2) == curr){
-                if(len < i+2){
-                    return len;
-                }
                 return i+2;
             }
             i++;
@@ -444,6 +508,28 @@ public abstract class ParsingUtils implements IPythonPartitions{
             return len;
         }
         return i+2;
+    }
+    
+    
+    /**
+     * check the end of the multiline quote
+     * @throws SyntaxErrorException 
+     */
+    public int findPreviousMulti(int i, char curr) throws SyntaxErrorException {
+        while(i-2 >= 0){
+            char c = charAt(i);
+            if (c == curr && charAt(i-1) == curr && charAt(i-2) == curr){
+                return i-2;
+            }
+            i--;
+        }
+        
+        if(throwSyntaxError){
+            throw new SyntaxErrorException();
+        }
+        
+        //Got to the start.
+        return 0;
     }
     
 
@@ -467,6 +553,23 @@ public abstract class ParsingUtils implements IPythonPartitions{
     
     
     
+    
+    
+    /**
+     * @param cs may be a string, a string buffer or a char array
+     * @param i current position (should have a ' or ")
+     * @param curr the current char (' or ")
+     * @return whether we are at the end of a multi line literal or not.
+     */
+    public boolean isMultiLiteralBackwards(int i, char curr){
+        if(0 > i - 2){
+            return false;
+        }
+        if(charAt(i-1) == curr && charAt(i-2) == curr){
+            return true;
+        }
+        return false;
+    }
     
     
     /**

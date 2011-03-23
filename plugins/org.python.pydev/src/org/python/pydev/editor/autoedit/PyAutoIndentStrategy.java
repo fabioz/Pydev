@@ -157,18 +157,34 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
                         //ok, as we're out of a string scope at this point, this means we just closed a string, so,
                         //we should go back to indent based on starting scope.
                         
-                        String searchFor = endsWithTrippleSingle?"'''":"\"\"\"";
                         if(endsWithTrippleSingle){
-                            int cursorLine = selection.getCursorLine()-1;
-                            while(cursorLine > 0){
-                                if(selection.getLine().indexOf(searchFor) > 0){
-                                    return new Tuple<String, Boolean>(
-                                            indentBasedOnStartingScope(
-                                                    text,
-                                                    new PySelection(selection.getDoc(), cursorLine, 0), false), 
-                                                    isInsidePar);
-                                }
+                            int cursorLine = -1;
+                            try {
+                                ParsingUtils parsingUtils = ParsingUtils.create(selection.getDoc(), true);
+                                int cursorOffset = selection.getAbsoluteCursorOffset();
+                                char c;
+                                do{
+                                    cursorOffset--;
+                                    c = parsingUtils.charAt(cursorOffset);
+                                    
+                                }while(Character.isWhitespace(c));
+                                
+                                int startOffset = parsingUtils.eatLiteralsBackwards(null, cursorOffset);
+                                cursorLine = selection.getLineOfOffset(startOffset);
+                            } catch (Exception e) {
+                                //may throw error if not balanced or if the char we're at is not a ' or "
                             }
+                            
+                            if(cursorLine == -1){
+                                cursorLine = selection.getCursorLine();
+                            }
+                            
+                            return new Tuple<String, Boolean>(
+                                    indentBasedOnStartingScope(
+                                            text,
+                                            new PySelection(selection.getDoc(), cursorLine, 0), false), 
+                                            isInsidePar);
+
                         }
                     }
                 }

@@ -32,7 +32,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndentAfterStringEnd();
+            s.testIndentAfterStringEnd3();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -2252,6 +2252,34 @@ public class PyAutoIndentStrategyTest extends TestCase {
         "        a = '''\n" +
         "some line\n" +
         "end line'''";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n        ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentAfterStringEnd2() throws Exception {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "" +
+        "class Class:\n" +
+        "\n" +
+        "    def Method(self):\n" +
+        "        '''docstring'''" +
+        "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n        ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentAfterStringEnd3() throws Exception {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "" +
+        "class Class:\n" +
+        "\n" +
+        "    def Method(self):\n" +
+        "        '''docstring'''  " +
+        "";
         DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         String expected = "\n        ";
