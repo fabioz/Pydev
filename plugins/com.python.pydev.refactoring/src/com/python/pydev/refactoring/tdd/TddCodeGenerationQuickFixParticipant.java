@@ -35,6 +35,7 @@ import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
@@ -90,13 +91,38 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                     //Don't look in additional info.
                     request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
                     ItemPointer[] pointers = pyRefactoring.findDefinition(request);
-                    if(pointers.length == 1){
+                    if(possibleMatch.isCall && pointers.length >= 1){
                         //Ok, we found whatever was there, so, we don't need to create anything (except maybe do
                         //the __init__).
                         checkInitCreation(edit, callPs, pointers, ret);
                         
-                    }else if(pointers.length == 0){
-                        checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs, ret, lineContents, possibleMatch);
+                    }else{
+                        if(pointers.length == 0){
+                            checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs, ret, lineContents, possibleMatch);
+                            
+                        }else if(!possibleMatch.isCall){
+                            //Ok, if it's not a call and we found a field, it's still possible that we may want to create
+                            //a field if it wasn't found in the __init__
+                            boolean foundInInit = false;
+                            for(ItemPointer p:pointers){
+                                Definition definition = p.definition;
+                                try {
+                                    Object peek = definition.scope.getScopeStack().peek();
+                                    if(peek instanceof FunctionDef){
+                                        FunctionDef functionDef = (FunctionDef) peek;
+                                        String rep = NodeUtils.getRepresentationString(functionDef);
+                                        if(rep != null && rep.equals("__init__")){
+                                            foundInInit = true;
+                                            break;
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                }
+                            }
+                            if(!foundInInit){
+                                checkMethodCreationAtClass(edit, pyRefactoring, callWithoutParens, callPs, ret, lineContents, possibleMatch);
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     Log.log(e);

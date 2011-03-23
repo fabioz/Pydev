@@ -63,6 +63,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateFieldAtClass5();
+        
         checkCreateConstant();
         
         checkCreateFieldAtClass4();
@@ -118,7 +120,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     
     
-    protected void checkCreateBoundMethod() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateBoundMethod() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         		"class Foo(object):\n" +
         		"    def m1(self):\n" +
@@ -149,7 +151,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateMethod2() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateMethod2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         		"print i\n" + //just to have an error
         		"class Foo(object):\n" +
@@ -186,7 +188,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateMethod() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateMethod() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "Foo";
         setContentsAndWaitReparseAndError(mod1Contents);
         
@@ -208,7 +210,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
 
-    protected void checkCreateMethodAtOtherModule() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateMethodAtOtherModule() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -243,7 +245,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateMethodAtOtherModule2() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateMethodAtOtherModule2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -288,7 +290,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
     
-    protected void checkCreateMethodAtOtherModule4() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateMethodAtOtherModule4() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -324,7 +326,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
     
-    protected void checkCreateNewModule() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateNewModule() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -367,7 +369,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateNewModule2() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateNewModule2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -410,7 +412,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateNewModule3() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateNewModule3() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -514,7 +516,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateNewModuleWithClass2() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateNewModuleWithClass2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -557,7 +559,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateNewModuleWithClass3() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateNewModuleWithClass3() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -600,7 +602,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateNewModuleWithClass() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateNewModuleWithClass() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -651,7 +653,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
     
-    protected void checkCreateClass() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateClass() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "Foo";
         setContentsAndWaitReparseAndError(mod1Contents);
         
@@ -673,7 +675,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateMethodAtClass() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateMethodAtClass() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         		"print i\n" + //just to have error on reparse.
         		"class Foo(object):\n" +
@@ -709,7 +711,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateFieldAtClass() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateFieldAtClass() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         "print i\n" + //just to have error on reparse.
         "class Foo(object):\n" +
@@ -748,7 +750,40 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
     
-    protected void checkCreateFieldAtClass3() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateFieldAtClass5() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "print i\n" +
+        "class Foo(object):\n" +
+        "    'doc'\n" +
+        "    def bar(self):\n" +
+        "        self.a = 10";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length()-1;
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create a field at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            String expected = "" +
+            "print i\n" +
+            "class Foo(object):\n" +
+            "    'doc'\n" +
+            "\n"+
+            "    \n"+
+            "    def __init__(self):\n" +
+            "        self.a = None\n" +
+            "    \n"+
+            "    \n"+
+            "    def bar(self):\n" +
+            "        self.a = 10";
+            assertContentsEqual(expected, editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    private void checkCreateFieldAtClass3() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         "print i\n" +
         "class Foo(object):\n" +
@@ -783,7 +818,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateFieldAtClass4() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateFieldAtClass4() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         "print i\n" +
         "class Foo(object):\n" +
@@ -822,7 +857,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
     
-    protected void checkCreateConstant() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateConstant() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         "print i\n" +
         "class Foo(object):\n" +
@@ -854,7 +889,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
     
-    protected void checkCreateFieldAtClass2() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateFieldAtClass2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         "print i\n" +
         "class Foo(object):\n" +
@@ -889,7 +924,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
     
-    protected void checkCreateMethodAtClass2() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateMethodAtClass2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
         "print i\n" + //just to have error on reparse.
         "class Foo(object):\n" +
@@ -925,7 +960,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
-    protected void checkCreateClassWithParams() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateClassWithParams() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -953,7 +988,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
 
     
-    protected void checkCreateClassWithParams2() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateClassWithParams2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -982,11 +1017,11 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
     
-    protected void checkCreateClassInit() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateClassInit() throws CoreException, BadLocationException, MisconfigurationException {
         baseCheckCreateClassInit("o(a=10, b=20".length());
     }
     
-    protected void checkCreateClassInit2() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateClassInit2() throws CoreException, BadLocationException, MisconfigurationException {
         baseCheckCreateClassInit(0);
     }
 
@@ -1077,7 +1112,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     
 
     
-    protected void checkCreateClassAtOtherModule() throws CoreException, BadLocationException, MisconfigurationException {
+    private void checkCreateClassAtOtherModule() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
         TddCodeGenerationQuickFixParticipant quickFix;
         PySelection ps;
@@ -1112,7 +1147,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
 
-    protected ICompletionProposalExtension2 findCompletion(List<ICompletionProposal> props, String expectedCompletion) {
+    private ICompletionProposalExtension2 findCompletion(List<ICompletionProposal> props, String expectedCompletion) {
         FastStringBuffer buf = new FastStringBuffer("Available: ",300);
         for (ICompletionProposal iCompletionProposal : props) {
             if(iCompletionProposal.getDisplayString().equals(expectedCompletion)){
@@ -1126,11 +1161,11 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
 
-    protected void setContentsAndWaitReparseAndError(String mod1Contents) throws CoreException {
+    private void setContentsAndWaitReparseAndError(String mod1Contents) throws CoreException {
         setContentsAndWaitReparseAndError(mod1Contents, true);
     }
     
-    protected void setContentsAndWaitReparseAndError(String mod1Contents, boolean waitForError) throws CoreException {
+    private void setContentsAndWaitReparseAndError(String mod1Contents, boolean waitForError) throws CoreException {
         setFileContents(mod1Contents);
         
         parser = editor.getParser();
@@ -1149,7 +1184,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     }
     
 
-    protected void assertContentsEqual(String expected, String generated) {
+    private void assertContentsEqual(String expected, String generated) {
         assertEquals(StringUtils.replaceNewLines(expected, "\n"), StringUtils.replaceNewLines(generated, "\n"));
     }
 
