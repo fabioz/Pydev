@@ -31,7 +31,15 @@ public class PyFilteredTree extends FilteredTree{
     }
 
     public static PyFilteredTree create(Composite parent, PatternFilter filter){
-        return create(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, filter);
+        return create(parent, filter, false);
+    }
+    
+    public static PyFilteredTree create(Composite parent, PatternFilter filter, boolean border){
+        int treeStyle = SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL;
+        if(border){
+            treeStyle |= SWT.BORDER;
+        }
+        return create(parent, treeStyle, filter);
     }
     
     public static PyFilteredTree create(Composite parent, int treeStyle, PatternFilter filter){

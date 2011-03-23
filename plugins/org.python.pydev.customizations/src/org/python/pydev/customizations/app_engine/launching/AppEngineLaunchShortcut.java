@@ -7,13 +7,13 @@
 package org.python.pydev.customizations.app_engine.launching;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
+import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.plugin.PydevPlugin;
 
 public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
@@ -28,7 +28,7 @@ public class AppEngineLaunchShortcut extends AbstractLaunchShortcut {
      * The only thing different is that we have to override the creation of the default launch configuration.
      */
     @Override
-    public ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resources) {
+    public ILaunchConfiguration createDefaultLaunchConfiguration(FileOrResource[] resources) {
         
         try{
             ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(resources);

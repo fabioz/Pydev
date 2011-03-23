@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -40,6 +39,7 @@ import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.DialogMemento;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
+import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -192,7 +192,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             
             @Override
             public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(
-                    IResource[] resource) throws CoreException{
+                    FileOrResource[] resource) throws CoreException{
                 ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(resource);
                 if(arguments.length() > 0){
                     workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
@@ -201,7 +201,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             }
 
             @Override
-            protected List<ILaunchConfiguration> findExistingLaunchConfigurations(IResource[] file){
+            protected List<ILaunchConfiguration> findExistingLaunchConfigurations(FileOrResource[] file){
                 List<ILaunchConfiguration> ret = new ArrayList<ILaunchConfiguration>();
                 
                 List<ILaunchConfiguration> existing = super.findExistingLaunchConfigurations(file);

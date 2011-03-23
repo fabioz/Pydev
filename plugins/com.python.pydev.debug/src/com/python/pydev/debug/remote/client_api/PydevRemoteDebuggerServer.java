@@ -6,7 +6,7 @@
  */
 package com.python.pydev.debug.remote.client_api;
 
-import org.eclipse.core.resources.IResource;
+import org.python.pydev.debug.ui.launching.FileOrResource;
 
 import com.python.pydev.debug.remote.RemoteDebuggerServer;
 import com.python.pydev.debug.ui.launching.PydevdServerLaunchShortcut;
@@ -25,7 +25,7 @@ public class PydevRemoteDebuggerServer{
         RemoteDebuggerServer.getInstance(); //doing that, it will automatically start it
         
         PydevdServerLaunchShortcut s = new PydevdServerLaunchShortcut();
-        s.launch((IResource[])null, "run");
+        s.launch((FileOrResource[])null, "run");
     }
     
     /**

@@ -20,6 +20,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.REF;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -38,31 +39,36 @@ public abstract class LaunchConfigurationCreator {
      * @param makeRelative {@code true} to produce path relative to workspace location
      * @return default string for the location field
      */
-    public static String getDefaultLocation(IResource[] file, boolean makeRelative) {
+    public static String getDefaultLocation(FileOrResource[] file, boolean makeRelative) {
         StringBuffer buffer = new StringBuffer();
 
-        for (IResource r : file) {
+        for (FileOrResource r : file) {
             if (buffer.length() > 0) {
                 buffer.append('|');
             }
 
             String loc;
-
-            if (makeRelative) {
-                IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
-                loc = makeFileRelativeToWorkspace(file, varManager);
-            } else {
-                loc = r.getLocation().toOSString();
+            if(r.resource != null){
+    
+                if (makeRelative) {
+                    IStringVariableManager varManager = VariablesPlugin.getDefault().getStringVariableManager();
+                    loc = makeFileRelativeToWorkspace(r.resource, varManager);
+                }else {
+                    loc = r.resource.getLocation().toOSString();
+                } 
+            }else{
+                loc = REF.getFileAbsolutePath(r.file.getAbsolutePath());
             }
             buffer.append(loc);
         }
         return buffer.toString();
     }
 
-    public static ILaunchConfigurationWorkingCopy createDefaultLaunchConfiguration(IResource[] resource,
+    public static ILaunchConfigurationWorkingCopy createDefaultLaunchConfiguration(FileOrResource[] resource,
             String launchConfigurationType, String location, IInterpreterManager pythonInterpreterManager,
             String projName) throws CoreException {
-        return createDefaultLaunchConfiguration(resource, launchConfigurationType, location, pythonInterpreterManager,
+        return createDefaultLaunchConfiguration(
+                resource, launchConfigurationType, location, pythonInterpreterManager,
                 projName, null, "", true);
     }
 
@@ -72,7 +78,7 @@ public abstract class LaunchConfigurationCreator {
      * @param captureOutput determines if the output should be captured or not (if captured a console will be
      * shown to it by default)
      */
-    private static ILaunchConfigurationWorkingCopy createDefaultLaunchConfiguration(IResource[] resource,
+    private static ILaunchConfigurationWorkingCopy createDefaultLaunchConfiguration(FileOrResource[] resource,
             String launchConfigurationType, String location, IInterpreterManager pythonInterpreterManager,
             String projName, String vmargs, String programArguments, boolean captureOutput) throws CoreException {
 
@@ -94,22 +100,34 @@ public abstract class LaunchConfigurationCreator {
             StringBuffer buffer = new StringBuffer(projName);
             buffer.append(" ");
             StringBuffer resourceNames = new StringBuffer();
-            for (IResource r : resource) {
+            for (FileOrResource r : resource) {
                 if (resourceNames.length() > 0) {
                     resourceNames.append(" - ");
                 }
-                resourceNames.append(r.getName());
+                if(r.resource != null){
+                    resourceNames.append(r.resource.getName());
+                }else{
+                    resourceNames.append(r.file.getName());
+                }
             }
             buffer.append(resourceNames);
             name = buffer.toString().trim();
 
-            // Build the working directory to a path relative to the workspace_loc
-            baseDirectory = resource[0].getFullPath().removeLastSegments(1).makeRelative().toString();
-            baseDirectory = varManager.generateVariableExpression("workspace_loc", baseDirectory);
-
-            // Build the location to a path relative to the workspace_loc
-            moduleFile = makeFileRelativeToWorkspace(resource, varManager);
-            resourceType = resource[0].getType();
+            if(resource[0].resource != null){
+                // Build the working directory to a path relative to the workspace_loc
+                baseDirectory = resource[0].resource.getFullPath().removeLastSegments(1).makeRelative().toString();
+                baseDirectory = varManager.generateVariableExpression("workspace_loc", baseDirectory);
+    
+                // Build the location to a path relative to the workspace_loc
+                moduleFile = makeFileRelativeToWorkspace(resource, varManager);
+                resourceType = resource[0].resource.getType();
+            }else{
+                baseDirectory = REF.getFileAbsolutePath(resource[0].file.getParentFile());
+                
+                // Build the location to a path relative to the workspace_loc
+                moduleFile = REF.getFileAbsolutePath(resource[0].file);
+                resourceType = IResource.FILE;
+            }
         } else {
             captureOutput = true;
             name = location;
@@ -135,20 +153,31 @@ public abstract class LaunchConfigurationCreator {
         workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, captureOutput);
         workingCopy.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, captureOutput);
 
-        workingCopy.setMappedResources(resource);
+        if(resource[0].resource != null){
+            workingCopy.setMappedResources(FileOrResource.createIResourceArray(resource));
+        }
         return workingCopy;
     }
 
-    private static String makeFileRelativeToWorkspace(IResource[] resource, IStringVariableManager varManager) {
+    private static String makeFileRelativeToWorkspace(FileOrResource[] resource, IStringVariableManager varManager) {
         FastStringBuffer moduleFile = new FastStringBuffer(80 * resource.length);
-        for (IResource r : resource) {
-            String m = r.getFullPath().makeRelative().toString();
-            m = varManager.generateVariableExpression("workspace_loc", m);
+        for (FileOrResource r : resource) {
             if (moduleFile.length() > 0) {
                 moduleFile.append("|");
             }
-            moduleFile.append(m);
+
+            if(r.resource != null){
+                moduleFile.append(makeFileRelativeToWorkspace(r.resource, varManager));
+            }else{
+                moduleFile.append(REF.getFileAbsolutePath(r.file));
+            }
         }
         return moduleFile.toString();
+    }
+
+    private static String makeFileRelativeToWorkspace(IResource r, IStringVariableManager varManager) {
+        String m = r.getFullPath().makeRelative().toString();
+        m = varManager.generateVariableExpression("workspace_loc", m);
+        return m;
     }
 }
