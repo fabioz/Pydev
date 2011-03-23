@@ -34,7 +34,7 @@ public abstract class ContentOutlinePageWithFilter extends Page implements
 
     public void createControl(Composite parent) {
         patternFilter = new PatternFilter();
-        filter = PyFilteredTree.create(parent, patternFilter);
+        filter = PyFilteredTree.create(parent, patternFilter, false);
         treeViewer = filter.getViewer();
         treeViewer.addSelectionChangedListener(this);
     }

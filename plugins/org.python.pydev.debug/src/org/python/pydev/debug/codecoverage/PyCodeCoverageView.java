@@ -683,7 +683,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
         PatternFilter patternFilter = new PatternFilter();
 
-        FilteredTree filter = PyFilteredTree.create(parent, patternFilter);
+        FilteredTree filter = PyFilteredTree.create(parent, patternFilter, true);
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;
