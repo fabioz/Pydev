@@ -70,7 +70,7 @@ public class OccurrencesAnalyzer implements IAnalyzer {
             try{
                 messages.addAll(TabNanny.analyzeDoc(document, prefs, module.getName(), indentPrefs, monitor));
             }catch(Exception e){
-                PydevPlugin.log(e); //just to be safe... (shouldn't happen).
+                PydevPlugin.log(e); //just to be safe... (could happen if the document changes during the process).
             }
         }
         return messages.toArray(new IMessage[messages.size()]);

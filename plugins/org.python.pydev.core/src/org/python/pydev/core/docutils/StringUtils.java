@@ -1012,6 +1012,10 @@ public class StringUtils {
     }
 
     public static String indentTo(String source, String indent) {
+        return indentTo(source, indent, true);
+    }
+    
+    public static String indentTo(String source, String indent, boolean indentFirstLine) {
         if(indent == null || indent.length() == 0){
             return source;
         }
@@ -1020,7 +1024,9 @@ public class StringUtils {
         
         for(int i=0;i<splitInLines.size();i++){
             String line = splitInLines.get(i);
-            buf.append(indent);
+            if(indentFirstLine || i > 0){
+                buf.append(indent);
+            }
             buf.append(line);
         }
         return buf.toString();

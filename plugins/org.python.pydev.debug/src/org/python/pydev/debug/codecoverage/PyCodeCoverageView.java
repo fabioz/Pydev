@@ -10,7 +10,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListResourceBundle;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -28,9 +27,7 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -78,7 +75,6 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.texteditor.MarkerUtilities;
-import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -88,7 +84,6 @@ import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
-import org.python.pydev.editor.IPyEditListener;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editorinput.PyOpenEditor;
@@ -100,6 +95,7 @@ import org.python.pydev.tree.FileTreePyFilesProvider;
 import org.python.pydev.ui.IViewCreatedObserver;
 import org.python.pydev.utils.ProgressAction;
 import org.python.pydev.utils.ProgressOperation;
+import org.python.pydev.utils.PyFilteredTree;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view shows data obtained from the model. The sample creates a
@@ -687,13 +683,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
 
         PatternFilter patternFilter = new PatternFilter();
 
-        FilteredTree filter;
-        try {
-            filter = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, patternFilter, true);
-        } catch (Throwable e1) {
-            //yes, the constructor above is only available from 3.5 onwards.
-            filter = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, patternFilter);
-        }
+        FilteredTree filter = PyFilteredTree.create(parent, patternFilter, true);
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.grabExcessVerticalSpace = true;

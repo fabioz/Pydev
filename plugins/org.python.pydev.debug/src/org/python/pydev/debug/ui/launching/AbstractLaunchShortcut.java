@@ -10,6 +10,7 @@
  */
 package org.python.pydev.debug.ui.launching;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,10 +42,15 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.StatusInfo;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.dialogs.ProjectSelectionDialog;
 import org.python.pydev.ui.dialogs.PythonModulePickerDialog;
 
 /**
@@ -73,7 +79,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
 
                     IResource resource = (IFile) ((IAdaptable) object).getAdapter(IFile.class);
                     if (resource != null) {
-                        launch(resource, mode);
+                        launch(new FileOrResource(resource), mode);
                         return;
                     }
 
@@ -101,7 +107,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
                         }
                         
                         if(resource != null){
-                            launch(resource, mode);
+                            launch(new FileOrResource(resource), mode);
                         }
                         return;
                     }
@@ -129,7 +135,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
                     }
                 }
                 if (sel.size() > 0) {
-                    launch(sel.toArray(new IResource[sel.size()]), mode);
+                    launch(FileOrResource.createArray(sel.toArray(new IResource[sel.size()])), mode);
                 }
                 return;
             }
@@ -163,17 +169,18 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         IEditorInput input = editor.getEditorInput();
         IFile file = (IFile) input.getAdapter(IFile.class);
         if (file != null) {
-            launch(file, mode);
+            launch(new FileOrResource(file), mode);
             return;
         }
 
-//      TODO: Do we ever want to give the user a chance to launch a file that's not in the workspace?
-//        if(input instanceof IURIEditorInput){
-//			IURIEditorInput uriEditorInput = (IURIEditorInput) input;
-//			URI uri = uriEditorInput.getURI();
-//			File file2 = new File(uri);
-//        	
-//        }
+        if(editor instanceof PyEdit){
+            PyEdit pyEdit = (PyEdit) editor;
+            File editorFile = pyEdit.getEditorFile();
+            if(editorFile != null){
+                launch(new FileOrResource(editorFile), mode);
+                return;
+            }
+        }
         fileNotFound();
     }
 
@@ -184,6 +191,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
     public void fileNotFound() {
         String msg = "Unable to launch the file. " + 
                 "Possible reasons may include:\n" +
+                "    - the launch was cancelled;\n" + 
                 "    - the file (editor) being launched is not under a project in the workspace;\n" + 
                 "    - the file was deleted.";
         reportError(msg, null);
@@ -211,7 +219,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
      * COPIED/MODIFIED from AntLaunchShortcut
      * Returns a list of existing launch configuration for the given file.
      */
-    protected List<ILaunchConfiguration> findExistingLaunchConfigurations(IResource[] file) {
+    protected List<ILaunchConfiguration> findExistingLaunchConfigurations(FileOrResource[] file) {
         ILaunchManager manager = org.eclipse.debug.core.DebugPlugin.getDefault().getLaunchManager();
         ILaunchConfigurationType type = manager.getLaunchConfigurationType(getLaunchConfigurationType());
         List<ILaunchConfiguration> validConfigs = new ArrayList<ILaunchConfiguration>();
@@ -243,9 +251,12 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
      */
     protected abstract String getLaunchConfigurationType();
 
-    public ILaunchConfiguration createDefaultLaunchConfiguration(IResource[] resource) {
+    public ILaunchConfiguration createDefaultLaunchConfiguration(FileOrResource[] resource) {
         try {
             ILaunchConfigurationWorkingCopy createdConfiguration = createDefaultLaunchConfigurationWithoutSaving(resource);
+            if(createdConfiguration == null){
+                return null;
+            }
             return createdConfiguration.doSave();
         } catch (CoreException e) {
             reportError(null, e);
@@ -253,9 +264,43 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
         }
     }
 
-    public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(IResource[] resource)
+    public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(FileOrResource[] resource)
             throws CoreException{
-    	IProject project = resource[0].getProject();
+        IProject project;
+        if(resource[0].resource != null){
+            project = resource[0].resource.getProject();
+        }else{
+            final Object[] found = new Object[1]; 
+            RunInUiThread.sync(new Runnable() {
+                
+                public void run() {
+                    ProjectSelectionDialog dialog = new ProjectSelectionDialog(PyAction.getShell(), PythonNature.PYTHON_NATURE_ID);
+                    dialog.setMessage(
+                            "Choose the project that'll provide the interpreter and\n" +
+                            "PYTHONPATH to be used in the launch of the file.");
+                    if(dialog.open() == Window.OK){
+                        Object firstResult = dialog.getFirstResult();
+                        if(firstResult instanceof IProject){
+                            found[0] = firstResult;
+                        }else{
+                            found[0] = new CoreException(new StatusInfo(IStatus.ERROR, "Expected project to be selected."));
+                        }
+                    }
+                }
+            });
+            if(found[0] == null){
+                return null;
+            }
+            if(found[0] instanceof IProject){
+                project = (IProject) found[0];
+            }else{
+                if(found[0] instanceof CoreException){
+                    throw (CoreException)found[0];
+                }else{
+                    throw new CoreException(new StatusInfo(IStatus.ERROR, "Expected project, found: "+found[0]));
+                }
+            }
+        }
         IInterpreterManager pythonInterpreterManager = getInterpreterManager(project);
 		String projName = project.getName();
         ILaunchConfigurationWorkingCopy createdConfiguration = LaunchConfigurationCreator
@@ -297,8 +342,8 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
             return null;
     }
 
-    protected void launch(IResource file, String mode) {
-        launch(new IResource[] { file }, mode);
+    protected void launch(FileOrResource file, String mode) {
+        launch(new FileOrResource[] { file }, mode);
     }
 
     /**
@@ -308,7 +353,7 @@ public abstract class AbstractLaunchShortcut implements ILaunchShortcut {
      * @param resources the resources to launch
      * @param mode the mode in which the file should be executed
      */
-    protected void launch(IResource[] resources, String mode) {
+    protected void launch(FileOrResource[] resources, String mode) {
         ILaunchConfiguration conf = null;
         List<ILaunchConfiguration> configurations = findExistingLaunchConfigurations(resources);
         if (configurations.isEmpty())

@@ -150,9 +150,9 @@ public class PyEditBreakpointSync implements IBreakpointListener, IPyEditListene
 
     
 	public void onEditorCreated(final PyEdit edit) {
-		edit.onGetAdapter.registerListener(new ICallbackListener() {
+		edit.onGetAdapter.registerListener(new ICallbackListener<Class<?>>() {
 			
-			public Object call(Object obj) {
+			public Object call(Class<?> obj) {
 		    	if(IToggleBreakpointsTarget.class == obj){
 		    		Map<String, Object> cache = edit.getCache();
 		    		String key = "PyEditBreakpointSync.ToggleBreakpointsTarget";

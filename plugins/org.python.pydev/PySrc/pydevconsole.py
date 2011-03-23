@@ -325,8 +325,8 @@ def StartServer(host, port, client_port):
     else:
         #This is still not finished -- that's why the if True is there :)
         from pydev_imports import Queue
-        queue_requests_received = Queue.Queue()
-        queue_return_computed = Queue.Queue()
+        queue_requests_received = Queue.Queue() #@UndefinedVariable
+        queue_return_computed = Queue.Queue() #@UndefinedVariable
         
         def addExec(line):
             queue_requests_received.put(('addExec', line))
@@ -376,7 +376,7 @@ def StartServer(host, port, client_port):
                                 queue_return_computed.put(attr(param))
                             else:
                                 queue_return_computed.put(attr())
-                        except Queue.Empty:
+                        except Queue.Empty: #@UndefinedVariable
                             pass
                         
                         PyQt4.QtGui.qApp.processEvents()

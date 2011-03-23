@@ -23,7 +23,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         try {
             PyCreateMethodTest test = new PyCreateMethodTest();
             test.setUp();
-            test.testPyCreateMethodGlobal();
+            test.testPyCreateMethod();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyCreateMethodTest.class);
@@ -164,7 +164,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "" +
                 "class A(object):\n" +
                 "    '''comment'''\n" +
-                "    \n" +
+                "\n" +
                 "    \n" +
                 "    @classmethod\n" +
                 "    def MyMethod(cls, ${a}, ${b}):\n" +
@@ -200,13 +200,52 @@ public class PyCreateMethodTest extends TestCaseUtils {
         
         String expected = "" +
         "class A(object):\n" +
-        "    \n" +
+        "\n" +
         "    \n" +
         "    def m2(self):\n" +
         "        ${pass}${cursor}\n" +
         "    \n" +
         "    \n" +
         "    @decorator\n" +
+        "    def m1(self):\n" +
+        "        self.m2()";
+        
+        assertContentsEqual(expected, document.get());
+    }
+    
+    
+    public void testPyCreateMethod() {
+        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
+        
+        String source = "" +
+        "class A(object):\n" +
+        "\n" +
+        "\n" +
+        "\n" +
+        "    def m1(self):\n" +
+        "        self.m2()";
+        IDocument document = new Document(source);
+        ITextSelection selection = new TextSelection(document, document.getLength()-"2()".length(), 0);
+        RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
+            
+            public int getGrammarVersion() throws MisconfigurationException {
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+        });
+        
+        pyCreateMethod.setCreateInClass("A");
+        pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
+        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        
+        String expected = "" +
+        "class A(object):\n" +
+        "\n" +
+        "\n" +
+        "\n" +
+        "    def m2(self):\n" +
+        "        ${pass}${cursor}\n" +
+        "    \n" +
+        "    \n" +
         "    def m1(self):\n" +
         "        self.m2()";
         

@@ -22,7 +22,7 @@ public class ParsingUtilsTest extends TestCase {
         try {
             ParsingUtilsTest test = new ParsingUtilsTest();
             test.setUp();
-            test.testGetFlattenedLine();
+            test.testEatLiteralBackwards();
             test.tearDown();
             junit.textui.TestRunner.run(ParsingUtilsTest.class);
         } catch (Throwable e) {
@@ -512,5 +512,46 @@ public class ParsingUtilsTest extends TestCase {
             "";
         assertEquals(expected, ParsingUtils.makePythonParseable(code, "\n", new FastStringBuffer("    pass", 16)));
     }
+
     
+    public void testEatLiteralBackwards() throws Exception {
+        String str = "" +
+        "'''\n" +
+        "pass\n" +
+        "'''" +
+        "w" +
+        "";
+        ParsingUtils parsingUtils = ParsingUtils.create(str, true);
+        FastStringBuffer buf = new FastStringBuffer();
+        int i = parsingUtils.eatLiteralsBackwards(buf.clear(), 11);
+        assertEquals(0, i);
+        assertEquals('\'', parsingUtils.charAt(i));
+        assertEquals("'''\npass\n'''", buf.toString());
+        
+        str = "" +
+        "'ue'" +
+        "";
+        parsingUtils = ParsingUtils.create(str, true);
+        assertEquals(0, parsingUtils.eatLiteralsBackwards(buf.clear(), 3));
+        assertEquals("'ue'", buf.toString());
+        
+        str = "" +
+        "ue'" +
+        "";
+        parsingUtils = ParsingUtils.create(str, true);
+        try {
+            parsingUtils.eatLiteralsBackwards(buf.clear(), 2);
+            fail("Expecting syntax error");
+        } catch (SyntaxErrorException e) {
+            //expected
+            assertEquals("", buf.toString());
+        }
+        
+        str = "" +
+        " '  \\'  \\'ue'" +
+        "";
+        parsingUtils = ParsingUtils.create(str, true);
+        parsingUtils.eatLiteralsBackwards(buf.clear(), str.length()-1);
+        assertEquals("'  \\'  \\'ue'", buf.toString());
+    }
 }

@@ -23,10 +23,12 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.ImportHandle;
+import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.ImportNotRecognizedException;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
@@ -69,6 +71,11 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
      */
     private boolean appliedWithTrigger = false;
 
+    /**
+     * If the import should be added locally or globally.
+     */
+    private boolean addLocalImport = false;
+
 
     public CtxInsensitiveImportComplProposal(String replacementString, int replacementOffset, int replacementLength, 
             int cursorPosition, Image image, String displayString, IContextInformation contextInformation, 
@@ -78,6 +85,10 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
         this.realImportRep = realImportRep;
+    }
+    
+    public void setAddLocalImport(boolean b) {
+        this.addLocalImport = b;
     }
     
     /**
@@ -128,7 +139,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
             
             boolean groupImports = ImportsPreferencesPage.getGroupImports();
             
-            if (realImportRep.length() > 0){
+            if (realImportRep.length() > 0 && !this.addLocalImport){
                 
                 //Workaround for: https://sourceforge.net/tracker/?func=detail&aid=2697165&group_id=85796&atid=577329
                 //when importing from __future__ import with_statement, we actually want to add a 'with' token, not 
@@ -187,12 +198,27 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                     appendForTrigger = ".";
                 }
             }
+            
+            
             //if the trigger is ')', just let it apply regularly -- so, ')' will only be added if it's already in the completion.
             
             //first do the completion
             if(fReplacementString.length() > 0){
                 int dif = offset - fReplacementOffset;
                 document.replace(offset-dif, dif+this.fLen, fReplacementString+appendForTrigger);
+            }
+            if(this.addLocalImport){
+                try {
+                    PySelection ps = new PySelection(document, offset);
+                    int i = PySelection.getFirstCharPosition(ps.getLine());
+                    String indent = new FastStringBuffer(i).appendN(' ', i).toString();
+                    String strToAdd = indent+realImportRep+delimiter;
+                    ps.addLine(strToAdd, ps.getCursorLine()-1);
+                    importLen = strToAdd.length();
+                    return;
+                } catch (Exception e) {
+                    Log.log(e); //Something went wrong, add it as global (i.e.: BUG)
+                }
             }
             
 

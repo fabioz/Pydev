@@ -127,12 +127,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                 if (scopeStart != null) {
                     PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
                     List<String> parametersAfterCall = null;
-                    if(possibleMatch.isCall){
-                        pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
-                        parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
-                    }else{
-                        pyCreateMethod.setCreateAs(PyCreateMethodOrField.FIELD);
-                    }
+                    parametersAfterCall = configCreateAsAndReturnParaetersAfterCall(callPs, possibleMatch, pyCreateMethod,
+                            parametersAfterCall, methodToCreate);
                     String startingScopeLineContents = callPs.getLine(scopeStart.iLineStartingScope);
                     classNameInLine = PySelection.getClassNameInLine(startingScopeLineContents);
                     if (classNameInLine != null && classNameInLine.length() > 0) {
@@ -182,12 +178,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                         //Give the user a chance to create the method we didn't find.
                         PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
                         List<String> parametersAfterCall = null;
-                        if(possibleMatch.isCall){
-                            pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
-                            parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
-                        }else{
-                            pyCreateMethod.setCreateAs(PyCreateMethodOrField.FIELD);
-                        }
+                        parametersAfterCall = configCreateAsAndReturnParaetersAfterCall(callPs, possibleMatch, pyCreateMethod,
+                                parametersAfterCall, methodToCreate);
                         String className = NodeUtils.getRepresentationString(d);
                         pyCreateMethod.setCreateInClass(className);
                         
@@ -214,6 +206,23 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             }
         }
         return false;
+    }
+
+
+    private List<String> configCreateAsAndReturnParaetersAfterCall(PySelection callPs, TddPossibleMatches possibleMatch,
+            PyCreateMethodOrField pyCreateMethod, List<String> parametersAfterCall, String methodToCreate) {
+        if(possibleMatch.isCall){
+            pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
+            parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
+        }else{
+            if(StringUtils.isAllUpper(methodToCreate)){
+                pyCreateMethod.setCreateAs(PyCreateMethodOrField.CONSTANT);
+                
+            }else{
+                pyCreateMethod.setCreateAs(PyCreateMethodOrField.FIELD);
+            }
+        }
+        return parametersAfterCall;
     }
     
     private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props, String markerContents,

@@ -146,20 +146,6 @@
       ]]]-->
 
       <key
-            commandId="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
-            sequence="Alt+Shift+S C"
-            contextId="org.python.pydev.ui.editor.scope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
-
-
-      <key
-            commandId="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
-            sequence="Alt+Shift+S M"
-            contextId="org.python.pydev.ui.editor.scope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
-
-
-      <key
             commandId="org.python.pydev.refactoring.ui.actions.ExtractMethodActionCommand"
             sequence="M2+M3+M"
             contextId="org.python.pydev.ui.editor.scope"
@@ -238,20 +224,6 @@
       for action in plugin_install.ACTIONS_AND_BINDING:
           cog.outl(template % (action.desc, action.id, action.desc))
       ]]]-->
-
-      <command
-            categoryId="org.python.pydev.refactoring.pepticCategory"
-            description="%peptic.CreateClassDescription"
-            id="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
-            name="%peptic.CreateClassLabel"/>
-
-
-      <command
-            categoryId="org.python.pydev.refactoring.pepticCategory"
-            description="%peptic.CreateMethodDescription"
-            id="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
-            name="%peptic.CreateMethodLabel"/>
-
 
       <command
             categoryId="org.python.pydev.refactoring.pepticCategory"
@@ -360,24 +332,6 @@
          ]]]-->
 
          <action
-               class="com.python.pydev.refactoring.tdd.PyCreateClass"
-               definitionId="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
-               id="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
-               label="%peptic.CreateClassLabel"
-               menubarPath="org.python.pydev.refactoring.refactoringMenu/tddGroup"
-               style="push"/>
-
-
-         <action
-               class="com.python.pydev.refactoring.tdd.PyCreateMethodOrField"
-               definitionId="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
-               id="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
-               label="%peptic.CreateMethodLabel"
-               menubarPath="org.python.pydev.refactoring.refactoringMenu/tddGroup"
-               style="push"/>
-
-
-         <action
                class="org.python.pydev.refactoring.ui.actions.ExtractMethodAction"
                definitionId="org.python.pydev.refactoring.ui.actions.ExtractMethodActionCommand"
                id="org.python.pydev.refactoring.ui.actions.ExtractMethodActionCommand"
@@ -483,24 +437,6 @@
          for action in plugin_install.ACTIONS_AND_BINDING:
              cog.outl(template % (action.class_, action.id, action.id, action.desc, action.group))
          ]]]-->
-
-         <action
-               class="com.python.pydev.refactoring.tdd.PyCreateClass"
-               definitionId="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
-               id="com.python.pydev.refactoring.tdd.PyCreateClassCommand"
-               label="%peptic.CreateClassLabel"
-               menubarPath="org.python.pydev.editor.refactoring/tddGroup">
-         </action>
-
-
-         <action
-               class="com.python.pydev.refactoring.tdd.PyCreateMethodOrField"
-               definitionId="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
-               id="com.python.pydev.refactoring.tdd.PyCreateMethodCommand"
-               label="%peptic.CreateMethodLabel"
-               menubarPath="org.python.pydev.editor.refactoring/tddGroup">
-         </action>
-
 
          <action
                class="org.python.pydev.refactoring.ui.actions.ExtractMethodAction"

@@ -28,7 +28,7 @@ def StartCoverageSupport(configuration):
     coverage_instance = Null()
     if configuration.coverage_output_dir or configuration.coverage_output_file:
         try:
-            import coverage
+            import coverage #@UnresolvedImport
         except:
             sys.stderr.write('Error: coverage module could not be imported\n')
             sys.stderr.write('Please make sure that the coverage module (http://nedbatchelder.com/code/coverage/)\n')

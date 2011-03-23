@@ -63,6 +63,12 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
         
+        checkCreateConstant();
+        
+        checkCreateFieldAtClass4();
+        
+        checkCreateMethod2();
+        
         checkCreateFieldAtClass3();
         
         checkCreateFieldAtClass2();
@@ -143,6 +149,43 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
+    protected void checkCreateMethod2() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        		"print i\n" + //just to have an error
+        		"class Foo(object):\n" +
+        		"\n" +
+        		"\n" +
+        		"    def m1(self):\n" +
+        		"        self.m2()" +
+        		"" +
+        		"";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length();
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create m2 method at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            assertContentsEqual("" +
+                    "print i\n" + //just to have an error
+                    "class Foo(object):\n" +
+                    "\n" +
+                    "\n" +
+                    "    def m2(self):\n" +
+                    "        pass\n" +
+                    "    \n" +
+                    "    \n" +
+                    "    def m1(self):\n" +
+                    "        self.m2()" +
+                    "" +
+                    "", editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
     protected void checkCreateMethod() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "Foo";
         setContentsAndWaitReparseAndError(mod1Contents);
@@ -208,7 +251,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         IFile mod2 = initFile.getParent().getFile(new Path("other_module3.py"));
         String str ="" +
         "class Bar(object):\n" +
-        "    '''Docstring'''\n" +
+        "    pass\n" +
         "";
         mod2.create(new ByteArrayInputStream(str.getBytes()), true, null);
         PyEdit editor2 = (PyEdit) PyOpenEditor.doOpenEditor(mod2);
@@ -228,14 +271,14 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo classmethod at Bar in other_module3.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Bar(object):\n" +
-                    "    '''Docstring'''\n" +
-                    "\n" +
+                    "    \n" +
                     "    \n" +
                     "    @classmethod\n" +
                     "    def Foo(cls, param1, param2):\n" +
                     "        pass\n" +
                     "    \n" +
                     "    \n" +
+                    "\n" +
                     "", editor2.getDocument().get());
             
         } finally {
@@ -269,7 +312,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class at other_module4.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    '''Docstring'''\n" +
+                    "    pass\n" +
                     "\n" +
                     "\n" +
                     "", editor2.getDocument().get());
@@ -422,7 +465,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             String contents = editCreated.getDocument().get();
             assertContentsEqual("" +
             		"class NewClass(object):\n" +
-            		"    '''Docstring'''\n" +
+            		"    pass\n" +
             		"\n" +
             		"\n" +
             		"", contents);
@@ -448,13 +491,13 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             contents = editCreated.getDocument().get();
             assertContentsEqual("" +
                     "class NewClass(object):\n" +
-                    "    '''Docstring'''\n" +
-                    "\n" +
+                    "    \n" +
                     "    \n" +
                     "    def __init__(self, param):\n" +
                     "        pass\n" +
                     "    \n" +
                     "    \n" +
+                    "\n" +
                     "\n" +
                     "\n" +
                     "", contents);
@@ -593,7 +636,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    '''Docstring'''\n" +
+                    "    pass\n" +
                     "\n" +
                     "\n" +
                     "", pyEditCreated.get(0).getDocument().get());
@@ -620,7 +663,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    '''Docstring'''\n" +
+                    "    pass\n" +
                     "\n" +
                     "\n" +
                     "Foo" +
@@ -740,6 +783,76 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
     
+    protected void checkCreateFieldAtClass4() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "print i\n" +
+        "class Foo(object):\n" +
+        "    def bar(self):\n" +
+        "        self.new_field\n" +
+        "    def __init__(self):\n" +
+        "        self.a = 10" +
+        "";
+        
+        String secondPart = "ld\n" +
+        "    def __init__(self):\n" +
+        "        self.a = 10" +
+        "";
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length()-secondPart.length();
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create new_field field at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            String expected = "" +
+            "print i\n" +
+            "class Foo(object):\n" +
+            "    def bar(self):\n" +
+            "        self.new_field\n" +
+            "    def __init__(self):\n" +
+            "        self.a = 10\n" +
+            "        self.new_field = None" +
+            "";
+            assertContentsEqual(expected, editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
+    
+    protected void checkCreateConstant() throws CoreException, BadLocationException, MisconfigurationException {
+        String mod1Contents = "" +
+        "print i\n" +
+        "class Foo(object):\n" +
+        "    def bar(self):\n" +
+        "        self.BAR" +
+        "";
+        
+        setContentsAndWaitReparseAndError(mod1Contents);
+        
+        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        int offset = mod1Contents.length();
+        PySelection ps = new PySelection(editor.getDocument(), offset);
+        assertTrue(quickFix.isValid(ps, "", editor, offset));
+        List<ICompletionProposal> props = quickFix.getProps(ps, PydevPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(), editor, offset);
+        try {
+            findCompletion(props, "Create BAR constant at Foo").apply(editor.getISourceViewer(), '\n', 0, offset);
+            String expected = "" +
+            "print i\n" +
+            "class Foo(object):\n" +
+            "\n" +
+            "    BAR = None\n" +
+            "    def bar(self):\n" +
+            "        self.BAR" +
+            "";
+            assertContentsEqual(expected, editor.getDocument().get());
+        } finally {
+            editor.doRevertToSaved();
+        }
+    }
+    
     
     protected void checkCreateFieldAtClass2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents = "" +
@@ -827,7 +940,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class").apply(editor.getISourceViewer(), '\n', 0, 0);
             assertContentsEqual(
                     "" + "class Foo(object):\n" + 
-                    "    '''Docstring'''\n" +
                     "    \n" + 
                     "    def __init__(self, call_1, param1, param2, cc):\n"+ 
                     "        pass\n" + 
@@ -857,7 +969,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             assertContentsEqual(
                     "" + 
                     "class Foo(object):\n" + 
-                    "    '''Docstring'''\n" +
                     "    \n" + 
                     "    def __init__(self, a, b):\n"+ 
                     "        pass\n" + 
@@ -990,7 +1101,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
             findCompletion(props, "Create Foo class at other_module.py").apply(editor.getISourceViewer(), '\n', 0, offset);
             assertContentsEqual("" +
                     "class Foo(object):\n" +
-                    "    '''Docstring'''\n" +
+                    "    pass\n" +
                     "\n" +
                     "\n" +
                     "", editor2.getDocument().get());

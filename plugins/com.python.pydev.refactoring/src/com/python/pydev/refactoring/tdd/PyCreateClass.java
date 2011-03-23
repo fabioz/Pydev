@@ -13,7 +13,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.structure.FastStringBuffer;
-import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 
@@ -24,14 +23,13 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField{
 
     private final static String baseClassStr = "" +
             "class %s(${object}):\n" +
-            "    %s${Docstring}%s${cursor}\n" +
+            "    ${pass}${cursor}\n" +
             "\n" +
             "\n" +
             "";
     
     private final static String baseClassWithInitStr = "" +
             "class %s(${object}):\n" +
-            "    %s${Docstring}%s\n" +
             "    \n" +
             "    def __init__(self, %s):\n" +
             "        ${pass}${cursor}\n" +
@@ -52,13 +50,12 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField{
         PySelection pySelection = refactoringInfo.getPySelection();
         ModuleAdapter moduleAdapter = refactoringInfo.getModuleAdapter();
 
-        String docstringMarker = DocstringsPrefPage.getDocstringMarker();
         String source;
         if(parametersAfterCall == null || parametersAfterCall.size()== 0){
-            source = StringUtils.format(baseClassStr, actTok, docstringMarker, docstringMarker);
+            source = StringUtils.format(baseClassStr, actTok);
         }else{
             FastStringBuffer params = createParametersList(parametersAfterCall);
-            source = StringUtils.format(baseClassWithInitStr, actTok, docstringMarker, docstringMarker, params);
+            source = StringUtils.format(baseClassWithInitStr, actTok, params);
             
         }
         

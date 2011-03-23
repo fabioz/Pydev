@@ -2,7 +2,7 @@ import unittest
 try:
     import Queue
 except:
-    import queue as Queue
+    import queue as Queue #@UnresolvedImport
 from pydevd_constants import * #@UnusedWildImport
 import pydev_runfiles_xml_rpc
 import time

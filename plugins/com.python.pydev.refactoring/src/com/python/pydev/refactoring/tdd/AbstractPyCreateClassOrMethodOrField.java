@@ -116,6 +116,8 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             PySelection pySelection, String source, Tuple<Integer, String> offsetAndIndent, boolean requireEmptyLines, Pass replacePassStatement) {
         int offset;
         int len;
+        String indent=offsetAndIndent.o2;
+        
         if(replacePassStatement == null){
             len = 0;
             offset = offsetAndIndent.o1;
@@ -142,15 +144,33 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
                         }
                     }
                 }
+                
+                //If we have a '\n', all is OK (all contents after a \n will be indented)
+                if(!source.startsWith("\n")){
+                    try {
+                        //Ok, it doesn't start with a \n, that means we have to check the line indentation where it'll
+                        //be added and make sure things are correct (eventually adding a new line or just fixing the indent).
+                        String lineContentsToCursor = pySelection.getLineContentsToCursor(offset);
+                        if(lineContentsToCursor.length() > 0){
+                            source = "\n"+source;
+                        }else{
+                            source = indent+source;
+                        }
+                    } catch (BadLocationException e) {
+                        source = "\n"+source;
+                    }
+                }
             }
         }else{
             offset = pySelection.getAbsoluteCursorOffset(replacePassStatement.beginLine-1, replacePassStatement.beginColumn-1);
             len = 4; //pass.len
+            
+            if(requireEmptyLines){
+                source = "\n\n"+source;
+            }
         }
         
         
-        
-        String indent=offsetAndIndent.o2;
         if(targetEditor != null){
             String creationStr = getCreationStr();
             Region region = new Region(offset, len);
@@ -163,7 +183,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             
         }else{
             //This should only happen in tests.
-            source = StringUtils.indentTo(source, indent);
+            source = StringUtils.indentTo(source, indent, false);
             return new CompletionProposal(source, offset, len, 0);
         }
     }
