@@ -13,6 +13,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.PyEdit;
@@ -28,7 +29,6 @@ import com.python.pydev.analysis.builder.AnalysisRunner;
 public abstract class AbstractAnalysisMarkersParticipants implements IAssistProps{
     
     protected ArrayList<IAnalysisMarkersParticipant> participants;
-    protected List<MarkerAnnotationAndPosition> markersAtLine;
 
     public AbstractAnalysisMarkersParticipants() {
         participants = new ArrayList<IAnalysisMarkersParticipant>();
@@ -43,12 +43,17 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
         PySourceViewer s = edit.getPySourceViewer();
         
         int line = ps.getLineOfOffset(offset);
-        List<MarkerAnnotationAndPosition> markersAtLine = s.getMarkersAtLine(line, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER);
+        OrderedSet<MarkerAnnotationAndPosition> markersAtLine = new OrderedSet<MarkerAnnotationAndPosition>();
         
-        if(markersAtLine.size() > 0){
-            //store it for later use
-            this.markersAtLine = markersAtLine;
-        }
+        //Add it to a set to make sure that the entries are unique.
+        //-- i.e.: the code analysis seems to be creating 2 markers in the following case (when sys is undefined):
+        //sys.call1().call2()
+        //So, we add it to a set to make sure we'll only analyze unique markers.
+        //Note that it'll check equality by the marker type and text (not by position), so, if a given error
+        //appears twice in the same line being correct, we'll only show the options once here (which is what
+        //we want).
+        List<MarkerAnnotationAndPosition> markersAtLine2 = s.getMarkersAtLine(line, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER);
+        markersAtLine.addAll(markersAtLine2);
 
         
         ArrayList<ICompletionProposal> props = new ArrayList<ICompletionProposal>();
