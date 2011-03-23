@@ -6,6 +6,9 @@
  */
 package org.python.pydev.red_core;
 
+import org.eclipse.swt.custom.StyleRange;
+import org.python.pydev.core.callbacks.ICallbackListener;
+import org.python.pydev.debug.codecoverage.CoverageCache;
 import org.python.pydev.debug.codecoverage.PyCodeCoverageView;
 import org.python.pydev.debug.pyunit.PyUnitView;
 import org.python.pydev.navigator.ui.PydevPackageExplorer;
@@ -14,6 +17,7 @@ import org.python.pydev.ui.IViewCreatedObserver;
 
 public class AddRedCoreThemeToView implements IViewCreatedObserver{
 
+    private static boolean registeredForStyleOnCoverage = false;
 
 	@SuppressWarnings("unchecked")
     public void notifyViewCreated(Object view) {
@@ -35,6 +39,19 @@ public class AddRedCoreThemeToView implements IViewCreatedObserver{
     		    PyCodeCoverageView castView = (PyCodeCoverageView) view;
     		    castView.onControlCreated.registerListener(onViewCreatedListener.onTreeViewCreated);
     		    castView.onDispose.registerListener(onViewCreatedListener.onDispose);
+    		    
+    		    if(!registeredForStyleOnCoverage){
+    		        //Only register once as it's static.
+    		        registeredForStyleOnCoverage = true;
+    		        final AddRedCorePreferences preferences = new AddRedCorePreferences();
+    		        CoverageCache.onStyleCreated.registerListener(new ICallbackListener<StyleRange>() {
+                        
+                        public Object call(StyleRange obj) {
+                            obj.foreground = preferences.getHyperlinkTextAttribute().getForeground();
+                            return null;
+                        }
+                    });
+    		    }
     			
     		}else if(view instanceof PyOutlinePage){
     		    AddRedCoreThemeToViewCallbacks onViewCreatedListener = new AddRedCoreThemeToViewCallbacks();
