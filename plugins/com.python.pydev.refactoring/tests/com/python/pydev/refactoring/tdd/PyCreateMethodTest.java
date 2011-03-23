@@ -164,7 +164,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "" +
                 "class A(object):\n" +
                 "    '''comment'''\n" +
-                "    \n" +
+                "\n" +
                 "    \n" +
                 "    @classmethod\n" +
                 "    def MyMethod(cls, ${a}, ${b}):\n" +
@@ -200,7 +200,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         
         String expected = "" +
         "class A(object):\n" +
-        "    \n" +
+        "\n" +
         "    \n" +
         "    def m2(self):\n" +
         "        ${pass}${cursor}\n" +

@@ -183,7 +183,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             
         }else{
             //This should only happen in tests.
-            source = StringUtils.indentTo(source, indent);
+            source = StringUtils.indentTo(source, indent, false);
             return new CompletionProposal(source, offset, len, 0);
         }
     }
