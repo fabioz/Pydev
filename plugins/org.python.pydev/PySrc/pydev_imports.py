@@ -23,4 +23,4 @@ except NameError:
 try:
     import Queue
 except:
-    import queue as Queue
+    import queue as Queue #@UnresolvedImport

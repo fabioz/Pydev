@@ -31,7 +31,7 @@ def execute():
             del sys.argv[1]
         
     try:
-        import coverage
+        import coverage #@UnresolvedImport
     except:
         sys.stderr.write('Error: coverage module could not be imported\n')
         sys.stderr.write('Please make sure that the coverage module (http://nedbatchelder.com/code/coverage/)\n')
@@ -41,7 +41,7 @@ def execute():
         return
     
     #print(coverage.__version__) TODO: Check if the version is a version we support (should be at least 3.4) -- note that maybe the attr is not there.
-    from coverage.cmdline import main
+    from coverage.cmdline import main #@UnresolvedImport
 
     if files is not None:        
         sys.argv.append('-r')

@@ -1,8 +1,8 @@
 import pydev_runfiles_xml_rpc
 import time
-from _pytest import runner
-from _pytest import unittest as pytest_unittest
-from py._code import code
+from _pytest import runner #@UnresolvedImport
+from _pytest import unittest as pytest_unittest #@UnresolvedImport
+from py._code import code #@UnresolvedImport
 from pydevd_file_utils import _NormFile
 import os
 

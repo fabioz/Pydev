@@ -40,7 +40,6 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
@@ -60,18 +59,11 @@ import org.python.pydev.ui.UIConstants;
  * PyDocumentProvider already partitions the document into strings/comments/other<p>
  * RawPartition is the simplest outline that shows this "raw" document partitioning<p>
  * raw partition was only used as an example, not useful in production<p>
- *
- * Design notes:
- * a good (and only one that subclasses ContentOutlinePage) 
- * example of Eclipse's internal outline page is
- * org.eclipse.ui.extenaltools.internal.ant.editor.outline
- * see PlantyEditor, and PlantyContentOutlinePage
- * 
  * 
  * @note: tests for the outline page are not directly for the outline page, but for its model, 
  * based on ParsedItems.
  **/
-public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, IAdaptable{
+public class PyOutlinePage extends ContentOutlinePageWithFilter implements IShowInTarget, IAdaptable{
 
     PyEdit editorView;
     IDocument document;
@@ -82,12 +74,12 @@ public class PyOutlinePage extends ContentOutlinePage implements IShowInTarget, 
     ISelectionChangedListener selectionListener;
     
     private OutlineLinkWithEditorAction linkWithEditor;
-	public final ICallbackWithListeners onTreeViewerCreated = new CallbackWithListeners();
-	public final ICallbackWithListeners onDispose = new CallbackWithListeners();
+	public final ICallbackWithListeners<TreeViewer> onTreeViewerCreated = new CallbackWithListeners<TreeViewer>();
+	public final ICallbackWithListeners<PyOutlinePage> onDispose = new CallbackWithListeners<PyOutlinePage>();
 
     public PyOutlinePage(PyEdit editorView) {
         super();
-		List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
+        List<IViewCreatedObserver> participants = ExtensionHelper.getParticipants(
 				ExtensionHelper.PYDEV_VIEW_CREATED_OBSERVER);
 		for (IViewCreatedObserver iViewCreatedObserver : participants) {
 			iViewCreatedObserver.notifyViewCreated(this);

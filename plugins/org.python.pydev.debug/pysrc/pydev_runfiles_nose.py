@@ -1,5 +1,5 @@
-from nose.plugins.multiprocess import MultiProcessTestRunner
-from nose.plugins.base import Plugin
+from nose.plugins.multiprocess import MultiProcessTestRunner #@UnresolvedImport
+from nose.plugins.base import Plugin #@UnresolvedImport
 import sys
 import pydev_runfiles_xml_rpc
 import time

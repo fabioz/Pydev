@@ -2,7 +2,7 @@ from pydevd_constants import * #@UnusedWildImport
 try:
     from Queue import Queue
 except:
-    from queue import Queue
+    from queue import Queue #@UnresolvedImport
 import threading
 from pydev_imports import xmlrpclib
 import traceback
