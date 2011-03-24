@@ -102,6 +102,7 @@
             icon="icons/searchm_obj.gif"
             textPreferenceKey="pydevOccurrenceIndication"
             textPreferenceValue="false"
+            textStylePreferenceKey="pydevOccurrenceIndicationTextStyle"
             highlightPreferenceKey="pydevOccurrenceHighlighting"
             highlightPreferenceValue="true"
             contributesToHeader="false"
@@ -115,9 +116,9 @@
             showInNextPrevDropdownToolbarActionKey="pydevShowOccurrenceInNextPrevDropdownToolbarAction"
             showInNextPrevDropdownToolbarAction="true"
             isGoToNextNavigationTargetKey="pydevIsOccurrenceGoToNextNavigationTarget"
-	        isGoToNextNavigationTarget="false"
+	        isGoToNextNavigationTarget="true"
             isGoToPreviousNavigationTargetKey="pydevIsOccurrenceGoToPreviousNavigationTarget"
-	        isGoToPreviousNavigationTarget="false">
+	        isGoToPreviousNavigationTarget="true">
 	  </specification>
 </extension>
 
