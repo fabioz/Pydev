@@ -29,8 +29,10 @@ import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
 import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -44,6 +46,7 @@ import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
 import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.ExecuteWithDirtyEditorsUpdated;
 
 /**
  * This class should be used to give context help
@@ -142,8 +145,17 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     public ICompletionProposal[] computeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
+        ArrayList<Tuple<IModulesManager, String>> pushed = ExecuteWithDirtyEditorsUpdated.start();
+        try {
+            return onComputeQuickAssistProposals(invocationContext);
+        } finally {
+            ExecuteWithDirtyEditorsUpdated.end(pushed);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private ICompletionProposal[] onComputeQuickAssistProposals(IQuickAssistInvocationContext invocationContext) {
         int offset = invocationContext.getOffset();
         PySelection base = edit.createPySelection();
         if(!(this.edit instanceof PyEdit) || base == null){

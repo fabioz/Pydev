@@ -104,9 +104,14 @@ public class FileNode implements ICoverageLeafNode{
 
     private static String getStmts(int stmts){
         FastStringBuffer str = new FastStringBuffer();
-        str.append(stmts);
+        if(stmts == 0){
+            str.append('-');
+            
+        }else{
+            str.append(stmts);
+        }
         while (str.length() < 4){
-            str.insert(0, " ");
+            str.insert(0, ' ');
         }
         return str.toString();
     }
@@ -114,7 +119,7 @@ public class FileNode implements ICoverageLeafNode{
 
     public static String calcCover(int stmts, int miss){
         double v = 0;
-        if(stmts > 0 && miss > 0){
+        if(stmts > 0){
             v = ((double)stmts-miss) / ((double)stmts) * 100.0;
         }else{
             return "   - ";

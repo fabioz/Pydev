@@ -51,13 +51,13 @@ def StartCoverageSupport(configuration):
                     coverage_files = GetCoverageFiles(configuration, n)
                     os.environ['COVERAGE_FILE'] = coverage_files.pop(0)
                     
-                    coverage_instance = coverage.coverage(source=[configuration.coverage_include], include=['*'])
+                    coverage_instance = coverage.coverage(source=[configuration.coverage_include])
                     coverage_instance.start()
                     
             elif configuration.coverage_output_file:
                 #Client of parallel run.
                 os.environ['COVERAGE_FILE'] = configuration.coverage_output_file
-                coverage_instance = coverage.coverage(source=[configuration.coverage_include], include=['*'])
+                coverage_instance = coverage.coverage(source=[configuration.coverage_include])
                 coverage_instance.start()
                 
     return coverage_files, coverage_instance

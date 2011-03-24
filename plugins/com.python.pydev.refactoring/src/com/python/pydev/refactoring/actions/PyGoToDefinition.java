@@ -33,13 +33,10 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.progress.UIJob;
-import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModulesManager;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
@@ -54,7 +51,6 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractJavaClassModule;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaDefinition;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.model.ItemPointer;
 import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
 import org.python.pydev.editor.refactoring.IPyRefactoring;
@@ -62,6 +58,7 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.ExecuteWithDirtyEditorsUpdated;
 
 /**
  * This is a refactoring action, but it does not follow the default cycle -- so, it overrides the run
@@ -215,39 +212,9 @@ public class PyGoToDefinition extends PyRefactorAction {
 
 		final Shell shell = getShell();
         try {
-        	ArrayList<Tuple<IModulesManager, String>> pushed = new ArrayList<Tuple<IModulesManager, String>>();
             
+            ArrayList<Tuple<IModulesManager, String>> pushed = ExecuteWithDirtyEditorsUpdated.start();
             try{
-            	workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-            	IEditorReference[] editorReferences = workbenchWindow.getActivePage().getEditorReferences();
-            	for (IEditorReference iEditorReference : editorReferences) {
-            		IEditorPart editor = iEditorReference.getEditor(false);
-            		if(editor != null){
-            			if(editor instanceof PyEdit){
-            				PyEdit edit = (PyEdit) editor;
-            				IPythonNature pythonNature = edit.getPythonNature();
-            				if(pythonNature != null){
-            					ICodeCompletionASTManager astManager = pythonNature.getAstManager();
-            					if(astManager != null){
-            						IModulesManager modulesManager = astManager.getModulesManager();
-            						if(modulesManager != null){
-            							File editorFile = edit.getEditorFile();
-            							if(editorFile != null){
-                							String resolveModule = pythonNature.resolveModule(editorFile);
-                							if(resolveModule != null){
-                								pushed.add(new Tuple<IModulesManager, String>(modulesManager, resolveModule));
-                								modulesManager.pushTemporaryModule(
-                										resolveModule, 
-                										new SourceModule(resolveModule, editorFile, edit.getAST(), null));
-                							}
-            							}
-            						}
-            					}
-            				}
-            			}
-            		}
-            	}
-            	
             	
 				if(areRefactorPreconditionsOK(refactoringRequest)){
 	                ItemPointer[] defs = findDefinition(pyEdit);
@@ -257,10 +224,7 @@ public class PyGoToDefinition extends PyRefactorAction {
 	                return defs;
 	            }
             }finally{
-            	//undo any temporary push!
-            	for (Tuple<IModulesManager, String> push : pushed) {
-					push.o1.popTemporaryModule(push.o2);
-				}
+                ExecuteWithDirtyEditorsUpdated.end(pushed);
             }
         } catch (Exception e) {
             e.printStackTrace();

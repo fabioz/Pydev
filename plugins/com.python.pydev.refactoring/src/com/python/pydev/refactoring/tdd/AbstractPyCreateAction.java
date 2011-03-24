@@ -6,6 +6,7 @@
  */
 package com.python.pydev.refactoring.tdd;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
@@ -18,10 +19,13 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.ExecuteWithDirtyEditorsUpdated;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 
 public abstract class AbstractPyCreateAction extends Action implements IEditorActionDelegate{
@@ -59,8 +63,13 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
         }
         
         try {
-            RefactoringInfo refactoringInfo = new RefactoringInfo(targetEditor);
-            execute(refactoringInfo, LOCATION_STRATEGY_BEFORE_CURRENT);
+            ArrayList<Tuple<IModulesManager, String>> pushed = ExecuteWithDirtyEditorsUpdated.start();
+            try {
+                RefactoringInfo refactoringInfo = new RefactoringInfo(targetEditor);
+                execute(refactoringInfo, LOCATION_STRATEGY_BEFORE_CURRENT);
+            } finally {
+                ExecuteWithDirtyEditorsUpdated.end(pushed);
+            }
         } catch (Throwable e) {
             Log.log(e);
             Throwable initial = e;

@@ -81,7 +81,7 @@ public final class TddRefactorCompletionInModule extends AbstractTddRefactorComp
         
         //As the change was done in another module, let's ask for a new code analysis for the current editor,
         //as the new contents should fix the marker which we used for the fix.
-        forceReparseInBaseEditor();
+        forceReparseInBaseEditorAnd(pyEdit);
     }
     
 

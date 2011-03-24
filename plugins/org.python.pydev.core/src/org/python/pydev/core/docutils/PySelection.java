@@ -166,7 +166,8 @@ public final class PySelection {
      * Creates a selection based on another selection.
      */
     public PySelection(PySelection base) {
-        this(base.doc, base.getAbsoluteCursorOffset());
+        this.doc = base.doc;
+        this.textSelection = new TextSelection(doc, base.getAbsoluteCursorOffset(), base.getSelLength());
     }
 
 
