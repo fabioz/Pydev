@@ -491,7 +491,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
 					//try to make it null when possible (so that we don't have to sync later on)
 					temporaryModules = null;
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				Log.log(e);
 			}
     	}

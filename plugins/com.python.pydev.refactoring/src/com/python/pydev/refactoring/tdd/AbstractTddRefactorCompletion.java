@@ -38,10 +38,14 @@ public abstract class AbstractTddRefactorCompletion extends PyCompletionProposal
         this.edit = edit;
     }
     
-    protected void forceReparseInBaseEditor() {
+    protected void forceReparseInBaseEditorAnd(PyEdit ... others) {
         if(edit != null){
             PyParser parser = edit.getParser();
-            parser.setDocument(edit.getDocument(), edit.getEditorInput());
+            parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+        }
+        
+        for(PyEdit e:others){
+            PyParser parser = e.getParser();
             parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
     }

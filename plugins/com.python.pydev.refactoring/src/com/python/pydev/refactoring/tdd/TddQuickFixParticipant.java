@@ -245,7 +245,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant{
                                 
                             }else{
                                 //Ok, it's all there, we just have to create the leaf.
-                                if(!addOptionToCreateClassOrMethod){
+                                if(!addOptionToCreateClassOrMethod || sourceModule.getName().endsWith(".__init__")){
                                     //Cannot create class or method from the info (only the module structure).
                                     if(sourceModule.getName().endsWith(".__init__")){
                                         File f = new File(file.getParent(), found.o2+FileTypesPreferencesPage.getDefaultDottedPythonExtension());

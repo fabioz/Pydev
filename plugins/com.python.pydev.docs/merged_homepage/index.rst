@@ -43,6 +43,58 @@ It comes with many goodies such as:
 For more details on the provided features, check the `Features Matrix`_.
 
 
+Release 2.0
+==============
+
+
+TDD actions on Ctrl+1
+
+PyUnit:
+    Added actions to pin a test run and restore it later in the PyUnit view.
+    Errors that occur while importing modules are properly shown.
+    Provided a way to override the pyunit test runner configurations at a given launch configuration.
+    Nose test runner works properl when there's an error in a fixture
+    
+    
+Added the possibility of launching a file that's not under the workspace (asks the user for the project).
+Adding DJANGO_SETTINGS_MODULE environment var when making a launch (so that the test runners work accordingly).
+Added filter to the outline page.
+Added option to make local import when Ctrl is pressed to apply quick fix that adds import.
+When doing assign to attributes, if there's a pass in the line the assign will be added, remove the pass.
+
+Improved coverage support
+
+Fixed issue with Py3k not having the input() method properly redefined.
+New options for the interactive console: 
+    - focus on creation 
+    - initial send command on creation.
+
+Added buttons to the UI to add/remove elements from the Django custom commands.
+Pydev package explorer: Closed projects are not removed when the option to hide non pydev projects is on.
+
+When adding options to ignore errors, only show an option to ignore a given error once.
+If a line starts with __version__, don't add an import above it.
+
+On hover, when there's a name defined in another module, the statement containing the name is shown.
+
+Bugs:
+------
+Fixed indentation issue with the surround with assist.
+Fixed integration issue with latest google app engine
+Fixed issue with multiple keywords in class declaration in python 3.0.
+Fixed set construct (was not properly handling an optional ending comma).
+Ellipsis in Python 3.0 properly working
+
+
+Editor
+When there's some text selected and ' is entered, the content is converted to a string.
+Handling literals with ui linking.
+Creating ui link in the editor after entering (,[,{ when it is auto-closed.
+
+
+
+
+
 Release 1.6.5
 ==============
 

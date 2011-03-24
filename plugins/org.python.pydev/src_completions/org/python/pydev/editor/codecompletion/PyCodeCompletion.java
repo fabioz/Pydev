@@ -37,10 +37,12 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -67,6 +69,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.ExecuteWithDirtyEditorsUpdated;
 
 /**
  * @author Dmoore
@@ -80,11 +83,22 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      */
     public static ICallback<Object, CompletionRecursionException> onCompletionRecursionException;
     
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
+        ArrayList<Tuple<IModulesManager, String>> pushed = ExecuteWithDirtyEditorsUpdated.start();
+        try{
+            return onGetCodeCompletionProposals(viewer, request);
+        }finally{
+            ExecuteWithDirtyEditorsUpdated.end(pushed);
+        }
+    }
+    
+    
     /* (non-Javadoc)
      * @see org.python.pydev.editor.codecompletion.IPyCodeCompletion#getCodeCompletionProposals(org.eclipse.jface.text.ITextViewer, org.python.pydev.editor.codecompletion.CompletionRequest)
      */
-    @SuppressWarnings("unchecked")
-    public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private List onGetCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
         if(request.getPySelection().getCursorLineContents().trim().startsWith("#")){
             //this may happen if the context is still not correctly computed in python
             return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);

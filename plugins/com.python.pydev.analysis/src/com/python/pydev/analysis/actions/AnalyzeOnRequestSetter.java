@@ -29,9 +29,8 @@ public class AnalyzeOnRequestSetter implements IPyEditListener{
         }
         public  void run(){
             PyParser parser = edit.getParser();
-            //reset the document and force a reparse
-            parser.setDocument(edit.getDocument(), edit.getEditorInput());
             parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+            edit.getPySourceViewer().invalidateTextPresentation();
         }
     }
     

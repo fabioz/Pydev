@@ -24,6 +24,8 @@ import java.util.Map;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.callbacks.CallbackWithListeners;
+import org.python.pydev.core.callbacks.ICallbackWithListeners;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 
@@ -42,6 +44,8 @@ public class CoverageCache {
 
     public Map<File, ICoverageNode> folders = new HashMap<File, ICoverageNode>();
     public Map<File, ICoverageNode> files = new HashMap<File, ICoverageNode>();
+    public static final ICallbackWithListeners<StyleRange> onStyleCreated = new CallbackWithListeners<StyleRange>();
+
     
     /**
      * 
@@ -246,6 +250,7 @@ public class CoverageCache {
                     }catch(Throwable e){
                         //Ignore (not available on earlier versions of eclipse)
                     }
+                    onStyleCreated.call(styleRange);
                     ranges.add(styleRange);
                     styleRange.data = element;
 
