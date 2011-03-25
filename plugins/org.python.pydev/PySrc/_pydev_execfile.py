@@ -17,8 +17,11 @@ def execfile(file, glob=None, loc=None):
                     import re
                     p = re.search(br"coding[:=]\s*([-\w.]+)", line)
                     if p:
-                        encoding = p.group(1)
-                        break
+                        try:
+                            encoding = p.group(1).decode('ascii')
+                            break
+                        except:
+                            encoding = None
     finally:
         stream.close()
 
