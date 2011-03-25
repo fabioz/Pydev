@@ -103,6 +103,7 @@
             textPreferenceKey="pydevOccurrenceIndication"
             textPreferenceValue="false"
             textStylePreferenceKey="pydevOccurrenceIndicationTextStyle"
+            textStylePreferenceValue="NONE"
             highlightPreferenceKey="pydevOccurrenceHighlighting"
             highlightPreferenceValue="true"
             contributesToHeader="false"
