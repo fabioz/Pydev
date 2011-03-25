@@ -81,7 +81,7 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
      * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection, java.lang.String, org.python.pydev.editor.PyEdit, int)
      */
     public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
-        return true;
+        return ps.getSelLength() == 0;
     }
 
 }
