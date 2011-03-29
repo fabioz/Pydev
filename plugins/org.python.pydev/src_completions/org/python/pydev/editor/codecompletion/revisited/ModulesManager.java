@@ -580,7 +580,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                                 
                             }else if(FileTypesPreferencesPage.isValidDll(emptyModuleForZip.pathInZip)){
                                 //.pyd
-                                n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                                n = new CompiledModule(name, IToken.TYPE_BUILTIN, this);
                                 n = decorateModule(n, nature);
                                 
                             }else if(PythonPathHelper.isValidSourceFile(emptyModuleForZip.pathInZip)){
@@ -625,7 +625,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
                 n = checkOverride(name, nature, n);
                 if(n instanceof EmptyModule){
                     if (acceptCompiledModule) {
-                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, this);
                         n = decorateModule(n, nature);
                     } else {
                         return null;
@@ -648,7 +648,7 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
             //now, here's a catch... it may be a bootstrap module...
             if(sourceModule.isBootstrapModule()){
                 //if it's a bootstrap module, we must replace it for the related compiled module.
-                n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                n = new CompiledModule(name, IToken.TYPE_BUILTIN, this);
                 n = decorateModule(n, nature);
             }
         }

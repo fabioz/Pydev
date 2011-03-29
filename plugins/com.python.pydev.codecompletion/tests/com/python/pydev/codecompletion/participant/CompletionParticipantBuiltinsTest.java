@@ -84,7 +84,7 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
     
     public void testImportCompletion2() throws Exception {
         if(TestDependent.PYTHON_WXPYTHON_PACKAGES != null){
-            CompiledModule module = new CompiledModule("wx", this.getManager());
+            CompiledModule module = new CompiledModule("wx", this.getManager().getModulesManager());
             
             participant = new CtxParticipant();
             ICompletionProposal[] proposals = requestCompl("Frame", -1, -1, new String[]{});

@@ -109,7 +109,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
     
     
-    private Object initLock = new Object();
+    private final Object initLock = new Object();
     
     
     
@@ -926,9 +926,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     
     Integer interpreterType = null; //cache
     
-    public void setBuiltinCompletions(IToken[] comps) {
+    public void clearBuiltinCompletions() {
         try {
-			this.getRelatedInterpreterManager().setBuiltinCompletions(comps, this.getProjectInterpreterName());
+			this.getRelatedInterpreterManager().clearBuiltinCompletions(this.getProjectInterpreterName());
 		} catch (CoreException e) {
 			throw new RuntimeException(e);
 		}
@@ -937,7 +937,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public IToken[] getBuiltinCompletions() {
         try {
 			return this.getRelatedInterpreterManager().getBuiltinCompletions(this.getProjectInterpreterName());
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
     }
@@ -945,14 +945,14 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     public IModule getBuiltinMod(){
         try {
 			return this.getRelatedInterpreterManager().getBuiltinMod(this.getProjectInterpreterName());
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
     }
 
-    public void setBuiltinMod(IModule mod){
+    public void clearBuiltinMod(){
         try {
-			this.getRelatedInterpreterManager().setBuiltinMod(mod, this.getProjectInterpreterName());
+			this.getRelatedInterpreterManager().clearBuiltinMod(this.getProjectInterpreterName());
 		} catch (CoreException e) {
 			throw new RuntimeException(e);
 		}

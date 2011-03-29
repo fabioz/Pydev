@@ -274,7 +274,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
 
         for (IModulesManager m : managersInvolved) {
             if(m instanceof ISystemModulesManager){
-                module = ((ISystemModulesManager)m).getBuiltinModule(name, nature, dontSearchInit);
+                module = ((ISystemModulesManager)m).getBuiltinModule(name, dontSearchInit);
                 if(module != null){
                     if(DEBUG_MODULES){
                         System.out.println("Trying to get:"+name+" - "+" returned builtin:"+module+" - "+m.getClass());

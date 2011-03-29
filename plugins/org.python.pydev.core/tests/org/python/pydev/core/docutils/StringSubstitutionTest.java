@@ -192,11 +192,11 @@ public class StringSubstitutionTest extends TestCase{
                 throw new RuntimeException("Not implemented");
             }
 
-            public void setBuiltinCompletions(IToken[] toks){
+            public void clearBuiltinCompletions(){
                 throw new RuntimeException("Not implemented");
             }
 
-            public void setBuiltinMod(IModule mod){
+            public void clearBuiltinMod(){
                 throw new RuntimeException("Not implemented");
             }
 

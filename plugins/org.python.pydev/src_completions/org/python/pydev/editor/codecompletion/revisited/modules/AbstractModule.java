@@ -245,7 +245,7 @@ public abstract class AbstractModule implements IModule {
                 return createModuleFromDoc(name, f, REF.getDocFromFile(f), nature, currLine);
     
             }else{ //this should be a compiled extension... we have to get completions from the python shell.
-                return new CompiledModule(name, nature.getAstManager());
+                return new CompiledModule(name, nature.getAstManager().getModulesManager());
             }
         }
         

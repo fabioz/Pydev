@@ -181,13 +181,13 @@ public interface IInterpreterManager {
 
     
     //caches for the builtin tokens and module
-    public void setBuiltinCompletions(IToken[] comps, String projectInterpreterName);
+    public void clearBuiltinCompletions(String projectInterpreterName);
 
     public IToken[] getBuiltinCompletions(String projectInterpreterName);
 
     public IModule getBuiltinMod(String projectInterpreterName);
 
-    public void setBuiltinMod(IModule mod, String projectInterpreterName);
+    public void clearBuiltinMod(String projectInterpreterName);
 
     public void clearCaches();
 

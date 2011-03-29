@@ -29,6 +29,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.REF;
@@ -73,7 +74,7 @@ public class CompiledModule extends AbstractModule{
      * 
      * @param module - module from where to get completions.
      */
-    public CompiledModule(String name, ICodeCompletionASTManager manager){
+    public CompiledModule(String name, IModulesManager manager){
         this(name, IToken.TYPE_BUILTIN, manager);
     }
 
@@ -82,7 +83,7 @@ public class CompiledModule extends AbstractModule{
      * @param module - module from where to get completions.
      */
     @SuppressWarnings("unchecked")
-    public CompiledModule(String name, int tokenTypes, ICodeCompletionASTManager manager){
+    public CompiledModule(String name, int tokenTypes, IModulesManager manager){
         super(name);
         if(COMPILED_MODULES_ENABLED){
             try {
@@ -123,7 +124,7 @@ public class CompiledModule extends AbstractModule{
 
     }
 
-    private void setTokens(String name, ICodeCompletionASTManager manager) throws IOException, Exception, CoreException {
+    private void setTokens(String name, IModulesManager manager) throws IOException, Exception, CoreException {
         if(TRACE_COMPILED_MODULES){
             PydevPlugin.log(IStatus.INFO, "Compiled modules: getting info for:"+name, null);
         }
@@ -131,7 +132,7 @@ public class CompiledModule extends AbstractModule{
         AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.COMPLETION_SHELL);
         synchronized(shell){
             Tuple<String, List<String[]>> completions = shell.getImportCompletions(name, 
-                    manager.getModulesManager().getCompletePythonPath(nature.getProjectInterpreter(), 
+                    manager.getCompletePythonPath(nature.getProjectInterpreter(), 
                             nature.getRelatedInterpreterManager())); //default
             
             if(TRACE_COMPILED_MODULES){
