@@ -9,6 +9,7 @@ package org.python.pydev.navigator.properties;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 
 /**
@@ -33,12 +34,23 @@ public class PyPropertyTester extends PropertyTester{
     
     
     public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
-        if(receiver instanceof PythonProjectSourceFolder){
-            if("open".equals(property)){
+        if(expectedValue == null){
+            return false;
+        }
+        if("open".equals(property)){
+            if(receiver instanceof PythonProjectSourceFolder){
                 PythonProjectSourceFolder pythonProjectSourceFolder = (PythonProjectSourceFolder) receiver;
                 IResource actualObject = pythonProjectSourceFolder.getActualObject();
                 if(actualObject instanceof IProject){
                     return ((IProject) actualObject).isOpen() == toBoolean(expectedValue);
+                }
+            }
+        }else if("name".equals(property)){
+            if(receiver instanceof IWrappedResource){
+                IWrappedResource wrappedResource = (IWrappedResource) receiver;
+                IResource resource = (IResource) wrappedResource.getAdapter(IResource.class);
+                if(resource != null){
+                    return expectedValue.toString().equals(resource.getName());
                 }
             }
         }
