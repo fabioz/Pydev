@@ -662,10 +662,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 	 */
 	private Tuple<String, Boolean> getPartNameInLevel(
 			int level, IPath path, String initHandling, String djangoModulesHandling, IEditorInput input) {
-		String classStr = input.getClass().toString();
-		if(classStr.endsWith("RemoteFileStoreEditorInput") && classStr.indexOf("com.aptana") != -1){
-			return new Tuple<String, Boolean>(input.getName(), true);
-		}
+		String name = input.getName();
 		String[] segments = path.segments();
 		if(segments.length == 0){
 			return new Tuple<String, Boolean>("", true);
@@ -673,7 +670,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		if(segments.length == 1){
 			return new Tuple<String, Boolean>(segments[1], true);
 		}
-		String lastSegment = segments[segments.length-1];
+		String lastSegment = name;
 		
 		boolean handled = isDjangoHandledModule(djangoModulesHandling, input, lastSegment);
 		if(handled && djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_SHOW_PARENT_AND_DECORATE){
@@ -699,7 +696,6 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 		
 		String modulePart = StringUtils.join(".", segments, startAt, endAt);
 		
-		String name = segments[segments.length-1];
 		if(!PyTitlePreferencesPage.getTitleShowExtension()){
 		    String initial = name;
 			name = FullRepIterable.getFirstPart(name);
