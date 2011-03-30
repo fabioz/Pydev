@@ -97,7 +97,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
          * @see IInformationControlCloser#setInformationControl(IInformationControl)
          */
         public void setInformationControl(IInformationControl control) {
-            Assert.isTrue(control instanceof PyInformationControl);
+            Assert.isTrue(control == null || control instanceof PyInformationControl);
             fInformationControlToClose = (PyInformationControl) control;
         }
 
