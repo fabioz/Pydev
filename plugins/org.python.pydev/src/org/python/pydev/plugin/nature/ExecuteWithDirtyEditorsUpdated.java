@@ -20,6 +20,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * @author fabioz
@@ -42,6 +43,9 @@ public class ExecuteWithDirtyEditorsUpdated {
         //Should only get here if we were inExec == 0 and went to inExec == 1.
 
         try {
+            if(PydevPlugin.getDefault() == null){
+                return pushed; //In tests
+            }
             IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
             IEditorReference[] editorReferences = workbenchWindow.getActivePage().getEditorReferences();
             for (IEditorReference iEditorReference : editorReferences) {

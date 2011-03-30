@@ -27,6 +27,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.plugin.PydevPlugin;
@@ -79,7 +80,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 
             String lineWithoutComments = selection.getLineContentsToCursor(true, true);
 
-            Tuple<Integer, Boolean> tup = determineSmartIndent(offset, selection, prefs);
+            Tuple<Integer, Boolean> tup = determineSmartIndent(offset, document, prefs);
             int smartIndent = tup.o1;
             boolean isInsidePar = tup.o2;
             
@@ -96,7 +97,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
 
                 
                 //we have to check if smartIndent is -1 because otherwise we are inside some bracket
-                if(smartIndent == -1 && StringUtils.isClosingPeer(lastChar)){
+                if(smartIndent == -1 && ! isInsidePar && StringUtils.isClosingPeer(lastChar)){
                     //ok, not inside brackets
                     PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
                     int bracketOffset = selection.getLineOffset()+curr;
@@ -1142,25 +1143,41 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
      * @return indent, or -1 if smart indent could not be determined (fall back to default)
      * and a boolean indicating if we're inside a parenthesis
      */
-    public static Tuple<Integer,Boolean> determineSmartIndent(int offset, PySelection ps, IIndentPrefs prefs)
+    public static Tuple<Integer,Boolean> determineSmartIndent(int offset, IDocument document, IIndentPrefs prefs)
             throws BadLocationException {
-        IDocument document = ps.getDoc();
+        
         PythonPairMatcher matcher = new PythonPairMatcher(StringUtils.BRACKETS);
         int openingPeerOffset = matcher.searchForAnyOpeningPeer(offset, document);
         if(openingPeerOffset == -1){
             return new Tuple<Integer,Boolean>(-1, false);
         }
         
+        final IRegion lineInformationOfOffset = document.getLineInformationOfOffset(openingPeerOffset);
         //ok, now, if the opening peer is not on the line we're currently, we do not want to make
         //an 'auto-indent', but keep the current indentation level
-        final IRegion lineInformationOfOffset = document.getLineInformationOfOffset(openingPeerOffset);
-        if(!PySelection.isInside(offset, lineInformationOfOffset)){
-            return new Tuple<Integer,Boolean>(-1, true);
-        }
+        boolean openingPeerIsInCurrentLine = PySelection.isInside(offset, lineInformationOfOffset);
         
         int len = -1;
         String contents = "";
         if(prefs.getIndentToParLevel()){
+            //now, a catch, if we didn't change the indent level, we've to indent in the same level
+            //as the previous line, as this means that the user 'customized' the indent level at this place.
+            PySelection ps = new PySelection(document, offset);
+            String lineContentsToCursor = ps.getLineContentsToCursor();
+            if(!openingPeerIsInCurrentLine && !StringUtils.hasUnbalancedClosingPeers(lineContentsToCursor)){
+                try {
+                    char openingChar = document.getChar(openingPeerOffset);
+                    int closingPeerOffset = matcher.searchForClosingPeer(openingPeerOffset, openingChar, StringUtils.getPeer(openingChar), document);
+                    if(closingPeerOffset == -1 || offset <= closingPeerOffset){
+                        return new Tuple<Integer,Boolean>(-1, true); // True because we're inside a parens
+                    }
+                    
+                } catch (Exception e) {
+                    Log.log(e);
+                    //Something unexpected happened... (document changed?)
+                    return new Tuple<Integer,Boolean>(-1, true); // True because we're inside a parens
+                }
+            }
             
             
             //now, there's a little catch here, if we are in a line with an opening peer,
@@ -1168,7 +1185,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             //e.g.: if the line is 
             //method(  self <<- a new line here should indent to the start of the self and not
             //to the opening peer.
-            if(openingPeerOffset < offset){
+            if(openingPeerIsInCurrentLine && openingPeerOffset < offset){
                 String fromParToCursor = document.get(openingPeerOffset, offset-openingPeerOffset);
                 if(fromParToCursor.length() > 0 && fromParToCursor.charAt(0) == '('){
                     fromParToCursor = fromParToCursor.substring(1);
@@ -1184,6 +1201,10 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
             len = openingPeerOffset - openingPeerLineOffset;
             contents = document.get(openingPeerLineOffset, len);
         }else{
+            if(!openingPeerIsInCurrentLine){
+                return new Tuple<Integer,Boolean>(-1, true);
+            }
+
             //ok, don't indent to parenthesis level: Just add the regular indent level
             int line = document.getLineOfOffset(openingPeerOffset);
             final String indent = prefs.getIndentationString();

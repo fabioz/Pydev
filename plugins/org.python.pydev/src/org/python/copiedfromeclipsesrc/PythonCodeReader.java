@@ -12,9 +12,10 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * The reader works well as long as we are not inside a string at the current offset (this is not enforced here, so,
@@ -33,6 +34,13 @@ public class PythonCodeReader {
     private int fOffset;
     
     private int fEnd= -1;
+
+    private boolean fOnlyInCurrentStmt;
+
+    private ParsingUtils fParsingUtils;
+    
+    private FastStringBuffer wordBuffer = new FastStringBuffer();
+    private int wordBufferOffset = -1;
     
     
     public PythonCodeReader() {
@@ -45,11 +53,14 @@ public class PythonCodeReader {
         return fForward ? fOffset -1 : fOffset;
     }
     
-    public void configureForwardReader(IDocument document, int offset, int length, boolean skipComments, boolean skipStrings) throws IOException {
+    public void configureForwardReader(
+            IDocument document, int offset, int length, boolean skipComments, boolean skipStrings, boolean onlyInCurrentStmt) throws IOException {
         //currently not implemented without skip, so, that's the reason the asserts are here...
         Assert.isTrue(skipComments);
         Assert.isTrue(skipStrings);
 
+        fParsingUtils = ParsingUtils.create(document);
+        fOnlyInCurrentStmt = onlyInCurrentStmt;
         fDocument= document;
         fOffset= offset;
         
@@ -57,11 +68,14 @@ public class PythonCodeReader {
         fEnd= Math.min(fDocument.getLength(), fOffset + length);        
     }
     
-    public void configureBackwardReader(IDocument document, int offset, boolean skipComments, boolean skipStrings) throws IOException {
+    public void configureBackwardReader(
+            IDocument document, int offset, boolean skipComments, boolean skipStrings, boolean onlyInCurrentStmt) throws IOException {
         //currently not implemented without skip, so, that's the reason the asserts are here...
         Assert.isTrue(skipComments);
         Assert.isTrue(skipStrings);
         
+        fParsingUtils = ParsingUtils.create(document);
+        fOnlyInCurrentStmt = onlyInCurrentStmt;
         fDocument= document;
         fOffset= offset;
         
@@ -82,84 +96,122 @@ public class PythonCodeReader {
         try {
             return fForward ? readForwards() : readBackwards();
         } catch (BadLocationException x) {
-            throw new RuntimeException(x);
+            return EOF; //Document may have changed...
         }
     }
     
-    private void gotoStringStart(char delimiter) throws BadLocationException {
-        boolean isMulti = false;
-        
-        if(fOffset >= 2){
-            if(fDocument.getChar(fOffset) == delimiter && fDocument.getChar(fOffset -1) == delimiter){
-                isMulti = true;
-                fOffset--;
-                fOffset--;
-            }
-        }
-
-        while (0 < fOffset) {
-            char current= fDocument.getChar(fOffset);
-            if (current == delimiter) {
-                if( !(0 <= fOffset && fDocument.getChar(fOffset -1) == '\\')){
-                    if(isMulti){
-                        if(fDocument.getChar(fOffset) == delimiter && fDocument.getChar(fOffset -1) == delimiter){
-                            return;
-                        }
-                    }else{
-                        return;
-                    }
-                }
-            }
-            -- fOffset;
-        }
-    }
 
     
     private int readForwards() throws BadLocationException {
-        ParsingUtils parsingUtils = ParsingUtils.create(fDocument);
+        if(wordBufferOffset >= 0){
+            if(wordBufferOffset < wordBuffer.length()){
+                fOffset++;
+                return wordBuffer.charAt(wordBufferOffset++);
+            }
+            wordBuffer.clear();
+            wordBufferOffset = -1;
+        }
         while (fOffset < fEnd) {
             char current= fDocument.getChar(fOffset++);
             
             switch (current) {
                 case '#':
-                    fOffset = parsingUtils.eatComments(null, fOffset);
+                    fOffset = fParsingUtils.eatComments(null, fOffset);
                     return current;
                     
                 case '"':
                 case '\'':
                     try{
-                        fOffset = parsingUtils.eatLiterals(null, fOffset-1)+1;
+                        fOffset = fParsingUtils.eatLiterals(null, fOffset-1)+1;
                     }catch(SyntaxErrorException e){
-                        throw new RuntimeException(e);
+                        return EOF;
                     }
+                    //go on to the next loop (returns no char in this step)
                     continue;
             }
+            
+            if(fOnlyInCurrentStmt){
+                if(Character.isJavaIdentifierPart(current)){
+                    wordBuffer.clear().append(current);
+                    int offset = fOffset;
+                    while (offset < fEnd) {
+                        char c = fDocument.getChar(offset++);
+                        if(Character.isJavaIdentifierPart(c)){
+                            wordBuffer.append(c);
+                        }else{
+                            break;
+                        }
+                    }
+                    if(PySelection.STATEMENT_TOKENS.contains(wordBuffer.toString())){
+                        return EOF;
+                    }
+                    wordBufferOffset = 1; //We've just returned the one at pos == 0
+                    return current;
+                }
+            }
+
             
             return current;
         }
         
         return EOF;
     }
+
     
         
     private int readBackwards() throws BadLocationException {
+        if(wordBufferOffset >= 0){
+            if(wordBufferOffset > 0){
+                //Note that we already returned the one at pos 0
+                fOffset--;
+                return wordBuffer.charAt(--wordBufferOffset);
+            }
+            wordBuffer.clear();
+            wordBufferOffset = -1;
+        }
         
         while (0 < fOffset) {
             -- fOffset;
             
             handleComment();
+            if(fOffset < 0){
+                return EOF;
+            }
             char current= fDocument.getChar(fOffset);
             switch (current) {
             
                 case '"':
                 case '\'':
-                    -- fOffset;
-                    gotoStringStart(current);
+                    try {
+                        fOffset = fParsingUtils.eatLiteralsBackwards(null, fOffset);
+                    } catch (SyntaxErrorException e) {
+                        return EOF;
+                    }
                     continue;
-            
-                default:
-                return current;
             }
+            
+            if(fOnlyInCurrentStmt){
+                if(Character.isJavaIdentifierPart(current)){
+                    wordBuffer.clear();
+                    int offset = fOffset;
+                    while (offset >= 0) {
+                        char c = fDocument.getChar(offset--);
+                        if(Character.isJavaIdentifierPart(c)){
+                            wordBuffer.append(c);
+                        }else{
+                            break;
+                        }
+                    }
+                    wordBuffer.reverse();
+                    if(PySelection.STATEMENT_TOKENS.contains(wordBuffer.toString())){
+                        return EOF;
+                    }
+                    wordBufferOffset = wordBuffer.length()-1;
+                    return current;
+                }
+            }
+            
+            return current;
             
         }
         
@@ -176,16 +228,23 @@ public class PythonCodeReader {
         handledLine = lineOfOffset;
         String line = PySelection.getLine(fDocument, lineOfOffset);
         int i;
+        int fromIndex = 0;
+        IRegion lineInformation = null;
         //first we check for a comment possibility
-        if( (i = line.indexOf('#')) != -1){
+        while( (i = line.indexOf('#', fromIndex)) != -1){
+            fromIndex = i+1;
             
-            IRegion lineInformation = fDocument.getLineInformation(lineOfOffset);
+            if(lineInformation == null){
+                lineInformation = fDocument.getLineInformation(lineOfOffset);
+            }
             int offset = lineInformation.getOffset() + i;
             
             String contentType = ParsingUtils.getContentType(fDocument, offset+1);
             if(contentType.equals(ParsingUtils.PY_COMMENT)){
+                //We need to check this because it may be that the # is found inside a string (which should be ignored)
                 if(offset < fOffset){
                     fOffset = offset;
+                    return;
                 }
             }
         }
