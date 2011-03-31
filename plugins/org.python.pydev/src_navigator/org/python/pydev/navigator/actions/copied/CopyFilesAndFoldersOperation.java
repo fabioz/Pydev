@@ -1019,8 +1019,7 @@ public class CopyFilesAndFoldersOperation {
                         if (resource.getName().equals(string)) {
                             return IDEWorkbenchMessages.CopyFilesAndFoldersOperation_nameMustBeDifferent;
                         }
-                        IStatus status = workspace.validateName(string,
-                                resource.getType());
+                        IStatus status = workspace.validateName(string,resource.getType());
                         if (!status.isOK()) {
                             return status.getMessage();
                         }
@@ -1031,15 +1030,10 @@ public class CopyFilesAndFoldersOperation {
                     }
                 };
 
-                InputDialog dialog = new InputDialog(
-                        messageShell,
-                        IDEWorkbenchMessages.CopyFilesAndFoldersOperation_inputDialogTitle,
-                        NLS
-                                .bind(
-                                        IDEWorkbenchMessages.CopyFilesAndFoldersOperation_inputDialogMessage,
-                                        resource.getName()), getAutoNewNameFor(
-                                originalName, workspace).lastSegment()
-                                .toString(), validator);
+                InputDialog dialog = new InputDialog(messageShell, 
+                        IDEWorkbenchMessages.CopyFilesAndFoldersOperation_inputDialogTitle, 
+                        NLS.bind(IDEWorkbenchMessages.CopyFilesAndFoldersOperation_inputDialogMessage, resource.getName()), 
+                        getAutoNewNameFor(originalName, workspace).lastSegment().toString(), validator);
                 dialog.setBlockOnOpen(true);
                 dialog.open();
                 if (dialog.getReturnCode() == Window.CANCEL) {

@@ -30,8 +30,8 @@ public class PythonPackageWizard  extends AbstractPythonWizard {
     public static final String WIZARD_ID = "org.python.pydev.ui.wizards.files.PythonPackageWizard";
 
     @Override
-    protected PythonAbstractPathPage createPathPage() {
-        return new PythonAbstractPathPage(this.description, selection){
+    protected AbstractPythonWizardPage createPathPage() {
+        return new AbstractPythonWizardPage(this.description, selection){
 
             @Override
             protected boolean shouldCreatePackageSelect() {
@@ -47,14 +47,22 @@ public class PythonPackageWizard  extends AbstractPythonWizard {
      */
     @Override
     protected IFile doCreateNew(IProgressMonitor monitor) throws CoreException {
-        IContainer validatedSourceFolder = filePage.getValidatedSourceFolder();
+        return createPackage(monitor, filePage.getValidatedSourceFolder(), filePage.getValidatedName());
+    }
+
+    
+    /**
+     * Creates the complete package path given by the user (all filled with __init__) 
+     * and returns the last __init__ module created.
+     */
+    public static IFile createPackage(
+            IProgressMonitor monitor, IContainer validatedSourceFolder, String packageName) throws CoreException {
         IFile lastFile = null;
         if(validatedSourceFolder == null){
             return null;
         }
         IContainer parent = validatedSourceFolder;
-        String validatedName = filePage.getValidatedName();
-        for (String packagePart : StringUtils.dotSplit(validatedName)) {
+        for (String packagePart : StringUtils.dotSplit(packageName)) {
             IFolder folder = parent.getFolder(new Path(packagePart));
             if(!folder.exists()){
                 folder.create(true, true, monitor);
@@ -66,7 +74,6 @@ public class PythonPackageWizard  extends AbstractPythonWizard {
             }
             lastFile = file;
         }
-        
         
         return lastFile;
     }

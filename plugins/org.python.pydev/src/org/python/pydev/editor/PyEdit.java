@@ -75,13 +75,16 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.builder.PydevMarkerUtils;
 import org.python.pydev.builder.PydevMarkerUtils.MarkerInfo;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -89,6 +92,7 @@ import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.OrderedSet;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.bundle.ImageCache;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
@@ -112,6 +116,7 @@ import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
 import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
@@ -791,6 +796,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
         }
         
+        synchronized (lockHandle) {
+            releaseCurrentHandle();
+        }
+
         super.doSetInput(input);
         try{
             IDocument document = getDocument(input);
@@ -1033,6 +1042,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     // cleanup
     public void dispose() {
+        synchronized (lockHandle) {
+            releaseCurrentHandle();
+        }
         if(!this.disposed){
             this.disposed = true;
             try {
@@ -1289,8 +1301,21 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
     
 
+    private Tuple3<Integer, IModulesManager, String> handle;
+    private final Object lockHandle = new Object();
+
     /**
-     * this event comes when document was parsed without errors
+     * Note that the lockHandle must be already synched before this method is called.
+     */
+    private void releaseCurrentHandle() {
+        if(this.handle != null){
+            this.handle.o2.popTemporaryModule(this.handle.o3, this.handle.o1);
+            this.handle = null;
+        }
+    }
+    
+    /**
+     * This event comes when document was parsed (with or without errors)
      * 
      * Removes all the error markers
      */
@@ -1298,9 +1323,40 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         this.errorDescription = null; //the order is: parserChanged and only then parserError
         ast = (SimpleNode) root;
         astModificationTimeStamp = ((IDocumentExtension4)doc).getModificationStamp();
+        
+        try {
+            IPythonNature pythonNature = this.getPythonNature();
+            if (pythonNature != null) {
+                ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+                if (astManager != null) {
+                    IModulesManager modulesManager = astManager.getModulesManager();
+                    if (modulesManager != null) {
+                        File editorFile = this.getEditorFile();
+                        if (editorFile != null) {
+                            String moduleName = pythonNature.resolveModule(editorFile);
+                            if (moduleName != null) {
+                                synchronized (lockHandle) {
+                                    releaseCurrentHandle();
+                                    int modHandle = modulesManager.pushTemporaryModule(
+                                            moduleName, 
+                                            new SourceModule(moduleName, editorFile, ast, null)
+                                    );
+                                    
+                                    this.handle = new Tuple3<Integer, IModulesManager, String>(
+                                            modHandle, modulesManager, moduleName);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (MisconfigurationException e) {
+            PydevPlugin.log(e);
+        }
+
         fireModelChanged(ast);
     }
-    
+
 
     /**
      * This event comes when parse ended in an error
@@ -1584,5 +1640,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
 
 
+    public static void checkValidateState(IEditorPart iEditorPart){
+        if(iEditorPart instanceof ITextEditorExtension2){
+            ITextEditorExtension2 editor = (ITextEditorExtension2) iEditorPart;
+            editor.validateEditorInputState();
+            
+        }
+    }
 }
 

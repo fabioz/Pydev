@@ -27,8 +27,8 @@ public class PythonSourceFolderWizard extends AbstractPythonWizard {
     public static final String WIZARD_ID = "org.python.pydev.ui.wizards.files.PythonSourceFolderWizard";
 
     @Override
-    protected PythonAbstractPathPage createPathPage() {
-        return new PythonAbstractPathPage(this.description, selection){
+    protected AbstractPythonWizardPage createPathPage() {
+        return new AbstractPythonWizardPage(this.description, selection){
 
             @Override
             protected boolean shouldCreateSourceFolderSelect() {

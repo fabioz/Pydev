@@ -1041,7 +1041,7 @@
             hasPages="true"
             icon="icons/packagefolder_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard"
-            name="Source Folder"
+            name="&amp;Source Folder"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
@@ -1053,7 +1053,7 @@
             hasPages="true"
             icon="icons/package_obj.gif"
             id="org.python.pydev.ui.wizards.files.PythonPackageWizard"
-            name="Pydev Package"
+            name="Pydev P&amp;ackage"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
       <wizard
@@ -1065,7 +1065,7 @@
             hasPages="true"
             icon="icons/python_file.gif"
             id="org.python.pydev.ui.wizards.files.PythonModuleWizard"
-            name="Pydev Module"
+            name="Pydev &amp;Module"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="false"/>
    </extension>

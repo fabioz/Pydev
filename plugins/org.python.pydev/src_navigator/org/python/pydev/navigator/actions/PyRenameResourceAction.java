@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IAdaptable;
@@ -22,9 +23,15 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.RenameResourceAction;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
+import org.python.pydev.editor.PyEdit;
 
 public class PyRenameResourceAction extends RenameResourceAction{
     
@@ -130,6 +137,22 @@ public class PyRenameResourceAction extends RenameResourceAction{
         if(!isEnabled()){ //will also update the list of resources (main change from the DeleteResourceAction)
             return;
         }
+        IEditorPart[] dirtyEditors = Helpers.checkValidateState();
+        List resources = getSelectedResources();
+        if (resources.size() == 1) {
+            IResource r = (IResource) resources.get(0);
+            if(r instanceof IFile){
+                IFile iFile = (IFile) r;
+                for (IEditorPart iEditorPart : dirtyEditors) {
+                    IEditorInput editorInput = iEditorPart.getEditorInput();
+                    Object input = editorInput.getAdapter(IResource.class);
+                    if(r.equals(input)){
+                        iEditorPart.doSave(null);
+                    }
+                }
+            }
+        }
+
         super.run();
     }
 

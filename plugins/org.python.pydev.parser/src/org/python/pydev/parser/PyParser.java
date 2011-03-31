@@ -463,6 +463,7 @@ public class PyParser implements IPyParser {
         
         if(obj.o1 != null){
             //Ok, reparse successful, lets erase the markers that are in the editor we just parsed
+            //Note: we may get the ast even if errors happen (and we'll notify in that case too).
             ChangedParserInfoForObservers info = new ChangedParserInfoForObservers(obj.o1, adaptable, document, documentTime, argsToReparse);
             fireParserChanged(info);
         }
