@@ -1,7 +1,11 @@
 package org.python.pydev.debug.model.remote;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
+import org.eclipse.core.internal.utils.FileUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -45,7 +49,11 @@ public class SendPyExceptionCommand extends AbstractDebuggerCommand {
 		String filePath = path.toString() + "/" + Constants.FILE_PATH;
 		String fileName = filePath + "/" + Constants.FILE_NAME;
 		if (isFileExists(fileName)) {
-			pyExceptionsToBreak = XMLUtils.getPyException(fileName);
+			try {
+				pyExceptionsToBreak = read(fileName);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} else {
 			XMLUtils.createXMLFile(filePath, Constants.FILE_NAME);
 			return (String) StringUtils.EMPTY;
@@ -63,4 +71,32 @@ public class SendPyExceptionCommand extends AbstractDebuggerCommand {
 		File file = new File(filePath);
 		return file.exists();
 	}
+	
+	/**
+     * Read the whole content of a file.
+     * 
+     * @param file
+     * @return the file's content
+     * @throws IOException
+     */
+    public static String read(String file) throws IOException {
+    	int bufferSize = 1024;
+        BufferedReader reader = null;
+
+        try{
+            File fileHandler = new File(file);
+        	reader = new BufferedReader(new FileReader(fileHandler));
+            StringBuilder builder = new StringBuilder();
+            char[] buffer = new char[bufferSize];
+            int len;
+            while((len = reader.read(buffer, 0, bufferSize)) != -1){
+                builder.append(buffer, 0, len);
+            }
+            return builder.toString();
+        }finally{
+            if(reader != null){
+                reader.close();
+            }
+        }
+    }
 }

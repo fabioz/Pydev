@@ -2,6 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension-point id="pydev_debug_console_input_listener" name="pydev_debug_console_input_listener" schema="schema/pydev_debug_console_input_listener.exsd"/>
+   <extension-point id="pydev_configure_exception" name="pydev_configure_exception" schema="schema/pydev_configure_exception.exsd"/>
 
 <!--- run keybindings -->
 <extension point="org.eclipse.ui.editorActions">
@@ -772,5 +773,37 @@
 			<adapter type="org.python.pydev.debug.ui.actions.ISetNextTarget"/>
          </factory>
     </extension> 
+
+	<!-- Extension points for BreakOnException -->
+   	<extension 
+		point="org.eclipse.ui.commands">
+ 		<command 
+        	id="org.python.pydev.debug.pyConfigureException" 
+        	name="Add Python Excpetion Breakpoint..."
+        	description="Add Python Excpetion Breakpoint"
+        	categoryId="org.python.pydev.ui.category.source"> 
+		</command>
+ 	</extension>
+ 
+   	<extension point="org.eclipse.ui.editorActions" 
+   		      name="pydevEditorContribution"
+   		      id="org.python.pydev.editorContribution">
+      <editorContribution
+            targetID="org.python.pydev.editor.PythonEditor"
+            id="org.python.pydev.editor.editorContribution">
+         <action
+               definitionId="org.python.pydev.debug.pyConfigureException"
+               label="Add Python Excpetion Breakpoint..."
+               class="org.python.pydev.debug.ui.actions.PyConfigureExceptionAction"
+               menubarPath="org.eclipse.ui.run/emptyBreakpointGroup"
+               id="org.python.pydev.debug.actions.pyConfigureException">
+         </action>
+      </editorContribution>
+	 </extension>
+	 
+	 
+	<!-- Extension points for BreakOnException -->
+
+
 </plugin>
 

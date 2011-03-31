@@ -193,12 +193,12 @@ def create_exceptions(exceptionStr):
     Converts the exceptionStr to tuples of exceptionType
     Receive a parameter as a "('exception1', 'exception2',)"
     E.g.:
-        create_exceptions("['exception1', 'exception2',]")
+        create_exceptions("exception1|exception2")
 
     In case of NameError, Loading necessary modules dynamically
     '''
     handle_exceptions = []
-    exceptionList = eval(exceptionStr)
+    exceptionList = exceptionStr.split("|")
     for exceptionType in exceptionList:
         try:
             handle_exceptions.append(eval(exceptionType))
