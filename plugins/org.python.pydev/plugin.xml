@@ -1418,6 +1418,13 @@
             class="org.python.pydev.navigator.properties.PyPropertyTester"
             id="org.python.pydev.navigator.elements.PythonProjectSourceFolder">
       </propertyTester>
+      <propertyTester
+            namespace="org.eclipse.core.resources"
+            properties="name"
+            type="org.python.pydev.navigator.elements.IWrappedResource"
+            class="org.python.pydev.navigator.properties.PyPropertyTester"
+            id="org.python.pydev.navigator.elements.PythonNameProperty">
+      </propertyTester>
    </extension>
 
 	<!-- the adapter factory must be registered (otherwise the CNF cannot 'get it' - even if the objects themselves are

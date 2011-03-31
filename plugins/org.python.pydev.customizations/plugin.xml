@@ -67,9 +67,12 @@
                   <with variable="selection">
                      <count value="1"/>
                      <iterate>
-                        <or>
+                        <and>
+                            <adapt type="org.eclipse.core.resources.IContainer" />
+                            <instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
+                            <test property="org.eclipse.debug.ui.projectNature" value="org.python.pydev.pythonNature"/>
                             <test property="org.python.pydev.customizations.app_engine" forcePluginActivation="true"/>
-                        </or>
+                        </and>
                      </iterate>
                   </with>
                </enablement>

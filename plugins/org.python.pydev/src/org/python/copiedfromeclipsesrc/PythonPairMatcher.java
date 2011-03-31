@@ -210,7 +210,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
      */
     public int searchForClosingPeer(int offset, char openingPeer, char closingPeer, IDocument document){
         try {
-            fReader.configureForwardReader(document, offset + 1, document.getLength(), true, true);
+            fReader.configureForwardReader(document, offset + 1, document.getLength(), true, true, true);
 
             int stack = 1;
             int c = fReader.read();
@@ -246,7 +246,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
     public int searchForOpeningPeer(int offset, char openingPeer, char closingPeer, IDocument document){
 
         try {
-            fReader.configureBackwardReader(document, offset, true, true);
+            fReader.configureBackwardReader(document, offset, true, true, true);
 
             int stack = 1;
             int c = fReader.read();
@@ -271,7 +271,7 @@ public class PythonPairMatcher implements ICharacterPairMatcher {
 
     public int searchForAnyOpeningPeer(int offset, IDocument document) {
         try {
-            fReader.configureBackwardReader(document, offset, true, true);
+            fReader.configureBackwardReader(document, offset, true, true, true);
             
             Map<Character, Integer> stack = new HashMap<Character, Integer>();
             

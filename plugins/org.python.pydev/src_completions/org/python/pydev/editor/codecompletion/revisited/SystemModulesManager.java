@@ -188,7 +188,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
      */
     private transient Map<File, Long> predefinedFilesNotParsedToTimestamp; 
 
-    public AbstractModule getBuiltinModule(String name, IPythonNature nature, boolean dontSearchInit) {
+    public AbstractModule getBuiltinModule(String name, boolean dontSearchInit) {
         AbstractModule n = null;
         
         //check for supported builtins these don't have files associated.
@@ -293,7 +293,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
                     
                     if(n instanceof EmptyModule || n instanceof SourceModule){ 
                         //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
-                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, this);
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
                     }
@@ -306,7 +306,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
                     
                     if(n == null || n instanceof EmptyModule || n instanceof SourceModule){ 
                         //still not created or not defined as compiled module (as it should be)
-                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+                        n = new CompiledModule(name, IToken.TYPE_BUILTIN, this);
                         doAddSingleModule(new ModulesKey(n.getName(), null), n);
                         return n;
                     }
@@ -323,7 +323,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
             }
             
             //ok, just add it if it is some module that actually exists
-            n = new CompiledModule(name, IToken.TYPE_BUILTIN, nature.getAstManager());
+            n = new CompiledModule(name, IToken.TYPE_BUILTIN, this);
             IToken[] globalTokens = n.getGlobalTokens();
             //if it does not contain the __file__, this means that it's not actually a module
             //(but may be a token from a compiled module, so, clients wanting it must get the module
@@ -347,7 +347,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
      */
     @Override
     public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
-        AbstractModule n = getBuiltinModule(name, nature, dontSearchInit);
+        AbstractModule n = getBuiltinModule(name, dontSearchInit);
         if(n != null){
             return n;
         }

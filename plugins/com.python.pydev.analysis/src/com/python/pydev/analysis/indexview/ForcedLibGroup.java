@@ -34,7 +34,7 @@ public class ForcedLibGroup extends ElementWithChildren{
     @Override
     protected void calculateChildren() throws MisconfigurationException {
         SystemModulesManager m = (SystemModulesManager) this.interpreterInfo.getModulesManager();
-        AbstractModule builtinModule = m.getBuiltinModule(forcedLib, m.getNature(), true);
+        AbstractModule builtinModule = m.getBuiltinModule(forcedLib, true);
         IToken[] globalTokens = builtinModule.getGlobalTokens();
         
         ArrayList<LeafElement> lst = new ArrayList<LeafElement>();

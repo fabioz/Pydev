@@ -32,7 +32,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndentAfterStringEnd3();
+            s.testIndentParens8();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1056,31 +1056,30 @@ public class PyAutoIndentStrategyTest extends TestCase {
         String expected = "\n" +
         "         ";
         assertEquals(expected, docCmd.text);
-        
-//        doc = "m = [a, otherCall(), ]";
-//        docCmd = new DocCmd(doc.length()-1, 0, "\n"); //right before the last ']'
-//        strategy.customizeDocumentCommand(new Document(doc), docCmd);
-//        expected = "\n" +
-//        "      ";
-//        assertEquals(expected, docCmd.text);
+    }        
+    
+    public void testAfterCloseParA() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        doc = "m = [a, otherCall(), ]";
+        docCmd = new DocCmd(doc.length()-1, 0, "\n"); //right before the last ']'
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+        "     ";
+        assertEquals(expected, docCmd.text);
     }
     
     public void testIndent2() {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
-        String doc = "m = [a, otherCall(), ";
-        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
-//        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        doc = "m = [a, otherCall(), ";
+        docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
         String expected = "\n" +
-        "      ";
-//        assertEquals(expected, docCmd.text);
-//
-//        doc = "m = [a, otherCall(), ]";
-//        docCmd = new DocCmd(doc.length()-1, 0, "\n"); //right before the last ']'
-//        strategy.customizeDocumentCommand(new Document(doc), docCmd);
-//        expected = "\n" +
-//        "      ";
-//        assertEquals(expected, docCmd.text);
+        "     ";
+        assertEquals(expected, docCmd.text);
+    }
         
+    public void testIndent2a() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         doc = "def m2(self):\n"+
               "    m1(a, b(), )";
         docCmd = new DocCmd(doc.length()-1, 0, "\n"); //right before the last ')'
@@ -1090,6 +1089,17 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
         
     }
+    
+    public void testIndent2b() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        doc = "m = [a, otherCall(), ]";
+        docCmd = new DocCmd(doc.length()-1, 0, "\n"); //right before the last ']'
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        expected = "\n" +
+        "     ";
+        assertEquals(expected, docCmd.text);
+    }
+    
     
     public void testIndent3() {
         
@@ -2286,5 +2296,86 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
     }
     
+    
+    public void testIndentParens4() throws Exception {
+        //https://sourceforge.net/tracker/?func=detail&aid=3217105&group_id=85796&atid=577329
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "" +
+        "\n" +
+        "def testIt():\n" +
+        "\n" +
+        "    return [0.5 * ((A / B) ** 2 + \n" +
+        "                   (C / D) ** 2) for E, F in G]" + //<return> before 'for'
+        "";
+        DocCmd docCmd = new DocCmd(doc.length()-"for E, F in G]".length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n            ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentParens5() throws Exception {
+        //https://sourceforge.net/tracker/?func=detail&aid=3217105&group_id=85796&atid=577329
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "" +
+        "\n" +
+        "def testIt():\n" +
+        "\n" +
+        "    return [0.5 * ((A / B) ** 2 + \n" +
+        "                      (C / D) ** 2) for E, F in G]" + //keep the same level, not the one of the starting parens, as we didn't change the parens level!
+        "";
+        DocCmd docCmd = new DocCmd(doc.length()-") for E, F in G]".length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n                      ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentParens6() throws Exception {
+        //https://sourceforge.net/tracker/?func=detail&aid=3217105&group_id=85796&atid=577329
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "" +
+        "\n" +
+        "def testIt():\n" +
+        "\n" +
+        "    return [0.5 * ((A / B) ** 2 + \n" +
+        "                      (C / D) ** 2" + //keep the same level, not the one of the starting parens, as we didn't change the parens level!
+        "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n                      ";
+        assertEquals(expected, docCmd.text);
+    }
+    
+    public void testIndentParens7() throws Exception {
+        //https://sourceforge.net/tracker/?func=detail&aid=3217105&group_id=85796&atid=577329
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String doc = "" +
+        "newTuple = (\n" +
+        "              what()\n" +
+        ")" + 
+        "";
+        DocCmd docCmd = new DocCmd(doc.length()-"\n)".length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n              ";
+        assertEquals(expected, docCmd.text);
+    }
+    
 
+    public void testIndentParens8() throws Exception {
+        //https://sourceforge.net/tracker/?func=detail&aid=3217105&group_id=85796&atid=577329
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParLevel = false;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+        "\n" +
+        "def testIt():\n" +
+        "\n" +
+        "    a = [0.5 * ((A / B) ** 2 + \n" +
+        "        ( C / D) ** 2)]" +
+        "";
+        DocCmd docCmd = new DocCmd(doc.length()-1, 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n        ";
+        assertEquals(expected, docCmd.text);
+    }
+    
 }

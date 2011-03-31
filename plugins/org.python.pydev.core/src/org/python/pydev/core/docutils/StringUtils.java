@@ -14,7 +14,9 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
@@ -910,6 +912,43 @@ public class StringUtils {
 
 	public static boolean hasClosingBracket(String trimmedLine) {
 	    return trimmedLine.indexOf('}') != -1 || trimmedLine.indexOf(')') != -1 || trimmedLine.indexOf(']') != -1;
+	}
+	
+	public static boolean hasUnbalancedClosingPeers(String line) {
+	    Map<Character, Integer> stack = new HashMap<Character, Integer>();
+	    for(int i=0;i<line.length();i++){
+	        char c = line.charAt(i);
+	        switch(c){
+	        case '(':
+	        case '{':
+	        case '[':
+	            Integer iStack = stack.get(c);
+	            if(iStack == null){
+	                iStack = 0;
+	            }
+                iStack++;
+                stack.put(c, iStack);
+                break;
+                
+	        case ')':
+	        case '}':
+	        case ']':
+	            char peer = StringUtils.getPeer((char)c);
+	            iStack = stack.get(peer);
+	            if(iStack == null){
+	                iStack = 0;
+	            }
+	            iStack--;
+	            stack.put(peer, iStack);
+	            break;
+	        }
+	    }
+	    for(int i:stack.values()){
+	        if(i < 0){
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 
 	/**

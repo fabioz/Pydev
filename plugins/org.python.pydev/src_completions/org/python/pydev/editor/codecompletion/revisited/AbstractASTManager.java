@@ -442,7 +442,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
 
         if(state2.getActivationToken() != null){
             IModule m = getBuiltinMod(state.getNature());
-            return m.getGlobalTokens(state2, this);
+            if(m != null){
+                return m.getGlobalTokens(state2, this);
+            }
         }
         
         if(act.equals("__builtins__") || act.startsWith("__builtins__.")){
@@ -928,33 +930,14 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager, S
      * @return the tokens in the builtins
      */
     protected IToken[] getBuiltinComps(IPythonNature nature) {
-        IToken[] builtinCompletions = nature.getBuiltinCompletions();
-        
-        if(builtinCompletions == null || builtinCompletions.length == 0){
-            IModule builtMod = getBuiltinMod(nature);
-            if(builtMod != null){
-                builtinCompletions = builtMod.getGlobalTokens();
-                nature.setBuiltinCompletions(builtinCompletions);
-            }
-        }
-        return builtinCompletions;
+        return nature.getBuiltinCompletions();
     }
 
     /**
-     * TODO: WHEN CLEARING CACHE, CLEAR THE BUILTIN REF TOO
      * @return the module that represents the builtins
      */
     protected IModule getBuiltinMod(IPythonNature nature) {
-        IModule mod = nature.getBuiltinMod();
-        if(mod == null){
-            mod = getModule("__builtin__", nature, false);
-            if(mod == null){
-                //Python 3.0 has builtins and not __builtin__
-                mod = getModule("builtins", nature, false);
-            }
-            nature.setBuiltinMod(mod);
-        }
-        return mod;
+        return nature.getBuiltinMod();
     }
 
     /**

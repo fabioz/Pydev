@@ -44,6 +44,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
@@ -79,20 +80,74 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      */
     protected final Map<String, IModule> builtinMod = new HashMap<String, IModule>();
 
-    public void setBuiltinCompletions(IToken[] comps, String projectInterpreterName) {
-        this.builtinCompletions.put(projectInterpreterName, comps);
+    public void clearBuiltinCompletions(String projectInterpreterName) {
+        this.builtinCompletions.remove(projectInterpreterName);
     }
 
     public IToken[] getBuiltinCompletions(String projectInterpreterName) {
-        return builtinCompletions.get(projectInterpreterName);
+        //Cache with the internal name.
+        projectInterpreterName = getInternalName(projectInterpreterName);
+        if(projectInterpreterName == null){
+            return null;
+        }
+
+        IToken[] toks = this.builtinCompletions.get(projectInterpreterName);
+        
+        if(toks == null || toks.length == 0){
+            IModule builtMod = getBuiltinMod(projectInterpreterName);
+            if(builtMod != null){
+                toks = builtMod.getGlobalTokens();
+                this.builtinCompletions.put(projectInterpreterName, toks);
+            }
+        }
+        return this.builtinCompletions.get(projectInterpreterName);
     }
 
-    public IModule getBuiltinMod(String projectInterpreterName) {
+    public IModule getBuiltinMod(String projectInterpreterName){
+        //Cache with the internal name.
+        projectInterpreterName = getInternalName(projectInterpreterName);
+        if(projectInterpreterName == null){
+            return null;
+        }
+        IModule mod = builtinMod.get(projectInterpreterName);
+        if(mod != null){
+            return mod;
+        }
+        
+        try {
+            InterpreterInfo interpreterInfo = this.getInterpreterInfo(projectInterpreterName, null);
+            ISystemModulesManager modulesManager = interpreterInfo.getModulesManager();
+            
+            mod = modulesManager.getBuiltinModule("__builtin__", false);
+            if(mod == null){
+                //Python 3.0 has builtins and not __builtin__
+                mod = modulesManager.getBuiltinModule("builtins", false);
+            }
+            if(mod != null){
+                builtinMod.put(projectInterpreterName, mod);
+            }
+
+        } catch (MisconfigurationException e) {
+            Log.log(e);
+        }
         return builtinMod.get(projectInterpreterName);
     }
 
-    public void setBuiltinMod(IModule mod, String projectInterpreterName) {
-        this.builtinMod.put(projectInterpreterName, mod);
+    private String getInternalName(String projectInterpreterName) {
+        if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
+            //if it's the default, let's translate it to the outside world 
+            try {
+                return this.getDefaultInterpreter();
+            } catch (NotConfiguredInterpreterException e) {
+                Log.log(e);
+                return projectInterpreterName;
+            }
+        }
+        return projectInterpreterName;
+    }
+
+    public void clearBuiltinMod(String projectInterpreterName) {
+        this.builtinMod.remove(projectInterpreterName);
     }
 
 
@@ -284,8 +339,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     public InterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException {
         synchronized(lock){
             for(IInterpreterInfo info:this.exeToInfo.values()){
-                if(info.matchNameBackwardCompatible(nameOrExecutableOrJar)){
-                    return (InterpreterInfo) info;
+                if(info != null){
+                    if(info.matchNameBackwardCompatible(nameOrExecutableOrJar)){
+                        return (InterpreterInfo) info;
+                    }
                 }
             }
         }
@@ -559,6 +616,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         
                         if(!makeCompleteRebuild){
                         	//just notify that it changed
+                            if(nature instanceof PythonNature){
+                                ((PythonNature) nature).clearCaches();
+                            }
                         	PythonNatureListenersManager.notifyPythonPathRebuilt(nature.getProject(), nature);
                         }else{
                         	//Rebuild the whole info.

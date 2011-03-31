@@ -41,6 +41,20 @@ class PydevTestResult(_PythonTextTestResult):
 
 
 
+
+    def getTestName(self, test):
+        try:
+            try:
+                test_name = test.__class__.__name__ + "." + test._testMethodName
+            except AttributeError:
+                #Support for jython 2.1 (__testMethodName is pseudo-private in the test case)
+                test_name = test.__class__.__name__ + "." + test._TestCase__testMethodName
+        except:
+            traceback.print_exc()
+            return '<unable to get test name>'
+        return test_name
+
+
     def stopTest(self, test):
         end_time = time.time()
         pydevd_io.EndRedirect(std='both')
@@ -50,11 +64,7 @@ class PydevTestResult(_PythonTextTestResult):
         captured_output = self.buf.getvalue()
         del self.buf
         error_contents = ''
-        try:
-            test_name = test.__class__.__name__+"."+test._testMethodName
-        except AttributeError:
-            #Support for jython 2.1 (__testMethodName is pseudo-private in the test case)
-            test_name = test.__class__.__name__+"."+test._TestCase__testMethodName
+        test_name = self.getTestName(test)
             
         
         diff_time = '%.2f' % (end_time - self.start_time)
@@ -62,39 +72,51 @@ class PydevTestResult(_PythonTextTestResult):
             pydev_runfiles_xml_rpc.notifyTest(
                 'ok', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
         else:
-            error_contents = []
-            for test, s in self._current_errors_stack+self._current_failures_stack:
-                if type(s) == type((1,)): #If it's a tuple (for jython 2.1)
-                    sio = StringIO()
-                    traceback.print_exception(s[0], s[1], s[2], file=sio)
-                    s = sio.getvalue()
-                error_contents.append(s)
+            self._reportErrors(self._current_errors_stack, self._current_failures_stack, captured_output, test_name)
             
-            sep = '\n'+self.separator1
-            error_contents = sep.join(error_contents)
             
-            if self._current_errors_stack and not self._current_failures_stack:
-                pydev_runfiles_xml_rpc.notifyTest(
-                    'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
-                
-            elif self._current_failures_stack and not self._current_errors_stack:
-                pydev_runfiles_xml_rpc.notifyTest(
-                    'fail', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
+    def _reportErrors(self, errors, failures, captured_output, test_name, diff_time=''):
+        error_contents = []
+        for test, s in errors+failures:
+            if type(s) == type((1,)): #If it's a tuple (for jython 2.1)
+                sio = StringIO()
+                traceback.print_exception(s[0], s[1], s[2], file=sio)
+                s = sio.getvalue()
+            error_contents.append(s)
+        
+        sep = '\n'+self.separator1
+        error_contents = sep.join(error_contents)
+        
+        if errors and not failures:
+            pydev_runfiles_xml_rpc.notifyTest(
+                'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
             
-            else: #Ok, we got both, errors and failures. Let's mark it as an error in the end.
-                pydev_runfiles_xml_rpc.notifyTest(
-                    'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
+        elif failures and not errors:
+            pydev_runfiles_xml_rpc.notifyTest(
+                'fail', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
+        
+        else: #Ok, we got both, errors and failures. Let's mark it as an error in the end.
+            pydev_runfiles_xml_rpc.notifyTest(
+                'error', captured_output, error_contents, test.__pydev_pyfile__, test_name, diff_time)
                 
 
 
     def addError(self, test, err):
         _PythonTextTestResult.addError(self, test, err)
-        self._current_errors_stack.append(self.errors[-1])
+        if not hasattr(self, '_current_errors_stack'):
+            #Not in start...end, so, report error now (i.e.: django pre/post-setup)
+            self._reportErrors([self.errors[-1]], [], '', self.getTestName(test))
+        else:
+            self._current_errors_stack.append(self.errors[-1])
 
 
     def addFailure(self, test, err):
         _PythonTextTestResult.addFailure(self, test, err)
-        self._current_failures_stack.append(self.failures[-1])
+        if not hasattr(self, '_current_failures_stack'):
+            #Not in start...end, so, report error now (i.e.: django pre/post-setup)
+            self._reportErrors([], [self.failures[-1]], '', self.getTestName(test))
+        else:
+            self._current_failures_stack.append(self.failures[-1])
 
 
 

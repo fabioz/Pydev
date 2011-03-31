@@ -211,16 +211,14 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider{
     /**
      * @param toks those are the tokens that are set as builtin completions.
      */
-    void setBuiltinCompletions(IToken[] toks);
+    void clearBuiltinCompletions();
 
     /**
      * @return the module for the builtins (may return null if not set)
      */
     IModule getBuiltinMod();
-    /**
-     * @param mod the builtion module
-     */
-    void setBuiltinMod(IModule mod);
+
+    void clearBuiltinMod();
 
     /**
      * Checks if the given resource is in the pythonpath

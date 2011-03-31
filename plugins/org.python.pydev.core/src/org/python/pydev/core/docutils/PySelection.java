@@ -13,8 +13,10 @@
 package org.python.pydev.core.docutils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,6 +81,31 @@ public final class PySelection {
         "try"     ,
         "with"     ,
         "finally" 
+    };
+    
+    public static final Set<String> STATEMENT_TOKENS = new HashSet<String>();
+    static{
+        //Note that lambda is not here because it's usually inside other statements
+        STATEMENT_TOKENS.add("assert");
+        STATEMENT_TOKENS.add("break");
+        STATEMENT_TOKENS.add("class");
+        STATEMENT_TOKENS.add("continue");
+        STATEMENT_TOKENS.add("def");
+        STATEMENT_TOKENS.add("elif");
+        //STATEMENT_TOKENS.add("else"); -- can be used in the construct None if True else ''
+        STATEMENT_TOKENS.add("except");
+        STATEMENT_TOKENS.add("finally");
+        //STATEMENT_TOKENS.add("for"); -- can be used in list comprehensions
+        STATEMENT_TOKENS.add("from");
+        //STATEMENT_TOKENS.add("if"); -- can be used in the construct None if True else ''
+        STATEMENT_TOKENS.add("import");
+        STATEMENT_TOKENS.add("pass");
+        STATEMENT_TOKENS.add("raise");
+        STATEMENT_TOKENS.add("return");
+        STATEMENT_TOKENS.add("try");
+        STATEMENT_TOKENS.add("while");
+        STATEMENT_TOKENS.add("with");
+        STATEMENT_TOKENS.add("yield");
     };
     
 

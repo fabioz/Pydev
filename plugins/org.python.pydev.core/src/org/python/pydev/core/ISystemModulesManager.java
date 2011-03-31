@@ -22,7 +22,7 @@ public interface ISystemModulesManager extends IModulesManager {
     /**
      * @return a given module only considering the modules in the builtins.
      */
-    public IModule getBuiltinModule(String name, IPythonNature nature, boolean dontSearchInit);
+    public IModule getBuiltinModule(String name, boolean dontSearchInit);
 
     /**
      * @return a given module only considering modules that are not in the builtins.

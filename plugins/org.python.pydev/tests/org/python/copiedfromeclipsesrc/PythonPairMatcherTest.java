@@ -13,7 +13,16 @@ import junit.framework.TestCase;
 public class PythonPairMatcherTest extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(PythonPairMatcherTest.class);
+        PythonPairMatcherTest test = new PythonPairMatcherTest();
+        try {
+            test.setUp();
+            test.testSearchesOnlyInCurrentStatement();
+            test.tearDown();
+            
+            junit.textui.TestRunner.run(PythonPairMatcherTest.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected void setUp() throws Exception {
@@ -31,6 +40,15 @@ public class PythonPairMatcherTest extends TestCase {
         s = "test ";
         assertEquals(-1, matcher.searchForOpeningPeer(s.length(), '(', ')', new Document(s)));
         s = "test () ";
+        assertEquals(-1, matcher.searchForOpeningPeer(s.length(), '(', ')', new Document(s)));
+    }
+    
+    public void testSearchesOnlyInCurrentStatement() throws Exception {
+        PythonPairMatcher matcher = getMatcher();
+        String s = "" +
+        		"a = (\n" +
+        		"def m1():\n" +
+        		"    b = ()";
         assertEquals(-1, matcher.searchForOpeningPeer(s.length(), '(', ')', new Document(s)));
     }
     

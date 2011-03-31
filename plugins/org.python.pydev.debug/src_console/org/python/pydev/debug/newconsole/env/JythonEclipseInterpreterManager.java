@@ -104,7 +104,7 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
         return false;
     }
 
-    public void setBuiltinCompletions(IToken[] comps, String projectInterpreterName) {
+    public void clearBuiltinCompletions(String projectInterpreterName) {
 
     }
 
@@ -118,7 +118,7 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
         return null;
     }
 
-    public void setBuiltinMod(IModule mod, String projectInterpreterName) {
+    public void clearBuiltinMod(String projectInterpreterName) {
 
     }
 

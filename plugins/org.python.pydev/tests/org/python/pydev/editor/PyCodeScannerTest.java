@@ -19,6 +19,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.swt.graphics.RGB;
 import org.python.pydev.editor.PyCodeScanner.NumberDetector;
+import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
@@ -77,13 +78,15 @@ public class PyCodeScannerTest extends TestCase {
             "";
         
         PreferenceStore store = new PreferenceStore();
-        store.putValue("KEYWORD_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
-        store.putValue("SELF_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
-        store.putValue("CODE_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
-        store.putValue("DECORATOR_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
-        store.putValue("NUMBER_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
-        store.putValue("FUNC_NAME_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
-        store.putValue("CLASS_NAME_COLOR", StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue(PydevEditorPrefs.KEYWORD_COLOR, StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue(PydevEditorPrefs.SELF_COLOR, StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue(PydevEditorPrefs.CODE_COLOR, StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue(PydevEditorPrefs.DECORATOR_COLOR, StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue(PydevEditorPrefs.NUMBER_COLOR, StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue(PydevEditorPrefs.FUNC_NAME_COLOR, StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue(PydevEditorPrefs.CLASS_NAME_COLOR, StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue(PydevEditorPrefs.OPERATORS_COLOR, StringConverter.asString(new RGB(255, 0, 0)));
+        store.putValue(PydevEditorPrefs.PARENS_COLOR, StringConverter.asString(new RGB(255, 0, 0)));
         
         ColorAndStyleCache colorCache = new ColorAndStyleCache(store);
         PyCodeScanner scanner = new PyCodeScanner(colorCache);
