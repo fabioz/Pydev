@@ -84,6 +84,7 @@ public class PyMoveResourceAction extends MoveResourceAction{
         if(!fillSelection()){ //will also update the list of resources (main change from the DeleteResourceAction)
             return;
         }
+        Helpers.checkValidateState();
         super.run();
     }
 

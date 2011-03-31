@@ -11,7 +11,6 @@
 package com.python.pydev.refactoring.actions;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,10 +35,8 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.progress.UIJob;
-import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IParserObserver;
@@ -58,7 +55,6 @@ import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.editor.refactoring.TooManyMatchesException;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.ExecuteWithDirtyEditorsUpdated;
 
 /**
  * This is a refactoring action, but it does not follow the default cycle -- so, it overrides the run
@@ -213,18 +209,12 @@ public class PyGoToDefinition extends PyRefactorAction {
 		final Shell shell = getShell();
         try {
             
-            ArrayList<Tuple<IModulesManager, String>> pushed = ExecuteWithDirtyEditorsUpdated.start();
-            try{
-            	
-				if(areRefactorPreconditionsOK(refactoringRequest)){
-	                ItemPointer[] defs = findDefinition(pyEdit);
-	                if(doOpenDefinition){
-	                    openDefinition(defs, pyEdit, shell);
-	                }
-	                return defs;
-	            }
-            }finally{
-                ExecuteWithDirtyEditorsUpdated.end(pushed);
+			if(areRefactorPreconditionsOK(refactoringRequest)){
+                ItemPointer[] defs = findDefinition(pyEdit);
+                if(doOpenDefinition){
+                    openDefinition(defs, pyEdit, shell);
+                }
+                return defs;
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -27,12 +27,7 @@ import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.part.ResourceTransfer;
 
 /**
- * Standard action for copying the currently selected resources to the clipboard.
- * <p>
- * This class may be instantiated; it is not intended to be subclassed.
- * </p>
- * 
- * @since 2.0
+ * Copied to extend.
  */
 public class CopyAction extends SelectionListenerAction {
 
