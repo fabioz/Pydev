@@ -87,16 +87,13 @@ public class PyConfigureException extends PyAction {
 
 	private class ExceptionProvider implements IStructuredContentProvider {
 
-		@Override
 		public void dispose() {
 
 		}
 
-		@Override
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		}
 
-		@Override
 		public Object[] getElements(Object inputElement) {
 			IInterpreterManager manager = PydevPlugin
 					.getPythonInterpreterManager();

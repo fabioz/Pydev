@@ -5,7 +5,6 @@ import org.python.pydev.editor.actions.PyShowOutline;
 
 public class PyConfigureExceptionAction extends PyShowOutline {
 
-	@Override
 	protected String getExtensionName() {
 		return ExtensionHelper.PYDEV_CONFIGURE_EXCEPTION;
 	}
