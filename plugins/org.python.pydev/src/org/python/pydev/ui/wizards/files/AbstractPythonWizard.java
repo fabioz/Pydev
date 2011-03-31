@@ -97,7 +97,7 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
 
     
     /** Wizard page asking filename */
-    protected PythonAbstractPathPage filePage;
+    protected AbstractPythonWizardPage filePage;
 
     /**
      * @see org.eclipse.jface.wizard.IWizard#addPages()
@@ -111,7 +111,7 @@ public abstract class AbstractPythonWizard extends Wizard implements INewWizard 
     /**
      * @return
      */
-    protected abstract PythonAbstractPathPage createPathPage();
+    protected abstract AbstractPythonWizardPage createPathPage();
 
     
     /**

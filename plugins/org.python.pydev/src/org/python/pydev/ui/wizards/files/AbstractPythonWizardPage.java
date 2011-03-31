@@ -50,13 +50,14 @@ import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.UIConstants;
 import org.python.pydev.ui.dialogs.PythonPackageSelectionDialog;
 import org.python.pydev.ui.dialogs.SourceFolder;
 
 /**
  * The default creation page may be found at org.eclipse.ui.dialogs.WizardNewFileCreationPage
  */
-public abstract class PythonAbstractPathPage extends WizardPage implements KeyListener{
+public abstract class AbstractPythonWizardPage extends WizardPage implements KeyListener{
 
     private IStructuredSelection selection;
     private Text textSourceFolder;
@@ -73,6 +74,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
      * It is not null only when the package was correctly validated
      */
     private IContainer validatedPackage;
+    private String packageText;
     /**
      * This is the project
      */
@@ -90,6 +92,9 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
     public IContainer getValidatedPackage(){
         return validatedPackage;
     }
+    public String getPackageText(){
+        return packageText;
+    }
     public String getValidatedName(){
         return validatedName;
     }
@@ -97,7 +102,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
         return validatedProject;
     }
 
-    protected PythonAbstractPathPage(String pageName, IStructuredSelection selection) {
+    protected AbstractPythonWizardPage(String pageName, IStructuredSelection selection) {
         super(pageName);
         setPageComplete(false);
         this.selection = selection;
@@ -107,6 +112,8 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
     protected String lastWithFocusStr;
     private List templateList;
     private TreeMap<String, TemplatePersistenceData> nameToTemplateData;
+    private Label labelWarningWillCreate;
+    private Label labelWarningImageWillCreate;
     private void setFocusOn(Text txt, String string) {
         if(txt != null){
             //System.out.println("seting focus on:"+string);
@@ -148,13 +155,12 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             previousFilled = createProjectSelect(topLevel);
         }
         
-        //always call the package create (but not always will it create
+        //always call the package create (but note that it may either create the package or not).
+        boolean createPackageSelectFilled = createPackageSelect(topLevel, previousFilled);
         if(shouldCreatePackageSelect()){
-            previousFilled = createPackageSelect(topLevel, previousFilled);
-        }else{
-            createPackageSelect(topLevel, previousFilled);
+            previousFilled = createPackageSelectFilled;
         }
-
+        
         //always create the name
         createNameSelect(topLevel, previousFilled);
         
@@ -372,7 +378,19 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             textPackage.addKeyListener(this);
             btBrowsePackage = new Button(topLevel, SWT.NONE);
             setLayout(label, textPackage, btBrowsePackage);
-    
+            
+            labelWarningImageWillCreate = new Label(topLevel, SWT.NONE);
+            labelWarningImageWillCreate.setVisible(false);
+            labelWarningImageWillCreate.setImage(PydevPlugin.getImageCache().get(UIConstants.WARNING));
+            
+            labelWarningWillCreate = new Label(topLevel, SWT.NONE);
+            labelWarningWillCreate.setText("Note: package not found (will be created).");
+            labelWarningWillCreate.setVisible(false);
+            setLayout(labelWarningImageWillCreate, labelWarningWillCreate, null);
+            
+            //just create an empty to complete the line (that needs 3 items in the layout)
+            new Label(topLevel, SWT.NONE);
+            
             if(setFocus){
                 setFocusOn(textPackage, "package");
             }
@@ -571,9 +589,11 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             label.setLayoutData(data);
         }
         
-        data = new GridData(GridData.FILL_HORIZONTAL);
-        data.grabExcessHorizontalSpace = true;
-        text.setLayoutData(data);
+        if(text != null){
+            data = new GridData(GridData.FILL_HORIZONTAL);
+            data.grabExcessHorizontalSpace = true;
+            text.setLayoutData(data);
+        }
         
         if(bt != null){
             data = new GridData();
@@ -687,7 +707,7 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
             return "The project was not correctly validated.";
         }
         if(shouldCreatePackageSelect()){
-            if(validatedPackage == null){
+            if(validatedPackage == null && packageText == null){
                 return "The package was not correctly validated.";
             }
         }
@@ -717,29 +737,53 @@ public abstract class PythonAbstractPathPage extends WizardPage implements KeyLi
 
     protected String checkValidPackage(String text) {
         validatedPackage = null;
+        packageText = null;
         //there is a chance that the package is the default project, so, the validation below may not be valid.
         //if(text == null || text.trim().length() == 0 ){
         //}
+        String initialText = text;
         
         if(text.indexOf('/') != -1){
+            labelWarningImageWillCreate.setVisible(false);
+            labelWarningWillCreate.setVisible(false);
+            labelWarningWillCreate.getParent().layout();
             return "The package name must not contain '/'.";
         }
         if(text.indexOf('\\') != -1){
+            labelWarningImageWillCreate.setVisible(false);
+            labelWarningWillCreate.setVisible(false);
+            labelWarningWillCreate.getParent().layout();
             return "The package name must not contain '\\'.";
         }
         if(text.endsWith(".")){
+            labelWarningImageWillCreate.setVisible(false);
+            labelWarningWillCreate.setVisible(false);
+            labelWarningWillCreate.getParent().layout();
             return "The package may not end with a dot";
         }
         text = text.replace('.', '/');
         if(validatedSourceFolder == null){
+            labelWarningImageWillCreate.setVisible(false);
+            labelWarningWillCreate.setVisible(false);
+            labelWarningWillCreate.getParent().layout();
             return "The source folder was not correctly validated.";
         }
+        
         IPath path = validatedSourceFolder.getFullPath().append(text);
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         IResource resource = root.findMember(path);
         if(resource == null){
-            return "The package was not found in the workspace.";
+            packageText = initialText;
+            labelWarningImageWillCreate.setVisible(true);
+            labelWarningWillCreate.setVisible(true);
+            labelWarningWillCreate.getParent().layout();
+
+            return null;
         }
+        labelWarningImageWillCreate.setVisible(false);
+        labelWarningWillCreate.setVisible(false);
+        labelWarningWillCreate.getParent().layout();
+        
         if(!(resource instanceof IContainer)){
             return "The resource found for the package is not a valid container.";
         }

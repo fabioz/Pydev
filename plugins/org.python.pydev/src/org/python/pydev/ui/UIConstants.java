@@ -123,4 +123,5 @@ public class UIConstants {
 	public static final String FORCE_TABS_ACTIVE = "icons/tabs_active.png";
 	public static final String FORCE_TABS_INACTIVE = "icons/tabs_inactive.png";
 	public static final String PY_LINT_ICON = "icons/pylint.png";
+    public static final String WARNING = "icons/warning.png";
 }

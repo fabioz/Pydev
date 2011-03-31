@@ -37,12 +37,10 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -69,7 +67,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.nature.ExecuteWithDirtyEditorsUpdated;
 
 /**
  * @author Dmoore
@@ -85,12 +82,165 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public List getCodeCompletionProposals(ITextViewer viewer, CompletionRequest request) throws CoreException, BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
-        ArrayList<Tuple<IModulesManager, String>> pushed = ExecuteWithDirtyEditorsUpdated.start();
-        try{
-            return onGetCodeCompletionProposals(viewer, request);
-        }finally{
-            ExecuteWithDirtyEditorsUpdated.end(pushed);
+        if(request.getPySelection().getCursorLineContents().trim().startsWith("#")){
+            //this may happen if the context is still not correctly computed in python
+            return new PyStringCodeCompletion().getCodeCompletionProposals(viewer, request);
         }
+        if(DebugSettings.DEBUG_CODE_COMPLETION){
+            Log.toLogFile(this,"Starting getCodeCompletionProposals");
+            Log.addLogLevel();
+            Log.toLogFile(this,"Request:"+request);
+        }
+        
+        ArrayList<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
+        
+        //let's see if we should do a code-completion in the current scope...
+        if(!isValidCompletionContext(request)){
+            request.showTemplates = false;
+            return ret;
+        }
+        
+        try {
+            IPythonNature pythonNature = request.nature;
+            checkPythonNature(pythonNature);
+            
+            ICodeCompletionASTManager astManager = pythonNature.getAstManager();
+            if (astManager == null) { 
+                //we're probably still loading it.
+                return ret;
+            }
+            
+            //list of Object[], IToken or ICompletionProposal
+            List<Object> tokensList = new ArrayList<Object>();
+            lazyStartShell(request);
+            String trimmed = request.activationToken.replace('.', ' ').trim();
+        
+            ImportInfo importsTipper = getImportsTipperStr(request);
+        
+            int line = request.doc.getLineOfOffset(request.documentOffset);
+            IRegion region = request.doc.getLineInformation(line);
+        
+            ICompletionState state = new CompletionState(line, request.documentOffset - region.getOffset(), null, request.nature, request.qualifier);
+            state.setIsInCalltip(request.isInCalltip);
+        
+        
+            Map<String, IToken> alreadyChecked = new HashMap<String, IToken>();
+        
+            boolean importsTip = false;
+            
+            if (importsTipper.importsTipperStr.length() != 0) {
+                //code completion in imports 
+                request.isInCalltip = false; //if found after (, but in an import, it is not a calltip!
+                request.isInMethodKeywordParam = false; //if found after (, but in an import, it is not a calltip!
+                importsTip = doImportCompletion(request, astManager, tokensList, importsTipper);
+        
+            } else if (trimmed.length() > 0 && request.activationToken.indexOf('.') != -1) {
+                //code completion for a token
+                doTokenCompletion(request, astManager, tokensList, trimmed, state);
+                handleKeywordParam(request, line, alreadyChecked);
+        
+            } else { 
+                //go to globals
+                doGlobalsCompletion(request, astManager, tokensList, state);
+                
+                //At this point, after doing the globals completion, we may also need to check if we need to show
+                //keyword parameters to the user.
+                handleKeywordParam(request, line, alreadyChecked);
+            }
+        
+            
+            String lowerCaseQual = request.qualifier.toLowerCase();
+            if(lowerCaseQual.length() >= PyCodeCompletionPreferencesPage.getArgumentsDeepAnalysisNChars()){
+                //this can take some time on the analysis, so, let's let the user choose on how many chars does he
+                //want to do the analysis...
+                state.pushFindResolveImportMemoryCtx();
+                try{
+                    for(Iterator<Object> it=tokensList.listIterator(); it.hasNext();){
+                        Object o = it.next();
+                        if(o instanceof IToken){
+                            it.remove(); // always remove the tokens from the list (they'll be re-added later once they are filtered)
+                            
+                            IToken initialToken = (IToken) o;
+                            
+                            IToken token = initialToken;
+                            String strRep = token.getRepresentation();
+                            IToken prev = alreadyChecked.get(strRep);
+                            
+                            if(prev != null){
+                                if(prev.getArgs().length() != 0){
+                                    continue; // we already have a version with args... just keep going
+                                }
+                            }
+                            
+                            if(!strRep.toLowerCase().startsWith(lowerCaseQual)){
+                                //just re-add it if we're going to actually use it (depending on the qualifier)
+                                continue;
+                            }
+                            
+                            while(token.isImportFrom()){
+                                //we'll only add it here if it is an import from (so, set the flag to false for the outer add)
+                                
+                                if(token.getArgs().length() > 0){
+                                    //if we already have the args, there's also no reason to do it (that's what we'll do here)
+                                    break;
+                                }
+                                ICompletionState s = state.getCopyForResolveImportWithActTok(token.getRepresentation());
+                                s.checkFindResolveImportMemory(token);
+                                
+                                IToken token2 = astManager.resolveImport(s, token);
+                                if(token2 != null && initialToken != token2){
+                                    String args = token2.getArgs();
+                                    if(args.length() > 0){
+                                        //put it into the map (may override previous if it didn't have args)
+                                        initialToken.setArgs(args);
+                                        initialToken.setDocStr(token2.getDocStr());
+                                        if(initialToken instanceof SourceToken && token2 instanceof SourceToken){
+                                            SourceToken initialSourceToken = (SourceToken) initialToken;
+                                            SourceToken token2SourceToken = (SourceToken) token2;
+                                            initialSourceToken.setAst(token2SourceToken.getAst());
+                                        }
+                                        break;
+                                    }
+                                    if(token2 == null || 
+                                           (token2.equals(token) && 
+                                            token2.getArgs().equals(token.getArgs()) && 
+                                            token2.getParentPackage().equals(token.getParentPackage()))){
+                                        break;
+                                    }
+                                    token = token2;
+                                }else{
+                                    break;
+                                }
+                            }
+                            
+                            alreadyChecked.put(strRep, initialToken);
+                        }
+                    }
+        
+                }finally{
+                    state.popFindResolveImportMemoryCtx();
+                }
+            }
+            
+            tokensList.addAll(alreadyChecked.values());
+            changeItokenToCompletionPropostal(viewer, request, ret, tokensList, importsTip, state);
+        } catch (CompletionRecursionException e) {
+            if(onCompletionRecursionException != null){
+                onCompletionRecursionException.call(e);
+            }
+            if(DebugSettings.DEBUG_CODE_COMPLETION){
+                Log.toLogFile(e);
+            }
+            //PydevPlugin.log(e);
+            //ret.add(new CompletionProposal("",request.documentOffset,0,0,null,e.getMessage(), null,null));
+        }
+        
+        if(DebugSettings.DEBUG_CODE_COMPLETION){
+            Log.remLogLevel();
+            Log.toLogFile(this, "Finished completion. Returned:"+ret.size()+" completions.\r\n");
+        }
+        
+        return ret;
     }
     
     

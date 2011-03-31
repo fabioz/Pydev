@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -41,7 +42,6 @@ import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStack;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.editor.codecompletion.revisited.ModulesKeyTreeMap.Entry;
@@ -187,8 +187,12 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     @SuppressWarnings("unchecked")
     private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
         lockCompletionCache = new Object();
-        lockTemporaryModules = new Object();
+        completionCacheI = 0;
         modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
+        
+        temporaryModules = new HashMap<String, SortedMap<Integer, IModule>>();
+        lockTemporaryModules = new Object();
+        nextHandle = 0;
 
         files = new HashSet<File>();
         aStream.defaultReadObject();
@@ -451,46 +455,39 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     }
     
     /**
-     * Note that the FastStack access must be synched.
+     * Note that the access must be synched.
      */
-    public transient volatile Map<String, FastStack<IModule>> temporaryModules = null;
+    public transient Map<String, SortedMap<Integer, IModule>> temporaryModules = new HashMap<String, SortedMap<Integer, IModule>>();
     private transient Object lockTemporaryModules = new Object();
+    private transient int nextHandle = 0;
     
-    public void pushTemporaryModule(String moduleName, IModule module) {
+    /**
+     * Returns the handle to be used to remove the module added later on!
+     */
+    public int pushTemporaryModule(String moduleName, IModule module) {
     	synchronized (lockTemporaryModules) {
-    		if(temporaryModules == null){
-    			temporaryModules = new HashMap<String, FastStack<IModule>>();
+    		SortedMap<Integer, IModule> map = temporaryModules.get(moduleName);
+    		if(map == null){
+    			map = new TreeMap<Integer, IModule>(); //small initial size!
+    			temporaryModules.put(moduleName, map);
     		}
-    		FastStack<IModule> stack = temporaryModules.get(moduleName);
-    		if(stack == null){
-    			stack = new FastStack<IModule>(3); //small initial size!
-    			temporaryModules.put(moduleName, stack);
-    		}
-    		stack.push(module);
+    		nextHandle += 1; //Note: don't care about stack overflow!
+    		map.put(nextHandle, module);
+    		return nextHandle;
 		}
     	
     }
     
-    public void popTemporaryModule(String moduleName) {
+    public void popTemporaryModule(String moduleName, int handle) {
     	synchronized (lockTemporaryModules) {
-    		if(temporaryModules == null){
-    			return;
-    		}
-    		FastStack<IModule> stack = temporaryModules.get(moduleName);
-    		if(stack == null){
-    			//try to make it null when possible
-    			temporaryModules = null;
-    			return;
-    		}
+    		SortedMap<Integer, IModule> stack = temporaryModules.get(moduleName);
     		try {
-				stack.pop();
-				if(stack.size() == 0){
-					temporaryModules.remove(moduleName);
-				}
-				if(temporaryModules.size() == 0){
-					//try to make it null when possible (so that we don't have to sync later on)
-					temporaryModules = null;
-				}
+    		    if(stack != null){
+    				stack.remove(handle);
+    				if(stack.size() == 0){
+    					temporaryModules.remove(moduleName);
+    				}
+    		    }
 			} catch (Throwable e) {
 				Log.log(e);
 			}
@@ -508,20 +505,15 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * @return the module represented by this name
      */
     protected IModule getModule(boolean acceptCompiledModule, String name, IPythonNature nature, boolean dontSearchInit) {
-    	if(temporaryModules != null){
-    		synchronized (lockTemporaryModules) {
-    			if(temporaryModules != null){
-    				//who knows, maybe it became null at that point.
-	    			FastStack<IModule> stack = temporaryModules.get(name);
-	    			if(stack != null && stack.size() > 0){
-	    				if(DEBUG_TEMPORARY_MODULES){
-	    					System.out.println("Returning temporary module: "+name);
-	    				}
-	    				return stack.peek();
-	    			}
-    			}
-    		}
-    	}
+		synchronized (lockTemporaryModules) {
+		    SortedMap<Integer, IModule> map = temporaryModules.get(name);
+			if(map != null && map.size() > 0){
+				if(DEBUG_TEMPORARY_MODULES){
+					System.out.println("Returning temporary module: "+name);
+				}
+				return map.get(map.lastKey());
+			}
+		}
         AbstractModule n = null;
         ModulesKey keyForCacheAccess = new ModulesKey(null, null);
 

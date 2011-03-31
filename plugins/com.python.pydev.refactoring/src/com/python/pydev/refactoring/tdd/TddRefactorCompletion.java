@@ -6,7 +6,6 @@
  */
 package com.python.pydev.refactoring.tdd;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.DocumentEvent;
@@ -16,13 +15,10 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.plugin.nature.ExecuteWithDirtyEditorsUpdated;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 
 /**
@@ -72,15 +68,10 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
             //We have to reparse to make sure that we'll have an accurate AST.
             edit.getParser().reparseDocument();
         }
-        ArrayList<Tuple<IModulesManager, String>> pushed = ExecuteWithDirtyEditorsUpdated.start();
-        try {
-            TemplateProposal executed2 = getExecuted();
-            if(executed2 != null){
-                executed2.apply(viewer, trigger, stateMask, 0);
-                forceReparseInBaseEditorAnd();
-            }
-        } finally {
-            ExecuteWithDirtyEditorsUpdated.end(pushed);
+        TemplateProposal executed2 = getExecuted();
+        if(executed2 != null){
+            executed2.apply(viewer, trigger, stateMask, 0);
+            forceReparseInBaseEditorAnd();
         }
     }
     
