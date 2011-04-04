@@ -1,6 +1,6 @@
 <doc>
 <contents_area>
-<h1 class="title">Working with the Pydev Grammar</h1>
+<h1 class="title">Working with the PyDev Grammar</h1>
 
 <div class="contents topic" id="contents">
 <p class="topic-title first">Contents</p>
@@ -16,13 +16,13 @@
 <p>This page shows the steps needed for modifying and creating a new grammar.</p>
 <div class="section" id="where-to-start">
 <h1><a class="toc-backref" href="#id1">Where to start?</a></h1>
-<p>The org.python.pyev.parser plugin contains all the grammars supported by pydev. JavaCC knowledge is needed to
+<p>The org.python.pyev.parser plugin contains all the grammars supported by PyDev. JavaCC knowledge is needed to
 edit those files (most notably the python.jjt_template files -- python.jjt files should not be directly edited).</p>
 <p>The most relevant packages are:</p>
 </div>
 <div class="section" id="org-python-pydev-parser-jython-ast">
 <h1><a class="toc-backref" href="#id2">org.python.pydev.parser.jython.ast</a></h1>
-<p>This package contains the AST (Abstract Syntax Tree) structure used by Pydev. It implements a visitor pattern
+<p>This package contains the AST (Abstract Syntax Tree) structure used by PyDev. It implements a visitor pattern
 so that clients can traverse the structure.</p>
 <p>All the grammars generate the same AST. This means it must remain compatible with all versions of
 Python -- that isn't much a problem as new features arrive, as it'd be just a matter of creating
@@ -53,13 +53,13 @@ call the make_replace.py)</p>
 </div>
 <div class="section" id="important">
 <h1><a class="toc-backref" href="#id5">Important</a></h1>
-<p>One thing essential for code to get into pydev is that it has to be properly tested. For examples on tests for the grammar
+<p>One thing essential for code to get into PyDev is that it has to be properly tested. For examples on tests for the grammar
 see the PyParserXXTest classes under tests/org.python.pydev.parser.</p>
 </div>
 <div class="section" id="notes">
 <h1><a class="toc-backref" href="#id6">Notes</a></h1>
 <p>Note that the grammar is a fork of the Jython structure, but it has a number of changes to support the features needed
-in Pydev:</p>
+in PyDev:</p>
 <p>Major:</p>
 <ul class="simple">
 <li>Provides a way to get comments and other tokens (specialsBefore and specialsAfter in SimpleNode, containing

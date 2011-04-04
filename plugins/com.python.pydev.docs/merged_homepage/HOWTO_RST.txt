@@ -1,0 +1,14 @@
+To add a tooltip/raw html
+
+.. raw:: html
+
+    <a class="tooltip" href="#">Classic<span class="classic">This</span></a>
+
+
+Image with link
+
+|Pydev20Video|
+
+.. |Pydev20Video| image:: images/video/snap.png
+    :class: link
+.. _Pydev20Video: video_pydev_20.html

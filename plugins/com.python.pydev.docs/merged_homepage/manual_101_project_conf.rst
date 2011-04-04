@@ -6,7 +6,7 @@ Creating a Project
 Ok, now that your interpreter is configured, it is time to **create a project**. 
 
 After opening Eclipse, go to the menu:
-**file > new > project > Pydev > Pydev project**. You should see the screen below:
+**file > new > project > PyDev > PyDev project**. You should see the screen below:
 
 
 .. image:: images/new_project.png
@@ -59,7 +59,7 @@ Creating a Project from existing sources
      that this link folder must be added to the PYTHONPATH in the next step.
      
      **Note 1**: **links** can be used **above the source folder** or **as the source folder**, but 
-     **never inside a source folder**, as it's not supported by Pydev)
+     **never inside a source folder**, as it's not supported by PyDev)
      
      **Note 2**: To create the folder as a link, choose the **file > new > folder** from the menu and in the new folder
      dialog select the **Advanced >>** options.

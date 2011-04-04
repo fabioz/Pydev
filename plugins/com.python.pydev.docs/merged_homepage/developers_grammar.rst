@@ -1,4 +1,4 @@
-Working with the Pydev Grammar
+Working with the PyDev Grammar
 ==============================
 
 .. contents::
@@ -9,7 +9,7 @@ This page shows the steps needed for modifying and creating a new grammar.
 Where to start?
 -----------------
 
-The org.python.pyev.parser plugin contains all the grammars supported by pydev. JavaCC knowledge is needed to
+The org.python.pyev.parser plugin contains all the grammars supported by PyDev. JavaCC knowledge is needed to
 edit those files (most notably the python.jjt_template files -- python.jjt files should not be directly edited).
 
 The most relevant packages are:
@@ -17,7 +17,7 @@ The most relevant packages are:
 org.python.pydev.parser.jython.ast
 ----------------------------------
 
-This package contains the AST (Abstract Syntax Tree) structure used by Pydev. It implements a visitor pattern
+This package contains the AST (Abstract Syntax Tree) structure used by PyDev. It implements a visitor pattern
 so that clients can traverse the structure.
 
 All the grammars generate the same AST. This means it must remain compatible with all versions of 
@@ -61,14 +61,14 @@ The make_replace.py can be edited to provide constructs that are common among mo
 Important
 ---------
 
-One thing essential for code to get into pydev is that it has to be properly tested. For examples on tests for the grammar
+One thing essential for code to get into PyDev is that it has to be properly tested. For examples on tests for the grammar
 see the PyParserXXTest classes under tests/org.python.pydev.parser.
 
 Notes
 ------
 
 Note that the grammar is a fork of the Jython structure, but it has a number of changes to support the features needed
-in Pydev:
+in PyDev:
 
 Major:
 

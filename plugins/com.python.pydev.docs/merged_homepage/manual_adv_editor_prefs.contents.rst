@@ -1,4 +1,4 @@
-Pydev Editor Preferences
+PyDev Editor Preferences
 =========================
 
 .. contents:: 
@@ -14,7 +14,7 @@ but if you don't understand one, please ask in the users forum (so that the spel
 
 Editor
 -------
-In **window > preferences > pydev > editor**, pydev can edit the tab settings and appearance colors used in pydev 
+In **window > preferences > PyDev > editor**, PyDev can edit the tab settings and appearance colors used in PyDev 
 (such as the code color, decorators, numbers, strings, comments, etc).
 
 It's important to have in mind that many preferences, 

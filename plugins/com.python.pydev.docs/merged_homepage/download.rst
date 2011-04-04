@@ -5,7 +5,7 @@ Download (Current release: **LAST_VERSION_TAG**)
 
 Important
 ~~~~~~~~~~~
-First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure Pydev
+First time users are strongly advised to read the `Getting started guide`_  which explains how to properly configure PyDev
 
 
 Requirements
@@ -41,16 +41,16 @@ and
 Important
 ~~~~~~~~~~~
 
-* Pydev is now preinstalled in `Aptana Studio 3`_.
+* PyDev is now preinstalled in `Aptana Studio 3`_.
   
 * For using the Django Templates editor, `Aptana Studio 3`_ is required.
 
-* If Pydev is used with Aptana Studio 3, it **cannot** be installed or updated separately (Aptana Studio 3 must always be updated as a whole)
+* If PyDev is used with Aptana Studio 3, it **cannot** be installed or updated separately (Aptana Studio 3 must always be updated as a whole)
 
 .. https://aptanastudio.tenderapp.com/kb/updating-changing-or-uninstalling/change-update-type
 
 
-URLs for Aptana Studio 3 (with Pydev preinstalled):
+URLs for Aptana Studio 3 (with PyDev preinstalled):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :Main:
@@ -68,9 +68,10 @@ URLs for Aptana Studio 3 (with Pydev preinstalled):
 .. _http://pydev.sourceforge.net/updates: http://pydev.sourceforge.net/updates
 .. _http://pydev.org/updates: http://pydev.org/updates
 .. _http://pydev.org/nightly: http://pydev.org/nightly
+.. _http://preview.appcelerator.com/tools/aptana/studio3/standalone/studio3.win32.x86.zip: http://preview.appcelerator.com/tools/aptana/studio3/standalone/studio3.win32.x86.zip
 .. _SourceForge download: http://sourceforge.net/projects/pydev/files/
 
-URLs for Pydev as Eclipse plugin 
+URLs for PyDev as Eclipse plugin 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Urls to use when updating with the Eclipse update manager:

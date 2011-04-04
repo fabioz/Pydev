@@ -28,7 +28,7 @@ manualAdv = (
     ('templateManual.html', 'manual_adv_remote_debugger'               , 'Remote Debugger'                 ),
     ('templateManual.html', 'manual_adv_debug_console'                 , 'Debug Console'                   ),
     ('templateManual.html', 'manual_adv_django'                        , 'Django'                          ),
-    ('templateManual.html', 'manual_articles_scripting' , 'Jython Scripting in Pydev'),
+    ('templateManual.html', 'manual_articles_scripting' , 'Jython Scripting in PyDev'),
 )
 
 manual101 = (
@@ -109,14 +109,14 @@ def templateForAll(lst, first, last, if_not_specified_in_file={}):
     
 
 def main():
-    template('template1.html', 'index'                     , 'Pydev'          )
+    template('template1.html', 'index'                     , 'PyDev'          )
     template('template1.html', 'download'                  , 'Download'                  )
     template('template1.html', 'developers'                , 'Developers'                )
     template('template1.html', 'developers_grammar'                , 'Developers: Grammar'                )
     template('template1.html', 'manual'                    , 'Manual'                    )
     template('template1.html', 'about'                     , 'About'                     )
-    template('template1.html', 'history_pydev'             , 'Pydev Releases'            )
-    template('template1.html', 'history_pydev_extensions'  , 'Pydev Extensions Releases' )
+    template('template1.html', 'history_pydev'             , 'PyDev Releases'            )
+    template('template1.html', 'history_pydev_extensions'  , 'PyDev Extensions Releases' )
     
     templateForAll(manual101, ('', 'manual','Root'), ('', 'manual_adv_features'   ,'Features'))
     

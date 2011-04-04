@@ -11,7 +11,7 @@ Code completion provides context-sensitive completions and is enabled with **Ctr
 emacs-style text-completion with **Alt+/**).
 
 It's important to note that your interpreter must be properly configured for the code-completion to work, and for getting
-the **builtins**, Pydev spawns a shell, so, having a **firewall can prevent the code-completion from working** if it's
+the **builtins**, PyDev spawns a shell, so, having a **firewall can prevent the code-completion from working** if it's
 blocking the communication from eclipse to that shell.
 
 
@@ -19,7 +19,7 @@ Preferences
 ------------
 
 If you want to configure something, you have to go to
-**window > preferences > Pydev > Editor > Code Completion**.
+**window > preferences > PyDev > Editor > Code Completion**.
 
 .. image:: images/codecompletion/codecompletionpreferences.png
    :class: snap
