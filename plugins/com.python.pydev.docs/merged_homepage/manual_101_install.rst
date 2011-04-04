@@ -6,8 +6,8 @@
 Note for users with Aptana Studio 3 (Beta)
 ==========================================
 
-Pydev already comes preinstalled in `Aptana Studio 3`_, so, this step can be skipped (note that if `Aptana Studio 3`_ is used,
-Pydev cannot be installed or update separately, as it must always be updated as a whole). 
+PyDev already comes preinstalled in `Aptana Studio 3`_, so, this step can be skipped (note that if `Aptana Studio 3`_ is used,
+PyDev cannot be installed or update separately, as it must always be updated as a whole). 
 
 
 Before starting the install
@@ -19,7 +19,7 @@ any plugin needs to be updated).
 
 Also, it seems Eclipse 3.6.0 has some issues installing in shared locations (in any OS). An example of such a location would 
 be the Program Files directory on Windows (see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=322929), so, 
-please use at least 3.6.1 if planning to install Eclipse/Pydev on a shared location.
+please use at least 3.6.1 if planning to install Eclipse/PyDev on a shared location.
 
 
 Installing with the update site 
@@ -27,7 +27,7 @@ Installing with the update site
 
 **Note: Instructions are targeted at Eclipse 3.5 and 3.6**
 
-To install Pydev and Pydev Extensions using the Eclipse Update Manager, you need to use the **Help > Install New Software...**
+To install PyDev and PyDev Extensions using the Eclipse Update Manager, you need to use the **Help > Install New Software...**
 menu (note that in older versions, this would be the 'Find and Install' menu).
 
 .. image:: images/install_menu.png
@@ -63,8 +63,8 @@ _`Available update sites`
       
 
 After entering the update sites, select the update site you entered or 
-select "All available sites" and add a filter for Pydev, so that it 
-shows the contents of all the update sites that have Pydev, then select what you want to install and click 'Next'.
+select "All available sites" and add a filter for PyDev, so that it 
+shows the contents of all the update sites that have PyDev, then select what you want to install and click 'Next'.
 
 
 .. image:: images/update_sites2.png
@@ -131,13 +131,13 @@ Checking the installation
 ===========================
 
 You can verify if it is correctly installed going to the menu **'window > preferences'** and 
-checking if there is a **Pydev** item under that.
+checking if there is a **PyDev** item under that.
 
 
 Uninstalling
 ==============
 
-Follow the instructons below if at any time you wish to stop using the Pydev plugin 
+Follow the instructons below if at any time you wish to stop using the PyDev plugin 
 (or any other Eclipse plugin):
 
 **Eclipse 3.5**

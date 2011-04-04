@@ -1,11 +1,11 @@
 <doc>
 <contents_area>
 
-	<h3>Scripting Pydev with Jython</h3>
+	<h3>Scripting PyDev with Jython</h3>
 	
 	<p>
-		Version 1.0.4 has added the option of <strong>scripting Pydev with Jython</strong>, and this article aims at explaining how it works
-		and how to add your own scripts to Pydev.
+		Version 1.0.4 has added the option of <strong>scripting PyDev with Jython</strong>, and this article aims at explaining how it works
+		and how to add your own scripts to PyDev.
 	</p>
 	
 	<br/>
@@ -30,14 +30,14 @@
 	<p><br/><center><img src="images/scripting/scripting_prefs.png"/></center><br/><br/></p>
 	<p>
 		Now that you have your preferences correctly set, let's make some changes to see what we can play with... You just need
-		Pydev installed (we will change the scripts that come with the default installation, so, there is no need to actually download
-		the Pydev sources, altough it might be worth getting it for having it as a reference).
+		PyDev installed (we will change the scripts that come with the default installation, so, there is no need to actually download
+		the PyDev sources, altough it might be worth getting it for having it as a reference).
 	</p>
 	
 	<br/>
 	<p>
-		So, in your Pydev installation, go to the <strong>jysrc</strong> folder of the <strong>org.python.pydev.jython plugin</strong>
-		that is part of Pydev (this is located under the eclipse install... 
+		So, in your PyDev installation, go to the <strong>jysrc</strong> folder of the <strong>org.python.pydev.jython plugin</strong>
+		that is part of PyDev (this is located under the eclipse install... 
 		something as <strong>...\eclipse\plugins\org.python.pydev.jython_1.0.4\jysrc</strong>)
 	</p>
 	
@@ -50,7 +50,7 @@
 	<br/>
 	<p>
 		The first thing you want to know about is that the name of the script is something important in the integration. All the
-		scripts that will listen to the PyEdit class (this is the Pydev Editor) have to start with <strong>pyedit_</strong>. Another
+		scripts that will listen to the PyEdit class (this is the PyDev Editor) have to start with <strong>pyedit_</strong>. Another
 		interesting thing is that changes are gathered without the need of restarting Eclipse (but as we will be listening to
 		the editor, you might have to reopen it, so that it triggers all of the events we may want to listen).
 	</p>
@@ -58,7 +58,7 @@
 	<br/>
 	<p>
 		So, now that you're ready, let's open the file <strong>pyedit_example.py</strong> and uncomment the last line of code. 
-		After, if you close a Pydev Editor and open it again, you'll notice that you'll have some messages showing in the console, with the 'print'
+		After, if you close a PyDev Editor and open it again, you'll notice that you'll have some messages showing in the console, with the 'print'
 		statement that was uncommented (and now, if you go and comment it again, you'll stop seeing the messages again, so,
 		you can see that all the <strong>changes are automatically reloaded whenever you change the script</strong>).
 	</p>
@@ -67,7 +67,7 @@
 	<p>
 		<strong>NOTE</strong>: the <a href="http://sunshade.sourceforge.net/update">sunshade</a> plugin may be very useful,
 		as it will allow you to open the external files through drag and drop from the explorer itself, as you'll probably not
-		have a project for those scripts (unless you want to get the whole pydev structure and script it in the development version).
+		have a project for those scripts (unless you want to get the whole PyDev structure and script it in the development version).
 	</p>
 	<br/>
 	
@@ -114,18 +114,18 @@
 		
 	<br/>
 	<p>
-		And that's it. We've seen how to create scripts and make pydev load them for editor actions. If you want to 
-		keep on, you should check some example scripts that come with pydev 
+		And that's it. We've seen how to create scripts and make PyDev load them for editor actions. If you want to 
+		keep on, you should check some example scripts that come with PyDev 
 		(those come in the org.python.pydev.jython_xxx/jysrc folder -- there are links to
 		them in the resources section in the end of this page). You should check:<br/>
 		
 		<ul>
 			<li><strong>pyedit_example.py</strong>: this is the simple example we covered here, to see the output of the commands we have</li>
 			<li><strong>pyedit_example2.py</strong>: this is an example on how to bind some action to the <strong>'default' keybindig structure</strong> that 
-			is provided by Pydev for jython scripts.</li>
+			is provided by PyDev for jython scripts.</li>
 			<li><strong>pyedit_next_problem.py</strong>: This is the implementation of the <strong>go to next problem</strong> that is
-			implemented at Pydev. <strong>Disclaimer</strong>: the way it binds to the keybinding would require you to change the plugin.xml
-			as it is based on the Eclipse structure, which is much more static than the way of binding things to the pydev editor presented
+			implemented at PyDev. <strong>Disclaimer</strong>: the way it binds to the keybinding would require you to change the plugin.xml
+			as it is based on the Eclipse structure, which is much more static than the way of binding things to the PyDev editor presented
 			to you on pyedit_example2.py (it would require changes in the plugin.xml file of the plugin, but on the other way, it would also
 			allow you to change the keybinding for it).
 			</li>
@@ -152,7 +152,7 @@
 			</li>
 			<li>
 				If you have further doubts about scripting, you can register at the <strong>pydev-code</strong> list at sourceforge, and ask them there,
-				and if you've been able to create some nice, useful script, you can contribute it back to pydev by creating a bug and
+				and if you've been able to create some nice, useful script, you can contribute it back to PyDev by creating a bug and
 				attaching your script there.
 			</li>
 		</ul>
@@ -204,7 +204,7 @@
 <image_area>manual.png</image_area>
 
 
-<quote_area><strong>Pydev 101</strong></quote_area>
+<quote_area><strong>PyDev 101</strong></quote_area>
 
 <root>manual_adv_features</root>
 </doc>

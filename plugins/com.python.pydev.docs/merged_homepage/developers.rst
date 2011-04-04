@@ -3,13 +3,13 @@ Developers Guide
 
 .. contents::
 
-This page shows how to effectively get up and running with the pydev code. 
+This page shows how to effectively get up and running with the PyDev code. 
 
 
 Getting the code
 -----------------
 
-The first thing you probably want to do in order to code in pydev is **getting its code**. 
+The first thing you probably want to do in order to code in PyDev is **getting its code**. 
 
 **Pre-requisites:** Eclipse SDK 3.6.0, Git and Java 5.0 (note that other versions of those should work too but details may differ a bit)
 
@@ -27,7 +27,7 @@ the code can be merged back). Later, if you want to provide some other feature/b
 
 Then, in Eclipse, go to: **File > Import > Existing projects into workspace** and point it to the root of the repository you just downloaded.
 
-Note that currently Pydev has a project (org.python.pydev.red_core) which has a dependency on Aptana Studio 3, so, if 
+Note that currently PyDev has a project (org.python.pydev.red_core) which has a dependency on Aptana Studio 3, so, if 
 you plan on doing a local build, you'll need to get Aptana Studio 3 installed as a plugin in the SDK used for the build 
 (i.e.: not necessarily in the SDK you use for developing), now if you don't need to do a local build 
 (i.e.: just do your local changes and run Eclipse with your changes from within the SDK and contribute that 
@@ -53,8 +53,8 @@ not compile, it may mean that:
  * The head does not compile in git -- if you believe that is the case, send an e-mail to the pydev-code list at sourceforge to know what's happening.
  
 
-.. _`jython scripting in pydev`: manual_articles_scripting.html
-.. _`Pydev Grammar`: developers_grammar.html
+.. _`jython scripting in PyDev`: manual_articles_scripting.html
+.. _`PyDev Grammar`: developers_grammar.html
 .. _`Eclipse FAQ`: http://wiki.eclipse.org/index.php/Eclipse_FAQs
 .. _`pydev-code list`: http://lists.sourceforge.net/lists/listinfo/pydev-code
 
@@ -65,27 +65,27 @@ Ok, this may be the most difficult thing... especially because answers may chang
 outlined 2 different approaches: 
 
 
- * Extending Pydev **with Jython**: recommended if you want to add some editor-related action or something that does not need implementing some Eclipse extension-point.
- * Extending Pydev **in Java**: if you want something that won't map to an action, this might be the better way to go.
+ * Extending PyDev **with Jython**: recommended if you want to add some editor-related action or something that does not need implementing some Eclipse extension-point.
+ * Extending PyDev **in Java**: if you want something that won't map to an action, this might be the better way to go.
 
 To start in any of those approaches it might be worth taking a look at some Eclipse documentation, to try to grasp some of its concepts. One of
 the finest documentations for that is the `Eclipse FAQ`_.
 
 
 If you want to take the Jython approach, check out this article on how to do
-`jython scripting in pydev`_
+`jython scripting in PyDev`_
 
 For supporting a new Python based language, the first step would be creating a grammar that can parse it while providing a Python like AST.
-See: `Pydev Grammar`_ for instructions on that. 
+See: `PyDev Grammar`_ for instructions on that. 
 
-And that's it. If you have further doubts about how to code in pydev, direct your questions to 
+And that's it. If you have further doubts about how to code in PyDev, direct your questions to 
 the `pydev-code list`_ at sourceforge.
 
 
 Creating a distribution locally
 --------------------------------
 
-Provided that the steps were followed, Pydev should have the following structure:
+Provided that the steps were followed, PyDev should have the following structure:
 
  ::
 
@@ -107,13 +107,13 @@ Now, on to the build: start a shell and follow the instructions at /plugins/org.
 Contributing back
 ---------------------
 
-If you do some change at pydev that you want to contribute back to the main trunk, you should create a patch and attach it to a bug
+If you do some change at PyDev that you want to contribute back to the main trunk, you should create a patch and attach it to a bug
 in the sourceforge tracker with the title: **[PATCH] description of the patch**
 
 **NOTE 1**: Diffs do not work well for binary files, so, if you made some change to some image, please attach the changed
 image itself, pointing the complete location to the image when attaching it to the bug.
 
-**NOTE 2**: If you did some whole new script that uses the 'jython scripting in pydev' infrastructure, you do not need 
+**NOTE 2**: If you did some whole new script that uses the 'jython scripting in PyDev' infrastructure, you do not need 
 to create a patch. Just attach the script itself to the bug.
 
 

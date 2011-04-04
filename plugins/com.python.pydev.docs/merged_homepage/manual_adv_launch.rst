@@ -6,8 +6,8 @@ Launching/Debugging Python scripts
 Regular Launch
 ----------------
 
-The easiest way of launching a python file from pydev is opening an editor and using the **F9 keybinding**. 
-Through that command, Pydev will create/reuse a **launch** config to run the current editor based on the **current settings 
+The easiest way of launching a python file from PyDev is opening an editor and using the **F9 keybinding**. 
+Through that command, PyDev will create/reuse a **launch** config to run the current editor based on the **current settings 
 of the project** (i.e.: if the project is configured as IronPython, it'll use an IronPython interpreter).
 
 .. image:: images/debugger/f9.png
@@ -72,7 +72,7 @@ If you use the F9 and Ctrl+F9 keybindings or launch through the context menu,
 usually you'll also want to check the default eclipse preferences so that 
 **Ctrl+F11** and **F11**
 will run your last configuration (otherwise, they'll bring a dialog to run/debug your current editor, which is mostly what's
-already given by Pydev through F9 and Ctrl+F9).
+already given by PyDev through F9 and Ctrl+F9).
 
 
 

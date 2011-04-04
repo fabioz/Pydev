@@ -8,8 +8,8 @@ When reporting a bug, the following information must be given:<br><br>
 
 - System (e.g windows XP)<br>
 - Eclipse version (e.g. 3.5)<br>
-- Pydev version (e.g. 1.5.1)<br>
-- Pydev <strong>error log</strong> (if any): go to <strong>window > show view > other > PDE Runtime > Error log</strong>. (if you have the SDK installed, otherwise,
+- PyDev version (e.g. 1.5.1)<br>
+- PyDev <strong>error log</strong> (if any): go to <strong>window > show view > other > PDE Runtime > Error log</strong>. (if you have the SDK installed, otherwise,
 you have to find the log file at <strong>your_workspace/.metadata/.log</strong>)<br>
 - Eclipse install location (e.g. D:\eclipse_3\352\eclipse)<br>
 - Project location where the bug appears (e.g. D:\eclipse\workspace\my project)<br>
@@ -80,14 +80,14 @@ You can check the <A href="http://sourceforge.net/forum/forum.php?forum_id=29364
 but please, try to find what you're looking for in the homepage first.
 
 --------------------------------------------------------------------------------------------------------------Title
-Can I have Eclipse installed anywhere to use Pydev?
+Can I have Eclipse installed anywhere to use PyDev?
 --------------------------------------------------------------------------------------------------------------Answer
 
 Yes (note that some previous versions had a bug in which it didn't work if the Eclipse installation had spaces in the path).
 
 
 --------------------------------------------------------------------------------------------------------------Title
-How do I get started with Pydev?
+How do I get started with PyDev?
 --------------------------------------------------------------------------------------------------------------Answer
 
 Check the getting started manual at: <a href="http://pydev.org/manual_101_root.html">http://pydev.org/manual_101_root.html</a>
@@ -107,10 +107,10 @@ for up-to-date information on how to correctly install and configure your PYTHON
 
 
 --------------------------------------------------------------------------------------------------------------Title
-When I do a code-completion, Pydev hangs, what can I do?
+When I do a code-completion, PyDev hangs, what can I do?
 --------------------------------------------------------------------------------------------------------------Answer
-Pydev does most of its things in the java side, but some information can only be gotten from the python side
-(mainly builtins), so, in order to get that info, pydev creates a shell and communicates with it through sockets.<br/><br/>
+PyDev does most of its things in the java side, but some information can only be gotten from the python side
+(mainly builtins), so, in order to get that info, PyDev creates a shell and communicates with it through sockets.<br/><br/>
 
 The main problems when that happens are:<br/><br/>
 
@@ -118,7 +118,7 @@ The main problems when that happens are:<br/><br/>
 1. There's a firewall blocking the communication to the shell<br/><br/>
 
 
-2. In Linux, some kernels do not allow ipv4 utilization, which may make Pydev fail.<br/><br/>
+2. In Linux, some kernels do not allow ipv4 utilization, which may make PyDev fail.<br/><br/>
 
 
 To enable it, do: echo 0 > /proc/sys/net/ipv6/bindv6only<br/><br/>
@@ -129,14 +129,14 @@ To enable it, do: echo 0 > /proc/sys/net/ipv6/bindv6only<br/><br/>
 
 
 It depends upon the "Timeout to connect to shell" in the code-completion preferences 
-(window > preferences > Pydev > Code completion)<br/><br/>
+(window > preferences > PyDev > Code completion)<br/><br/>
 
 If nothing works, please report a bug (also, check if there is anything on the error log (window > show view >
 PDE Runtime > Error log) and on the eclipse '.log', which is located at the .metadata folder of the workspace location.<br/><br/>
 
 
 --------------------------------------------------------------------------------------------------------------Title
-Why raw_input() / input() does not work correctly in pydev?
+Why raw_input() / input() does not work correctly in PyDev?
 --------------------------------------------------------------------------------------------------------------Answer
 The eclipse console is not an exact copy of a shell... one of the changes is that when you press &lt;ENTER&gt; in a shell, it may
 give you a <strong>\r, \n</strong> or <strong>\r\n</strong> as an end-line char, depending on your platform. 
@@ -160,7 +160,7 @@ That's a known bug in Eclipse. You can see more details on and vote for it if yo
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628">https://bugs.eclipse.org/bugs/show_bug.cgi?id=179628</a>
 <br/>
 <br/>
-And details at the pydev bugtracker:
+And details at the PyDev bugtracker:
 <a href="https://sourceforge.net/tracker/index.php?func=detail&aid=1595998&group_id=85796&atid=577329">https://sourceforge.net/tracker/index.php?func=detail&aid=1595998&group_id=85796&atid=577329</a>
 <br/><br/>
 Basically, Ctrl+[0-9] does not work if a Ctrl+Shift+[0-9] is also set.
@@ -178,14 +178,14 @@ Aparently, this bug is related only to GNOME (and no fix is provided for it).<br
 
 The good news is there is a work around. In gnome font prefs, set your DPI to less that 76. it works on the fly. <br/><br/>
 
-This bug is closed in the pydev bugtracker, but the bug was added on other places such as gnome and eclipse. The pydev
+This bug is closed in the PyDev bugtracker, but the bug was added on other places such as gnome and eclipse. The PyDev
 bug that points to those (and where this thread took place is
 <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1286315&group_id=85796&atid=577329"> HERE </a>)
 
 --------------------------------------------------------------------------------------------------------------Title
-I have a library installed and Pydev does not find it
+I have a library installed and PyDev does not find it
 --------------------------------------------------------------------------------------------------------------Answer
-Well, problems have been reported on Mac and Linux, and the main reason seems to be symlinks. Pydev will
+Well, problems have been reported on Mac and Linux, and the main reason seems to be symlinks. PyDev will
 only find extensions that are 'really' below the python install directory. This happens because the 'less
 common denominator', which in this case is windows, does not have symlinks. A workaround to this problem includes
 manually adding the given folder installation to the pythonpath or changing the installation of the package to
@@ -208,16 +208,16 @@ is gotten with a python shell).
 --------------------------------------------------------------------------------------------------------------Title
 How do I configure a python shell for experimenting with Python?
 --------------------------------------------------------------------------------------------------------------Answer
-Pydev has an interactive console you can use. See: <a href="manual_adv_interactive_console.html">manual_adv_interactive_console.html</a>
+PyDev has an interactive console you can use. See: <a href="manual_adv_interactive_console.html">manual_adv_interactive_console.html</a>
 <br><br>
 
 
 
 --------------------------------------------------------------------------------------------------------------Title
-The Pydev builder is taking too much of my time, what can I do about it?
+The PyDev builder is taking too much of my time, what can I do about it?
 --------------------------------------------------------------------------------------------------------------Answer
 Well, if you have PyLint active, you can disable it, as it is the process that takes most time when building.<br>
-Another alternative is disabling the builder altogether. To do it you can go to window > preferences > pydev > builder 
+Another alternative is disabling the builder altogether. To do it you can go to window > preferences > PyDev > builder 
 and disable it. <br>
 NOTE: Disabling the builders may have many side-effects, such as code completion not working, pylint, tasks, etc. So,
 if you really want it, you can disable it, but do it with care.
@@ -229,27 +229,27 @@ if you really want it, you can disable it, but do it with care.
 
 
 --------------------------------------------------------------------------------------------------------------Title
-Why the Pydev properties do not show?
+Why the PyDev properties do not show?
 --------------------------------------------------------------------------------------------------------------Answer
 
 Probably you are in the JAVA package explorer or something similar. You have to use the default navigator so
 that it shows its properties.<br>
-Also note that you have to open a python file with Pydev in the project before it appears in the properties too 
+Also note that you have to open a python file with PyDev in the project before it appears in the properties too 
 (the project python nature appears only after you do that).<br><br>
 
 
 --------------------------------------------------------------------------------------------------------------Title
-Why nothing shows in the Pydev Package Explorer?
+Why nothing shows in the PyDev Package Explorer?
 --------------------------------------------------------------------------------------------------------------Answer
 
-Usually this means that you have some misconfiguration in the Pydev Package Explorer working set selection or filters.<br/>
+Usually this means that you have some misconfiguration in the PyDev Package Explorer working set selection or filters.<br/>
 <br/>
-Note: you can access the Pydev Package Explorer menu, with ctrl+F10 or by clicking in in the triangle
-that's upside down in the Pydev Package Explorer.<br/><br/>
+Note: you can access the PyDev Package Explorer menu, with ctrl+F10 or by clicking in in the triangle
+that's upside down in the PyDev Package Explorer.<br/><br/>
 
 The usual checks are:<br/><br/>
 
-1. In the Pydev Package Explorer menu, the <strong>top level elements</strong> is pointing to working sets?<br/>
+1. In the PyDev Package Explorer menu, the <strong>top level elements</strong> is pointing to working sets?<br/>
  
 	<ul>
 	If it is, do you have a working set? 
@@ -265,12 +265,12 @@ The usual checks are:<br/><br/>
 		
 <br/><br/>
 
-2. In the Pydev Package Explorer menu, customize view, the content has both, Pydev Navigator Content and Resources
+2. In the PyDev Package Explorer menu, customize view, the content has both, PyDev Navigator Content and Resources
 checked?
 
 <br/><br/>
 
-3. In the Pydev Package Explorer menu, customize view, is it possible that the filters selected are hiding all
+3. In the PyDev Package Explorer menu, customize view, is it possible that the filters selected are hiding all
 your elements? 
 <br/><br/>
 
@@ -283,17 +283,17 @@ for details on getting the error log)
 
 
 --------------------------------------------------------------------------------------------------------------Title
-I can see no new Python project, how am I supposed to use Pydev?
+I can see no new Python project, how am I supposed to use PyDev?
 --------------------------------------------------------------------------------------------------------------Answer
 
-<strong>UPDATE</strong>: As of version 0.9.8.6, a new 'Pydev Project' was introduced, so, you can already
-use the 'new Pydev project' (but the way described below will still work).
+<strong>UPDATE</strong>: As of version 0.9.8.6, a new 'PyDev Project' was introduced, so, you can already
+use the 'new PyDev project' (but the way described below will still work).
 <br/>
 <br/>
 Well, you basically have to do a simple project and use create simple file / folder to create python modules.<br>
 <br>
-You may also have to associate the *.py with the Pydev editor (even though that is probably automatic).<br>
-Anyway, if you need it, go to window > preferences > workbench > file associations and associate *.py with Pydev.<br><br>
+You may also have to associate the *.py with the PyDev editor (even though that is probably automatic).<br>
+Anyway, if you need it, go to window > preferences > workbench > file associations and associate *.py with PyDev.<br><br>
 p.s. Don't forget to put it into both of your PYTHONPATHs (enviroment and in the project properties).
 <br><br>
 
@@ -304,7 +304,7 @@ p.s. Don't forget to put it into both of your PYTHONPATHs (enviroment and in the
 
 
 --------------------------------------------------------------------------------------------------------------Title
-How do I run a module from within eclipse using Pydev (either Python or Jython)? 
+How do I run a module from within eclipse using PyDev (either Python or Jython)? 
 --------------------------------------------------------------------------------------------------------------Answer
 To do that, the easiest way is going to the Run menu (Run > Run As > Python or Jython). If it is not available in your current
 eclipse perspective, you can enable it by going to window > customize perspective > commands and checking the "Lauch" item
@@ -334,7 +334,7 @@ a 'forced builtin lib'. More information may be found at the faq: <br/>
 --------------------------------------------------------------------------------------------------------------Title
 I can't make __builtins__.xxx = something while debugging
 --------------------------------------------------------------------------------------------------------------Answer
-The problem is that pydev passes a dict as the __builtins__ module to execfile while debugging (so, regular
+The problem is that PyDev passes a dict as the __builtins__ module to execfile while debugging (so, regular
 attribute access is not available on that object).<br><br>
 <br>
 Simply use:<br>
@@ -368,7 +368,7 @@ Thanks for Petru Lauric for the following explanation:<br/><br/>
 
 The ORB I use (omniORB) creates its own worker threads inside the python world, whenever a
 python function is called via CORBA. These threads are not created by using
-the 'threading' module so the pydev debugger's trace function is not automatically
+the 'threading' module so the PyDev debugger's trace function is not automatically
 set for the ORB worker threads.<br/><br/>
 
 The solution is to explicitly set the trace function for the ORB threads.<br/><br/>
@@ -383,7 +383,7 @@ change to the PyDB::run() method from file pydevd.py:<br/><br/>
  globals = m.__dict__<br/>
 <br/>
  # <begin change><br/>
- # Hack: keep a reference to the pydev debugger's<br/>
+ # Hack: keep a reference to the PyDev debugger's<br/>
  # trace function in a global variable. This can<br/>
  # be used by the debugged script to set up the<br/>
  # trace function for the ORB worker threads.<br/>
@@ -396,7 +396,7 @@ change to the PyDB::run() method from file pydevd.py:<br/><br/>
 3) Make changes similar to those below to your python app.<br/><br/>
 
 Note 1: the "pydev_hook" global variable will *only* exist in the global namespace
-of the "main" module of your app (the script launched by pydev when you debug
+of the "main" module of your app (the script launched by PyDev when you debug
 your app). Feel free to pass it as an argument to functions from other modules,
 if that's where you need to use it.<br/><br/>
 
@@ -414,7 +414,7 @@ def dbg_trace(flag=0, wt=None):<br/>
     calls a CORBA interface of the engine).
     The ORB worker threads are not created with
     the functions from the 'threading' module so,
-    if we want to debug them with pydev, we need
+    if we want to debug them with PyDev, we need
     to "manually" set the trace function for
     them."""<br/>
  if flag == 0: # WTHREAD_CREATED<br/>
@@ -451,16 +451,16 @@ OK, I know that many features are available, but I just don't know how can I acc
 --------------------------------------------------------------------------------------------------------------Answer
 
 Please refer to: <a href="http://pydev.org/manual_adv_keybindings.html">http://pydev.org/manual_adv_keybindings.html</a>
-for up-to-date info on the most useful keybindings provided by Pydev and Eclipse.
+for up-to-date info on the most useful keybindings provided by PyDev and Eclipse.
 
 <br><br>
 
 --------------------------------------------------------------------------------------------------------------Title
-How do I uninstall Pydev
+How do I uninstall PyDev
 --------------------------------------------------------------------------------------------------------------Answer
 
 To uninstall you should either go on and remove the org.python.pydev* from eclipse/plugins and eclipse/features or 
-you can go to help > software updates > manage configuration, choose the Pydev plugin and disable it (after that, 
+you can go to help > software updates > manage configuration, choose the PyDev plugin and disable it (after that, 
 to completely remove it, you must restart Eclipse and only then select it for uninstall). Note that this process
 is the same for any Eclipse plugin.
 

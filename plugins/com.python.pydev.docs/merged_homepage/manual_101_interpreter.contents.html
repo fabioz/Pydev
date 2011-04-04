@@ -26,7 +26,7 @@
 <p>After installing it, the first thing you must do is configure the <strong>Python and/or Jython and/or IronPython</strong> interpreter.
 To configure the interpreter:</p>
 <ol class="arabic">
-<li><p class="first">Go to: <strong>window &gt; preferences &gt; pydev &gt; Interpreter - (Python/Jython/IronPython)</strong>.</p>
+<li><p class="first">Go to: <strong>window &gt; preferences &gt; PyDev &gt; Interpreter - (Python/Jython/IronPython)</strong>.</p>
 </li>
 <li><p class="first">Choose the interpreter you have installed in your computer (such as python.exe, jython.jar or ipy.exe).</p>
 <p>Note that the <strong>Auto Config</strong> will try to find it in your PATH, but it can fail if it's not there.</p>
@@ -51,7 +51,7 @@ analysis should be done dynamically. See: <a class="reference internal" href="#f
 <p>The most common error is having a problem in the environment variables used from the shell that spawned Eclipse,
 in a way that for some reason when getting the variables of one interpreter, it gathers the info from another
 interpreter (thus mixing the interpreter and the actual libraries).</p>
-<p>Usually running (from the command prompt) the file that gives that info for Pydev can help you discovering the
+<p>Usually running (from the command prompt) the file that gives that info for PyDev can help you discovering the
 problem in your configuration (interpreterInfo.py):</p>
 <blockquote>
 <p>That file is usually located at: eclipsepluginsorg.python.pydev_$version$PySrcinterpreterInfo.py,
@@ -72,7 +72,7 @@ add it manually as a 'new folder' in the System PYTHONPATH (if it's still not un
 or <strong>(recommended) remove your interpreter and add it again</strong>, then, press apply.</p>
 <p>Note that if you added a library that's already under a folder in the PYTHONPATH, you have to at least go to
 the interpreter preferences and press apply so that it clears its internal caches (after the configuration
-is done, things are set in stone for Pydev)</p>
+is done, things are set in stone for PyDev)</p>
 </blockquote>
 </div>
 </div>
@@ -98,9 +98,9 @@ with too much runtime information is providing <a class="reference internal" hre
 <p>For <strong>IronPython</strong> more than <strong>100</strong> entries. All the packages built into .NET should be included here -- e.g.:
 Microsoft, Microsoft.Windows.Themes, System, System.IO, etc.</p>
 <p>Additionally, you may add other libraries that you want to treat as
-builtins, such as <strong>os, wxPython, OpenGL, etc</strong>. This is very important, because Pydev works
+builtins, such as <strong>os, wxPython, OpenGL, etc</strong>. This is very important, because PyDev works
 on the java side only with static information, but some modules don't have much information when analyzed
-statically, so, Pydev creates a shell to get information on those. Another important
+statically, so, PyDev creates a shell to get information on those. Another important
 thing is that they <strong>must</strong> be on your system pythonpath (otherwise, the shell will be unable to get that information).</p>
 </blockquote>
 <img alt="images/interpreter_forced_builtins.png" class="snap align-center" src="images/interpreter_forced_builtins.png" />
@@ -137,7 +137,7 @@ MyConstantB <span style="color: #666666">=</span> <span style="color: #008000">i
 </pre></div>
 <p><strong>Note 1</strong>: the name of the file is the exact name of the module</p>
 <p><strong>Note 2</strong>: .pypredef files are not searched in subfolders</p>
-<p><strong>Optionally a QScintilla .api file may be added</strong>. When this is done, Pydev will try to create
+<p><strong>Optionally a QScintilla .api file may be added</strong>. When this is done, PyDev will try to create
 .pypredef files from that .api file and will add the folder containing those to the PYTHONPATH.
 Note that this conversion is still in beta and the file may not be correctly generated, so,
 keep an eye for errors logged when a code-completion that would use those modules (while it
@@ -166,7 +166,7 @@ given interpreter (note    that it can still be overridden in the run configurat
 <div class="section" id="cygwin-users">
 <h2><a class="toc-backref" href="#id12">Cygwin users</a></h2>
 <blockquote>
-Pydev currently has no support for cygwin. Currently you'll be able to configure the interpreter
+PyDev currently has no support for cygwin. Currently you'll be able to configure the interpreter
 with cygwin, but there are still other related problems (mostly on converting between windows and cygwin paths as needed).</blockquote>
 </div>
 </div>
@@ -175,14 +175,14 @@ with cygwin, but there are still other related problems (mostly on converting be
 
 
 <right_area>
-<p>Getting started with Pydev!</p>
+<p>Getting started with PyDev!</p>
 </right_area>
 
 
 <image_area>manual.png</image_area>
 
 
-<quote_area><strong>Pydev 101</strong></quote_area>
+<quote_area><strong>PyDev 101</strong></quote_area>
 
 <next>manual_101_project_conf</next>
 <prev>manual_101_install</prev>

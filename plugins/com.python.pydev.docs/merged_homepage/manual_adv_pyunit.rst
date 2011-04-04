@@ -1,8 +1,8 @@
 Unittest integration
 =========================
 
-On Pydev 1.6.4, an improved unittest support was introduced. It allows using different test runners (the default
-pydev test runner, nose or py.test) and allows seeing the results in a view (PyUnit view) with a red/green bar
+On PyDev 1.6.4, an improved unittest support was introduced. It allows using different test runners (the default
+PyDev test runner, nose or py.test) and allows seeing the results in a view (PyUnit view) with a red/green bar
 which also allows re-running tests. 
 
 .. contents:: 
@@ -12,20 +12,20 @@ Configuring test runners
 ----------------------------------
 
 The preferences page to configure the test runner is accessible from the PyUnit view at the dropdown menu > configure test runner preferences
-(or at window > preferences > pydev > PyUnit)
+(or at window > preferences > PyDev > PyUnit)
 
 .. image:: images/py_unit/py_unit_preferences.png
    :class: snap
    :align: center
 
 **Note**: the flags to choose the tests in the test runner should not be specified 
-(they are properly managed by Pydev in each test run)
+(they are properly managed by PyDev in each test run)
 
 
 
-Configuring the Pydev test runner
+Configuring the PyDev test runner
 ----------------------------------
-The options that the Pydev unittest accepts are:
+The options that the PyDev unittest accepts are:
 
  **--verbosity=number**
     Sets the verbosity level for the run 
