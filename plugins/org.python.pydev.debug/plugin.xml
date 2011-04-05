@@ -408,7 +408,7 @@
         class="org.python.pydev.debug.codecoverage.PyCodeCoverageView"
         icon="icons/python_coverage.png"
         category="org.python.pydev"
-        name="Code Coverage Results View"
+        name="Code Coverage"
         id="org.python.pydev.views.PyCodeCoverageView"/>
    <!--- removed until the implementation is improved 
    <view
