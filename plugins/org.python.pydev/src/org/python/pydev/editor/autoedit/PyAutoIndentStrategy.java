@@ -911,7 +911,7 @@ public final class PyAutoIndentStrategy implements IAutoEditStrategy{
      * on subsequent things).
      */
     public static Tuple<String, Integer> autoDedentElif(IDocument document, DocumentCommand command, IIndentPrefs prefs) throws BadLocationException {
-        return autoDedentAfterColon(document, command, "elif", PySelection.TOKENS_BEFORE_ELSE, prefs);
+        return autoDedentAfterColon(document, command, "elif", PySelection.TOKENS_BEFORE_ELIF, prefs);
     }
     
 

@@ -1116,15 +1116,19 @@ public final class PySelection {
     }
 
     public static final String[] TOKENS_BEFORE_ELSE = new String[]{
-        "if ", "if(", "for ", "for(", "except:", "except(", "while ", "while(", "elif ", "elif:"
+        "if", "for", "except", "while", "elif"
+    };
+    
+    public static final String[] TOKENS_BEFORE_ELIF = new String[]{
+        "if", "elif"
     };
     
     public static final String[] TOKENS_BEFORE_EXCEPT = new String[]{
-        "try:"
+        "try"
     };
 
     public static final String[] TOKENS_BEFORE_FINALLY = new String[]{
-        "try:", "except:", "except("
+        "try", "except"
     };
     
     /**
@@ -1133,12 +1137,43 @@ public final class PySelection {
      * May return null if it was not found.
      */
     public String getPreviousLineThatStartsWithToken(String[] tokens) {
-        DocIterator iterator = new DocIterator(false, this);
+        DocIterator iterator = new DocIterator(false, this, this.getCursorLine()-1, false);
+        FastStringBuffer buf = new FastStringBuffer();
+        
+        HashSet<Character> initials = new HashSet<Character>();
+        for(String t:tokens){
+            if(t.length() > 0){
+                initials.add(t.charAt(0));
+            }
+        }
+        
         while(iterator.hasNext()){
             String line = (String) iterator.next();
             String trimmed = line.trim();
+            int len = trimmed.length();
+            
+            if(len > 0){
+                //Fast way out of a line...
+                char c0 = trimmed.charAt(0);
+                if(!initials.contains(c0)){
+                    continue;
+                }
+                
+                buf.clear();
+                buf.append(c0);
+            }
+            
+            for(int i=1;i<len;i++){
+                char c = trimmed.charAt(i);
+                if(Character.isJavaIdentifierPart(c)){
+                    buf.append(c);
+                }else{
+                    break;
+                }
+            }
+            String firstWord = buf.toString();
             for(String prefix:tokens){
-                if(trimmed.startsWith(prefix)){
+                if(firstWord.equals(prefix)){
                     return line;
                 }
             }

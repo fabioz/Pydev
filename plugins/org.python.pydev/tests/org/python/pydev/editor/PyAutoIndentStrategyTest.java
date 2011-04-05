@@ -32,7 +32,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testIndentParens8();
+            s.testElif2();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -1645,6 +1645,33 @@ public class PyAutoIndentStrategyTest extends TestCase {
         
     }
     
+    
+    public void testElse2() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        String strDoc = "" +
+		"try:\n" +
+        "    print a\n" +
+        "except RuntimeError:\n" +
+        "    a = 20\n" +
+        "    else";
+        int initialOffset = strDoc.length();
+        DocCmd docCmd = new DocCmd(initialOffset, 0, ":");
+        Document doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        String expected = ":";
+        assertEquals(docCmd.offset, initialOffset-4);
+        assertEquals(expected, docCmd.text);
+        assertEquals(
+                "" +
+                "try:\n" +
+                "    print a\n" +
+                "except RuntimeError:\n" +
+                "    a = 20\n" +
+                "else",
+                doc.get());
+        
+    }
+    
     public void testTryExceptDedent() {
         //first part of test - simple case
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
@@ -1727,6 +1754,34 @@ public class PyAutoIndentStrategyTest extends TestCase {
                 "    elif",
                 doc.get());
         
+    }
+    
+    public void testElif2() {
+        //first part of test - simple case
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        String strDoc = "" +
+        		"if a:\n" +
+        		"    try:\n" +
+        		"        a = 10\n" +
+        		"    except RuntimeError:\n" +
+        		"        a = 29\n" +
+        		"    elif";
+        int initialOffset = strDoc.length();
+        DocCmd docCmd = new DocCmd(initialOffset, 0, " ");
+        Document doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        String expected = " ";
+        assertEquals(docCmd.offset, initialOffset-4);
+        assertEquals(expected, docCmd.text);
+        assertEquals(
+                "" +
+                "if a:\n" +
+                "    try:\n" +
+                "        a = 10\n" +
+                "    except RuntimeError:\n" +
+                "        a = 29\n" +
+                "elif",
+                doc.get());
     }
     
     
