@@ -519,7 +519,7 @@ class PydevTestRunner(object):
 
 
 
-    def run_tests(self):
+    def run_tests(self, handle_coverage=True):
         """ runs all tests """
         sys.stdout.write("Finding files... ")
         files = self.find_import_files()
@@ -529,8 +529,9 @@ class PydevTestRunner(object):
             sys.stdout.write('done.\n')
         sys.stdout.write("Importing test modules ... ")
         
-        
-        coverage_files, self.coverage = StartCoverageSupport(self.configuration)
+
+        if handle_coverage:
+            coverage_files, coverage = StartCoverageSupport(self.configuration)
         
         file_and_modules_and_module_name = self.find_modules_from_files(files)
         sys.stdout.write("done.\n")
@@ -567,8 +568,9 @@ class PydevTestRunner(object):
             sys.stdout.write('\n')
             runner.run(test_suite)
             
-        self.coverage.stop()
-        self.coverage.save()
+        if handle_coverage:
+            coverage.stop()
+            coverage.save()
         
         total_time = 'Finished in: %.2f secs.' % (time.time() - start_time,)
         pydev_runfiles_xml_rpc.notifyTestRunFinished(total_time)
