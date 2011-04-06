@@ -631,6 +631,12 @@ public class PyUnitView extends ViewPartWithOrientation{
             
             treeItem.setData (ToolTipPresenterHandler.TIP_DATA, result);
             treeItem.setData(PY_UNIT_TEST_RESULT, result);
+            
+            int selectionCount = tree.getSelectionCount();
+            if(selectionCount == 0){
+                tree.setSelection(treeItem);
+                onSelectResult(result);
+            }
         }
         
         if(updateBar){
@@ -920,6 +926,7 @@ public class PyUnitView extends ViewPartWithOrientation{
         tree.setRedraw(false);
         try {
             tree.removeAll();
+            testOutputText.setText(""); //Clear initial results (the first added will be selected)
             if(testRun != null){
                 List<PyUnitTestResult> sharedResultsList = testRun.getSharedResultsList();
                 for (PyUnitTestResult result : sharedResultsList) {
@@ -927,7 +934,6 @@ public class PyUnitView extends ViewPartWithOrientation{
                 }
             }
             updateCountersAndBar();
-            testOutputText.setText(""); //leave no result selected
         } finally {
             tree.setRedraw(true);
         }
