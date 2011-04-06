@@ -8,6 +8,7 @@ package org.python.pydev.core.tooltips.presenter;
 
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Shell;
 
 public interface IInformationPresenterControlManager {
 
@@ -20,4 +21,6 @@ public interface IInformationPresenterControlManager {
     void showInformation();
 
     void setActivateEditorBinding(KeySequence activateEditorBinding);
+
+    void setInitiallyActiveShell(Shell activeShell);
 }

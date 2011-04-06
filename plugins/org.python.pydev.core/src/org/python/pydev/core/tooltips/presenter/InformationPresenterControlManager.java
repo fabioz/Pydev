@@ -32,7 +32,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.bindingutils.KeyBindingHelper;
+import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.tooltips.presenter.InformationPresenterHelpers.PyInformationControl;
 
 /**
@@ -52,19 +54,9 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         }
         setCloser(new Closer());
         takesFocusWhenVisible(true);
+        ((InformationPresenterHelpers.TooltipInformationControlCreator) this.fInformationControlCreator).setInformationPresenterControlManager(this);
     }
 
-    /**
-     * Creates a new information presenter that uses the given information control creator.
-     * The presenter is not installed on any text viewer yet. By default, an information
-     * control closer is set that closes the information control in the event of key strokes,
-     * resizing, moves, focus changes, mouse clicks, and disposal - all of those applied to
-     * the information control's parent control. Also, the setup ensures that the information
-     * control when made visible will request the focus.
-     */
-    public InformationPresenterControlManager() {
-        this(null);
-    }
 
     /**
      * Priority of the info controls managed by this information presenter.
@@ -283,7 +275,8 @@ public final class InformationPresenterControlManager extends AbstractInformatio
                 if(event.keyCode == SWT.ESC){
                     hideInformationControl();
                     
-                }else if(fActivateEditorBinding != null && KeyBindingHelper.matchesKeybinding(event.keyCode, event.stateMask, fActivateEditorBinding)){
+                }else if(fActivateEditorBinding != null && KeyBindingHelper.matchesKeybinding(
+                        event.keyCode, event.stateMask, fActivateEditorBinding)){
                     hideInformationControl(true);
                 }
                 break;
@@ -326,6 +319,8 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     private Control fControl;
     private ITooltipInformationProvider fProvider;
     private KeySequence fActivateEditorBinding;
+    private Shell fInitiallyActiveShell;
+    private Control fFocusControl;
 
 
     public void setInformationProvider(ITooltipInformationProvider provider) {
@@ -396,7 +391,19 @@ public final class InformationPresenterControlManager extends AbstractInformatio
                 owner.releaseWidgetToken(this);
             }
         }
+        this.disposeInformationControl();
         
+        //Restore previous active shell?
+        if(this.fInitiallyActiveShell != null && !this.fInitiallyActiveShell.isDisposed()){
+            this.fInitiallyActiveShell.setActive();
+            this.fInitiallyActiveShell = null;
+        }
+        
+        if(this.fFocusControl != null && !this.fFocusControl.isDisposed()){
+            this.fFocusControl.setFocus();
+            this.fFocusControl = null;
+        }
+
         if(activateEditor){
             KeyBindingHelper.executeCommand("org.eclipse.ui.window.activateEditor");
         }
@@ -445,6 +452,27 @@ public final class InformationPresenterControlManager extends AbstractInformatio
      */
     public void setActivateEditorBinding(KeySequence activateEditorBinding) {
         fActivateEditorBinding = activateEditorBinding;
+    }
+
+    /* (non-Javadoc)
+     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
+     */
+    public void setInitiallyActiveShell(Shell activeShell) {
+        this.fInitiallyActiveShell = activeShell;
+        this.fFocusControl = null;
+        if(activeShell != null){
+            Display display = activeShell.getDisplay();
+            if(display != null){
+                this.fFocusControl = display.getFocusControl();
+            }
+        }
+    }
+
+    public String getTooltipAffordanceString() {
+        if(this.fActivateEditorBinding != null){
+            return StringUtils.format("%s to activate editor, ESC to close", fActivateEditorBinding.toString());
+        }
+        return "ESC to close";
     }
 
 }

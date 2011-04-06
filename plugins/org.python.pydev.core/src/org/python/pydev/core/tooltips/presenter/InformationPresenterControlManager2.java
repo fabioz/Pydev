@@ -12,6 +12,7 @@ import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Shell;
 
 
 /**
@@ -69,6 +70,14 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
      * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
      */
     public void setActivateEditorBinding(KeySequence activateEditorBinding) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setInitiallyActiveShell(org.eclipse.swt.widgets.Shell)
+     */
+    public void setInitiallyActiveShell(Shell activeShell) {
         // TODO Auto-generated method stub
         
     }
