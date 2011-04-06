@@ -19,9 +19,9 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.editor.PyInformationPresenter;
-import org.python.pydev.plugin.KeyBindingHelper;
 
 /**
  * @author Fabio Zadrozny

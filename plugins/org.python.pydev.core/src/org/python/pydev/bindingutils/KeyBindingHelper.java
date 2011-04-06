@@ -4,12 +4,16 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.plugin;
+package org.python.pydev.bindingutils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.NotEnabledException;
+import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.ParameterizedCommand;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.bindings.Binding;
 import org.eclipse.jface.bindings.TriggerSequence;
@@ -17,9 +21,11 @@ import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.core.log.Log;
 
 /**
  * Helper for knowing about keybindings and related actions
@@ -75,6 +81,7 @@ public class KeyBindingHelper {
     }
 
 
+
     public static boolean matchesKeybinding(int keyCode, int stateMask, String commandId) {
         final IBindingService bindingSvc = (IBindingService) PlatformUI.getWorkbench().getAdapter(IBindingService.class);
         TriggerSequence[] activeBindingsFor = bindingSvc.getActiveBindingsFor(commandId);
@@ -82,18 +89,27 @@ public class KeyBindingHelper {
         for(TriggerSequence seq:activeBindingsFor){
             if(seq instanceof KeySequence){
                 KeySequence keySequence = (KeySequence) seq;
-                KeyStroke[] keyStrokes = keySequence.getKeyStrokes();
-                
-                for (KeyStroke keyStroke : keyStrokes) {
-                    
-                    if(keyStroke.getNaturalKey() == keyCode && ((keyStroke.getModifierKeys() & stateMask)!=0 || keyStroke.getModifierKeys() == stateMask)){
-                        
-                        return true;
-                    }
+                if(matchesKeybinding(keyCode, stateMask, keySequence)){
+                    return true;
                 }
             }
         }
         
+        return false;
+    }
+
+
+    public static boolean matchesKeybinding(int keyCode, int stateMask, KeySequence keySequence) {
+        KeyStroke[] keyStrokes = keySequence.getKeyStrokes();
+        
+        for (KeyStroke keyStroke : keyStrokes) {
+            
+            if(keyStroke.getNaturalKey() == keyCode && (
+                    (keyStroke.getModifierKeys() & stateMask)!=0 || keyStroke.getModifierKeys() == stateMask)){
+                
+                return true;
+            }
+        }
         return false;
     }
 
@@ -132,5 +148,22 @@ public class KeyBindingHelper {
         
         return null;
     }
+
+
+    /**
+     * @param fActivateEditorBinding
+     */
+    public static void executeCommand(String commandId) {
+        IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(
+                IHandlerService.class);
+        try {
+            handlerService.executeCommand(commandId, null);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        
+    }
+
+
 
 }

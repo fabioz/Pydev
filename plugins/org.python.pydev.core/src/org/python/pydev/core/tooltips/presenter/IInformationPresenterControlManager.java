@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core.tooltips.presenter;
 
+import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.swt.widgets.Control;
 
 public interface IInformationPresenterControlManager {
@@ -17,4 +18,6 @@ public interface IInformationPresenterControlManager {
     void setInformationProvider(ITooltipInformationProvider provider);
 
     void showInformation();
+
+    void setActivateEditorBinding(KeySequence activateEditorBinding);
 }

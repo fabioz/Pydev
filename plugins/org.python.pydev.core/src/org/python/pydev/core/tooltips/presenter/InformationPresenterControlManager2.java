@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core.tooltips.presenter;
 
+import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.text.AbstractHoverInformationControlManager;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.swt.graphics.Point;
@@ -62,6 +63,14 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
     @Override
     public void hideInformationControl() {
         super.hideInformationControl();
+    }
+
+    /* (non-Javadoc)
+     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
+     */
+    public void setActivateEditorBinding(KeySequence activateEditorBinding) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

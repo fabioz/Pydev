@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core.tooltips.presenter;
 
+import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -22,6 +23,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.bindingutils.KeyBindingHelper;
 
 /**
  * Shows tooltips as an information presenter, so, links can be added and the user can interact with it.
@@ -143,6 +145,10 @@ public class ToolTipPresenterHandler {
                 if(text == null){
                     return;
                 }
+                
+                KeySequence activateEditorBinding = KeyBindingHelper.getCommandKeyBinding("org.eclipse.ui.window.activateEditor");
+                tooltip.setActivateEditorBinding(activateEditorBinding);
+                
                 final Point pos = new Point(pt.x + 10, pt.y);
                 ITooltipInformationProvider provider = new ITooltipInformationProvider() {
 

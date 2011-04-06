@@ -41,6 +41,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.dltk.console.ScriptConsoleHistory;
@@ -52,7 +53,6 @@ import org.python.pydev.dltk.console.ui.internal.actions.HandleDeletePreviousWor
 import org.python.pydev.dltk.console.ui.internal.actions.HandleLineStartAction;
 import org.python.pydev.dltk.console.ui.internal.actions.IInteractiveConsoleConstants;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
-import org.python.pydev.plugin.KeyBindingHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
 /**

@@ -7,6 +7,7 @@
 package org.python.pydev.core.tooltips.presenter;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.text.AbstractInformationControlManager;
 import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.IInformationControl;
@@ -31,6 +32,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.python.pydev.bindingutils.KeyBindingHelper;
 import org.python.pydev.core.tooltips.presenter.InformationPresenterHelpers.PyInformationControl;
 
 /**
@@ -131,6 +133,8 @@ public final class InformationPresenterControlManager extends AbstractInformatio
                     fDisplay.addFilter(SWT.MouseMove, this);
                     fDisplay.addFilter(SWT.MouseEnter, this);
                     fDisplay.addFilter(SWT.MouseExit, this);
+                    
+                    fDisplay.addFilter(SWT.KeyDown, this);
                 }
             }
 
@@ -174,6 +178,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
                 fDisplay.removeFilter(SWT.MouseMove, this);
                 fDisplay.removeFilter(SWT.MouseEnter, this);
                 fDisplay.removeFilter(SWT.MouseExit, this);
+                fDisplay.removeFilter(SWT.KeyDown, this);
             }
             fDisplay = null;
 
@@ -273,6 +278,15 @@ public final class InformationPresenterControlManager extends AbstractInformatio
             case SWT.MouseExit:
                 handleMouseMove(event);
                 break;
+                
+            case SWT.KeyDown:
+                if(event.keyCode == SWT.ESC){
+                    hideInformationControl();
+                    
+                }else if(fActivateEditorBinding != null && KeyBindingHelper.matchesKeybinding(event.keyCode, event.stateMask, fActivateEditorBinding)){
+                    hideInformationControl(true);
+                }
+                break;
             }
         }
 
@@ -311,6 +325,8 @@ public final class InformationPresenterControlManager extends AbstractInformatio
 
     private Control fControl;
     private ITooltipInformationProvider fProvider;
+    private KeySequence fActivateEditorBinding;
+
 
     public void setInformationProvider(ITooltipInformationProvider provider) {
         this.fProvider = provider;
@@ -363,10 +379,15 @@ public final class InformationPresenterControlManager extends AbstractInformatio
         }
     }
 
+    @Override
+    public void hideInformationControl() {
+        hideInformationControl(false);
+    }
+    
     /*
      * @see AbstractInformationControlManager#hideInformationControl()
      */
-    public void hideInformationControl() {
+    public void hideInformationControl(boolean activateEditor) {
         try {
             super.hideInformationControl();
         } finally {
@@ -375,6 +396,11 @@ public final class InformationPresenterControlManager extends AbstractInformatio
                 owner.releaseWidgetToken(this);
             }
         }
+        
+        if(activateEditor){
+            KeyBindingHelper.executeCommand("org.eclipse.ui.window.activateEditor");
+        }
+
     }
 
     /*
@@ -412,6 +438,13 @@ public final class InformationPresenterControlManager extends AbstractInformatio
      */
     public boolean setFocus(IWidgetTokenOwner owner) {
         return false;
+    }
+
+    /* (non-Javadoc)
+     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#setActivateEditorBinding(org.eclipse.jface.bindings.keys.KeySequence)
+     */
+    public void setActivateEditorBinding(KeySequence activateEditorBinding) {
+        fActivateEditorBinding = activateEditorBinding;
     }
 
 }
