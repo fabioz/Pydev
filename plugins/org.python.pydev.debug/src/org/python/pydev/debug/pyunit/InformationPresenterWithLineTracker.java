@@ -97,8 +97,10 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
     @Override
     protected void onHandleClick(Object data) {
         if(data instanceof IHyperlink){
+            //The order is important (when activating it'll do a hide automatically,
+            //but we want to do a hide without focusing the previous editor).
+            this.hideInformationControl(false, false);
             ((IHyperlink) data).linkActivated();
-            this.hideInformationControl();
         }
     }
     

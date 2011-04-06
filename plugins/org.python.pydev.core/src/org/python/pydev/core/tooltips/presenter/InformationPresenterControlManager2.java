@@ -82,4 +82,12 @@ public class InformationPresenterControlManager2 extends AbstractHoverInformatio
         
     }
 
+    /* (non-Javadoc)
+     * @see org.python.pydev.core.tooltips.presenter.IInformationPresenterControlManager#hideInformationControl(boolean, boolean)
+     */
+    public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

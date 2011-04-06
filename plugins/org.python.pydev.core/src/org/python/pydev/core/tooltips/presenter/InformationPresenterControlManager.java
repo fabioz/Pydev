@@ -277,7 +277,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
                     
                 }else if(fActivateEditorBinding != null && KeyBindingHelper.matchesKeybinding(
                         event.keyCode, event.stateMask, fActivateEditorBinding)){
-                    hideInformationControl(true);
+                    hideInformationControl(true, true);
                 }
                 break;
             }
@@ -321,6 +321,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     private KeySequence fActivateEditorBinding;
     private Shell fInitiallyActiveShell;
     private Control fFocusControl;
+    private boolean onHide;
 
 
     public void setInformationProvider(ITooltipInformationProvider provider) {
@@ -376,36 +377,49 @@ public final class InformationPresenterControlManager extends AbstractInformatio
 
     @Override
     public void hideInformationControl() {
-        hideInformationControl(false);
+        hideInformationControl(false, true);
     }
     
     /*
      * @see AbstractInformationControlManager#hideInformationControl()
      */
-    public void hideInformationControl(boolean activateEditor) {
+    public void hideInformationControl(boolean activateEditor, boolean restoreFocus) {
+        //When hiding it may call hide again (because as it gets hidden our handlers are still connected).
+        if(this.onHide){
+            return;
+        }
+        this.onHide = true;
         try {
-            super.hideInformationControl();
-        } finally {
-            if (fControl instanceof IWidgetTokenOwner) {
-                IWidgetTokenOwner owner = (IWidgetTokenOwner) fControl;
-                owner.releaseWidgetToken(this);
+            try {
+                super.hideInformationControl();
+            } finally {
+                if (fControl instanceof IWidgetTokenOwner) {
+                    IWidgetTokenOwner owner = (IWidgetTokenOwner) fControl;
+                    owner.releaseWidgetToken(this);
+                }
             }
-        }
-        this.disposeInformationControl();
-        
-        //Restore previous active shell?
-        if(this.fInitiallyActiveShell != null && !this.fInitiallyActiveShell.isDisposed()){
-            this.fInitiallyActiveShell.setActive();
-            this.fInitiallyActiveShell = null;
-        }
-        
-        if(this.fFocusControl != null && !this.fFocusControl.isDisposed()){
-            this.fFocusControl.setFocus();
-            this.fFocusControl = null;
-        }
+            this.disposeInformationControl();
+            
+            //Restore previous active shell?
+            if(this.fInitiallyActiveShell != null && !this.fInitiallyActiveShell.isDisposed()){
+                if(restoreFocus){
+                    this.fInitiallyActiveShell.setActive();
+                }
+                this.fInitiallyActiveShell = null;
+            }
+            
+            if(this.fFocusControl != null && !this.fFocusControl.isDisposed()){
+                if(restoreFocus){
+                    this.fFocusControl.setFocus();
+                }
+                this.fFocusControl = null;
+            }
 
-        if(activateEditor){
-            KeyBindingHelper.executeCommand("org.eclipse.ui.window.activateEditor");
+            if(activateEditor){
+                KeyBindingHelper.executeCommand("org.eclipse.ui.window.activateEditor");
+            }
+        } finally {
+            this.onHide = false;
         }
 
     }
@@ -469,10 +483,11 @@ public final class InformationPresenterControlManager extends AbstractInformatio
     }
 
     public String getTooltipAffordanceString() {
+        String defaultStr = "ESC to close, ENTER activate link.";
         if(this.fActivateEditorBinding != null){
-            return StringUtils.format("%s to activate editor, ESC to close", fActivateEditorBinding.toString());
+            return StringUtils.format("%s to activate editor, %s", fActivateEditorBinding.toString(), defaultStr);
         }
-        return "ESC to close";
+        return defaultStr;
     }
 
 }

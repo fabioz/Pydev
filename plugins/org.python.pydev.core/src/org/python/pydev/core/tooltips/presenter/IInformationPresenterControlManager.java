@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Shell;
 
 public interface IInformationPresenterControlManager {
 
-    void hideInformationControl();
+    void hideInformationControl(boolean activateEditor, boolean restoreFocus);
 
     void install(Control control);
 
