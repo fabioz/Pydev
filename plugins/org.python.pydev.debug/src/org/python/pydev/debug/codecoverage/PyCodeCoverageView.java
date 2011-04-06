@@ -234,6 +234,16 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         File input = lastChosenDir.getLocation().toFile();
         viewer.refresh();
         ITreeContentProvider contentProvider = (ITreeContentProvider) viewer.getContentProvider();
+        ISelection selection = viewer.getSelection();
+        if(selection instanceof StructuredSelection){
+            StructuredSelection current = (StructuredSelection) selection;
+            Object firstElement = current.getFirstElement();
+            if(firstElement != null){
+                onSelectedFileInTree(firstElement);
+                return;
+            }
+        }
+        //If the current selection wasn't valid, select something or notify that nothing is selected.
         Object[] children = contentProvider.getChildren(input);
         if(children.length > 0){
             viewer.setSelection(new StructuredSelection(children[0]));

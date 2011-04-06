@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.docutils.StringUtils;
@@ -294,7 +295,7 @@ public class PyCoverage {
                 }
             } catch (RuntimeException e2) {
                 //maybe there is something similar, but isn't quite the same, so, parse int could give us some problems...
-                e2.printStackTrace();
+                Log.log(IStatus.INFO, "Code-coverage: ignored line: "+str, null);
             }
         }
 
