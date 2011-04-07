@@ -61,14 +61,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
         File base;
         try {
             IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
-            String osString = stateLocation.toOSString();
-            if (osString.length() > 0) {
-                char c = osString.charAt(osString.length() - 1);
-                if (c != '\\' && c != '/') {
-                    osString += '/';
-                }
-            }
-            base = new File(osString);
+            base = stateLocation.toFile();
         } catch (NullPointerException e) {
             //it may fail in tests... (save it in default folder in this cases)
             PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
@@ -81,9 +74,14 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
         return file;
     }
 
+    private File persistingLocation;
+    
     @Override
     protected File getPersistingLocation() throws MisconfigurationException {
-        return new File(getPersistingFolder(), manager.getManagerRelatedName() + ".pydevsysteminfo");
+        if(persistingLocation == null){
+            persistingLocation = new File(getPersistingFolder(), manager.getManagerRelatedName() + ".pydevsysteminfo");
+        }
+        return persistingLocation;
     }
     
     

@@ -26,7 +26,7 @@ import org.python.pydev.core.REF;
  * 
  * -- And yes, the cache itself is serializable! 
  */
-public class DiskCache extends LRUCache<String, Serializable> implements Serializable{
+public final class DiskCache extends LRUCache<String, Serializable> implements Serializable{
 
     private static final long serialVersionUID = 1L;
 

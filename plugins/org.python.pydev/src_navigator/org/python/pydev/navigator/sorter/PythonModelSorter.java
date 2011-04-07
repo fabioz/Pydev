@@ -57,7 +57,7 @@ public class PythonModelSorter extends ViewerSorter{
 					Object data2 = p2.getData();
 					Object data1 = p1.getData();
 					if(data1 instanceof LabelAndImage && data2 instanceof LabelAndImage){
-						return ((LabelAndImage)data1).o1.compareTo(((LabelAndImage)data2).o1);
+						return ((LabelAndImage)data1).label.compareTo(((LabelAndImage)data2).label);
 					}
 					return 0;
                 	

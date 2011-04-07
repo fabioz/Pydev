@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.IDeltaProcessor;
@@ -30,6 +30,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -216,9 +217,14 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         deltaSaver = createDeltaSaver();
     }
 
+    private File persistingLocation;
+    
     @Override
     protected File getPersistingLocation() {
-        return new File(getPersistingFolder(), "AdditionalProjectInterpreterInfo.pydevinfo");
+        if(persistingLocation == null){
+            persistingLocation = new File(getPersistingFolder(), "AdditionalProjectInterpreterInfo.pydevinfo");
+        }
+        return persistingLocation;
     }
     
     @Override
@@ -286,7 +292,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
             try {
                 if(addReferencedProjects){
                     //get for the referenced projects
-                    IProject[] referencedProjects = project.getReferencedProjects();
+                    Set<IProject> referencedProjects = ProjectModulesManager.getReferencedProjects(project);
                     for (IProject refProject : referencedProjects) {
                         additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
                         if(additionalInfoForProject != null){
@@ -297,7 +303,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
                 }
 
                 if(addReferencingProjects){
-                    IProject[] referencingProjects = project.getReferencingProjects();
+                    Set<IProject> referencingProjects = ProjectModulesManager.getReferencingProjects(project);
                     for (IProject refProject : referencingProjects) {
                         additionalInfoForProject = getAdditionalInfoForProject(PythonNature.getPythonNature(refProject));
                         if(additionalInfoForProject != null){
@@ -306,7 +312,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
                         }
                     }
                 }
-            } catch (CoreException e) {
+            } catch (Exception e) {
                 PydevPlugin.log(e);
             }
             
@@ -381,7 +387,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
         ret.add(getAdditionalInfoForProject(nature));
         
         IProject project = nature.getProject();
-        IProject[] referencingProjects = project.getReferencingProjects();
+        Set<IProject> referencingProjects = ProjectModulesManager.getReferencingProjects(project);
         for (IProject p : referencingProjects) {
             AbstractAdditionalDependencyInfo info2 = getAdditionalInfoForProject(PythonNature.getPythonNature(p));
             if(info2 != null){

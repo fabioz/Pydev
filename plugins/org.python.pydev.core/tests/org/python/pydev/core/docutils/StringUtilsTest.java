@@ -21,7 +21,7 @@ public class StringUtilsTest extends TestCase {
         try {
             StringUtilsTest test = new StringUtilsTest();
             test.setUp();
-            test.testSplitWithMax();
+            test.testMd5();
             test.tearDown();
             junit.textui.TestRunner.run(StringUtilsTest.class);
         } catch (Throwable e) {
@@ -301,6 +301,11 @@ public class StringUtilsTest extends TestCase {
         assertEquals("", StringUtils.indentTo("", ""));
         assertEquals("  aa\n  bb", StringUtils.indentTo("aa\nbb", "  "));
         assertEquals(" a", StringUtils.indentTo("a", " "));
+    }
+    
+    public void testMd5() throws Exception {
+        assertEquals("ck2u8j60r58fu0sgyxrigm3cu", StringUtils.md5(""));
+        assertEquals("4l3c9nzlvo3spzkuri5l3r4si", StringUtils.md5("c:\\my_really\\big\\python\\path\\executable\\is_\\very_very_very\\long\\python.exe"));
     }
 }
 

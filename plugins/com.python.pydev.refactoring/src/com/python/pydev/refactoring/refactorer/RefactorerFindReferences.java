@@ -27,6 +27,7 @@ import org.eclipse.search.ui.text.TextSearchQueryProvider.TextSearchInput;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.uiutils.RunInUiThread;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
@@ -112,8 +113,8 @@ public class RefactorerFindReferences {
             if(project == null){
             	return l;
             }
-            resourcesToSearch.addAll(Arrays.asList(project.getReferencingProjects()));
-            resourcesToSearch.addAll(Arrays.asList(project.getReferencedProjects()));
+            resourcesToSearch.addAll(ProjectModulesManager.getReferencingProjects(project));
+            resourcesToSearch.addAll(ProjectModulesManager.getReferencedProjects(project));
             resourcesToSearch.add(project);
             
             TextSearchInput textSearchInput = new PyTextSearchInput(request.initialName, 

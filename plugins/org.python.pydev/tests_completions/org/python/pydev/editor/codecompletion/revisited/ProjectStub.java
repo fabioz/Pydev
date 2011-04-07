@@ -35,6 +35,14 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
         this.referencedProjects = referencedProjects;
         this.referencingProjects = referencingProjects;
     }
+    
+    public void setReferencedProjects(IProject ... referencedProjects){
+        this.referencedProjects = referencedProjects;
+    }
+    
+    public void setReferencingProjects(IProject ... referencingProjects){
+        this.referencingProjects = referencingProjects;
+    }
 
     public IFile getFile(String name) {
         fileStub = new FileStub2(name);
@@ -110,4 +118,11 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
         this.nature = nature;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "ProjectStub: "+this.name;
+    }
 }

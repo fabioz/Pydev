@@ -16,7 +16,9 @@ import java.io.Serializable;
  * 
  * @author Fabio
  */
-public class TupleN implements Serializable{
+public final class TupleN implements Serializable{
+
+    private static final long serialVersionUID = 1L;
 
     public Object[] o1;
 

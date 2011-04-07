@@ -1070,22 +1070,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
 
     public String getExeAsFileSystemValidPath() {
-        //   /\:*?"<>|
-        char[] invalidChars = new char[]{
-                '/',
-                '\\',
-                ':',
-                '*',
-                '?',
-                '"',
-                '<',
-                '>',
-                '|'};
-        String systemValid = new String(REF.encodeBase64(executableOrJar.getBytes()));
-        for (char c : invalidChars) {
-            systemValid = systemValid.replace(c, '_');
-        }
-        return systemValid;
+        return StringUtils.md5(executableOrJar);
     }
 
     public String getVersion() {

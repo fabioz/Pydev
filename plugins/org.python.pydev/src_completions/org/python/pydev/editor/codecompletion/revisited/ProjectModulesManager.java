@@ -433,8 +433,12 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
                 list.add(javaModulesManagerForProject);
             }
             
-            HashSet<IProject> projs = new HashSet<IProject>();
-            getProjectsRecursively(project, referenced, projs);
+            Set<IProject> projs;
+            if(referenced){
+                projs = getReferencedProjects(project);
+            }else{
+                projs = getReferencingProjects(project);
+            }
             addModuleManagers(list, projs);
         }
         
@@ -452,14 +456,33 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     }
 
 
+    public static Set<IProject> getReferencingProjects(IProject project) {
+        HashSet<IProject> memo = new HashSet<IProject>();
+        getProjectsRecursively(project, false, memo);
+        memo.remove(project); //shouldn't happen unless we've a cycle...
+        return memo;
+    }
+    
+    public static Set<IProject> getReferencedProjects(IProject project) {
+        HashSet<IProject> memo = new HashSet<IProject>();
+        getProjectsRecursively(project, true, memo);
+        memo.remove(project); //shouldn't happen unless we've a cycle...
+        return memo;
+    }
+    
     /**
-     * @param project the project for which we wante references.
+     * @param project the project for which we want references.
      * @param referenced whether we want to get the referenced projects or the ones referencing this one.
      * @param memo (out) this is the place where all the projects will e available.
+     * 
+     * Note: the project itself will not be added.
      */
-    public static void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
+    private static void getProjectsRecursively(IProject project, boolean referenced, HashSet<IProject> memo) {
         IProject[] projects = null;
         try {
+            if(!project.isOpen() || !project.exists() || memo.contains(projects)){
+                return;
+            }
             if(referenced){
                 projects = project.getReferencedProjects();
             }else{
@@ -470,19 +493,14 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         }
         
         
-        HashSet<IProject> newFound = new HashSet<IProject>();
         
         if(projects != null){
             for (IProject p : projects) {
                 if(!memo.contains(p)){
                     memo.add(p);
-                    newFound.add(p);
+                    getProjectsRecursively(p, referenced, memo);
                 }
             }
-        }
-        
-        for (IProject p : newFound) {
-            getProjectsRecursively(p, referenced, memo);
         }
     }
     

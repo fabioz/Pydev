@@ -59,44 +59,48 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage> implemen
 	 * @param isPythonpathRoot identifies whether we're directly in the root of the zip file
 	 */
 	public PythonpathZipChildTreeNode(TreeNode<LabelAndImage> parent, ZipStructure zipStructure, String zipPath, Image icon, boolean isPythonpathRoot) {
-		super(parent, new LabelAndImage(getLabel(zipPath), icon));
-		this.zipStructure = zipStructure;
-		this.zipPath = zipPath;
-		this.isDir = StringUtils.endsWith(zipPath, '/');
-		if(isDir){
-			dirContents = zipStructure.contents(zipPath);
-			//This one can only be a package if its parent is a root or if it's also a package.
-			if(isPythonpathRoot){
-				isPackage = true;
-				
-			}else if(parent instanceof PythonpathZipChildTreeNode && ((PythonpathZipChildTreeNode)parent).isPackage){
-				for (String s : dirContents) {
-					if(PythonPathHelper.isValidInitFile(s)){
-						isPackage=true;
-						break;
-					}
-				}
-				
-			}
-		}
-		
-		//Update the icon if it wasn't received.
-		if(icon == null){
-			ImageCache imageCache = PydevPlugin.getImageCache();
-			if(isDir){
-				if(isPackage){
-					this.getData().o2 = imageCache.get(UIConstants.FOLDER_PACKAGE_ICON);
-				}else{
-					this.getData().o2 = imageCache.get(UIConstants.FOLDER_ICON);
-				}
-			}else{
-				if(PythonPathHelper.isValidSourceFile(zipPath)){
-					this.getData().o2 = imageCache.get(UIConstants.PY_FILE_ICON);
-				}else{
-					this.getData().o2 = imageCache.get(UIConstants.FILE_ICON);
-				}
-			}
-		}
+		super(parent, null); //data will be set later
+		try {
+            this.zipStructure = zipStructure;
+            this.zipPath = zipPath;
+            this.isDir = StringUtils.endsWith(zipPath, '/');
+            if(isDir){
+            	dirContents = zipStructure.contents(zipPath);
+            	//This one can only be a package if its parent is a root or if it's also a package.
+            	if(isPythonpathRoot){
+            		isPackage = true;
+            		
+            	}else if(parent instanceof PythonpathZipChildTreeNode && ((PythonpathZipChildTreeNode)parent).isPackage){
+            		for (String s : dirContents) {
+            			if(PythonPathHelper.isValidInitFile(s)){
+            				isPackage=true;
+            				break;
+            			}
+            		}
+            		
+            	}
+            }
+            
+            //Update the icon if it wasn't received.
+            if(icon == null){
+            	ImageCache imageCache = PydevPlugin.getImageCache();
+                if(isDir){
+            		if(isPackage){
+            			icon = imageCache.get(UIConstants.FOLDER_PACKAGE_ICON);
+            		}else{
+            			icon = imageCache.get(UIConstants.FOLDER_ICON);
+            		}
+            	}else{
+            		if(PythonPathHelper.isValidSourceFile(zipPath)){
+            			icon = imageCache.get(UIConstants.PY_FILE_ICON);
+            		}else{
+            			icon = imageCache.get(UIConstants.FILE_ICON);
+            		}
+            	}
+            }
+        } finally {
+            setData(new LabelAndImage(getLabel(zipPath), icon));
+        }
 	}
 	
 	/**

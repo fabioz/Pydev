@@ -12,7 +12,9 @@ package org.python.pydev.core.docutils;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +31,11 @@ import org.python.pydev.core.cache.LRUCache;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 
-public class StringUtils {
+public final class StringUtils {
+    
+    private StringUtils(){
+        
+    }
 
     public static final Object EMPTY = "";
 
@@ -1072,7 +1078,16 @@ public class StringUtils {
     }
 
 
-
-
+    public static String md5(String str) {
+        try {
+            byte[] bytes = str.getBytes("UTF-8");
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            //MAX_RADIX because we'll generate the shorted string possible... (while still
+            //using only numbers 0-9 and letters a-z)
+            return new BigInteger(1, md.digest(bytes)).toString(Character.MAX_RADIX).toLowerCase();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
