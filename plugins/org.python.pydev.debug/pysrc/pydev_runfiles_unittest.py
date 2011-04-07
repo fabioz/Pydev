@@ -119,22 +119,34 @@ class PydevTestResult(_PythonTextTestResult):
             self._current_failures_stack.append(self.failures[-1])
 
 
-
-#=======================================================================================================================
-# PydevTestSuite
-#=======================================================================================================================
-class PydevTestSuite(python_unittest.TestSuite):
-
-
-    def run(self, result):
-        for index, test in enumerate(self._tests):
-            if result.shouldStop:
-                break
-            test(result)
-
-            # Let the memory be released! 
-            self._tests[index] = None
-
-        return result
-
+try:
+    #Version 2.7 onwards has a different structure... Let's not make any changes in it for now
+    #(waiting for bug: http://bugs.python.org/issue11798)
+    from unittest import suite
+    #===================================================================================================================
+    # PydevTestSuite
+    #===================================================================================================================
+    class PydevTestSuite(python_unittest.TestSuite):
+        pass
+    
+    
+except ImportError:
+    
+    #===================================================================================================================
+    # PydevTestSuite
+    #===================================================================================================================
+    class PydevTestSuite(python_unittest.TestSuite):
+    
+    
+        def run(self, result):
+            for index, test in enumerate(self._tests):
+                if result.shouldStop:
+                    break
+                test(result)
+    
+                # Let the memory be released! 
+                self._tests[index] = None
+    
+            return result
+    
 
