@@ -72,25 +72,71 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                 callsToCheck.put(callString, call);
             }
             
+            CONTINUE_FOR:
             for(Map.Entry<String, TddPossibleMatches> entry:callsToCheck.entrySet()){
                 //we have at least something as SomeClass(a=2,c=3) or self.bar or self.foo.bar() or just foo.bar, etc.
                 IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
                 try {
                     TddPossibleMatches possibleMatch = entry.getValue();
-                    String full = possibleMatch.full;
                     String callWithoutParens = entry.getKey();
-                    int indexOf = lineContents.indexOf(full);
-                    if(indexOf < 0){
-                        Log.log("Did not expect index < 0.");
-                        continue;
-                    }
-                    PySelection callPs = new PySelection(
-                            ps.getDoc(), ps.getLineOffset()+indexOf+callWithoutParens.length());
                     
-                    RefactoringRequest request = new RefactoringRequest(edit, callPs);
-                    //Don't look in additional info.
-                    request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
-                    ItemPointer[] pointers = pyRefactoring.findDefinition(request);
+                    ItemPointer[] pointers = null;
+                    PySelection callPs = null;
+                    TddPossibleMatches lastPossibleMatchNotFound = possibleMatch;
+                    String lastCallWithoutParensNotFound = callWithoutParens;
+                    
+                    for (int i=0;i<10;i++){ //more than 10 attribute accesses in a line? No way!
+                        if(i > 0){
+                            if(((pointers != null && pointers.length > 0) || StringUtils.count(possibleMatch.full, '.') <= 1)){
+                                break;
+                            }
+                        }
+                        lastPossibleMatchNotFound = possibleMatch;
+                        lastCallWithoutParensNotFound = callWithoutParens;
+                        if(i > 0){
+                            //We have to take 1 level out of the match... i.e.: if it was self.foo.get(), search now for self.foo.
+                            String line = FullRepIterable.getWithoutLastPart(possibleMatch.full);
+                            List<TddPossibleMatches> tddPossibleMatchesAtLine = ps.getTddPossibleMatchesAtLine(line);
+                            if(tddPossibleMatchesAtLine.size() > 0){
+                                possibleMatch = tddPossibleMatchesAtLine.get(0);
+                                callWithoutParens = possibleMatch.initialPart+possibleMatch.secondPart;
+                            }else{
+                                continue CONTINUE_FOR;
+                            }
+                        }
+                        String full = possibleMatch.full;
+                        int indexOf = lineContents.indexOf(full);
+                        if(indexOf < 0){
+                            Log.log("Did not expect index < 0.");
+                            continue CONTINUE_FOR;
+                        }
+                        callPs = new PySelection(
+                                ps.getDoc(), ps.getLineOffset()+indexOf+callWithoutParens.length());
+                        
+                        RefactoringRequest request = new RefactoringRequest(edit, callPs);
+                        //Don't look in additional info.
+                        request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+                        pointers = pyRefactoring.findDefinition(request);
+                    }
+                    
+                    if(pointers == null || callPs == null){
+                        continue CONTINUE_FOR;
+                    }
+                    
+                    if(lastPossibleMatchNotFound != null && lastPossibleMatchNotFound != possibleMatch && pointers.length >=1){
+                        //Ok, as we were analyzing a string as self.bar.foo, we didn't find something in a pass
+                        //i.e.: self.bar.foo, but we found it in a second pass
+                        //as self.bar, so, this means we have to open the chance to create the 'foo' in self.bar.
+                        String methodToCreate = FullRepIterable.getLastPart(lastPossibleMatchNotFound.secondPart);
+                        int absoluteCursorOffset = callPs.getAbsoluteCursorOffset();
+                        absoluteCursorOffset = absoluteCursorOffset - (1+methodToCreate.length()); //+1 for the dot removed too.
+                        PySelection newSelection = new PySelection(callPs.getDoc(), absoluteCursorOffset);
+
+                        checkCreationBasedOnFoundPointers(
+                                edit, callPs, ret, possibleMatch, pointers, methodToCreate, newSelection);
+                        return ret;
+                    }
+                    
                     if(possibleMatch.isCall && pointers.length >= 1){
                         //Ok, we found whatever was there, so, we don't need to create anything (except maybe do
                         //the __init__).
@@ -146,14 +192,14 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             String methodToCreate = headAndTail[1];
             if (headAndTail[0].equals("self")) {
                 //creating something in the current class -- note that if it was self.bar here, we'd treat it as regular
-                //(i.e.: no special support for self)
+                //(i.e.: no special support for self), so, we wouldn't enter here!
                 int firstCharPosition = PySelection.getFirstCharPosition(lineContents);
                 LineStartingScope scopeStart = callPs.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false, firstCharPosition);
                 String classNameInLine = null;
                 if (scopeStart != null) {
                     PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
                     List<String> parametersAfterCall = null;
-                    parametersAfterCall = configCreateAsAndReturnParaetersAfterCall(callPs, possibleMatch, pyCreateMethod,
+                    parametersAfterCall = configCreateAsAndReturnParaetersAfterCall(callPs, possibleMatch.isCall, pyCreateMethod,
                             parametersAfterCall, methodToCreate);
                     String startingScopeLineContents = callPs.getLine(scopeStart.iLineStartingScope);
                     classNameInLine = PySelection.getClassNameInLine(startingScopeLineContents);
@@ -175,59 +221,8 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             request.setAdditionalInfo(AstEntryRefactorerRequestConstants.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
             pointers = pyRefactoring.findDefinition(request);
             if(pointers.length == 1){
-                for (ItemPointer pointer : pointers) {
-                    Definition definition = pointer.definition;
-                    
-                    if(definition instanceof AssignDefinition){
-                        AssignDefinition assignDef = (AssignDefinition) definition;
-                        
-                        //if the value is currently None, it will be set later on
-                        if(assignDef.value.equals("None")){
-                            continue;
-                        }
-                        IPythonNature nature = edit.getPythonNature(); 
-                        
-                        //ok, go to the definition of whatever is set
-                        IDefinition[] definitions2 = assignDef.module.findDefinition(
-                                CompletionStateFactory.getEmptyCompletionState(assignDef.value, nature, new CompletionCache()), 
-                                assignDef.line, assignDef.col, nature);
-                        
-                        if(definitions2.length == 1){
-                            definition = (Definition) definitions2[0];
-                        }
-                    }
-
-                    
-                    if(definition != null && definition.ast instanceof ClassDef){
-                        ClassDef d = (ClassDef) definition.ast;
-                        
-                        //Give the user a chance to create the method we didn't find.
-                        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
-                        List<String> parametersAfterCall = null;
-                        parametersAfterCall = configCreateAsAndReturnParaetersAfterCall(callPs, possibleMatch, pyCreateMethod,
-                                parametersAfterCall, methodToCreate);
-                        String className = NodeUtils.getRepresentationString(d);
-                        pyCreateMethod.setCreateInClass(className);
-                        
-                        String displayString = StringUtils.format("Create %s %s at %s (%s)", 
-                                methodToCreate, pyCreateMethod.getCreationStr(), className, definition.module.getName());
-                        TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(
-                                methodToCreate, 
-                                tddQuickFixParticipant.imageMethod, 
-                                displayString, 
-                                null, 
-                                displayString, 
-                                IPyCompletionProposal.PRIORITY_CREATE, 
-                                edit,
-                                definition.module.getFile(),
-                                parametersAfterCall,
-                                pyCreateMethod,
-                                newSelection
-                        );
-                        completion.locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_END;
-                        ret.add(completion);
-                        return true;
-                    }
+                if(checkCreationBasedOnFoundPointers(edit, callPs, ret, possibleMatch, pointers, methodToCreate, newSelection)){
+                    return true;
                 }
             }
         }
@@ -235,9 +230,70 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     }
 
 
-    private List<String> configCreateAsAndReturnParaetersAfterCall(PySelection callPs, TddPossibleMatches possibleMatch,
+    public boolean checkCreationBasedOnFoundPointers(PyEdit edit, PySelection callPs, List<ICompletionProposal> ret,
+            TddPossibleMatches possibleMatch, ItemPointer[] pointers, String methodToCreate, PySelection newSelection)
+            throws MisconfigurationException, Exception {
+        for (ItemPointer pointer : pointers) {
+            Definition definition = pointer.definition;
+            
+            if(definition instanceof AssignDefinition){
+                AssignDefinition assignDef = (AssignDefinition) definition;
+                
+                //if the value is currently None, it will be set later on
+                if(assignDef.value.equals("None")){
+                    continue;
+                }
+                IPythonNature nature = edit.getPythonNature(); 
+                
+                //ok, go to the definition of whatever is set
+                IDefinition[] definitions2 = assignDef.module.findDefinition(
+                        CompletionStateFactory.getEmptyCompletionState(assignDef.value, nature, new CompletionCache()), 
+                        assignDef.line, assignDef.col, nature);
+                
+                if(definitions2.length == 1){
+                    definition = (Definition) definitions2[0];
+                }
+            }
+
+            
+            if(definition != null && definition.ast instanceof ClassDef){
+                ClassDef d = (ClassDef) definition.ast;
+                
+                //Give the user a chance to create the method we didn't find.
+                PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
+                List<String> parametersAfterCall = null;
+                parametersAfterCall = configCreateAsAndReturnParaetersAfterCall(callPs, possibleMatch.isCall, pyCreateMethod,
+                        parametersAfterCall, methodToCreate);
+                String className = NodeUtils.getRepresentationString(d);
+                pyCreateMethod.setCreateInClass(className);
+                
+                String displayString = StringUtils.format("Create %s %s at %s (%s)", 
+                        methodToCreate, pyCreateMethod.getCreationStr(), className, definition.module.getName());
+                TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(
+                        methodToCreate, 
+                        tddQuickFixParticipant.imageMethod, 
+                        displayString, 
+                        null, 
+                        displayString, 
+                        IPyCompletionProposal.PRIORITY_CREATE, 
+                        edit,
+                        definition.module.getFile(),
+                        parametersAfterCall,
+                        pyCreateMethod,
+                        newSelection
+                );
+                completion.locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_END;
+                ret.add(completion);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private List<String> configCreateAsAndReturnParaetersAfterCall(PySelection callPs, boolean isCall,
             PyCreateMethodOrField pyCreateMethod, List<String> parametersAfterCall, String methodToCreate) {
-        if(possibleMatch.isCall){
+        if(isCall){
             pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
             parametersAfterCall = callPs.getParametersAfterCall(callPs.getAbsoluteCursorOffset());
         }else{

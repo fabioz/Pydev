@@ -53,6 +53,7 @@ public interface IPyParser {
     
     /**
      * Schedules a reparse in the parser.
+     * @return 
      */
-    void forceReparse(Object ... argsToReparse);
+    boolean forceReparse(Object ... argsToReparse);
 }

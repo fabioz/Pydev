@@ -67,8 +67,10 @@ public class ParserScheduler {
     
     /**
      * The arguments passed in argsToReparse will be passed to the reparseDocument, and then on to fireParserChanged / fireParserError
+     * 
+     * @return false if we asked a forced reparse and it will not be scheduled because a reparse is already in action.
      */
-    public void parseNow(boolean force, Object ... argsToReparse) {
+    public boolean parseNow(boolean force, Object ... argsToReparse) {
         if(!force){
             if(state != STATE_WAITING_FOR_ELAPSE && state != STATE_DOING_PARSE){
                 //waiting or parse later
@@ -86,6 +88,7 @@ public class ParserScheduler {
             ParsingThread parserThreadLocal = parsingThread; //if it dies suddenly, we don't want to get it as null...
             if(state == ParserScheduler.STATE_DOING_PARSE){
                 //a parse is already in action
+                return false;
             }else{
                 if(parserThreadLocal == null){
                     parserThreadLocal = new ParsingThread(this, argsToReparse);
@@ -100,6 +103,7 @@ public class ParserScheduler {
                 }
             }
         }
+        return true;
     }
 
 

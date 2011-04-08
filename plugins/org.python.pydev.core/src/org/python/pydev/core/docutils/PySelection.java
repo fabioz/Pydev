@@ -2198,6 +2198,12 @@ public final class PySelection {
      */
     public List<TddPossibleMatches> getTddPossibleMatchesAtLine(int offset) {
         String line = getLine(getLineOfOffset(offset));
+        return getTddPossibleMatchesAtLine(line);
+        
+    }
+
+
+    public List<TddPossibleMatches> getTddPossibleMatchesAtLine(String line) {
         List<TddPossibleMatches> ret = new ArrayList<TddPossibleMatches>();
         if(matchesClassLine(line) || matchesFunctionLine(line)){
             return ret;//In a class or method definition, it should never match.
@@ -2217,7 +2223,6 @@ public final class PySelection {
             ret.add(new TddPossibleMatches(matcher.group(TDD_PART_FULL), matcher.group(TDD_PART_PART1), secondPart, hasCall));
         }
         return ret;
-        
     }
 
 
