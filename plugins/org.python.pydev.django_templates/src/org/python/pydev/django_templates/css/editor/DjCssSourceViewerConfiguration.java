@@ -100,14 +100,13 @@ public class DjCssSourceViewerConfiguration extends CompositeSourceViewerConfigu
 
     @Override
     protected IContentAssistProcessor getContentAssistProcessor(ISourceViewer sourceViewer, String contentType) {
-        if(DjSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
+        if(DjSourceConfiguration.DEFAULT.equals(contentType)){
             return new DjContentAssistProcessor(contentType, null);
         }
         AbstractThemeableEditor editor = getEditor();
         //Note: The HTMLSourceViewerConfiguration should get the CSS content assist based on the content type. 
         IContentAssistProcessor cssContentAssistProcessor = HTMLSourceViewerConfiguration.getContentAssistProcessor(contentType, editor);
-        if(CSSSourceConfiguration.DEFAULT.equals(contentType)){
-            System.out.println("Default: "+contentType+" -- "+cssContentAssistProcessor);
+        if(CSSSourceConfiguration.DEFAULT.equals(contentType) || IDocument.DEFAULT_CONTENT_TYPE.equals(contentType)){
             return new DjContentAssistProcessor(contentType, cssContentAssistProcessor);
         }
         return cssContentAssistProcessor;
