@@ -759,7 +759,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 false, true, 0, 0, 0, 0, null);
         ArrayList<MarkerInfo> lst = new ArrayList<MarkerInfo>();
         lst.add(markerInfo);
-        PydevMarkerUtils.replaceMarkers(lst, fileAdapter, INVALID_MODULE_MARKER_TYPE, false, new NullProgressMonitor());
+        PydevMarkerUtils.replaceMarkers(lst, fileAdapter, INVALID_MODULE_MARKER_TYPE, true, new NullProgressMonitor());
     }
 
     

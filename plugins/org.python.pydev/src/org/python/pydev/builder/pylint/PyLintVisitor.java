@@ -123,7 +123,7 @@ public class PyLintVisitor extends PyDevBuilderVisitor {
                                         PYLINT_PROBLEM_MARKER, priority, false, false, line, 0, line, 0, null));
                             }
                             
-                            PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, monitor);
+                            PydevMarkerUtils.replaceMarkers(lst, resource, PYLINT_PROBLEM_MARKER, true, monitor);
     
                             return PydevPlugin.makeStatus(Status.OK, "", null);
                         }

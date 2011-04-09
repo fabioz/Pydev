@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -955,43 +956,55 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             if (original == null)
                 return;
             final IDocument document = e.getDocumentProvider().getDocument(e.getEditorInput());
-            
             //When creating it, it'll already start to listen for changes to remove the marker when needed.
             new RemoveCoverageMarkersListener(document, e, original);
+            
 
-            String type = PYDEV_COVERAGE_MARKER;
-            try {
-                original.deleteMarkers(type, false, 1);
-            } catch (CoreException e1) {
-                Log.log(e1);
-            }
-
-            String message = "Not Executed";
-
-            FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
+            final FileNode cache = (FileNode) PyCoverage.getPyCoverage().cache.getFile(realFile);
             if(cache != null){
-                for (Iterator<Tuple<Integer,Integer>> it = cache.notExecutedIterator(); it.hasNext();) {
-                    try {
-                        Map<String, Object> map = new HashMap<String, Object>();
-                        Tuple<Integer,Integer> startEnd = it.next();
-   
-                        IRegion region = document.getLineInformation(startEnd.o1-1);
-                        int errorStart = region.getOffset();
+                
+                IWorkspaceRunnable r= new IWorkspaceRunnable() {
+                    public void run(IProgressMonitor monitor) throws CoreException {
                         
-                        region = document.getLineInformation(startEnd.o2-1);
-                        int errorEnd = region.getOffset() + region.getLength();
-   
-                        map.put(IMarker.MESSAGE, message);
-                        map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
-                        map.put(IMarker.CHAR_START, errorStart);
-                        map.put(IMarker.CHAR_END, errorEnd);
-                        map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
-                        map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
-   
-                        MarkerUtilities.createMarker(original, map, type);
-                    } catch (Exception e1) {
-                        Log.log(e1);
+                        final String type = PYDEV_COVERAGE_MARKER;
+                        try {
+                            original.deleteMarkers(type, false, 1);
+                        } catch (CoreException e1) {
+                            Log.log(e1);
+                        }
+                        
+                        final String message = "Not Executed";
+                        
+                        for (Iterator<Tuple<Integer,Integer>> it = cache.notExecutedIterator(); it.hasNext();) {
+                            try {
+                                Map<String, Object> map = new HashMap<String, Object>();
+                                Tuple<Integer,Integer> startEnd = it.next();
+           
+                                IRegion region = document.getLineInformation(startEnd.o1-1);
+                                int errorStart = region.getOffset();
+                                
+                                region = document.getLineInformation(startEnd.o2-1);
+                                int errorEnd = region.getOffset() + region.getLength();
+           
+                                map.put(IMarker.MESSAGE, message);
+                                map.put(IMarker.SEVERITY, new Integer(IMarker.SEVERITY_ERROR));
+                                map.put(IMarker.CHAR_START, errorStart);
+                                map.put(IMarker.CHAR_END, errorEnd);
+                                map.put(IMarker.TRANSIENT, Boolean.valueOf(true));
+                                map.put(IMarker.PRIORITY, new Integer(IMarker.PRIORITY_HIGH));
+           
+                                MarkerUtilities.createMarker(original, map, type);
+                            } catch (Exception e1) {
+                                Log.log(e1);
+                            }
+                        }
                     }
+                };
+
+                try {
+                    original.getWorkspace().run(r, null,IWorkspace.AVOID_UPDATE, null);
+                } catch (CoreException e1) {
+                    Log.log(e1);
                 }
             }
         }
