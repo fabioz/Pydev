@@ -9,11 +9,6 @@ public final class commentType extends SimpleNode {
         this.id = id;
     }
 
-    public commentType(String id, SimpleNode parent) {
-        this(id);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public commentType createCopy() {
         commentType temp = new commentType(id);

@@ -9,11 +9,6 @@ public final class Repr extends exprType {
         this.value = value;
     }
 
-    public Repr(exprType value, SimpleNode parent) {
-        this(value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Repr createCopy() {
         Repr temp = new Repr(value!=null?(exprType)value.createCopy():null);

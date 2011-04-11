@@ -11,11 +11,6 @@ public final class SetComp extends exprType {
         this.generators = generators;
     }
 
-    public SetComp(exprType elt, comprehensionType[] generators, SimpleNode parent) {
-        this(elt, generators);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public SetComp createCopy() {
         comprehensionType[] new0;

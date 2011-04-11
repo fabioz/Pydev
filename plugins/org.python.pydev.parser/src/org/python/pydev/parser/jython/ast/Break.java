@@ -7,11 +7,6 @@ public final class Break extends stmtType {
     public Break() {
     }
 
-    public Break(SimpleNode parent) {
-        this();
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Break createCopy() {
         Break temp = new Break();

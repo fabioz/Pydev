@@ -6,7 +6,7 @@
  * 
  */
 
-package org.python.pydev.refactoring.ast.visitors;
+package org.python.pydev.parser.jython.ast.factory;
 
 import java.util.ArrayList;
 
@@ -39,8 +39,7 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
-import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 public class NodeHelper {
 
@@ -132,20 +131,26 @@ public class NodeHelper {
     }
 
     public String getName(SimpleNode node) {
-        if(isNameTok(node)){
+        if(node instanceof NameTok){
             return getFromNameTok(node);
-        }else if(isName(node)){
+            
+        }else if(node instanceof Name){
             return getFromName(node);
-        }else if(isStr(node)){
+            
+        }else if(node instanceof Str){
             return getFromStr(node);
-        }else if(isClassDef(node)){
+            
+        }else if(node instanceof ClassDef){
             return getName(((ClassDef) node).name);
-        }else if(isFunctionDef(node)){
+            
+        }else if(node instanceof FunctionDef){
             return getName(((FunctionDef) node).name);
-        }else if(isCall(node)){
+            
+        }else if(node instanceof Call){
             return getName(((Call) node).func);
-        }else if(isAttribute(node)){
-            String attributeName = Rewriter.createSourceFromAST(node, true, adapterPrefs);
+            
+        }else if(node instanceof Attribute){
+            String attributeName = NodeUtils.getFullRepresentationString(node);
             int subscriptOffset = attributeName.indexOf("[");
             if(subscriptOffset > 0){
                 attributeName = attributeName.substring(0, subscriptOffset - 1);

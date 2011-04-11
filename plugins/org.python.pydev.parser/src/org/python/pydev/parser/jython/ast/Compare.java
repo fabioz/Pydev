@@ -13,11 +13,6 @@ public final class Compare extends exprType implements cmpopType {
         this.comparators = comparators;
     }
 
-    public Compare(exprType left, int[] ops, exprType[] comparators, SimpleNode parent) {
-        this(left, ops, comparators);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Compare createCopy() {
         int[] new0;

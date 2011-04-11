@@ -11,11 +11,6 @@ public final class BoolOp extends exprType implements boolopType {
         this.values = values;
     }
 
-    public BoolOp(int op, exprType[] values, SimpleNode parent) {
-        this(op, values);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public BoolOp createCopy() {
         exprType[] new0;

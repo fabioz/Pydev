@@ -13,11 +13,6 @@ public final class keywordType extends SimpleNode {
         this.afterstarargs = afterstarargs;
     }
 
-    public keywordType(NameTokType arg, exprType value, boolean afterstarargs, SimpleNode parent) {
-        this(arg, value, afterstarargs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public keywordType createCopy() {
         keywordType temp = new keywordType(arg!=null?(NameTokType)arg.createCopy():null,

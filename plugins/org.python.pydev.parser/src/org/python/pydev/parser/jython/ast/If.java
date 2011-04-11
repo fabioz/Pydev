@@ -13,11 +13,6 @@ public final class If extends stmtType {
         this.orelse = orelse;
     }
 
-    public If(exprType test, stmtType[] body, suiteType orelse, SimpleNode parent) {
-        this(test, body, orelse);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public If createCopy() {
         stmtType[] new0;

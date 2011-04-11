@@ -13,11 +13,6 @@ public final class excepthandlerType extends SimpleNode {
         this.body = body;
     }
 
-    public excepthandlerType(exprType type, exprType name, stmtType[] body, SimpleNode parent) {
-        this(type, name, body);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public excepthandlerType createCopy() {
         stmtType[] new0;

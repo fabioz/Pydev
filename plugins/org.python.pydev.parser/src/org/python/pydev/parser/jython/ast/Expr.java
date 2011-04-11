@@ -9,11 +9,6 @@ public final class Expr extends stmtType {
         this.value = value;
     }
 
-    public Expr(exprType value, SimpleNode parent) {
-        this(value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Expr createCopy() {
         Expr temp = new Expr(value!=null?(exprType)value.createCopy():null);

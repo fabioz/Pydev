@@ -9,11 +9,6 @@ public final class Module extends modType {
         this.body = body;
     }
 
-    public Module(stmtType[] body, SimpleNode parent) {
-        this(body);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Module createCopy() {
         stmtType[] new0;

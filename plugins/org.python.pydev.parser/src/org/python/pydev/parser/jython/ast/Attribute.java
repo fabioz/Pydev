@@ -13,11 +13,6 @@ public final class Attribute extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
-    public Attribute(exprType value, NameTokType attr, int ctx, SimpleNode parent) {
-        this(value, attr, ctx);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Attribute createCopy() {
         Attribute temp = new Attribute(value!=null?(exprType)value.createCopy():null,

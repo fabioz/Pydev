@@ -29,14 +29,6 @@ public final class argumentsType extends SimpleNode {
         this.kwonlyargannotation = kwonlyargannotation;
     }
 
-    public argumentsType(exprType[] args, NameTokType vararg, NameTokType kwarg, exprType[]
-    defaults, exprType[] kwonlyargs, exprType[] kw_defaults, exprType[] annotation, exprType
-    varargannotation, exprType kwargannotation, exprType[] kwonlyargannotation, SimpleNode parent) {
-        this(args, vararg, kwarg, defaults, kwonlyargs, kw_defaults, annotation, varargannotation,
-        kwargannotation, kwonlyargannotation);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public argumentsType createCopy() {
         exprType[] new0;

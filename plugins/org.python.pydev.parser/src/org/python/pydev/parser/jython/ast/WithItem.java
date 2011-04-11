@@ -11,11 +11,6 @@ public final class WithItem extends WithItemType {
         this.optional_vars = optional_vars;
     }
 
-    public WithItem(exprType context_expr, exprType optional_vars, SimpleNode parent) {
-        this(context_expr, optional_vars);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public WithItem createCopy() {
         WithItem temp = new WithItem(context_expr!=null?(exprType)context_expr.createCopy():null,

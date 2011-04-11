@@ -7,11 +7,6 @@ public final class Pass extends stmtType {
     public Pass() {
     }
 
-    public Pass(SimpleNode parent) {
-        this();
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Pass createCopy() {
         Pass temp = new Pass();

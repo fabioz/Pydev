@@ -7,11 +7,6 @@ public final class Ellipsis extends sliceType {
     public Ellipsis() {
     }
 
-    public Ellipsis(SimpleNode parent) {
-        this();
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Ellipsis createCopy() {
         Ellipsis temp = new Ellipsis();

@@ -58,7 +58,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testNPEOnCompletion();
+            test.testOverrideCompletions3();
             test.tearDown();
             System.out.println("Finished");
 
@@ -1508,7 +1508,75 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	}
     }
     
+
+    public void testOverrideCompletions() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n"+
+        "    def foo(self):\n"+
+        "        pass\n"+
+        "    \n"+
+        "class Bar(Foo):\n" +
+        "    def ";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n"+
+                "    def foo(self):\n"+
+                "        pass\n"+
+                "    \n"+
+                "class Bar(Foo):\n" +
+                "    def foo(self):\n" +
+                "        return Foo.foo(self)", doc.get());
+    }
     
+    public void testOverrideCompletions2() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n"+
+        "    def foo(self):\n"+
+        "        pass\n"+
+        "    \n"+
+        "class Bar(Foo):\n" +
+        "    def fo";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n"+
+                "    def foo(self):\n"+
+                "        pass\n"+
+                "    \n"+
+                "class Bar(Foo):\n" +
+                "    def foo(self):\n" +
+                "        return Foo.foo(self)", doc.get());
+    }
+    
+    
+    public void testOverrideCompletions3() throws Exception{
+        String s;
+        s = "" +
+        "import unittest\n" +
+        "class Bar(unittest.TestCase):\n" +
+        "    def tearDow";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "tearDown (Override)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "import unittest\n" +
+                "class Bar(unittest.TestCase):\n" +
+                "    def tearDown(self):\n" +
+                "        return unittest.TestCase.tearDown(self)", doc.get());
+    }
+    
+
 }
 
 

@@ -1,9 +1,13 @@
-package org.python.pydev.refactoring.ast.factory;
+package org.python.pydev.parser.jython.ast.factory;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStack;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
@@ -13,14 +17,15 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Pass;
+import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
-import org.python.pydev.refactoring.ast.visitors.NodeHelper;
+import org.python.pydev.parser.visitors.NodeUtils;
 
 public class PyAstFactory {
 
@@ -96,26 +101,43 @@ public class PyAstFactory {
     }
 
     public Call createCall(String call, String ... params) {
+        List<exprType> lst = createParamsList(params);
+        return createCall(call, lst, null, null, null);
+    }
+
+    public List<exprType> createParamsList(String... params) {
+        ArrayList<exprType> lst = new ArrayList<exprType>();
+        for(String p:params){
+            lst.add(new Name(p, Name.Param, false));
+        }
+        return lst;
+    }
+    
+    public Call createCall(String call, List<exprType> params, keywordType[] keywords, exprType starargs, exprType kwargs) {
         if(call.indexOf(".") != -1){
-            ArrayList<Name> lst = new ArrayList<Name>();
-            for(String p:params){
-                lst.add(new Name(p, Name.Param, false));
-            }
-            return new Call(createAttribute(call), lst.toArray(new Name[lst.size()]), null, null, null);
+            exprType[] array = params!=null?params.toArray(new Name[params.size()]):new exprType[0];
+            return new Call(createAttribute(call), array, keywords, starargs, kwargs);
         }
         throw new RuntimeException("Unhandled.");
     }
 
     public Attribute createAttribute(String attribute) {
         List<String> splitted = StringUtils.split(attribute, '.');
-        if(splitted.size() != 2){
-            throw new RuntimeException("Only handling attributes with 1 dot for now.");
+        if(splitted.size() <= 1){
+            throw new RuntimeException("Cannot create attribute without dot access.");
         }
-        
+        if(splitted.size() == 2){
+            return new Attribute(
+                    new Name(splitted.get(0), Name.Load, false), 
+                    new NameTok(splitted.get(1), NameTok.Attrib),
+                    Attribute.Load);
+        }
+        //>2
         return new Attribute(
-                new Name(splitted.get(0), Name.Load, false), 
-                new NameTok(splitted.get(1), NameTok.Attrib),
+                createAttribute(FullRepIterable.getWithoutLastPart(attribute)), 
+                new NameTok(splitted.get(splitted.size()-1), NameTok.Attrib),
                 Attribute.Load);
+
     }
 
     public Assign createAssign(exprType ... targetsAndVal) {
@@ -155,6 +177,88 @@ public class PyAstFactory {
 
     public Pass createPass() {
         return new Pass();
+    }
+
+    private static final RuntimeException stopVisitingException = new RuntimeException("stop visiting");
+    
+    /**
+     * @param functionDef the function for the override body
+     */
+    public stmtType createOverrideBody(FunctionDef functionDef, String parentClassName) {
+        //create a copy because we do not want to retain the original line/col and we may change the originals here.
+        final boolean[] addReturn = new boolean[]{false};
+        VisitorBase visitor = new VisitorBase(){
+            
+            public Object visitClassDef(ClassDef node) throws Exception {
+                return null;
+            }
+            public Object visitFunctionDef(FunctionDef node) throws Exception {
+                return null; //don't visit internal scopes.
+            }
+            
+            @Override
+            protected Object unhandled_node(SimpleNode node) throws Exception {
+                if(node instanceof Return){
+                    addReturn[0] = true;
+                    throw stopVisitingException;
+                }
+                return null;
+            }
+
+            @Override
+            public void traverse(SimpleNode node) throws Exception {
+                node.traverse(this);
+            }
+        };
+        try {
+            visitor.traverse(functionDef);
+        } catch (Exception e) {
+            if(e != stopVisitingException){
+                Log.log(e);
+            }
+        }
+        
+        argumentsType args = functionDef.args.createCopy(); 
+        List<exprType> params = new ArrayList<exprType>();
+        for(exprType expr:args.args){ //note: self should be there already!
+            params.add((exprType) expr.createCopy());
+        }
+        
+        exprType starargs = args.vararg != null?new Name(((NameTok)args.vararg).id, Name.Load, false):null;
+        exprType kwargs = args.kwarg != null?new Name(((NameTok)args.kwarg).id, Name.Load, false):null;
+        List<keywordType> keywords = new ArrayList<keywordType>();
+        if(args.defaults!= null){
+            int diff = args.args.length-args.defaults.length;
+            
+            FastStack<Integer> removePositions = new FastStack<Integer>(args.defaults.length);
+            for(int i=0;i<args.defaults.length;i++){
+                exprType expr = args.defaults[i];
+                if(expr != null){
+                    exprType name = params.get(i+diff);
+                    if(name instanceof Name){
+                        removePositions.push(i+diff); //it's removed backwards, that's why it's a stack
+                        keywords.add(new keywordType(new NameTok(((Name) name).id, NameTok.KeywordName), name, false));
+                    }else{
+                        Log.log("Expected: "+name+" to be a Name instance.");
+                    }
+                }
+            }
+            while(removePositions.size()>0){
+                Integer pop = removePositions.pop();
+                params.remove((int)pop);
+            }
+        }
+        Call call = createCall(
+                parentClassName+"."+NodeUtils.getRepresentationString(functionDef), 
+                params, 
+                keywords.toArray(new keywordType[keywords.size()]), 
+                starargs, 
+                kwargs);
+        if(addReturn[0]){
+            return new Return(call);
+        }else{
+            return new Expr(call);   
+        }
     }
 
 

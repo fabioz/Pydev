@@ -13,11 +13,6 @@ public final class While extends stmtType {
         this.orelse = orelse;
     }
 
-    public While(exprType test, stmtType[] body, suiteType orelse, SimpleNode parent) {
-        this(test, body, orelse);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public While createCopy() {
         stmtType[] new0;

@@ -11,11 +11,6 @@ public final class Starred extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
-    public Starred(exprType value, int ctx, SimpleNode parent) {
-        this(value, ctx);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Starred createCopy() {
         Starred temp = new Starred(value!=null?(exprType)value.createCopy():null, ctx);

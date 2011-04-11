@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;

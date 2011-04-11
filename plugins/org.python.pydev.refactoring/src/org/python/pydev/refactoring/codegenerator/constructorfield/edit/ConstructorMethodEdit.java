@@ -26,10 +26,10 @@ import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.NodeHelper;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
-import org.python.pydev.refactoring.ast.visitors.NodeHelper;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 

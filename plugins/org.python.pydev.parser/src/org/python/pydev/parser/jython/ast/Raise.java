@@ -15,11 +15,6 @@ public final class Raise extends stmtType {
         this.cause = cause;
     }
 
-    public Raise(exprType type, exprType inst, exprType tback, exprType cause, SimpleNode parent) {
-        this(type, inst, tback, cause);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Raise createCopy() {
         Raise temp = new Raise(type!=null?(exprType)type.createCopy():null,

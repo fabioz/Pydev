@@ -9,11 +9,6 @@ public final class Yield extends exprType {
         this.value = value;
     }
 
-    public Yield(exprType value, SimpleNode parent) {
-        this(value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Yield createCopy() {
         Yield temp = new Yield(value!=null?(exprType)value.createCopy():null);

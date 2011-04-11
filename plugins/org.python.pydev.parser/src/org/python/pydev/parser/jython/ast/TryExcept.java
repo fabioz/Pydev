@@ -13,12 +13,6 @@ public final class TryExcept extends stmtType {
         this.orelse = orelse;
     }
 
-    public TryExcept(stmtType[] body, excepthandlerType[] handlers, suiteType orelse, SimpleNode
-    parent) {
-        this(body, handlers, orelse);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public TryExcept createCopy() {
         stmtType[] new0;

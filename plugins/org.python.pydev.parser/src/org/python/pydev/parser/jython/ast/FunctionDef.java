@@ -18,12 +18,6 @@ public final class FunctionDef extends stmtType {
         this.returns = returns;
     }
 
-    public FunctionDef(NameTokType name, argumentsType args, stmtType[] body, decoratorsType[]
-    decs, exprType returns, SimpleNode parent) {
-        this(name, args, body, decs, returns);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public FunctionDef createCopy() {
         stmtType[] new0;

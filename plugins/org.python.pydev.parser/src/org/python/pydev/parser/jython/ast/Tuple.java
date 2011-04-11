@@ -13,11 +13,6 @@ public final class Tuple extends exprType implements expr_contextType {
         this.endsWithComma = endsWithComma;
     }
 
-    public Tuple(exprType[] elts, int ctx, boolean endsWithComma, SimpleNode parent) {
-        this(elts, ctx, endsWithComma);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Tuple createCopy() {
         exprType[] new0;

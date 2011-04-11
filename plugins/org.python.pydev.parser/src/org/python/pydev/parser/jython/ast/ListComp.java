@@ -13,11 +13,6 @@ public final class ListComp extends exprType implements comp_contextType {
         this.ctx = ctx;
     }
 
-    public ListComp(exprType elt, comprehensionType[] generators, int ctx, SimpleNode parent) {
-        this(elt, generators, ctx);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public ListComp createCopy() {
         comprehensionType[] new0;

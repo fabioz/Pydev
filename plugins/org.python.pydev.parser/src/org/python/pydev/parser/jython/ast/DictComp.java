@@ -13,12 +13,6 @@ public final class DictComp extends exprType {
         this.generators = generators;
     }
 
-    public DictComp(exprType key, exprType value, comprehensionType[] generators, SimpleNode
-    parent) {
-        this(key, value, generators);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public DictComp createCopy() {
         comprehensionType[] new0;

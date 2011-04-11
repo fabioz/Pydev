@@ -13,8 +13,8 @@ import java.util.Map;
 
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;

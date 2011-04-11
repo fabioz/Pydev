@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;

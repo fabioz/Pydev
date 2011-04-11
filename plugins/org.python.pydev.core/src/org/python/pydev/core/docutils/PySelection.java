@@ -1013,6 +1013,19 @@ public final class PySelection {
         return getInsideParentesisToks(addSelf, i, false);
     }
     
+    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int iLine) {
+        String line = getLine(iLine);
+        int openParIndex = line.indexOf('(');
+        if (openParIndex <= -1) { // we are in a line that does not have a parenthesis
+            return null;
+        }        
+        
+        int lineOffset = getLineOffset(iLine);
+        int i = lineOffset + openParIndex;
+        
+        return getInsideParentesisToks(addSelf, i, false);
+    }
+    
    /**
     * This function gets the tokens inside the parenthesis that start at the current selection line
     * 
@@ -2087,7 +2100,7 @@ public final class PySelection {
                     while(strTok.hasMoreTokens()){
                         tok = strTok.nextToken();
                         if(tok.indexOf('(') != -1 || tok.indexOf(':') != -1){
-                            return 0;
+                            return DECLARATION_NONE;
                         }
                     }
                     return decl;
@@ -2095,7 +2108,7 @@ public final class PySelection {
             }
         } catch (BadLocationException e) {
         }
-        return 0;
+        return DECLARATION_NONE;
     }
 
 

@@ -13,11 +13,6 @@ public final class Name extends exprType implements expr_contextType {
         this.reserved = reserved;
     }
 
-    public Name(String id, int ctx, boolean reserved, SimpleNode parent) {
-        this(id, ctx, reserved);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Name createCopy() {
         Name temp = new Name(id, ctx, reserved);

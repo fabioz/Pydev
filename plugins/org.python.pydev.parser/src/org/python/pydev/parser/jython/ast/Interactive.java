@@ -9,11 +9,6 @@ public final class Interactive extends modType {
         this.body = body;
     }
 
-    public Interactive(stmtType[] body, SimpleNode parent) {
-        this(body);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Interactive createCopy() {
         stmtType[] new0;

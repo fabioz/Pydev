@@ -16,6 +16,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 
 public class ClassDefAdapterFromClassDef implements IClassDefAdapter {
 

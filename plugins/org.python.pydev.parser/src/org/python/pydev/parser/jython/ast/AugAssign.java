@@ -13,11 +13,6 @@ public final class AugAssign extends stmtType implements operatorType {
         this.value = value;
     }
 
-    public AugAssign(exprType target, int op, exprType value, SimpleNode parent) {
-        this(target, op, value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public AugAssign createCopy() {
         AugAssign temp = new AugAssign(target!=null?(exprType)target.createCopy():null, op,

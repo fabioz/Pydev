@@ -18,12 +18,6 @@ public final class decoratorsType extends SimpleNode {
         this.kwargs = kwargs;
     }
 
-    public decoratorsType(exprType func, exprType[] args, keywordType[] keywords, exprType
-    starargs, exprType kwargs, SimpleNode parent) {
-        this(func, args, keywords, starargs, kwargs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public decoratorsType createCopy() {
         exprType[] new0;

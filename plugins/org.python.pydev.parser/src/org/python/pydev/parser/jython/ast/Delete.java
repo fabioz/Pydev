@@ -9,11 +9,6 @@ public final class Delete extends stmtType {
         this.targets = targets;
     }
 
-    public Delete(exprType[] targets, SimpleNode parent) {
-        this(targets);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Delete createCopy() {
         exprType[] new0;

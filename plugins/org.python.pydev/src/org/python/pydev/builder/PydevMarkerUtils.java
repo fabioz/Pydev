@@ -225,11 +225,14 @@ public class PydevMarkerUtils {
         IWorkspaceRunnable r = new IWorkspaceRunnable() {
             
             public void run(IProgressMonitor monitor) throws CoreException {
-                if(removeUserEditable){
-                    resource.deleteMarkers(markerType, true, IResource.DEPTH_ZERO);
-                    
-                }else{
-                    try {
+                if(!resource.exists()){
+                    return;
+                }
+                try {
+                    if(removeUserEditable){
+                        resource.deleteMarkers(markerType, true, IResource.DEPTH_ZERO);
+                        
+                    }else{
                         IMarker[] existingMarkers;
                         existingMarkers = resource.findMarkers(markerType, false, IResource.DEPTH_ZERO);
                         //we don't want to remove the user-editable markers, so, let's filter them out!
@@ -241,9 +244,9 @@ public class PydevMarkerUtils {
                             }}
                         ).toArray(new IMarker[0]);
                         ResourcesPlugin.getWorkspace().deleteMarkers(existingMarkers);
-                    } catch (CoreException e1) {
-                        PydevPlugin.log(e1);
                     }
+                } catch (Exception e1) {
+                    Log.log(e1);
                 }
                 
                 

@@ -11,11 +11,6 @@ public final class Lambda extends exprType {
         this.body = body;
     }
 
-    public Lambda(argumentsType args, exprType body, SimpleNode parent) {
-        this(args, body);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Lambda createCopy() {
         Lambda temp = new Lambda(args!=null?(argumentsType)args.createCopy():null,

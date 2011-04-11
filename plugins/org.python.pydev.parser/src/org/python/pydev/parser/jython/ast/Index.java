@@ -9,11 +9,6 @@ public final class Index extends sliceType {
         this.value = value;
     }
 
-    public Index(exprType value, SimpleNode parent) {
-        this(value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Index createCopy() {
         Index temp = new Index(value!=null?(exprType)value.createCopy():null);

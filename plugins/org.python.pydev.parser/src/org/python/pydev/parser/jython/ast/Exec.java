@@ -13,11 +13,6 @@ public final class Exec extends stmtType {
         this.locals = locals;
     }
 
-    public Exec(exprType body, exprType globals, exprType locals, SimpleNode parent) {
-        this(body, globals, locals);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Exec createCopy() {
         Exec temp = new Exec(body!=null?(exprType)body.createCopy():null,

@@ -11,11 +11,6 @@ public final class Assert extends stmtType {
         this.msg = msg;
     }
 
-    public Assert(exprType test, exprType msg, SimpleNode parent) {
-        this(test, msg);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Assert createCopy() {
         Assert temp = new Assert(test!=null?(exprType)test.createCopy():null,

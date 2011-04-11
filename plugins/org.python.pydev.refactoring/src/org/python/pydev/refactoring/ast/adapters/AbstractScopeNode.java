@@ -11,6 +11,7 @@ package org.python.pydev.refactoring.ast.adapters;
 import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.context.ClassDefVisitor;
 import org.python.pydev.refactoring.ast.visitors.context.LocalFunctionDefVisitor;

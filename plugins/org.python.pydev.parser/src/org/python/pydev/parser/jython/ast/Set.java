@@ -9,11 +9,6 @@ public final class Set extends exprType {
         this.elts = elts;
     }
 
-    public Set(exprType[] elts, SimpleNode parent) {
-        this(elts);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Set createCopy() {
         exprType[] new0;

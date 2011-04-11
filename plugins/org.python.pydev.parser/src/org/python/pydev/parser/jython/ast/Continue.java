@@ -7,11 +7,6 @@ public final class Continue extends stmtType {
     public Continue() {
     }
 
-    public Continue(SimpleNode parent) {
-        this();
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Continue createCopy() {
         Continue temp = new Continue();

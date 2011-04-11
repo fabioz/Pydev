@@ -22,12 +22,6 @@ public final class ClassDef extends stmtType {
         this.kwargs = kwargs;
     }
 
-    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body, decoratorsType[] decs,
-    keywordType[] keywords, exprType starargs, exprType kwargs, SimpleNode parent) {
-        this(name, bases, body, decs, keywords, starargs, kwargs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public ClassDef createCopy() {
         exprType[] new0;

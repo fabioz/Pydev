@@ -11,11 +11,6 @@ public final class Global extends stmtType {
         this.value = value;
     }
 
-    public Global(NameTokType[] names, exprType value, SimpleNode parent) {
-        this(names, value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Global createCopy() {
         NameTokType[] new0;

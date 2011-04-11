@@ -15,12 +15,6 @@ public final class For extends stmtType {
         this.orelse = orelse;
     }
 
-    public For(exprType target, exprType iter, stmtType[] body, suiteType orelse, SimpleNode
-    parent) {
-        this(target, iter, body, orelse);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public For createCopy() {
         stmtType[] new0;

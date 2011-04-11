@@ -11,11 +11,6 @@ public final class List extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
-    public List(exprType[] elts, int ctx, SimpleNode parent) {
-        this(elts, ctx);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public List createCopy() {
         exprType[] new0;

@@ -13,11 +13,6 @@ public final class Print extends stmtType {
         this.nl = nl;
     }
 
-    public Print(exprType dest, exprType[] values, boolean nl, SimpleNode parent) {
-        this(dest, values, nl);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Print createCopy() {
         exprType[] new0;

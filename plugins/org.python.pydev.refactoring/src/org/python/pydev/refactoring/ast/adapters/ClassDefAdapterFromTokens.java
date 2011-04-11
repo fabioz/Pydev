@@ -21,6 +21,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 
 public class ClassDefAdapterFromTokens implements IClassDefAdapter {
 

@@ -9,11 +9,6 @@ public final class StrJoin extends exprType {
         this.strs = strs;
     }
 
-    public StrJoin(exprType[] strs, SimpleNode parent) {
-        this(strs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public StrJoin createCopy() {
         exprType[] new0;

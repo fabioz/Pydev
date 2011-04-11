@@ -11,11 +11,6 @@ public final class UnaryOp extends exprType implements unaryopType {
         this.operand = operand;
     }
 
-    public UnaryOp(int op, exprType operand, SimpleNode parent) {
-        this(op, operand);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public UnaryOp createCopy() {
         UnaryOp temp = new UnaryOp(op, operand!=null?(exprType)operand.createCopy():null);

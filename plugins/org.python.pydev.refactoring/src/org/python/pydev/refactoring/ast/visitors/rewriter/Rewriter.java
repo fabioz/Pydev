@@ -4,9 +4,9 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
-import org.python.pydev.refactoring.ast.adapters.AdapterPrefs;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 
 /**

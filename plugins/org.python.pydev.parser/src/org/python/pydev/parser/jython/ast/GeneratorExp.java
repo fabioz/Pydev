@@ -11,11 +11,6 @@ public final class GeneratorExp extends exprType {
         this.generators = generators;
     }
 
-    public GeneratorExp(exprType elt, comprehensionType[] generators, SimpleNode parent) {
-        this(elt, generators);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public GeneratorExp createCopy() {
         comprehensionType[] new0;

@@ -11,11 +11,6 @@ public final class NonLocal extends stmtType {
         this.value = value;
     }
 
-    public NonLocal(NameTokType[] names, exprType value, SimpleNode parent) {
-        this(names, value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public NonLocal createCopy() {
         NameTokType[] new0;

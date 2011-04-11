@@ -13,11 +13,6 @@ public final class BinOp extends exprType implements operatorType {
         this.right = right;
     }
 
-    public BinOp(exprType left, int op, exprType right, SimpleNode parent) {
-        this(left, op, right);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public BinOp createCopy() {
         BinOp temp = new BinOp(left!=null?(exprType)left.createCopy():null, op,

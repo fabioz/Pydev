@@ -9,11 +9,6 @@ public final class Return extends stmtType {
         this.value = value;
     }
 
-    public Return(exprType value, SimpleNode parent) {
-        this(value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Return createCopy() {
         Return temp = new Return(value!=null?(exprType)value.createCopy():null);

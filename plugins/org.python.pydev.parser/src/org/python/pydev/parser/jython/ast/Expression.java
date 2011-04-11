@@ -9,11 +9,6 @@ public final class Expression extends modType {
         this.body = body;
     }
 
-    public Expression(exprType body, SimpleNode parent) {
-        this(body);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Expression createCopy() {
         Expression temp = new Expression(body!=null?(exprType)body.createCopy():null);

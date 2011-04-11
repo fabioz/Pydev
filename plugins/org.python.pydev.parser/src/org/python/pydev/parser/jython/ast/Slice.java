@@ -13,11 +13,6 @@ public final class Slice extends sliceType {
         this.step = step;
     }
 
-    public Slice(exprType lower, exprType upper, exprType step, SimpleNode parent) {
-        this(lower, upper, step);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Slice createCopy() {
         Slice temp = new Slice(lower!=null?(exprType)lower.createCopy():null,

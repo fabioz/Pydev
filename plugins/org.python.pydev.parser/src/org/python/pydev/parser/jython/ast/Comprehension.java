@@ -13,11 +13,6 @@ public final class Comprehension extends comprehensionType {
         this.ifs = ifs;
     }
 
-    public Comprehension(exprType target, exprType iter, exprType[] ifs, SimpleNode parent) {
-        this(target, iter, ifs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Comprehension createCopy() {
         exprType[] new0;

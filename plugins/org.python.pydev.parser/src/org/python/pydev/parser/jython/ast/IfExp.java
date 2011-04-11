@@ -13,11 +13,6 @@ public final class IfExp extends exprType {
         this.orelse = orelse;
     }
 
-    public IfExp(exprType test, exprType body, exprType orelse, SimpleNode parent) {
-        this(test, body, orelse);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public IfExp createCopy() {
         IfExp temp = new IfExp(test!=null?(exprType)test.createCopy():null,

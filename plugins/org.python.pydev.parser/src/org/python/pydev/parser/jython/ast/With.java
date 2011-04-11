@@ -11,11 +11,6 @@ public final class With extends stmtType {
         this.body = body;
     }
 
-    public With(WithItemType[] with_item, suiteType body, SimpleNode parent) {
-        this(with_item, body);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public With createCopy() {
         WithItemType[] new0;

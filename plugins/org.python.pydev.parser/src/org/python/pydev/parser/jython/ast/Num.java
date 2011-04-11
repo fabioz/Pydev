@@ -13,11 +13,6 @@ public final class Num extends exprType implements num_typeType {
         this.num = num;
     }
 
-    public Num(Object n, int type, String num, SimpleNode parent) {
-        this(n, type, num);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Num createCopy() {
         Num temp = new Num(n, type, num);

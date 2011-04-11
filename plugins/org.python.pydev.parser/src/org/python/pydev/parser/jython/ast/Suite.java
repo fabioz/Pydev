@@ -8,11 +8,6 @@ public final class Suite extends suiteType {
         this.body = body;
     }
 
-    public Suite(stmtType[] body, SimpleNode parent) {
-        this(body);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Suite createCopy() {
         stmtType[] new0;

@@ -17,12 +17,6 @@ public final class Str extends exprType implements str_typeType {
         this.binary = binary;
     }
 
-    public Str(String s, int type, boolean unicode, boolean raw, boolean binary, SimpleNode parent)
-    {
-        this(s, type, unicode, raw, binary);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Str createCopy() {
         Str temp = new Str(s, type, unicode, raw, binary);

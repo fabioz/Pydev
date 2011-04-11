@@ -11,11 +11,6 @@ public final class NameTok extends NameTokType implements name_contextType {
         this.ctx = ctx;
     }
 
-    public NameTok(String id, int ctx, SimpleNode parent) {
-        this(id, ctx);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public NameTok createCopy() {
         NameTok temp = new NameTok(id, ctx);

@@ -13,11 +13,6 @@ public final class Subscript extends exprType implements expr_contextType {
         this.ctx = ctx;
     }
 
-    public Subscript(exprType value, sliceType slice, int ctx, SimpleNode parent) {
-        this(value, slice, ctx);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Subscript createCopy() {
         Subscript temp = new Subscript(value!=null?(exprType)value.createCopy():null,

@@ -9,11 +9,6 @@ public final class Import extends stmtType {
         this.names = names;
     }
 
-    public Import(aliasType[] names, SimpleNode parent) {
-        this(names);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Import createCopy() {
         aliasType[] new0;

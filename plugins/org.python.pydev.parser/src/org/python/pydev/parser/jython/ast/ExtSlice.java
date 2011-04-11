@@ -9,11 +9,6 @@ public final class ExtSlice extends sliceType {
         this.dims = dims;
     }
 
-    public ExtSlice(sliceType[] dims, SimpleNode parent) {
-        this(dims);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public ExtSlice createCopy() {
         sliceType[] new0;

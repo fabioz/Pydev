@@ -11,11 +11,6 @@ public final class Assign extends stmtType {
         this.value = value;
     }
 
-    public Assign(exprType[] targets, exprType value, SimpleNode parent) {
-        this(targets, value);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Assign createCopy() {
         exprType[] new0;

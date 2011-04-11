@@ -11,11 +11,6 @@ public final class TryFinally extends stmtType {
         this.finalbody = finalbody;
     }
 
-    public TryFinally(stmtType[] body, suiteType finalbody, SimpleNode parent) {
-        this(body, finalbody);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public TryFinally createCopy() {
         stmtType[] new0;

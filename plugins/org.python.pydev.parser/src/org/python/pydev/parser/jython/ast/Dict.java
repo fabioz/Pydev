@@ -11,11 +11,6 @@ public final class Dict extends exprType {
         this.values = values;
     }
 
-    public Dict(exprType[] keys, exprType[] values, SimpleNode parent) {
-        this(keys, values);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Dict createCopy() {
         exprType[] new0;

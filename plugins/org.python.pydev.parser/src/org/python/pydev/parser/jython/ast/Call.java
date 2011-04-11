@@ -18,12 +18,6 @@ public final class Call extends exprType {
         this.kwargs = kwargs;
     }
 
-    public Call(exprType func, exprType[] args, keywordType[] keywords, exprType starargs, exprType
-    kwargs, SimpleNode parent) {
-        this(func, args, keywords, starargs, kwargs);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public Call createCopy() {
         exprType[] new0;

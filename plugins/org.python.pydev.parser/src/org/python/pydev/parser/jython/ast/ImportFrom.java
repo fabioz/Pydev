@@ -13,11 +13,6 @@ public final class ImportFrom extends stmtType {
         this.level = level;
     }
 
-    public ImportFrom(NameTokType module, aliasType[] names, int level, SimpleNode parent) {
-        this(module, names, level);
-        this.beginLine = parent.beginLine;
-        this.beginColumn = parent.beginColumn;
-    }
 
     public ImportFrom createCopy() {
         aliasType[] new0;
