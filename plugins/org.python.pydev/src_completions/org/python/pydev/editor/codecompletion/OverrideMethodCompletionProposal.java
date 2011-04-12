@@ -9,16 +9,16 @@ package org.python.pydev.editor.codecompletion;
 import java.io.IOException;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
 import org.python.pydev.editor.codefolding.PySourceViewer;
@@ -46,8 +46,9 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
     public OverrideMethodCompletionProposal(int replacementOffset, int replacementLength, int cursorPosition,
             Image image, FunctionDef functionDef, String parentClassName) {
         super("", replacementOffset, replacementLength, cursorPosition, IPyCompletionProposal.PRIORITY_CREATE);
+        this.fImage = image;
         this.functionDef = functionDef;
-        this.fDisplayString = ((NameTok)functionDef.name).id+" (Override)";
+        this.fDisplayString = ((NameTok)functionDef.name).id+" (Override method in "+parentClassName+")";
         this.parentClassName = parentClassName;
     }
 
@@ -63,10 +64,25 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
      */
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         IDocument document = viewer.getDocument();
-        applyOnDocument(viewer, document, trigger, stateMask, offset);
+        int finalOffset = applyOnDocument(viewer, document, trigger, stateMask, offset);
+        if(finalOffset >= 0){
+            try {
+                PySelection ps = new PySelection(document, finalOffset);
+                int firstCharPosition = PySelection.getFirstCharPosition(ps.getLine());
+                int lineOffset = ps.getLineOffset();
+                int location = lineOffset+firstCharPosition;
+                int len = finalOffset-location;
+                fCursorPosition = location;
+                fReplacementLength = len;
+                
+            } catch (Exception e) {
+                Log.log(e);
+            }
+
+        }
     }
 
-    public void applyOnDocument(ITextViewer viewer, IDocument document, char trigger, int stateMask, int offset) {
+    public int applyOnDocument(ITextViewer viewer, IDocument document, char trigger, int stateMask, int offset) {
         IGrammarVersionProvider versionProvider = null;
         PyEdit edit = null;
         if(viewer instanceof PySourceViewer){
@@ -100,13 +116,19 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
             int defIndex = lineContentsToCursor.indexOf("def");
             printed = StringUtils.indentTo(printed, lineContentsToCursor.substring(0, defIndex), false);
             printed = StringUtils.rightTrim(printed);
+            printed = printed.substring(defIndex);
             
-            printed = printed.substring(lineContentsToCursor.length()-defIndex);
+            while(!Character.isWhitespace(document.getChar(offset-1))){
+                offset--;
+                this.fLen++;
+            }
 
             document.replace(offset, this.fLen, printed);
+            return offset+printed.length();
         } catch (BadLocationException x) {
             // ignore
         }
+        return -1;
     }
 
     public static String printAst(PyEdit edit, SimpleNode astToPrint, String lineDelimiter) {
@@ -131,6 +153,19 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
             }
         }
         return str;
+    }
+
+    /* (non-Javadoc)
+     * @see org.python.pydev.editor.codecompletion.AbstractPyCompletionProposalExtension2#getTriggerCharacters()
+     */
+    @Override
+    public char[] getTriggerCharacters() {
+        return null;
+    }
+    
+    @Override
+    public Point getSelection(IDocument document) {
+        return new Point(fCursorPosition, fReplacementLength);
     }
 
 }

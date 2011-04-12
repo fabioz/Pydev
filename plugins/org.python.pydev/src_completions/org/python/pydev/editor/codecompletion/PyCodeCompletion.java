@@ -29,6 +29,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.swt.graphics.Image;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -69,6 +70,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.UIConstants;
 
 /**
  * @author Dmoore
@@ -107,6 +109,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         int lineCtx = ps.isInDeclarationLine();
         if(lineCtx != PySelection.DECLARATION_NONE){
             if(lineCtx == PySelection.DECLARATION_METHOD){
+                Image imageOverride = PydevPlugin.getImageCache().get(UIConstants.METHOD_ICON);
                 String lineContentsToCursor = ps.getLineContentsToCursor();
                 LineStartingScope scopeStart = ps.getPreviousLineThatStartsScope(
                         PySelection.CLASS_TOKEN, false, PySelection.getFirstCharPosition(lineContentsToCursor));
@@ -145,7 +148,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                                         ps.getAbsoluteCursorOffset(), 
                                                         0, 
                                                         0, 
-                                                        null,
+                                                        imageOverride,
                                                         functionDef,
                                                         baseClass
                                                         ));

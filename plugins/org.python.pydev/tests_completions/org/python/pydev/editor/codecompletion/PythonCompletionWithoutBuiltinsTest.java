@@ -1518,7 +1518,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         "    \n"+
         "class Bar(Foo):\n" +
         "    def ";//bring override completions!
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override)"});
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override method in Foo)"});
         assertEquals(1, comps.length);
         Document doc = new Document(s);
         OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
@@ -1530,7 +1530,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    \n"+
                 "class Bar(Foo):\n" +
                 "    def foo(self):\n" +
-                "        return Foo.foo(self)", doc.get());
+                "        Foo.foo(self)", doc.get());
     }
     
     public void testOverrideCompletions2() throws Exception{
@@ -1542,7 +1542,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         "    \n"+
         "class Bar(Foo):\n" +
         "    def fo";//bring override completions!
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override)"});
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "foo (Override method in Foo)"});
         assertEquals(1, comps.length);
         Document doc = new Document(s);
         OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
@@ -1554,7 +1554,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    \n"+
                 "class Bar(Foo):\n" +
                 "    def foo(self):\n" +
-                "        return Foo.foo(self)", doc.get());
+                "        Foo.foo(self)", doc.get());
     }
     
     
@@ -1564,7 +1564,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         "import unittest\n" +
         "class Bar(unittest.TestCase):\n" +
         "    def tearDow";//bring override completions!
-        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "tearDown (Override)"});
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "tearDown (Override method in unittest.TestCase)"});
         assertEquals(1, comps.length);
         Document doc = new Document(s);
         OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
@@ -1573,7 +1573,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "import unittest\n" +
                 "class Bar(unittest.TestCase):\n" +
                 "    def tearDown(self):\n" +
-                "        return unittest.TestCase.tearDown(self)", doc.get());
+                "        unittest.TestCase.tearDown(self)", doc.get());
     }
     
 
