@@ -507,7 +507,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         boolean changeWhitespacesBefore = true;
         if(c == '~' || c == '+' || c == '-'){
             //could be an unary operator...
-            isUnary = buf.length() == 0;
+            isUnary = buf.toString().trim().length() == 0;
             
             //Get the last word
             if(STATEMENT_TOKENS.contains(buf.getLastWord().trim())){

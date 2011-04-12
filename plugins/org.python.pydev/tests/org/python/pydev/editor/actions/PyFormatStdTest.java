@@ -32,7 +32,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testNumber5();
+            n.testNumber8();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -1008,6 +1008,12 @@ public class PyFormatStdTest extends TestCase {
         String s = "" +
         "def a(a=10 + +20):\n" +
         "    return a + -1 - (-3)";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber8() throws Exception{
+        String s = "" +
+        " -1 - (-3)";
         checkFormatResults(s, s);
     }
     
