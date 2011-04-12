@@ -32,7 +32,7 @@ public class PyFormatStdTest extends TestCase {
             PyFormatStdTest n = new PyFormatStdTest();
             n.setUp();
             DEBUG = true;
-            n.testUnaryOpWithSpace();
+            n.testNumber5();
             n.tearDown();
             
             junit.textui.TestRunner.run(PyFormatStdTest.class);
@@ -963,6 +963,51 @@ public class PyFormatStdTest extends TestCase {
         String s = "" +
         		"tmp = (\n" +
         		"\t)";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber() throws Exception{
+        String s = "" +
+        "return -1";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber2() throws Exception{
+        String s = "" +
+        "call(a + 1e+10)";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber3() throws Exception{
+        String s = "" +
+        "call(0.0,1.E+13,1.0,0.0)";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber4() throws Exception{
+        String s = "" +
+        "1 + 2 + +3 - -3";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber5() throws Exception{
+        String s = "" +
+        "def a():\n" +
+        "    return -1";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber6() throws Exception{
+        String s = "" +
+        "def a(a=10 + +20):\n" +
+        "    return -1";
+        checkFormatResults(s, s);
+    }
+    
+    public void testNumber7() throws Exception{
+        String s = "" +
+        "def a(a=10 + +20):\n" +
+        "    return a + -1 - (-3)";
         checkFormatResults(s, s);
     }
     

@@ -11,6 +11,9 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -340,7 +343,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
                                 }
                             }
                             started = true;
-                            if(Character.isJavaIdentifierPart(localC)){
+                            if(Character.isJavaIdentifierPart(localC) || localC == '.'){
                                 localBufToCheckNumber.append(localC);
                             }else{
                                 break;//break for
@@ -460,6 +463,31 @@ public class PyFormatStd extends PyAction implements IFormatter {
     }
 
 
+
+    public static final Set<String> STATEMENT_TOKENS = new HashSet<String>();
+    static{
+        STATEMENT_TOKENS.add("lambda");
+        STATEMENT_TOKENS.add("assert");
+        STATEMENT_TOKENS.add("break");
+        STATEMENT_TOKENS.add("class");
+        STATEMENT_TOKENS.add("continue");
+        STATEMENT_TOKENS.add("def");
+        STATEMENT_TOKENS.add("elif");
+        STATEMENT_TOKENS.add("else");
+        STATEMENT_TOKENS.add("except");
+        STATEMENT_TOKENS.add("finally");
+        STATEMENT_TOKENS.add("for");
+        STATEMENT_TOKENS.add("from");
+        STATEMENT_TOKENS.add("if");
+        STATEMENT_TOKENS.add("import");
+        STATEMENT_TOKENS.add("pass");
+        STATEMENT_TOKENS.add("raise");
+        STATEMENT_TOKENS.add("return");
+        STATEMENT_TOKENS.add("try");
+        STATEMENT_TOKENS.add("while");
+        STATEMENT_TOKENS.add("with");
+        STATEMENT_TOKENS.add("yield");
+    };
     /**
      * Handles having an operator
      * 
@@ -480,6 +508,11 @@ public class PyFormatStd extends PyAction implements IFormatter {
         if(c == '~' || c == '+' || c == '-'){
             //could be an unary operator...
             isUnary = buf.length() == 0;
+            
+            //Get the last word
+            if(STATEMENT_TOKENS.contains(buf.getLastWord().trim())){
+                isUnary = true;
+            }
             if(!isUnary){
                 for(char itChar:buf.reverseIterator()){
                     if(itChar == ' ' || itChar == '\t'){

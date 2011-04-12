@@ -156,6 +156,23 @@ public class FastStringBufferTest extends TestCase{
         assertEquals(" a rarabbb", buf.toString());
     }
     
+    public void testGetLastWord() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(0);
+        assertEquals("", buf.getLastWord());
+        buf.append("b");
+        assertEquals("b", buf.getLastWord());
+        buf.append("ar");
+        assertEquals("bar", buf.getLastWord());
+        buf.append("1");
+        assertEquals("bar1", buf.getLastWord());
+        buf.append("\tsome");
+        assertEquals("some", buf.getLastWord());
+        buf.append(" some1");
+        assertEquals("some1", buf.getLastWord());
+        buf.append("  \t");
+        assertEquals("some1", buf.getLastWord());
+    }
+    
     
 //    public void testFastString() throws Exception {
 //        
