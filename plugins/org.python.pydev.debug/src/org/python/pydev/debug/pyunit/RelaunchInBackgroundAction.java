@@ -21,7 +21,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuCreator;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.plugin.PydevPlugin;
 
@@ -48,7 +57,16 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            currentTestRun.relaunch();
+            if(!currentTestRun.getFinished()){ //Wait for the current run to finish.
+                this.schedule(300);
+                return Status.OK_STATUS;
+            }
+            if(PydevDebugPlugin.getDefault().getPreferenceStore().getBoolean(
+                            PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS)){
+                currentTestRun.relaunchOnlyErrors();
+            }else{
+                currentTestRun.relaunch();
+            }
             return Status.OK_STATUS;
         }
 
@@ -57,21 +75,94 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
         }
     }
 
+    
+
+    public class RelaunchInBackgroundOptionsMenuCreator implements IMenuCreator{
+        
+        private Menu fMenu;
+
+        public RelaunchInBackgroundOptionsMenuCreator() {
+            
+        }
+
+        public void dispose() {
+            if (fMenu != null) {
+                fMenu.dispose();
+                fMenu= null;
+            }
+        }
+
+        public Menu getMenu(Control parent) {
+            if (fMenu != null) {
+                fMenu.dispose();
+            }
+            
+            final MenuManager manager= new MenuManager();
+            manager.setRemoveAllWhenShown(true);
+            manager.addMenuListener(new IMenuListener() {
+                public void menuAboutToShow(final IMenuManager manager2) {
+                    fillMenuManager(new IActionsMenu() {
+                        
+                        public void add(IAction action) {
+                            manager2.add(action);
+                        }
+                    });
+                }
+            });
+            fMenu= manager.createContextMenu(parent);
+
+            return fMenu;
+        }
+
+        public Menu getMenu(Menu parent) {
+            return null; //yes, return null here (no sub children)
+        }
+
+        public void fillMenuManager(IActionsMenu actionsMenu) {
+            actionsMenu.add(new RelaunchOnlyErrorsOnBackgroundRelaunch());
+        }
+    }
+    
+    private class RelaunchOnlyErrorsOnBackgroundRelaunch extends Action{
+        
+        public RelaunchOnlyErrorsOnBackgroundRelaunch() {
+            this.setText("On backgroun relaunch relaunch only errors?");
+            this.setToolTipText("If checked, a relaunch will relaunch only the errors in the current test run.\n" +
+            		"\n" +
+            		"If no errors are found, the full test suite is run again.");
+            this.setChecked(
+                    PydevDebugPlugin.getDefault().getPreferenceStore().getBoolean(
+                            PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS));
+        }
+        
+        /* (non-Javadoc)
+         * @see org.eclipse.jface.action.Action#run()
+         */
+        @Override
+        public void run() {
+            PydevDebugPlugin.getDefault().getPreferenceStore().setValue(
+                    PyUnitView.PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS, this.isChecked());
+        }
+    }
+    
     private WeakReference<PyUnitView> view;
     
     RelaunchJob relaunchJob = new RelaunchJob();
 
+    private boolean listeningChanges;
+
     public RelaunchInBackgroundAction(PyUnitView pyUnitView) {
         this.view = new WeakReference<PyUnitView>(pyUnitView);
-        this.setChecked(false);
-        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor("icons/relaunch_background.png"));
+        setMenuCreator(new RelaunchInBackgroundOptionsMenuCreator()); //Options for user
+        this.listeningChanges = false;
+        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor("icons/relaunch_background_disabled.png"));
         setInitialTooltipText();
     }
 
     private void setInitialTooltipText() {
         this.setToolTipText(
                 "Click to rerun the current test suite whenever any Python file changes.\n" +
-        		"\nNote that the test being currently run will be terminated if it still hasn't finished.");
+        		"\nNote that a new run will only be done after the current test run finishes.");
     }
 
     private void stopListening() {
@@ -87,9 +178,13 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
      */
     @Override
     public void run() {
-        if (this.isChecked()) {
+        this.listeningChanges = !this.listeningChanges;
+        
+        if(this.listeningChanges){
+            this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor("icons/relaunch_background_enabled.png"));
             startListening();
-        } else {
+        }else{
+            this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor("icons/relaunch_background_disabled.png"));
             stopListening();
         }
     }

@@ -127,6 +127,9 @@ public class PyUnitView extends ViewPartWithOrientation{
     public static final String PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN = "PYUNIT_VIEW_SHOW_VIEW_ON_TEST_RUN";
     public static final boolean PYUNIT_VIEW_DEFAULT_SHOW_VIEW_ON_TEST_RUN = true;
     
+    public static final String PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = "PYUNIT_VIEW_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS";
+    public static final boolean PYUNIT_VIEW_DEFAULT_BACKGROUND_RELAUNCH_SHOW_ONLY_ERRORS = false;
+    
     public static int MAX_RUNS_TO_KEEP = 15;
     
     private static final Object lockServerListeners = new Object();
