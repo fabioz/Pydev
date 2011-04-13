@@ -15,32 +15,36 @@ public final class Comprehension extends comprehensionType {
 
 
     public Comprehension createCopy() {
+        return createCopy(true);
+    }
+    public Comprehension createCopy(boolean copyComments) {
         exprType[] new0;
         if(this.ifs != null){
         new0 = new exprType[this.ifs.length];
         for(int i=0;i<this.ifs.length;i++){
-            new0[i] = (exprType) (this.ifs[i] != null? this.ifs[i].createCopy():null);
+            new0[i] = (exprType) (this.ifs[i] != null? this.ifs[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.ifs;
         }
-        Comprehension temp = new Comprehension(target!=null?(exprType)target.createCopy():null,
-        iter!=null?(exprType)iter.createCopy():null, new0);
+        Comprehension temp = new
+        Comprehension(target!=null?(exprType)target.createCopy(copyComments):null,
+        iter!=null?(exprType)iter.createCopy(copyComments):null, new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

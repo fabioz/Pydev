@@ -15,6 +15,9 @@ public final class Compare extends exprType implements cmpopType {
 
 
     public Compare createCopy() {
+        return createCopy(true);
+    }
+    public Compare createCopy(boolean copyComments) {
         int[] new0;
         if(this.ops != null){
             new0 = new int[this.ops.length];
@@ -27,27 +30,28 @@ public final class Compare extends exprType implements cmpopType {
         new1 = new exprType[this.comparators.length];
         for(int i=0;i<this.comparators.length;i++){
             new1[i] = (exprType) (this.comparators[i] != null?
-            this.comparators[i].createCopy():null);
+            this.comparators[i].createCopy(copyComments):null);
         }
         }else{
             new1 = this.comparators;
         }
-        Compare temp = new Compare(left!=null?(exprType)left.createCopy():null, new0, new1);
+        Compare temp = new Compare(left!=null?(exprType)left.createCopy(copyComments):null, new0,
+        new1);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

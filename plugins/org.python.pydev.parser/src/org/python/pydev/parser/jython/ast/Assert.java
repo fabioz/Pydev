@@ -13,23 +13,26 @@ public final class Assert extends stmtType {
 
 
     public Assert createCopy() {
-        Assert temp = new Assert(test!=null?(exprType)test.createCopy():null,
-        msg!=null?(exprType)msg.createCopy():null);
+        return createCopy(true);
+    }
+    public Assert createCopy(boolean copyComments) {
+        Assert temp = new Assert(test!=null?(exprType)test.createCopy(copyComments):null,
+        msg!=null?(exprType)msg.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

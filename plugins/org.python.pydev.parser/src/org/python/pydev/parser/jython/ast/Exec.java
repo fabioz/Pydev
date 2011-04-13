@@ -15,24 +15,27 @@ public final class Exec extends stmtType {
 
 
     public Exec createCopy() {
-        Exec temp = new Exec(body!=null?(exprType)body.createCopy():null,
-        globals!=null?(exprType)globals.createCopy():null,
-        locals!=null?(exprType)locals.createCopy():null);
+        return createCopy(true);
+    }
+    public Exec createCopy(boolean copyComments) {
+        Exec temp = new Exec(body!=null?(exprType)body.createCopy(copyComments):null,
+        globals!=null?(exprType)globals.createCopy(copyComments):null,
+        locals!=null?(exprType)locals.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

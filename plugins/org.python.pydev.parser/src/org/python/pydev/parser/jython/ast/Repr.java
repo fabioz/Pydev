@@ -11,22 +11,25 @@ public final class Repr extends exprType {
 
 
     public Repr createCopy() {
-        Repr temp = new Repr(value!=null?(exprType)value.createCopy():null);
+        return createCopy(true);
+    }
+    public Repr createCopy(boolean copyComments) {
+        Repr temp = new Repr(value!=null?(exprType)value.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

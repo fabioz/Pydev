@@ -114,11 +114,12 @@ public class PyAstFactory {
     }
     
     public Call createCall(String call, List<exprType> params, keywordType[] keywords, exprType starargs, exprType kwargs) {
+        exprType[] array = params!=null?params.toArray(new Name[params.size()]):new exprType[0];
         if(call.indexOf(".") != -1){
-            exprType[] array = params!=null?params.toArray(new Name[params.size()]):new exprType[0];
             return new Call(createAttribute(call), array, keywords, starargs, kwargs);
         }
-        throw new RuntimeException("Unhandled.");
+        return new Call(new Name(call, Name.Load, false), array, keywords, starargs, kwargs);
+        
     }
 
     public Attribute createAttribute(String attribute) {
@@ -183,8 +184,9 @@ public class PyAstFactory {
     
     /**
      * @param functionDef the function for the override body
+     * @param currentClassName 
      */
-    public stmtType createOverrideBody(FunctionDef functionDef, String parentClassName) {
+    public stmtType createOverrideBody(FunctionDef functionDef, String parentClassName, String currentClassName) {
         //create a copy because we do not want to retain the original line/col and we may change the originals here.
         final boolean[] addReturn = new boolean[]{false};
         VisitorBase visitor = new VisitorBase(){
@@ -218,10 +220,21 @@ public class PyAstFactory {
             }
         }
         
-        argumentsType args = functionDef.args.createCopy(); 
+        boolean isClassMethod = false;
+        if(functionDef.decs != null){
+            for(decoratorsType dec: functionDef.decs){
+                String rep = NodeUtils.getRepresentationString(dec.func);
+                if("classmethod".equals(rep)){
+                    isClassMethod = true;
+                    break;
+                }
+            }
+        }
+        
+        argumentsType args = functionDef.args.createCopy(false); 
         List<exprType> params = new ArrayList<exprType>();
         for(exprType expr:args.args){ //note: self should be there already!
-            params.add((exprType) expr.createCopy());
+            params.add((exprType) expr);
         }
         
         exprType starargs = args.vararg != null?new Name(((NameTok)args.vararg).id, Name.Load, false):null;
@@ -248,12 +261,32 @@ public class PyAstFactory {
                 params.remove((int)pop);
             }
         }
-        Call call = createCall(
-                parentClassName+"."+NodeUtils.getRepresentationString(functionDef), 
-                params, 
-                keywords.toArray(new keywordType[keywords.size()]), 
-                starargs, 
-                kwargs);
+        Call call;
+        if(isClassMethod && params.size() > 0){
+            //We need to use the super() construct
+            //Something as:
+            //Expr[value=
+            //    Call[func=
+            //        Attribute[value=
+            //            Call[func=Name[id=super, ctx=Load, reserved=false], args=[Name[id=Current, ctx=Load, reserved=false], Name[id=cls, ctx=Load, reserved=false]], keywords=[], starargs=null, kwargs=null], 
+            //        attr=NameTok[id=test, ctx=Attrib], ctx=Load], 
+            //    args=[], keywords=[], starargs=null, kwargs=null]
+            //]
+            
+            exprType firstParam = params.remove(0);
+            
+            Call innerCall = createCall("super", "Current", NodeUtils.getRepresentationString(firstParam));
+            Attribute attr = new Attribute(innerCall, new NameTok(NodeUtils.getRepresentationString(functionDef), NameTok.Attrib), Attribute.Load);
+            call = new Call(attr, params.toArray(new Name[params.size()]), keywords.toArray(new keywordType[keywords.size()]), starargs, kwargs);
+            
+        }else{
+            call = createCall(
+                    parentClassName+"."+NodeUtils.getRepresentationString(functionDef), 
+                    params, 
+                    keywords.toArray(new keywordType[keywords.size()]), 
+                    starargs, 
+                    kwargs);
+        }
         if(addReturn[0]){
             return new Return(call);
         }else{

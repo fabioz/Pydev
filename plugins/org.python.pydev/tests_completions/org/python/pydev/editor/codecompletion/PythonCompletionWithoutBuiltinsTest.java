@@ -58,7 +58,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testOverrideCompletions3();
+            test.testOverrideCompletions5();
             test.tearDown();
             System.out.println("Finished");
 
@@ -1574,6 +1574,57 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Bar(unittest.TestCase):\n" +
                 "    def tearDown(self):\n" +
                 "        unittest.TestCase.tearDown(self)", doc.get());
+    }
+    
+    public void testOverrideCompletions4() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n" +
+        "    @classmethod\n" +
+        "    def rara(cls):\n" +
+        "        pass\n" +
+        "class Bar(Foo):\n" +
+        "    def ra";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "rara (Override method in Foo)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n" +
+                "    @classmethod\n" +
+                "    def rara(cls):\n" +
+                "        pass\n" +
+                "class Bar(Foo):\n" +
+                "    @classmethod\n" +
+                "    def rara(cls):\n" +
+                "        super(Current, cls).rara()", doc.get());
+    }
+    
+    public void testOverrideCompletions5() throws Exception{
+        String s;
+        s = "" +
+        "class Foo:\n" +
+        "    #comment\n" +
+        "    def rara(self):\n" +
+        "        #comment\n" +
+        "        pass\n" +
+        "class Bar(Foo):\n" +
+        "    def ra";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "rara (Override method in Foo)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n" +
+                "    #comment\n" +
+                "    def rara(self):\n" +
+                "        #comment\n" +
+                "        pass\n" +
+                "class Bar(Foo):\n" +
+                "    def rara(self):\n" +
+                "        Foo.rara(self)", doc.get());
     }
     
 

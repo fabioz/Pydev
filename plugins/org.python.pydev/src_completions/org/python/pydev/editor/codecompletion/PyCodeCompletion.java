@@ -68,6 +68,11 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
@@ -138,21 +143,38 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                     //Ok, looking for a token in globals.
                                     IToken[] comps = astManager.getCompletionsForToken(request.editorFile, request.doc, state);
                                     for (IToken iToken : comps) {
+                                        FunctionDef functionDef = null;
                                         if(iToken instanceof SourceToken){
                                             SourceToken sourceToken = (SourceToken) iToken;
                                             SimpleNode ast = sourceToken.getAst();
                                             if(ast instanceof FunctionDef){
-                                                FunctionDef functionDef = (FunctionDef) ast;
+                                                functionDef = (FunctionDef) ast;
 
-                                                ret.add(new OverrideMethodCompletionProposal(
-                                                        ps.getAbsoluteCursorOffset(), 
-                                                        0, 
-                                                        0, 
-                                                        imageOverride,
-                                                        functionDef,
-                                                        baseClass
-                                                        ));
                                             }
+                                        }else{
+                                            //unfortunately, for builtins we usually cannot trust the parameters.
+                                            int type = iToken.getType();
+                                            if(type == IToken.TYPE_FUNCTION || type == IToken.TYPE_UNKNOWN || type == IToken.TYPE_BUILTIN){
+                                                String representation = iToken.getRepresentation();
+                                                PyAstFactory factory = new PyAstFactory(new AdapterPrefs(ps.getEndLineDelim(), request.nature));
+                                                functionDef = factory.createFunctionDef(representation);
+                                                functionDef.args = factory.createArguments(true);
+                                                functionDef.args.vararg = new NameTok("args", NameTok.VarArg);
+                                                functionDef.args.kwarg = new NameTok("kwargs", NameTok.KwArg);
+                                                functionDef.body = new stmtType[]{new Return(null)}; //signal that the return should be added
+                                            }
+                                        }
+                                        
+                                        if(functionDef != null){
+                                            ret.add(new OverrideMethodCompletionProposal(
+                                                    ps.getAbsoluteCursorOffset(), 
+                                                    0, 
+                                                    0, 
+                                                    imageOverride,
+                                                    functionDef,
+                                                    baseClass,
+                                                    className
+                                            ));
                                         }
                                     }
                                 } catch (Exception e) {

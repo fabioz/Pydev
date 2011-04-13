@@ -44,7 +44,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         try {
             PythonCompletionWithBuiltinsTest builtins = new PythonCompletionWithBuiltinsTest();
             builtins.setUp();
-            builtins.testKeywordCompletions();
+            builtins.testOverrideCompletions();
             builtins.tearDown();
             
             junit.textui.TestRunner.run(PythonCompletionWithBuiltinsTest.class);
@@ -525,5 +525,22 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase{
         }
     }
     
+
+    public void testOverrideCompletions() throws Exception{
+        String s;
+        s = "" +
+        "class Bar(object):\n" +
+        "    def __ha";//bring override completions!
+        ICompletionProposal[] comps = requestCompl(s, s.length(), -1, new String[] { "__hash__ (Override method in object)"});
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Bar(object):\n" +
+                "    def __hash__(self, *args, **kwargs):\n" +
+                "        return object.__hash__(self, *args, **kwargs)", doc.get());
+    }
     
+
 }

@@ -42,14 +42,16 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
 
     private final FunctionDef functionDef;
     private final String parentClassName;
+    private String currentClassName;
 
     public OverrideMethodCompletionProposal(int replacementOffset, int replacementLength, int cursorPosition,
-            Image image, FunctionDef functionDef, String parentClassName) {
+            Image image, FunctionDef functionDef, String parentClassName, String currentClassName) {
         super("", replacementOffset, replacementLength, cursorPosition, IPyCompletionProposal.PRIORITY_CREATE);
         this.fImage = image;
         this.functionDef = functionDef;
         this.fDisplayString = ((NameTok)functionDef.name).id+" (Override method in "+parentClassName+")";
         this.parentClassName = parentClassName;
+        this.currentClassName = currentClassName;
     }
 
     /* (non-Javadoc)
@@ -99,9 +101,9 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
         String delimiter = PySelection.getDelimiter(document);
         
         PyAstFactory factory = new PyAstFactory(new AdapterPrefs(delimiter, versionProvider));
-        stmtType overrideBody = factory.createOverrideBody(this.functionDef, parentClassName); //Note that the copy won't have a parent.
+        stmtType overrideBody = factory.createOverrideBody(this.functionDef, parentClassName, currentClassName); //Note that the copy won't have a parent.
         
-        FunctionDef functionDef = this.functionDef.createCopy();
+        FunctionDef functionDef = this.functionDef.createCopy(false);
         functionDef.body = new stmtType[]{overrideBody!=null?overrideBody:new Pass()};
         
         try{
@@ -114,17 +116,14 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
         try {
             String lineContentsToCursor = ps.getLineContentsToCursor();
             int defIndex = lineContentsToCursor.indexOf("def");
+            int defOffset = ps.getLineOffset() + defIndex;
             printed = StringUtils.indentTo(printed, lineContentsToCursor.substring(0, defIndex), false);
             printed = StringUtils.rightTrim(printed);
-            printed = printed.substring(defIndex);
             
-            while(!Character.isWhitespace(document.getChar(offset-1))){
-                offset--;
-                this.fLen++;
-            }
+            this.fLen += offset - defOffset;
 
-            document.replace(offset, this.fLen, printed);
-            return offset+printed.length();
+            document.replace(defOffset, this.fLen, printed);
+            return defOffset+printed.length();
         } catch (BadLocationException x) {
             // ignore
         }

@@ -15,23 +15,27 @@ public final class Slice extends sliceType {
 
 
     public Slice createCopy() {
-        Slice temp = new Slice(lower!=null?(exprType)lower.createCopy():null,
-        upper!=null?(exprType)upper.createCopy():null, step!=null?(exprType)step.createCopy():null);
+        return createCopy(true);
+    }
+    public Slice createCopy(boolean copyComments) {
+        Slice temp = new Slice(lower!=null?(exprType)lower.createCopy(copyComments):null,
+        upper!=null?(exprType)upper.createCopy(copyComments):null,
+        step!=null?(exprType)step.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

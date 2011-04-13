@@ -242,6 +242,10 @@ class JavaVisitor(EmitVisitor):
         
         #createCopy()
         self.emit("public %s createCopy() {" % (ctorname,), depth)
+        self.emit("return createCopy(true);", depth+1)
+        self.emit("}", depth)
+        
+        self.emit("public %s createCopy(boolean copyComments) {" % (ctorname,), depth)
         params = []
         copy_i = 0
         for f in fields:
@@ -275,7 +279,7 @@ class JavaVisitor(EmitVisitor):
                     self.emit('if(this.%s != null){' % (f.name,), depth+1) 
                     self.emit('new%s = new %s[this.%s.length];' % (copy_i, jType, f.name), depth+1) 
                     self.emit('for(int i=0;i<this.%s.length;i++){' % (f.name), depth+1)
-                    self.emit('new%s[i] = (%s) (this.%s[i] != null? this.%s[i].createCopy():null);' % (copy_i, jType, f.name, f.name), depth+2) 
+                    self.emit('new%s[i] = (%s) (this.%s[i] != null? this.%s[i].createCopy(copyComments):null);' % (copy_i, jType, f.name, f.name), depth+2) 
                     self.emit('}', depth+1)
                     self.emit('}else{', depth+1)
                     self.emit('new%s = this.%s;'%(copy_i, f.name), depth+2)
@@ -284,7 +288,7 @@ class JavaVisitor(EmitVisitor):
                     params.append('new%s' % (copy_i,))
                     copy_i += 1
                 else:  
-                    params.append('%s!=null?(%s)%s.createCopy():null' % (f.name, jType, f.name))
+                    params.append('%s!=null?(%s)%s.createCopy(copyComments):null' % (f.name, jType, f.name))
             
         params = ", ".join(params)
         
@@ -295,11 +299,11 @@ class JavaVisitor(EmitVisitor):
         self.emit("temp.beginColumn = this.beginColumn;", depth+1);
         
         def EmitSpecials(s):
-            self.emit('if(this.specials%s != null){' % s, depth+1)
+            self.emit('if(this.specials%s != null && copyComments){' % s, depth+1)
             self.emit('    for(Object o:this.specials%s){' % s, depth+1)
             self.emit('        if(o instanceof commentType){', depth+1)
             self.emit('            commentType commentType = (commentType) o;', depth+1)
-            self.emit('            temp.getSpecials%s().add(commentType.createCopy());' %s, depth+1)
+            self.emit('            temp.getSpecials%s().add(commentType.createCopy(copyComments));' %s, depth+1)
             self.emit('        }', depth+1)
             self.emit('    }', depth+1)
             self.emit('}', depth+1)

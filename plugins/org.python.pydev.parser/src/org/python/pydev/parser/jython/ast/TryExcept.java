@@ -15,11 +15,14 @@ public final class TryExcept extends stmtType {
 
 
     public TryExcept createCopy() {
+        return createCopy(true);
+    }
+    public TryExcept createCopy(boolean copyComments) {
         stmtType[] new0;
         if(this.body != null){
         new0 = new stmtType[this.body.length];
         for(int i=0;i<this.body.length;i++){
-            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy():null);
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.body;
@@ -29,28 +32,28 @@ public final class TryExcept extends stmtType {
         new1 = new excepthandlerType[this.handlers.length];
         for(int i=0;i<this.handlers.length;i++){
             new1[i] = (excepthandlerType) (this.handlers[i] != null?
-            this.handlers[i].createCopy():null);
+            this.handlers[i].createCopy(copyComments):null);
         }
         }else{
             new1 = this.handlers;
         }
         TryExcept temp = new TryExcept(new0, new1,
-        orelse!=null?(suiteType)orelse.createCopy():null);
+        orelse!=null?(suiteType)orelse.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

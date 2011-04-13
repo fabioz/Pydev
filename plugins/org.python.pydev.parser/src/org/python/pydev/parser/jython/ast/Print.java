@@ -15,31 +15,35 @@ public final class Print extends stmtType {
 
 
     public Print createCopy() {
+        return createCopy(true);
+    }
+    public Print createCopy(boolean copyComments) {
         exprType[] new0;
         if(this.values != null){
         new0 = new exprType[this.values.length];
         for(int i=0;i<this.values.length;i++){
-            new0[i] = (exprType) (this.values[i] != null? this.values[i].createCopy():null);
+            new0[i] = (exprType) (this.values[i] != null?
+            this.values[i].createCopy(copyComments):null);
         }
         }else{
             new0 = this.values;
         }
-        Print temp = new Print(dest!=null?(exprType)dest.createCopy():null, new0, nl);
+        Print temp = new Print(dest!=null?(exprType)dest.createCopy(copyComments):null, new0, nl);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if(this.specialsBefore != null){
+        if(this.specialsBefore != null && copyComments){
             for(Object o:this.specialsBefore){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsBefore().add(commentType.createCopy());
+                    temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if(this.specialsAfter != null){
+        if(this.specialsAfter != null && copyComments){
             for(Object o:this.specialsAfter){
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
-                    temp.getSpecialsAfter().add(commentType.createCopy());
+                    temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
             }
         }

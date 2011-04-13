@@ -21,7 +21,7 @@ public class PyAstFactoryTest extends PyParserTestBase {
         try {
             PyAstFactoryTest test = new PyAstFactoryTest();
             test.setUp();
-            test.testCreateOverrideBody2();
+            test.testCreateOverrideBody5();
             test.tearDown();
             System.out.println("Finished");
             junit.textui.TestRunner.run(PyAstFactoryTest.class);
@@ -97,7 +97,7 @@ public class PyAstFactoryTest extends PyParserTestBase {
         functionDef.args = astFactory.createArguments(true, "arg", "attribute");
         astFactory.setBody(
                 functionDef, 
-                astFactory.createOverrideBody(functionDef, "Parent")
+                astFactory.createOverrideBody(functionDef, "Parent", "Current")
         );
         checkExpected(functionDef, expected);
     }
@@ -115,7 +115,7 @@ public class PyAstFactoryTest extends PyParserTestBase {
         createdFunctionDef.args = functionDef.args.createCopy();
         astFactory.setBody(
                 createdFunctionDef, 
-                astFactory.createOverrideBody(functionDef, "Parent")
+                astFactory.createOverrideBody(functionDef, "Parent", "Current")
         );
         checkExpected(createdFunctionDef, expected);
     }
@@ -137,7 +137,58 @@ public class PyAstFactoryTest extends PyParserTestBase {
         createdFunctionDef.args = functionDef.args.createCopy();
         astFactory.setBody(
                 createdFunctionDef, 
-                astFactory.createOverrideBody(functionDef, "Parent")
+                astFactory.createOverrideBody(functionDef, "Parent", "Current")
+        );
+        checkExpected(createdFunctionDef, expected);
+    }
+    
+    public void testCreateOverrideBody4() throws Exception {
+        String base = "" +
+        "@classmethod\n" +
+        "def test(cls):\n"+
+        "    pass\n" +
+        "";
+        
+        String expected = "" +
+        "@classmethod\n" +
+        "def test(cls):\n"+
+        "    super(Current,cls).test()\n" +
+        "";
+//        Module m = (Module) parseLegalDocStr(expected);
+//        FunctionDef func = (FunctionDef) m.body[0];
+//        System.out.println(func.body[0]);
+        
+        Module module = (Module) parseLegalDocStr(base);
+        FunctionDef functionDef = (FunctionDef) module.body[0];
+        FunctionDef createdFunctionDef = functionDef.createCopy();
+        astFactory.setBody(
+                createdFunctionDef, 
+                astFactory.createOverrideBody(functionDef, "Parent", "Current")
+        );
+        checkExpected(createdFunctionDef, expected);
+    }
+    
+    
+    public void testCreateOverrideBody5() throws Exception {
+        String base = "" +
+        "@classmethod\n" +
+        "def test(cls):\n"+
+        "    #comment\n" +
+        "    pass\n" +
+        "";
+        
+        String expected = "" +
+        "@classmethod\n" +
+        "def test(cls):\n"+
+        "    super(Current,cls).test()\n" +
+        "";
+        
+        Module module = (Module) parseLegalDocStr(base);
+        FunctionDef functionDef = (FunctionDef) module.body[0];
+        FunctionDef createdFunctionDef = functionDef.createCopy(false);
+        astFactory.setBody(
+                createdFunctionDef, 
+                astFactory.createOverrideBody(functionDef, "Parent", "Current")
         );
         checkExpected(createdFunctionDef, expected);
     }
