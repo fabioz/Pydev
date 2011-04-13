@@ -377,6 +377,9 @@ public class PyUnitView extends ViewPartWithOrientation{
         toolBar.add(new StopAction(this));
         
         toolBar.add(new Separator());
+        toolBar.add(new RelaunchInBackgroundAction(this));
+        
+        toolBar.add(new Separator());
         toolBar.add(new HistoryAction(this));
         PinHistoryAction pinHistory = new PinHistoryAction(this);
         toolBar.add(pinHistory);
@@ -513,7 +516,7 @@ public class PyUnitView extends ViewPartWithOrientation{
             }
             IWorkbenchPage page= workbenchWindow.getActivePage();
             if(ShowViewOnTestRunAction.getShowViewOnTestRun()){
-                return (PyUnitView) page.showView(PY_UNIT_VIEW_ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+                return (PyUnitView) page.showView(PY_UNIT_VIEW_ID, null, IWorkbenchPage.VIEW_VISIBLE);
             }else{
                 IViewReference viewReference = page.findViewReference(PY_UNIT_VIEW_ID);
                 if(viewReference != null){
