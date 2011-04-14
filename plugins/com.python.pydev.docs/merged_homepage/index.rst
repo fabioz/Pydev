@@ -59,6 +59,7 @@ PyDev is a **Python IDE** for **Eclipse**, which may be used in **Python**, **Jy
 .. _Interactive console: manual_adv_interactive_console.html
 .. _Syntax highlighting: manual_adv_editor_prefs.html
 .. _Unittest integration: manual_adv_pyunit.html
+.. _Code coverage: manual_adv_coverage.html
 .. _video: video_pydev_20.html
 
 It comes with many goodies such as:
@@ -77,6 +78,7 @@ It comes with many goodies such as:
 | * `Tokens browser`_                                                                                                                                                                                                                                      |                                                                                                                                                  |
 | * `Interactive console`_                                                                                                                                                                                                                                 |                                                                                                                                                  |
 | * `Unittest integration`_                                                                                                                                                                                                                                |                                                                                                                                                  |
+| * `Code coverage`_                                                                                                                                                                                                                                       |                                                                                                                                                  |
 | * **and many others**:                                                                                                                                                                                                                                   |                                                                                                                                                  |
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------+
 

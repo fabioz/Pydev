@@ -11,7 +11,6 @@ plugins/org.python.pydev.refactoring/bin
 plugins/org.python.pydev.parser/bin
 org.eclipse.*
 plugins/com.python.pydev.docs/new_homepage/final/*
-plugins/com.python.pydev.docs/merged_homepage/final/*
 plugins/com.python.pydev.docs/open_source/final/*
 features/org.python.pydev.feature/bin/
 features/org.python.pydev.django_templates.feature/bin/
