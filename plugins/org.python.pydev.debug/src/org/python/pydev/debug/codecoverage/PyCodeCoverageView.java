@@ -82,7 +82,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallbackListener;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.uiutils.RunInUiThread;
-import org.python.pydev.debug.pyunit.ViewPartWithOrientation;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
 import org.python.pydev.editor.PyEdit;
@@ -94,6 +93,7 @@ import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
 import org.python.pydev.ui.IViewCreatedObserver;
+import org.python.pydev.ui.ViewPartWithOrientation;
 import org.python.pydev.utils.ProgressAction;
 import org.python.pydev.utils.ProgressOperation;
 import org.python.pydev.utils.PyFilteredTree;
@@ -111,6 +111,13 @@ import org.python.pydev.utils.PyFilteredTree;
 
 public class PyCodeCoverageView extends ViewPartWithOrientation {
     
+    public static final String PYCOVERAGE_VIEW_ORIENTATION = "PYCOVERAGE_VIEW_ORIENTATION";
+    @Override
+    public String getOrientationPreferencesKey() {
+        return PYCOVERAGE_VIEW_ORIENTATION;
+    }
+
+
     public static String PY_COVERAGE_VIEW_ID = "org.python.pydev.views.PyCodeCoverageView";
     
     //layout stuff
@@ -797,6 +804,14 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
             }
         });
 
+        configureToolbar();
+
+
+        updateErrorMessages();
+
+    }
+
+    private void configureToolbar() {
         IActionBars actionBars = getViewSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
         IMenuManager menuManager = actionBars.getMenuManager();
@@ -807,10 +822,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation {
         if(REF.getSupportsOpenDirectory()){
             menuManager.add(openCoverageFolderAction);
         }
-
-
-        updateErrorMessages();
-
+        
+        addOrientationPreferences(menuManager);
     }
 
     /**
