@@ -17,6 +17,37 @@ else:
 import build_python_code_block
 
 
+DEFAULT_CONTENTS_TEMPLATE = '''<doc>
+<contents_area></contents_area>
+
+%s
+
+</doc>
+'''
+
+DEFAULT_AREAS = '''
+<right_area>
+</right_area>
+
+
+<image_area></image_area>
+
+
+<quote_area></quote_area>
+
+'''
+
+DEFAULT_AREAS_MANUAL = '''
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+'''
 #=======================================================================================================================
 # BuildFromRst
 #=======================================================================================================================
@@ -42,13 +73,29 @@ def BuildFromRst(source_filename, is_new_homepage=False):
     if final.startswith('<div'):
         final = final[final.find('\n'):]
         final = final[:final.rfind('</div>')]
+        
+    rst_contents = open(source_filename, 'r').read()
+    
+    if rst_contents.startswith('..'):
+        image_area_right_area_and_quote_area = ''
+        #lines = []
+        #for line in rst_contents.splitlines():
+        #    if line.strip().startswith('..'):
+        #        lines.append(line.strip()[2:].strip())
+        #lines = lines[1:] #remove the first (empty) line
+        #image_area_right_area_and_quote_area = '\n'.join(lines)
+    else:
+        if rst_contents.startswith('manual_adv'):
+            image_area_right_area_and_quote_area = DEFAULT_AREAS
+        else:
+            image_area_right_area_and_quote_area = DEFAULT_AREAS_MANUAL
     
     postfix = '.contents.htm'
     name = source_filename.split('.')[0]
     if is_new_homepage:
-        f = open(name+postfix, 'r')
-        contents = f.read()
-        f.close()
+        if os.path.exists(name+postfix):
+            raise AssertionError('This file should not exist: '+name+postfix)
+        contents = DEFAULT_CONTENTS_TEMPLATE % (image_area_right_area_and_quote_area,)
         final = contents.replace('<contents_area></contents_area>', '<contents_area>%s</contents_area>' % final)
         
         #make the output html (and not htm)

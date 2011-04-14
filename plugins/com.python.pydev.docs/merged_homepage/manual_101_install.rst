@@ -1,6 +1,18 @@
+..
+    <right_area>
+    <p>Getting started with PyDev!</p>
+    </right_area>
+    
+    
+    <image_area>manual.png</image_area>
+    
+    
+    <quote_area><strong>PyDev 101</strong></quote_area>
+    
+    
 .. contents::
 
-.. _`Aptana Studio 3`: http://aptana.com/products/studio3
+_`Aptana Studio 3`: http://aptana.com/products/studio3
 
 
 Note for users with Aptana Studio 3 (Beta)

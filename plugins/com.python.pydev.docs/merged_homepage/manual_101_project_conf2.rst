@@ -1,3 +1,14 @@
+..
+    <right_area>
+    <p>Further configuring your project!</p>
+    </right_area>
+    
+    
+    <image_area>manual.png</image_area>
+    
+    
+    <quote_area><strong>PyDev 101</strong></quote_area>
+
 Here you will learn to **further configure your project** and add Python information to an already existing project.
 
 

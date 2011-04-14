@@ -1,3 +1,14 @@
+..
+    <right_area>
+    <p>Creating your first module!</p>
+    </right_area>
+    
+    
+    <image_area>manual.png</image_area>
+    
+    
+    <quote_area><strong>PyDev 101</strong></quote_area>
+
 **Creating our first module** (now that the interpreter and the project are already configured).
 
 
