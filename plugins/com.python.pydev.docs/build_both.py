@@ -90,19 +90,18 @@ def BuildFromRst(source_filename, is_new_homepage=False):
         else:
             image_area_right_area_and_quote_area = DEFAULT_AREAS_MANUAL
     
-    postfix = '.contents.htm'
     name = source_filename.split('.')[0]
     if is_new_homepage:
-        if os.path.exists(name+postfix):
-            raise AssertionError('This file should not exist: '+name+postfix)
+        if os.path.exists(name+'.contents.htm'):
+            raise AssertionError('This file should not exist: '+name+'.contents.htm')
+        if os.path.exists(name+'.contents.html'):
+            raise AssertionError('This file should not exist: '+name+'.contents.html')
         contents = DEFAULT_CONTENTS_TEMPLATE % (image_area_right_area_and_quote_area,)
         final = contents.replace('<contents_area></contents_area>', '<contents_area>%s</contents_area>' % final)
         
-        #make the output html (and not htm)
-        postfix += 'l'
     
     final = final.replace('\r\n','\n').replace('\r','\n')
-    f = open(name+postfix, 'wb')
+    f = open(name+'.contents.rst_html', 'wb')
     print >> f, final
     f.close()
 

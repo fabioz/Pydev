@@ -52,10 +52,12 @@ manualScreencasts = (
 def template( template, contents, title, **kwargs ):
     if_not_specified_in_file = kwargs.pop('if_not_specified_in_file', {})
 
-    contents_file = '%s.contents.html' % contents
     target_file   = 'final/%s.html' % contents
 
-    contents_file = file( contents_file, 'r' ).read()
+    try:
+        contents_file = file('%s.contents.html' % contents, 'r' ).read()
+    except IOError:
+        contents_file = file('%s.contents.rst_html' % contents, 'r' ).read()
     
     try:
         contents = file( template, 'r' ).read()
