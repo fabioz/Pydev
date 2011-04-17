@@ -84,7 +84,7 @@ public class PyContentAssistant extends ContentAssistant{
     }
     
     /**
-     * @return true if the last tim was an auto activation (and updates
+     * @return true if the last time was an auto activation (and updates
      * the internal flag regarding it).
      */
     public boolean getLastCompletionAutoActivated(){

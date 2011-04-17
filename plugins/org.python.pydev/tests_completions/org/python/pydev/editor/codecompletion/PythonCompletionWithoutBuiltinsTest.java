@@ -1508,6 +1508,22 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     	}
     }
     
+    
+    public void testCompletionDoesNotBringUnder() throws Exception {
+        String s = 
+            "class A:\n" +
+            "    def __foo__(self):\n" +
+            "        pass\n" +
+            "\n"+
+            "class B(A):\n" +
+            "    def m1(self):\n" +
+            "        self." + //__foo should NOT be here!
+            "";
+        ICompletionProposal[] proposals = requestCompl(s, 2, new String[] {"m1()", "__foo__()"});
+        assertEquals(proposals[0].getDisplayString(), "m1()");
+        assertEquals(proposals[1].getDisplayString(), "__foo__()");
+    }
+    
 
     public void testOverrideCompletions() throws Exception{
         String s;

@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.python.pydev.core.callbacks.CallbackWithListeners;
 import org.python.pydev.core.callbacks.ICallbackWithListeners;
+import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PydevPrefs;
 
 public abstract class ViewPartWithOrientation extends ViewPart implements IPropertyChangeListener {
@@ -28,9 +29,11 @@ public abstract class ViewPartWithOrientation extends ViewPart implements IPrope
     
     protected ViewPartWithOrientation(){
         String orientationPreferencesKey = getOrientationPreferencesKey();
-        IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
-        orientationPreference = preferenceStore.getInt(orientationPreferencesKey);
-        PydevPrefs.getPreferenceStore().addPropertyChangeListener(this);
+        if(PydevPlugin.getDefault() != null){
+            IPreferenceStore preferenceStore = PydevPrefs.getPreferenceStore();
+            orientationPreference = preferenceStore.getInt(orientationPreferencesKey);
+            PydevPrefs.getPreferenceStore().addPropertyChangeListener(this);
+        }
     }
     
     /*default*/ static final int PREFERENCES_VIEW_ORIENTATION_AUTOMATIC = 0;
