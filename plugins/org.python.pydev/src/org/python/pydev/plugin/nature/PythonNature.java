@@ -1178,7 +1178,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                     }
                     if(resource == null || !resource.exists()){
                         lst.add(new ProjectConfigError(
-                                relatedToProject, "Invalid source folder specified: "+path));
+                                relatedToProject, "Source folder: "+path+" not found"));
                     }
                 }
             }

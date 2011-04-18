@@ -355,7 +355,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
         
         throw new MisconfigurationException(
-        		StringUtils.format("Unable to find interpreter named: %s. Available: %s", nameOrExecutableOrJar, available));
+        		StringUtils.format("Interpreter: %s not found", nameOrExecutableOrJar));
     }
 
     /**
