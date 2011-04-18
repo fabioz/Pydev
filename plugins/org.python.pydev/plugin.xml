@@ -1172,6 +1172,23 @@
     <dragAssistant class="org.eclipse.ui.navigator.resources.ResourceDragAdapterAssistant" viewerId="org.python.pydev.navigator.view"/>
 </extension>
    
+  <!-- Error decorations -->
+    <extension point="org.eclipse.ui.decorators">
+      <decorator
+            adaptable="false"
+            class="org.python.pydev.navigator.decorator.ProblemsLabelDecorator"
+            id="org.python.pydev.navigator.decorator.problemsLabelDecorator"
+            label="PyDev elements error decorations"
+            lightweight="true"
+            location="BOTTOM_LEFT"
+            state="true">
+         <enablement>
+            <objectClass
+                  name="org.python.pydev.navigator.elements.IWrappedResource">
+            </objectClass>
+         </enablement> 
+      </decorator> 
+    </extension>
   <!-- Declare a content extension that renders the contents of a properties file -->
   <extension point="org.eclipse.ui.navigator.navigatorContent">
          
