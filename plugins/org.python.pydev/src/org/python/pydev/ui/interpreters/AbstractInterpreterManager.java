@@ -346,13 +346,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                 }
             }
         }
-        FastStringBuffer available = new FastStringBuffer();
-        for(IInterpreterInfo info:this.exeToInfo.values()){
-        	if(available.length() > 0){
-        		available.append(", ");
-        	}
-        	available.append(info.getNameForUI());
-        }
         
         throw new MisconfigurationException(
         		StringUtils.format("Interpreter: %s not found", nameOrExecutableOrJar));
