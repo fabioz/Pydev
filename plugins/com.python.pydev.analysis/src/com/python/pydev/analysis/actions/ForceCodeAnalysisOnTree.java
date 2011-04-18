@@ -25,6 +25,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.actions.resources.PyResourceAction;
 import org.python.pydev.utils.PyFileListing;
@@ -87,11 +88,13 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
         PythonNature nature = PythonNature.getPythonNature(next);
         AnalysisBuilderVisitor visitor = new AnalysisBuilderVisitor();
         visitor.visitingWillStart(new NullProgressMonitor(), false, null);
+        FastStringBuffer buf = new FastStringBuffer();
         for(IFile f:filesToVisit){
             if(filesVisited.contains(f)){
                 continue;
             }
             filesVisited.add(f);
+            monitor.setTaskName(buf.clear().append("Scheduling: ").append(f.getName()).toString());
             IDocument doc = REF.getDocFromResource(f);
             visitor.memo = new HashMap<String, Object>();
             visitor.memo.put(PyDevBuilderVisitor.IS_FULL_BUILD, false);
@@ -116,4 +119,11 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
         return 1;
     }
 
+    /* (non-Javadoc)
+     * @see org.python.pydev.ui.actions.resources.PyResourceAction#needsUIThread()
+     */
+    @Override
+    protected boolean needsUIThread() {
+        return false;
+    }
 }
