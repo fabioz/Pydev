@@ -90,6 +90,9 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
         visitor.visitingWillStart(new NullProgressMonitor(), false, null);
         FastStringBuffer buf = new FastStringBuffer();
         for(IFile f:filesToVisit){
+            if(monitor.isCanceled()){
+                break;
+            }
             if(filesVisited.contains(f)){
                 continue;
             }
