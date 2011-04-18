@@ -45,7 +45,7 @@ public class PydevdServerLaunchShortcut extends AbstractLaunchShortcut {
             tab.dispose();
             
             // Python Main Tab Arguments
-            workingCopy.setAttribute(Constants.ATTR_PROJECT,"Pydevd Debug Server");
+            workingCopy.setAttribute(Constants.ATTR_PROJECT,"PyDevd Debug Server");
             workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE,1);
             
             workingCopy.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);

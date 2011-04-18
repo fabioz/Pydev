@@ -109,7 +109,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     public PyLintPrefPage() {
         super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-        setDescription("Pylint");
+        setDescription("PyLint");
     }
 
     /*
@@ -121,7 +121,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         final Composite p = getFieldEditorParent();
 
         addField(new BooleanFieldEditor(USE_PYLINT, "Use pylint?", p));
-        addField(new BooleanFieldEditor(USE_CONSOLE, "Redirect Pylint output to console?", p));
+        addField(new BooleanFieldEditor(USE_CONSOLE, "Redirect PyLint output to console?", p));
         addField(new IntegerFieldEditor(MAX_PYLINT_DELTA, "Max simultaneous processes for PyLint?", p));
         FileFieldEditor fileField = new FileFieldEditor(PYLINT_FILE_LOCATION, "Location of pylint (lint.py):", true, p);
         addField(fileField);
@@ -199,7 +199,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     public static boolean usePyLint() {
         boolean b = PydevPrefs.getPreferences().getBoolean(USE_PYLINT);
 
-        if (!isPylintConfigured(PyLintPrefPage.getPyLintLocation())) {
+        if (!isPyLintConfigured(PyLintPrefPage.getPyLintLocation())) {
             if (b && !communicatedOnce) {
                 communicatedOnce = true;
                 PydevPlugin.log("Unable to use pylint because it is not properly configured.");
@@ -213,7 +213,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
     /**
      * Checks if location of pylint is properly configured.
      */
-    public static boolean isPylintConfigured(String pylintLocation) {
+    public static boolean isPyLintConfigured(String pylintLocation) {
 
         File pylint = new File(pylintLocation);
 
@@ -249,7 +249,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         return PydevPrefs.getPreferences().getBoolean(USE_CONSOLE);
     }
 
-    public static String getPylintArgs() {
+    public static String getPyLintArgs() {
         return PydevPrefs.getPreferences().getString(PYLINT_ARGS);
     }
 

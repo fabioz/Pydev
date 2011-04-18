@@ -26,7 +26,7 @@ public class DjangoNewProjectPage extends NewProjectNameAndLocationWizardPage {
 	 */
 	public DjangoNewProjectPage(String pageName) {
 		super(pageName);
-		setTitle("Pydev Django Project");
+		setTitle("PyDev Django Project");
 		setDescription("Create a new Pydev Django Project.");
 	}
 

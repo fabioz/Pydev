@@ -345,7 +345,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
 
     public static String getPluginID() {
         if(PydevPlugin.getDefault() == null){
-            return "PydevPluginID(null plugin)";
+            return "PyDevPluginID(null plugin)";
         }
         return PydevPlugin.getBundleInfo().getPluginID();
     }

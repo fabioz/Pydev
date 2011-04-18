@@ -128,7 +128,7 @@ public class Log {
                         c.write(buffer.toString());
                         c.write("\r\n");
                         
-//                IPath stateLocation = default1.getStateLocation().append("PydevLog.log");
+//                IPath stateLocation = default1.getStateLocation().append("PyDevLog.log");
 //                String file = stateLocation.toOSString();
 //                REF.appendStrToFile(buffer+"\r\n", file);
                     }catch(Throwable e){
@@ -154,7 +154,7 @@ public class Log {
     
     private static IOConsoleOutputStream getConsoleOutputStream(){
         if (fConsole == null){
-			fConsole = new MessageConsole("Pydev Logging", CorePlugin.getImageCache().getDescriptor("icons/python_logging.png"));
+			fConsole = new MessageConsole("PyDev Logging", CorePlugin.getImageCache().getDescriptor("icons/python_logging.png"));
 			
             fOutputStream = fConsole.newOutputStream();
             

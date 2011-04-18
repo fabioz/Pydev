@@ -8,7 +8,7 @@
             class="org.python.pydev.jython.ui.JyScriptingPreferencesPage"
             category="org.python.pydev.prefs"
             id="org.python.pydev.jython.ui.JyScriptingPreferencesPage"
-            name="Scripting Pydev"/>
+            name="Scripting PyDev"/>
    </extension>
 <!-- Initialize our preferences -->
    <extension

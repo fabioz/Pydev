@@ -170,7 +170,7 @@ public class PyTextHover implements ITextHover, ITextHoverExtension{
                         buf.append(PyInformationPresenter.LINE_DELIM);
                     }
                     Object msg = marker.markerAnnotation.getMarker().getAttribute(IMarker.MESSAGE);
-                    if(!"Pydev breakpoint".equals(msg)){
+                    if(!"PyDev breakpoint".equals(msg)){
                         buf.appendObject(msg);
                     }
                 }

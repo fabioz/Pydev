@@ -79,7 +79,7 @@ public class GlobalsTwoPanelElementSelector2 extends FilteredItemsSelectionDialo
 
         setSelectionHistory(new InfoSelectionHistory(pythonNatures));
 
-        setTitle("Pydev: Globals Browser");
+        setTitle("PyDev: Globals Browser");
         setMessage(
                 "Matching: ? = any char    * = any str    CamelCase (TC=TestCase)    Space in the end = exact match.\n" +
         		"Dotted names may be used to filter with package (e.g.: django.utils.In or just dj.ut.in)");

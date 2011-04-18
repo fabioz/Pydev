@@ -135,7 +135,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction{
             
         };
 
-        dialog.setTitle("Pydev: Select tests to run");
+        dialog.setTitle("PyDev: Select tests to run");
         dialog.setMessage("Select the tests to run");
         dialog.setInitialFilter("test");
         dialog.setAllowMultiple(true);

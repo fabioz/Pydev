@@ -78,7 +78,7 @@
             extensions="py:90, pyw:90"
             icon="icons/python_file.gif"
             id="com.python.pydev.ui.search.pySearchPage"
-            label="Pydev Search"
+            label="PyDev Search"
             showScopeSection="true"/>
    </extension>
 <!-- view: hierarchy view-->
@@ -98,7 +98,7 @@
 <extension point="org.eclipse.ui.editors.markerAnnotationSpecification">
 	  <specification
             annotationType="com.python.pydev.occurrences"
-            label="Occurrences (Pydev)"
+            label="Occurrences (PyDev)"
             icon="icons/searchm_obj.gif"
             textPreferenceKey="pydevOccurrenceIndication"
             textPreferenceValue="false"

@@ -1297,9 +1297,9 @@ it didn't have a 'next' page.
 the regular ones, but the new ones are really reccommended -- also it will help in making sure you have your pythonpath
 correctly configured!).
 - Create new source folder option added.
-- Pylint can now give the output to the console too (configurable).
-- Pylint 0.9.0 tested
-- Pylint errors now show in the hover
+- PyLint can now give the output to the console too (configurable).
+- PyLint 0.9.0 tested
+- PyLint errors now show in the hover
 - The Pydev perspective was changed (so, please, close the current and open a new one)
 - Templates were added for the keywords
 - Keybindings were added to run the current editor as python (F9) or as jython (Ctrl+F9). Those are customizable in the 'keys' preferences 

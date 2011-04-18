@@ -18,7 +18,7 @@
             classpathref="project.class.path"
             overview="src\overview.html"
             stylesheetfile="doc\javadoc.css"
-            doctitle="Pydev javadoc" additionalparam="-quiet -link &quot;http://help.eclipse.org/help21/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/api&quot;">
+            doctitle="PyDev javadoc" additionalparam="-quiet -link &quot;http://help.eclipse.org/help21/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/api&quot;">
 		<packageset dir="src">
 		</packageset>
 		<packageset dir="../org.python.pydev.debug/src">

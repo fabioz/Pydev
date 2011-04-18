@@ -45,7 +45,7 @@ public class PydevSpawnedInterpreterProcess implements IProcess {
     }
     
     public String getLabel() {
-        return "Pydev Interactive Interpreter Process";
+        return "PyDev Interactive Interpreter Process";
     }
 
     public ILaunch getLaunch() {

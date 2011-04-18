@@ -202,7 +202,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             //the thread that we started in the last exec is still alive if we were waiting for an input.
         }else{
             //create a thread that'll keep locked until an answer is received from the server.
-            Job job = new Job("Pydev Console Communication"){
+            Job job = new Job("PyDev Console Communication"){
 
                 /**
                  * Executes the needed command 

@@ -45,7 +45,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public PyDevBuilderPrefPage() {
         super(GRID);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-        setDescription("Pydev builders");
+        setDescription("PyDev builders");
     }
 
     /**
@@ -55,7 +55,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
         Composite p = getFieldEditorParent();
         
         String s = "WARNING: \n\n" +
-                "Pydev builders are required for many features \n" +
+                "PyDev builders are required for many features \n" +
                 "provided by Pydev such as:\n" +
                 "\n" +
                 "- Code completion\n" +

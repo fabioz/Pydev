@@ -118,7 +118,7 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
      */
     public NewProjectNameAndLocationWizardPage(String pageName) {
         super(pageName);
-        setTitle("Pydev Project");
+        setTitle("PyDev Project");
         setDescription("Create a new Pydev Project.");
         setPageComplete(false);
         initialLocationFieldValue = Platform.getLocation();

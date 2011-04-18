@@ -11,7 +11,7 @@
             hasPages="true"
             icon="icons/django_16x16.png"
             id="org.python.pydev.django.ui.wizards.project.DjangoProjectWizard"
-            name="Pydev Django Project"
+            name="PyDev Django Project"
             preferredPerspectives="org.python.pydev.ui.PythonPerspective"
             project="true"/>         
     </extension>
@@ -32,7 +32,7 @@
             delegate="org.python.pydev.django.launching.DjangoLaunchConfigurationDelegate"
             id="org.python.pydev.django.launching.DjangoLaunchConfigurationType"
             modes="run, debug"
-            name="Pydev Django"
+            name="PyDev Django"
             public="true">
         </launchConfigurationType>
     </extension>
@@ -67,7 +67,7 @@
 
     <extension point="org.eclipse.debug.ui.launchShortcuts">
         <shortcut
-            label="Pydev: Django"
+            label="PyDev: Django"
             icon="icons/django_16x16.png"
             modes="run, debug"
             class="org.python.pydev.django.launching.DjangoLaunchShortcut"
@@ -185,8 +185,8 @@
                 adaptable="true"
                 id="org.python.pydev.django.nature.DjangoAddNatureAction"
                 objectClass="org.eclipse.core.resources.IProject">
-             <!-- note that the add is under Pydev (and the remove under Django) -->
-             <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+             <!-- note that the add is under PyDev (and the remove under Django) -->
+             <menu id="org.python.pydev.ui.actions.menu" label="PyDev"/>
              <action
                    class="org.python.pydev.django.nature.DjangoAddNatureAction"
                    enablesFor="1"

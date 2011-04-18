@@ -37,7 +37,7 @@
 <!--- run keybindings:commands -->
 <extension point="org.eclipse.ui.commands">
       <category
-            name="Pydev - Run"
+            name="PyDev - Run"
             description="Python run category"
             id="org.python.pydev.ui.category.run"> 
       </category>
@@ -627,7 +627,7 @@
     <consoleFactory
       class="org.python.pydev.debug.newconsole.PydevConsoleFactory"
       icon="icons/python_16x16.png"
-      label="Pydev Console" />
+      label="PyDev Console" />
   </extension>
   <extension point="org.eclipse.core.runtime.preferences">
      <initializer class="org.python.pydev.debug.newconsole.PydevConsolePreferencesInitializer"/>

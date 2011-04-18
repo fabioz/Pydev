@@ -84,7 +84,7 @@ public class InterpreterObserver implements IInterpreterObserver {
      */
     public void notifyInterpreterManagerRecreated(final IInterpreterManager iManager) {
         for(final IInterpreterInfo interpreterInfo:iManager.getInterpreterInfos()){
-            Job j = new Job("Pydev... Restoring indexes for: "+interpreterInfo.getNameForUI()) {
+            Job j = new Job("PyDev... Restoring indexes for: "+interpreterInfo.getNameForUI()) {
 
                 @Override
                 protected IStatus run(IProgressMonitor monitorArg) {
@@ -99,7 +99,7 @@ public class InterpreterObserver implements IInterpreterObserver {
 	                	
 		                    try {
 		                        JobProgressComunicator jobProgressComunicator = new JobProgressComunicator(
-		                        		monitorArg, "Pydev... Restoring indexes for: "+interpreterInfo.getNameForUI(), 
+		                        		monitorArg, "PyDev... Restoring indexes for: "+interpreterInfo.getNameForUI(), 
 		                        		IProgressMonitor.UNKNOWN, this);
 		                        notifyDefaultPythonpathRestored(iManager, interpreterInfo.getExecutableOrJar(), jobProgressComunicator);
 		                        jobProgressComunicator.done();

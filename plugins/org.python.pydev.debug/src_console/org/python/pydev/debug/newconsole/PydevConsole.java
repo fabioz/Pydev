@@ -44,7 +44,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PydevConsole extends ScriptConsole  {
 
-    public static final String CONSOLE_NAME = "Pydev Console";
+    public static final String CONSOLE_NAME = "PyDev Console";
 
     public static int nextId = -1;
     

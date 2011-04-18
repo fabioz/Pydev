@@ -338,7 +338,7 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             PyDevBuilderVisitor visitor, FastStringBuffer bufferToCreateString) {
         if(monitor != null){
             bufferToCreateString.clear();
-            bufferToCreateString.append("Pydev: Analyzing ");
+            bufferToCreateString.append("PyDev: Analyzing ");
             bufferToCreateString.append(i);
             bufferToCreateString.append(" of ");
             bufferToCreateString.append(totalResources);

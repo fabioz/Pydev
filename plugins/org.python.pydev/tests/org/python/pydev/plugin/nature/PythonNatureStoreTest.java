@@ -32,11 +32,11 @@ public class PythonNatureStoreTest extends TestCase {
         "<?eclipse-pydev version=\"1.0\"?>\r\n"+
         "\r\n" +
         "<pydev_project>\r\n" +
-        "<pydev_property name=\"PydevPluginID(null plugin).PYTHON_PROJECT_VERSION\">python 2.5</pydev_property>\r\n"+
-        "<pydev_pathproperty name=\"PydevPluginID(null plugin).PROJECT_SOURCE_PATH\">\r\n"+
+        "<pydev_property name=\"PyDevPluginID(null plugin).PYTHON_PROJECT_VERSION\">python 2.5</pydev_property>\r\n"+
+        "<pydev_pathproperty name=\"PyDevPluginID(null plugin).PROJECT_SOURCE_PATH\">\r\n"+
         "<path>/test</path>\r\n"+
         "</pydev_pathproperty>\r\n"+
-        "<pydev_pathproperty name=\"PydevPluginID(null plugin).PROJECT_EXTERNAL_SOURCE_PATH\"/>\r\n"+
+        "<pydev_pathproperty name=\"PyDevPluginID(null plugin).PROJECT_EXTERNAL_SOURCE_PATH\"/>\r\n"+
         "</pydev_project>\r\n"+
         "";
     
@@ -45,12 +45,12 @@ public class PythonNatureStoreTest extends TestCase {
         "<?eclipse-pydev version=\"1.0\"?>\r\n"+
         "\r\n" +
         "<pydev_project>\r\n"+
-        "<pydev_property name=\"PydevPluginID(null plugin).PYTHON_PROJECT_VERSION\">python 2.5</pydev_property>\r\n"+
-        "<pydev_pathproperty name=\"PydevPluginID(null plugin).PROJECT_SOURCE_PATH\">\r\n"+
+        "<pydev_property name=\"PyDevPluginID(null plugin).PYTHON_PROJECT_VERSION\">python 2.5</pydev_property>\r\n"+
+        "<pydev_pathproperty name=\"PyDevPluginID(null plugin).PROJECT_SOURCE_PATH\">\r\n"+
         "<path>/test/foo</path>\r\n"+
         "<path>/bar/kkk</path>\r\n"+
         "</pydev_pathproperty>\r\n"+
-        "<pydev_pathproperty name=\"PydevPluginID(null plugin).PROJECT_EXTERNAL_SOURCE_PATH\"/>\r\n"+
+        "<pydev_pathproperty name=\"PyDevPluginID(null plugin).PROJECT_EXTERNAL_SOURCE_PATH\"/>\r\n"+
         "</pydev_project>\r\n"+
         "";
     
@@ -59,13 +59,13 @@ public class PythonNatureStoreTest extends TestCase {
         "<?eclipse-pydev version=\"1.0\"?>\r\n"+
         "\r\n"+
         "<pydev_project>\r\n"+
-        "<pydev_property name=\"PydevPluginID(null plugin).PYTHON_PROJECT_VERSION\">python 2.5</pydev_property>\r\n"+
-        "<pydev_pathproperty name=\"PydevPluginID(null plugin).PROJECT_SOURCE_PATH\">\r\n"+
+        "<pydev_property name=\"PyDevPluginID(null plugin).PYTHON_PROJECT_VERSION\">python 2.5</pydev_property>\r\n"+
+        "<pydev_pathproperty name=\"PyDevPluginID(null plugin).PROJECT_SOURCE_PATH\">\r\n"+
         "<path>/test/foo</path>\r\n"+
         "<path>/bar/kkk</path>\r\n"+
         "</pydev_pathproperty>\r\n"+
-        "<pydev_pathproperty name=\"PydevPluginID(null plugin).PROJECT_EXTERNAL_SOURCE_PATH\"/>\r\n"+
-        "<pydev_variables_property name=\"PydevPluginID(null plugin).PROJECT_VARIABLE_SUBSTITUTION\">\r\n"+
+        "<pydev_pathproperty name=\"PyDevPluginID(null plugin).PROJECT_EXTERNAL_SOURCE_PATH\"/>\r\n"+
+        "<pydev_variables_property name=\"PyDevPluginID(null plugin).PROJECT_VARIABLE_SUBSTITUTION\">\r\n"+
         "<key>MY_KEY</key>\r\n"+
         "<value>MY_VALUE</value>\r\n"+
         "</pydev_variables_property>\r\n"+

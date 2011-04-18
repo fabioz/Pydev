@@ -71,7 +71,7 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
     private IPropertyChangeListener updateLabelExampleOnPrefsChanges;
 
     public PydevEditorPrefs() {
-        setDescription("Pydev editor appearance settings:\nNote: Pydev ignores the 'Insert spaces for tabs' in the general settings."); 
+        setDescription("PyDev editor appearance settings:\nNote: Pydev ignores the 'Insert spaces for tabs' in the general settings."); 
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         
         fOverlayStore= createOverlayStore();

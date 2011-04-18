@@ -1142,7 +1142,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             action = new OfflineAction(resources, "Pyedit.ScriptEngine.", this); 
             action.setActionDefinitionId("org.python.pydev.editor.actions.scriptEngine");
             action.setId("org.python.pydev.editor.actions.scriptEngine");
-            setAction("PydevScriptEngine", action);
+            setAction("PyDevScriptEngine", action);
             
             // -------------------------------------------------------------------------------------
             //move lines

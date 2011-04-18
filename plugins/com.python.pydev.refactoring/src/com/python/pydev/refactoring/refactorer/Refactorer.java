@@ -39,7 +39,7 @@ import com.python.pydev.ui.hierarchy.HierarchyNodeModel;
 public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2{
     
     public String getName() {
-        return "Pydev Extensions Refactorer";
+        return "PyDev Extensions Refactorer";
     }
     
     /**

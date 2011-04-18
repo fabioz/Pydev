@@ -92,7 +92,7 @@ public abstract class DjangoAction implements IObjectActionDelegate {
 		if(nature == null){
 			MessageDialog.openError(
 					PyAction.getShell(), 
-					"Pydev nature not found", 
+					"PyDev nature not found", 
 					"Unable to perform action because the Pydev nature is not properly set.");
 			return null;
 		}

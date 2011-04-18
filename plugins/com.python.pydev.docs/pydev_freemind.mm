@@ -1,6 +1,6 @@
 <map version="0.8.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node BACKGROUND_COLOR="#ccffff" COLOR="#000000" CREATED="1139594066796" ID="Freemind_Link_1375434945" MODIFIED="1140001041875" STYLE="bubble" TEXT="Pydev">
+<node BACKGROUND_COLOR="#ccffff" COLOR="#000000" CREATED="1139594066796" ID="Freemind_Link_1375434945" MODIFIED="1140001041875" STYLE="bubble" TEXT="PyDev">
 <edge WIDTH="thin"/>
 <cloud COLOR="#99ffff"/>
 <font NAME="SansSerif" SIZE="20"/>
@@ -50,7 +50,7 @@
 <node COLOR="#990000" CREATED="1150661235406" ID="Freemind_Link_266065152" MODIFIED="1151160186578" TEXT="When trying to run with &apos;old&apos; interpreter, let the user know about it.">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
-<node COLOR="#990000" CREATED="1165273710019" ID="Freemind_Link_703745039" MODIFIED="1165273737964" TEXT="Pydev package explorer:&#xa;If project is closed/reopened, an error occurs.">
+<node COLOR="#990000" CREATED="1165273710019" ID="Freemind_Link_703745039" MODIFIED="1165273737964" TEXT="PyDev package explorer:&#xa;If project is closed/reopened, an error occurs.">
 <font NAME="SansSerif" SIZE="14"/>
 </node>
 <node COLOR="#990000" CREATED="1162397425828" ID="Freemind_Link_1950177921" MODIFIED="1162397453859" TEXT="Making an F3 on &apos;import operation&apos; &#xa;gives a NullPointerException">

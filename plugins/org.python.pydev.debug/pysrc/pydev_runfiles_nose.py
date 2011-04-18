@@ -62,7 +62,7 @@ class PydevPlugin(Plugin):
                         f = f[:-1]
                     address = f, '?'
         except:
-            sys.stderr.write("Pydev: Internal pydev error getting test address. Please report at the pydev bug tracker\n")
+            sys.stderr.write("PyDev: Internal pydev error getting test address. Please report at the pydev bug tracker\n")
             import traceback;traceback.print_exc()
             sys.stderr.write("\n\n\n")
             address = '?', '?'
