@@ -37,7 +37,7 @@ public class PyDevBuilderPrefPage extends FieldEditorPreferencePage implements I
     public static final String PYDEV_ELAPSE_BEFORE_ANALYSIS = PyParserManager.PYDEV_ELAPSE_BEFORE_ANALYSIS;
 
     public static final String ANALYZE_ONLY_ACTIVE_EDITOR = "ANALYZE_ONLY_ACTIVE_EDITOR";
-    public static final boolean DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR = false;
+    public static final boolean DEFAULT_ANALYZE_ONLY_ACTIVE_EDITOR = true;
 
     /**
      * @param style

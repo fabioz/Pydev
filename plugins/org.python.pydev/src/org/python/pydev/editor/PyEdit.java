@@ -10,9 +10,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListResourceBundle;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -180,6 +182,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     static public final String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
 
     static public final String ACTION_OPEN = "OpenEditor";
+    
+    static private final Set<PyEdit> currentlyOpenedEditors = new HashSet<PyEdit>();
+    static private final Object currentlyOpenedEditorsLock = new Object();
 
     /** color cache */
     private ColorAndStyleCache colorCache;
@@ -374,6 +379,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @SuppressWarnings("unchecked")
     public PyEdit() {
         super();
+        synchronized (currentlyOpenedEditorsLock) {
+            currentlyOpenedEditors.add(this);
+        }
         try {
             onPyEditCreated.call(this);
         } catch (Throwable e) {
@@ -1047,6 +1055,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
         if(!this.disposed){
             this.disposed = true;
+            
+            synchronized (currentlyOpenedEditorsLock) {
+                currentlyOpenedEditors.remove(this);
+            }
+            
             try {
                 IFile iFile = this.getIFile();
                 if(iFile != null){
@@ -1646,6 +1659,20 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             editor.validateEditorInputState();
             
         }
+    }
+
+    
+    public static boolean isEditorOpenForResource(IResource r) {
+        synchronized (currentlyOpenedEditorsLock) {
+            for(PyEdit edit:currentlyOpenedEditors){
+                IEditorInput input=edit.getEditorInput();
+                Object adapter = input.getAdapter(IResource.class);
+                if(adapter != null && r.equals(adapter)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 

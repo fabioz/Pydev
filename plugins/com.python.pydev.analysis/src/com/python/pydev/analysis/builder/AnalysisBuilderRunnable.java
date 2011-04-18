@@ -22,6 +22,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.plugin.PydevPlugin;
@@ -254,7 +255,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             
             //don't stop after setting to add / remove the markers
             if(r != null){
-                runner.setMarkers(r, document, messages, this.internalCancelMonitor);
+                if(PyEdit.isEditorOpenForResource(r)){
+                    runner.setMarkers(r, document, messages, this.internalCancelMonitor);
+                }
             }
             
             //if there are callbacks registered, call them if we still didn't return (mostly for tests)
