@@ -255,8 +255,13 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable{
             
             //don't stop after setting to add / remove the markers
             if(r != null){
-                if(PyEdit.isEditorOpenForResource(r)){
+                boolean analyzeOnlyActiveEditor = PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor();
+                if(forceAnalysis || !analyzeOnlyActiveEditor || (analyzeOnlyActiveEditor && PyEdit.isEditorOpenForResource(r))){
                     runner.setMarkers(r, document, messages, this.internalCancelMonitor);
+                }else{
+                    if(DebugSettings.DEBUG_ANALYSIS_REQUESTS){
+                        Log.toLogFile(this, "Skipped adding markers for module: "+moduleName+" (editor not opened).");
+                    }
                 }
             }
             

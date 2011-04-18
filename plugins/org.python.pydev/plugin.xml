@@ -117,7 +117,7 @@
                id="org.python.pydev.ui.actions.container.pyDeletePycAndClassFiles"
                label="Remove *.pyc, *.pyo and *$py.class Files"
                menubarPath="org.python.pydev.ui.actions.menu/pydev"
-               tooltip="Removes all the .pyc, .pyo and $.py.class files.">
+               tooltip="Removes all the .pyc, .pyo and $py.class files.">
          </action>
       </objectContribution>
       

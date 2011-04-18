@@ -129,4 +129,26 @@
         id="com.python.pydev.analysis.indexview.PyIndexView"/>
 </extension>
 
+
+<!-- Pydev nature/project related actions -->
+   <extension point="org.eclipse.ui.popupMenus">
+      
+      <!-- Force analysis of tree -->
+      <objectContribution
+            adaptable="true"
+            id="com.python.pydev.analysis.actions.forceCodeAnalysisOnTree"
+            objectClass="org.eclipse.core.resources.IResource">
+         <menu id="org.python.pydev.ui.actions.menu" label="Pydev"/>
+         <action
+               class="com.python.pydev.analysis.actions.ForceCodeAnalysisOnTree"
+               enablesFor="+"
+               id="com.python.pydev.analysis.actions.forceCodeAnalysisOnTree"
+               label="Code analysis"
+               menubarPath="org.python.pydev.ui.actions.menu/pydev"
+               tooltip="Force a code analysis for the selected elements (recursive)">
+         </action>
+         <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
+      </objectContribution>
+   </extension>
+
 </plugin>
