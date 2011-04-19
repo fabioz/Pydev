@@ -23,11 +23,7 @@ public class ColorAndStyleCache extends ColorCache{
     
     @SuppressWarnings("unchecked")
 	public static boolean isColorOrStyleProperty(String property){
-        if(property.equals(PydevEditorPrefs.CODE_COLOR) || property.equals(PydevEditorPrefs.DECORATOR_COLOR) || property.equals(PydevEditorPrefs.NUMBER_COLOR)
-        || property.equals(PydevEditorPrefs.KEYWORD_COLOR) || property.equals(PydevEditorPrefs.SELF_COLOR) || property.equals(PydevEditorPrefs.COMMENT_COLOR) 
-        || property.equals(PydevEditorPrefs.STRING_COLOR) || property.equals(PydevEditorPrefs.CLASS_NAME_COLOR) || property.equals(PydevEditorPrefs.FUNC_NAME_COLOR)
-        || property.equals(PydevEditorPrefs.DEFAULT_BACKQUOTES_COLOR) || property.equals(PydevEditorPrefs.DEFAULT_PARENS_COLOR)  || property.equals(PydevEditorPrefs.DEFAULT_OPERATORS_COLOR)
-        || property.endsWith("_STYLE")){
+        if(property.endsWith("_COLOR") || property.endsWith("_STYLE")){
             return true;
         }
         List<IPydevPreferencesProvider> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_PREFERENCES_PROVIDER);
