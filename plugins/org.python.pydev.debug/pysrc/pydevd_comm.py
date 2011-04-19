@@ -47,6 +47,7 @@ each command has a format:
     119      CMD_RELOAD_CODE
     120      CMD_GET_COMPLETIONS      JAVA
     121      CMD_SET_NEXT_STATEMENT
+    122      CMD_SET_PY_EXCEPTION
     
 500 series diagnostics/ok
     901      VERSION                  either      Version string (1.0)        Currently just used at startup
@@ -103,7 +104,7 @@ CMD_RUN_TO_LINE = 118
 CMD_RELOAD_CODE = 119
 CMD_GET_COMPLETIONS = 120
 CMD_SET_NEXT_STATEMENT = 121
-CMD_GET_PY_EXCEPTION = 122
+CMD_SET_PY_EXCEPTION = 122
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -130,7 +131,7 @@ ID_TO_MEANING = {
     '119':'CMD_RELOAD_CODE',
     '120':'CMD_GET_COMPLETIONS',
     '121':'CMD_SET_NEXT_STATEMENT',
-    '122':'CMD_GET_PY_EXCEPTION',
+    '122':'CMD_SET_PY_EXCEPTION',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',

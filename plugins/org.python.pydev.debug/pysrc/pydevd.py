@@ -6,7 +6,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_EXEC_EXPRESSION, \
                          CMD_GET_COMPLETIONS, \
                          CMD_GET_FRAME, \
-                         CMD_GET_PY_EXCEPTION, \
+                         CMD_SET_PY_EXCEPTION, \
                          CMD_GET_VARIABLE, \
                          CMD_LIST_THREADS, \
                          CMD_REMOVE_BREAK, \
@@ -43,6 +43,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          StartServer
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
+import importsTipper
 import pydevd_vars
 import traceback 
 import pydevd_vm_type 
@@ -203,15 +204,13 @@ def create_exceptions(exceptionStr):
         try:
             handle_exceptions.append(eval(exceptionType))
         except NameError:
-            if exceptionType.find('.') > 0:
-                # handling exceptions only like exceptionClazz.exceptionModule
-                exceptionClazzName, exceptionModuleName = exceptionType.split('.')
-                exceptionClazz = __import__(exceptionClazzName)
-                exceptionModule = getattr(exceptionClazz, exceptionModuleName)
-                handle_exceptions.append(exceptionModule)
+            try:
+                f, mod, parent, foundAs = importsTipper.Find(exceptionType)
+                handle_exceptions.append(mod)
+            except ImportError:
+                sys.stderr.write("Unable to Import : %s"%(exceptionType))
         except:
             continue
-
 
     if handle_exceptions:
         sys.stderr.write("Exceptions to hook : %s"%(str(handle_exceptions)))
@@ -677,7 +676,7 @@ class PyDB:
                         cmd_id == CMD_EXEC_EXPRESSION)
                     self.postInternalCommand(int_cmd, thread_id)
 
-                elif cmd_id == CMD_GET_PY_EXCEPTION:
+                elif cmd_id == CMD_SET_PY_EXCEPTION:
                     # Command which receives set of exceptions on which user wants to break the debugger
                     # text is: ['TypeError','ImportError','zipimport.ZipImportError',]
                     create_exceptions(text)

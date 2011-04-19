@@ -1,12 +1,17 @@
 package org.python.pydev.debug.ui.actions;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.debug.core.Constants;
+import org.python.pydev.debug.core.FileUtils;
 import org.python.pydev.editor.PyEdit;
 
 public class PyExceptionListProvider implements IStructuredContentProvider {
@@ -15,6 +20,7 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 
 	private Object newInput;
 	private Object[] elementsForCurrentInput;
+	private List<String> userConfiguredException = new ArrayList<String>();
 	private static final String[] EMPTY = new String[0];
 
 	public static final String ERROR = "error";
@@ -53,10 +59,58 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 		}
 
 		ArrayList<String> list = getPyExceptionList();
+		list.addAll(getUserConfiguredException());
 
-		elementsForCurrentInput = getPyExceptionList().toArray(new String[0]);
+		elementsForCurrentInput = list.toArray(new String[0]);
 	}
 
+	/**
+	 * if the userConfiguredException is empty, then adds the custom exception from the 
+	 * custom_exceptions.prefs file
+	 * 
+	 * @return
+	 */
+	public ArrayList<String> getUserConfiguredException() {
+		if (userConfiguredException.isEmpty()) {
+			List customExceptions = FileUtils
+					.getConfiguredExceptions(Constants.CUSTOM_EXCEPTION_FILE_NAME);
+			for (Object object : customExceptions) {
+				userConfiguredException.add(object.toString());
+			}
+		}
+
+		return (ArrayList<String>) userConfiguredException;
+	}
+
+	/**
+	 * 
+	 * @param userConfiguredException
+	 * 
+	 * Add the new custom exception in the userConfiguredException list.
+	 * if custom_exceptions.prefs file does not exist, create a new file and write the exception
+	 * else appends the new exception in the existing custom_exceptions.prefs
+	 */
+	public void addUserConfiguredException(Object userConfiguredException) {
+		boolean isAppend = false;
+		String pyExceptionStr = userConfiguredException.toString();
+		this.userConfiguredException.add(userConfiguredException.toString());
+
+		IPath path = FileUtils
+				.getFilePathFromWorkSpace(Constants.CUSTOM_EXCEPTION_FILE_NAME);
+		if (FileUtils.isFileExists(path.toString())) {
+			isAppend = true;
+			pyExceptionStr = File.pathSeparator + pyExceptionStr;
+		}
+		FileUtils.writeExceptionsToFile(Constants.CUSTOM_EXCEPTION_FILE_NAME,
+				pyExceptionStr, isAppend);
+		this.newInput = null;
+	}
+
+	/**
+	 * Fetch built-in python exceptions from the pythonTokens 
+	 * 
+	 * @return
+	 */
 	private ArrayList<String> getPyExceptionList() {
 		ArrayList<String> list = new ArrayList<String>();
 		IPythonNature pythonNature;
@@ -79,10 +133,7 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 				}
 			}
 		}
-		
-		ArrayList<String> testlist = new ArrayList<String>();
-		testlist.add("UnicodeError");
-		testlist.add("UnicodeEncodeError");
+
 		return list;
 	}
 }

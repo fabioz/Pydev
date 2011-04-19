@@ -1,5 +1,6 @@
 package org.python.pydev.debug.model.remote;
 
+import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.FileUtils;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 
@@ -15,7 +16,7 @@ public class SendPyExceptionCommand extends AbstractDebuggerCommand {
 	@Override
 	public String getOutgoing() {
 		String pyExceptions = "";
-		pyExceptions = FileUtils.readExceptionsFromFile();
+		pyExceptions = FileUtils.readExceptionsFromFile(Constants.EXCEPTION_FILE_NAME);
 		return makeCommand(commandId, sequence, pyExceptions);
 	}
 }

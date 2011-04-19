@@ -582,7 +582,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
 
         // Sending python exceptions sending run command 
-        SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(this, AbstractDebuggerCommand.CMD_SEND_PY_EXCEPTION);
+        SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(this, AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION);
         this.postCommand(sendCmd);
 
         // Send the run command, and we are off

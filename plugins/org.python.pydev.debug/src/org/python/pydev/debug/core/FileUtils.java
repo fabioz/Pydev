@@ -10,45 +10,62 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
 import org.python.pydev.core.docutils.StringUtils;
 
+/**
+ * 
+ * @author hussain.bohra
+ * 
+ *         This files contains utility method for File read / write / append
+ */
 public class FileUtils {
 	private static String DELIMITER = File.pathSeparator;
-	private static String SEPERATOR = File.separator;
 
 	private FileUtils() {
 
 	}
 
-	public static void writeExceptionsToFile(String[] exceptionArray) {
-		String pyExceptionsToBreak = StringUtils
-				.join(DELIMITER, exceptionArray);
-		IPath path = PydevDebugPlugin.getWorkspace().getRoot().getLocation();
-		String filePath = path.toString() + SEPERATOR + Constants.FILE_PATH;
-		String fileName = filePath + SEPERATOR + Constants.FILE_NAME;
+	/**
+	 * Creates a new file if isAppend is false, else appends data in the
+	 * existing file.
+	 * 
+	 * @param fileName
+	 * @param pyExceptionsStr
+	 * @param isAppend
+	 */
+	public static void writeExceptionsToFile(String fileName,
+			String pyExceptionsStr, boolean isAppend) {
+		IPath path = getFilePathFromWorkSpace(fileName);
 		try {
-			FileWriter fstream = new FileWriter(fileName);
+			FileWriter fstream = new FileWriter(path.toFile(), isAppend);
 			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
-			bufferedWriter.write(pyExceptionsToBreak);
+			bufferedWriter.write(pyExceptionsStr);
 			bufferedWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static String readExceptionsFromFile() {
+	/**
+	 * Read the data from the file and returns in the string format
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public static String readExceptionsFromFile(String fileName) {
 		StringBuilder builder = new StringBuilder();
-		IPath path = PydevDebugPlugin.getWorkspace().getRoot().getLocation();
-		String filePath = path.toString() + SEPERATOR + Constants.FILE_PATH;
-		String fileName = filePath + SEPERATOR + Constants.FILE_NAME;
 		try {
-			BufferedReader bReader = new BufferedReader(
-					new FileReader(fileName));
-			String exceptionString;
-			while ((exceptionString = bReader.readLine()) != null) {
-				builder.append(exceptionString);
+			if (isFileExists(getFilePathFromWorkSpace(fileName).toString())) {
+				BufferedReader bReader = new BufferedReader(new FileReader(
+						getFilePathFromWorkSpace(fileName).toFile()));
+				String exceptionString;
+				while ((exceptionString = bReader.readLine()) != null) {
+					builder.append(exceptionString);
+				}
+				bReader.close();
 			}
-			bReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -56,9 +73,57 @@ public class FileUtils {
 		return builder.toString();
 	}
 
-	public static List getConfiguredExceptions() {
-		String[] selectedItems = {};
-		selectedItems = readExceptionsFromFile().split("\\" + DELIMITER);
-		return Arrays.asList(selectedItems);
+	/**
+	 * Split the string receives from the file read by filePathSeperator and
+	 * returns the list
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public static List getConfiguredExceptions(String fileName) {
+		String[] currentElements = {};
+		String pyExceptionStr = readExceptionsFromFile(fileName);
+		if (pyExceptionStr.length() > 0) {
+			currentElements = pyExceptionStr.split(
+					"\\" + DELIMITER);
+		}
+		return Arrays.asList(currentElements);
+	}
+
+	/**
+	 * Join the received array by the filePathSeperator and calls write to file
+	 * with isAppend false
+	 * 
+	 * @param exceptionArray
+	 */
+	public static void saveConfiguredExceptions(String[] exceptionArray) {
+		String pyExceptionsStr = StringUtils.join(DELIMITER, exceptionArray);
+		writeExceptionsToFile(Constants.EXCEPTION_FILE_NAME, pyExceptionsStr,
+				false);
+	}
+
+	/**
+	 * * Check whether the file exists at given path
+	 * 
+	 * @param filePath
+	 * @return
+	 */
+	public static boolean isFileExists(String filePath) {
+		File file = new File(filePath);
+		return file.exists();
+	}
+
+	/**
+	 * Construct the file path existing in the workspace under
+	 * <workspace>/.metadata/plugins/org.python.pydev
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public static IPath getFilePathFromWorkSpace(String fileName) {
+		Bundle bundle = Platform.getBundle("org.python.pydev");
+		IPath path = Platform.getStateLocation(bundle);
+		path = path.addTrailingSeparator().append(fileName);
+		return path;
 	}
 }
