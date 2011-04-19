@@ -1518,6 +1518,9 @@ public final class PySelection {
             while(documentOffset >= 0 && documentOffset < doc.getLength() && doc.get(documentOffset, 1).equals(".")){
                 String tok = extractActivationToken(doc, documentOffset, false).o1;
     
+                if (documentOffset == 0) {
+                	break;
+                }
                     
                 String c = doc.get(documentOffset-1, 1);
                 

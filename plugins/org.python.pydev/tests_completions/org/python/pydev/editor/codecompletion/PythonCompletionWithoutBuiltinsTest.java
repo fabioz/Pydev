@@ -784,6 +784,59 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     /**
+     * Add tests that demonstrate behaviour when doc starts with a . 
+     */
+    public void testGetAckTok2() {
+        String strs[];
+        strs = PySelection.getActivationTokenAndQual(new Document("."), 1, false); 
+        assertEquals("", strs[0]);
+        assertEquals("", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document(".a"), 1, false); 
+        assertEquals("", strs[0]);
+        assertEquals("", strs[1]);
+        
+        strs = PySelection.getActivationTokenAndQual(new Document(".a"), 2, false); 
+        assertEquals("", strs[0]);
+        assertEquals("a", strs[1]);
+        
+        ActivationTokenAndQual act = PySelection.getActivationTokenAndQual(new Document("."), 1, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document(".a"), 1, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document(".a"), 2, false, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("a", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document(".abc"), 1, true, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("abc", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+        
+        act = PySelection.getActivationTokenAndQual(new Document(".abc"), 2, true, true); 
+        assertEquals("", act.activationToken);
+        assertEquals("abc", act.qualifier);
+        assertTrue(!act.changedForCalltip);
+        assertTrue(!act.alreadyHasParams);
+        assertTrue(!act.isInMethodKeywordParam);
+    }
+
+    /**
      * @throws BadLocationException
      * @throws CoreException
      */
