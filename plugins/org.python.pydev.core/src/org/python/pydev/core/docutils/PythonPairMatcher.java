@@ -9,7 +9,7 @@
  * 
  * org.eclipse.jdt.internal.ui.text.JavaPairMatcher
  */
-package org.python.copiedfromeclipsesrc;
+package org.python.pydev.core.docutils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,7 +21,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.ICharacterPairMatcher;
-import org.python.pydev.core.docutils.StringUtils;
 
 /**
  * A character pair matcher finds to a character at a certain document offset the matching peer character. It

@@ -39,7 +39,7 @@ public class PySelectionTest extends TestCase {
         try {
             PySelectionTest test = new PySelectionTest();
             test.setUp();
-            test.testGetFunctionCalls();
+            test.testGetLastIf3();
             test.tearDown();
             
             junit.textui.TestRunner.run(PySelectionTest.class);
@@ -381,7 +381,33 @@ public class PySelectionTest extends TestCase {
         doc = new Document(s);
         ps = new PySelection(doc, doc.getLength());
         assertEquals(null, ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
-        
+    }        
+    
+    public void testGetLastIf2() throws Exception {
+        String s = 
+            "if True:\n" +
+            "  if False:\n" +
+            "    print foo\n" +
+            "  a = 10\n" + //as we're already in this indent level, an if in the same level has to be disconsidered!
+            "  b = 20" +
+            "";
+        doc = new Document(s);
+        ps = new PySelection(doc, doc.getLength());
+        assertEquals("if True:", ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
+    }
+    
+    public void testGetLastIf3() throws Exception {
+        String s = 
+            "if True:\n" +
+            "  if False:\n" +
+            "    print foo\n" +
+            "  a = (10,\n" + //as we're already in this indent level, an if in the same level has to be disconsidered!
+            "20)\n" +
+            "  a = 30" +
+            "";
+        doc = new Document(s);
+        ps = new PySelection(doc, doc.getLength());
+        assertEquals("if True:", ps.getPreviousLineThatStartsWithToken(PySelection.TOKENS_BEFORE_ELSE));
     }
     
     public void testGetLineWithoutComments() {

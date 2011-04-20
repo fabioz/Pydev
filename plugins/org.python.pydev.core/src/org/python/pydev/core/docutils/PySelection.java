@@ -108,6 +108,33 @@ public final class PySelection {
         STATEMENT_TOKENS.add("yield");
     };
     
+    
+
+
+    public static final Set<String> ALL_STATEMENT_TOKENS = new HashSet<String>();
+    static{
+        ALL_STATEMENT_TOKENS.add("lambda");
+        ALL_STATEMENT_TOKENS.add("assert");
+        ALL_STATEMENT_TOKENS.add("break");
+        ALL_STATEMENT_TOKENS.add("class");
+        ALL_STATEMENT_TOKENS.add("continue");
+        ALL_STATEMENT_TOKENS.add("def");
+        ALL_STATEMENT_TOKENS.add("elif");
+        ALL_STATEMENT_TOKENS.add("else");
+        ALL_STATEMENT_TOKENS.add("except");
+        ALL_STATEMENT_TOKENS.add("finally");
+        ALL_STATEMENT_TOKENS.add("for");
+        ALL_STATEMENT_TOKENS.add("from");
+        ALL_STATEMENT_TOKENS.add("if");
+        ALL_STATEMENT_TOKENS.add("import");
+        ALL_STATEMENT_TOKENS.add("pass");
+        ALL_STATEMENT_TOKENS.add("raise");
+        ALL_STATEMENT_TOKENS.add("return");
+        ALL_STATEMENT_TOKENS.add("try");
+        ALL_STATEMENT_TOKENS.add("while");
+        ALL_STATEMENT_TOKENS.add("with");
+        ALL_STATEMENT_TOKENS.add("yield");
+    };
 
     /**
      * Alternate constructor for PySelection. Takes in a text editor from Eclipse.
@@ -1159,15 +1186,71 @@ public final class PySelection {
                 initials.add(t.charAt(0));
             }
         }
+
+        int indentMustBeHigherThan = -1;
+        int currLineIndent = -1;
+        int skipLinesHigherThan = Integer.MAX_VALUE;
         
         while(iterator.hasNext()){
             String line = (String) iterator.next();
             String trimmed = line.trim();
             int len = trimmed.length();
+            int lastReturnedLine = iterator.getLastReturnedLine();
+            if(lastReturnedLine > skipLinesHigherThan){
+                continue;
+            }
             
             if(len > 0){
                 //Fast way out of a line...
                 char c0 = trimmed.charAt(0);
+                
+                if(currLineIndent == 0){
+                    //actually, at this point it's from the previous line...
+                    
+                    //If the indent expected is == 0, if the indent wasn't found on the first match, it's not possible
+                    //to get a lower match!
+                    return null;
+                }
+                currLineIndent = getFirstCharPosition(line);
+                if(indentMustBeHigherThan == -1){
+                    if(c0 != '#'){
+                        //ignore only-comment lines...
+                        boolean validIndentLine = true;
+                        Tuple<Character, Integer> found = null;
+                        for(char c:StringUtils.CLOSING_BRACKETS){
+                            int i = line.lastIndexOf(c);
+                            if(found == null || found.o2 < i){
+                                found = new Tuple<Character, Integer>(c, i);
+                            }
+                        }
+                        if(found != null){
+                            PythonPairMatcher matcher = new PythonPairMatcher();
+                            int openingPeerOffset = matcher.searchForOpeningPeer(
+                                    this.getLineOffset(lastReturnedLine) + found.o2,
+                                    StringUtils.getPeer(found.o1), found.o1, this.getDoc());
+                            if(openingPeerOffset >= 0){
+                                int lineOfOffset = getLineOfOffset(openingPeerOffset);
+                                if(lineOfOffset != lastReturnedLine){
+                                    skipLinesHigherThan = lineOfOffset;
+                                    validIndentLine = false;
+                                }
+                            }
+                        }
+                        
+                        if(validIndentLine){
+                            indentMustBeHigherThan = currLineIndent;
+                        }else{
+                            currLineIndent = -1;
+                            continue;
+                        }
+                    }
+                    
+                }else{
+                    if(indentMustBeHigherThan <= currLineIndent){
+                        continue;
+                    }
+                }
+                
                 if(!initials.contains(c0)){
                     continue;
                 }

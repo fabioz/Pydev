@@ -32,7 +32,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
         try {
             PyAutoIndentStrategyTest s = new PyAutoIndentStrategyTest("testt");
             s.setUp();
-            s.testElif2();
+            s.testDedentElse();
             s.tearDown();
             junit.textui.TestRunner.run(PyAutoIndentStrategyTest.class);
         } catch (Throwable e) {
@@ -2432,5 +2432,63 @@ public class PyAutoIndentStrategyTest extends TestCase {
         String expected = "\n        ";
         assertEquals(expected, docCmd.text);
     }
+
+
+    public void testDedentElse() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        String strDoc = "" +
+        "if foo:\n" +
+        "    for line in a:\n" +
+        "        pass\n" +
+        "    image_area_right_area_and_quote_area = '\\n'.join(lines)\n" +
+        "    else" +
+        "";
+        int initialOffset = strDoc.length();
+        DocCmd docCmd = new DocCmd(initialOffset, 0, ":");
+        Document doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        String expected = ":";
+        assertEquals(
+                "" +
+                "if foo:\n" +
+                "    for line in a:\n" +
+                "        pass\n" +
+                "    image_area_right_area_and_quote_area = '\\n'.join(lines)\n" +
+                "else" +
+                "",
+                doc.get());
+        assertEquals(docCmd.offset, initialOffset-4);
+        assertEquals(expected, docCmd.text);
+        
+    }
     
+    public void testDedentElse2() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4, true));
+        String strDoc = "" +
+        "if foo:\n" +
+        "    for line in a:\n" +
+        "        pass\n" +
+        "    image_area_right_area_and_quote_area = (a,\n" +
+        "b)\n" +
+        "    else" +
+        "";
+        int initialOffset = strDoc.length();
+        DocCmd docCmd = new DocCmd(initialOffset, 0, ":");
+        Document doc = new Document(strDoc);
+        strategy.customizeDocumentCommand(doc, docCmd);
+        String expected = ":";
+        assertEquals(
+                "" +
+                "if foo:\n" +
+                "    for line in a:\n" +
+                "        pass\n" +
+                "    image_area_right_area_and_quote_area = (a,\n" +
+                "b)\n" +
+                "else" +
+                "",
+                doc.get());
+        assertEquals(docCmd.offset, initialOffset-4);
+        assertEquals(expected, docCmd.text);
+        
+    }
 }

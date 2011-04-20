@@ -11,9 +11,6 @@
  */
 package org.python.pydev.editor.actions;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -21,9 +18,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPyEdit;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.PyEdit;
@@ -463,31 +460,6 @@ public class PyFormatStd extends PyAction implements IFormatter {
     }
 
 
-
-    public static final Set<String> STATEMENT_TOKENS = new HashSet<String>();
-    static{
-        STATEMENT_TOKENS.add("lambda");
-        STATEMENT_TOKENS.add("assert");
-        STATEMENT_TOKENS.add("break");
-        STATEMENT_TOKENS.add("class");
-        STATEMENT_TOKENS.add("continue");
-        STATEMENT_TOKENS.add("def");
-        STATEMENT_TOKENS.add("elif");
-        STATEMENT_TOKENS.add("else");
-        STATEMENT_TOKENS.add("except");
-        STATEMENT_TOKENS.add("finally");
-        STATEMENT_TOKENS.add("for");
-        STATEMENT_TOKENS.add("from");
-        STATEMENT_TOKENS.add("if");
-        STATEMENT_TOKENS.add("import");
-        STATEMENT_TOKENS.add("pass");
-        STATEMENT_TOKENS.add("raise");
-        STATEMENT_TOKENS.add("return");
-        STATEMENT_TOKENS.add("try");
-        STATEMENT_TOKENS.add("while");
-        STATEMENT_TOKENS.add("with");
-        STATEMENT_TOKENS.add("yield");
-    };
     /**
      * Handles having an operator
      * 
@@ -508,7 +480,7 @@ public class PyFormatStd extends PyAction implements IFormatter {
         if(c == '~' || c == '+' || c == '-'){
             //could be an unary operator...
             String trimmedLastWord = buf.getLastWord().trim();
-            isUnary = trimmedLastWord.length() == 0 || STATEMENT_TOKENS.contains(trimmedLastWord);
+            isUnary = trimmedLastWord.length() == 0 || PySelection.ALL_STATEMENT_TOKENS.contains(trimmedLastWord);
             
             if(!isUnary){
                 for(char itChar:buf.reverseIterator()){

@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.copiedfromeclipsesrc;
+package org.python.pydev.core.docutils;
 
 import java.io.IOException;
 
@@ -12,9 +12,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.python.pydev.core.docutils.ParsingUtils;
-import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.structure.FastStringBuffer;
 
 /**

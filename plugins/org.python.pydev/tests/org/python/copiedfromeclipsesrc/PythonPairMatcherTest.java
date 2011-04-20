@@ -7,6 +7,7 @@
 package org.python.copiedfromeclipsesrc;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.docutils.PythonPairMatcher;
 
 import junit.framework.TestCase;
 

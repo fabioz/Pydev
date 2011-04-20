@@ -878,6 +878,7 @@ public final class StringUtils {
 	 * </ul>
 	 */
 	public static final char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
+	public static final char[] CLOSING_BRACKETS = { '}', ')', ']' };
 
 	public static char getPeer(char c){
 	    switch(c){
