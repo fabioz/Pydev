@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.internal.WorkbenchMessages;
@@ -135,6 +136,10 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 		listener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				listViewer.setAllChecked(false);
+				TableItem[] currentItems =  listViewer.getTable().getItems();
+				for (TableItem tableItem : currentItems) {
+					removeFromSelectedElements(tableItem.getText());
+				}
 			}
 		};
 		deselectButton.addSelectionListener(listener);
@@ -303,9 +308,11 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 			// If filter is on and checkedElements are not in filtered list
 			// then content provider.getElements doesn't fetch the same
 			List<Object> selectedElements = getSelectedElements();
-			for (Object selectedElement : selectedElements) {
-				if(!list.contains(selectedElement)){
-					list.add(selectedElement);
+			if (selectedElements != null) {
+				for (Object selectedElement : selectedElements) {
+					if (!list.contains(selectedElement)) {
+						list.add(selectedElement);
+					}
 				}
 			}
 			setResult(list);
@@ -377,8 +384,11 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	 * 
 	 */
 	private void setSelectedElementChecked() {
-		for (Object element : getSelectedElements()) {
-			getViewer().setChecked(element, true);
+		List<Object> selectedElements = getSelectedElements();
+		if (selectedElements != null) {
+			for (Object element : selectedElements) {
+				getViewer().setChecked(element, true);
+			}
 		}
 	}
 
