@@ -64,7 +64,7 @@ public class DjHTMLEditor extends HTMLEditor {
 
     @Override
     protected FileService createFileService() {
-        return new FileService(IDjConstants.LANGUAGE_DJANGO_TEMPLATES_HTML, new HTMLParseState());
+        return new FileService(IDjConstants.CONTENT_TYPE_DJANGO_HTML, new HTMLParseState());
     }
 
     @Override

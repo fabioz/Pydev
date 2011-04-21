@@ -14,6 +14,6 @@ import com.aptana.editor.html.outline.HTMLOutlineContentProvider;
 public class DjHTMLOutlineContentProvider extends HTMLOutlineContentProvider {
     
     public DjHTMLOutlineContentProvider() {
-        addSubLanguage(IDjConstants.LANGUAGE_DJANGO_TEMPLATES_HTML, new CommonOutlineContentProvider());
+        addSubLanguage(IDjConstants.CONTENT_TYPE_DJANGO_HTML, new CommonOutlineContentProvider());
     }
 }

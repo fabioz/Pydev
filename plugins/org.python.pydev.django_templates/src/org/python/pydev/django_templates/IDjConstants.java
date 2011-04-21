@@ -15,9 +15,6 @@ public interface IDjConstants {
     public String CONTENT_TYPE_DJANGO_CSS = "org.python.pydev.contenttype.django_templates.css"; //$NON-NLS-1$
     public String CONTENT_TYPE_DJANGO_XML = "org.python.pydev.contenttype.django_templates.xml"; //$NON-NLS-1$
 
-    public String LANGUAGE_DJANGO_TEMPLATES_HTML = "text/django_templates_html"; //$NON-NLS-1$
-    public String LANGUAGE_DJANGO_TEMPLATES_CSS = "text/django_templates_css"; //$NON-NLS-1$
-
     /**
      * Scope names for RHTML scopes.
      */
