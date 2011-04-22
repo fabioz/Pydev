@@ -867,6 +867,7 @@ class PyDB:
             sys.modules['__main__'] = m
             m.__file__ = file
             globals = m.__dict__
+            globals['__builtins__'] = __builtins__
 
         if locals is None: 
             locals = globals        
