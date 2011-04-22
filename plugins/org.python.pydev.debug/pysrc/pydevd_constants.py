@@ -25,7 +25,11 @@ USE_PSYCO_OPTIMIZATION = True
 
 #Hold a reference to the original _getframe (because psyco will change that as soon as it's imported)
 import sys #Note: the sys import must be here anyways (others depend on it)
-GetFrame = sys._getframe
+try:
+    GetFrame = sys._getframe
+except AttributeError:
+    def GetFrame():
+        raise AssertionError('sys._getframe not available (possible causes: enable -X:Frames on IronPython?)')
 
 #Used to determine the maximum size of each variable passed to eclipse -- having a big value here may make
 #the communication slower -- as the variables are being gathered lazily in the latest version of eclipse,

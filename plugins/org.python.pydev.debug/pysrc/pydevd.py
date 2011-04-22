@@ -159,16 +159,16 @@ def set_pm_excepthook(handle_exceptions=None):
     '''
     Should be called to register the excepthook to be used.
     
-    It's only useful for uncaucht exceptions. I.e.: exceptions that go up to the excepthook.
+    It's only useful for uncaught exceptions. I.e.: exceptions that go up to the excepthook.
     
     Can receive a parameter to stop only on some exceptions.
     
     E.g.: 
-        register_excepthook((IndexError, ValueError))
+        set_pm_excepthook((IndexError, ValueError))
         
         or 
         
-        register_excepthook(IndexError)
+        set_pm_excepthook(IndexError)
         
         if passed without a parameter, will break on any exception
     
