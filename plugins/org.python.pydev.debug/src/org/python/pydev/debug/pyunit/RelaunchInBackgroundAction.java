@@ -126,7 +126,7 @@ public class RelaunchInBackgroundAction extends Action implements IResourceChang
     private class RelaunchOnlyErrorsOnBackgroundRelaunch extends Action{
         
         public RelaunchOnlyErrorsOnBackgroundRelaunch() {
-            this.setText("On backgroun relaunch relaunch only errors?");
+            this.setText("Run only failed tests when relaunching due to file changes?");
             this.setToolTipText("If checked, a relaunch will relaunch only the errors in the current test run.\n" +
             		"\n" +
             		"If no errors are found, the full test suite is run again.");

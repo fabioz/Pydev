@@ -1267,8 +1267,8 @@
 	  <commonWizard menuGroupId="org.python.pydev.ui.wizards" type="new" wizardId="org.python.pydev.ui.wizards.files.PythonPackageWizard">
 	     <enablement>
 	        <or>
-	           <adapt type="org.eclipse.core.resources.IFolder"/>
-	           <adapt type="org.eclipse.core.resources.IFile"/>
+	           <instanceof value="org.python.pydev.navigator.elements.PythonFolder"/>
+               <instanceof value="org.python.pydev.navigator.elements.PythonSourceFolder"/>
 	           <adapt type="org.eclipse.core.resources.IProject">
 	              <test
 	                    property="org.eclipse.core.resources.projectNature"
@@ -1280,8 +1280,19 @@
 	  <commonWizard menuGroupId="org.python.pydev.ui.wizards" type="new" wizardId="org.python.pydev.ui.wizards.files.PythonModuleWizard">
 	     <enablement>
 	        <or>
-	           <adapt type="org.eclipse.core.resources.IFolder"/>
-	           <adapt type="org.eclipse.core.resources.IFile"/>
+               <instanceof value="org.python.pydev.navigator.elements.PythonFolder"/>
+               <instanceof value="org.python.pydev.navigator.elements.PythonSourceFolder"/>
+	           <adapt type="org.eclipse.core.resources.IProject">
+	              <test
+	                    property="org.eclipse.core.resources.projectNature"
+	                    value="org.python.pydev.pythonNature"/>
+	           </adapt>
+	        </or>
+	     </enablement>
+	  </commonWizard>
+	  <commonWizard menuGroupId="org.python.pydev.ui.wizards" type="new" wizardId="org.python.pydev.ui.wizards.files.PythonSourceFolderWizard">
+	     <enablement>
+	        <or>
 	           <adapt type="org.eclipse.core.resources.IProject">
 	              <test
 	                    property="org.eclipse.core.resources.projectNature"

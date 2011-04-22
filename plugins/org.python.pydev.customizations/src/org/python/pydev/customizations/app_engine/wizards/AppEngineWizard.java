@@ -84,8 +84,12 @@ public class AppEngineWizard extends PythonProjectWizard{
                     List<IContainer> ret = new ArrayList<IContainer>();
                     ret.add(folder);
                     return ret;
+                }else{
+                    //if the user hasn't selected to create a source folder, use the project itself for that.
+                    List<IContainer> ret = new ArrayList<IContainer>();
+                    ret.add(projectHandle);
+                    return ret;
                 }
-                return null;
             }
         };
 
