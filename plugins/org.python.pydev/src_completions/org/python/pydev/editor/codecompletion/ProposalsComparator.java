@@ -78,6 +78,25 @@ public final class ProposalsComparator implements Comparator<ICompletionProposal
                 return 1;
             }
             return -1;
+        }else if(o1StartsWithUnder){//both start with '_' at this point, let's check for '__'
+            if(o1Str.length() > 1){
+                o1StartsWithUnder = o1Str.charAt(1) == '_';
+            }else{
+                o1StartsWithUnder = false;
+            }
+            if(o2Str.length() > 1){
+                o2StartsWithUnder = o2Str.charAt(1) == '_';
+            }else{
+                o2StartsWithUnder = false;
+            }
+            
+            if(o1StartsWithUnder != o2StartsWithUnder){
+                if(o1StartsWithUnder){
+                    return 1;
+                }
+                return -1;
+            }
+            
         }
         
         return o1Str.compareToIgnoreCase(o2Str);

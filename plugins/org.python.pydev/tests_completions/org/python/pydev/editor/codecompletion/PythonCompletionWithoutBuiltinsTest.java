@@ -58,7 +58,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testOverrideCompletions5();
+            test.testCompletionUnderWithLowerPriority();
             test.tearDown();
             System.out.println("Finished");
 
@@ -1509,19 +1509,23 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
     
     
-    public void testCompletionDoesNotBringUnder() throws Exception {
+    public void testCompletionUnderWithLowerPriority() throws Exception {
         String s = 
             "class A:\n" +
             "    def __foo__(self):\n" +
+            "        pass\n" +
+            
+            "    def _bar(self):\n" +
             "        pass\n" +
             "\n"+
             "class B(A):\n" +
             "    def m1(self):\n" +
             "        self." + //__foo should NOT be here!
             "";
-        ICompletionProposal[] proposals = requestCompl(s, 2, new String[] {"m1()", "__foo__()"});
+        ICompletionProposal[] proposals = requestCompl(s, 3, new String[] {"m1()", "_bar()", "__foo__()"});
         assertEquals(proposals[0].getDisplayString(), "m1()");
-        assertEquals(proposals[1].getDisplayString(), "__foo__()");
+        assertEquals(proposals[1].getDisplayString(), "_bar()");
+        assertEquals(proposals[2].getDisplayString(), "__foo__()");
     }
     
 
