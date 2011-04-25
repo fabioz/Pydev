@@ -90,19 +90,18 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 	 * if custom_exceptions.prefs file does not exist, create a new file and write the exception
 	 * else appends the new exception in the existing custom_exceptions.prefs
 	 */
-	public void addUserConfiguredException(Object userConfiguredException) {
+	public void addUserConfiguredException(String userConfiguredException) {
 		boolean isAppend = false;
-		String pyExceptionStr = userConfiguredException.toString();
-		this.userConfiguredException.add(userConfiguredException.toString());
+		this.userConfiguredException.add(userConfiguredException);
 
 		IPath path = FileUtils
 				.getFilePathFromWorkSpace(Constants.CUSTOM_EXCEPTION_FILE_NAME);
 		if (FileUtils.isFileExists(path.toString())) {
 			isAppend = true;
-			pyExceptionStr = File.pathSeparator + pyExceptionStr;
+			userConfiguredException = File.pathSeparator + userConfiguredException;
 		}
 		FileUtils.writeExceptionsToFile(Constants.CUSTOM_EXCEPTION_FILE_NAME,
-				pyExceptionStr, isAppend);
+				userConfiguredException, isAppend);
 		this.newInput = null;
 	}
 

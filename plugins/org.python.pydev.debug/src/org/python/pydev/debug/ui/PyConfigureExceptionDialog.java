@@ -110,7 +110,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	 * @param composite
 	 *            org.eclipse.swt.widgets.Composite
 	 */
-	protected void addSelectionButtons(Composite composite) {
+	protected void createSelectionButtons(Composite composite) {
 		Composite buttonComposite = new Composite(composite, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 0;
@@ -120,6 +120,16 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 		buttonComposite.setLayoutData(new GridData(SWT.END, SWT.TOP, true,
 				false));
 
+		createSelectAll(buttonComposite);
+		createDeselectAll(buttonComposite);
+	}
+
+	/**
+	 * Creates a Select All button and its respective listener.
+	 * 
+	 * @param buttonComposite
+	 */
+	private void createSelectAll(Composite buttonComposite) {
 		Button selectButton = createButton(buttonComposite,
 				IDialogConstants.SELECT_ALL_ID, SELECT_ALL_TITLE, false);
 
@@ -129,14 +139,22 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 			}
 		};
 		selectButton.addSelectionListener(listener);
+	}
 
+	/**
+	 * Creates a DeSelect All button and its respective listener.
+	 * 
+	 * @param buttonComposite
+	 */
+	private void createDeselectAll(Composite buttonComposite) {
+		SelectionListener listener;
 		Button deselectButton = createButton(buttonComposite,
 				IDialogConstants.DESELECT_ALL_ID, DESELECT_ALL_TITLE, false);
 
 		listener = new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				listViewer.setAllChecked(false);
-				TableItem[] currentItems =  listViewer.getTable().getItems();
+				TableItem[] currentItems = listViewer.getTable().getItems();
 				for (TableItem tableItem : currentItems) {
 					removeFromSelectedElements(tableItem.getText());
 				}
@@ -163,7 +181,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 		listViewer.setLabelProvider(labelProvider);
 		listViewer.setContentProvider(contentProvider);
 
-		addSelectionButtons(composite);
+		createSelectionButtons(composite);
 
 		initContent();
 		// initialize page
@@ -194,11 +212,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 					}
 				});
 
-		addNewExceptionField = new Text(composite, SWT.BORDER);
-		addNewExceptionField.setLayoutData(new GridData(GridData.FILL,
-				GridData.BEGINNING, true, false));
-
-		customExceptionUI(composite);
+		createCustomExceptionUI(composite);
 
 		return composite;
 	}
@@ -209,7 +223,11 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	 *            Create a new text box and a button, which allows user to add
 	 *            custom exception. Attach a listener to the AddException Button
 	 */
-	private void customExceptionUI(Composite composite) {
+	private void createCustomExceptionUI(Composite composite) {
+		addNewExceptionField = new Text(composite, SWT.BORDER);
+		addNewExceptionField.setLayoutData(new GridData(GridData.FILL,
+				GridData.BEGINNING, true, false));
+
 		Button buttonAdd = new Button(composite, SWT.PUSH);
 		buttonAdd.setLayoutData(new GridData(GridData.END, GridData.END, true,
 				false));
@@ -228,7 +246,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	 * 
 	 */
 	private void addCustomException() {
-		Object customException = addNewExceptionField.getText();
+		String customException = addNewExceptionField.getText();
 		Object[] currentElements = contentProvider.getElements(inputElement);
 
 		ArrayList<Object> currentElementsList = new ArrayList<Object>();
@@ -236,10 +254,10 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 			Object element = currentElements[i];
 			currentElementsList.add(element);
 		}
-		
-		if(customException == "")
+
+		if (customException == "")
 			return;
-		
+
 		if (!currentElementsList.contains(customException)) {
 			getViewer().add(customException);
 			addNewExceptionField.setText("");
@@ -307,7 +325,6 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 			}
 			// If filter is on and checkedElements are not in filtered list
 			// then content provider.getElements doesn't fetch the same
-			List<Object> selectedElements = getSelectedElements();
 			if (selectedElements != null) {
 				for (Object selectedElement : selectedElements) {
 					if (!list.contains(selectedElement)) {
@@ -384,7 +401,6 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	 * 
 	 */
 	private void setSelectedElementChecked() {
-		List<Object> selectedElements = getSelectedElements();
 		if (selectedElements != null) {
 			for (Object element : selectedElements) {
 				getViewer().setChecked(element, true);
@@ -393,10 +409,6 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	}
 
 	private List<Object> selectedElements;
-
-	private List<Object> getSelectedElements() {
-		return selectedElements;
-	}
 
 	private void addToSelectedElements(Object element) {
 		if (selectedElements == null)

@@ -18,7 +18,7 @@ import org.python.pydev.core.docutils.StringUtils;
  * 
  * @author hussain.bohra
  * 
- *         This files contains utility method for File read / write / append
+ *         This file contains utility method for File read / write / append
  */
 public class FileUtils {
 	private static String DELIMITER = File.pathSeparator;
