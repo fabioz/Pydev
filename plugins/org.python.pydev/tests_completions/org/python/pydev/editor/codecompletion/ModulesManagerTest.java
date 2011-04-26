@@ -9,8 +9,18 @@
  */
 package org.python.pydev.editor.codecompletion;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.REF;
 import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 
 public class ModulesManagerTest extends CodeCompletionTestsBase{
 
@@ -24,7 +34,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
         this.restorePythonPath(false);
     }
 
-    public void testIt() throws Exception {
+    public void __testIt() throws Exception {
         //change: returns itself too
         ProjectModulesManager modulesManager = (ProjectModulesManager) nature2.getAstManager().getModulesManager();
         assertEquals(1+1, modulesManager.getManagersInvolved(false).length);
@@ -37,6 +47,35 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
         assertEquals(1+1, modulesManager2.getManagersInvolved(true).length);
         assertEquals(1+1, modulesManager2.getRefencingManagersInvolved(false).length);
         assertEquals(2+1, modulesManager2.getRefencingManagersInvolved(true).length);
+    }
+    
+    public void testLoad() throws Exception {
+        SystemModulesManager manager = new SystemModulesManager();
+        manager.addModule(new ModulesKey("bar", new File("bar.py")));
+        manager.addModule(new ModulesKey("foo", new File("foo.py")));
+        manager.addModule(new ModulesKey("empty", null));
+        PythonPathHelper pythonPathHelper = manager.getPythonPathHelper();
+        pythonPathHelper.setPythonPath("rara|boo");
+        assertEquals(Arrays.asList("rara", "boo"), manager.getPythonPath());
+        
+        File f = new File("modules_manager_testing.temporary_dir");
+        try {
+            REF.deleteDirectoryTree(f);
+        } catch (Exception e1) {
+            //ignore
+        }
+        try {
+            manager.saveToFile(f);
+            SystemModulesManager loaded = (SystemModulesManager) SystemModulesManager.createFromFile(f);
+            Set<String> set = new HashSet<String>();
+            set.add("bar");
+            set.add("foo");
+            set.add("empty");
+            assertEquals(set, loaded.getAllModuleNames(true, ""));
+            assertEquals(Arrays.asList("rara", "boo"), loaded.getPythonPath());
+        } finally {
+            REF.deleteDirectoryTree(f);
+        }
         
     }
 }

@@ -13,9 +13,6 @@ package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -67,7 +64,12 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * 
  * @author Fabio Zadrozny
  */
-public abstract class ModulesManager implements IModulesManager, Serializable {
+public abstract class ModulesManager implements IModulesManager {
+
+    /**
+     * 
+     */
+    private static final String MODULES_MANAGER_V1 = "MODULES_MANAGER_V1\n";
 
     private final static boolean DEBUG_BUILD = false;
     
@@ -110,10 +112,10 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     /**
      * A stack for keeping the completion cache
      */
-    protected transient volatile CompletionCache completionCache = null;
-    protected transient Object lockCompletionCache = new Object();
+    protected volatile CompletionCache completionCache = null;
+    protected final Object lockCompletionCache = new Object();
 
-    private transient volatile int completionCacheI = 0;
+    private volatile int completionCacheI = 0;
 
     /**
      * This method starts a new cache for this manager, so that needed info is kept while the request is happening
@@ -150,15 +152,15 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      * 
      * It is sorted so that we can get things in a 'subtree' faster
      */
-    protected transient ModulesKeyTreeMap<ModulesKey, ModulesKey> modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
+    protected final ModulesKeyTreeMap<ModulesKey, ModulesKey> modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
 
-    protected static transient ModulesManagerCache cache = new ModulesManagerCache();
+    protected static final ModulesManagerCache cache = new ModulesManagerCache();
 
     /**
      * This is the set of files that was found just right after unpickle (it should not be changed after that,
      * and serves only as a reference cache).
      */
-    protected transient Set<File> files = new HashSet<File>();
+    protected final Set<File> files = new HashSet<File>();
 
     /**
      * Helper for using the pythonpath. Also persisted.
@@ -181,76 +183,114 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
      */
     private static final long serialVersionUID = 2L;
 
-    /**
-     * Custom deserialization is needed.
-     */
-    @SuppressWarnings("unchecked")
-    private void readObject(ObjectInputStream aStream) throws IOException, ClassNotFoundException {
-        lockCompletionCache = new Object();
-        completionCacheI = 0;
-        modulesKeys = new ModulesKeyTreeMap<ModulesKey, ModulesKey>();
-        
-        temporaryModules = new HashMap<String, SortedMap<Integer, IModule>>();
-        lockTemporaryModules = new Object();
-        nextHandle = 0;
 
-        files = new HashSet<File>();
-        aStream.defaultReadObject();
-        Set<ModulesKey> set = (Set<ModulesKey>) aStream.readObject();
-        if (DEBUG_IO) {
-            for (ModulesKey key : set) {
-                System.out.println("Read:" + key);
+    public void saveToFile(File workspaceMetadataFile) {
+        if(workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()){
+            try {
+                REF.deleteFile(workspaceMetadataFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
-        for (Iterator<ModulesKey> iter = set.iterator(); iter.hasNext();) {
-            ModulesKey key = iter.next();
-            //restore with empty modules.
-            modulesKeys.put(key, key);
-            if (key.file != null) {
-                files.add(key.file);
+        if(!workspaceMetadataFile.exists()){
+            workspaceMetadataFile.mkdirs();
+        }
+            
+        File modulesKeysFile = new File(workspaceMetadataFile, "modulesKeys");
+        File pythonpatHelperFile = new File(workspaceMetadataFile, "pythonpath");
+        FastStringBuffer buf = new FastStringBuffer(this.modulesKeys.size()*50);
+        buf.append(MODULES_MANAGER_V1);
+        
+        for (Iterator<ModulesKey> iter = this.modulesKeys.keySet().iterator(); iter.hasNext();) {
+            ModulesKey next = iter.next();
+            buf.append(next.name);
+            if(next.file != null){
+                buf.append("|");
+                buf.append(next.file.toString());
             }
+            buf.append('\n');
         }
+        REF.writeStrToFile(buf.toString(), modulesKeysFile);
         
-        if(this.pythonPathHelper == null){
-            throw new IOException("Pythonpath helper not properly restored. "+this.getClass().getName());
-        }
-        
-        if(this.pythonPathHelper.getPythonpath() == null){
-            throw new IOException("Pythonpath helper pythonpath not properly restored. "+this.getClass().getName());
-        }
-        
-        if(this.pythonPathHelper.getPythonpath().size() == 0){
-            throw new IOException("Pythonpath helper pythonpath restored with no contents. "+this.getClass().getName());
-        }
-        
-        if(set.size() < 15){ //if we have to few modules, that may indicate a problem... 
-                             //if the project is really small, this will be fast, otherwise, it'll fix the problem.
-            throw new IOException("Only "+set.size()+" modules restored in I/O. "+this.getClass().getName());
-        }
+        this.pythonPathHelper.saveToFile(pythonpatHelperFile);
     }
-
+    
     /**
-     * Custom serialization is needed.
+     * @param systemModulesManager
+     * @param workspaceMetadataFile
+     * @throws IOException 
      */
-    private void writeObject(ObjectOutputStream aStream) throws IOException {
-        synchronized (modulesKeys) {
-            aStream.defaultWriteObject();
-            //write only the keys
-            HashSet<ModulesKey> set = new HashSet<ModulesKey>(modulesKeys.keySet());
-            if (DEBUG_IO) {
-                for (ModulesKey key : set) {
-                    System.out.println("Write:" + key);
+    protected static void loadFromFile(ModulesManager modulesManager, File workspaceMetadataFile) throws IOException {
+        if(workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()){
+            throw new IOException("Expecting: "+workspaceMetadataFile+" to be a directory.");
+        }
+        File modulesKeysFile = new File(workspaceMetadataFile, "modulesKeys");
+        File pythonpatHelperFile = new File(workspaceMetadataFile, "pythonpath");
+        if(!modulesKeysFile.isFile()){
+            throw new IOException("Expecting: "+modulesKeysFile+" to exist (and be a file).");
+        }
+        if(!pythonpatHelperFile.isFile()){
+            throw new IOException("Expecting: "+pythonpatHelperFile+" to exist (and be a file).");
+        }
+        
+        String fileContents = REF.getFileContents(modulesKeysFile);
+        if(!fileContents.startsWith(MODULES_MANAGER_V1)){
+            throw new RuntimeException("Could not load modules manager from "+modulesKeysFile+" (version not detected).");
+        }
+        
+        fileContents = fileContents.substring(MODULES_MANAGER_V1.length());
+        for(String line:StringUtils.iterLines(fileContents)){
+            line = line.trim();
+            List<String> split = StringUtils.split(line, '|');
+            ModulesKey key = null;
+            if(split.size() == 1){
+                key = new ModulesKey(split.get(0), null);
+                
+            }else if(split.size() == 2){
+                key = new ModulesKey(split.get(0), new File(split.get(1)));
+                
+            }
+            if(key != null){
+                //restore with empty modules.
+                modulesManager.modulesKeys.put(key, key);
+                if (key.file != null) {
+                    modulesManager.files.add(key.file);
                 }
             }
-            aStream.writeObject(set);
         }
+        
+        PythonPathHelper helper = new PythonPathHelper();
+        helper.loadFromFile(pythonpatHelperFile);
+        
+        modulesManager.pythonPathHelper = helper;
+        
+        if(modulesManager.pythonPathHelper == null){
+            throw new IOException("Pythonpath helper not properly restored. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
+        }
+        
+        if(modulesManager.pythonPathHelper.getPythonpath() == null){
+            throw new IOException("Pythonpath helper pythonpath not properly restored. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
+        }
+        
+        if(modulesManager.pythonPathHelper.getPythonpath().size() == 0){
+            throw new IOException("Pythonpath helper pythonpath restored with no contents. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
+        }
+        
+        if(modulesManager.modulesKeys.size() < 2){ //if we have to few modules, that may indicate a problem... 
+            //if the project is really small, modulesManager will be fast, otherwise, it'll fix the problem.
+            //Note: changed to a really low value because we now make a check after it's restored anyways.
+            throw new IOException("Only "+modulesManager.modulesKeys.size()+" modules restored in I/O. "+modulesManager.getClass().getName()+" dir:"+workspaceMetadataFile);
+        }
+        
     }
+
 
     /**
      * @param modules The modules to set.
      */
     private void setModules(ModulesKeyTreeMap<ModulesKey, ModulesKey> keys) {
-        this.modulesKeys = keys;
+        this.modulesKeys.clear();
+        this.modulesKeys.putAll(keys);
     }
 
     /**
@@ -457,9 +497,9 @@ public abstract class ModulesManager implements IModulesManager, Serializable {
     /**
      * Note that the access must be synched.
      */
-    public transient Map<String, SortedMap<Integer, IModule>> temporaryModules = new HashMap<String, SortedMap<Integer, IModule>>();
-    private transient Object lockTemporaryModules = new Object();
-    private transient int nextHandle = 0;
+    public final Map<String, SortedMap<Integer, IModule>> temporaryModules = new HashMap<String, SortedMap<Integer, IModule>>();
+    private final Object lockTemporaryModules = new Object();
+    private int nextHandle = 0;
     
     /**
      * Returns the handle to be used to remove the module added later on!

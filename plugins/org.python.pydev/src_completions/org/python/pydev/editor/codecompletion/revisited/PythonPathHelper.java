@@ -14,7 +14,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -41,13 +41,8 @@ import org.python.pydev.utils.PyFileListing.PyFileInfo;
  * 
  * @author Fabio Zadrozny
  */
-public class PythonPathHelper implements IPythonPathHelper, Serializable {
-
-    /**
-     * Changed to 2L on 1.4.2
-     */
-    private static final long serialVersionUID = 2L;
-
+public class PythonPathHelper implements IPythonPathHelper {
+    
     /**
      * This is a list of Files containing the pythonpath.
      */
@@ -458,6 +453,8 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
                     //we have to get it with the appropriate cases and in a canonical form
                     String path = REF.getFileAbsolutePath(file);
                     lPath.add(path);
+                }else{
+                    lPath.add(defaultPathStr);
                 }
             }
         }
@@ -521,6 +518,25 @@ public class PythonPathHelper implements IPythonPathHelper, Serializable {
             }
         }
         return ret;
+    }
+
+    /**
+     * @param workspaceMetadataFile
+     * @throws IOException 
+     */
+    public void loadFromFile(File pythonpatHelperFile) throws IOException {
+        String fileContents = REF.getFileContents(pythonpatHelperFile);
+        if(fileContents == null || fileContents.trim().length() == 0){
+            throw new IOException("No loaded contents from: "+pythonpatHelperFile);
+        }
+        this.pythonpath.addAll(StringUtils.split(fileContents, '\n'));
+    }
+
+    /**
+     * @param pythonpatHelperFile
+     */
+    public void saveToFile(File pythonpatHelperFile) {
+        REF.writeStrToFile(StringUtils.join("\n", this.pythonpath), pythonpatHelperFile);
     }
 
 }

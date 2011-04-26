@@ -7,9 +7,7 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.MissingResourceException;
@@ -41,7 +39,6 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
 import org.python.pydev.core.bundle.ImageCache;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.dltk.console.ui.ScriptConsoleUIConstants;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
@@ -426,9 +423,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         }
     }
 
-    public static void log(IStatus status) {
-        getDefault().getLog().log(status);
-    }
     
     public static void log(Throwable e) {
         log(e, true);
@@ -602,52 +596,18 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         //it may not be correct, but it was the best we could do...
         return fullPath;
     }
-    
-    /**
-     * Writes to the workspace a given object (in the given filename)
-     */
-    public static void writeToWorkspaceMetadata(Object obj, String fileName) {
-        Bundle bundle = Platform.getBundle("org.python.pydev");
-        IPath path = Platform.getStateLocation( bundle );       
-        path = path.addTrailingSeparator();
-        path = path.append(fileName);
-        try {
-            FileOutputStream out = new FileOutputStream(path.toFile());
-            REF.writeToStreamAndCloseIt(obj, out);
-            
-        } catch (Exception e) {
-            PydevPlugin.log(e);
-            throw new RuntimeException(e);
-        }               
-    }
+
 
     /**
      * Loads from the workspace metadata a given object (given the filename)
      */
-    public static Object readFromWorkspaceMetadata(String fileName) {
+    public static File getWorkspaceMetadataFile(String fileName) {
         Bundle bundle = Platform.getBundle("org.python.pydev");
         IPath path = Platform.getStateLocation( bundle );       
         path = path.addTrailingSeparator();
         path = path.append(fileName);
         
-        FileInputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(path.toFile());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        
-        return REF.readFromInputStreamAndCloseIt(new ICallback<Object, ObjectInputStream>(){
-
-            public Object call(ObjectInputStream arg) {
-                try{
-                    return arg.readObject();
-                }catch(Exception e){
-                    throw new RuntimeException(e);
-                }
-            }}, 
-            
-            fileInputStream);
+        return path.toFile();
     }
     /**
      * @return

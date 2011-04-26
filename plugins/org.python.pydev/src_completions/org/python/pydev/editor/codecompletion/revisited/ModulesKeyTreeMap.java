@@ -27,12 +27,6 @@ import java.util.SortedSet;
  * value itself, but that should not be needed just because TreeMap does not have the interface 
  * that we want.
  * 
- * Yeap, the java world is full of crap... if only that method was protected or the root element was
- * accessible at least a subclass would be possible, but as it's not... well just copy and paste (which 
- * is a real shame)
- * 
- * Now, thinking about python... why is it that we need those private stuff anyways?
- * 
  * @author Fabio
  *
  * @param <K>

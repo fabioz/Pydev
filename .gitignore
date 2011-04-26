@@ -45,6 +45,8 @@ plugins/com.python.pydev.pytoobjectivec/
 CVS
 .svn
 indexcache
+v1_indexcache
+v1_astmanager
 *.pyc
 *.class
 *.astdelta

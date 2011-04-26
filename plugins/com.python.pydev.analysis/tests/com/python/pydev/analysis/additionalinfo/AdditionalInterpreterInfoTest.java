@@ -60,13 +60,18 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     
     public void testMap() {
-        info.addMethod(createFuncDef("metz" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("metZ" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("met9" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("met0" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("meta" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("metA" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        
+        FuncInfo info2 = new FuncInfo(((NameTok)createFuncDef("metz" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("metZ" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("met9" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("met0" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("meta" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("metA" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("met", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertEquals(6, tokensStartingWith.size());
         
@@ -75,11 +80,14 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
     
     public void testMap2() {
-        info.addMethod(createFuncDef("m" )   , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("mm" )  , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("mmm" ) , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("mmmm" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        
+        FuncInfo info2 = new FuncInfo(((NameTok)createFuncDef("m" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("mm" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("mmm" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("mmmm" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertEquals(4, tokensStartingWith.size());
         
@@ -94,11 +102,14 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
     
     public void testAddFunc() {
-        info.addMethod(createFuncDef("met1" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("met2" ), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("func1"), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addMethod(createFuncDef("func2"), "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        
+        FuncInfo info2 = new FuncInfo(((NameTok)createFuncDef("met1" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("met2" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("func1").name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        info2 = new FuncInfo(((NameTok)createFuncDef("func2").name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("me", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());
         assertIsIn("met1", tokensStartingWith);
@@ -114,11 +125,14 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     public void testAddClass() {
-        info.addClass(createClassDef("cls1" ) , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addClass(createClassDef("cls2" ) , "mod1", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addClass(createClassDef("class1"), "mod2", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        info.addClass(createClassDef("class2"), "mod2", AbstractAdditionalInterpreterInfo.TOP_LEVEL, null);
-        
+        ClassInfo info1 = new ClassInfo(((NameTok)createClassDef("cls1" ).name).id, "mod1", null);
+        info.add(info1, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        ClassInfo info2 = new ClassInfo(((NameTok)createClassDef("cls2" ).name).id, "mod1", null);
+        info.add(info2, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        ClassInfo info3 = new ClassInfo(((NameTok)createClassDef("class1").name).id, "mod2", null);
+        info.add(info3, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
+        ClassInfo info4 = new ClassInfo(((NameTok)createClassDef("class2").name).id, "mod2", null);
+        info.add(info4, AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         List<IInfo> tokensStartingWith = info.getTokensStartingWith("cls", AbstractAdditionalInterpreterInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());
         assertIsIn("cls1", tokensStartingWith);

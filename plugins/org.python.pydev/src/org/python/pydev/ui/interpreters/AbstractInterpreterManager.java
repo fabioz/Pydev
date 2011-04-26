@@ -11,6 +11,7 @@
  */
 package org.python.pydev.ui.interpreters;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -48,6 +49,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
@@ -406,7 +408,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     //and at last, restore the system info
                     for (final InterpreterInfo info: list) {
                         try {
-                            ISystemModulesManager systemModulesManager = (ISystemModulesManager) PydevPlugin.readFromWorkspaceMetadata(info.getExeAsFileSystemValidPath());
+                            File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath());
+                            ISystemModulesManager systemModulesManager = SystemModulesManager.createFromFile(workspaceMetadataFile);
                             info.setModulesManager(systemModulesManager);
                         } catch (Exception e) {
                             PydevPlugin.logInfo(new RuntimeException("Restoring info for: "+info.getExecutableOrJar(), e));
@@ -424,11 +427,11 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                                         dialog.run(false, false, new IRunnableWithProgress(){
 
                                             public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                                                monitor.beginTask("Updating the interpreter info (internal format changed or corrupted).", 100);
+                                                monitor.beginTask("Updating the interpreter info.", 100);
                                                 //ok, maybe its file-format changed... let's re-create it then.
                                                 info.restorePythonpath(monitor);
                                                 //after restoring it, let's save it.
-                                                PydevPlugin.writeToWorkspaceMetadata(info.getModulesManager(), info.getExeAsFileSystemValidPath());
+                                                info.getModulesManager().saveToFile(PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath()));
                                                 monitor.done();
                                             }}
                                         );
@@ -500,7 +503,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             if(pythonpath == null || pythonpath.size() == 0){
                 continue;
             }
-            PydevPlugin.writeToWorkspaceMetadata(modulesManager, info.getExeAsFileSystemValidPath());
+            modulesManager.saveToFile(PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath()));
         }
     }
 

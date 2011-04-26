@@ -12,7 +12,6 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -43,6 +42,7 @@ import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
 import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
@@ -55,11 +55,6 @@ import org.python.pydev.plugin.nature.PythonNature;
 public class ProjectModulesManager extends ProjectModulesManagerBuild implements IDeltaProcessor<ModulesKey>{
 
     /**
-     * Forcing rebuild for 1.4.2 (a bug was making pydev loose information, so, that should make it 'right')
-     */
-    private static final long serialVersionUID = 2L;
-
-    /**
      * Determines whether we are testing it.
      */
     public static boolean IN_TESTS = false;
@@ -67,13 +62,41 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     private static final boolean DEBUG_MODULES = false;
     
     //these attributes must be set whenever this class is restored.
-    private transient IProject project;
-    private transient IPythonNature nature;
+    private volatile IProject project;
+    private volatile IPythonNature nature;
     
     /**
      * Used to process deltas (in case we have the process killed for some reason)
      */
-    private transient DeltaSaver<ModulesKey> deltaSaver;
+    private volatile DeltaSaver<ModulesKey> deltaSaver;
+    
+    private static ICallback<ModulesKey, String> readFromFileMethod = new ICallback<ModulesKey, String>(){
+
+        public ModulesKey call(String arg) {
+            List<String> split = StringUtils.split(arg, '|');
+            if(split.size() == 1){
+                return new ModulesKey(split.get(0), null);
+            }
+            if(split.size() == 2){
+                return new ModulesKey(split.get(0), new File(split.get(1)));
+            }
+            
+            return null;
+        }
+    };
+        
+    private static ICallback<String, ModulesKey> toFileMethod = new ICallback<String, ModulesKey>() {
+
+        public String call(ModulesKey arg) {
+            FastStringBuffer buf = new FastStringBuffer();
+            buf.append(arg.name);
+            if(arg.file != null){
+                buf.append("|");
+                buf.append(arg.file.toString());
+            }
+            return buf.toString();
+        }
+    };
     
     public ProjectModulesManager() {}
     
@@ -87,16 +110,8 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         if(completionsCacheDir == null){
         	return; //project was deleted.
         }
-        
-		this.deltaSaver = new DeltaSaver<ModulesKey>(completionsCacheDir, "astdelta", new ICallback<Object, ObjectInputStream>(){
 
-            public ModulesKey call(ObjectInputStream arg) {
-                try {
-                    return (ModulesKey) arg.readObject();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }});
+        this.deltaSaver = new DeltaSaver<ModulesKey>(completionsCacheDir, "vi_astdelta", readFromFileMethod,toFileMethod);
         
         if(!restoreDeltas){
             deltaSaver.clearAll(); //remove any existing deltas

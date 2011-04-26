@@ -27,6 +27,7 @@ import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
@@ -39,6 +40,7 @@ import org.python.pydev.logging.DebugSettings;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.DefinitionsASTIteratorVisitor;
@@ -230,55 +232,6 @@ public abstract class AbstractAdditionalInterpreterInfo {
         return lInfo;
     }
 
-    /**
-     * adds a method to the definition
-     * @param doOn 
-     * @return 
-     */
-    protected IInfo addMethod(FunctionDef def, String moduleDeclared, int doOn, String path) {
-        FuncInfo info2 = FuncInfo.fromFunctionDef(def, moduleDeclared, path);
-        add(info2, doOn);
-        return info2;
-    }
-    
-    /**
-     * Adds a class to the definition
-     * @param doOn 
-     * @return 
-     */
-    protected IInfo addClass(ClassDef def, String moduleDeclared, int doOn, String path) {
-        ClassInfo info = ClassInfo.fromClassDef(def, moduleDeclared, path);
-        add(info, doOn);
-        return info;
-    }
-    
-    
-    /**
-     * Adds an attribute to the definition (this is either a global, a class attribute or an instance (self) attribute
-     * @return 
-     */
-    protected IInfo addAttribute(String def, String moduleDeclared, int doOn, String path) {
-        AttrInfo info = AttrInfo.fromAssign(def, moduleDeclared, path);
-        add(info, doOn);
-        return info;
-    }
-
-    /**
-     * Adds a class or a function to the definition
-     * 
-     * @param classOrFunc the class or function we want to add
-     * @param moduleDeclared the module where it is declared
-     * @param doOn 
-     * @return 
-     */
-    protected IInfo addClassOrFunc(SimpleNode classOrFunc, String moduleDeclared, int doOn, String path) {
-        if(classOrFunc instanceof ClassDef){
-            return addClass((ClassDef) classOrFunc, moduleDeclared, doOn, path);
-        }else{
-            return addMethod((FunctionDef) classOrFunc, moduleDeclared, doOn, path);
-        }
-    }
-
     private IInfo addAssignTargets(ASTEntry entry, String moduleName, int doOn, String path, boolean lastIsMethod ) {
         String rep = NodeUtils.getFullRepresentationString(entry.node);
         if(lastIsMethod){
@@ -287,11 +240,27 @@ public abstract class AbstractAdditionalInterpreterInfo {
                 //at least 2 parts are required
                 if(parts.get(0).equals("self")){
                     rep = parts.get(1);
-                    return addAttribute(rep, moduleName, doOn, path);
+                    //no intern construct (locked in the loop that calls this method)
+                    AttrInfo info = new AttrInfo(
+                            ObjectsPool.internUnsynched(rep), 
+                            moduleName, 
+                            ObjectsPool.internUnsynched(path),
+                            false
+                    );
+                    add(info, doOn);
+                    return info;
                 }
             }
         }else{
-            return addAttribute(FullRepIterable.getFirstPart(rep), moduleName, doOn, path);
+            //no intern construct (locked in the loop that calls this method)
+            AttrInfo info = new AttrInfo(
+                    ObjectsPool.internUnsynched(FullRepIterable.getFirstPart(rep)), 
+                    moduleName, 
+                    ObjectsPool.internUnsynched(path), 
+                    false
+            );
+            add(info, doOn);
+            return info;
         }
         return null;
     }
@@ -322,41 +291,94 @@ public abstract class AbstractAdditionalInterpreterInfo {
 			    FastStack<SimpleNode> tempStack = new FastStack<SimpleNode>();
 			    
 			    synchronized (this.lock) {
-			        while (entries.hasNext()) {
-			            ASTEntry entry = entries.next();
-			            IInfo infoCreated = null;
-			            
-			            if(entry.parent == null){ //we only want those that are in the global scope
-			                if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
-			                	infoCreated = this.addClassOrFunc(entry.node, moduleName, TOP_LEVEL, null);
-			                }else{
-			                    //it is an assign
-			                	infoCreated = this.addAssignTargets(entry, moduleName, TOP_LEVEL, null, false);
-			                }
-			            }else{
-			                if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
-			                    //ok, it has a parent, so, let's check to see if the path we got only has class definitions
-			                    //as the parent (and get that path)
-			                    Tuple<String,Boolean> pathToRoot = this.getPathToRoot(entry, false, false, tempStack);
-			                    if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-			                        //if the root is not valid, it is not only classes in the path (could be a method inside
-			                        //a method, or something similar).
-			                    	infoCreated = this.addClassOrFunc(entry.node, moduleName, INNER, pathToRoot.o1);
-			                    }
-			                }else{
-			                    //it is an assign
-			                    Tuple<String,Boolean> pathToRoot = this.getPathToRoot(entry, true, false, tempStack);
-			                    if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
-			                    	infoCreated = this.addAssignTargets(entry, moduleName, INNER, pathToRoot.o1, pathToRoot.o2);
-			                    }
-			                }
-			            }
-			            
-			            if(infoCreated != null){
-			            	createdInfos.add(infoCreated);
-			            }
-			        }
-			    }        
+			        synchronized (ObjectsPool.lock) {
+                        moduleName = ObjectsPool.internUnsynched(moduleName);
+                        
+    			        while (entries.hasNext()) {
+    			            ASTEntry entry = entries.next();
+    			            IInfo infoCreated = null;
+    			            
+    			            if(entry.parent == null){ //we only want those that are in the global scope
+    			                if(entry.node instanceof ClassDef){
+    			                    //no intern construct (locked in this loop)
+    			                    ClassInfo info = new ClassInfo(
+    			                            ObjectsPool.internUnsynched(((NameTok)((ClassDef)entry.node).name).id), 
+    			                            moduleName, 
+    			                            null, 
+    			                            false
+    			                    );
+                                    add(info, TOP_LEVEL);
+                                    infoCreated = info;
+    			                    
+    			                }else if(entry.node instanceof FunctionDef){
+    			                    //no intern construct (locked in this loop)
+    			                    FuncInfo info2 = new FuncInfo(
+    			                            ObjectsPool.internUnsynched(((NameTok)((FunctionDef) entry.node).name).id), 
+    			                            moduleName, 
+    			                            null,
+    			                            false
+    			                    );
+                                    add(info2, TOP_LEVEL);
+                                    infoCreated = info2;
+    			                    
+    			                }else{
+    			                    //it is an assign
+    			                	infoCreated = this.addAssignTargets(entry, moduleName, TOP_LEVEL, null, false);
+    			                	
+    			                	
+    			                	
+    			                }
+    			            }else{
+    			                if(entry.node instanceof ClassDef || entry.node instanceof FunctionDef){
+    			                    //ok, it has a parent, so, let's check to see if the path we got only has class definitions
+    			                    //as the parent (and get that path)
+    			                    Tuple<String,Boolean> pathToRoot = this.getPathToRoot(entry, false, false, tempStack);
+    			                    if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+    			                        //if the root is not valid, it is not only classes in the path (could be a method inside
+    			                        //a method, or something similar).
+    			                        
+    			                        if(entry.node instanceof ClassDef){
+    		                                ClassInfo info = new ClassInfo(
+    		                                        ObjectsPool.internUnsynched(((NameTok)((ClassDef)entry.node).name).id), 
+    		                                        moduleName, 
+    		                                        ObjectsPool.internUnsynched(pathToRoot.o1),
+    		                                        false
+    		                                );
+                                            add(info, INNER);
+                                            infoCreated = info;
+    		                                
+    		                            }else{
+    		                                //FunctionDef
+    		                                FuncInfo info2 = new FuncInfo(
+    		                                        ObjectsPool.internUnsynched(((NameTok)((FunctionDef) entry.node).name).id), 
+    		                                        moduleName, 
+    		                                        ObjectsPool.internUnsynched(pathToRoot.o1),
+    		                                        false
+    		                                );
+                                            add(info2, INNER);
+                                            infoCreated = info2;
+    		                                
+    		                            }
+    			                    }
+    			                }else{
+    			                    //it is an assign
+    			                    Tuple<String,Boolean> pathToRoot = this.getPathToRoot(entry, true, false, tempStack);
+    			                    if(pathToRoot != null && pathToRoot.o1 != null && pathToRoot.o1.length() > 0){
+    			                    	infoCreated = this.addAssignTargets(entry, moduleName, INNER, pathToRoot.o1, pathToRoot.o2);
+    			                    }
+    			                }
+    			            }
+    			            
+    			            if(infoCreated != null){
+    			            	createdInfos.add(infoCreated);
+    			            }
+    			            
+    			        } //end while
+    			        
+			        }//end lock ObjectsPool.lock
+			        
+			    }//end this.lock        
+			    
 			} catch (Exception e) {
 			    PydevPlugin.log(e);
 			}
@@ -413,7 +435,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @param tempStack is a temporary stack object (which may be cleared)
      * 
      * @return a tuple, where the first element is the path where the entry is located (may return null).
-     * and the second element is a boolen that indicates if the last was actually a method or not.
+     * and the second element is a boolean that indicates if the last was actually a method or not.
      */
     private Tuple<String, Boolean> getPathToRoot(ASTEntry entry, boolean lastMayBeMethod, boolean acceptAny, 
             FastStack<SimpleNode> tempStack) {

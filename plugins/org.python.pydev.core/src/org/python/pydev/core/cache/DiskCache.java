@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.python.pydev.core.REF;
+import org.python.pydev.core.callbacks.ICallback;
 
 /**
  * This is a cache that will put its values in the disk for low-memory consumption, so that its size never passses
@@ -24,9 +25,9 @@ import org.python.pydev.core.REF;
  * There is a 'catch': its keys must be Strings, as its name will be used as the name of the entry in the disk,
  * so, a 'miss' in memory will try to get it from the disk (and a miss from the disk will mean there is no such key).
  * 
- * -- And yes, the cache itself is serializable! 
+ * -- And yes, the cache itself is Serializable! 
  */
-public final class DiskCache extends LRUCache<String, Serializable> implements Serializable{
+public final class DiskCache<X> extends LRUCache<String, X> implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
@@ -48,6 +49,16 @@ public final class DiskCache extends LRUCache<String, Serializable> implements S
      * The files persisted should have this suffix (should start with .)
      */
     private String suffix;
+
+    /**
+     * When serialized, this must be set later on...
+     */
+    public transient ICallback<X, String> readFromFileMethod;
+
+    /**
+     * When serialized, this must be set later on...
+     */
+    public transient ICallback<String, X> toFileMethod;
 
     /**
      * Custom deserialization is needed.
@@ -84,21 +95,24 @@ public final class DiskCache extends LRUCache<String, Serializable> implements S
         }
     }
     
-    public DiskCache(int maxSize, File folderToPersist, String suffix) {
+    public DiskCache(int maxSize, File folderToPersist, String suffix, ICallback<X, String> readFromFileMethod, ICallback<String, X> toFileMethod) {
         super(maxSize);
         this.folderToPersist = REF.getFileAbsolutePath(folderToPersist);
         this.suffix = suffix;
+        this.readFromFileMethod = readFromFileMethod;
+        this.toFileMethod = toFileMethod;
     }
     
     
-    public Serializable getObj(String key) {
+    public X getObj(String key) {
         synchronized(lock){
-            Serializable v = super.getObj(key);
+            X v = super.getObj(key);
             if(v == null && keys.contains(key)){
                 //miss in memory... get from disk
                 File file = getFileForKey(key);
                 if(file.exists()){
-                    v = (Serializable) REF.readFromFile(file);
+                    String fileContents = REF.getFileContents(file);
+                    v = (X) readFromFileMethod.call(fileContents);
                 }else{
                     if(DEBUG){
                         System.out.println("File: "+file+" is in the cache but does not exist (so, it will be removed).");
@@ -139,14 +153,14 @@ public final class DiskCache extends LRUCache<String, Serializable> implements S
     /**
      * Adds to both: the memory and the disk
      */
-    public void add(String key, Serializable n) {
+    public void add(String key, X n) {
         synchronized(lock){
             super.add(key, n);
             File fileForKey = getFileForKey(key);
             if(DEBUG){
                 System.out.println("Disk cache - Adding: "+key+" file: "+fileForKey);
             }
-            REF.writeToFile(n, fileForKey);
+            REF.writeStrToFile(toFileMethod.call(n), fileForKey);
             keys.add(key);
         }
     }

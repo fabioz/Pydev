@@ -154,15 +154,15 @@ public class InterpreterInfo implements IInterpreterInfo{
         libs.addAll(libs0);
     }
     
-    public InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls){
+    /*default*/ InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls){
         this(version, exe, libs0);
     }
     
-    public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
+    /*default*/ InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced) {
         this(version, exe, libs0, dlls, forced, null, null);
     }
 
-    public InterpreterInfo(
+    /*default*/ InterpreterInfo(
     		String version, 
     		String exe, 
     		List<String> libs0, 
@@ -1027,7 +1027,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * @param path
      */
     public void restorePythonpath(IProgressMonitor monitor) {
-        StringBuffer buffer = new StringBuffer();
+        FastStringBuffer buffer = new FastStringBuffer();
         for (Iterator<String> iter = libs.iterator(); iter.hasNext();) {
             String folder = (String) iter.next();
             buffer.append(folder);
@@ -1070,7 +1070,7 @@ public class InterpreterInfo implements IInterpreterInfo{
     }
 
     public String getExeAsFileSystemValidPath() {
-        return StringUtils.md5(executableOrJar);
+        return "v1_"+StringUtils.md5(executableOrJar);
     }
 
     public String getVersion() {

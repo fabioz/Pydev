@@ -14,13 +14,18 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ObjectsPool;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.Tuple3;
 import org.python.pydev.core.cache.DiskCache;
+import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.docutils.StringUtils;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -41,7 +46,7 @@ import org.python.pydev.plugin.PydevPlugin;
 public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditionalInterpreterInfo{
     
     /**
-     * Maximun number of modules to have in memory (when reaching that limit, a module will have to be removed
+     * Maximum number of modules to have in memory (when reaching that limit, a module will have to be removed
      * before another module is loaded).
      */
     public static final int DISK_CACHE_IN_MEMORY = 300;
@@ -60,7 +65,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      * 
      * So the key is the module name and the value is a Set of the strings it contains.
      */
-    public DiskCache completeIndex; 
+    public DiskCache<Set<String>> completeIndex; 
 
     /**
      * default constructor
@@ -76,13 +81,41 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         }
     }
     
+    private static ICallback<Set<String>, String> readFromFileMethod = new ICallback<Set<String>, String>() {
+
+        public Set<String> call(String arg) {
+            HashSet<String> hashSet = new HashSet<String>();
+            StringUtils.splitWithIntern(arg, '\n', hashSet);
+            return hashSet;
+        }
+    };
+    
+    private static ICallback<String, Set<String>> toFileMethod = new ICallback<String, Set<String>>() {
+
+        public String call(Set<String> arg) {
+            FastStringBuffer buf = new FastStringBuffer(arg.size()*30);
+            for(String s:arg){
+                buf.append(s);
+                buf.append('\n');
+            }
+            return buf.toString();
+        }
+    };
+    
     /**
      * Initializes the internal DiskCache with the indexes.
      * @throws MisconfigurationException 
      */
     protected void init() throws MisconfigurationException {
         File persistingFolder = getCompleteIndexPersistingFolder();
-        completeIndex = new DiskCache(DISK_CACHE_IN_MEMORY, persistingFolder, ".indexcache");
+
+        completeIndex = new DiskCache<Set<String>>(
+                DISK_CACHE_IN_MEMORY, 
+                persistingFolder, 
+                ".v1_indexcache",
+                readFromFileMethod,
+                toFileMethod
+        );
     }
 
     /**
@@ -91,7 +124,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
      */
     protected File getCompleteIndexPersistingFolder() throws MisconfigurationException {
         File persistingFolder = getPersistingFolder();
-        persistingFolder = new File(persistingFolder, "indexcache");
+        persistingFolder = new File(persistingFolder, "v1_indexcache");
         
         if(persistingFolder.exists()){
             if(persistingFolder.isDirectory()){
@@ -117,7 +150,6 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
     
     
-    @SuppressWarnings("unchecked")
     @Override
     protected List<IInfo> getWithFilter(String qualifier, int getWhat, Filter filter, boolean useLowerCaseQual) {
         synchronized(lock){
@@ -138,7 +170,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
                     }else{
                         for(String infoName: obj){
                             if(filter.doCompare(qualToCompare, infoName)){
-                                toks.add(NameInfo.fromName(infoName, modName, null));
+                                //no intern construct (we'll keep the version we're passed on memory anyways).
+                                toks.add(new NameInfo(infoName, modName, null, true));
                             }    
                         }
                     }
@@ -164,18 +197,21 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             synchronized (lock) {
                 addAstInfo = super.addAstInfo(node, moduleName, nature, generateDelta);
                 
-                //ok, now, add 'all the names'
-                while (iterator.hasNext()) {
-                    ASTEntry entry = iterator.next();
-                    String id;
-                    //I was having out of memory errors without using this pool (running with a 64mb vm)
-                    if (entry.node instanceof Name) {
-                        id = ((Name) entry.node).id;
-                    } else {
-                        id = ((NameTok) entry.node).id;
+                synchronized(ObjectsPool.lock){
+                    //ok, now, add 'all the names'
+                    while (iterator.hasNext()) {
+                        ASTEntry entry = iterator.next();
+                        String id;
+                        if (entry.node instanceof Name) {
+                            id = ((Name) entry.node).id;
+                        } else {
+                            id = ((NameTok) entry.node).id;
+                        }
+                        id = ObjectsPool.internUnsynched(id);
+                        nameIndexes.add(id);
                     }
-                    nameIndexes.add(id);
                 }
+                
                 completeIndex.add(moduleName, nameIndexes);
             }
         } catch (Exception e) {
@@ -216,6 +252,8 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             if(completeIndex == null){
                 throw new RuntimeException("Type Error (index == null): the info must be regenerated (changed across versions).");
             }
+            completeIndex.readFromFileMethod = readFromFileMethod;
+            completeIndex.toFileMethod = toFileMethod;
             
             String shouldBeOn = REF.getFileAbsolutePath(getCompleteIndexPersistingFolder());
             if(!completeIndex.getFolderToPersist().equals(shouldBeOn)){

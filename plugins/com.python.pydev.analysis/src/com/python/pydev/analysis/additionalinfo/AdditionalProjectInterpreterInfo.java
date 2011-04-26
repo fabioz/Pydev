@@ -12,7 +12,6 @@
 package com.python.pydev.analysis.additionalinfo;
 
 import java.io.File;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.PydevPlugin;
@@ -100,16 +100,43 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalDependen
     protected DeltaSaver<Object> createDeltaSaver() {
         return new DeltaSaver<Object>(
                 getPersistingFolder(), 
-                "projectinfodelta", 
-                new ICallback<Object, ObjectInputStream>(){
+                "v1_projectinfodelta", 
+                new ICallback<Object, String>(){
 
-            public Object call(ObjectInputStream arg) {
-                try {
-                    return arg.readObject();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    public Object call(String arg) {
+                        if(arg.startsWith("STR")){
+                            return arg.substring(3);
+                        }
+                        if(arg.startsWith("LST")){
+                            return InfoStrFactory.strToInfo(arg.substring(3));
+                        }
+                        
+                        throw new AssertionError("Expecting string starting with STR or LST");
+                    }}, 
+                    
+                new ICallback<String, Object>() {
+
+                    /**
+                     * Here we'll convert the object we added to a string.
+                     * 
+                     * The objects we can add are:
+                     * List<IInfo> -- on addition
+                     * String (module name) -- on deletion
+                     */
+                    public String call(Object arg) {
+                        if(arg instanceof String){
+                            return "STR"+(String) arg;
+                        }
+                        if(arg instanceof List){
+                            List<IInfo> l = (List<IInfo>) arg;
+                            String infoToString = InfoStrFactory.infoToString(l);
+                            FastStringBuffer buf = new FastStringBuffer("LST", infoToString.length());
+                            buf.append(infoToString);
+                            return buf.toString();
+                        }
+                        throw new AssertionError("Expecting List<IInfo> or String.");
+                    }
                 }
-            }}
         );
     }
     

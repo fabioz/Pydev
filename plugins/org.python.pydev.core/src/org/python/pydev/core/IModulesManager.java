@@ -6,6 +6,7 @@
  */
 package org.python.pydev.core;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -176,5 +177,5 @@ public interface IModulesManager {
 	 */
 	public void popTemporaryModule(String moduleName, int handle);
 
-
+    public void saveToFile(File workspaceMetadataFile);
 }

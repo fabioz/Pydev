@@ -196,5 +196,9 @@ public class Log {
         }
     }
 
+    public static void log(IStatus status) {
+        CorePlugin.getDefault().getLog().log(status);
+    }
+
 
 }

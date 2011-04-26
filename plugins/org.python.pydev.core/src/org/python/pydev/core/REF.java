@@ -265,36 +265,7 @@ public class REF {
         return Base64.encodeBase64(byteArray);
     }
     
-    
-    /**
-     * @param persisted the base64 string that should be converted to an object.
-     * @param readFromFileMethod should be the calback from the plugin that is calling this function (this is needed
-     * because from one plugin we cannot load the contents of objects defined in another plugin)
-     * 
-     * 
-     * The callback should be something as:
-     *
-     *  new ICallback<Object, ObjectInputStream>(){
-     *
-     *      public Object call(ObjectInputStream arg) {
-     *          try {
-     *              return arg.readObject();
-     *          } catch (IOException e) {
-     *              throw new RuntimeException(e);
-     *          } catch (ClassNotFoundException e) {
-     *              throw new RuntimeException(e);
-     *          }
-     *      }};
-     * 
-     * @return the object that was previously serialized in the passed base64 string.
-     */
-    public static Object getStrAsObj(String persisted, ICallback<Object, ObjectInputStream> readFromFileMethod) 
-        throws IOException, ClassNotFoundException {
-        
-        InputStream input = new ByteArrayInputStream(decodeBase64(persisted));
-        Object o = readFromInputStreamAndCloseIt(readFromFileMethod, input);
-        return o;
-    }
+
 
     /**
      * This method loads the contents of an object that was serialized.
@@ -1194,18 +1165,22 @@ public class REF {
      * Yes, this will delete everything under a directory. Use with care!
      */
     public static void deleteDirectoryTree(File directory) throws IOException {
+        if(!directory.exists()){
+            return;
+        }
         File[] files = directory.listFiles();
-
-        for (int i = 0; i < files.length; ++i) {
-            File f = files[i];
-
-            if (f.isDirectory()){
-                deleteDirectoryTree(f);
-            }else{
-                deleteFile(f);
+        if(files != null){
+    
+            for (int i = 0; i < files.length; ++i) {
+                File f = files[i];
+    
+                if (f.isDirectory()){
+                    deleteDirectoryTree(f);
+                }else{
+                    deleteFile(f);
+                }
             }
         }
-
         if (!directory.delete()) {
             throw new IOException("Delete operation failed when deleting: "+directory);
         }

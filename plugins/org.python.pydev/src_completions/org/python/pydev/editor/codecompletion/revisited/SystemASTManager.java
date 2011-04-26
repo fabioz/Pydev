@@ -15,7 +15,6 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 
-@SuppressWarnings("serial")
 public class SystemASTManager extends AbstractASTManager{
     
     public SystemASTManager(IInterpreterManager manager, IPythonNature nature, IInterpreterInfo info) {
@@ -36,6 +35,10 @@ public class SystemASTManager extends AbstractASTManager{
     }
 
     public void changePythonPath(String pythonpath, IProject project, IProgressMonitor monitor) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public void saveToFile(File astOutputFile) {
         throw new RuntimeException("Not implemented");
     }
 

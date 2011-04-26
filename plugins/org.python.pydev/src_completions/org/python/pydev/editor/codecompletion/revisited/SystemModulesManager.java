@@ -12,6 +12,7 @@
 package org.python.pydev.editor.codecompletion.revisited;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,14 +163,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
      * This is a cache with the name of a builtin pointing to itself (so, it works basically as a set), it's used
      * so that when we find a builtin that does not have a __file__ token we do not try to recreate it again later.
      */
-    private LRUCache<String, String> builtinsNotConsidered; 
-    
-    private LRUCache<String, String> getBuiltinsNotConsidered(){
-        if(builtinsNotConsidered == null){
-            builtinsNotConsidered = new LRUCache<String, String>(500);
-        }
-        return builtinsNotConsidered;
-    }
+    private final LRUCache<String, String> builtinsNotConsidered = new LRUCache<String, String>(500); 
     
     /**
      * @return true if there is a token that has rep as its representation.
@@ -317,8 +311,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
             }
         }
         if(foundStartingWithBuiltin){
-            LRUCache<String,String> notConsidered = getBuiltinsNotConsidered();
-            if(notConsidered.getObj(name) != null){
+            if(builtinsNotConsidered.getObj(name) != null){
                 return null;
             }
             
@@ -334,7 +327,7 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
                 doAddSingleModule(new ModulesKey(name, null), n);
                 return n;
             }else{
-                notConsidered.add(name, name);
+                builtinsNotConsidered.add(name, name);
                 return null;
             }
         }
@@ -368,6 +361,19 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
         }
         return null;
     }
+
+
+    /**
+     * @param workspaceMetadataFile
+     * @return
+     * @throws IOException 
+     */
+    public static ISystemModulesManager createFromFile(File workspaceMetadataFile) throws IOException {
+        SystemModulesManager systemModulesManager = new SystemModulesManager();
+        loadFromFile(systemModulesManager, workspaceMetadataFile);
+        return systemModulesManager;
+    }
+
 
 
 }
