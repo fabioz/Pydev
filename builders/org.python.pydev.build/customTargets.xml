@@ -352,7 +352,7 @@
     </target>
 	
     
-    <target name="signJars" if="is.local_build">
+    <target name="signJars" if="is.sign_jars">
         <echo message="Signing plugins and features at: ${p2.repo.dir}" />
         <signjar 
             alias="${KEYSTORE_ALIAS}" keystore="${KEYSTORE}"

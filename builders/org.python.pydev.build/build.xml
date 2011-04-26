@@ -41,20 +41,34 @@
 	    </sequential>
 	</macrodef>
 	
-	
-	
-
 	<property environment="env" />
 	<property file="build_local.properties" />
 	<!-- Set is.windows property IF the OS is from the Windows family -->
 	<condition property="is.windows" value="true">
 		<os family="windows" />
 	</condition>
-	<!-- Set is.windows property IF the OS is from the Windows family -->
+	<!-- Set is.local_build property IF the local_build property is any true value -->
 	<condition property="is.local_build" value="true">
 		<istrue value="${local_build}"/>
 	</condition>
-	
+	<!-- sign_jars can be optionally set, but otherwise defaults to local_build
+	     Set is.sign_jars property IF the sign_jars property is any true value
+	     OR (the sign_jars property is unset AND the local_build property is any true value) -->
+	<condition property="is.sign_jars" value="true">
+		<and>
+			<isset property="sign_jars"/>
+			<istrue value="${sign_jars}"/>
+		</and>
+	</condition>
+	<condition property="is.sign_jars" value="true">
+		<and>
+			<not>
+				<isset property="sign_jars"/>
+			</not>
+			<istrue value="${local_build}"/>
+		</and>
+	</condition>
+
     <taskdef resource="net/sf/antcontrib/antcontrib.properties">
         <classpath>
             <pathelement location="ant-contrib/ant-contrib.jar" />
