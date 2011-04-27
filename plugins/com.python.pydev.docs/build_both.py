@@ -130,6 +130,7 @@ if __name__ == '__main__':
     shutil.copytree('nightly', os.path.join('final', 'nightly'))
     
     shutil.copyfile('stylesheet.css', os.path.join('final', 'stylesheet.css'))
+    shutil.copyfile('pydev_certificate.cer', os.path.join('final', 'pydev_certificate.cer'))
     shutil.copyfile('video_pydev_20.html', os.path.join('final', 'video_pydev_20.html'))
     shutil.copyfile('video_swfobject.js', os.path.join('final', 'video_swfobject.js'))
     
