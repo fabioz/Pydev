@@ -63,12 +63,17 @@
   		<builder_participant class="com.python.pydev.debug.console.EvaluationConsoleInputListener"/>
 </extension>
 
+
 <extension point="org.python.pydev.pydev_debug_preferences_page">
   		<debug_preferences_page_participant class="com.python.pydev.debug.ui.DebugPreferencesPageExt"/>
 </extension>
 
 <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="com.python.pydev.debug.DebugPluginPrefsInitializer"/>
+</extension>
+
+<extension point="org.python.pydev.debug.pydev_configure_exception">
+      <configure_exception_participant class="org.python.pydev.debug.ui.actions.PyConfigureException"/>
 </extension>
 
 </plugin>

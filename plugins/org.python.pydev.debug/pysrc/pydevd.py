@@ -6,6 +6,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_EXEC_EXPRESSION, \
                          CMD_GET_COMPLETIONS, \
                          CMD_GET_FRAME, \
+                         CMD_SET_PY_EXCEPTION, \
                          CMD_GET_VARIABLE, \
                          CMD_LIST_THREADS, \
                          CMD_REMOVE_BREAK, \
@@ -42,6 +43,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          StartServer
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
+import importsTipper
 import pydevd_vars
 import traceback 
 import pydevd_vm_type 
@@ -184,6 +186,36 @@ def set_pm_excepthook(handle_exceptions=None):
     _handle_exceptions = handle_exceptions
     sys.excepthook = excepthook
     
+#=======================================================================================================================
+# create_exceptions
+#=======================================================================================================================
+def create_exceptions(exceptionStr):
+    '''
+    Converts the exceptionStr to tuples of exceptionType
+    Receive a parameter as a "('exception1', 'exception2',)"
+    E.g.:
+        create_exceptions("exception1|exception2")
+
+    In case of NameError, Loading necessary modules dynamically
+    '''
+    handle_exceptions = []
+    exceptionList = exceptionStr.split(";")
+    for exceptionType in exceptionList:
+        try:
+            handle_exceptions.append(eval(exceptionType))
+        except NameError:
+            try:
+                f, mod, parent, foundAs = importsTipper.Find(exceptionType)
+                handle_exceptions.append(mod)
+            except ImportError:
+                sys.stderr.write("Unable to Import : %s"%(exceptionType))
+        except:
+            continue
+
+    if handle_exceptions:
+        sys.stderr.write("Exceptions to hook : %s"%(str(handle_exceptions)))
+        set_pm_excepthook(tuple(handle_exceptions))
+
 
 try:
     import thread
@@ -643,7 +675,11 @@ class PyDB:
                     int_cmd = InternalEvaluateExpression(seq, thread_id, frame_id, expression,
                         cmd_id == CMD_EXEC_EXPRESSION)
                     self.postInternalCommand(int_cmd, thread_id)
-                        
+
+                elif cmd_id == CMD_SET_PY_EXCEPTION:
+                    # Command which receives set of exceptions on which user wants to break the debugger
+                    # text is: ['TypeError','ImportError','zipimport.ZipImportError',]
+                    create_exceptions(text)
                         
                 else:
                     #I have no idea what this is all about

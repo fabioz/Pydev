@@ -49,6 +49,7 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
 import org.python.pydev.debug.model.remote.RunCommand;
+import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
@@ -570,14 +571,19 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      * Called after debugger has been connected.
      *
      * Here we send all the initialization commands
+     * and exceptions on which pydev debugger needs to break
      */
-    public void initialize() {
+	public void initialize() {
         // we post version command just for fun
         // it establishes the connection
         this.postCommand(new VersionCommand(this));
 
         // now, register all the breakpoints in all projects
         addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
+
+        // Sending python exceptions before sending run command 
+        SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(this, AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION);
+        this.postCommand(sendCmd);
 
         // Send the run command, and we are off
         RunCommand run = new RunCommand(this);
