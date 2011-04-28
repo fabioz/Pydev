@@ -20,6 +20,7 @@ import com.python.pydev.analysis.additionalinfo.builders.AdditionalInfoModulesOb
 import com.python.pydev.codecompletion.ctxinsensitive.CtxParticipant;
 
 public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
+    
     public static void main(String[] args) {
 
         try {

@@ -27,6 +27,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -38,6 +39,7 @@ import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.BundleInfoStub;
+import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.python.pydev.utils.PrintProgressMonitor;
 
@@ -110,6 +112,7 @@ public class CodeCompletionTestsBase extends TestCase {
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         ProjectModulesManager.IN_TESTS = true;
         REF.IN_TESTS = true;
+        PydevPlugin.setTestPlatformStateLocation();
     }
     
     /*
@@ -291,7 +294,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IInterpreterManager iMan = getInterpreterManager();
         InterpreterInfo info;
         try{
-            info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
+            info = (InterpreterInfo) iMan.getDefaultInterpreterInfo();
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }
@@ -312,7 +315,15 @@ public class CodeCompletionTestsBase extends TestCase {
      * Sets the interpreter manager we should use
      */
     protected void setInterpreterManager() {
-        PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManagerStub(this.getPreferences()));
+        PythonInterpreterManager interpreterManager = new PythonInterpreterManager(this.getPreferences());
+        
+        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE, new NullProgressMonitor());
+        if(!InterpreterInfo.isJythonExecutable(info.getExecutableOrJar()) && !InterpreterInfo.isIronpythonExecutable(info.getExecutableOrJar())){
+            TestDependent.PYTHON_EXE = info.executableOrJar;
+        }
+        
+        interpreterManager.setInfos(new IInterpreterInfo[]{info}, null, null);
+        PydevPlugin.setPythonInterpreterManager(interpreterManager);
     }
     
     
@@ -329,7 +340,7 @@ public class CodeCompletionTestsBase extends TestCase {
         IInterpreterManager iMan2 = getInterpreterManager();
         InterpreterInfo info2;
         try{
-            info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo(getProgressMonitor());
+            info2 = (InterpreterInfo) iMan2.getDefaultInterpreterInfo();
         }catch(MisconfigurationException e){
             throw new RuntimeException(e);
         }
@@ -395,7 +406,7 @@ public class CodeCompletionTestsBase extends TestCase {
     protected void checkSize() {
         try{
             IInterpreterManager iMan = getInterpreterManager();
-            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
+            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo();
             assertTrue(info.getModulesManager().getSize(true) > 0);
             
             int size = ((ASTManager)nature.getAstManager()).getSize();

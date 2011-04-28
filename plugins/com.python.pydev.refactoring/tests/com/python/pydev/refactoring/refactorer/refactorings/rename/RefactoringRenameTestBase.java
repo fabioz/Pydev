@@ -192,7 +192,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     protected void checkSize() {
         try{
             IInterpreterManager iMan = getInterpreterManager();
-            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo(getProgressMonitor());
+            InterpreterInfo info = (InterpreterInfo) iMan.getDefaultInterpreterInfo();
             assertTrue(info.getModulesManager().getSize(true) > 0);
             
             int size = ((ASTManager)natureRefactoring.getAstManager()).getSize();

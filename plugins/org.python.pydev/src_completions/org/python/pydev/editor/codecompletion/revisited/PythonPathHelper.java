@@ -24,6 +24,7 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.docutils.StringUtils;
@@ -477,6 +478,9 @@ public class PythonPathHelper implements IPythonPathHelper {
      * python modules.
      */
     public ModulesFoundStructure getModulesFoundStructure(IProgressMonitor monitor) {
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
         List<String> pythonpathList = getPythonpath();
         
         ModulesFoundStructure ret = new ModulesFoundStructure();

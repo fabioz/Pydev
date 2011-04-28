@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -88,7 +89,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
         
         try{
             IInterpreterManager manager = PydevPlugin.getPythonInterpreterManager(true);
-            InterpreterInfo info = (InterpreterInfo) manager.getInterpreterInfo(manager.getDefaultInterpreter(), new NullProgressMonitor());
+            InterpreterInfo info = (InterpreterInfo) manager.getDefaultInterpreterInfo();
             info.setEnvVariables(new String[]{"MY_CUSTOM_VAR_FOR_TEST=FOO", "MY_CUSTOM_VAR_FOR_TEST2=FOO2"});
             
             
@@ -102,15 +103,15 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
             
             
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, IPythonNature.DEFAULT_INTERPRETER);
-            assertEquals(manager.getDefaultInterpreter(), nature.getProjectInterpreter().getExecutableOrJar());
+            assertEquals(manager.getDefaultInterpreterInfo(), nature.getProjectInterpreter().getExecutableOrJar());
             runnerConfig = createConfig();
             argv = runnerConfig.getCommandLine(false); 
-            assertEquals(manager.getDefaultInterpreter(), argv[0]);
+            assertEquals(manager.getDefaultInterpreterInfo().getExecutableOrJar(), argv[0]);
             
             IInterpreterManager interpreterManager = nature.getRelatedInterpreterManager();
             
             InterpreterInfo info2 = new InterpreterInfo(IPythonNature.PYTHON_VERSION_2_6, "c:\\interpreter\\py25.exe", new ArrayList<String>());
-            interpreterManager.addInterpreterInfo(info2);
+            interpreterManager.setInfos(new IInterpreterInfo[]{info, info2}, null, null);
             
             nature.setVersion(IPythonNature.PYTHON_VERSION_LATEST, "c:\\interpreter\\py25.exe");
             assertEquals("c:\\interpreter\\py25.exe", nature.getProjectInterpreter().getExecutableOrJar());

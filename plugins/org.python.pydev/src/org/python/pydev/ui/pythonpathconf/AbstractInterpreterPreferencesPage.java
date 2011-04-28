@@ -12,8 +12,6 @@
 package org.python.pydev.ui.pythonpathconf;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -35,7 +33,6 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
-import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
 
@@ -155,14 +152,24 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         //info is going to be used when restoring them.
         super.performOk();
         
-        boolean editorChanged = pathEditor.checkChangedAndMarkUnchanged();
-		if(editorChanged || inApply){
-            if(restoreModules(editorChanged)){
-	            
-	            //When we call performOk, the editor is going to store its values, but after actually restoring the modules, we
-	            //need to serialize the SystemModulesManager to be used when reloading the PydevPlugin
-	            this.getInterpreterManager().saveInterpretersInfoModulesManager();
-            }
+        //we need to update the tree so that the environment variables stay correct. 
+        pathEditor.updateTree();
+        
+        IInterpreterManager interpreterManager = getInterpreterManager();
+        String newStringToPersist = interpreterManager.getStringToPersist(pathEditor.getExesList());
+        String oldStringToPersist = interpreterManager.getStringToPersist(interpreterManager.getInterpreterInfos());
+        boolean changed;
+        if(!newStringToPersist.equals(oldStringToPersist)){
+            changed = true;
+        }else{
+            changed = false;
+        }
+
+        
+		if(changed || inApply){
+		    //If the user just presses 'apply' and nothing changed, he'll be asked to restore information on one of
+		    //the current interpreters.
+            restoreInterpreterInfos(changed);
         }
         
         
@@ -187,34 +194,6 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
     
     
     
-    
-    /**
-     * @param defaultSelectedInterpreter this is the path to the default selected file (interpreter)
-     * @param monitor a monitor to display the progress to the user.
-     * @param interpreterNamesToRestore 
-     */
-    protected void doRestore(IProgressMonitor monitor, Set<String> interpreterNamesToRestore) {
-        IInterpreterManager iMan = getInterpreterManager();
-        iMan.restorePythopathForInterpreters(monitor, interpreterNamesToRestore);
-        
-        //We also need to restart our code-completion shell after doing that, as we may have new environment variables!
-        //And in jython, changing the classpath also needs to restore it.
-        for(IInterpreterInfo interpreter:iMan.getInterpreterInfos()){
-            AbstractShell.stopServerShell(interpreter, AbstractShell.COMPLETION_SHELL);
-        }
-    }
-
-    
-    /**
-     * all the information should be cleared but the related to the interpreters passed
-     * @param allButTheseInterpreters
-     * @param monitor
-     */
-    protected void setInfos(final List<IInterpreterInfo> allButTheseInterpreters, IProgressMonitor monitor){
-        IInterpreterManager iMan = getInterpreterManager();
-        iMan.setInfos(allButTheseInterpreters);
-    }
-
     /**
      * Restores the modules. Is called when the user changed something in the editor and applies the change.
      * 
@@ -226,7 +205,7 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
      * @param editorChanged whether the editor was changed (if it wasn't, we'll ask the user what to restore). 
      * @return true if the info was restored and false otherwise.
      */
-    protected boolean restoreModules(boolean editorChanged) {
+    protected void restoreInterpreterInfos(boolean editorChanged) {
     	final Set<String> interpreterNamesToRestore = pathEditor.getInterpreterExeOrJarToRestoreAndClear();
         final IInterpreterInfo[] exesList = pathEditor.getExesList();
         
@@ -237,11 +216,11 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         	
             int open = listDialog.open();
             if(open != ListDialog.OK){
-                return false;
+                return;
             }
             Object[] result = (Object[]) listDialog.getResult();
             if(result == null || result.length == 0){
-                return false;
+                return;
                 
             }
             for(Object o:result){
@@ -261,11 +240,8 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
                     monitor.beginTask("Restoring PYTHONPATH", IProgressMonitor.UNKNOWN);
                     try {
 						//clear all but the ones that appear
-						setInfos(Arrays.asList(exesList), monitor);
-						//restore the default
-						doRestore(monitor, interpreterNamesToRestore);
+                        getInterpreterManager().setInfos(exesList, interpreterNamesToRestore, monitor);
 					} finally {
-						AbstractShell.restartAllShells();
 						monitor.done();
 					}
                 }};
@@ -275,7 +251,6 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         }catch (Exception e) {
             PydevPlugin.log(e);
         }            
-        return true;
     }
 
     

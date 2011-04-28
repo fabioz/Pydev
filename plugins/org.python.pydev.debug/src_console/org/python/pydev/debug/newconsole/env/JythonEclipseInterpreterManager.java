@@ -29,13 +29,18 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
         return IInterpreterManager.INTERPRETER_TYPE_JYTHON_ECLIPSE;
     }
 
-    public String getDefaultInterpreter() throws MisconfigurationException {
+    public IInterpreterInfo getDefaultInterpreterInfo() throws MisconfigurationException {
 
-        return "Jython Eclipse";
+        return getInterpreterInfos()[0];
     }
 
     public IInterpreterInfo[] getInterpreterInfos() {
-        return new IInterpreterInfo[] { new InterpreterInfo("2.1", "Jython Eclipse", new ArrayList<String>()) };
+        InterpreterInfo interpreterInfo = new InterpreterInfo("2.1", "Jython Eclipse", new ArrayList<String>());
+        return new IInterpreterInfo[] { interpreterInfo };
+    }
+    
+    public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor) {
+        //do nothing
     }
 
     public IInterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException {
@@ -96,7 +101,7 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
 
     public boolean isConfigured() {
 
-        return false;
+        return true;
     }
 
     public boolean hasInfoOnInterpreter(String interpreter) {

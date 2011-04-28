@@ -261,7 +261,7 @@ public class PythonRunnerConfig {
                 
                 //When it doesn't have the same type it means that we're trying to run as jython a python
                 //project (or vice-versa), so, we must get the interpreter from the interpreter manager!
-                return interpreterManager.getDefaultInterpreterInfo(null);
+                return interpreterManager.getDefaultInterpreterInfo();
             }
             
         }else{

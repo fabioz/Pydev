@@ -11,7 +11,6 @@
  */
 package org.python.pydev.core;
 
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
@@ -64,7 +63,7 @@ public interface IInterpreterManager {
     /**
      * @return the default interpreter for the given interpreter manager.
      */
-    public String getDefaultInterpreter() throws MisconfigurationException;
+    public IInterpreterInfo getDefaultInterpreterInfo() throws MisconfigurationException;
     
     /**
      * @return the interpreter infos kept internally in the interpreter manager.
@@ -80,12 +79,6 @@ public interface IInterpreterManager {
     public IInterpreterInfo getInterpreterInfo(String nameOrExecutableOrJar, IProgressMonitor monitor) throws MisconfigurationException;
 
     /**
-     * @param monitor monitor to report the progress.
-     * @return the default interpreter info.
-     */
-    public IInterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor)  throws MisconfigurationException;
-    
-    /**
      * This function should be used to create the interpreter info of some executable.
      * 
      * @param executable interpreter for which the info should be created.
@@ -96,18 +89,6 @@ public interface IInterpreterManager {
      * @throws CoreException 
      */
     public IInterpreterInfo createInterpreterInfo(String executable, IProgressMonitor monitor);
-    
-    
-    /**
-     * This function should be used to set an interpreter in the system. Note that it should not be
-     * persisted here.
-     * 
-     * @param executable interpreter to be added
-     * @param monitor
-     * @throws JDTNotAvailableException 
-     * @throws CoreException 
-     */
-    public void addInterpreterInfo(IInterpreterInfo info);
     
     /**
      * @param persisted string previously persisted
@@ -122,27 +103,12 @@ public interface IInterpreterManager {
     public String getStringToPersist(IInterpreterInfo[] executables);
 
     /**
-     * @param nature is needed because we want to know which kind of project we are dealing with
-     * @return whether we have information on the default interpreter.
-     */
-    public boolean hasInfoOnDefaultInterpreter(IPythonNature nature);
-
-    /**
      * All the information cached should be cleared but the information related to the passed interpreters
+     * @param interpreterNamesToRestore 
      * @param allButTheseInterpreters name of the interpreters that should not have the information cleared
      */
-    public void setInfos(List<IInterpreterInfo> allButTheseInterpreters);
+    public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor);
 
-
-    /**
-     * restores the pythonpath for all the interpreters available (gets its information info 
-     * and gets it to do the restore).
-     * 
-     * @param monitor monitor used for the restore
-     * @param interpreterNamesToRestore if null, all interpreters are restored, otherwise, only the interpreters
-     * 		whose name is in this set are restored.
-     */
-    public void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpreterNamesToRestore);
 
     /**
      * @return the name that is related to this manager (e.g.: python, jython...)
@@ -153,12 +119,6 @@ public interface IInterpreterManager {
      * @return the Persisted string with the information on this interpreter manager.
      */
     public String getPersistedString();
-
-    /**
-     * Set the string to be persisted with the information on this interpreter manager
-     * @param s
-     */
-    public void setPersistedString(String s);
 
     /**
      * @return whether this manager is correctly configured (interpreter is correctly set)
@@ -172,13 +132,6 @@ public interface IInterpreterManager {
      */
     public int getInterpreterType();
 
-    /**
-     * @param interpreter the interpreter we care about. If null is passed, it should go for info
-     * on the default interpreter
-     * @return whether the interpreter has information on this manager.
-     */
-    public boolean hasInfoOnInterpreter(String interpreter);
-
     
     //caches for the builtin tokens and module
     public void clearBuiltinCompletions(String projectInterpreterName);
@@ -190,10 +143,5 @@ public interface IInterpreterManager {
     public void clearBuiltinMod(String projectInterpreterName);
 
     public void clearCaches();
-
-    /**
-     * Saves the system modules managers info so that it can be restored later (it's restored when the plugin is started).
-     */
-    public void saveInterpretersInfoModulesManager();
     
 }

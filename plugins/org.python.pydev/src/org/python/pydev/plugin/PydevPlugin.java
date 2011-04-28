@@ -8,6 +8,7 @@ package org.python.pydev.plugin;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.MissingResourceException;
@@ -35,6 +36,7 @@ import org.osgi.framework.BundleContext;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
@@ -524,14 +526,14 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             //unable to discover it
             try {
                 // the default one is python (actually, this should never happen, but who knows)
-                pythonInterpreterManager.getDefaultInterpreter();
+                pythonInterpreterManager.getDefaultInterpreterInfo();
                 modName = getModNameFromFile(file);
                 return new Tuple<SystemPythonNature, String>(pySystemPythonNature, modName);
             } catch (Exception e) {
                 //the python interpreter manager is not valid or not configured
                 try {
                     // the default one is jython
-                    jythonInterpreterManager.getDefaultInterpreter();
+                    jythonInterpreterManager.getDefaultInterpreterInfo();
                     modName = getModNameFromFile(file);
                     return new Tuple<SystemPythonNature, String>(jySystemPythonNature, modName);
                 } catch (Exception e1) {
@@ -598,17 +600,35 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
 
 
+    private static File location;
+
+    public static File setTestPlatformStateLocation(){
+        if(PydevPlugin.location != null){
+            return PydevPlugin.location;
+        }
+        File baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
+        try {
+            REF.deleteDirectoryTree(baseDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        PydevPlugin.location = baseDir;
+        return baseDir;
+    }
+    
+    
     /**
      * Loads from the workspace metadata a given object (given the filename)
      */
     public static File getWorkspaceMetadataFile(String fileName) {
-        Bundle bundle = Platform.getBundle("org.python.pydev");
-        IPath path = Platform.getStateLocation( bundle );       
-        path = path.addTrailingSeparator();
-        path = path.append(fileName);
-        
-        return path.toFile();
+        if(location == null){
+            Bundle bundle = Platform.getBundle("org.python.pydev");
+            IPath path = Platform.getStateLocation( bundle );
+            location = path.toFile();
+        }
+        return new File(location, fileName);
     }
+    
     /**
      * @return
      */

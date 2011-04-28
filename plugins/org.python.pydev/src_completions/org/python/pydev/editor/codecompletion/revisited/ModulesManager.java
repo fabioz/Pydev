@@ -27,6 +27,7 @@ import java.util.TreeMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IModule;
@@ -220,7 +221,7 @@ public abstract class ModulesManager implements IModulesManager {
      * @param workspaceMetadataFile
      * @throws IOException 
      */
-    protected static void loadFromFile(ModulesManager modulesManager, File workspaceMetadataFile) throws IOException {
+    public static void loadFromFile(ModulesManager modulesManager, File workspaceMetadataFile) throws IOException {
         if(workspaceMetadataFile.exists() && !workspaceMetadataFile.isDirectory()){
             throw new IOException("Expecting: "+workspaceMetadataFile+" to be a directory.");
         }
@@ -308,6 +309,10 @@ public abstract class ModulesManager implements IModulesManager {
      * @param defaultSelectedInterpreter: may be null
      */
     public void changePythonPath(String pythonpath, final IProject project, IProgressMonitor monitor) {
+        if(monitor == null){
+            monitor = new NullProgressMonitor();
+        }
+
         pythonPathHelper.setPythonPath(pythonpath);
         ModulesFoundStructure modulesFound = pythonPathHelper.getModulesFoundStructure(monitor);
 

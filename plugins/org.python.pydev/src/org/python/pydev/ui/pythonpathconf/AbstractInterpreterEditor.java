@@ -120,8 +120,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     private Image imageSystemLib;
     private Image environmentImage;
 
-    private boolean changed;
-
     private Composite boxSystem;
 
     private Button addBtSystemFolder;
@@ -1180,28 +1178,15 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
 
     @Override
     protected void doStore() {
-        //The doStore is called before hasChanged, so, at this point, we set the changed variable and update the persisted
-        //string (if needed)
-        
-        //we need to update the tree so that the environment variables stay correct. 
-        this.updateTree();
-        
-        String newStringToPersist = createListFromInterpreterInfo(getExesList());
-        String oldStringToPersist = createListFromInterpreterInfo(interpreterManager.getInterpreterInfos());
-        if(!newStringToPersist.equals(oldStringToPersist)){
-            interpreterManager.setPersistedString(newStringToPersist);
-            changed = true;
-        }else{
-            changed = false;
-        }
-
+        //Do nothing (all handled in the preferences page regarding the store (no longer in this editor)
     }
     
     @Override
     protected void doLoad() {
         if (treeWithInterpreters != null) {
+            //Work with a copy of the interpreters actually configured.
             String s = interpreterManager.getPersistedString();
-            IInterpreterInfo[] array = parseStringToInfo(s);
+            IInterpreterInfo[] array = interpreterManager.getInterpretersFromPersistedString(s);
             clearInfos();
             for (int i = 0; i < array.length; i++) {
                 IInterpreterInfo interpreterInfo = array[i];
@@ -1217,21 +1202,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
     }
     
     
-    /** Overridden
-     */
-    protected String createListFromInterpreterInfo(IInterpreterInfo[] executables) {
-        return interpreterManager.getStringToPersist(executables);
-    }
-    
-    
-    /** Overridden
-     */
-    protected IInterpreterInfo[] parseStringToInfo(String stringList) {
-        return interpreterManager.getInterpretersFromPersistedString(stringList);
-    }
-
-    
-    
     /**
      * @see org.python.copiedfromeclipsesrc.PythonListEditor#doLoadDefault()
      */
@@ -1239,13 +1209,6 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor {
         //do nothing
     }
 
-    
-    public boolean checkChangedAndMarkUnchanged() {
-        //doStore was called before and should've updated the changed state properly.
-        boolean ret = changed;
-        changed = false;
-        return ret;
-    }
     
 
     public Tuple<String, String> getAutoNewInputFromPaths(java.util.List<String> pathsToSearch, String expectedFilename,

@@ -91,7 +91,7 @@ public class InterpreterInfo implements IInterpreterInfo{
      * The modules manager is no longer persisted. It is restored from a separate file, because we do
      * not want to keep it in the 'configuration', as a giant Base64 string.
      */
-    private ISystemModulesManager modulesManager;
+    private final ISystemModulesManager modulesManager;
     
     /**
      * This callback is only used in tests, to configure the paths that should be chosen after the interpreter is selected.
@@ -120,19 +120,6 @@ public class InterpreterInfo implements IInterpreterInfo{
      */
     private String name;
 
-    /**
-     * Sets the modules manager that should be used in this interpreter info.
-     * 
-     * @param modulesManager the modules manager that is contained within this info.
-     * 
-     * @note: the side-effect of this method is that it sets in the modules manager that this is the
-     * info that it should use.
-     */
-    public void setModulesManager(ISystemModulesManager modulesManager) {
-        modulesManager.setInfo(this);
-        this.modulesManager = modulesManager;
-    }
-
     public ISystemModulesManager getModulesManager() {
         return modulesManager;
     }
@@ -149,8 +136,10 @@ public class InterpreterInfo implements IInterpreterInfo{
     public InterpreterInfo(String version, String exe, Collection<String> libs0){
         this.executableOrJar = exe;
         this.version = version;
+        ISystemModulesManager modulesManager = new SystemModulesManager();
 
-        setModulesManager(new SystemModulesManager());
+        modulesManager.setInfo(this);
+        this.modulesManager = modulesManager;
         libs.addAll(libs0);
     }
     

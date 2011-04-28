@@ -48,8 +48,10 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
+import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
+import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.PythonNatureListenersManager;
@@ -139,7 +141,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
             //if it's the default, let's translate it to the outside world 
             try {
-                return this.getDefaultInterpreter();
+                return this.getDefaultInterpreterInfo().getExecutableOrJar();
             } catch (NotConfiguredInterpreterException e) {
                 Log.log(e);
                 return projectInterpreterName;
@@ -191,27 +193,51 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     
     /**
      * @throws NotConfiguredInterpreterException
-     * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreter()
+     * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreterInfo()
      */
-    public String getDefaultInterpreter() throws NotConfiguredInterpreterException {
+    public IInterpreterInfo getDefaultInterpreterInfo() throws NotConfiguredInterpreterException {
         IInterpreterInfo[] interpreters = getInterpreterInfos();
         if(interpreters.length > 0){
-            String interpreter = interpreters[0].getExecutableOrJar();
+            IInterpreterInfo defaultInfo = interpreters[0];
+            String interpreter = defaultInfo.getExecutableOrJar();
             if(interpreter == null){
                 throw new NotConfiguredInterpreterException("The configured interpreter is null, some error happened getting it.\n" +getNotConfiguredInterpreterMsg());
             }
-            return interpreter;
+            return defaultInfo;
         }else{
             throw new NotConfiguredInterpreterException(FullRepIterable.getLastPart(this.getClass().getName())+":"+getNotConfiguredInterpreterMsg());
         }
     }
 
-    public void setInfos(List<IInterpreterInfo> infos) {
+    /* (non-Javadoc)
+     * @see org.python.pydev.core.IInterpreterManager#setInfos(org.python.pydev.core.IInterpreterInfo[], java.util.Set, org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor) {
+        setPersistedString(getStringToPersist(infos));
+
+        //After setting the preference, get the actual infos (will be recreated).
+        IInterpreterInfo[] interpreterInfos = getInterpreterInfos();
         synchronized(exeToInfo){
             this.exeToInfo.clear();
-            for(IInterpreterInfo info:infos){
+            for(IInterpreterInfo info:interpreterInfos){
                 exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
             }
+        }
+        
+        
+        try {
+            this.restorePythopathForInterpreters(monitor, interpreterNamesToRestore);
+            //When we call performOk, the editor is going to store its values, but after actually restoring the modules, we
+            //need to serialize the SystemModulesManager to be used when reloading the PydevPlugin
+            this.saveInterpretersInfoModulesManager();
+
+            //We also need to restart our code-completion shell after doing that, as we may have new environment variables!
+            //And in jython, changing the classpath also needs to restore it.
+            for(IInterpreterInfo interpreter:interpreterInfos){
+                AbstractShell.stopServerShell(interpreter, AbstractShell.COMPLETION_SHELL);
+            }
+        } finally {
+            AbstractShell.restartAllShells();
         }
     }
     
@@ -228,34 +254,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         
     }
     
-    
-    /**
-     * @see org.python.pydev.core.IInterpreterManager#hasInfoOnInterpreter(java.lang.String)
-     */
-    public boolean hasInfoOnInterpreter(String interpreter){
-        if(interpreter == null){
-            InterpreterInfo info;
-			try {
-				info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
-			} catch (NotConfiguredInterpreterException e) {
-				return false;
-			}
-            return info != null;
-        }
-        try {
-			return getInterpreterInfo(interpreter, null) != null;
-		} catch (MisconfigurationException e) {
-			return false;
-		}
-    }
-    
-    /**
-     * @see org.python.pydev.core.IInterpreterManager#getDefaultInterpreterInfo(org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public InterpreterInfo getDefaultInterpreterInfo(IProgressMonitor monitor)  throws MisconfigurationException{
-        String interpreter = getDefaultInterpreter();
-        return getInterpreterInfo(interpreter, monitor);
-    }
     
     /**
      * Given an executable, should create the interpreter info that corresponds to it
@@ -353,15 +351,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         		StringUtils.format("Interpreter: %s not found", nameOrExecutableOrJar));
     }
 
-    /**
-     * Called when an interpreter should be added.
-     * 
-     * @see org.python.pydev.core.IInterpreterManager#addInterpreter(java.lang.String)
-     */
-    public void addInterpreterInfo(IInterpreterInfo info2) {
-        InterpreterInfo info = (InterpreterInfo) info2;
-        exeToInfo.put(info.executableOrJar, info);
-    }
 
     private Object lock = new Object();
     //little cache...
@@ -407,10 +396,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     
                     //and at last, restore the system info
                     for (final InterpreterInfo info: list) {
+                        final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath());
                         try {
-                            File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath());
-                            ISystemModulesManager systemModulesManager = SystemModulesManager.createFromFile(workspaceMetadataFile);
-                            info.setModulesManager(systemModulesManager);
+                            ISystemModulesManager modulesManager = info.getModulesManager();
+                            SystemModulesManager.loadFromFile((ModulesManager) modulesManager, workspaceMetadataFile);
                         } catch (Exception e) {
                             PydevPlugin.logInfo(new RuntimeException("Restoring info for: "+info.getExecutableOrJar(), e));
                             
@@ -431,7 +420,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                                                 //ok, maybe its file-format changed... let's re-create it then.
                                                 info.restorePythonpath(monitor);
                                                 //after restoring it, let's save it.
-                                                info.getModulesManager().saveToFile(PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath()));
+                                                info.getModulesManager().saveToFile(workspaceMetadataFile);
                                                 monitor.done();
                                             }}
                                         );
@@ -441,7 +430,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                                 }
                                 
                             });
-                            System.out.println("Finished restoring information for: "+info.executableOrJar+" at: "+info.getExeAsFileSystemValidPath());
+                            System.out.println("Finished restoring information for: "+info.executableOrJar+" at: "+workspaceMetadataFile);
                         }
                     }
                     
@@ -482,7 +471,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         return persistedString;
     }
     
-    public void setPersistedString(String s) {
+    private void setPersistedString(String s) {
         persistedString = s;
         prefs.setValue(getPreferenceName(), s);
     }
@@ -491,7 +480,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * This method persists all the modules managers that are within this interpreter manager
      * (so, all the SystemModulesManagers will be saved -- and can be later restored).
      */
-    public void saveInterpretersInfoModulesManager() {
+    private void saveInterpretersInfoModulesManager() {
         for(InterpreterInfo info : this.exeToInfo.values()){
             ISystemModulesManager modulesManager = info.getModulesManager();
             Object pythonPathHelper = modulesManager.getPythonPathHelper();
@@ -520,27 +509,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
     
     /**
-     * @see org.python.pydev.core.IInterpreterManager#hasInfoOnDefaultInterpreter(IPythonNature)
+     * @param interpreterNamesToRestore if null, all interpreters are restored, otherwise, only the interpreters
+     *      whose name is in this set are restored.
      */
-    public boolean hasInfoOnDefaultInterpreter(IPythonNature nature) {
-        if(!canGetInfoOnNature(nature)){
-            throw new RuntimeException("Cannot get info on the requested nature");
-        }
-        
-        try {
-            InterpreterInfo info = (InterpreterInfo) exeToInfo.get(getDefaultInterpreter());
-            return info != null;
-            
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * @see org.python.pydev.core.IInterpreterManager#restorePythopathForAllInterpreters(org.eclipse.core.runtime.IProgressMonitor)
-     */
-    @SuppressWarnings("unchecked")
-    public void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpretersNamesToRestore) {
+    private void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpretersNamesToRestore) {
         synchronized(lock){
             for(String interpreter:exeToInfo.keySet()){
             	if(interpretersNamesToRestore != null){
@@ -566,11 +538,25 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 				}
             }
             
+            IInterpreterInfo defaultInterpreterInfo;
+            try {
+                defaultInterpreterInfo = getDefaultInterpreterInfo();
+            } catch (NotConfiguredInterpreterException e1) {
+                defaultInterpreterInfo = null; //go on as usual... (the natures must know that they're not bound to an interpreter anymore).
+            }
+            
 
             FastStringBuffer buf = new FastStringBuffer();
             //Also notify that all the natures had the pythonpath changed (it's the system pythonpath, but still, 
             //clients need to know about it)
-            List<IPythonNature> pythonNatures = PythonNature.getAllPythonNatures();
+            List<IPythonNature> pythonNatures;
+            try {
+                pythonNatures = PythonNature.getAllPythonNatures();
+            } catch (IllegalStateException e1) {
+                //java.lang.IllegalStateException: Workspace is closed.
+                //      at org.eclipse.core.resources.ResourcesPlugin.getWorkspace(ResourcesPlugin.java:367)
+                return;
+            }
             for (IPythonNature nature : pythonNatures) {
                 try {
                     //If they have the same type of the interpreter manager, notify.
@@ -585,11 +571,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     	
                     	PythonNature n = (PythonNature) nature;
                     	String projectInterpreterName = n.getProjectInterpreterName();
+                    	IInterpreterInfo info;
                         if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
                             //if it's the default, let's translate it to the outside world 
-                            projectInterpreterName = this.getDefaultInterpreter();
+                            info = defaultInterpreterInfo;
+                        }else{
+                            info = exeToInfo.get(projectInterpreterName);
+                            
                         }
-                        InterpreterInfo info = exeToInfo.get(projectInterpreterName);
                         boolean makeCompleteRebuild = false;
                         if(info != null){
                         	Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
@@ -630,7 +619,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     public boolean isConfigured() {
         try {
-            String defaultInterpreter = getDefaultInterpreter();
+            String defaultInterpreter = getDefaultInterpreterInfo().getExecutableOrJar();
             if(defaultInterpreter == null){
                 return false;
             }

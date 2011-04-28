@@ -9,6 +9,8 @@ package org.python.pydev.editor.codecompletion;
 import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -18,6 +20,9 @@ import org.python.pydev.editor.codecompletion.revisited.IronpythonInterpreterMan
 import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.interpreters.IronpythonInterpreterManager;
+import org.python.pydev.ui.interpreters.JythonInterpreterManager;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
 
@@ -30,7 +35,15 @@ public class IronPythonCodeCompletionTestsBase extends CodeCompletionTestsBase{
     
     @Override
     protected void setInterpreterManager() {
-        PydevPlugin.setIronpythonInterpreterManager(new IronpythonInterpreterManagerStub(this.getPreferences()));
+        IronpythonInterpreterManager interpreterManager = new IronpythonInterpreterManager(this.getPreferences());
+        
+        InterpreterInfo info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.IRONPYTHON_EXE, new NullProgressMonitor());
+        if(!info.executableOrJar.equals(TestDependent.IRONPYTHON_EXE)){
+            TestDependent.IRONPYTHON_EXE = info.executableOrJar;
+        }
+        
+        interpreterManager.setInfos(new IInterpreterInfo[]{info}, null, null);
+        PydevPlugin.setIronpythonInterpreterManager(interpreterManager);
     }
     
     

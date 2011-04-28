@@ -364,7 +364,7 @@ public class InterpreterTab extends AbstractLaunchConfigurationTab {
     		return false;
     	}
         if (interpreter.equals(Constants.ATTR_INTERPRETER_DEFAULT))    {
-			if(interpreterManager.getDefaultInterpreter() != null){
+			if(interpreterManager.getDefaultInterpreterInfo() != null){
                 // The default interpreter is selected, and we have a default interpreter
                 return true;
             }
