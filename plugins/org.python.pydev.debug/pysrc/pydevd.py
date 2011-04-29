@@ -29,6 +29,8 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          InternalGetFrame, \
                          InternalGetVariable, \
                          InternalTerminateThread, \
+                         InternalRunThread, \
+                         InternalStepThread, \
                          NetCommand, \
                          NetCommandFactory, \
                          PyDBDaemonThread, \
@@ -39,7 +41,8 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          PydevdFindThreadById, \
                          PydevdLog, \
                          StartClient, \
-                         StartServer
+                         StartServer, \
+                         InternalSetNextStatementThread
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
 import pydevd_vars
@@ -444,6 +447,7 @@ class PyDB:
                     self.postInternalCommand(int_cmd, text)
                     
                 elif cmd_id == CMD_THREAD_SUSPEND:
+                    #Yes, thread suspend is still done at this point, not through an internal command!
                     t = PydevdFindThreadById(text)
                     if t: 
                         additionalInfo = None
@@ -463,26 +467,25 @@ class PyDB:
                 elif cmd_id == CMD_THREAD_RUN:
                     t = PydevdFindThreadById(text)
                     if t: 
-                        t.additionalInfo.pydev_step_cmd = None
-                        t.additionalInfo.pydev_step_stop = None
-                        t.additionalInfo.pydev_state = STATE_RUN
+                        thread_id = GetThreadId(t)
+                        int_cmd = InternalRunThread(thread_id)
+                        self.postInternalCommand(int_cmd, thread_id)
                         
                 elif cmd_id == CMD_STEP_INTO or cmd_id == CMD_STEP_OVER or cmd_id == CMD_STEP_RETURN:
                     #we received some command to make a single step
                     t = PydevdFindThreadById(text)
                     if t:
-                        t.additionalInfo.pydev_step_cmd = cmd_id
-                        t.additionalInfo.pydev_state = STATE_RUN
+                        thread_id = GetThreadId(t)
+                        int_cmd = InternalStepThread(thread_id, cmd_id)
+                        self.postInternalCommand(int_cmd, thread_id)
                         
                 elif cmd_id == CMD_RUN_TO_LINE or cmd_id == CMD_SET_NEXT_STATEMENT:
                     #we received some command to make a single step
                     thread_id, line, func_name = text.split('\t', 2)
                     t = PydevdFindThreadById(thread_id)
                     if t:
-                        t.additionalInfo.pydev_step_cmd = cmd_id
-                        t.additionalInfo.pydev_next_line = int(line)
-                        t.additionalInfo.pydev_func_name = func_name
-                        t.additionalInfo.pydev_state = STATE_RUN
+                        int_cmd = InternalSetNextStatementThread(thread_id, cmd_id, line, func_name)
+                        self.postInternalCommand(int_cmd, thread_id)
                         
                         
                 elif cmd_id == CMD_RELOAD_CODE:
@@ -692,7 +695,7 @@ class PyDB:
         info = thread.additionalInfo
         while info.pydev_state == STATE_SUSPEND and not self._finishDebuggingSession:            
             self.processInternalCommands()
-            time.sleep(0.2)
+            time.sleep(0.01)
             
         #process any stepping instructions 
         if info.pydev_step_cmd == CMD_STEP_INTO:

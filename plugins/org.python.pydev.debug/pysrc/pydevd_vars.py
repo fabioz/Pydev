@@ -314,16 +314,20 @@ def findFrame(thread_id, frame_id):
         errMsg = '''findFrame: frame not found.
 Looking for thread_id:%s, frame_id:%s
 Current     thread_id:%s, available frames:
-%s
+%s\n
 ''' % (thread_id, lookingFor, GetThreadId(threading.currentThread()), msgFrames)
 
-        raise FrameNotFoundError(errMsg)
+        sys.stderr.write(errMsg)
+        return None
 
     return frameFound
 
 def resolveCompoundVariable(thread_id, frame_id, scope, attrs):
     """ returns the value of the compound variable as a dictionary"""
     frame = findFrame(thread_id, frame_id)
+    if frame is None:
+        return {}
+    
     attrList = attrs.split('\t')
     if scope == "GLOBAL":
         var = frame.f_globals
@@ -346,6 +350,8 @@ def evaluateExpression(thread_id, frame_id, expression, doExec):
     @param doExec: determines if we should do an exec or an eval
     '''
     frame = findFrame(thread_id, frame_id)
+    if frame is None:
+        return
 
     expression = str(expression.replace('@LINE@', '\n'))
 
@@ -403,6 +409,8 @@ def changeAttrExpression(thread_id, frame_id, attr, expression):
     will probably need some change to the python internals)
     '''
     frame = findFrame(thread_id, frame_id)
+    if frame is None:
+        return
 
     try:
         expression = expression.replace('@LINE@', '\n')
