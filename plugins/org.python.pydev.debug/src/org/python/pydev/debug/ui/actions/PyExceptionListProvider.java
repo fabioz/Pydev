@@ -2,21 +2,23 @@ package org.python.pydev.debug.ui.actions;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.FileUtils;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 
 public class PyExceptionListProvider implements IStructuredContentProvider {
-
-	private PyEdit pyEdit;
 
 	private Object newInput;
 	private Object[] elementsForCurrentInput;
@@ -27,8 +29,8 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 	public static final String EXCEPRION = "exception";
 	public static final String WARNING = "warning";
 
-	public PyExceptionListProvider(PyEdit pyEdit) {
-		this.pyEdit = pyEdit;
+	public PyExceptionListProvider() {
+
 	}
 
 	public Object[] getElements(Object inputElement) {
@@ -65,8 +67,8 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 	}
 
 	/**
-	 * if the userConfiguredException is empty, then adds the custom exception from the 
-	 * custom_exceptions.prefs file
+	 * if the userConfiguredException is empty, then adds the custom exception
+	 * from the custom_exceptions.prefs file
 	 * 
 	 * @return
 	 */
@@ -79,6 +81,7 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 			}
 		}
 
+		Collections.sort(userConfiguredException);
 		return (ArrayList<String>) userConfiguredException;
 	}
 
@@ -86,9 +89,10 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 	 * 
 	 * @param userConfiguredException
 	 * 
-	 * Add the new custom exception in the userConfiguredException list.
-	 * if custom_exceptions.prefs file does not exist, create a new file and write the exception
-	 * else appends the new exception in the existing custom_exceptions.prefs
+	 *            Add the new custom exception in the userConfiguredException
+	 *            list. if custom_exceptions.prefs file does not exist, create a
+	 *            new file and write the exception else appends the new
+	 *            exception in the existing custom_exceptions.prefs
 	 */
 	public void addUserConfiguredException(String userConfiguredException) {
 		boolean isAppend = false;
@@ -98,7 +102,8 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 				.getFilePathFromWorkSpace(Constants.CUSTOM_EXCEPTION_FILE_NAME);
 		if (FileUtils.isFileExists(path.toString())) {
 			isAppend = true;
-			userConfiguredException = File.pathSeparator + userConfiguredException;
+			userConfiguredException = File.pathSeparator
+					+ userConfiguredException;
 		}
 		FileUtils.writeExceptionsToFile(Constants.CUSTOM_EXCEPTION_FILE_NAME,
 				userConfiguredException, isAppend);
@@ -106,20 +111,22 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 	}
 
 	/**
-	 * Fetch built-in python exceptions from the pythonTokens 
+	 * Fetch built-in python exceptions from the pythonTokens
 	 * 
 	 * @return
 	 */
 	private ArrayList<String> getPyExceptionList() {
-		ArrayList<String> list = new ArrayList<String>();
 		IPythonNature pythonNature;
-		try {
-			pythonNature = this.pyEdit.getPythonNature();
-		} catch (MisconfigurationException e1) {
-			elementsForCurrentInput = EMPTY;
+		ArrayList<String> list = new ArrayList<String>();
+		IInterpreterManager useManager = ChooseInterpreterManager
+				.chooseInterpreterManager();
+		List<IPythonNature> natures = PythonNature
+				.getPythonNaturesRelatedTo(useManager.getInterpreterType());
+		if (natures.size() > 0) {
+			pythonNature = natures.get(0);
+		} else {
 			return list;
 		}
-
 		IToken[] pythonTokens = pythonNature.getBuiltinMod().getGlobalTokens();
 		for (IToken token : pythonTokens) {
 			String[] pyTokenArr = token.toString().split("-");
@@ -132,7 +139,7 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
 				}
 			}
 		}
-
+		Collections.sort(list);
 		return list;
 	}
 }

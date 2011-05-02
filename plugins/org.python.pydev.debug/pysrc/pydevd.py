@@ -745,7 +745,7 @@ class PyDB:
                 frame.f_trace = self.trace_dispatch
             SetTraceForParents(frame, self.trace_dispatch)
             
-            if event == 'line':
+            if event == 'line' or event == 'exception':
                 #If we're already in the correct context, we have to stop it now, because we can act only on
                 #line events -- if a return was the next statement it wouldn't work (so, we have this code
                 #repeated at pydevd_frame). 
