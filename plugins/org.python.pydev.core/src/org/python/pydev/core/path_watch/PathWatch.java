@@ -22,6 +22,7 @@ import name.pachler.nio.file.Path;
 import name.pachler.nio.file.Paths;
 import name.pachler.nio.file.StandardWatchEventKind;
 import name.pachler.nio.file.WatchEvent;
+import name.pachler.nio.file.WatchEvent.Kind;
 import name.pachler.nio.file.WatchKey;
 import name.pachler.nio.file.WatchService;
 import name.pachler.nio.file.ext.ExtendedWatchEventKind;
@@ -34,6 +35,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * @author fabioz
@@ -48,9 +50,14 @@ import org.python.pydev.core.log.Log;
 public class PathWatch {
 
     /**
-     * The service that'll give us notifications
+     * The service that'll give us notifications.
      */
     private WatchService watchService;
+    
+    /**
+     * If != null, logs will be added to this buffer.
+     */
+    public static FastStringBuffer log;
     
     /**
      * The path being watched and the stacker object that'll stack many requests into one.
@@ -59,6 +66,7 @@ public class PathWatch {
      * becomes invalid).
      */
     private Map<Path, EventsStackerRunnable> pathToStacker = new HashMap<Path, EventsStackerRunnable>();
+    private final Object keyToPathLock = new Object();
     private Map<WatchKey, Path> keyToPath = new HashMap<WatchKey, Path>();
     
     private final Object invalidPathsLock = new Object();
@@ -99,11 +107,19 @@ public class PathWatch {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             synchronized (invalidPathsLock) {
+                if(log != null){
+                    log.append('.');
+                }
+
+                Set<EventsStackerRunnable> remove = new HashSet<EventsStackerRunnable>();
                 for(Iterator<EventsStackerRunnable> it=invalidPaths.iterator();it.hasNext();){
                     EventsStackerRunnable r = it.next();
                     IFilesystemChangesListener[] listeners = r.list.getListeners();
                     if(listeners.length == 0){
-                        it.remove(); //remove last iterated (no longer watched)
+                        if(log != null){
+                            log.append("Removing stacker from invalid list (because it has no listeners): ").appendObject(r).append('\n');
+                        }
+                        remove.add(r); //remove last iterated (no longer watched)
                     }else{
                         File f = new File(r.watchedPath.toString());
                         if(f.exists()){
@@ -122,13 +138,23 @@ public class PathWatch {
                                 );
                                 //only add to be removed if it was successful...
                                 r.key = key;
-                                keyToPath.put(key, r.watchedPath);
-                                it.remove(); //remove last iterated (valid again)
+                                synchronized (keyToPathLock) {
+                                    keyToPath.put(key, r.watchedPath);
+                                }
+                                
+                                if(log != null){
+                                    log.append("Removing stacker from invalid list because it became valid again: ").appendObject(r).append('\n');
+                                }
+
+                                remove.add(r); //remove last iterated (valid again)
                             } catch (UnsupportedOperationException uox) {
                                 Log.log(uox);
                                 
                             } catch (IOException iox) {
                                 //Ignore: it may not exist now, but may start existing later on...
+                                if(log != null){
+                                    log.append("IOException when trying to make valid: "+r.watchedPath);
+                                }
                                 
                             } catch (Throwable e) {
                                 Log.log(e);
@@ -137,9 +163,26 @@ public class PathWatch {
                         }
                     }
                 }
+                
+                invalidPaths.removeAll(remove);
                 //Re-add the ones not removed...
-                if(invalidPaths.size() > 0){
+                int size = invalidPaths.size();
+                if(log != null){
+                    if(size < 0){
+                        //This could happen when access to invalidPaths is not properly synched with invalidPathsLock!
+                        log.append("\nBUG BUG BUG: Size: ").append(size).append('\n');
+                    }
+                }
+                if(size > 0){
                     this.schedule(RECHECK_INVALID_PATHS_EACH);
+                    if(log != null){
+                        log.append("!");
+                    }
+                }else{
+                    if(log != null){
+                        log.append("NOT rescheduling; size=").append(size).append(";invalidPaths=").
+                        appendObject(invalidPaths).append('\n');
+                    }
                 }
             }
             return Status.OK_STATUS;
@@ -170,6 +213,9 @@ public class PathWatch {
                     signalledKey = watchService.take();
                 } catch (InterruptedException ix) {
                     // we'll ignore being interrupted
+                    if(log != null){
+                        log.append("Interrupted\n");
+                    }
                     continue;
                 } catch (ClosedWatchServiceException cwse) {
                     // other thread closed watch service
@@ -177,13 +223,14 @@ public class PathWatch {
                     break;
                 }
                 
-                IFilesystemChangesListener[] listeners = null;
                 List<WatchEvent<?>> list;
                 Path watchedPath;
                 EventsStackerRunnable stacker;
                 
                 synchronized (lock) {
-                    watchedPath = keyToPath.get(signalledKey);
+                    synchronized (keyToPathLock) {
+                        watchedPath = keyToPath.get(signalledKey);
+                    }
                     if(watchedPath == null){
                         continue;
                     }
@@ -192,51 +239,79 @@ public class PathWatch {
                     list = signalledKey.pollEvents();
                     
                     stacker = pathToStacker.get(watchedPath);
-                    if(stacker.list != null){
-                        listeners = stacker.list.getListeners();
+                    if(stacker == null){
+                        //if the stacker does not exist, go on without rescheduling the key!
+                        if(log != null){
+                            log.append("Stacker for: ").appendObject(watchedPath).append("is null\n");
+                        }
+                        continue;
                     }
-                }
-                if(listeners != null && listeners.length > 0){
-                    // VERY IMPORTANT! call reset() AFTER pollEvents() to allow the
-                    // key to be reported again by the watch service (but don't do that if there are no more
-                    // listeners).
-                    signalledKey.reset();
+                    
                     runnables.add(stacker);
                     
                     for (WatchEvent<?> e : list) {
                         Path context = (Path) e.context();
                         Path resolve = watchedPath.resolve(context);
                         File file = new File(resolve.toString());
-                        if (e.kind() == StandardWatchEventKind.OVERFLOW) {
-                            //On an overflow, wait a bit and signal that all files being watched were removed,
-                            //do a list and say that the current files were added again.
-                            stacker.overflow(file);
+                        Kind<?> kind = e.kind();
+                        if(log != null){
+                            log.append("Event: ").appendObject(e).append('\n');
+                        }
+                        if (kind == StandardWatchEventKind.OVERFLOW) {
                             if(!file.exists()){
                                 //It may be that it became invalid...
-                                keyToPath.remove(signalledKey);
+                                synchronized (keyToPathLock) {
+                                    keyToPath.remove(signalledKey);
+                                }
                                 stacker.key = null;
                                 addInvalidPath(stacker);
                                 stacker.removed(file);
+                            }else{
+                                // VERY IMPORTANT! call reset() AFTER pollEvents() to allow the
+                                // key to be reported again by the watch service.
+                                signalledKey.reset();
+                                if(log != null){
+                                    log.append("Key reset to hear changes");
+                                }
                             }
-
+                            //On an overflow, wait a bit and signal that all files being watched were removed,
+                            //do a list and say that the current files were added again.
+                            stacker.overflow(file);
+                            
                         }else{
-                            if (e.kind() == StandardWatchEventKind.ENTRY_CREATE || 
-                                    e.kind() == StandardWatchEventKind.ENTRY_MODIFY) {
+                            if (kind == StandardWatchEventKind.ENTRY_CREATE || 
+                                    kind == StandardWatchEventKind.ENTRY_MODIFY) {
+                                // VERY IMPORTANT! call reset() AFTER pollEvents() to allow the
+                                // key to be reported again by the watch service.
+                                signalledKey.reset();
+                                if(log != null){
+                                    log.append("Key reset to hear changes");
+                                }
+
                                 stacker.added(file);
                                 
-                            } else if (e.kind() == StandardWatchEventKind.ENTRY_DELETE) {
+                            } else if (kind == StandardWatchEventKind.ENTRY_DELETE) {
+                                // VERY IMPORTANT! call reset() AFTER pollEvents() to allow the
+                                // key to be reported again by the watch service.
+                                signalledKey.reset();
+                                if(log != null){
+                                    log.append("Key reset to hear changes");
+                                }
                                 stacker.removed(file);
                                 
-                            }else if(e.kind() == ExtendedWatchEventKind.KEY_INVALID){
-                                //Invalidated means it was removed...
-                                keyToPath.remove(signalledKey);
+                            }else if(kind == ExtendedWatchEventKind.KEY_INVALID){
+                                //Invalidated means it was removed... (so, no need to reschedule to listen again)
+                                synchronized (keyToPathLock) {
+                                    keyToPath.remove(signalledKey);
+                                }
                                 stacker.key = null;
                                 addInvalidPath(stacker);
                                 stacker.removed(file);
                             }
                         }
-                        
                     }
+                }
+                if(runnables.size() > 0){
                     jobRunRunnables.schedule(TIME_BEFORE_NOTIFY);
                 }
             }
@@ -258,6 +333,10 @@ public class PathWatch {
         
         Path watchedPath = Paths.get(REF.getFileAbsolutePath(path));
         
+        if(log != null){
+            log.append("STOP Track: ").appendObject(path).append("Listener: ").appendObject(listener).append('\n');
+        }
+
         synchronized (lock) {
             EventsStackerRunnable stacker = pathToStacker.get(watchedPath);
             
@@ -266,8 +345,13 @@ public class PathWatch {
                 list.remove(listener);
                 if(list.getListeners().length == 0){
                     pathToStacker.remove(watchedPath);
-                    keyToPath.remove(stacker.key);
-                    synchronized (invalidPaths) {
+                    synchronized (keyToPathLock) {
+                        keyToPath.remove(stacker.key);
+                    }
+                    synchronized (invalidPathsLock) {
+                        if(log != null){
+                            log.append("Remove from invalid paths (no listeners): ").appendObject(stacker).append('\n');
+                        }
                         invalidPaths.remove(stacker);
                     }
                 }
@@ -294,6 +378,9 @@ public class PathWatch {
                 return;
             }
             
+            if(log != null){
+                log.append("Track: ").appendObject(path).append("Listener: ").appendObject(listener).append('\n');
+            }
             boolean add = true;
             WatchKey key = null;
             try {
@@ -306,6 +393,9 @@ public class PathWatch {
                         ExtendedWatchEventKind.KEY_INVALID
                 );
             } catch (UnsupportedOperationException uox) {
+                if(log != null){
+                    log.append("UnsupportedOperationException: ").appendObject(uox).append('\n');
+                }
                 add = false;
                 Log.log(uox);
                 
@@ -313,6 +403,9 @@ public class PathWatch {
                 //Ignore: it may not exist now, but may start existing later on...
                 
             } catch (Throwable e) {
+                if(log != null){
+                    log.append("Throwable: ").appendObject(e).append('\n');
+                }
                 add = false;
                 Log.log(e);
             }
@@ -320,13 +413,16 @@ public class PathWatch {
             if(add){
                 if(stacker == null){
                     stacker = new EventsStackerRunnable(
-                            key, watchedPath, new ListenerList<IFilesystemChangesListener>(IFilesystemChangesListener.class));
+                            key, watchedPath, new ListenerList<IFilesystemChangesListener>(
+                                    IFilesystemChangesListener.class));
                     pathToStacker.put(watchedPath, stacker);
                 }
                 stacker.list.add(listener);
                 
                 if(key != null){
-                    keyToPath.put(key, watchedPath);
+                    synchronized (keyToPathLock) {
+                        keyToPath.put(key, watchedPath);
+                    }
                 }else{
                     //Will go to our poll service to start tracking when it becomes valid...
                     addInvalidPath(stacker);
@@ -336,6 +432,10 @@ public class PathWatch {
     }
 
     private void addInvalidPath(EventsStackerRunnable stacker) {
+        if(log != null){
+            log.append("addInvalidPath: ").appendObject(stacker).append('\n');
+        }
+
         synchronized (invalidPathsLock) {
             invalidPaths.add(stacker);
         }

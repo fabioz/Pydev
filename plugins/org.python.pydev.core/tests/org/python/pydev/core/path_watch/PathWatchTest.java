@@ -20,6 +20,7 @@ import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.callbacks.ICallback;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * @author fabioz
@@ -31,6 +32,7 @@ public class PathWatchTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        PathWatch.log = new FastStringBuffer(1000);
         baseDir = new File(REF.getFileAbsolutePath(new File("pathwatchtest.temporary_dir")));
         try {
             REF.deleteDirectoryTree(baseDir);
@@ -41,10 +43,15 @@ public class PathWatchTest extends TestCase {
     
     @Override
     protected void tearDown() throws Exception {
+        System.out.println(PathWatch.log);
+        PathWatch.log = null;
         REF.deleteDirectoryTree(baseDir);
     }
     
     public void testEventsStackerRunnable() throws Exception {
+        PathWatch.log.append("\n\n");
+        PathWatch.log.appendN('-', 50);
+        PathWatch.log.append("testEventsStackerRunnable\n");
         WatchKey key = new WatchKey() {
             
             public boolean reset() {
@@ -125,6 +132,10 @@ public class PathWatchTest extends TestCase {
     
     
     public void testPathWatch() throws Exception {
+        PathWatch.log.append("\n\n");
+        PathWatch.log.appendN('-', 50);
+        PathWatch.log.append("testPathWatch\n");
+
         final PathWatch pathWatch = PathWatch.get();
         baseDir.mkdir();
         
@@ -234,6 +245,9 @@ public class PathWatchTest extends TestCase {
         
         changes.clear();
         
+        PathWatch.log.append("testPathWatch: deleteBaseDir\n");
+
+        
         assertTrue(baseDir.delete());
         waitUntilCondition(new ICallback<String, Object>() {
             
@@ -333,6 +347,6 @@ public class PathWatchTest extends TestCase {
                 }
             }
         }
-        fail("Condition not satisfied in 2 seconds."+msg);
+        fail("Condition not satisfied in 2 seconds."+msg+"\nLog:"+PathWatch.log.toString());
     }
 }

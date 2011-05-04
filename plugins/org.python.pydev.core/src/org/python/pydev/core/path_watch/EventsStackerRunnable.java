@@ -17,6 +17,7 @@ import name.pachler.nio.file.WatchKey;
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.ListenerList;
 import org.python.pydev.core.OrderedMap;
+import org.python.pydev.core.structure.FastStringBuffer;
 
 /**
  * This object will stack many ADD/REMOVE changes into a single change. It also deals with OVERFLOW changes, which
@@ -144,6 +145,20 @@ public class EventsStackerRunnable implements Runnable{
                 fileToEvent.put(file, REMOVED);
             }
         }        
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return new FastStringBuffer().
+            append("EventsStackerRunnable(key=").appendObject(this.key).
+            append(";watchedPath=").appendObject(this.watchedPath).
+            append(";overflow=").appendObject(this.overflow).
+            append(";fileToEvent=").appendObject(this.fileToEvent).
+            append(";listeners=").appendObject(this.list.getListeners()).
+            append(")").toString();
     }
     
 }
