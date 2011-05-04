@@ -11,7 +11,7 @@
  */
 package org.python.pydev.ui;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor;
 import org.python.pydev.ui.pythonpathconf.PythonInterpreterEditor;
@@ -44,7 +44,7 @@ public class InterpreterEditorTest extends SWTTest {
 
     public void testIt(){
         if(display != null){
-            PythonInterpreterEditor editor = new PythonInterpreterEditor("label", shell, new PythonInterpreterManager(new Preferences()));
+            PythonInterpreterEditor editor = new PythonInterpreterEditor("label", shell, new PythonInterpreterManager(new PreferenceStore()));
             shell.pack();
             shell.setSize(new org.eclipse.swt.graphics.Point(300, 300));
             shell.open();

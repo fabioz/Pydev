@@ -15,7 +15,7 @@ import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -25,8 +25,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class PythonInterpreterManager extends AbstractInterpreterManager{
 
-    public PythonInterpreterManager(Preferences prefs) {
-        super(prefs);
+    public PythonInterpreterManager(IPreferenceStore preferences) {
+        super(preferences);
     }
 
     @Override

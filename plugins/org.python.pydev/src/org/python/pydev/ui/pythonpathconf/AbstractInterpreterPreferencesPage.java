@@ -35,6 +35,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.ui.UIConstants;
+import org.python.pydev.ui.interpreters.AbstractInterpreterManager;
 
 /**
  * @author Fabio Zadrozny
@@ -156,8 +157,8 @@ public abstract class AbstractInterpreterPreferencesPage extends FieldEditorPref
         pathEditor.updateTree();
         
         IInterpreterManager interpreterManager = getInterpreterManager();
-        String newStringToPersist = interpreterManager.getStringToPersist(pathEditor.getExesList());
-        String oldStringToPersist = interpreterManager.getStringToPersist(interpreterManager.getInterpreterInfos());
+        String newStringToPersist = AbstractInterpreterManager.getStringToPersist(pathEditor.getExesList());
+        String oldStringToPersist = AbstractInterpreterManager.getStringToPersist(interpreterManager.getInterpreterInfos());
         boolean changed;
         if(!newStringToPersist.equals(oldStringToPersist)){
             changed = true;

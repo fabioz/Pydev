@@ -97,12 +97,6 @@ public interface IInterpreterManager {
     public IInterpreterInfo[] getInterpretersFromPersistedString(String persisted);
     
     /**
-     * @param executables executables that should be persisted
-     * @return string to persist with the passed executables.
-     */
-    public String getStringToPersist(IInterpreterInfo[] executables);
-
-    /**
      * All the information cached should be cleared but the information related to the passed interpreters
      * @param interpreterNamesToRestore 
      * @param allButTheseInterpreters name of the interpreters that should not have the information cleared

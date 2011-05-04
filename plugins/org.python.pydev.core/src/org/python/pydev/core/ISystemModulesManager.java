@@ -9,6 +9,9 @@
  */
 package org.python.pydev.core;
 
+import java.io.File;
+import java.io.IOException;
+
 
 
 
@@ -30,12 +33,19 @@ public interface ISystemModulesManager extends IModulesManager {
     public abstract IModule getModuleWithoutBuiltins(String name, IPythonNature nature, boolean dontSearchInit);
 
     /**
-     * Sets the interpreter info for the given system modules manager.
-     */
-    public abstract void setInfo(Object /*InterpreterInfo*/ interpreterInfo);
- 
-    /**
      * Clears any internally kept caches for the modules manager.
      */
     void clearCache();
+
+    /**
+     * Loads the system information from the disk.
+     */
+    public abstract void load() throws IOException;
+
+    /**
+     * Saves the system information to the disk.
+     */
+    public abstract void save();
+    
+    public File getIoDirectory();
 }

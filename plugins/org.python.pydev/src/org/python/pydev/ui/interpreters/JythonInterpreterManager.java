@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterManager;
@@ -28,8 +28,8 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class JythonInterpreterManager extends AbstractInterpreterManager{
 
-    public JythonInterpreterManager(Preferences prefs) {
-        super(prefs);
+    public JythonInterpreterManager(IPreferenceStore preferences) {
+        super(preferences);
     }
 
     @Override

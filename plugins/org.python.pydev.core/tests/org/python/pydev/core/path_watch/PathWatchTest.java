@@ -8,6 +8,7 @@ package org.python.pydev.core.path_watch;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -175,8 +176,9 @@ public class PathWatchTest extends TestCase {
             
             public String call(Object arg) {
                 
-                if(changes.size() == 5){
-                    for (Tuple<String, File> tuple : changes) {
+                HashSet<Tuple<String, File>> set = new HashSet<Tuple<String, File>>(changes);
+                if(set.size() == 5){
+                    for (Tuple<String, File> tuple : set) {
                         assertEquals("added", tuple.o1);
                     }
                     return null;

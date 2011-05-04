@@ -136,9 +136,8 @@ public class InterpreterInfo implements IInterpreterInfo{
     public InterpreterInfo(String version, String exe, Collection<String> libs0){
         this.executableOrJar = exe;
         this.version = version;
-        ISystemModulesManager modulesManager = new SystemModulesManager();
+        ISystemModulesManager modulesManager = new SystemModulesManager(this);
 
-        modulesManager.setInfo(this);
         this.modulesManager = modulesManager;
         libs.addAll(libs0);
     }

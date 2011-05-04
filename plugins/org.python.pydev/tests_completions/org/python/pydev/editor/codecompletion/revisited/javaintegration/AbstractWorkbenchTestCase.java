@@ -97,8 +97,8 @@ public class AbstractWorkbenchTestCase extends TestCase{
                     return Boolean.TRUE;
                 }
             };
-            PydevPlugin.setJythonInterpreterManager(new JythonInterpreterManager(PydevPlugin.getDefault().getPluginPreferences()));
-            PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManager(PydevPlugin.getDefault().getPluginPreferences()));
+            PydevPlugin.setJythonInterpreterManager(new JythonInterpreterManager(PydevPlugin.getDefault().getPreferenceStore()));
+            PydevPlugin.setPythonInterpreterManager(new PythonInterpreterManager(PydevPlugin.getDefault().getPreferenceStore()));
             
             
             ProjectModulesManager.IN_TESTS = true;

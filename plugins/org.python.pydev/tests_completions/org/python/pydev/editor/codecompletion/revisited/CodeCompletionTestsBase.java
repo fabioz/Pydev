@@ -22,7 +22,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -87,11 +87,11 @@ public class CodeCompletionTestsBase extends TestCase {
      * python nature.
      */
     public static Class<?> restoredSystem;
-    private Preferences preferences;
+    private PreferenceStore preferences;
 
-    public Preferences getPreferences(){
+    public PreferenceStore getPreferences(){
         if(this.preferences == null){
-            this.preferences = new Preferences();
+            this.preferences = new PreferenceStore();
         }
         return this.preferences;
     }

@@ -7,7 +7,6 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
@@ -25,9 +24,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -58,7 +57,7 @@ import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
  */
-public class PydevPlugin extends AbstractUIPlugin implements Preferences.IPropertyChangeListener {
+public class PydevPlugin extends AbstractUIPlugin  {
     
     public static final String version = "REPLACE_VERSION";
     
@@ -179,8 +178,7 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
         } catch (MissingResourceException x) {
             resourceBundle = null;
         }
-        final Preferences preferences = plugin.getPluginPreferences();
-        preferences.addPropertyChangeListener(this);
+        final IPreferenceStore preferences = plugin.getPreferenceStore();
         
         //set them temporarily
         //setPythonInterpreterManager(new StubInterpreterManager(true));
@@ -313,9 +311,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
             //stop the running shells
             AbstractShell.shutdownAllShells();
 
-            Preferences preferences = plugin.getPluginPreferences();
-            preferences.removePropertyChangeListener(this);
-            
             //save the natures (code completion stuff) -- and only the ones initialized 
             //(no point in getting the ones not initialized)
             for(PythonNature nature:PythonNature.getInitializedPythonNatures()){
@@ -377,14 +372,6 @@ public class PydevPlugin extends AbstractUIPlugin implements Preferences.IProper
     }
     
     
-    public void propertyChange(Preferences.PropertyChangeEvent event) {
-        //        System.out.println( event.getProperty()
-        //         + "\n\told setting: "
-        //         + event.getOldValue()
-        //         + "\n\tnew setting: "
-        //         + event.getNewValue());
-    }
-
     public static void log(String message, Throwable e) {
         log(IStatus.ERROR, message, e);
     }

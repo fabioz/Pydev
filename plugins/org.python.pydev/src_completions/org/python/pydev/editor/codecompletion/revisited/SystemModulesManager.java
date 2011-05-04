@@ -20,6 +20,7 @@ import java.util.SortedMap;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -49,7 +50,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 /**
  * @author Fabio Zadrozny
  */
-public class SystemModulesManager extends ModulesManager implements ISystemModulesManager{
+public final class SystemModulesManager extends ModulesManagerWithBuild implements ISystemModulesManager{
 
     /**
      * Version changed from 1.3.6 to 1.3.7 to force it to be reconstructed (because it was not being correctly saved).
@@ -67,15 +68,19 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     /**
      * This is the place where we store the info related to this manager
      */
-    private transient InterpreterInfo info;
+    private InterpreterInfo info;
 
-    /**
-     * This method sets the info that contains this modules manager.
-     * 
-     * @param interpreterInfo the interpreter info that contains this object.
-     */
-    public void setInfo(Object interpreterInfo) {
-        this.info = (InterpreterInfo)interpreterInfo;
+    public SystemModulesManager(InterpreterInfo info){
+        this.info = info;
+    }
+    
+    public void setInfo(InterpreterInfo info){
+        //Should only be used in tests (in general the info should be passed in the constructor and never changed again).
+        this.info = info;
+    }
+    
+    public void endProcessing() {
+        save();
     }
 
     
@@ -180,7 +185,8 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     /**
      * Files only get here if we were unable to parse them.
      */
-    private transient Map<File, Long> predefinedFilesNotParsedToTimestamp; 
+    private transient Map<File, Long> predefinedFilesNotParsedToTimestamp;
+
 
     public AbstractModule getBuiltinModule(String name, boolean dontSearchInit) {
         AbstractModule n = null;
@@ -363,17 +369,34 @@ public class SystemModulesManager extends ModulesManager implements ISystemModul
     }
 
 
-    /**
-     * @param workspaceMetadataFile
-     * @return
-     * @throws IOException 
-     */
-    public static ISystemModulesManager createFromFile(File workspaceMetadataFile) throws IOException {
-        SystemModulesManager systemModulesManager = new SystemModulesManager();
-        loadFromFile(systemModulesManager, workspaceMetadataFile);
-        return systemModulesManager;
+    public void load() throws IOException {
+        final File workspaceMetadataFile = getIoDirectory();
+        ModulesManager.loadFromFile(this, workspaceMetadataFile);
+        
+        try {
+            this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,toFileMethod);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        deltaSaver.processDeltas(this); //process the current deltas (clears current deltas automatically and saves it when the processing is concluded)
     }
 
 
+    public void save(){
+        final File workspaceMetadataFile = getIoDirectory();
+        if(deltaSaver != null){
+            deltaSaver.clearAll(); //When save is called, the deltas don't need to be used anymore.
+        }
+        this.saveToFile(workspaceMetadataFile);
+        
+        this.deltaSaver = new DeltaSaver<ModulesKey>(this.getIoDirectory(), "v1_sys_astdelta", readFromFileMethod,toFileMethod);
+
+    }
+
+    public File getIoDirectory() {
+        final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath());
+        return workspaceMetadataFile;
+    }
+    
 
 }

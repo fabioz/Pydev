@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.IDeltaProcessor;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -36,67 +35,26 @@ import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
-import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.editor.codecompletion.revisited.javaintegration.JavaProjectModulesManagerCreator;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.ModulesKeyForJava;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
  * @author Fabio Zadrozny
  */
-public class ProjectModulesManager extends ProjectModulesManagerBuild implements IDeltaProcessor<ModulesKey>{
+public final class ProjectModulesManager extends ModulesManagerWithBuild implements IProjectModulesManager{
 
-    /**
-     * Determines whether we are testing it.
-     */
-    public static boolean IN_TESTS = false;
     
     private static final boolean DEBUG_MODULES = false;
     
     //these attributes must be set whenever this class is restored.
     private volatile IProject project;
     private volatile IPythonNature nature;
-    
-    /**
-     * Used to process deltas (in case we have the process killed for some reason)
-     */
-    private volatile DeltaSaver<ModulesKey> deltaSaver;
-    
-    private static ICallback<ModulesKey, String> readFromFileMethod = new ICallback<ModulesKey, String>(){
 
-        public ModulesKey call(String arg) {
-            List<String> split = StringUtils.split(arg, '|');
-            if(split.size() == 1){
-                return new ModulesKey(split.get(0), null);
-            }
-            if(split.size() == 2){
-                return new ModulesKey(split.get(0), new File(split.get(1)));
-            }
-            
-            return null;
-        }
-    };
-        
-    private static ICallback<String, ModulesKey> toFileMethod = new ICallback<String, ModulesKey>() {
-
-        public String call(ModulesKey arg) {
-            FastStringBuffer buf = new FastStringBuffer();
-            buf.append(arg.name);
-            if(arg.file != null){
-                buf.append("|");
-                buf.append(arg.file.toString());
-            }
-            return buf.toString();
-        }
-    };
     
     public ProjectModulesManager() {}
     
@@ -111,7 +69,7 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
         	return; //project was deleted.
         }
 
-        this.deltaSaver = new DeltaSaver<ModulesKey>(completionsCacheDir, "vi_astdelta", readFromFileMethod,toFileMethod);
+        this.deltaSaver = new DeltaSaver<ModulesKey>(completionsCacheDir, "v1_astdelta", readFromFileMethod,toFileMethod);
         
         if(!restoreDeltas){
             deltaSaver.clearAll(); //remove any existing deltas
@@ -125,65 +83,11 @@ public class ProjectModulesManager extends ProjectModulesManagerBuild implements
     
 
     /** 
-     * @see org.python.pydev.core.IProjectModulesManager#processUpdate(org.python.pydev.core.ModulesKey)
-     */
-    public void processUpdate(ModulesKey data) {
-        //updates are ignored because we always start with 'empty modules' (so, we don't actually generate them -- updates are treated as inserts).
-        throw new RuntimeException("Not impl");
-    }
-
-    /** 
-     * @see org.python.pydev.core.IProjectModulesManager#processDelete(org.python.pydev.core.ModulesKey)
-     */
-    public void processDelete(ModulesKey key) {
-        super.doRemoveSingleModule(key);
-    }
-
-    /** 
-     * @see org.python.pydev.core.IProjectModulesManager#processInsert(org.python.pydev.core.ModulesKey)
-     */
-    public void processInsert(ModulesKey key) {
-        super.addModule(key);
-    }
-
-    /** 
      * @see org.python.pydev.core.IProjectModulesManager#endProcessing()
      */
     public void endProcessing() {
         //save it with the updated info
         nature.saveAstManager();
-    }
-
-    @Override
-    public void doRemoveSingleModule(ModulesKey key) {
-        super.doRemoveSingleModule(key);
-        if(deltaSaver != null && !IN_TESTS){ //we don't want deltas in tests
-            //overridden to add delta
-            deltaSaver.addDeleteCommand(key);
-            checkDeltaSize();
-        }
-    }
-        
-    
-    @Override
-    public void doAddSingleModule(ModulesKey key, AbstractModule n) {
-        super.doAddSingleModule(key, n);
-        if((deltaSaver != null && !IN_TESTS) && !(key instanceof ModulesKeyForZip) && !(key instanceof ModulesKeyForJava)){ 
-            //we don't want deltas in tests nor in zips/java modules
-            //overridden to add delta
-            deltaSaver.addInsertCommand(key);
-            checkDeltaSize();
-        }
-    }
-    
-    /**
-     * If the delta size is big enough, save the current state and discard the deltas.
-     */
-    private void checkDeltaSize() {
-        if(deltaSaver != null && deltaSaver.availableDeltas() > MAXIMUN_NUMBER_OF_DELTAS){
-            nature.saveAstManager();
-            deltaSaver.clearAll();
-        }
     }
 
 

@@ -11,7 +11,7 @@
  */
 package org.python.pydev.ui.interpreters;
 
-import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -23,12 +23,12 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.preference.IPersistentPreferenceStore;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
@@ -48,9 +48,7 @@ import org.python.pydev.core.docutils.StringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.core.uiutils.AsynchronousProgressMonitorDialog;
-import org.python.pydev.editor.codecompletion.revisited.ModulesManager;
 import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.editor.codecompletion.shell.AbstractShell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -68,8 +66,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * This is the cache, that points from an interpreter to its information.
      */
     protected Map<String, InterpreterInfo> exeToInfo = new HashMap<String, InterpreterInfo>();
-    private Preferences prefs;
-    private String[] interpretersFromPersistedString;
+    private IPreferenceStore prefs;
     private IInterpreterInfo[] interpreterInfosFromPersistedString;
     
 
@@ -159,30 +156,38 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
      * Constructor
      */
     @SuppressWarnings("unchecked")
-    public AbstractInterpreterManager(Preferences prefs) {
+    public AbstractInterpreterManager(IPreferenceStore prefs) {
         this.prefs = prefs;
         prefs.setDefault(getPreferenceName(), "");
-        prefs.addPropertyChangeListener(new Preferences.IPropertyChangeListener(){
-
-            public void propertyChange(PropertyChangeEvent event) {
-                clearCaches();
-            }
-        });
         
-        IInterpreterInfo[] interpreterInfos = this.getInterpreterInfos();
-        for (IInterpreterInfo interpreterInfo : interpreterInfos) {
-            this.exeToInfo.put(interpreterInfo.getExecutableOrJar(), (InterpreterInfo) interpreterInfo);
-        }
+        //Just called to force the information to be recreated!
+        this.getInterpreterInfos();
+        
         List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
         for (IInterpreterObserver observer : participants) {
             observer.notifyInterpreterManagerRecreated(this);
         }
     }
 
+    public boolean isConfigured() {
+        try {
+            String defaultInterpreter = getDefaultInterpreterInfo().getExecutableOrJar();
+            if(defaultInterpreter == null){
+                return false;
+            }
+            if(defaultInterpreter.length() == 0){
+                return false;
+            }
+        } catch (NotConfiguredInterpreterException e) {
+            return false;
+        }
+        return true;
+    }
+
+    
     public void clearCaches() {
         builtinMod.clear();
         builtinCompletions.clear();
-        interpretersFromPersistedString = null;
         interpreterInfosFromPersistedString = null;
     }
 
@@ -209,37 +214,6 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.python.pydev.core.IInterpreterManager#setInfos(org.python.pydev.core.IInterpreterInfo[], java.util.Set, org.eclipse.core.runtime.IProgressMonitor)
-     */
-    public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor) {
-        setPersistedString(getStringToPersist(infos));
-
-        //After setting the preference, get the actual infos (will be recreated).
-        IInterpreterInfo[] interpreterInfos = getInterpreterInfos();
-        synchronized(exeToInfo){
-            this.exeToInfo.clear();
-            for(IInterpreterInfo info:interpreterInfos){
-                exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
-            }
-        }
-        
-        
-        try {
-            this.restorePythopathForInterpreters(monitor, interpreterNamesToRestore);
-            //When we call performOk, the editor is going to store its values, but after actually restoring the modules, we
-            //need to serialize the SystemModulesManager to be used when reloading the PydevPlugin
-            this.saveInterpretersInfoModulesManager();
-
-            //We also need to restart our code-completion shell after doing that, as we may have new environment variables!
-            //And in jython, changing the classpath also needs to restore it.
-            for(IInterpreterInfo interpreter:interpreterInfos){
-                AbstractShell.stopServerShell(interpreter, AbstractShell.COMPLETION_SHELL);
-            }
-        } finally {
-            AbstractShell.restartAllShells();
-        }
-    }
     
     /**
      * @return a message to show to the user when there is no configured interpreter
@@ -248,7 +222,13 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     public IInterpreterInfo[] getInterpreterInfos() {
         if(interpreterInfosFromPersistedString == null){
-            interpreterInfosFromPersistedString = getInterpretersFromPersistedString(getPersistedString());
+            synchronized(lock){
+                interpreterInfosFromPersistedString = getInterpretersFromPersistedString(getPersistedString());
+                this.exeToInfo.clear();
+                for(IInterpreterInfo info:interpreterInfosFromPersistedString){
+                    exeToInfo.put(info.getExecutableOrJar(), (InterpreterInfo) info);
+                }
+            }
         }
         return interpreterInfosFromPersistedString;
         
@@ -387,7 +367,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                         }
                     }
                     
-                    //then, put it in cache
+                    //then, put it in the list to be returned
                     for (InterpreterInfo info: list) {
                         if(info != null && info.executableOrJar != null){
                             ret.add(info);
@@ -396,10 +376,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                     
                     //and at last, restore the system info
                     for (final InterpreterInfo info: list) {
-                        final File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath());
                         try {
-                            ISystemModulesManager modulesManager = info.getModulesManager();
-                            SystemModulesManager.loadFromFile((ModulesManager) modulesManager, workspaceMetadataFile);
+                            info.getModulesManager().load();
                         } catch (Exception e) {
                             PydevPlugin.logInfo(new RuntimeException("Restoring info for: "+info.getExecutableOrJar(), e));
                             
@@ -420,7 +398,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                                                 //ok, maybe its file-format changed... let's re-create it then.
                                                 info.restorePythonpath(monitor);
                                                 //after restoring it, let's save it.
-                                                info.getModulesManager().saveToFile(workspaceMetadataFile);
+                                                info.getModulesManager().save();
                                                 monitor.done();
                                             }}
                                         );
@@ -430,7 +408,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
                                 }
                                 
                             });
-                            System.out.println("Finished restoring information for: "+info.executableOrJar+" at: "+workspaceMetadataFile);
+                            System.out.println("Finished restoring information for: "+info.executableOrJar+" at: "+
+                                    info.getModulesManager().getIoDirectory());
                         }
                     }
                     
@@ -449,9 +428,10 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     /**
-     * @see org.python.pydev.core.IInterpreterManager#getStringToPersist(IInterpreterInfo[])
+     * @param executables executables that should be persisted
+     * @return string to persist with the passed executables.
      */
-    public String getStringToPersist(IInterpreterInfo[] executables) {
+    public static String getStringToPersist(IInterpreterInfo[] executables) {
         FastStringBuffer buf = new FastStringBuffer();
         for (IInterpreterInfo info : executables) {
             if(info!=null){
@@ -471,166 +451,179 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         return persistedString;
     }
     
-    private void setPersistedString(String s) {
-        persistedString = s;
+    /* (non-Javadoc)
+     * @see org.python.pydev.core.IInterpreterManager#setInfos(org.python.pydev.core.IInterpreterInfo[], java.util.Set, org.eclipse.core.runtime.IProgressMonitor)
+     */
+    public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor) {
+        //Set the string to persist!
+        String s = AbstractInterpreterManager.getStringToPersist(infos);
         prefs.setValue(getPreferenceName(), s);
-    }
-    
-    /**
-     * This method persists all the modules managers that are within this interpreter manager
-     * (so, all the SystemModulesManagers will be saved -- and can be later restored).
-     */
-    private void saveInterpretersInfoModulesManager() {
-        for(InterpreterInfo info : this.exeToInfo.values()){
-            ISystemModulesManager modulesManager = info.getModulesManager();
-            Object pythonPathHelper = modulesManager.getPythonPathHelper();
-            if(!(pythonPathHelper instanceof PythonPathHelper)){
-                continue;
+        if(prefs instanceof IPersistentPreferenceStore){
+            try {
+                //expected in tests: java.io.IOException: File name not specified
+                ((IPersistentPreferenceStore) prefs).save();
+            } catch (Exception e) {
+                String message = e.getMessage();
+                if(message == null || message.indexOf("File name not specified") == -1){
+                    Log.log(e);
+                }
             }
-            PythonPathHelper pathHelper = (PythonPathHelper) pythonPathHelper;
-            List<String> pythonpath = pathHelper.getPythonpath();
-            if(pythonpath == null || pythonpath.size() == 0){
-                continue;
-            }
-            modulesManager.saveToFile(PydevPlugin.getWorkspaceMetadataFile(info.getExeAsFileSystemValidPath()));
         }
-    }
-
-
-    /**
-     * @return whether this interpreter manager can be used to get info on the specified nature
-     */
-    public final boolean canGetInfoOnNature(IPythonNature nature) {
+        
+        IInterpreterInfo[] interpreterInfos;
+        
         try {
-            return nature.getInterpreterType() == this.getInterpreterType();
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
+            synchronized (this.lock) {
+                interpreterInfosFromPersistedString = null;
+                persistedString = s;
+                //After setting the preference, get the actual infos (will be recreated).
+                interpreterInfos = getInterpreterInfos();
+                
+                this.restorePythopathForInterpreters(monitor, interpreterNamesToRestore);
+                //When we call performOk, the editor is going to store its values, but after actually restoring the modules, we
+                //need to serialize the SystemModulesManager to be used when reloading the PydevPlugin
+                
+                //This method persists all the modules managers that are within this interpreter manager
+                //(so, all the SystemModulesManagers will be saved -- and can be later restored).
+
+                for(InterpreterInfo info : this.exeToInfo.values()){
+                    try {
+                        ISystemModulesManager modulesManager = info.getModulesManager();
+                        Object pythonPathHelper = modulesManager.getPythonPathHelper();
+                        if(!(pythonPathHelper instanceof PythonPathHelper)){
+                            continue;
+                        }
+                        PythonPathHelper pathHelper = (PythonPathHelper) pythonPathHelper;
+                        List<String> pythonpath = pathHelper.getPythonpath();
+                        if(pythonpath == null || pythonpath.size() == 0){
+                            continue;
+                        }
+                        modulesManager.save();
+                    } catch (Throwable e) {
+                        Log.log(e);
+                    }
+                }
+            }
+
+            //We also need to restart our code-completion shell after doing that, as we may have new environment variables!
+            //And in jython, changing the classpath also needs to restore it.
+            for(IInterpreterInfo interpreter:interpreterInfos){
+                AbstractShell.stopServerShell(interpreter, AbstractShell.COMPLETION_SHELL);
+            }
+        } finally {
+            AbstractShell.restartAllShells();
         }
     }
     
     /**
      * @param interpreterNamesToRestore if null, all interpreters are restored, otherwise, only the interpreters
      *      whose name is in this set are restored.
+     *      
+     * Must be called with the synchronized(lock) in place!!
      */
     private void restorePythopathForInterpreters(IProgressMonitor monitor, Set<String> interpretersNamesToRestore) {
-        synchronized(lock){
-            for(String interpreter:exeToInfo.keySet()){
-            	if(interpretersNamesToRestore != null){
-            		if(!interpretersNamesToRestore.contains(interpreter)){
-            			continue; //only restore the ones specified
-            		}
-            	}
-                InterpreterInfo info;
-				try {
-					info = getInterpreterInfo(interpreter, monitor);
-					info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
-					
-					List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
-					for (IInterpreterObserver observer : participants) {
-						try {
-							observer.notifyDefaultPythonpathRestored(this, interpreter, monitor);
-						} catch (Exception e) {
-							PydevPlugin.log(e);
-						}
+        for(String interpreter:exeToInfo.keySet()){
+        	if(interpretersNamesToRestore != null){
+        		if(!interpretersNamesToRestore.contains(interpreter)){
+        			continue; //only restore the ones specified
+        		}
+        	}
+            InterpreterInfo info;
+			try {
+				info = getInterpreterInfo(interpreter, monitor);
+				info.restorePythonpath(monitor); //that's it, info.modulesManager contains the SystemModulesManager
+				
+				List<IInterpreterObserver> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_INTERPRETER_OBSERVER);
+				for (IInterpreterObserver observer : participants) {
+					try {
+						observer.notifyDefaultPythonpathRestored(this, interpreter, monitor);
+					} catch (Exception e) {
+						PydevPlugin.log(e);
 					}
-				} catch (MisconfigurationException e1) {
-					PydevPlugin.log(e1);
 				}
-            }
-            
-            IInterpreterInfo defaultInterpreterInfo;
-            try {
-                defaultInterpreterInfo = getDefaultInterpreterInfo();
-            } catch (NotConfiguredInterpreterException e1) {
-                defaultInterpreterInfo = null; //go on as usual... (the natures must know that they're not bound to an interpreter anymore).
-            }
-            
-
-            FastStringBuffer buf = new FastStringBuffer();
-            //Also notify that all the natures had the pythonpath changed (it's the system pythonpath, but still, 
-            //clients need to know about it)
-            List<IPythonNature> pythonNatures;
-            try {
-                pythonNatures = PythonNature.getAllPythonNatures();
-            } catch (IllegalStateException e1) {
-                //java.lang.IllegalStateException: Workspace is closed.
-                //      at org.eclipse.core.resources.ResourcesPlugin.getWorkspace(ResourcesPlugin.java:367)
-                return;
-            }
-            for (IPythonNature nature : pythonNatures) {
-                try {
-                    //If they have the same type of the interpreter manager, notify.
-                    if (this.getInterpreterType() == nature.getInterpreterType()) {
-                    	IPythonPathNature pythonPathNature = nature.getPythonPathNature();
-                    	
-                    	
-                    	//There's a catch here: if the nature uses some variable defined in the string substitution
-                    	//from the interpreter info, we need to do a full build instead of only making a notification.
-                    	String complete = pythonPathNature.getProjectExternalSourcePath(false) + 
-                    			pythonPathNature.getProjectSourcePath(false);
-                    	
-                    	PythonNature n = (PythonNature) nature;
-                    	String projectInterpreterName = n.getProjectInterpreterName();
-                    	IInterpreterInfo info;
-                        if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
-                            //if it's the default, let's translate it to the outside world 
-                            info = defaultInterpreterInfo;
-                        }else{
-                            info = exeToInfo.get(projectInterpreterName);
-                            
-                        }
-                        boolean makeCompleteRebuild = false;
-                        if(info != null){
-                        	Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
-                        	if(stringSubstitutionVariables!=null){
-	                        	Enumeration<Object> keys = stringSubstitutionVariables.keys();
-	                        	while(keys.hasMoreElements()){
-	                        		Object key = keys.nextElement();
-	                        		buf.clear();
-	                        		buf.append("${");
-	                        		buf.append(key.toString());
-	                        		buf.append("}");
-	                        		
-	                        		if(complete.indexOf(buf.toString()) != -1){
-	                        			makeCompleteRebuild = true;
-	                        			break;
-	                        		}
-                        		}
-                        	}
-                        }
-                        
-                        if(!makeCompleteRebuild){
-                        	//just notify that it changed
-                            if(nature instanceof PythonNature){
-                                ((PythonNature) nature).clearCaches();
-                            }
-                        	PythonNatureListenersManager.notifyPythonPathRebuilt(nature.getProject(), nature);
-                        }else{
-                        	//Rebuild the whole info.
-                        	nature.rebuildPath();
-                        }
-                    }
-                } catch (Throwable e) {
-                    PydevPlugin.log(e);
-                }
-            }
-        }        
-    }
-
-    public boolean isConfigured() {
-        try {
-            String defaultInterpreter = getDefaultInterpreterInfo().getExecutableOrJar();
-            if(defaultInterpreter == null){
-                return false;
-            }
-            if(defaultInterpreter.length() == 0){
-                return false;
-            }
-        } catch (NotConfiguredInterpreterException e) {
-            return false;
+			} catch (MisconfigurationException e1) {
+				PydevPlugin.log(e1);
+			}
         }
-        return true;
+        
+        IInterpreterInfo defaultInterpreterInfo;
+        try {
+            defaultInterpreterInfo = getDefaultInterpreterInfo();
+        } catch (NotConfiguredInterpreterException e1) {
+            defaultInterpreterInfo = null; //go on as usual... (the natures must know that they're not bound to an interpreter anymore).
+        }
+        
+
+        FastStringBuffer buf = new FastStringBuffer();
+        //Also notify that all the natures had the pythonpath changed (it's the system pythonpath, but still, 
+        //clients need to know about it)
+        List<IPythonNature> pythonNatures;
+        try {
+            pythonNatures = PythonNature.getAllPythonNatures();
+        } catch (IllegalStateException e1) {
+            //java.lang.IllegalStateException: Workspace is closed.
+            //      at org.eclipse.core.resources.ResourcesPlugin.getWorkspace(ResourcesPlugin.java:367)
+            return;
+        }
+        for (IPythonNature nature : pythonNatures) {
+            try {
+                //If they have the same type of the interpreter manager, notify.
+                if (this.getInterpreterType() == nature.getInterpreterType()) {
+                	IPythonPathNature pythonPathNature = nature.getPythonPathNature();
+                	
+                	
+                	//There's a catch here: if the nature uses some variable defined in the string substitution
+                	//from the interpreter info, we need to do a full build instead of only making a notification.
+                	String complete = pythonPathNature.getProjectExternalSourcePath(false) + 
+                			pythonPathNature.getProjectSourcePath(false);
+                	
+                	PythonNature n = (PythonNature) nature;
+                	String projectInterpreterName = n.getProjectInterpreterName();
+                	IInterpreterInfo info;
+                    if(IPythonNature.DEFAULT_INTERPRETER.equals(projectInterpreterName)){
+                        //if it's the default, let's translate it to the outside world 
+                        info = defaultInterpreterInfo;
+                    }else{
+                        info = exeToInfo.get(projectInterpreterName);
+                        
+                    }
+                    boolean makeCompleteRebuild = false;
+                    if(info != null){
+                    	Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
+                    	if(stringSubstitutionVariables!=null){
+                        	Enumeration<Object> keys = stringSubstitutionVariables.keys();
+                        	while(keys.hasMoreElements()){
+                        		Object key = keys.nextElement();
+                        		buf.clear();
+                        		buf.append("${");
+                        		buf.append(key.toString());
+                        		buf.append("}");
+                        		
+                        		if(complete.indexOf(buf.toString()) != -1){
+                        			makeCompleteRebuild = true;
+                        			break;
+                        		}
+                    		}
+                    	}
+                    }
+                    
+                    if(!makeCompleteRebuild){
+                    	//just notify that it changed
+                        if(nature instanceof PythonNature){
+                            ((PythonNature) nature).clearCaches();
+                        }
+                    	PythonNatureListenersManager.notifyPythonPathRebuilt(nature.getProject(), nature);
+                    }else{
+                    	//Rebuild the whole info.
+                    	nature.rebuildPath();
+                    }
+                }
+            } catch (Throwable e) {
+                PydevPlugin.log(e);
+            }
+        }
     }
+
 
     
 

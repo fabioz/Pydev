@@ -14,7 +14,7 @@ package org.python.pydev.editor.codecompletion.revisited;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -26,7 +26,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 public class IronpythonInterpreterManagerStub extends PythonInterpreterManagerStub{
 
-    public IronpythonInterpreterManagerStub(Preferences prefs) {
+    public IronpythonInterpreterManagerStub(PreferenceStore prefs) {
         super(prefs);
     }
 

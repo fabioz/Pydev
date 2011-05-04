@@ -12,7 +12,7 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
@@ -55,7 +55,7 @@ public class InterpreterManagerTest extends TestCase {
         pythonpath.add(TestDependent.PYTHON_LIB);
         pythonpath.add(TestDependent.PYTHON_SITE_PACKAGES);
 
-        Preferences prefs = new Preferences();
+        PreferenceStore prefs = new PreferenceStore();
         String interpreterStr = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath).toString();
         prefs.setValue(IInterpreterManager.PYTHON_INTERPRETER_PATH, interpreterStr);
         PythonInterpreterManager manager = new PythonInterpreterManager(prefs);

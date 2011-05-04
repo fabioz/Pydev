@@ -50,7 +50,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
     }
     
     public void testLoad() throws Exception {
-        SystemModulesManager manager = new SystemModulesManager();
+        SystemModulesManager manager = new SystemModulesManager(null);
         manager.addModule(new ModulesKey("bar", new File("bar.py")));
         manager.addModule(new ModulesKey("foo", new File("foo.py")));
         manager.addModule(new ModulesKey("empty", null));
@@ -66,7 +66,9 @@ public class ModulesManagerTest extends CodeCompletionTestsBase{
         }
         try {
             manager.saveToFile(f);
-            SystemModulesManager loaded = (SystemModulesManager) SystemModulesManager.createFromFile(f);
+            
+            SystemModulesManager loaded = new SystemModulesManager(null);
+            SystemModulesManager.loadFromFile(loaded, f);
             Set<String> set = new HashSet<String>();
             set.add("bar");
             set.add("foo");
