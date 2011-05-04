@@ -11,10 +11,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.FileUtils;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.interpreters.ChooseInterpreterManager;
 

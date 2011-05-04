@@ -33,6 +33,7 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyDebugTarget;
+import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.RemoteDebugger;
 import org.python.pydev.debug.pyunit.PyUnitServer;
@@ -139,6 +140,7 @@ public class PythonRunner {
         t.startTransmission(socket); // this starts reading/writing from sockets
         t.initialize();
         t.addConsoleInputListener();
+        PyExceptionBreakPointManager.getInstance().setPyDebugTarget(t);
     }
 
     private static IProcess doIt(PythonRunnerConfig config, IProgressMonitor monitor, String [] envp, String[] cmdLine, File workingDirectory, ILaunch launch) throws CoreException{

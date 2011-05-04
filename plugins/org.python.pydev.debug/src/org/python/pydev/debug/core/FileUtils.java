@@ -18,7 +18,7 @@ import org.python.pydev.core.docutils.StringUtils;
  * 
  * @author hussain.bohra
  * 
- *         This file contains utility method for File read / write / append
+ *         This file contains utility methods for File read / write / append
  */
 public class FileUtils {
 	private static String DELIMITER = File.pathSeparator;
@@ -84,11 +84,11 @@ public class FileUtils {
 		String[] currentElements = {};
 		String pyExceptionStr = readExceptionsFromFile(fileName);
 		if (pyExceptionStr.length() > 0) {
-			currentElements = pyExceptionStr.split(
-					"\\" + DELIMITER);
+			currentElements = pyExceptionStr.split("\\" + DELIMITER);
 		}
 		return Arrays.asList(currentElements);
 	}
+
 
 	/**
 	 * Join the received array by the filePathSeperator and calls write to file
@@ -96,10 +96,10 @@ public class FileUtils {
 	 * 
 	 * @param exceptionArray
 	 */
-	public static void saveConfiguredExceptions(String[] exceptionArray) {
+	public static void saveConfiguredExceptions(String[] exceptionArray,
+			String fileName) {
 		String pyExceptionsStr = StringUtils.join(DELIMITER, exceptionArray);
-		writeExceptionsToFile(Constants.EXCEPTION_FILE_NAME, pyExceptionsStr,
-				false);
+		writeExceptionsToFile(fileName, pyExceptionsStr, false);
 	}
 
 	/**

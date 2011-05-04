@@ -48,6 +48,7 @@ each command has a format:
     120      CMD_GET_COMPLETIONS      JAVA
     121      CMD_SET_NEXT_STATEMENT
     122      CMD_SET_PY_EXCEPTION
+    123      CMD_SET_PY_EXCEPTION_STATE
     
 500 series diagnostics/ok
     901      VERSION                  either      Version string (1.0)        Currently just used at startup
@@ -105,6 +106,7 @@ CMD_RELOAD_CODE = 119
 CMD_GET_COMPLETIONS = 120
 CMD_SET_NEXT_STATEMENT = 121
 CMD_SET_PY_EXCEPTION = 122
+CMD_SET_PY_EXCEPTION_STATE = 123
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_ERROR = 901 
@@ -132,6 +134,7 @@ ID_TO_MEANING = {
     '120':'CMD_GET_COMPLETIONS',
     '121':'CMD_SET_NEXT_STATEMENT',
     '122':'CMD_SET_PY_EXCEPTION',
+    '123':'CMD_SET_PY_EXCEPTION_STATE',
     '501':'CMD_VERSION',
     '502':'CMD_RETURN',
     '901':'CMD_ERROR',
@@ -782,3 +785,18 @@ def PydevdFindThreadById(thread_id):
         
     return None
 
+
+global _handle_exceptions
+def set_handle_exceptions(handle_exceptions):
+    '''Set the list for the caught exceptions on which debugger 
+    needs to be break upon
+    '''
+    global _handle_exceptions
+    _handle_exceptions = handle_exceptions
+
+def get_handle_exceptions():
+    '''Returns the list of caught exceptions on which debugger
+    needs to be break upon
+    '''
+    global _handle_exceptions
+    return _handle_exceptions

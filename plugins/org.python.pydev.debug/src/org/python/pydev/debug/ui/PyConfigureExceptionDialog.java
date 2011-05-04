@@ -37,6 +37,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.python.pydev.core.StringMatcher;
+import org.python.pydev.debug.core.Constants;
+import org.python.pydev.debug.core.FileUtils;
 import org.python.pydev.debug.ui.actions.PyExceptionListProvider;
 
 public class PyConfigureExceptionDialog extends SelectionDialog {
@@ -64,6 +66,10 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	// sizing constants
 	private final static int SIZING_SELECTION_WIDGET_HEIGHT = 250;
 	private final static int SIZING_SELECTION_WIDGET_WIDTH = 300;
+
+	// enable/disable breaking on the caught
+	private Button uncaughtExceptionCheck;
+	private Button caughtExceptionCheck;
 
 	protected static String SELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_selectLabel;
 	protected static String DESELECT_ALL_TITLE = WorkbenchMessages.SelectionDialog_deselectLabel;
@@ -213,6 +219,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 				});
 
 		createCustomExceptionUI(composite);
+		createCaughtUncaughtCheck(composite);
 
 		return composite;
 	}
@@ -239,6 +246,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 			}
 		};
 		buttonAdd.addSelectionListener(listener);
+
 	}
 
 	/**
@@ -270,6 +278,36 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 			DebugUIPlugin.errorDialog(getShell(), DebugUIPlugin
 					.removeAccelerators("Add Custom User Exception"), "Error",
 					status);
+		}
+	}
+
+	/**
+	 * Creates two checkbox to enable/disable breaking on the exception
+	 * default value for Suspend on uncaught exception is true
+	 * default value for suspend on uncaught exception is false
+	 * 
+	 * @param composite
+	 */
+	private void createCaughtUncaughtCheck(Composite composite) {
+		String breakOnUncaught = FileUtils.readExceptionsFromFile(Constants.BREAK_ON_UNCAUGHT_EXCEPTION);
+		String breakOnCaught = FileUtils.readExceptionsFromFile(Constants.BREAK_ON_CAUGHT_EXCEPTION);
+
+		uncaughtExceptionCheck = new Button(composite, SWT.CHECK);
+		uncaughtExceptionCheck.setText("Suspend on uncaught exceptions");
+		uncaughtExceptionCheck.setSelection(true);
+		if(breakOnUncaught.length() > 0){
+			uncaughtExceptionCheck.setSelection(Boolean.parseBoolean(breakOnUncaught));	
+		} else {
+			uncaughtExceptionCheck.setSelection(true);
+		}
+
+		caughtExceptionCheck = new Button(composite, SWT.CHECK);
+		caughtExceptionCheck.setText("Suspend on caught exceptions");
+		caughtExceptionCheck.setSelection(false);
+		if(breakOnCaught.length() > 0){
+			caughtExceptionCheck.setSelection(Boolean.parseBoolean(breakOnCaught));	
+		} else {
+			caughtExceptionCheck.setSelection(false);
 		}
 	}
 
@@ -335,7 +373,21 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 			setResult(list);
 		}
 
+		saveBreakStatus();
 		super.okPressed();
+	}
+
+	/**
+	 * Save whether to break debugger or not on caught / uncaught exceptions
+	 * 
+	 */
+	private void saveBreakStatus() {
+		FileUtils.writeExceptionsToFile(Constants.BREAK_ON_CAUGHT_EXCEPTION,
+				caughtExceptionCheck.getSelection() ? "true" : "false", false);
+		FileUtils
+				.writeExceptionsToFile(Constants.BREAK_ON_UNCAUGHT_EXCEPTION,
+						uncaughtExceptionCheck.getSelection() ? "true"
+								: "false", false);
 	}
 
 	/**

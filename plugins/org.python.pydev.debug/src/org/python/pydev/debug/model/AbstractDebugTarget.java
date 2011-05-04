@@ -49,6 +49,7 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
 import org.python.pydev.debug.model.remote.RunCommand;
+import org.python.pydev.debug.model.remote.SendPyExceptionBreakStatusCommand;
 import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
@@ -581,6 +582,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         // now, register all the breakpoints in all projects
         addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
 
+        SendPyExceptionBreakStatusCommand statusCmd = new SendPyExceptionBreakStatusCommand(this, AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION_STATE);
+        this.postCommand(statusCmd);
+        
         // Sending python exceptions before sending run command 
         SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(this, AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION);
         this.postCommand(sendCmd);

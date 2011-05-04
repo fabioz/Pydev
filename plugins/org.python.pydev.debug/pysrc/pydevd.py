@@ -7,6 +7,7 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          CMD_GET_COMPLETIONS, \
                          CMD_GET_FRAME, \
                          CMD_SET_PY_EXCEPTION, \
+                         CMD_SET_PY_EXCEPTION_STATE, \
                          CMD_GET_VARIABLE, \
                          CMD_LIST_THREADS, \
                          CMD_REMOVE_BREAK, \
@@ -40,7 +41,8 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          PydevdFindThreadById, \
                          PydevdLog, \
                          StartClient, \
-                         StartServer
+                         StartServer, \
+                         set_handle_exceptions
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
 import importsTipper
@@ -129,6 +131,7 @@ class PyDBCommandThread(PyDBDaemonThread):
 _original_excepthook = None
 _handle_exceptions = None
 
+
 #=======================================================================================================================
 # excepthook
 #=======================================================================================================================
@@ -215,6 +218,7 @@ def create_exceptions(exceptionStr):
     if handle_exceptions:
         sys.stderr.write("Exceptions to hook : %s"%(str(handle_exceptions)))
         set_pm_excepthook(tuple(handle_exceptions))
+        set_handle_exceptions(tuple(handle_exceptions))
 
 
 try:
@@ -680,6 +684,16 @@ class PyDB:
                     # Command which receives set of exceptions on which user wants to break the debugger
                     # text is: ['TypeError','ImportError','zipimport.ZipImportError',]
                     create_exceptions(text)
+
+                elif cmd_id == CMD_SET_PY_EXCEPTION_STATE:
+                    # Command which receives whether to break or not on the caught/uncaught exceptions
+                    # text is: UnCaughtExceptionState;CaughtExceptionState
+                    breakOnUncaught = False     # Default status for Break on Uncaught exception is false
+                    breakOnCaught = False       # Default status for Break on caught exception is false
+                    statusList = text.split(";")
+                    if(len(statusList) == 2):
+                        if (statusList[0] == 'true'): breakOnUncaught = True
+                        if (statusList[1] == 'true'): breakOnCaught = True
                         
                 else:
                     #I have no idea what this is all about
