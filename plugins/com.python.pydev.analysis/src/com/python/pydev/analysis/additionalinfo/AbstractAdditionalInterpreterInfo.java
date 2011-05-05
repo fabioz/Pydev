@@ -18,10 +18,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IInterpreterManager;
@@ -659,7 +659,7 @@ public abstract class AbstractAdditionalInterpreterInfo {
      * @return the path to the folder we want to keep things on
      * @throws MisconfigurationException 
      */
-    protected abstract File getPersistingFolder() throws MisconfigurationException;
+    protected abstract File getPersistingFolder();
     
 
     private void saveTo(File pathToSave) {

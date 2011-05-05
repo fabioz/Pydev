@@ -17,20 +17,19 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
 
-public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependencyInfo{
+public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithBuild{
 
     private IInterpreterManager manager;
-    private String additionalInfoInterpreter;
+    private final String additionalInfoInterpreter;
     
     /**
      * holds system info (interpreter name points to system info)
@@ -53,11 +52,18 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
         return additionalInfoInterpreter;
     }
     
+    private volatile File persistingFolderCache = null;
+    
     /**
      * @return the path to the folder we want to keep things on
      * @throws MisconfigurationException 
      */
-    protected File getPersistingFolder() throws MisconfigurationException {
+    protected File getPersistingFolder(){
+        if(persistingFolderCache != null){
+            //Only ask once (cached after that).
+            return persistingFolderCache;
+        }
+        
         File base;
         try {
             IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
@@ -67,10 +73,15 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
             PydevPlugin.log(IStatus.ERROR, "Error getting persisting folder", e, false);
             base = new File(".");
         }
-        File file = new File(base, getInterpreterRelatedName());
+        File file = new File(
+                base, 
+                manager.getManagerRelatedName() + "_"+ InterpreterInfo.getExeAsFileSystemValidPath(this.additionalInfoInterpreter)
+        );
+        
         if(!file.exists()){
             file.mkdirs();
         }
+        persistingFolderCache = file;
         return file;
     }
 
@@ -85,12 +96,6 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalDependenc
     }
     
     
-
-    private String getInterpreterRelatedName() throws MisconfigurationException {
-        IInterpreterInfo info = manager.getInterpreterInfo(this.additionalInfoInterpreter, new NullProgressMonitor());
-        return manager.getManagerRelatedName() + "_"+ info.getExeAsFileSystemValidPath();
-    }
-
 
     @Override
     protected void setAsDefaultInfo() {

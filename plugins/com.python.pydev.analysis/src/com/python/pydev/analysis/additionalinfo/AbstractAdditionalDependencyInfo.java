@@ -127,7 +127,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
         persistingFolder = new File(persistingFolder, "v1_indexcache");
         
         if(persistingFolder.exists()){
-            if(persistingFolder.isDirectory()){
+            if(!persistingFolder.isDirectory()){
                 persistingFolder.delete();
             }
         }

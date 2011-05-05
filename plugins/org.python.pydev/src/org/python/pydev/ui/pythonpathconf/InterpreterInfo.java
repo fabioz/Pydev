@@ -1057,8 +1057,12 @@ public class InterpreterInfo implements IInterpreterInfo{
         return file.getName().startsWith("ipy");
     }
 
-    public String getExeAsFileSystemValidPath() {
+    public static String getExeAsFileSystemValidPath(String executableOrJar) {
         return "v1_"+StringUtils.md5(executableOrJar);
+        
+    }
+    public String getExeAsFileSystemValidPath() {
+        return getExeAsFileSystemValidPath(executableOrJar);
     }
 
     public String getVersion() {
