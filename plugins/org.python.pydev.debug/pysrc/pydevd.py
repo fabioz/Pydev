@@ -215,10 +215,11 @@ def create_exceptions(exceptionStr):
         except:
             continue
 
+    set_handle_exceptions(tuple(handle_exceptions))
     if handle_exceptions:
         sys.stderr.write("Exceptions to hook : %s"%(str(handle_exceptions)))
         set_pm_excepthook(tuple(handle_exceptions))
-        set_handle_exceptions(tuple(handle_exceptions))
+        
 
 
 try:

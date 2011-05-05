@@ -91,8 +91,8 @@ public class FileUtils {
 
 
 	/**
-	 * Join the received array by the filePathSeperator and calls write to file
-	 * with isAppend false
+	 * Joins the received array with the file path separator and calls the write
+	 * to file method with isAppend as false
 	 * 
 	 * @param exceptionArray
 	 */

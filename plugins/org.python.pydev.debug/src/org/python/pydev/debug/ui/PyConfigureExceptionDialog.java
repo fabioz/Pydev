@@ -282,21 +282,24 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	}
 
 	/**
-	 * Creates two checkbox to enable/disable breaking on the exception
-	 * default value for Suspend on uncaught exception is true
-	 * default value for suspend on uncaught exception is false
+	 * Creates two checkboxes to enable/disable breaking on the exception. 
+	 * The default value for Suspend on uncaught exception is true 
+	 * The default value for suspend on uncaught exception is false 
 	 * 
 	 * @param composite
 	 */
 	private void createCaughtUncaughtCheck(Composite composite) {
-		String breakOnUncaught = FileUtils.readExceptionsFromFile(Constants.BREAK_ON_UNCAUGHT_EXCEPTION);
-		String breakOnCaught = FileUtils.readExceptionsFromFile(Constants.BREAK_ON_CAUGHT_EXCEPTION);
+		String breakOnUncaught = FileUtils
+				.readExceptionsFromFile(Constants.BREAK_ON_UNCAUGHT_EXCEPTION);
+		String breakOnCaught = FileUtils
+				.readExceptionsFromFile(Constants.BREAK_ON_CAUGHT_EXCEPTION);
 
 		uncaughtExceptionCheck = new Button(composite, SWT.CHECK);
 		uncaughtExceptionCheck.setText("Suspend on uncaught exceptions");
 		uncaughtExceptionCheck.setSelection(true);
-		if(breakOnUncaught.length() > 0){
-			uncaughtExceptionCheck.setSelection(Boolean.parseBoolean(breakOnUncaught));	
+		if (breakOnUncaught.length() > 0) {
+			uncaughtExceptionCheck.setSelection(Boolean
+					.parseBoolean(breakOnUncaught));
 		} else {
 			uncaughtExceptionCheck.setSelection(true);
 		}
@@ -304,8 +307,9 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 		caughtExceptionCheck = new Button(composite, SWT.CHECK);
 		caughtExceptionCheck.setText("Suspend on caught exceptions");
 		caughtExceptionCheck.setSelection(false);
-		if(breakOnCaught.length() > 0){
-			caughtExceptionCheck.setSelection(Boolean.parseBoolean(breakOnCaught));	
+		if (breakOnCaught.length() > 0) {
+			caughtExceptionCheck.setSelection(Boolean
+					.parseBoolean(breakOnCaught));
 		} else {
 			caughtExceptionCheck.setSelection(false);
 		}
@@ -384,10 +388,8 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 	private void saveBreakStatus() {
 		FileUtils.writeExceptionsToFile(Constants.BREAK_ON_CAUGHT_EXCEPTION,
 				caughtExceptionCheck.getSelection() ? "true" : "false", false);
-		FileUtils
-				.writeExceptionsToFile(Constants.BREAK_ON_UNCAUGHT_EXCEPTION,
-						uncaughtExceptionCheck.getSelection() ? "true"
-								: "false", false);
+		FileUtils.writeExceptionsToFile(Constants.BREAK_ON_UNCAUGHT_EXCEPTION,
+				uncaughtExceptionCheck.getSelection() ? "true": "false", false);
 	}
 
 	/**

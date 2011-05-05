@@ -29,8 +29,5 @@ public class PyExceptionBreakPointManager {
 	public void setPyDebugTarget(PyDebugTarget pyDebugTarget) {
 		this.pyDebugTarget = pyDebugTarget;
 	}
-	
-	public void removePyDebugTarget() {
-		this.pyDebugTarget = null;
-	}
+
 }
