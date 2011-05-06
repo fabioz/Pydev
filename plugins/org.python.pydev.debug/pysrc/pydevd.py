@@ -42,7 +42,8 @@ from pydevd_comm import  CMD_CHANGE_VARIABLE, \
                          PydevdLog, \
                          StartClient, \
                          StartServer, \
-                         set_handle_exceptions
+                         set_handle_exceptions, \
+                         set_break_on_uncaught_exceptions
 
 from pydevd_file_utils import NormFileToServer, GetFilenameAndBase
 import importsTipper
@@ -130,13 +131,14 @@ class PyDBCommandThread(PyDBDaemonThread):
 
 _original_excepthook = None
 _handle_exceptions = None
+_break_on_uncaught_exceptions = False
 
 
 #=======================================================================================================================
 # excepthook
 #=======================================================================================================================
 def excepthook(exctype, value, tb):
-    if _handle_exceptions is not None:
+    if _break_on_uncaught_exceptions and _handle_exceptions is not None:
         if not issubclass(exctype, _handle_exceptions):
             return _original_excepthook(exctype, value, tb)
     
@@ -215,12 +217,15 @@ def create_exceptions(exceptionStr):
         except:
             continue
 
+    sys.stderr.write("Exceptions to hook : %s"%(str(handle_exceptions)))
     set_handle_exceptions(tuple(handle_exceptions))
-    if handle_exceptions:
-        sys.stderr.write("Exceptions to hook : %s"%(str(handle_exceptions)))
-        set_pm_excepthook(tuple(handle_exceptions))
+    set_pm_excepthook(tuple(handle_exceptions))
         
 
+def set_exception_status(break_on_uncaught, break_on_caught):
+    global _break_on_uncaught_exceptions
+    _break_on_uncaught_exceptions = break_on_uncaught
+    set_break_on_uncaught_exceptions(break_on_caught)
 
 try:
     import thread
@@ -695,6 +700,7 @@ class PyDB:
                     if(len(statusList) == 2):
                         if (statusList[0] == 'true'): breakOnUncaught = True
                         if (statusList[1] == 'true'): breakOnCaught = True
+                    set_exception_status(breakOnUncaught, breakOnCaught)
                         
                 else:
                     #I have no idea what this is all about

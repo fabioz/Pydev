@@ -16,6 +16,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.AbstractDebugTarget;
+import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 
@@ -150,6 +151,7 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
                 launch.setSourceLocator(new PySourceLocator());
             }
             PyDebugTargetServer target = new PyDebugTargetServer(launch, null, this);
+            PyExceptionBreakPointManager.getInstance().setPyDebugTarget(target);
             target.startTransmission(socket);
             target.initialize();
             this.addTarget(target);

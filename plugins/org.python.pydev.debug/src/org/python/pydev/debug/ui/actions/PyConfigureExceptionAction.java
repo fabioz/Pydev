@@ -12,6 +12,7 @@ import org.python.pydev.debug.core.FileUtils;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
+import org.python.pydev.debug.model.remote.SendPyExceptionBreakStatusCommand;
 import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.ui.PyConfigureExceptionDialog;
 import org.python.pydev.editor.actions.PyAction;
@@ -41,7 +42,11 @@ public class PyConfigureExceptionAction extends PyAction implements
 					Constants.EXCEPTION_FILE_NAME);
 			AbstractDebugTarget pyDebugTarget = PyExceptionBreakPointManager
 					.getInstance().getPyDebugTarget();
-			if (selectedItems.length > 0 && pyDebugTarget != null) {
+			if (pyDebugTarget != null) {
+				SendPyExceptionBreakStatusCommand statusCmd = new SendPyExceptionBreakStatusCommand(pyDebugTarget,
+						AbstractDebuggerCommand.CMD_SET_PY_EXCEPTION_STATE);
+				pyDebugTarget.postCommand(statusCmd);
+				
 				// Sending python exceptions to the debugger
 				SendPyExceptionCommand sendCmd = new SendPyExceptionCommand(
 						pyDebugTarget,

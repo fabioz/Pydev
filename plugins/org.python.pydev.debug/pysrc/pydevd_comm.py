@@ -786,7 +786,9 @@ def PydevdFindThreadById(thread_id):
     return None
 
 
-global _handle_exceptions
+_handle_exceptions = None
+_break_on_caught_exceptions = False
+
 def set_handle_exceptions(handle_exceptions):
     '''Set the list for the caught exceptions on which debugger 
     needs to be break upon
@@ -800,3 +802,15 @@ def get_handle_exceptions():
     '''
     global _handle_exceptions
     return _handle_exceptions
+
+def set_break_on_uncaught_exceptions(break_on_caught_exceptions):
+    '''Enable / Disable break on caught exception feature
+    '''
+    global _break_on_caught_exceptions
+    _break_on_caught_exceptions = break_on_caught_exceptions
+
+def is_break_on_caught_exceptions():
+    '''Returns whether to break or not on caught exceptions
+    '''
+    global _break_on_caught_exceptions
+    return _break_on_caught_exceptions

@@ -5,7 +5,7 @@ package org.python.pydev.debug.model;
 public class PyExceptionBreakPointManager {
 
 	private static PyExceptionBreakPointManager pyExceptionBreakPointManager;
-	private PyDebugTarget pyDebugTarget;
+	private AbstractDebugTarget pyDebugTarget;
 	
 	private PyExceptionBreakPointManager(){
 		
@@ -22,11 +22,11 @@ public class PyExceptionBreakPointManager {
 		return pyExceptionBreakPointManager;
 	}
 	
-	public PyDebugTarget getPyDebugTarget() {
+	public AbstractDebugTarget getPyDebugTarget() {
 		return pyDebugTarget;
 	}
 
-	public void setPyDebugTarget(PyDebugTarget pyDebugTarget) {
+	public void setPyDebugTarget(AbstractDebugTarget pyDebugTarget) {
 		this.pyDebugTarget = pyDebugTarget;
 	}
 

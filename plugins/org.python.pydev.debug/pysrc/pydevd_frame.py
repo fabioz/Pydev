@@ -39,7 +39,7 @@ class PyDBFrame:
     
     def trace_dispatch(self, frame, event, arg):
         if event not in ('line', 'call', 'return'):
-            if event == 'exception':
+            if event == 'exception' and is_break_on_caught_exceptions():
                 self.handle_exception(frame, event, arg)
                 return self.trace_dispatch
             else:
@@ -66,7 +66,10 @@ class PyDBFrame:
         #so, that's why the additional checks are there.
         if not breakpoint:
             if can_skip:
-                return self.trace_exception
+                if is_break_on_caught_exceptions():
+                    return self.trace_exception
+                else:
+                    return None
 
         else:
             #checks the breakpoint to see if there is a context match in some function
@@ -84,7 +87,10 @@ class PyDBFrame:
             else: # if we had some break, it won't get here (so, that's a context that we want to skip)
                 if can_skip:
                     #print 'skipping', frame.f_lineno, info.pydev_state, info.pydev_step_stop, info.pydev_step_cmd
-                    return self.trace_exception
+                    if is_break_on_caught_exceptions():
+                        return self.trace_exception
+                    else:
+                        return None
                 
         #We may have hit a breakpoint or we are already in step mode. Either way, let's check what we should do in this frame
         #print 'NOT skipped', frame.f_lineno, frame.f_code.co_name

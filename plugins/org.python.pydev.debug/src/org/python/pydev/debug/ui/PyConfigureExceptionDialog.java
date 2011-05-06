@@ -283,7 +283,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 
 	/**
 	 * Creates two checkboxes to enable/disable breaking on the exception. 
-	 * The default value for Suspend on uncaught exception is true 
+	 * The default value for Suspend on caught exception is false 
 	 * The default value for suspend on uncaught exception is false 
 	 * 
 	 * @param composite
@@ -296,17 +296,15 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
 
 		uncaughtExceptionCheck = new Button(composite, SWT.CHECK);
 		uncaughtExceptionCheck.setText("Suspend on uncaught exceptions");
-		uncaughtExceptionCheck.setSelection(true);
 		if (breakOnUncaught.length() > 0) {
 			uncaughtExceptionCheck.setSelection(Boolean
 					.parseBoolean(breakOnUncaught));
 		} else {
-			uncaughtExceptionCheck.setSelection(true);
+			uncaughtExceptionCheck.setSelection(false);
 		}
 
 		caughtExceptionCheck = new Button(composite, SWT.CHECK);
 		caughtExceptionCheck.setText("Suspend on caught exceptions");
-		caughtExceptionCheck.setSelection(false);
 		if (breakOnCaught.length() > 0) {
 			caughtExceptionCheck.setSelection(Boolean
 					.parseBoolean(breakOnCaught));
