@@ -180,10 +180,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             //templates (only if we have no activation token)
             PyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
             pyTemplateCompletionProcessor.addTemplateProposals(viewer, offset, results2);
-        
-            Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
         }
         
+        Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+
         ArrayList<ICompletionProposal> results3 = new ArrayList<ICompletionProposal>();
         if(!showOnlyTemplates){
             //other participants
