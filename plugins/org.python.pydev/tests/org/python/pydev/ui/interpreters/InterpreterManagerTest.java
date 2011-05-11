@@ -18,7 +18,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 /**
@@ -33,7 +33,7 @@ public class InterpreterManagerTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        baseDir = PydevPlugin.setTestPlatformStateLocation();
+        baseDir = PydevTestUtils.setTestPlatformStateLocation();
         baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
         REF.deleteDirectoryTree(baseDir);
 

@@ -24,6 +24,7 @@ import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.callbacks.ICallback;
 import org.python.pydev.core.structure.FastStringBuffer;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
@@ -56,7 +57,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
         REF.writeStrToFile("class Module2:pass", new File(libDir, "module2.py"));
         REF.writeStrToFile("class Module3:pass", new File(libDir, "module3.py"));
         
-        PydevPlugin.setTestPlatformStateLocation();
+        PydevTestUtils.setTestPlatformStateLocation();
         REF.IN_TESTS = true;
     }
     

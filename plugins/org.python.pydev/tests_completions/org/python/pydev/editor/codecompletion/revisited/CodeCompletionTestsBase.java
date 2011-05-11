@@ -37,6 +37,7 @@ import org.python.pydev.editor.codecompletion.CompletionRequest;
 import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.codecompletion.PyCodeCompletionUtils;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PydevTestUtils;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.ui.BundleInfoStub;
 import org.python.pydev.ui.interpreters.PythonInterpreterManager;
@@ -112,7 +113,7 @@ public class CodeCompletionTestsBase extends TestCase {
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         ProjectModulesManager.IN_TESTS = true;
         REF.IN_TESTS = true;
-        PydevPlugin.setTestPlatformStateLocation();
+        PydevTestUtils.setTestPlatformStateLocation();
     }
     
     /*

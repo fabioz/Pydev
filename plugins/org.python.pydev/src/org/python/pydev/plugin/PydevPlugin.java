@@ -7,7 +7,6 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.MissingResourceException;
@@ -35,7 +34,6 @@ import org.osgi.framework.BundleContext;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
-import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.core.bundle.BundleInfo;
 import org.python.pydev.core.bundle.IBundleInfo;
@@ -587,23 +585,9 @@ public class PydevPlugin extends AbstractUIPlugin  {
     }
 
 
-    private static File location;
+    //Default for using in tests (could be private)
+    /*default*/ static File location;
 
-    public static File setTestPlatformStateLocation(){
-        if(PydevPlugin.location != null){
-            return PydevPlugin.location;
-        }
-        File baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
-        try {
-            REF.deleteDirectoryTree(baseDir);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        PydevPlugin.location = baseDir;
-        return baseDir;
-    }
-    
-    
     /**
      * Loads from the workspace metadata a given object (given the filename)
      */
