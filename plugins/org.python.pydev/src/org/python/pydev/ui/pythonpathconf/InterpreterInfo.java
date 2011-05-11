@@ -1173,12 +1173,6 @@ public class InterpreterInfo implements IInterpreterInfo{
         
         fillMapWithEnv(env, hashMap);
         fillMapWithEnv(envVariables, hashMap, keysThatShouldNotBeUpdated); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
-        boolean userSpecifiedPythonHome = keysThatShouldNotBeUpdated != null && keysThatShouldNotBeUpdated.contains("PYTHONHOME");
-        
-        if(!userSpecifiedPythonHome){
-            //If the user didn't specify the PYTHONHOME variable, let's remove it as it's not really friendly when having multiple interpreters...
-            hashMap.remove("PYTHONHOME");
-        }
         
         String[] ret = createEnvWithMap(hashMap);
         

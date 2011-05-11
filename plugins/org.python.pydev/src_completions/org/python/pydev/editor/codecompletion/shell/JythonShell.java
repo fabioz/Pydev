@@ -42,7 +42,7 @@ public class JythonShell extends AbstractShell{
         
         String[] envp = null;
         try {
-            envp = SimpleRunner.getEnvironment(null, jythonJar, manager);
+            envp = SimpleRunner.getEnvironment(null, jythonJar, manager, true);
         } catch (CoreException e) {
             Log.log(e);
         }
